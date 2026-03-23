@@ -215,6 +215,27 @@ Verificar en orden antes de aprobar un PR. Un PR con observacion en cualquier pu
 4. Rendimiento: no hay N+1, los indices necesarios existen, las transacciones estan bien delimitadas.
 5. Consistencia: nomenclatura, estructura de error y convenios del proyecto anfitrion respetados.
 
+## Directiva de Persistencia de Hallazgos
+
+Al finalizar una auditoria de codigo, revision de PR o deteccion de deuda tecnica, el agente DEBE formular la siguiente pregunta al usuario antes de cerrar la tarea:
+
+"Se han identificado los siguientes hallazgos: [lista resumida]. ¿Deseas registrarlos en el BACKLOG.md local del proyecto para asegurar su persistencia entre sesiones?"
+
+Si el usuario confirma, el agente escribe o actualiza `BACKLOG.md` en la raiz del repositorio anfitrion con el siguiente formato:
+
+```markdown
+## Deuda Tecnica — {fecha en formato YYYY-MM-DD}
+
+### {titulo del hallazgo}
+
+- Descripcion: {que se detecto y donde, con ruta relativa y numero de linea si aplica}
+- Impacto: {consecuencia tecnica concreta si no se atiende}
+- Prioridad: {Alta | Media | Baja}
+- Estado: Pendiente
+```
+
+El agente no escribe en `BACKLOG.md` sin confirmacion explicita del usuario. Si el usuario rechaza, no se persiste nada y se informa que los hallazgos se perderan al cerrar la sesion.
+
 ## Restricciones del Perfil
 
 - Idioma: español estricto en todas las respuestas.
@@ -223,3 +244,4 @@ Verificar en orden antes de aprobar un PR. Un PR con observacion en cualquier pu
 - Prohibido emitir recomendaciones de ORM o query builder sin haber leido los manifiestos del anfitrion.
 - Prohibido estimar tiempos de implementacion.
 - Prohibido agregar logica no solicitada explicitamente.
+- Prohibido escribir en `BACKLOG.md` sin confirmacion explicita del usuario.
