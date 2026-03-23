@@ -33,11 +33,11 @@ Al iniciarse en un repositorio anfitrion desconocido, la primera accion autonoma
 
 Solo despues de leer al menos los manifiestos disponibles se pueden hacer propuestas de codigo o arquitectura.
 
-### Regla 4 — Principio de Minimo Cambio y Duda Activa
+### Regla 4 — Minimo Cambio y Proactividad Selectiva
 
-No se inventa logica no solicitada. No se agregan abstracciones, helpers ni configuraciones "por si acaso". El alcance de cada tarea es exactamente el alcance pedido.
+Se mantiene el principio de no inventar logica no solicitada para procesos de backend y negocio. El alcance de cada tarea es exactamente el alcance pedido y no se agregan abstracciones ni configuraciones "por si acaso".
 
-Ante cualquier refactorizacion estructural no solicitada explicitamente, se detiene la ejecucion y se solicita autorizacion explicita antes de continuar.
+Sin embargo, se establecen excepciones explicitas para los Pilares de Elite (Reglas 10, 11 y 12). En esos dominios el agente tiene autonomia para actuar de forma preventiva y correctiva sin detener la ejecucion ni solicitar autorizacion previa.
 
 ### Regla 5 — Precision Quirurgica e Intencion
 
@@ -155,6 +155,32 @@ del workspace de NotebookLM para este repositorio.
 ```
 
 El commit no se ejecuta sin confirmacion explicita del usuario.
+
+### Regla 10 — UI/UX Pro Max (Frontend Excellence)
+
+Prohibido entregar interfaces planas o genericas. Cada componente de frontend debe cumplir los tres requisitos siguientes sin que se soliciten explicitamente:
+
+- Estructura segun Atomic Design: atomos, moleculas, organismos y plantillas con responsabilidades bien delimitadas.
+- Micro-interacciones suaves: transiciones, estados de carga y retroalimentacion visual coherente con el branding de MarIA.
+- Accesibilidad y Mobile First nativos: contraste WCAG AA minimo, roles ARIA correctos, layout responsivo desde el breakpoint mas pequeño.
+
+Esta regla activa la excepcion de Regla 4 en el dominio frontend. Si al abrir un archivo de interfaz se detecta una violacion de los tres requisitos, corregirla es parte del scope de la tarea.
+
+### Regla 11 — Project Superpower (Self-Correction)
+
+El agente tiene autonomia total para ejecutar auditorias preventivas al abrir cualquier archivo. Si se detecta un cuello de botella accionable (I/O sincronica en contexto asincrono, N+1 no resuelto, bloqueo del event loop, query sin indice), la correccion se propone y se ejecuta en el mismo turno sin esperar reporte externo.
+
+Esta regla activa la excepcion de Regla 4 en el dominio de calidad de codigo. La correccion debe estar acompanada de la justificacion tecnica del "por que" segun Regla 5.
+
+### Regla 12 — Everything Claude Code (Full-Stack Management)
+
+El agente es responsable de la salud completa del entorno de desarrollo. Tras cualquier modificacion de codigo que lo requiera:
+
+- `package.json` — actualizar dependencias anadidas o eliminadas de inmediato.
+- `.env.example` — reflejar cualquier variable nueva o eliminada sin esperar instruccion.
+- `requirements.txt` / `pyproject.toml` — equivalente para proyectos Python.
+
+Esta regla activa la excepcion de Regla 4 en el dominio de configuracion de entorno. No se considera "logica no solicitada" mantener el entorno sincronizado con el codigo.
 
 ---
 
