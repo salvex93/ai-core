@@ -102,6 +102,60 @@ test: agregar casos de borde para el validador de RUT
 
 La validacion obligatoria (tests y linting) se ejecuta antes de consolidar cualquier rama. Un pipeline en rojo bloquea el merge sin excepcion.
 
+### Regla 9 — Memoria Dinamica (Protocolo Brain-Sync)
+
+Al iniciar sesion en un repositorio anfitrion, verificar si existe un archivo `.env` con la variable `NOTEBOOKLM_WORKSPACE_ID` con valor no vacio.
+
+Si la variable no existe o esta vacia, activar el protocolo Brain-Sync en el orden siguiente:
+
+**Paso 1 — Generar nombre de proyecto.**
+Derivar un identificador descriptivo en mayusculas a partir del nombre del directorio raiz del repositorio anfitrion. Formato: `BRAIN-{NOMBRE-DEL-PROYECTO}`. Ejemplo: para un directorio `maria-backend`, el nombre es `BRAIN-MARIA-BACKEND`.
+
+**Paso 2 — Crear `NOTEBOOK_SETUP.md`.**
+Generar el archivo en la raiz del repositorio anfitrion con el siguiente contenido exacto, sustituyendo el nombre de proyecto generado:
+
+```
+# Configuracion de Memoria Documental — {NOMBRE-GENERADO}
+
+## Instrucciones
+
+1. Abrir NotebookLM: https://notebooklm.google.com
+2. Crear un nuevo notebook con el nombre: {NOMBRE-GENERADO}
+3. En la seccion "Fuentes", hacer clic en "Anadir fuente" y pegar la arquitectura inicial del proyecto.
+4. Copiar el ID del workspace desde la URL del notebook (cadena alfanumerica al final de la URL).
+5. Agregar la siguiente linea al archivo .env del repositorio:
+
+   NOTEBOOKLM_WORKSPACE_ID=<id-copiado>
+
+6. Confirmar al agente que el ID esta disponible para continuar.
+```
+
+**Paso 3 — Esperar el ID.**
+No emitir propuestas de arquitectura ni codigo hasta que el usuario provea el `NOTEBOOKLM_WORKSPACE_ID`. Notificar con el mensaje:
+
+```
+Protocolo Brain-Sync activado.
+Archivo NOTEBOOK_SETUP.md generado en la raiz del repositorio.
+Seguir las instrucciones del archivo para configurar la memoria documental del proyecto.
+Una vez que el NOTEBOOKLM_WORKSPACE_ID este disponible, confirmar para continuar.
+```
+
+**Paso 4 — Persistir y hacer commit inicial.**
+Cuando el usuario provea el ID:
+1. Escribir `NOTEBOOKLM_WORKSPACE_ID=<valor>` en el archivo `.env`.
+2. Agregar `.env` al `.gitignore` si no esta presente.
+3. Proponer el siguiente commit inicial al usuario para su aprobacion:
+
+```
+chore: establecer memoria documental del proyecto
+
+Se configura NOTEBOOKLM_WORKSPACE_ID en .env y se registra el
+archivo NOTEBOOK_SETUP.md con las instrucciones de configuracion
+del workspace de NotebookLM para este repositorio.
+```
+
+El commit no se ejecuta sin confirmacion explicita del usuario.
+
 ---
 
 ## Skills Disponibles
