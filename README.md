@@ -28,3 +28,4 @@ Gestion completa del entorno. El agente actualiza manifiestos de dependencias y 
 
 ---
 *Configuracion tecnica detallada en CLAUDE.md*
+*Documentacion operativa en OPERATIONS.md*
