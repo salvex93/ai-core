@@ -60,7 +60,22 @@ Las condiciones especificas de activacion estan documentadas en cada skill. Las 
 - La tarea requiere una migracion de datos irreversible.
 - La tarea modifica la capa de autenticacion o autorizacion en cualquier servicio.
 
-### Regla 7 — Git Flow Universal
+### Regla 7 — Persistencia de Hallazgos y Deuda Tecnica
+
+Al finalizar cualquier auditoria, revision de codigo o sesion en la que se detecte deuda tecnica, el agente activo DEBE preguntar al usuario si desea registrar los hallazgos en el `BACKLOG.md` local del repositorio anfitrion antes de cerrar la tarea. Esta pregunta es obligatoria y no puede omitirse.
+
+El objetivo es garantizar la persistencia del contexto entre sesiones: los hallazgos que no se registran en un artefacto persistente del repositorio se pierden al terminar la conversacion.
+
+Condiciones de activacion:
+- Al concluir una auditoria de arquitectura, seguridad o rendimiento.
+- Al detectar uno o mas patrones de deuda tecnica durante una revision de PR o lectura de codigo.
+- Al identificar migraciones pendientes, indices faltantes, N+1 no resueltos o violaciones de contrato de API.
+
+El agente no escribe en `BACKLOG.md` sin confirmacion explicita. Si el usuario rechaza, no se persiste nada y se informa que los hallazgos no quedaran registrados.
+
+El formato de entrada en `BACKLOG.md` es el definido en la seccion "Directiva de Persistencia de Hallazgos" del skill correspondiente.
+
+### Regla 8 — Git Flow Universal
 
 El desarrollo ocurre en ramas aisladas. Ningun cambio llega directamente a la rama principal sin revision.
 
