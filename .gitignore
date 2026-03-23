@@ -1,0 +1,8 @@
+# Variables de entorno — nunca al repositorio
+.env
+.env.local
+.env.development
+.env.production
+
+# Archivos de configuracion de workspace generados localmente
+NOTEBOOK_SETUP.md
