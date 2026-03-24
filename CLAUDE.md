@@ -114,46 +114,7 @@ Memoria externa (Brain-Sync): no configurada. El sistema opera en modo local.
 Para activarla en cualquier momento, agregar NOTEBOOKLM_WORKSPACE_ID al archivo .env del proyecto.
 ```
 
-**Configuracion opcional de la memoria externa.**
-Ejecutar el siguiente protocolo unicamente bajo instruccion explicita del usuario:
-
-**Paso 1 — Generar nombre de proyecto.**
-Derivar un identificador descriptivo en mayusculas a partir del nombre del directorio raiz del repositorio anfitrion. Formato: `BRAIN-{NOMBRE-DEL-PROYECTO}`. Ejemplo: para un directorio `mi-proyecto`, el nombre es `BRAIN-MI-PROYECTO`.
-
-**Paso 2 — Crear `NOTEBOOK_SETUP.md`.**
-Generar el archivo en la raiz del repositorio anfitrion con el siguiente contenido exacto, sustituyendo el nombre de proyecto generado:
-
-```
-# Configuracion de Memoria Documental — {NOMBRE-GENERADO}
-
-## Instrucciones
-
-1. Abrir NotebookLM: https://notebooklm.google.com
-2. Crear un nuevo notebook con el nombre: {NOMBRE-GENERADO}
-3. En la seccion "Fuentes", hacer clic en "Anadir fuente" y pegar la arquitectura inicial del proyecto.
-4. Copiar el ID del workspace desde la URL del notebook (cadena alfanumerica al final de la URL).
-5. Agregar la siguiente linea al archivo .env del repositorio:
-
-   NOTEBOOKLM_WORKSPACE_ID=<id-copiado>
-
-6. Confirmar al agente que el ID esta disponible para continuar.
-```
-
-**Paso 3 — Persistir y hacer commit inicial.**
-Cuando el usuario provea el ID:
-1. Escribir `NOTEBOOKLM_WORKSPACE_ID=<valor>` en el archivo `.env`.
-2. Agregar `.env` al `.gitignore` si no esta presente.
-3. Proponer el siguiente commit al usuario para su aprobacion:
-
-```
-chore: establecer memoria documental del proyecto
-
-Se configura NOTEBOOKLM_WORKSPACE_ID en .env y se registra el
-archivo NOTEBOOK_SETUP.md con las instrucciones de configuracion
-del workspace de NotebookLM para este repositorio.
-```
-
-El commit no se ejecuta sin confirmacion explicita del usuario.
+El protocolo completo de configuracion inicial de Brain-Sync (generacion de nombre, creacion de NOTEBOOK_SETUP.md y commit inicial) esta documentado en `OPERATIONS.md` — seccion "Configuracion de Brain-Sync". Ejecutar ese protocolo unicamente bajo instruccion explicita del usuario.
 
 ### Regla 10 — UI/UX Pro Max (Frontend Excellence)
 
@@ -252,6 +213,22 @@ Activar al: definir estrategia de tests, evaluar cobertura, implementar contract
 
 Archivo: `.claude/skills/qa-engineer/SKILL.md`
 
+### security-auditor
+
+Especialista en seguridad de aplicaciones. Cubre auditoria de dependencias (CVEs), modelado de amenazas (STRIDE), configuracion de headers de seguridad, gestion de secretos, revision OWASP Top 10 por capa y cumplimiento de requisitos de compliance (SOC 2, ISO 27001). Agnostico al stack.
+
+Activar al: auditar la seguridad de una capa, revisar dependencias con vulnerabilidades, configurar politicas de CORS/CSP/HSTS, detectar secretos hardcodeados o evaluar requisitos de compliance.
+
+Archivo: `.claude/skills/security-auditor/SKILL.md`
+
+### devops-infra
+
+Especialista en infraestructura como codigo y observabilidad. Cubre aprovisionamiento con IaC (Terraform, Pulumi, CloudFormation, Helm), gestion de secretos en Kubernetes, networking de servicios y configuracion de observabilidad (OpenTelemetry, Prometheus, Grafana). Agnostico al proveedor de nube.
+
+Activar al: disenar o modificar infraestructura, configurar observabilidad, gestionar secretos en contenedores o definir la estrategia de despliegue en Kubernetes.
+
+Archivo: `.claude/skills/devops-infra/SKILL.md`
+
 ---
 
 ## Directiva de Interrupcion
@@ -266,43 +243,6 @@ Esta directiva se inserta en la respuesta y detiene la ejecucion. No se emite co
 
 ---
 
-## Estructura del Repositorio
+## Estructura del Repositorio y Contribucion
 
-```
-ai-core/
-├── CLAUDE.md
-└── .claude/
-    └── skills/
-        ├── arquitecto-backend/
-        │   └── SKILL.md
-        ├── tech-lead-frontend/
-        │   └── SKILL.md
-        ├── release-manager/
-        │   └── SKILL.md
-        ├── especialista-rag/
-        │   └── SKILL.md
-        ├── aiops-engineer/
-        │   └── SKILL.md
-        └── qa-engineer/
-            └── SKILL.md
-```
-
----
-
-## Incorporacion de Nuevos Skills
-
-Al agregar un skill nuevo al ecosistema:
-
-1. Crear la carpeta `.claude/skills/{nombre-en-kebab-case}/`.
-2. Crear `SKILL.md` con el frontmatter obligatorio:
-   - `name`: identificador del skill en kebab-case.
-   - `description`: descripcion de una linea, usada para detectar relevancia en conversaciones futuras.
-   - `origin: ai-core`.
-3. Incluir las secciones obligatorias:
-   - "Cuando Activar Este Perfil".
-   - "Primera Accion al Activar" (protocolo de Lazy Context especifico del perfil).
-   - "Directiva de Interrupcion" con condiciones especificas.
-   - "Restricciones del Perfil" (heredadas de las Reglas Globales, con adiciones especificas).
-4. No sobreescribir ninguna Regla Global.
-5. Actualizar este `CLAUDE.md` con la referencia al nuevo skill en la seccion "Skills Disponibles".
-6. Actualizar `OPERATIONS.md` con la descripcion del nuevo skill en la seccion "Skills Disponibles".
+La estructura detallada del repositorio y el protocolo de incorporacion de nuevos skills estan documentados en `OPERATIONS.md`.

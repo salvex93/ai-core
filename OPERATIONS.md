@@ -24,6 +24,50 @@ El `BACKLOG.md` no es un documento de texto libre. Opera estrictamente bajo una 
 
 Esta disciplina esta codificada como la Regla 7 del nucleo y es obligatoria para todos los perfiles sin excepcion.
 
+### Configuracion de Brain-Sync
+
+Este protocolo se ejecuta una sola vez por repositorio anfitrion, bajo instruccion explicita del usuario. El comportamiento runtime de Brain-Sync esta definido en la Regla 9 de `CLAUDE.md`.
+
+**Paso 1 — Generar nombre de proyecto.**
+Derivar un identificador descriptivo en mayusculas a partir del nombre del directorio raiz del repositorio anfitrion. Formato: `BRAIN-{NOMBRE-DEL-PROYECTO}`. Ejemplo: para un directorio `mi-proyecto`, el nombre es `BRAIN-MI-PROYECTO`.
+
+**Paso 2 — Crear `NOTEBOOK_SETUP.md`.**
+Generar el archivo en la raiz del repositorio anfitrion con el siguiente contenido exacto, sustituyendo el nombre de proyecto generado:
+
+```
+# Configuracion de Memoria Documental — {NOMBRE-GENERADO}
+
+## Instrucciones
+
+1. Abrir NotebookLM: https://notebooklm.google.com
+2. Crear un nuevo notebook con el nombre: {NOMBRE-GENERADO}
+3. En la seccion "Fuentes", hacer clic en "Anadir fuente" y pegar la arquitectura inicial del proyecto.
+4. Copiar el ID del workspace desde la URL del notebook (cadena alfanumerica al final de la URL).
+5. Agregar la siguiente linea al archivo .env del repositorio:
+
+   NOTEBOOKLM_WORKSPACE_ID=<id-copiado>
+
+6. Confirmar al agente que el ID esta disponible para continuar.
+```
+
+**Paso 3 — Persistir y hacer commit inicial.**
+Cuando el usuario provea el ID:
+1. Escribir `NOTEBOOKLM_WORKSPACE_ID=<valor>` en el archivo `.env`.
+2. Agregar `.env` al `.gitignore` si no esta presente.
+3. Proponer el siguiente commit al usuario para su aprobacion:
+
+```
+chore: establecer memoria documental del proyecto
+
+Se configura NOTEBOOKLM_WORKSPACE_ID en .env y se registra el
+archivo NOTEBOOK_SETUP.md con las instrucciones de configuracion
+del workspace de NotebookLM para este repositorio.
+```
+
+El commit no se ejecuta sin confirmacion explicita del usuario.
+
+---
+
 ### RAG Externo: NotebookLM como Fuente de Verdad Documental
 
 La documentacion tecnica externa, especificaciones de API de terceros, RFCs, arquitecturas de referencia y documentos de decision, no pertenece al repositorio. Incorporarla como archivos Markdown genera ruido en el contexto y hace que el agente trabaje con copias potencialmente desactualizadas.
@@ -59,7 +103,11 @@ ai-core/
         │   └── SKILL.md
         ├── aiops-engineer/
         │   └── SKILL.md
-        └── qa-engineer/
+        ├── qa-engineer/
+        │   └── SKILL.md
+        ├── security-auditor/
+        │   └── SKILL.md
+        └── devops-infra/
             └── SKILL.md
 ```
 
@@ -127,6 +175,18 @@ Activar al: auditar el estado del ai-core, proponer actualizaciones de skills o 
 Especialista en estrategia de testing, piramide de calidad y contract testing. Agnostico al framework: deduce la herramienta de los manifiestos del anfitrion (Jest, Pytest, Vitest, Go testing, JUnit, etc.). Cubre piramide de tests, mocks, gestion de datos de prueba, cobertura por capa y contract testing inter-servicio.
 
 Activar al: definir estrategia de tests, evaluar cobertura, implementar contract testing, diagnosticar regresiones o auditar la calidad de los tests de un PR.
+
+### security-auditor
+
+Especialista en seguridad de aplicaciones. Cubre auditoria de dependencias (CVEs), modelado de amenazas (STRIDE), configuracion de headers de seguridad, gestion de secretos, revision OWASP Top 10 por capa y cumplimiento de requisitos de compliance. Agnostico al stack.
+
+Activar al: auditar seguridad de una capa, revisar dependencias con CVEs, configurar politicas de CORS/CSP/HSTS, detectar secretos hardcodeados o evaluar requisitos de compliance.
+
+### devops-infra
+
+Especialista en infraestructura como codigo y observabilidad. Cubre aprovisionamiento con IaC (Terraform, Pulumi, CloudFormation, Helm), gestion de secretos en contenedores, networking de servicios y configuracion de observabilidad (OpenTelemetry, Prometheus, Grafana). Agnostico al proveedor de nube.
+
+Activar al: disenar o modificar infraestructura, configurar observabilidad, gestionar secretos en Kubernetes o definir la estrategia de despliegue en contenedores.
 
 ---
 

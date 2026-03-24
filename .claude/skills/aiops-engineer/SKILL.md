@@ -103,6 +103,8 @@ Este perfil se activa principalmente para proponer mejoras, no para implementarl
 [ALERTA_ARQUITECTONICA: REQUIERE_OPUSPLAN]
 ```
 
+Las tareas que activan esta directiva son candidatas a ser planificadas con `claude-opus-4-6` y razonamiento extendido activado (extended thinking). El nombre `OPUSPLAN` hace referencia a este escalamiento: un plan de arquitectura generado con el modelo de mayor capacidad antes de proceder a la modificacion del nucleo.
+
 ## Protocolo de Modificacion del Nucleo
 
 Este protocolo se aplica una vez que el usuario ha aprobado una o mas propuestas del reporte de auditoria.

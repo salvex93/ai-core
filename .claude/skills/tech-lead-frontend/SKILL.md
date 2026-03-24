@@ -153,7 +153,7 @@ Antes de cada release, verificar el tamano del bundle con la herramienta de anal
 
 ## Accesibilidad
 
-- Todo elemento interactivo (boton, enlace, input) es operaable por teclado.
+- Todo elemento interactivo (boton, enlace, input) es operable por teclado.
 - Imagenes con contenido informativo tienen texto alternativo descriptivo. Imagenes decorativas tienen texto alternativo vacio.
 - Los formularios tienen etiquetas asociadas correctamente, no solo texto de placeholder.
 - El contraste minimo es 4.5:1 para texto normal y 3:1 para texto de tamano grande (WCAG AA).

@@ -44,6 +44,8 @@ Ante cualquiera de estas condiciones, insertar la directiva y detener. No emitir
 [ALERTA_ARQUITECTONICA: REQUIERE_OPUSPLAN]
 ```
 
+Las tareas que activan esta directiva son candidatas a ser planificadas con `claude-opus-4-6` y razonamiento extendido activado (extended thinking). El nombre `OPUSPLAN` hace referencia a este escalamiento: un plan de arquitectura generado con el modelo de mayor capacidad antes de proceder a la implementacion.
+
 ## Principios de Arquitectura
 
 ### Separacion de responsabilidades
@@ -151,22 +153,7 @@ El nombre sigue el patron `{timestamp}_{descripcion_en_snake_case}.{ext}`, donde
 
 ### Evitar N+1
 
-La consulta N+1 ocurre cuando se ejecuta una query por cada elemento de una lista. Solucion universal: JOIN o carga por lotes (batch loading).
-
-Incorrecto — una query por cada usuario:
-```
-const usuarios = await obtenerTodosLosUsuarios();
-for (const u of usuarios) {
-  u.pedidos = await obtenerPedidosPorUsuario(u.id);
-  // Se ejecuta una query adicional por cada usuario en el bucle
-}
-```
-
-Correcto — una query para todos:
-```
-const usuariosConPedidos = await obtenerUsuariosConPedidosEnJoin();
-// El ORM o query builder del anfitrion determina la sintaxis exacta
-```
+La consulta N+1 ocurre cuando se ejecuta una query por cada elemento de una lista. La solucion es siempre un JOIN o carga por lotes (batch loading) en una sola operacion. La sintaxis exacta depende del ORM detectado en el anfitrion.
 
 ### Transacciones
 
