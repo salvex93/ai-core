@@ -192,6 +192,18 @@ ai-core/
 
 ---
 
+## Protocolo de Evolucion (Mantenimiento Autonomo)
+
+El AI-CORE no opera como un proceso en segundo plano (daemon). Para que el sistema evalúe nuevas opciones RAG, actualice skills deprecados o mejore sus propios prompts, debes disparar periodicamente el SOP de Mantenimiento.
+
+Para hacerlo, abre la terminal en el directorio `ai-core` y ejecuta este prompt:
+
+> "Actua como aiops-engineer. Tu tarea es auditar el ecosistema. Verifica el estado del arte de las herramientas MCP. Lee los archivos SKILL.md y propón refactorizaciones en el prompting para hacerlos mas eficientes. Identifica si necesitamos un nuevo skill basado en tendencias actuales."
+
+El agente leera su propio codigo, propondra las mejoras y, tras tu aprobacion, hara el commit automatico.
+
+---
+
 ## Como Contribuir con un Nuevo Skill
 
 1. Crear la carpeta `.claude/skills/{nombre-en-kebab-case}/`.
