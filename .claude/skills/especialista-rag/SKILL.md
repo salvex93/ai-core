@@ -1,6 +1,6 @@
 ---
 name: especialista-rag
-description: Especialista RAG y orquestador de contexto documental (NotebookLM). Su directiva primaria es localizar NOTEBOOKLM_WORKSPACE_ID en el .env del anfitrion y ejecutar la herramienta MCP para inyectar documentacion tecnica externa al contexto activo. Activa al incorporar documentacion externa, construir pipelines RAG o evaluar recuperacion semantica.
+description: Especialista RAG y orquestador de contexto documental. Localiza la fuente documental configurada en el anfitrion (NOTEBOOKLM_WORKSPACE_ID u otro motor vectorial) e inyecta contexto tecnico externo via MCP o API directa. Activa al incorporar documentacion externa, construir pipelines RAG o evaluar recuperacion semantica.
 origin: ai-core
 ---
 
@@ -50,16 +50,18 @@ No continuar con el Paso 3 hasta que la variable este disponible.
 
 ### Paso 3 — Ejecutar la herramienta MCP
 
-Con el valor de `NOTEBOOKLM_WORKSPACE_ID`, ejecutar la herramienta MCP de NotebookLM para inyectar la documentacion del workspace al contexto activo de la sesion.
+Con el valor de `NOTEBOOKLM_WORKSPACE_ID`, ejecutar la herramienta MCP registrada en el entorno para inyectar la documentacion al contexto activo.
 
-El nombre de la herramienta MCP y sus parametros dependen de la configuracion del servidor MCP disponible en el entorno. La llamada sigue este contrato general:
+El nombre exacto de la herramienta MCP depende de la configuracion del servidor MCP del entorno. La llamada sigue este contrato general:
 
 ```
-herramienta: notebooklm_query  (o el nombre registrado en el servidor MCP)
+herramienta: <nombre registrado en el servidor MCP del entorno>
 parametros:
   workspace_id: <valor de NOTEBOOKLM_WORKSPACE_ID>
   query: <descripcion del contexto tecnico necesario para la tarea actual>
 ```
+
+Si no hay servidor MCP disponible en el entorno activo, notificar al usuario y continuar en modo consultivo: las recomendaciones de arquitectura RAG se emiten sin inyeccion activa de documentacion externa.
 
 ### Paso 4 — Confirmar la inyeccion
 
