@@ -1,6 +1,6 @@
 # ai-core — Nucleo Centralizado de Agentes
 
-Este repositorio es el nucleo de configuracion y perfiles de comportamiento para los agentes IA del ecosistema MarIA. Se incorpora como submódulo Git a cualquier proyecto anfitrion y le inyecta capacidades tecnicas especializadas sin acoplar su logica interna al stack del anfitrion.
+Este repositorio es el nucleo de configuracion y perfiles de comportamiento para los agentes IA del Proyecto Anfitrion. Se incorpora como submódulo Git a cualquier repositorio y le inyecta capacidades tecnicas especializadas sin acoplar su logica interna al stack del anfitrion.
 
 ---
 
@@ -244,6 +244,14 @@ Activar al: auditar el estado del ai-core, proponer actualizaciones de skills o 
 
 Archivo: `.claude/skills/aiops-engineer/SKILL.md`
 
+### qa-engineer
+
+Especialista en estrategia de testing, piramide de calidad y contract testing. Agnostico al framework de testing: deduce la herramienta del repositorio anfitrion antes de emitir recomendaciones. Cubre tests unitarios, de integracion y e2e, gestion de datos de prueba, cobertura por capa y revision de PRs desde la perspectiva de calidad.
+
+Activar al: definir estrategia de tests, evaluar cobertura, implementar contract testing, diagnosticar regresiones o revisar si un PR incluye tests adecuados para los cambios que introduce.
+
+Archivo: `.claude/skills/qa-engineer/SKILL.md`
+
 ---
 
 ## Directiva de Interrupcion
@@ -273,7 +281,9 @@ ai-core/
         │   └── SKILL.md
         ├── especialista-rag/
         │   └── SKILL.md
-        └── aiops-engineer/
+        ├── aiops-engineer/
+        │   └── SKILL.md
+        └── qa-engineer/
             └── SKILL.md
 ```
 
