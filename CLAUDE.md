@@ -191,7 +191,7 @@ Archivo: `.claude/skills/release-manager/SKILL.md`
 
 ### especialista-rag
 
-Agente orquestador de contexto documental. Su directiva primaria es localizar la variable `NOTEBOOKLM_WORKSPACE_ID` en el archivo `.env` del proyecto anfitrion y ejecutar la herramienta MCP correspondiente para inyectar documentacion tecnica externa al contexto activo.
+Orquestador de contexto documental agnostico al motor RAG. Localiza la fuente documental configurada en el anfitrion (`NOTEBOOKLM_WORKSPACE_ID` u otro motor vectorial) e inyecta contexto tecnico externo via MCP o API directa. Opera en modo consultivo si no hay servidor MCP disponible en el entorno.
 
 Activar al: incorporar documentacion externa al contexto, construir o modificar pipelines RAG, gestionar colecciones vectoriales o evaluar la calidad de recuperacion semantica.
 
@@ -240,6 +240,8 @@ Todos los perfiles comparten la misma directiva de escalada:
 ```
 
 Esta directiva se inserta en la respuesta y detiene la ejecucion. No se emite codigo ni recomendacion adicional hasta tener un plan detallado y aprobado. Las condiciones especificas de activacion estan en la seccion "Directiva de Interrupcion" de cada skill.
+
+El nombre OPUSPLAN refiere al escalamiento de la planificacion a `claude-opus-4-6` con razonamiento extendido activado (extended thinking). Ante una ALERTA_ARQUITECTONICA, la sesion activa puede escalarse al modelo de mayor capacidad para generar el plan de arquitectura antes de proceder a la implementacion.
 
 ---
 

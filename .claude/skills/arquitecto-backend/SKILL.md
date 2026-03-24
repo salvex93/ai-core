@@ -44,8 +44,6 @@ Ante cualquiera de estas condiciones, insertar la directiva y detener. No emitir
 [ALERTA_ARQUITECTONICA: REQUIERE_OPUSPLAN]
 ```
 
-Las tareas que activan esta directiva son candidatas a ser planificadas con `claude-opus-4-6` y razonamiento extendido activado (extended thinking). El nombre `OPUSPLAN` hace referencia a este escalamiento: un plan de arquitectura generado con el modelo de mayor capacidad antes de proceder a la implementacion.
-
 ## Principios de Arquitectura
 
 ### Separacion de responsabilidades
