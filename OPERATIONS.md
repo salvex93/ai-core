@@ -19,13 +19,16 @@ Por que `BACKLOG.md` y no un sistema de tickets externo:
 - No requiere infraestructura externa. No depende de Jira, Linear, GitHub Issues ni ninguna herramienta de terceros para existir.
 - Es legible por el agente sin integraciones adicionales.
 
+**Formato Inmutable:**
+El `BACKLOG.md` no es un documento de texto libre. Opera estrictamente bajo una tabla Markdown de 12 columnas (Tarea, Notas, Tipo, Descripción, Responsable, Fecha Inicio, Fecha Fin, Estatus, Jerarquía, Estimación, Planner, Compromiso). Toda inserción de deuda técnica o trabajo oculto debe respetar esta estructura para asegurar la trazabilidad.
+
 Esta disciplina esta codificada como la Regla 7 del nucleo y es obligatoria para todos los perfiles sin excepcion.
 
 ### RAG Externo: NotebookLM como Fuente de Verdad Documental
 
 La documentacion tecnica externa, especificaciones de API de terceros, RFCs, arquitecturas de referencia y documentos de decision, no pertenece al repositorio. Incorporarla como archivos Markdown genera ruido en el contexto y hace que el agente trabaje con copias potencialmente desactualizadas.
 
-La solucion es un pipeline RAG desacoplado del repositorio. La implementacion de referencia del ecosistema MarIA usa NotebookLM como motor de recuperacion semantica. El skill `especialista-rag` localiza la variable `NOTEBOOKLM_WORKSPACE_ID` en el `.env` del anfitrion y ejecuta la herramienta MCP correspondiente para inyectar al contexto activo unicamente los fragmentos relevantes para la tarea en curso.
+La solucion es un pipeline RAG desacoplado del repositorio. La implementacion de referencia del ecosistema del Proyecto Anfitrion usa NotebookLM como motor de recuperacion semantica. El skill `especialista-rag` localiza la variable `NOTEBOOKLM_WORKSPACE_ID` en el `.env` del anfitrion y ejecuta la herramienta MCP correspondiente para inyectar al contexto activo unicamente los fragmentos relevantes para la tarea en curso.
 
 La distincion arquitectonica es clara:
 
@@ -53,8 +56,6 @@ ai-core/
         ├── release-manager/
         │   └── SKILL.md
         ├── especialista-rag/
-        │   └── SKILL.md
-        ├── arquitecto-fastapi/
         │   └── SKILL.md
         └── aiops-engineer/
             └── SKILL.md
@@ -113,12 +114,6 @@ Orquestador de contexto documental. Localiza `NOTEBOOKLM_WORKSPACE_ID` en el `.e
 
 Activar al: incorporar documentacion externa, construir pipelines RAG, gestionar colecciones vectoriales o evaluar recuperacion semantica.
 
-### arquitecto-fastapi
-
-Perfil especializado en sistemas Python con FastAPI, Pydantic, Qdrant y Uvicorn. Cubre el diseño de endpoints, modelos de datos y pipelines RAG en el stack Python.
-
-Activar al: disenar endpoints FastAPI, modelar esquemas Pydantic, integrar con vectores o construir pipelines de recuperacion semantica en Python.
-
 ### aiops-engineer
 
 Agente de mantenimiento del ecosistema ai-core. Audita periodicamente los skills, analiza nuevas capacidades del ecosistema Anthropic y propone mejoras. Requiere confirmacion humana explicita antes de modificar el nucleo.
@@ -139,12 +134,14 @@ Las reglas globales son inmutables y aplican a todos los perfiles sin excepcion.
 | 4 | Minimo Cambio y Proactividad Selectiva | Sin logica no solicitada en backend/negocio. Excepciones activas para Reglas 10, 11 y 12. |
 | 5 | Precision Quirurgica | Toda modificacion indica ruta relativa y numero de linea exacto. |
 | 6 | Gatillo de Escalamiento | ALERTA_ARQUITECTONICA: REQUIERE_OPUSPLAN ante tareas de alto impacto. |
-| 7 | Persistencia de Hallazgos | Preguntar si registrar deuda tecnica en BACKLOG.md al cerrar auditoria. |
-| 8 | Git Flow Universal | Ramas aisladas. Conventional Commits. Pipeline verde antes de merge. |
+| 7 | Persistencia de Hallazgos y Trabajo Oculto | Preguntar si registrar hallazgos en BACKLOG.md (tabla 12 columnas). Registrar trabajo oculto obligatoriamente. |
+| 8 | Git Flow Universal | Ramas aisladas. Conventional Commits. Pipeline verde antes de merge. Gatillo de sincronizacion disponible. |
 | 9 | Brain-Sync | Sin NOTEBOOKLM_WORKSPACE_ID, activar protocolo de configuracion de memoria. |
 | 10 | UI/UX Pro Max | Atomic Design + micro-interacciones + WCAG AA + Mobile First obligatorios en frontend. |
 | 11 | Project Superpower | Auditoria preventiva autonoma. Fix inmediato de cuellos de botella al abrir archivo. |
 | 12 | Everything Claude Code | Actualizar package.json y .env.example de inmediato tras cambios que lo requieran. |
+| 13 | Duda Activa | Detenerse y pedir contexto ante instrucciones ambiguas o con riesgo de romper dependencias. |
+| 14 | Eficiencia de Busqueda | Usar grep/find para localizar referencias antes de leer archivos completos. Minimiza consumo de tokens. |
 
 ---
 
