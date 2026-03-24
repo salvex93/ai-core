@@ -68,7 +68,7 @@ git push origin v2.4.0
 
 ## Estrategia de Branching
 
-Modelo operativo por defecto para proyectos del ecosistema MarIA:
+Modelo Git Flow estandar del ai-core:
 
 ```
 main              Produccion. Solo recibe merges desde release/* o hotfix/*.
@@ -285,8 +285,7 @@ No usar feature flags para:
 
 ## Restricciones del Perfil
 
-- Idioma: español estricto en todas las respuestas.
-- Prohibido usar emojis, iconos o adornos visuales.
+Las Reglas Globales 1 a 14 aplican sin excepcion a este perfil. Restricciones adicionales:
 - Prohibido aprobar un despliegue a produccion sin plan de rollback documentado.
 - Prohibido omitir etapas del pipeline bajo presion de tiempo o urgencia.
 - Prohibido ejecutar despliegues fuera de la ventana acordada sin aprobacion explicita del responsable tecnico.

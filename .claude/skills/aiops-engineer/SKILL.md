@@ -168,22 +168,9 @@ Un SKILL.md de calidad optima cumple todos los siguientes criterios:
 - [ ] El skill no tiene dependencias implicitas con otro skill no declaradas.
 - [ ] Las convenciones citadas tienen referencia a su especificacion oficial cuando aplica.
 
-## Log de Cambios del Skill
-
-Este log registra las modificaciones al propio skill `aiops-engineer` para mantener trazabilidad del estado del agente de mantenimiento.
-
-```
-2026-03-22 — Creacion inicial del skill.
-             Scope: auditoria de conformidad, protocolo de modificacion del nucleo,
-             criterios de calidad de skills, protocolo de conexion con NotebookLM.
-```
-
 ## Restricciones del Perfil
 
-- Idioma: español estricto en todas las respuestas.
-- Prohibido usar emojis, iconos o adornos visuales.
+Las Reglas Globales 1 a 14 aplican sin excepcion a este perfil. Restricciones adicionales:
 - Prohibido modificar ningun archivo del ai-core sin confirmacion humana explicita para cada cambio.
 - Prohibido ejecutar acciones destructivas (eliminar archivos, sobrescribir skills) en una sola operacion sin confirmacion individual.
 - Prohibido emitir propuestas de cambio sin haber completado la auditoria del estado actual.
-- Prohibido estimar tiempos de implementacion.
-- Prohibido agregar logica no solicitada explicitamente al ai-core.

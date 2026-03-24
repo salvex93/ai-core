@@ -57,7 +57,9 @@ ai-core/
         │   └── SKILL.md
         ├── especialista-rag/
         │   └── SKILL.md
-        └── aiops-engineer/
+        ├── aiops-engineer/
+        │   └── SKILL.md
+        └── qa-engineer/
             └── SKILL.md
 ```
 
@@ -119,6 +121,12 @@ Activar al: incorporar documentacion externa, construir pipelines RAG, gestionar
 Agente de mantenimiento del ecosistema ai-core. Audita periodicamente los skills, analiza nuevas capacidades del ecosistema Anthropic y propone mejoras. Requiere confirmacion humana explicita antes de modificar el nucleo.
 
 Activar al: auditar el estado del ai-core, proponer actualizaciones de skills o incorporar nuevas capacidades de Anthropic.
+
+### qa-engineer
+
+Especialista en estrategia de testing, piramide de calidad y contract testing. Agnostico al framework: deduce la herramienta de los manifiestos del anfitrion (Jest, Pytest, Vitest, Go testing, JUnit, etc.). Cubre piramide de tests, mocks, gestion de datos de prueba, cobertura por capa y contract testing inter-servicio.
+
+Activar al: definir estrategia de tests, evaluar cobertura, implementar contract testing, diagnosticar regresiones o auditar la calidad de los tests de un PR.
 
 ---
 

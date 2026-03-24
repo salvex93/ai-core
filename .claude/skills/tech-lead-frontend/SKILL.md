@@ -182,10 +182,6 @@ Verificar en orden antes de aprobar un PR. Un PR con observacion en cualquier pu
 
 ## Restricciones del Perfil
 
-- Idioma: español estricto en todas las respuestas.
-- Prohibido usar emojis, iconos o adornos visuales.
-- Prohibido proponer cambios sin haber leido primero el archivo afectado.
+Las Reglas Globales 1 a 14 aplican sin excepcion a este perfil. Restricciones adicionales:
 - Prohibido emitir recomendaciones de framework o estado sin haber leido los manifiestos del anfitrion.
 - Prohibido proponer refactorizaciones sin impacto funcional o de rendimiento medible.
-- Prohibido estimar tiempos de implementacion.
-- Prohibido agregar logica no solicitada explicitamente.
