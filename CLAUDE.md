@@ -96,7 +96,7 @@ test: agregar casos de borde para el validador de RUT
 La validacion obligatoria (tests y linting) se ejecuta antes de consolidar cualquier rama. Un pipeline en rojo bloquea el merge sin excepcion.
 
 **Gatillo de Sincronización:**
-Al recibir la instrucción "haz el flujo de git" o finalizar un bloque lógico, el agente realizará automáticamente la secuencia:
+Al recibir la instrucción explícita "haz el flujo de git", el agente ejecutará automáticamente la secuencia:
 1. `git add .`
 2. Redactar commit técnico exhaustivo.
 3. `git push origin [rama_activa]`.
@@ -105,10 +105,20 @@ Al recibir la instrucción "haz el flujo de git" o finalizar un bloque lógico, 
 
 Al iniciar sesion en un repositorio anfitrion, verificar si existe un archivo `.env` con la variable `NOTEBOOKLM_WORKSPACE_ID` con valor no vacio.
 
-Si la variable no existe o esta vacia, activar el protocolo Brain-Sync en el orden siguiente:
+Si la variable esta presente y tiene valor: la memoria externa esta activa. El skill `especialista-rag` puede inyectar documentacion del workspace al contexto activo cuando se le solicite. Continuar con normalidad.
+
+Si la variable no existe o esta vacia: el nucleo opera en modo local con plena capacidad. No se bloquea el arranque ni se detiene la sesion. Notificar al usuario con el siguiente mensaje y continuar inmediatamente:
+
+```
+Memoria externa (Brain-Sync): no configurada. El sistema opera en modo local.
+Para activarla en cualquier momento, agregar NOTEBOOKLM_WORKSPACE_ID al archivo .env del proyecto.
+```
+
+**Configuracion opcional de la memoria externa.**
+Ejecutar el siguiente protocolo unicamente bajo instruccion explicita del usuario:
 
 **Paso 1 — Generar nombre de proyecto.**
-Derivar un identificador descriptivo en mayusculas a partir del nombre del directorio raiz del repositorio anfitrion. Formato: `BRAIN-{NOMBRE-DEL-PROYECTO}`. Ejemplo: para un directorio `maria-backend`, el nombre es `BRAIN-MARIA-BACKEND`.
+Derivar un identificador descriptivo en mayusculas a partir del nombre del directorio raiz del repositorio anfitrion. Formato: `BRAIN-{NOMBRE-DEL-PROYECTO}`. Ejemplo: para un directorio `mi-proyecto`, el nombre es `BRAIN-MI-PROYECTO`.
 
 **Paso 2 — Crear `NOTEBOOK_SETUP.md`.**
 Generar el archivo en la raiz del repositorio anfitrion con el siguiente contenido exacto, sustituyendo el nombre de proyecto generado:
@@ -129,21 +139,11 @@ Generar el archivo en la raiz del repositorio anfitrion con el siguiente conteni
 6. Confirmar al agente que el ID esta disponible para continuar.
 ```
 
-**Paso 3 — Esperar el ID.**
-No emitir propuestas de arquitectura ni codigo hasta que el usuario provea el `NOTEBOOKLM_WORKSPACE_ID`. Notificar con el mensaje:
-
-```
-Protocolo Brain-Sync activado.
-Archivo NOTEBOOK_SETUP.md generado en la raiz del repositorio.
-Seguir las instrucciones del archivo para configurar la memoria documental del proyecto.
-Una vez que el NOTEBOOKLM_WORKSPACE_ID este disponible, confirmar para continuar.
-```
-
-**Paso 4 — Persistir y hacer commit inicial.**
+**Paso 3 — Persistir y hacer commit inicial.**
 Cuando el usuario provea el ID:
 1. Escribir `NOTEBOOKLM_WORKSPACE_ID=<valor>` en el archivo `.env`.
 2. Agregar `.env` al `.gitignore` si no esta presente.
-3. Proponer el siguiente commit inicial al usuario para su aprobacion:
+3. Proponer el siguiente commit al usuario para su aprobacion:
 
 ```
 chore: establecer memoria documental del proyecto
@@ -305,3 +305,4 @@ Al agregar un skill nuevo al ecosistema:
    - "Restricciones del Perfil" (heredadas de las Reglas Globales, con adiciones especificas).
 4. No sobreescribir ninguna Regla Global.
 5. Actualizar este `CLAUDE.md` con la referencia al nuevo skill en la seccion "Skills Disponibles".
+6. Actualizar `OPERATIONS.md` con la descripcion del nuevo skill en la seccion "Skills Disponibles".
