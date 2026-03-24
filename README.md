@@ -1,6 +1,6 @@
-# AI-CORE: NEXUS DE INTELIGENCIA Y PROTOCOLO DE AUDITORIA ARIMAC
+# AI-CORE: NUCLEO DE INTELIGENCIA Y PROTOCOLO DE AUDITORIA
 
-Este repositorio constituye el nucleo de control y estandarizacion para el ecosistema MarIA. Su proposito es actuar como el orquestador tecnico superior, encargado de auditar la calidad del codigo, gestionar la infraestructura y sincronizar la base de conocimiento avanzada mediante el protocolo RAG con NotebookLM.
+Este repositorio constituye el nucleo de control y estandarizacion reutilizable para cualquier Proyecto Anfitrion. Su proposito es actuar como el orquestador tecnico superior, encargado de auditar la calidad del codigo, gestionar la infraestructura y sincronizar la base de conocimiento avanzada mediante el protocolo RAG con NotebookLM.
 
 ## Capacidades Tecnicas del Agente (Elite Skills)
 

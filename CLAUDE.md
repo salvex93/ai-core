@@ -1,4 +1,4 @@
-# ai-core — Nucleo Centralizado de Agentes MarIA
+# ai-core — Nucleo Centralizado de Agentes
 
 Este repositorio es el nucleo de configuracion y perfiles de comportamiento para los agentes IA del ecosistema MarIA. Se incorpora como submódulo Git a cualquier proyecto anfitrion y le inyecta capacidades tecnicas especializadas sin acoplar su logica interna al stack del anfitrion.
 
@@ -60,20 +60,13 @@ Las condiciones especificas de activacion estan documentadas en cada skill. Las 
 - La tarea requiere una migracion de datos irreversible.
 - La tarea modifica la capa de autenticacion o autorizacion en cualquier servicio.
 
-### Regla 7 — Persistencia de Hallazgos y Deuda Tecnica
+### Regla 7 — Persistencia de Hallazgos y Trabajo Oculto
 
-Al finalizar cualquier auditoria, revision de codigo o sesion en la que se detecte deuda tecnica, el agente activo DEBE preguntar al usuario si desea registrar los hallazgos en el `BACKLOG.md` local del repositorio anfitrion antes de cerrar la tarea. Esta pregunta es obligatoria y no puede omitirse.
+Al finalizar cualquier sesión, el agente DEBE preguntar al usuario si desea registrar los hallazgos en el `BACKLOG.md`. El formato OBLIGATORIO es una tabla Markdown con las 12 columnas exactas definidas en el archivo base.
 
-El objetivo es garantizar la persistencia del contexto entre sesiones: los hallazgos que no se registran en un artefacto persistente del repositorio se pierden al terminar la conversacion.
-
-Condiciones de activacion:
-- Al concluir una auditoria de arquitectura, seguridad o rendimiento.
-- Al detectar uno o mas patrones de deuda tecnica durante una revision de PR o lectura de codigo.
-- Al identificar migraciones pendientes, indices faltantes, N+1 no resueltos o violaciones de contrato de API.
-
-El agente no escribe en `BACKLOG.md` sin confirmacion explicita. Si el usuario rechaza, no se persiste nada y se informa que los hallazgos no quedaran registrados.
-
-El formato de entrada en `BACKLOG.md` es el definido en la seccion "Directiva de Persistencia de Hallazgos" del skill correspondiente.
+**Protocolo de Autonomía y Cierre:**
+- Al indicar "ejecuta el cierre de tarea", el agente buscará la tarea activa en la tabla del `BACKLOG.md` y cambiará su Estatus a "Terminado".
+- **Trabajo Oculto:** Todo esfuerzo técnico (middlewares, scripts, configuraciones de entorno) no visibilizado en la instrucción original se debe registrar de forma obligatoria añadiendo una nueva fila en la tabla del `BACKLOG.md`.
 
 ### Regla 8 — Git Flow Universal
 
@@ -101,6 +94,12 @@ test: agregar casos de borde para el validador de RUT
 ```
 
 La validacion obligatoria (tests y linting) se ejecuta antes de consolidar cualquier rama. Un pipeline en rojo bloquea el merge sin excepcion.
+
+**Gatillo de Sincronización:**
+Al recibir la instrucción "haz el flujo de git" o finalizar un bloque lógico, el agente realizará automáticamente la secuencia:
+1. `git add .`
+2. Redactar commit técnico exhaustivo.
+3. `git push origin [rama_activa]`.
 
 ### Regla 9 — Memoria Dinamica (Protocolo Brain-Sync)
 
@@ -161,7 +160,7 @@ El commit no se ejecuta sin confirmacion explicita del usuario.
 Prohibido entregar interfaces planas o genericas. Cada componente de frontend debe cumplir los tres requisitos siguientes sin que se soliciten explicitamente:
 
 - Estructura segun Atomic Design: atomos, moleculas, organismos y plantillas con responsabilidades bien delimitadas.
-- Micro-interacciones suaves: transiciones, estados de carga y retroalimentacion visual coherente con el branding de MarIA.
+- Micro-interacciones suaves: transiciones, estados de carga y retroalimentacion visual coherente con el branding del Proyecto Anfitrion.
 - Accesibilidad y Mobile First nativos: contraste WCAG AA minimo, roles ARIA correctos, layout responsivo desde el breakpoint mas pequeño.
 
 Esta regla activa la excepcion de Regla 4 en el dominio frontend. Si al abrir un archivo de interfaz se detecta una violacion de los tres requisitos, corregirla es parte del scope de la tarea.
@@ -181,6 +180,23 @@ El agente es responsable de la salud completa del entorno de desarrollo. Tras cu
 - `requirements.txt` / `pyproject.toml` — equivalente para proyectos Python.
 
 Esta regla activa la excepcion de Regla 4 en el dominio de configuracion de entorno. No se considera "logica no solicitada" mantener el entorno sincronizado con el codigo.
+
+### Regla 13 — Duda Activa
+
+Si una instruccion es ambigua o hay riesgo de romper dependencias entre componentes, el agente DEBE detenerse y solicitar contexto adicional antes de emitir codigo o propuesta arquitectonica. Continuar bajo ambiguedad es una violacion de esta regla.
+
+Condiciones de activacion:
+- La instruccion no especifica el alcance exacto del cambio.
+- El cambio propuesto podria romper contratos entre servicios o modulos.
+- Existen dos o mas interpretaciones validas de la tarea solicitada.
+
+### Regla 14 — Eficiencia de Busqueda
+
+Para localizar referencias, patrones o usos en el codigo, se usan comandos de sistema operativo precisos (grep, find) antes de leer archivos completos. El objetivo es minimizar el consumo de tokens y reducir la latencia de la sesion.
+
+- Buscar referencias de un simbolo: `grep -r "nombre_simbolo" --include="*.ext" .`
+- Localizar archivos por patron: `find . -name "*.ext" -not -path "*/node_modules/*"`
+- Una lectura masiva de directorio se reemplaza siempre por una busqueda dirigida.
 
 ---
 
