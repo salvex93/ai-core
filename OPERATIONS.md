@@ -106,7 +106,7 @@ Activar al: disenar arquitectura de componentes, decidir gestion de estado, opti
 
 ### release-manager
 
-Governa el ciclo de vida completo de las entregas: versionado semantico, estrategia de branching, pipelines CI/CD, resolucion de conflictos y planes de rollback. Universal: aplica a cualquier plataforma de CI/CD.
+Gobierna el ciclo de vida completo de las entregas: versionado semantico, estrategia de branching, pipelines CI/CD, resolucion de conflictos y planes de rollback. Universal: aplica a cualquier plataforma de CI/CD.
 
 Activar al: planificar releases, gestionar ramas, configurar pipelines, ejecutar despliegues o preparar planes de rollback.
 

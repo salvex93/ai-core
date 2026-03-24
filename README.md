@@ -148,6 +148,10 @@ Activar al: incorporar documentacion externa, construir pipelines RAG o evaluar 
 Agente de mantenimiento del propio nucleo ai-core. Audita la coherencia de los skills, analiza nuevas capacidades del ecosistema Anthropic y propone mejoras. Nunca modifica el nucleo sin confirmacion humana explicita.
 Activar al: auditar el estado del ai-core o proponer actualizaciones de skills.
 
+**qa-engineer**
+Especialista en estrategia de testing, piramide de calidad y contract testing. Agnostico al framework: deduce la herramienta de los manifiestos del anfitrion (Jest, Pytest, Vitest, Go testing, JUnit, etc.). Cubre piramide de tests, mocks, contract testing inter-servicio y gestion de datos de prueba.
+Activar al: definir estrategia de tests, evaluar cobertura, implementar contract testing, diagnosticar regresiones o auditar la calidad de los tests de un PR.
+
 ---
 
 ## Reglas Globales — Referencia Rapida
