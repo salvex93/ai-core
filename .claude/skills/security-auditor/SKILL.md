@@ -72,6 +72,8 @@ Una vulnerabilidad critica en una dependencia transitiva (no directa) requiere e
 
 ## OWASP Top 10 — Verificacion por Capa
 
+Los diez controles del OWASP Top 10 2021. A06 se complementa con la seccion "Auditoria de Dependencias" de este skill.
+
 ### A01 — Control de acceso roto
 
 - Verificar que cada endpoint protegido valida el token o sesion antes de ejecutar logica de negocio.
@@ -91,6 +93,13 @@ Una vulnerabilidad critica en una dependencia transitiva (no directa) requiere e
 - Toda entrada que se renderiza en HTML debe ser escapada para prevenir XSS. Confiar en el motor de plantillas del framework detectado; no construir HTML concatenando strings.
 - Toda entrada que llega a comandos del sistema operativo debe ser validada contra una lista blanca. En general, evitar llamadas al shell con datos de usuario.
 
+### A04 — Diseño inseguro
+
+- Los flujos criticos de negocio (pagos, cambios de contrasena, exportacion masiva de datos) requieren modelado de amenazas STRIDE antes de implementarse.
+- Prohibido asumir que la validacion en el cliente es suficiente. Toda validacion de negocio ocurre en el servidor.
+- Los limites de tasa (rate limiting) se definen en el diseño, no como parche posterior: cuantas peticiones por segundo puede emitir un usuario legitimo en cada endpoint.
+- Los flujos de recuperacion de cuenta y onboarding son superficie de ataque. Disenarlos con el adversario en mente desde el primer borrador.
+
 ### A05 — Configuracion incorrecta de seguridad
 
 Headers HTTP obligatorios para cualquier API o aplicacion web:
@@ -105,17 +114,38 @@ Content-Security-Policy: <politica especifica del proyecto>
 
 La politica CSP depende del stack del anfitrion. Nunca usar `Content-Security-Policy: default-src *`.
 
+### A06 — Componentes vulnerables y desactualizados
+
+Ver seccion "Auditoria de Dependencias" de este skill para el protocolo completo de herramientas y criterios de severidad por CVSS. Adicionalmente:
+
+- Las imagenes de contenedor base se actualizan en cada release. Usar tags fijos de version, no `latest`.
+- Los componentes de infraestructura (bases de datos gestionadas, proxies, brokers de mensajes) tienen un ciclo de actualizacion documentado igual que las dependencias de aplicacion.
+
 ### A07 — Fallos de autenticacion
 
 - Los tokens JWT se validan completamente: firma, expiracion, algoritmo (prohibido aceptar `alg: none`).
 - Los tokens de refresh tienen rotacion activa: al usar uno, se invalida y se emite uno nuevo.
 - Las rutas de recuperacion de contrasena no revelan si un email existe o no en el sistema (respuesta identica para ambos casos).
 
+### A08 — Fallos de integridad de software y datos
+
+- Los artefactos de build (imagenes Docker, paquetes npm/pypi, binarios) se firman y su firma se verifica antes del despliegue.
+- El pipeline de CI/CD tiene controles de integridad: los pasos de build y despliegue no pueden ser modificados por codigo del repositorio sin revision humana.
+- Las dependencias se fijan con lockfiles (`package-lock.json`, `poetry.lock`, `go.sum`). Prohibido usar rangos de version sin limite superior en dependencias de produccion.
+- Los workflows de CI/CD que usan Actions de terceros fijan la version al SHA del commit, no a un tag flotante.
+
 ### A09 — Registro y monitoreo insuficientes
 
 - Los eventos de seguridad criticos se registran siempre: intentos de autenticacion fallidos, cambios de contrasena, elevacion de privilegios, acceso a recursos sensibles.
 - Los logs de seguridad no contienen datos sensibles: contrasenas, tokens completos, numeros de tarjeta.
 - Los logs incluyen: timestamp ISO 8601, identificador de usuario o sesion, IP de origen, accion ejecutada, resultado.
+
+### A10 — Falsificacion de solicitudes del lado del servidor (SSRF)
+
+- Prohibido realizar peticiones HTTP a URLs proporcionadas directamente por el usuario sin validacion estricta.
+- Las URLs de destino permitidas se definen en una lista blanca de dominios o rangos de IP. Bloquear explicitamente rangos de IP privados (10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16, 169.254.0.0/16) y localhost.
+- Los clientes HTTP internos usados para webhooks, importaciones de URL o integraciones externas tienen timeout configurado y no siguen redirecciones a dominios fuera de la lista blanca.
+- En entornos cloud, el endpoint de metadatos de instancia (ej: 169.254.169.254 en AWS) debe estar explicitamente bloqueado en el firewall de red si el servicio recibe URLs de usuarios.
 
 ## Gestion de Secretos
 
