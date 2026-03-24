@@ -1,6 +1,6 @@
 # AI-CORE: Nexus Multi-Agente Universal
 
-`ai-core` es un nucleo de configuracion y comportamiento para agentes IA que se incorpora a cualquier repositorio como submódulo Git. Su funcion es inyectar un conjunto de 14 reglas globales inmutables y 5 perfiles de comportamiento tecnico especializados (skills) sin acoplar su logica al stack del proyecto anfitrion.
+`ai-core` es un nucleo de configuracion y comportamiento para agentes IA que se incorpora a cualquier repositorio como submódulo Git. Su funcion es inyectar un conjunto de 14 reglas globales inmutables y 8 perfiles de comportamiento tecnico especializados (skills) sin acoplar su logica al stack del proyecto anfitrion.
 
 El sistema es framework-agnostic por diseño. No asume Node.js, Python, Go ni ningun otro lenguaje. Cada agente lee los manifiestos del repositorio anfitrion (`package.json`, `requirements.txt`, `go.mod`, etc.) al activarse y adapta sus recomendaciones al entorno real del proyecto, sin configuracion adicional.
 
@@ -141,16 +141,24 @@ Gestiona el ciclo de vida completo de entregas. Universal a cualquier plataforma
 Activar al: planificar releases, gestionar ramas, configurar pipelines o coordinar despliegues.
 
 **especialista-rag**
-Orquestador de contexto documental. Localiza `NOTEBOOKLM_WORKSPACE_ID` en el `.env` del anfitrion e inyecta documentacion tecnica externa al contexto activo via MCP.
-Activar al: incorporar documentacion externa, construir pipelines RAG o evaluar recuperacion semantica.
+Orquestador de contexto documental agnostico al motor RAG. Localiza la fuente documental configurada en el anfitrion (`NOTEBOOKLM_WORKSPACE_ID` u otro motor vectorial) e inyecta contexto tecnico externo via MCP o API directa. Opera en modo consultivo si no hay servidor MCP disponible.
+Activar al: incorporar documentacion externa, construir pipelines RAG, gestionar colecciones vectoriales o evaluar recuperacion semantica.
 
 **aiops-engineer**
-Agente de mantenimiento del propio nucleo ai-core. Audita la coherencia de los skills, analiza nuevas capacidades del ecosistema Anthropic y propone mejoras. Nunca modifica el nucleo sin confirmacion humana explicita.
+Agente de mantenimiento del propio nucleo ai-core. Audita la coherencia de los skills, analiza nuevas capacidades del ecosistema Anthropic y propone mejoras. Nunca modifica el nucleo sin confirmacion humana explicita. Las tareas que activan ALERTA_ARQUITECTONICA son candidatas a escalarse a `claude-opus-4-6` con extended thinking para el plan (OPUSPLAN).
 Activar al: auditar el estado del ai-core o proponer actualizaciones de skills.
 
 **qa-engineer**
 Especialista en estrategia de testing, piramide de calidad y contract testing. Agnostico al framework: deduce la herramienta de los manifiestos del anfitrion (Jest, Pytest, Vitest, Go testing, JUnit, etc.). Cubre piramide de tests, mocks, contract testing inter-servicio y gestion de datos de prueba.
 Activar al: definir estrategia de tests, evaluar cobertura, implementar contract testing, diagnosticar regresiones o auditar la calidad de los tests de un PR.
+
+**security-auditor**
+Especialista en seguridad de aplicaciones. Cubre auditoria de dependencias por severidad CVE, OWASP Top 10 por capa, modelado de amenazas STRIDE, configuracion de headers HTTP de seguridad (CSP, HSTS, CORS), gestion de secretos y protocolo de remediacion ante secreto expuesto en historial Git. Agnostico al stack.
+Activar al: auditar seguridad de una capa, revisar dependencias con CVEs, configurar politicas de seguridad HTTP, detectar secretos hardcodeados o evaluar requisitos de compliance (SOC 2, ISO 27001).
+
+**devops-infra**
+Especialista en infraestructura como codigo y observabilidad. Cubre aprovisionamiento con IaC (Terraform, Pulumi, CloudFormation, Helm), Kubernetes con probes y resources obligatorios, gestion de secretos en contenedores (External Secrets Operator, Sealed Secrets) y los tres pilares de observabilidad (metricas OpenMetrics, trazas OpenTelemetry, logs estructurados JSON). Agnostico al proveedor de nube.
+Activar al: disenar o modificar infraestructura, configurar observabilidad, gestionar secretos en Kubernetes o definir estrategias de despliegue en contenedores.
 
 ---
 
@@ -191,7 +199,10 @@ ai-core/
         ├── tech-lead-frontend/    SKILL.md
         ├── release-manager/       SKILL.md
         ├── especialista-rag/      SKILL.md
-        └── aiops-engineer/        SKILL.md
+        ├── aiops-engineer/        SKILL.md
+        ├── qa-engineer/           SKILL.md
+        ├── security-auditor/      SKILL.md
+        └── devops-infra/          SKILL.md
 ```
 
 ---
