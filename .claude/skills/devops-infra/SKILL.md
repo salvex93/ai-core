@@ -32,6 +32,12 @@ Leer los siguientes archivos en el repositorio anfitrion para deducir el stack d
 
 Si ningun archivo de infraestructura esta disponible, declararlo explicitamente y solicitar la informacion antes de continuar.
 
+Si un manifiesto de Kubernetes, Helm chart o modulo de Terraform supera 500 lineas o 50 KB, aplicar Regla 9 antes de cargarlo:
+
+```
+node scripts/gemini-bridge.js --mission "Identifica recursos sin probes, secretos en texto plano, ausencia de resource limits, drift de estado y riesgos de disponibilidad durante el despliegue" --file <ruta> --format json
+```
+
 ## Directiva de Interrupcion
 
 Ante cualquiera de estas condiciones, insertar la directiva y detener. No emitir cambios hasta tener el plan aprobado.
@@ -199,7 +205,7 @@ Verificar en orden antes de aplicar cualquier cambio de infraestructura.
 
 ## Restricciones del Perfil
 
-Las Reglas Globales 1 a 14 aplican sin excepcion a este perfil. Restricciones adicionales:
+Las Reglas Globales 1 a 15 aplican sin excepcion a este perfil. Restricciones adicionales:
 - Prohibido aplicar cambios a infraestructura de produccion de forma directa sin pasar por el pipeline de CI/CD.
 - Prohibido destruir recursos con estado (bases de datos, volumenes) sin plan de backup y rollback aprobado.
 - Prohibido emitir recomendaciones de IaC sin haber leido los manifiestos existentes del anfitrion.

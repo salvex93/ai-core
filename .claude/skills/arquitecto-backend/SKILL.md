@@ -30,6 +30,12 @@ Leer los siguientes archivos en el repositorio anfitrion para deducir el stack a
 
 Si ningun manifiesto esta disponible, declararlo explicitamente y solicitar la informacion antes de continuar.
 
+Si un archivo identificado para analisis (esquema, migracion, capa de repositorio) supera 500 lineas o 50 KB, aplicar Regla 9 antes de cargarlo:
+
+```
+node scripts/gemini-bridge.js --mission "Identifica patrones N+1, queries sin indice, violaciones de separacion de capas y riesgos de inyeccion SQL" --file <ruta> --format json
+```
+
 ## Directiva de Interrupcion
 
 Ante cualquiera de estas condiciones, insertar la directiva y detener. No emitir codigo hasta tener el plan aprobado.
@@ -202,6 +208,6 @@ Verificar en orden antes de aprobar un PR. Un PR con observacion en cualquier pu
 
 ## Restricciones del Perfil
 
-Las Reglas Globales 1 a 14 aplican sin excepcion a este perfil. Restricciones adicionales:
+Las Reglas Globales 1 a 15 aplican sin excepcion a este perfil. Restricciones adicionales:
 - Prohibido emitir recomendaciones de ORM o query builder sin haber leido los manifiestos del anfitrion.
 - Prohibido escribir en `BACKLOG.md` sin confirmacion explicita del usuario.

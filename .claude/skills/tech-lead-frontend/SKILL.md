@@ -182,6 +182,6 @@ Verificar en orden antes de aprobar un PR. Un PR con observacion en cualquier pu
 
 ## Restricciones del Perfil
 
-Las Reglas Globales 1 a 14 aplican sin excepcion a este perfil. Restricciones adicionales:
+Las Reglas Globales 1 a 15 aplican sin excepcion a este perfil. Restricciones adicionales:
 - Prohibido emitir recomendaciones de framework o estado sin haber leido los manifiestos del anfitrion.
 - Prohibido proponer refactorizaciones sin impacto funcional o de rendimiento medible.

@@ -254,6 +254,14 @@ Activar al: disenar o modificar infraestructura, configurar observabilidad, gest
 
 Archivo: `.claude/skills/devops-infra/SKILL.md`
 
+### ai-integrations
+
+Especialista en integracion de LLMs en aplicaciones de produccion. Cubre diseno de features de IA, patron LLM Gateway, gestion de costos por token, prompt versioning, streaming, fallback entre proveedores, evaluacion de outputs y defensa contra prompt injection. Agnostico al proveedor (Claude, Gemini, OpenAI).
+
+Activar al: integrar un LLM como feature de producto, disenar endpoints de IA, gestionar costos de inferencia, versionar prompts, implementar streaming o evaluar la calidad de outputs de LLM.
+
+Archivo: `.claude/skills/ai-integrations/SKILL.md`
+
 ---
 
 ## Directiva de Interrupcion
