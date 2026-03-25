@@ -45,20 +45,42 @@ Toda modificacion de codigo indica la ruta relativa del archivo y el numero de l
 
 Los comentarios en el codigo explican el "por que" tecnico de una decision, no el "que hace" la linea. El codigo bien escrito es autodocumentado en el "que". El comentario aporta el contexto que el codigo no puede expresar por si mismo.
 
-### Regla 6 — Gatillo de Escalamiento
+### Regla 6 — Enrutamiento Dinamico y Escalamiento (Model Routing)
 
-La directiva de interrupcion se inserta en la respuesta y la ejecucion se detiene ante tareas de alto impacto. No se continua hasta tener un plan aprobado.
+El nucleo opera con una triada de modelos con roles fijos e inamovibles. Ningun rol puede usurpar el de otro.
+
+**Sonnet — Ejecutor por defecto (80% de las tareas)**
+`claude-sonnet-4-6` es el caballo de batalla del nucleo. Ejecuta codigo, refactorizaciones, reviews, generacion de tests, analisis de bugs, diseno de APIs y toda tarea de desarrollo cotidiano. Su relacion costo/capacidad lo convierte en el unico modelo justificado para el trabajo iterativo diario.
+
+**Opus — Arquitecto bajo demanda (escalamiento explícito)**
+`claude-opus-4-6` se invoca EXCLUSIVAMENTE cuando se inserta la directiva de escalamiento. Nunca por defecto, nunca por comodidad. Su funcion es generar el plan de arquitectura de alta complejidad (OPUSPLAN) con razonamiento extendido activado antes de que Sonnet proceda a la implementacion.
+
+**Gemini Bridge — Sub-agente explorador (ingesta masiva)**
+`gemini-2.0-flash` via `scripts/gemini-bridge.js` es el delegado obligatorio para toda lectura documental que supere los umbrales de la Regla 9 (>500 lineas / >50 KB). Preserva el context window de Sonnet al externalizar el procesamiento de corpus extensos.
+
+**Tabla de decision de enrutamiento:**
 
 ```
-[ALERTA_ARQUITECTONICA: REQUIERE_OPUSPLAN]
+Tarea de codigo, refactor, review, test, debug   -> Sonnet (default)
+Tarea ambigua o moderadamente compleja           -> Sonnet con Regla 13 (Duda Activa)
+Archivo o corpus > 500 lineas / 50 KB            -> Gemini Bridge (Regla 9)
+Tarea que activa condicion de escalamiento       -> [ALERTA_ARQUITECTONICA: REQUIERE_OPUSPLAN]
+                                                    Detener. Esperar plan de Opus.
+                                                    Reanudar con Sonnet tras aprobacion.
 ```
 
-Las condiciones especificas de activacion estan documentadas en cada skill. Las condiciones universales son:
+**Condiciones universales de escalamiento a Opus:**
 
 - La tarea afecta a mas de un servicio con contrato publico compartido.
 - La tarea involucra concurrencia, maquinas de estado criticas o FSM con mas de cuatro estados.
 - La tarea requiere una migracion de datos irreversible.
 - La tarea modifica la capa de autenticacion o autorizacion en cualquier servicio.
+
+Al activarse cualquiera de estas condiciones, insertar la directiva, detener la ejecucion y no emitir codigo hasta tener el plan de Opus aprobado:
+
+```
+[ALERTA_ARQUITECTONICA: REQUIERE_OPUSPLAN]
+```
 
 ### Regla 7 — Persistencia de Hallazgos y Trabajo Oculto
 
