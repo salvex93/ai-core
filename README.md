@@ -1,5 +1,10 @@
 # AI-CORE: Nexus Multi-Agente Universal
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Open Source](https://img.shields.io/badge/Open%20Source-%E2%9C%93-brightgreen)](https://github.com/salvex93/ai-core)
+[![Skills](https://img.shields.io/badge/Skills-10%20activos-blue)](https://github.com/salvex93/ai-core/tree/main/.claude/skills)
+[![Contribuciones](https://img.shields.io/badge/Contribuciones-bienvenidas-orange)](CONTRIBUTING.md)
+
 `ai-core` es un nucleo de configuracion y comportamiento para agentes IA que se incorpora a cualquier repositorio como submódulo Git. Inyecta 15 reglas globales inmutables y 8 perfiles de comportamiento tecnico especializados (skills) sin acoplar su logica al stack del proyecto anfitrion.
 
 El sistema es framework-agnostic por diseño. No asume Node.js, Python, Go ni ningun otro lenguaje. Cada agente lee los manifiestos del repositorio anfitrion (`package.json`, `requirements.txt`, `go.mod`, etc.) al activarse y adapta sus recomendaciones al entorno real del proyecto.
@@ -383,3 +388,26 @@ El agente leera su propio codigo, propondra las mejoras y, tras tu aprobacion, e
 
 *Configuracion tecnica detallada: `CLAUDE.md`*
 *Documentacion operativa completa: `OPERATIONS.md`*
+
+---
+
+## Unete a la Revolucion (Comunidad y Enterprise)
+
+AI-CORE nacio de un problema real: trabajar con LLMs en produccion sin un sistema de reglas es costoso, inconsistente y dificil de mantener. Este nucleo es la solucion sistematizada.
+
+Esta liberado bajo licencia MIT. Puedes usarlo, modificarlo y distribuirlo en proyectos comerciales sin restricciones. La autoría es de salvex93 y permanece en el historial del repositorio.
+
+### Contribuir
+
+La forma mas impactante de contribuir es crear un nuevo skill para tu dominio tecnico. Si trabajas con Elixir, Flutter, Solidity, Ruby on Rails, o cualquier stack que el nucleo no cubre todavia, tu skill cierra esa brecha para toda la comunidad.
+
+La guia completa esta en [CONTRIBUTING.md](CONTRIBUTING.md). Incluye:
+
+- El frontmatter YAML obligatorio con ejemplo funcional.
+- Las cuatro secciones que todo `SKILL.md` debe tener.
+- Los estandares de codigo y commit que aplican sin excepcion.
+
+### Sponsoring
+
+Si este nucleo te ahorra horas reales a la semana, considera patrocinar el proyecto via GitHub Sponsors. Para equipos y organizaciones que necesitan configuracion privada, consultoría directa o formacion tecnica, las opciones Enterprise estan documentadas en [SPONSORING.md](SPONSORING.md).
+
