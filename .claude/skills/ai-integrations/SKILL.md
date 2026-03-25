@@ -121,6 +121,7 @@ Los valores exactos dependen del dominio del anfitrion. Definirlos como constant
 - El system prompt se cachea semanticamente por algunos proveedores (Anthropic prompt caching). Colocar instrucciones estaticas al inicio del system prompt para maximizar el hit rate de cache.
 - Truncar el historial de conversacion cuando supere el 60% del context window disponible. Conservar el system prompt completo y los ultimos N turnos relevantes.
 - Prohibido incluir archivos completos en prompts cuando solo se necesita un fragmento. Usar el Gemini Bridge o el skill `especialista-rag` para sintetizar el contenido primero.
+- En llamadas que usan tool use con Anthropic, activar la cabecera beta `anthropic-beta: token-efficient-tools-2025-02-19`. Reduce el overhead de tokens en tool use hasta un 70% (promedio 14%). Requiere `claude-sonnet-4-6` o superior.
 
 ### Logging obligatorio de tokens
 

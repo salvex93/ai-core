@@ -12,7 +12,7 @@ const path = require('path');
 
 // --- Parseo de argumentos CLI sin dependencias adicionales ---
 function parseArgs(argv) {
-  const args = { format: 'json', model: 'gemini-2.0-flash' };
+  const args = { format: 'json', model: 'gemini-2.5-flash' };
   for (let i = 2; i < argv.length; i++) {
     if ((argv[i] === '--mission' || argv[i] === '-m') && argv[i + 1]) {
       args.mission = argv[++i];
@@ -54,7 +54,7 @@ async function main() {
         '  node scripts/gemini-bridge.js --mission "<orden>" --file <ruta>',
         '  Flags opcionales:',
         '    --format  json|markdown  (default: json)',
-        '    --model   <model-id>     (default: gemini-2.0-flash)',
+        '    --model   <model-id>     (default: gemini-2.5-flash)',
         '',
       ].join('\n')
     );
