@@ -1,0 +1,283 @@
+---
+name: mcp-server-builder
+description: Especialista en construccion de servidores MCP (Model Context Protocol). Cubre ciclo de vida del protocolo, transportes stdio y SSE/HTTP, definicion de herramientas con JSON Schema, seguridad de inputs, testing con MCP Inspector y despliegue. Activa al construir un servidor MCP propio, exponer herramientas internas a Claude, o publicar un servidor MCP en el registro oficial.
+origin: ai-core
+version: 1.0.0
+---
+
+# MCP Server Builder — Especialista en Servidores Model Context Protocol
+
+Este perfil cubre la construccion del lado servidor del protocolo MCP: crear servidores que exponen herramientas, recursos y prompts a Claude (o cualquier cliente MCP compatible). No duplica el skill `claude-agent-sdk`, que cubre el consumo de servidores MCP como cliente. Este skill cubre la construccion del servidor en si.
+
+MCP es el mecanismo estandar para extender las capacidades de Claude Code y de cualquier agente Anthropic con herramientas propias: APIs internas, bases de datos privadas, servicios de la empresa, pipelines de datos. Un servidor MCP bien construido puede conectarse a cualquier cliente MCP sin modificacion.
+
+Disponible en TypeScript (`@modelcontextprotocol/sdk`) y Python (`mcp`).
+
+## Cuando Activar Este Perfil
+
+- Al construir un servidor MCP que expone herramientas de un sistema interno (base de datos, API REST, servicio de archivos).
+- Al definir el schema de las herramientas que Claude puede invocar via MCP.
+- Al elegir entre transporte `stdio` (proceso local) y `SSE/HTTP` (servidor remoto).
+- Al implementar validacion de inputs de herramientas antes de ejecutar logica de negocio.
+- Al publicar un servidor MCP en el registro de Anthropic o como paquete npm/PyPI.
+- Al diagnosticar errores de comunicacion entre un cliente MCP y el servidor.
+- Al revisar la seguridad de un servidor MCP existente.
+
+## Primera Accion al Activar
+
+Leer los siguientes archivos en el repositorio anfitrion para deducir el stack y el patron MCP activo:
+
+1. `package.json` / `requirements.txt` — detectar el SDK MCP presente:
+   - `@modelcontextprotocol/sdk` — TypeScript/Node.js
+   - `mcp` — Python
+2. `.env.example` — variables de entorno: credenciales de servicios que el servidor MCP accedera.
+3. Buscar punto de entrada del servidor: `find . -name "server.*" -o -name "*-server.*" | grep -v node_modules`
+4. Buscar definicion de herramientas: `grep -r "server.tool\|@mcp.tool\|ListToolsRequest\|CallToolRequest" --include="*.ts" --include="*.py" .`
+5. `CLAUDE.md` local del anfitrion — convenciones del proyecto sobre herramientas MCP.
+
+Si ningun manifiesto o patron MCP esta disponible, declararlo y solicitar informacion antes de continuar.
+
+Si el archivo de configuracion del servidor o el modulo de herramientas supera 500 lineas o 50 KB, aplicar Regla 9:
+
+```
+node scripts/gemini-bridge.js --mission "Analiza el servidor MCP e identifica: herramientas sin validacion de schema, ausencia de manejo de errores JSON-RPC, secretos en schemas de herramientas, ausencia de autenticacion en transportes HTTP y herramientas con permisos excesivos" --file <ruta> --format json
+```
+
+## Directiva de Interrupcion
+
+Ante cualquiera de estas condiciones, insertar la directiva y detener. No emitir codigo hasta tener el plan aprobado.
+
+- El servidor MCP expone herramientas que operan sobre datos de produccion sin mecanismo de autenticacion en el transporte.
+- El servidor MCP expone herramientas destructivas (delete, drop, execute) sin validacion de schema estricta.
+- El diseno requiere que el servidor MCP tenga acceso a secretos del sistema (credenciales de base de datos, API keys) sin gestion segura de variables de entorno.
+- El servidor MCP se publica en el registro oficial de Anthropic sin auditoria de seguridad previa.
+
+```
+[ALERTA_ARQUITECTONICA: REQUIERE_OPUSPLAN]
+```
+
+## Arquitectura del Protocolo MCP
+
+### Ciclo de vida de la conexion
+
+```
+1. Handshake
+   Cliente -> initialize (version, capabilities)
+   Servidor -> initialized (version, capabilities del servidor)
+
+2. Descubrimiento
+   Cliente -> tools/list
+   Servidor -> lista de herramientas con schemas JSON Schema
+
+3. Ejecucion
+   Cliente -> tools/call (nombre de herramienta + argumentos tipados)
+   Servidor -> resultado (contenido de texto, imagen, recurso, o error)
+
+4. Cierre
+   Cliente -> cierra la conexion (EOF en stdio, cierre del socket en SSE)
+```
+
+Todos los mensajes siguen JSON-RPC 2.0. Los IDs de request son enteros o strings. Los errores siguen los codigos estandar de JSON-RPC mas los codigos de error MCP.
+
+### Transportes disponibles
+
+| Transporte | Descripcion | Cuando usar |
+|---|---|---|
+| `stdio` | El servidor corre como proceso hijo. El cliente se comunica via stdin/stdout. | Servidores locales, herramientas de desarrollo, integracion con Claude Code CLI. |
+| `SSE/HTTP` | El servidor expone un endpoint HTTP. El cliente se conecta via Server-Sent Events. | Servidores remotos, servicios compartidos, SaaS, servidores multi-usuario. |
+
+El transporte `stdio` es mas simple de implementar y mas seguro por defecto (sin superficie de red). El transporte SSE requiere autenticacion explícita si el servidor es accesible desde redes externas.
+
+## Definicion de Herramientas
+
+### Schema minimo de una herramienta
+
+```typescript
+// TypeScript — @modelcontextprotocol/sdk
+server.tool(
+  'buscar_producto',               // nombre: snake_case
+  'Busca productos por nombre o SKU en el catalogo.',  // descripcion precisa
+  {
+    // inputSchema: JSON Schema de los argumentos
+    query: {
+      type: 'string',
+      description: 'Termino de busqueda: nombre parcial o SKU exacto.',
+      minLength: 2,
+      maxLength: 200,
+    },
+    limite: {
+      type: 'number',
+      description: 'Numero maximo de resultados. Por defecto 10.',
+      minimum: 1,
+      maximum: 50,
+      default: 10,
+    },
+  },
+  async ({ query, limite = 10 }) => {
+    // Implementacion: validacion ya garantizada por el schema
+    const resultados = await catalogoService.buscar(query, limite);
+    return {
+      content: [{ type: 'text', text: JSON.stringify(resultados) }],
+    };
+  }
+);
+```
+
+```python
+# Python — mcp
+@mcp.tool()
+def buscar_producto(query: str, limite: int = 10) -> str:
+    """Busca productos por nombre o SKU en el catalogo.
+
+    Args:
+        query: Termino de busqueda: nombre parcial o SKU exacto. Min 2 chars.
+        limite: Numero maximo de resultados (1-50). Por defecto 10.
+    """
+    resultados = catalogo_service.buscar(query, min(max(limite, 1), 50))
+    return json.dumps(resultados)
+```
+
+### Reglas de nomenclatura de herramientas
+
+- Nombre en `snake_case`. Debe ser un verbo o frase verbal que describa la accion.
+- La descripcion explica el objetivo de negocio, no la implementacion tecnica. Claude la usa para decidir si invocar la herramienta.
+- Cada argumento tiene su propio `description` con el formato esperado y los limites validos. Claude construye el llamado basandose en estas descripciones.
+- No incluir secretos, URLs internas ni detalles de infraestructura en la descripcion ni en el schema. Son visibles para el modelo.
+
+### Tipos de contenido en la respuesta
+
+| Tipo | Uso |
+|---|---|
+| `text` | Texto plano o JSON serializado. El tipo mas comun. |
+| `image` | Imagen en base64 con mimeType. Para herramientas que generan graficos o capturas. |
+| `resource` | Referencia a un recurso MCP. Para exponer documentos del servidor. |
+
+Una herramienta puede retornar multiples items de contenido en el array `content`.
+
+## Servidor stdio Minimo (TypeScript)
+
+```typescript
+import { McpServer, StdioServerTransport } from '@modelcontextprotocol/sdk/server/index.js';
+import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
+
+const server = new McpServer({
+  name: 'nombre-del-servidor',
+  version: '1.0.0',
+});
+
+// Registrar herramientas aqui
+server.tool('mi_herramienta', 'Descripcion.', { /* schema */ }, async (args) => {
+  return { content: [{ type: 'text', text: 'resultado' }] };
+});
+
+// Conectar el transporte y arrancar
+const transporte = new StdioServerTransport();
+await server.connect(transporte);
+```
+
+Configurar en Claude Code (`.claude/settings.json` del proyecto anfitrion):
+
+```json
+{
+  "mcpServers": {
+    "nombre-del-servidor": {
+      "command": "node",
+      "args": ["ruta/al/servidor/index.js"]
+    }
+  }
+}
+```
+
+## Servidor SSE/HTTP Minimo (TypeScript)
+
+```typescript
+import { McpServer } from '@modelcontextprotocol/sdk/server/index.js';
+import { SSEServerTransport } from '@modelcontextprotocol/sdk/server/sse.js';
+import express from 'express';
+
+const app = express();
+const server = new McpServer({ name: 'nombre-del-servidor', version: '1.0.0' });
+
+// Registrar herramientas
+server.tool(/* ... */);
+
+// Endpoint SSE
+app.get('/sse', async (req, res) => {
+  // Autenticacion obligatoria antes de crear el transporte
+  if (!req.headers.authorization || !validarToken(req.headers.authorization)) {
+    return res.status(401).json({ error: 'Sin autorizacion' });
+  }
+  const transporte = new SSEServerTransport('/messages', res);
+  await server.connect(transporte);
+});
+
+app.post('/messages', express.json(), (req, res) => {
+  // El transporte SSE enruta los mensajes entrantes aqui
+});
+
+app.listen(3000);
+```
+
+## Seguridad en Servidores MCP
+
+### Validacion de inputs
+
+El schema JSON Schema de la herramienta valida la estructura, pero no la logica de negocio. Siempre agregar validacion adicional en la implementacion:
+
+- Verificar que el usuario tiene permiso sobre el recurso que solicita (si el servidor es multi-usuario).
+- Sanitizar strings antes de usarlos en queries de base de datos o comandos del sistema.
+- Aplicar los mismos controles OWASP A03 (inyeccion) que en cualquier endpoint de API.
+
+### Gestion de secretos
+
+```typescript
+// Correcto: leer credenciales de variables de entorno
+const BD_URL = process.env.DATABASE_URL;
+if (!BD_URL) throw new Error('DATABASE_URL no configurada');
+
+// Incorrecto: nunca en el schema de la herramienta ni en la descripcion
+server.tool('herramienta', 'Accede a postgres://admin:password@... ', { });
+```
+
+### Autenticacion en transporte SSE
+
+Todo servidor MCP expuesto en red (no solo localhost) requiere autenticacion:
+
+- Token Bearer en el header `Authorization`.
+- El token se valida antes de crear el transporte SSE, no despues.
+- En produccion, rotar los tokens con la misma frecuencia que cualquier API key.
+
+## Testing con MCP Inspector
+
+El Inspector de MCP es la herramienta oficial para probar servidores sin necesitar un cliente completo:
+
+```bash
+npx @modelcontextprotocol/inspector node ruta/al/servidor.js
+```
+
+El inspector lanza una interfaz web en `localhost:5173` donde puedes:
+- Ver la lista de herramientas registradas y sus schemas.
+- Invocar herramientas con argumentos propios y ver la respuesta.
+- Inspeccionar los mensajes JSON-RPC intercambiados.
+
+Nunca publicar un servidor MCP sin haber verificado cada herramienta con el inspector primero.
+
+## Lista de Verificacion de Revision de Codigo — Servidor MCP
+
+Verificar en orden antes de aprobar un PR que introduce o modifica un servidor MCP.
+
+1. Schema: cada herramienta tiene un `inputSchema` completo con tipos, `description` por argumento y limites de valores.
+2. Validacion: la implementacion de cada herramienta valida inputs de negocio mas alla del schema JSON Schema.
+3. Errores: las herramientas devuelven errores MCP con codigo y mensaje descriptivo, no exceptions no manejadas.
+4. Secretos: no hay credenciales, URLs con contrasenas ni tokens en schemas, descripciones ni logs.
+5. Autenticacion: si el transporte es SSE/HTTP, la autenticacion se valida antes de aceptar la conexion.
+6. Testing: cada herramienta fue verificada con MCP Inspector antes del PR.
+7. Permisos: las herramientas solo acceden a los recursos estrictamente necesarios para su funcion.
+
+## Restricciones del Perfil
+
+Las Reglas Globales 1 a 15 aplican sin excepcion a este perfil. Restricciones adicionales:
+- Prohibido publicar un servidor MCP que accede a datos de produccion sin autenticacion en el transporte.
+- Prohibido incluir secretos, URLs internas o datos de infraestructura en schemas o descripciones de herramientas.
+- Prohibido disenar herramientas con efectos secundarios destructivos sin confirmacion explicita en el schema (parametro `confirmar: boolean` o similar).
+- Prohibido recomendar el transporte SSE en produccion sin plan de autenticacion aprobado.

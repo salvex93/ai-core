@@ -2,7 +2,7 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Open Source](https://img.shields.io/badge/Open%20Source-%E2%9C%93-brightgreen)](https://github.com/salvex93/ai-core)
-[![Skills](https://img.shields.io/badge/Skills-10%20activos-blue)](https://github.com/salvex93/ai-core/tree/main/.claude/skills)
+[![Skills](https://img.shields.io/badge/Skills-12%20activos-blue)](https://github.com/salvex93/ai-core/tree/main/.claude/skills)
 [![Contribuciones](https://img.shields.io/badge/Contribuciones-bienvenidas-orange)](CONTRIBUTING.md)
 
 `ai-core` es un nucleo de configuracion y comportamiento para agentes IA que se incorpora a cualquier repositorio como submódulo Git. Inyecta 15 reglas globales inmutables y 8 perfiles de comportamiento tecnico especializados (skills) sin acoplar su logica al stack del proyecto anfitrion.
@@ -301,8 +301,16 @@ Especialista en integracion de LLMs en aplicaciones de produccion. Cubre el patr
 Activar al: integrar un LLM como feature de producto, disenar endpoints de IA, gestionar costos de inferencia, versionar prompts en produccion, implementar streaming o evaluar outputs de LLM.
 
 **claude-agent-sdk**
-Especialista en construccion de agentes autonomos con el Claude Agent SDK (TypeScript/Python). Cubre herramientas integradas (bash, text_editor, browser, computer use), hooks de ciclo de vida pre/post tool call para auditoria y control, composicion de subagentes con roles diferenciados, integracion de servidores MCP, gestion de permisos por herramienta (minimo privilegio) y sesiones persistentes multi-turno.
+Especialista en construccion de agentes autonomos con el Claude Agent SDK (TypeScript/Python). Cubre herramientas integradas (bash, text_editor, browser, computer use, web_search_20250305), hooks de ciclo de vida pre/post tool call para auditoria y control, composicion de subagentes con roles diferenciados, integracion de servidores MCP, gestion de permisos por herramienta (minimo privilegio) y sesiones persistentes multi-turno.
 Activar al: construir un agente personalizado con el Agent SDK, orquestar subagentes, definir hooks de validacion o logging, integrar MCP en el ciclo del agente o disenar flujos de automatizacion con Claude.
+
+**mcp-server-builder**
+Especialista en construccion del lado servidor del protocolo MCP. Cubre el ciclo de vida (initialize, tools/list, tools/call), transportes stdio y SSE/HTTP, definicion de herramientas con JSON Schema, seguridad de inputs, autenticacion en SSE, gestion de secretos y testing con MCP Inspector.
+Activar al: construir un servidor MCP propio, exponer herramientas internas a Claude, elegir entre stdio y SSE/HTTP, o revisar la seguridad de un servidor MCP existente.
+
+**premium-ops**
+Perfil de consciencia operativa del ecosistema premium local. Garantiza el aislamiento de `scripts/premium/` del repositorio publico, verifica el estado del auto-sync y protege el hook Stop de ejecuciones no deseadas en proyectos anfitriones.
+Activar al: trabajar directamente en el ai-core, diagnosticar el hook Stop o incorporar nuevos scripts de automatizacion privados.
 
 ---
 

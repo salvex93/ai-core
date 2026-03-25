@@ -116,6 +116,18 @@ Definir un presupuesto de tokens por tipo de operacion antes de desplegar en pro
 
 Los valores exactos dependen del dominio del anfitrion. Definirlos como constantes de configuracion, no como literales dispersos en el codigo.
 
+### Seleccion de tier de modelo
+
+No toda operacion justifica `claude-sonnet-4-6`. Definir el tier por tipo de tarea antes de implementar:
+
+| Tier | Modelo | Cuando usar |
+|---|---|---|
+| Razonamiento complejo | `claude-opus-4-6` | Arquitectura, planificacion, analisis critico de negocio |
+| Ejecucion estandar | `claude-sonnet-4-6` | Generacion de codigo, resumen, chat, operaciones cotidianas |
+| Volumen alto / costo optimizado | `claude-haiku-4-5-20251001` | Clasificacion, extraccion de datos, moderacion, tareas simples en lote |
+
+`claude-haiku-4-5-20251001` es el tier de costo minimo. Su latencia y precio por token son significativamente menores que Sonnet. Usarlo en cualquier flujo donde la tarea es determinista, repetitiva o no requiere razonamiento complejo. El ahorro acumulado en produccion bajo carga es sustancial.
+
 ### Optimizacion de prompts para costo
 
 - El system prompt se cachea semanticamente por algunos proveedores (Anthropic prompt caching). Colocar instrucciones estaticas al inicio del system prompt para maximizar el hit rate de cache.
@@ -142,6 +154,44 @@ Todo llamado al LLM registra en el sistema de observabilidad del anfitrion:
 ```
 
 Sin este log, la auditoria de costos es imposible y las regresiones de eficiencia pasan desapercibidas.
+
+## Extended Thinking
+
+Extended Thinking permite que el modelo razone internamente antes de producir la respuesta final. Los tokens de thinking son facturables y se controlan con `budget_tokens`.
+
+```typescript
+import Anthropic from '@anthropic-ai/sdk';
+
+const cliente = new Anthropic();
+
+const respuesta = await cliente.messages.create({
+  model: 'claude-sonnet-4-6',
+  max_tokens: 16000,
+  thinking: {
+    type: 'enabled',
+    budget_tokens: 8000, // maximo de tokens dedicados al razonamiento interno
+  },
+  messages: [{ role: 'user', content: prompt }],
+});
+
+// La respuesta incluye bloques de tipo 'thinking' y 'text'
+for (const bloque of respuesta.content) {
+  if (bloque.type === 'thinking') {
+    // Loguear tokens de thinking en observabilidad — se facturan separado
+    logger.debug({ evento: 'thinking_block', tokens: bloque.thinking.length });
+  }
+  if (bloque.type === 'text') {
+    resultado = bloque.text;
+  }
+}
+```
+
+Reglas de uso:
+- `budget_tokens` minimo recomendado: 1024. Por debajo de ese valor el modelo no produce razonamiento util.
+- `max_tokens` debe ser mayor que `budget_tokens`. El limite total incluye thinking + output.
+- Los tokens de thinking se loguean separado de los tokens de salida en el sistema de observabilidad.
+- No activar Extended Thinking en operaciones de alto volumen o clasificaciones simples: el costo se multiplica. Reservar para tareas de razonamiento complejo (arquitectura, analisis legal, diagnostico tecnico).
+- Temperatura fija en 1 cuando thinking esta activo (comportamiento del API).
 
 ## Versionado de Prompts en Produccion
 

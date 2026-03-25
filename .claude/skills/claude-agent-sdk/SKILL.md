@@ -8,7 +8,7 @@ origin: ai-core
 
 Este perfil cubre la construccion de agentes autonomos con el Claude Agent SDK de Anthropic. Su dominio es la orquestacion de herramientas, la gestion del ciclo de vida del agente, la composicion de subagentes y la integracion con servidores MCP. No duplica el skill `ai-integrations`; donde ese skill cubre llamadas directas al LLM como feature de producto, este skill cubre la construccion de agentes que razonan, actuan y se coordinan entre si.
 
-Disponible en TypeScript (`@anthropic-ai/claude-code`) y Python (`anthropic`). Los patrones son equivalentes entre lenguajes.
+Disponible en TypeScript (`@anthropic-ai/sdk`) y Python (`anthropic`). Para extender el ciclo de Claude Code con herramientas y hooks propios, usar el paquete `claude-code-sdk` (TypeScript). Los patrones son equivalentes entre lenguajes.
 
 ## Cuando Activar Este Perfil
 
@@ -91,6 +91,9 @@ El Agent SDK expone herramientas nativas que no requieren implementacion:
 | `text_editor` | Lee y edita archivos | Modificaciones de codigo, configuracion |
 | `browser` | Navega paginas web | Investigacion, scraping estructurado |
 | `computer` | Control de GUI (computer use) | Automatizacion de interfaces de escritorio |
+| `web_search_20250305` | Busqueda web en tiempo real via API Anthropic | Datos actuales, documentacion externa, noticias |
+
+`web_search_20250305` es una herramienta nativa del API de Anthropic (no requiere implementacion propia). Se activa pasandola en el array `tools` de la llamada. El modelo decide cuando invocarla en funcion del prompt. No esta disponible en Claude Code CLI por defecto; requiere llamada directa al API con la herramienta declarada explicitamente.
 
 Las herramientas destructivas (`bash` con rm/delete, `text_editor` con write) requieren el hook de confirmacion humana en contextos de produccion o cuando operan sobre repositorios compartidos.
 

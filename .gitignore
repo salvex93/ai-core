@@ -6,3 +6,6 @@
 
 # Archivos de configuracion de workspace generados localmente
 NOTEBOOK_SETUP.md
+
+# Scripts de automatizacion premium — nunca al repositorio publico
+scripts/premium/
