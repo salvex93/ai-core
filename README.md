@@ -167,6 +167,59 @@ El skill `especialista-rag` actua como Gestor de Misiones: redacta las ordenes d
 
 ---
 
+## Enrutamiento de Modelos y Optimizacion de Tokens
+
+### La triada de ejecucion
+
+El nucleo opera con tres capas de procesamiento con responsabilidades distintas:
+
+| Capa | Modelo | Rol | Activacion |
+|---|---|---|---|
+| Ejecutor principal | `claude-sonnet-4-6` | 80% de las tareas: codigo, refactor, review, debug, tests | Default en toda sesion |
+| Arquitecto | `claude-opus-4-6` | Tareas que activan `[ALERTA_ARQUITECTONICA: REQUIERE_OPUSPLAN]` | Escalamiento explicito via Regla 6 |
+| Sub-agente documental | `gemini-2.0-flash` | Analisis de corpus >500 lineas o >50 KB | Automatico via Regla 9 |
+
+### Tabla de decision de enrutamiento
+
+| Condicion de la tarea | Accion del agente |
+|---|---|
+| Tarea de codigo, refactor, review, test, debug | Sonnet (default) |
+| Tarea ambigua o moderadamente compleja | Sonnet + pausa activa (Regla 13) |
+| Archivo o corpus > 500 lineas / 50 KB | Gemini Bridge (Regla 9) |
+| Tarea que activa condicion de escalamiento | `[ALERTA_ARQUITECTONICA: REQUIERE_OPUSPLAN]` → Opus |
+
+### Optimizacion del context window — Configuracion global
+
+Los siguientes parametros en `~/.claude/settings.json` controlan el consumo del context window a nivel global (aplican a todas las sesiones):
+
+```json
+{
+  "model": "claude-sonnet-4-6",
+  "env": {
+    "CLAUDE_AUTOCOMPACT_PCT_OVERRIDE": "50",
+    "MAX_THINKING_TOKENS": "10000"
+  }
+}
+```
+
+- **`CLAUDE_AUTOCOMPACT_PCT_OVERRIDE: 50`** — Fuerza la compactacion automatica del historial al llegar al 50% del context window. El default del sistema es ~80-90%. Reducirlo a 50 mantiene el contexto util mas agil en sesiones largas.
+- **`MAX_THINKING_TOKENS: 10000`** — Limita el razonamiento extendido oculto a 10.000 tokens. Sin este limite, el thinking puede consumir hasta 32.000 tokens en tareas complejas sin mejora observable en la calidad de la respuesta para la mayoria de las tareas de desarrollo.
+
+Estos parametros son seguros. No afectan la calidad de respuesta en tareas normales; solo evitan consumo excesivo en edge cases.
+
+### Cuando escalar a Opus manualmente
+
+Las condiciones universales de escalamiento (Regla 6) son:
+
+- La tarea afecta a mas de un servicio con contrato publico compartido.
+- La tarea involucra concurrencia, maquinas de estado criticas o FSM con mas de cuatro estados.
+- La tarea requiere una migracion de datos irreversible.
+- La tarea modifica la capa de autenticacion o autorizacion en cualquier servicio.
+
+Condiciones adicionales estan documentadas en la seccion "Directiva de Interrupcion" de cada skill.
+
+---
+
 ## Flujo de Trabajo y Memoria
 
 ### Memoria Interna — BACKLOG.md
@@ -255,7 +308,7 @@ Las 15 reglas son inmutables. Aplican a todos los perfiles sin excepcion. El det
 | 3 | Exploracion Dinamica | Lee manifiestos del anfitrion antes de emitir cualquier recomendacion. |
 | 4 | Minimo Cambio | No inventa logica no solicitada. Excepciones activas para Reglas 10, 11 y 12. |
 | 5 | Precision Quirurgica | Toda modificacion incluye ruta relativa y numero de linea exacto. Comenta el "por que". |
-| 6 | Gatillo de Escalamiento | Inserta `[ALERTA_ARQUITECTONICA: REQUIERE_OPUSPLAN]` ante tareas de alto impacto. |
+| 6 | Enrutamiento Dinamico y Escalamiento | Define la triada Sonnet/Opus/Gemini. Escala a Opus bajo `[ALERTA_ARQUITECTONICA: REQUIERE_OPUSPLAN]`. Delega corpus grandes al Gemini Bridge. |
 | 7 | Persistencia y Trabajo Oculto | Registra hallazgos en BACKLOG.md (tabla 12 columnas). Registra trabajo oculto. |
 | 8 | Git Flow Universal | Ramas aisladas. Conventional Commits. Pipeline verde antes de merge. |
 | 9 | Brain-Sync (Gemini Bridge) | Delega analisis >500 lineas / >50KB a `scripts/gemini-bridge.js`. |
