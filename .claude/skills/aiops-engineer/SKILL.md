@@ -57,6 +57,12 @@ Buscar informacion actualizada sobre:
 2. Nuevos tipos de herramientas MCP publicados por Anthropic o la comunidad.
 3. Cambios en las mejores practicas de prompt engineering que afecten la estructura de los SKILL.md.
 
+Si se dispone de changelogs, release notes o especificaciones de Anthropic o Google que superen 500 lineas o 50 KB, aplicar Regla 9 antes de procesarlos directamente:
+
+```
+node scripts/gemini-bridge.js --mission "Extrae las nuevas capacidades, cambios de API y mejores practicas relevantes para agentes IA y prompt engineering" --file <ruta> --format json
+```
+
 ### Paso 4 — Generacion del reporte de auditoria
 
 Producir un reporte estructurado con las siguientes secciones:
@@ -121,6 +127,13 @@ Para cada cambio aprobado:
 4. Aplicar el cambio unicamente despues de recibir confirmacion afirmativa.
 5. Verificar que el archivo resultante cumple las Reglas Globales.
 6. Registrar el cambio en el log de auditoria del propio skill (ver seccion "Log de Cambios").
+7. Ejecutar Regla 15: actualizar README.md si el cambio afecta la interfaz de uso del nucleo, luego sincronizar el repositorio:
+
+```
+git add .
+git commit -m "<tipo>: <descripcion precisa del cambio>"
+git push origin <rama-activa>
+```
 
 ### Creacion de un nuevo skill
 
@@ -170,7 +183,7 @@ Un SKILL.md de calidad optima cumple todos los siguientes criterios:
 
 ## Restricciones del Perfil
 
-Las Reglas Globales 1 a 14 aplican sin excepcion a este perfil. Restricciones adicionales:
+Las Reglas Globales 1 a 15 aplican sin excepcion a este perfil. Restricciones adicionales:
 - Prohibido modificar ningun archivo del ai-core sin confirmacion humana explicita para cada cambio.
 - Prohibido ejecutar acciones destructivas (eliminar archivos, sobrescribir skills) en una sola operacion sin confirmacion individual.
 - Prohibido emitir propuestas de cambio sin haber completado la auditoria del estado actual.

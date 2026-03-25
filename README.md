@@ -238,6 +238,10 @@ Activar al: auditar seguridad de una capa, revisar dependencias con CVEs, config
 Especialista en infraestructura como codigo y observabilidad. Cubre aprovisionamiento con IaC (Terraform, Pulumi, CloudFormation, Helm), Kubernetes, gestion de secretos en contenedores y los tres pilares de observabilidad (metricas, trazas, logs estructurados).
 Activar al: disenar o modificar infraestructura, configurar observabilidad, gestionar secretos en Kubernetes o definir estrategias de despliegue en contenedores.
 
+**ai-integrations**
+Especialista en integracion de LLMs en aplicaciones de produccion. Cubre el patron LLM Gateway para abstraer proveedores (Claude, Gemini, OpenAI), gestion de costos por token con logging obligatorio, prompt versioning con evaluacion antes de promover, streaming con contrato de eventos, fallback con circuit breaker entre proveedores, manejo de rate limits y defensa contra prompt injection. Agnostico al proveedor.
+Activar al: integrar un LLM como feature de producto, disenar endpoints de IA, gestionar costos de inferencia, versionar prompts en produccion, implementar streaming o evaluar outputs de LLM.
+
 ---
 
 ## Reglas Globales — Referencia Rapida
@@ -288,7 +292,8 @@ ai-core/
         ├── aiops-engineer/        SKILL.md
         ├── qa-engineer/           SKILL.md
         ├── security-auditor/      SKILL.md
-        └── devops-infra/          SKILL.md
+        ├── devops-infra/          SKILL.md
+        └── ai-integrations/       SKILL.md
 ```
 
 ---

@@ -31,6 +31,12 @@ Leer los siguientes archivos en el repositorio anfitrion para deducir el stack y
 
 Si ningun manifiesto esta disponible, declararlo explicitamente y solicitar la informacion antes de continuar.
 
+Si un archivo de codigo fuente a auditar supera 500 lineas o 50 KB, aplicar Regla 9 antes de cargarlo:
+
+```
+node scripts/gemini-bridge.js --mission "Audita el archivo segun OWASP Top 10: detecta inyecciones, secretos hardcodeados, endpoints sin autenticacion, validacion ausente en entradas de usuario y exposicion de datos sensibles en logs o respuestas de error" --file <ruta> --format json
+```
+
 ## Directiva de Interrupcion
 
 Ante cualquiera de estas condiciones, insertar la directiva y detener. No emitir codigo ni recomendacion adicional hasta tener el plan aprobado.
@@ -199,7 +205,7 @@ Verificar en orden antes de aprobar un PR. Un PR con observacion en cualquier pu
 
 ## Restricciones del Perfil
 
-Las Reglas Globales 1 a 14 aplican sin excepcion a este perfil. Restricciones adicionales:
+Las Reglas Globales 1 a 15 aplican sin excepcion a este perfil. Restricciones adicionales:
 - Prohibido emitir recomendaciones de seguridad sin haber leido los manifiestos del anfitrion.
 - Ante la deteccion de un secreto real en el codigo, detener toda otra actividad y notificar al usuario de forma inmediata como primera accion.
 - Prohibido proponer reducir controles de seguridad existentes sin justificacion documentada y aprobacion explicita.

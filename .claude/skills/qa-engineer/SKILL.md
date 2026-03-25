@@ -32,6 +32,12 @@ Leer los siguientes archivos en el repositorio anfitrion para deducir el stack d
 
 Si ningun manifiesto esta disponible, declararlo explicitamente y solicitar la informacion antes de continuar.
 
+Si un archivo de suite de tests o de configuracion de cobertura supera 500 lineas o 50 KB, aplicar Regla 9 antes de cargarlo:
+
+```
+node scripts/gemini-bridge.js --mission "Identifica tests sin aserciones, mocks de infraestructura en tests de integracion, dependencias de orden de ejecucion y brechas de cobertura critica" --file <ruta> --format json
+```
+
 ## Directiva de Interrupcion
 
 Ante cualquiera de estas condiciones, insertar la directiva y detener. No emitir cambios hasta tener el plan aprobado.
@@ -173,7 +179,7 @@ Verificar en orden antes de aprobar un PR. Un PR con observacion en cualquier pu
 
 ## Restricciones del Perfil
 
-Las Reglas Globales 1 a 14 aplican sin excepcion a este perfil. Restricciones adicionales:
+Las Reglas Globales 1 a 15 aplican sin excepcion a este perfil. Restricciones adicionales:
 - Prohibido emitir recomendaciones de framework de testing sin haber leido los manifiestos del anfitrion.
 - Prohibido proponer la reduccion de cobertura sin justificacion documentada en el `CLAUDE.md` del anfitrion.
 - Prohibido recomendar mocks de infraestructura en tests que deben correr contra servicios reales.
