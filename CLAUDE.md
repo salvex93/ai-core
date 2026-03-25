@@ -53,10 +53,10 @@ El nucleo opera con una triada de modelos con roles fijos e inamovibles. Ningun 
 `claude-sonnet-4-6` es el caballo de batalla del nucleo. Ejecuta codigo, refactorizaciones, reviews, generacion de tests, analisis de bugs, diseno de APIs y toda tarea de desarrollo cotidiano. Su relacion costo/capacidad lo convierte en el unico modelo justificado para el trabajo iterativo diario.
 
 **Opus — Arquitecto bajo demanda (escalamiento explícito)**
-`claude-opus-4-6` se invoca EXCLUSIVAMENTE cuando se inserta la directiva de escalamiento. Nunca por defecto, nunca por comodidad. Su funcion es generar el plan de arquitectura de alta complejidad (OPUSPLAN) con razonamiento extendido activado antes de que Sonnet proceda a la implementacion.
+`claude-opus-4-6` se invoca EXCLUSIVAMENTE cuando se inserta la directiva de escalamiento. Nunca por defecto, nunca por comodidad. Su funcion es generar el plan de arquitectura de alta complejidad (OPUSPLAN) con adaptive thinking activado antes de que Sonnet proceda a la implementacion.
 
 **Gemini Bridge — Sub-agente explorador (ingesta masiva)**
-`gemini-2.0-flash` via `scripts/gemini-bridge.js` es el delegado obligatorio para toda lectura documental que supere los umbrales de la Regla 9 (>500 lineas / >50 KB). Preserva el context window de Sonnet al externalizar el procesamiento de corpus extensos.
+`gemini-2.5-flash` via `scripts/gemini-bridge.js` es el delegado obligatorio para toda lectura documental que supere los umbrales de la Regla 9 (>500 lineas / >50 KB). Preserva el context window de Sonnet al externalizar el procesamiento de corpus extensos.
 
 **Tabla de decision de enrutamiento:**
 
@@ -126,6 +126,8 @@ Al recibir la instrucción explícita "haz el flujo de git", el agente ejecutar�
 ### Regla 9 — Delegacion de Analisis Masivo (Protocolo Brain-Sync)
 
 Ante cualquier tarea que implique lectura documental profunda, analisis de archivos de gran tamano o procesamiento de corpus extensos, el agente DEBE delegar la operacion al sub-agente Gemini Bridge en lugar de cargar el contenido completo en el contexto activo.
+
+Esta es una politica de COSTO, no de capacidad. Claude Sonnet 4.6 y Opus 4.6 disponen de un context window de 1M de tokens, pero cargar corpus extensos en el contexto principal consume tokens de entrada facturables y degrada la calidad de respuesta en el resto de la sesion. La delegacion al Bridge externaliza ese costo.
 
 Condiciones que activan la delegacion obligatoria:
 - El archivo supera 500 lineas o 50 KB.
@@ -284,6 +286,14 @@ Activar al: integrar un LLM como feature de producto, disenar endpoints de IA, g
 
 Archivo: `.claude/skills/ai-integrations/SKILL.md`
 
+### claude-agent-sdk
+
+Especialista en construccion de agentes autonomos con el Claude Agent SDK (TypeScript/Python). Cubre herramientas integradas (bash, text_editor, browser, computer use), hooks de ciclo de vida (pre/post tool call), composicion de subagentes, integracion de servidores MCP, gestion de permisos por herramienta y sesiones persistentes.
+
+Activar al: construir un agente personalizado con el Agent SDK, orquestar subagentes con roles diferenciados, definir hooks de validacion o logging, integrar MCP en el ciclo del agente o disenar flujos de automatizacion multi-turno con Claude.
+
+Archivo: `.claude/skills/claude-agent-sdk/SKILL.md`
+
 ---
 
 ## Directiva de Interrupcion
@@ -296,7 +306,7 @@ Todos los perfiles comparten la misma directiva de escalada:
 
 Esta directiva se inserta en la respuesta y detiene la ejecucion. No se emite codigo ni recomendacion adicional hasta tener un plan detallado y aprobado. Las condiciones especificas de activacion estan en la seccion "Directiva de Interrupcion" de cada skill.
 
-El nombre OPUSPLAN refiere al escalamiento de la planificacion a `claude-opus-4-6` con razonamiento extendido activado (extended thinking). Ante una ALERTA_ARQUITECTONICA, la sesion activa puede escalarse al modelo de mayor capacidad para generar el plan de arquitectura antes de proceder a la implementacion.
+El nombre OPUSPLAN refiere al escalamiento de la planificacion a `claude-opus-4-6` con adaptive thinking activado. Ante una ALERTA_ARQUITECTONICA, la sesion activa puede escalarse al modelo de mayor capacidad para generar el plan de arquitectura antes de proceder a la implementacion.
 
 ---
 

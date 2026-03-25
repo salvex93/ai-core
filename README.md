@@ -117,7 +117,7 @@ El agente hereda automaticamente las 15 reglas globales del `CLAUDE.md` del nucl
 
 ## Gemini RAG Bridge
 
-El Gemini Bridge es el mecanismo de analisis documental masivo del nucleo. Resuelve el problema del agotamiento del context window al delegar lecturas de archivos grandes a Gemini como proceso externo.
+El Gemini Bridge es el mecanismo de analisis documental masivo del nucleo. Externaliza lecturas de archivos grandes a Gemini como proceso separado. Esta es una politica de COSTO, no de capacidad: Claude 4.x dispone de 1M de tokens de contexto, pero cargar corpus extensos consume tokens de entrada facturables y degrada la calidad de respuesta en el resto de la sesion.
 
 ### Cuando se activa (automatico por Regla 9)
 
@@ -144,7 +144,7 @@ node .claude/ai-core/scripts/gemini-bridge.js \
 node .claude/ai-core/scripts/gemini-bridge.js \
   --mission "Detecta queries N+1 y bloqueos del event loop" \
   --file ./src/repositories/order.repository.js \
-  --model gemini-2.0-flash-thinking-exp
+  --model gemini-2.5-flash
 ```
 
 ### Schema de salida JSON (estandar)
@@ -177,7 +177,7 @@ El nucleo opera con tres capas de procesamiento con responsabilidades distintas:
 |---|---|---|---|
 | Ejecutor principal | `claude-sonnet-4-6` | 80% de las tareas: codigo, refactor, review, debug, tests | Default en toda sesion |
 | Arquitecto | `claude-opus-4-6` | Tareas que activan `[ALERTA_ARQUITECTONICA: REQUIERE_OPUSPLAN]` | Escalamiento explicito via Regla 6 |
-| Sub-agente documental | `gemini-2.0-flash` | Analisis de corpus >500 lineas o >50 KB | Automatico via Regla 9 |
+| Sub-agente documental | `gemini-2.5-flash` | Analisis de corpus >500 lineas o >50 KB | Automatico via Regla 9 |
 
 ### Tabla de decision de enrutamiento
 
@@ -203,7 +203,7 @@ Los siguientes parametros en `~/.claude/settings.json` controlan el consumo del 
 ```
 
 - **`CLAUDE_AUTOCOMPACT_PCT_OVERRIDE: 50`** — Fuerza la compactacion automatica del historial al llegar al 50% del context window. El default del sistema es ~80-90%. Reducirlo a 50 mantiene el contexto util mas agil en sesiones largas.
-- **`MAX_THINKING_TOKENS: 10000`** — Limita el razonamiento extendido oculto a 10.000 tokens. Sin este limite, el thinking puede consumir hasta 32.000 tokens en tareas complejas sin mejora observable en la calidad de la respuesta para la mayoria de las tareas de desarrollo.
+- **`MAX_THINKING_TOKENS: 10000`** — Limita el adaptive thinking a 10.000 tokens. Sin este limite, el thinking puede consumir hasta 32.000 tokens en tareas complejas sin mejora observable en la calidad de la respuesta para la mayoria de las tareas de desarrollo.
 
 Estos parametros son seguros. No afectan la calidad de respuesta en tareas normales; solo evitan consumo excesivo en edge cases.
 
@@ -295,6 +295,10 @@ Activar al: disenar o modificar infraestructura, configurar observabilidad, gest
 Especialista en integracion de LLMs en aplicaciones de produccion. Cubre el patron LLM Gateway para abstraer proveedores (Claude, Gemini, OpenAI), gestion de costos por token con logging obligatorio, prompt versioning con evaluacion antes de promover, streaming con contrato de eventos, fallback con circuit breaker entre proveedores, manejo de rate limits y defensa contra prompt injection. Agnostico al proveedor.
 Activar al: integrar un LLM como feature de producto, disenar endpoints de IA, gestionar costos de inferencia, versionar prompts en produccion, implementar streaming o evaluar outputs de LLM.
 
+**claude-agent-sdk**
+Especialista en construccion de agentes autonomos con el Claude Agent SDK (TypeScript/Python). Cubre herramientas integradas (bash, text_editor, browser, computer use), hooks de ciclo de vida pre/post tool call para auditoria y control, composicion de subagentes con roles diferenciados, integracion de servidores MCP, gestion de permisos por herramienta (minimo privilegio) y sesiones persistentes multi-turno.
+Activar al: construir un agente personalizado con el Agent SDK, orquestar subagentes, definir hooks de validacion o logging, integrar MCP en el ciclo del agente o disenar flujos de automatizacion con Claude.
+
 ---
 
 ## Reglas Globales — Referencia Rapida
@@ -346,7 +350,8 @@ ai-core/
         ├── qa-engineer/           SKILL.md
         ├── security-auditor/      SKILL.md
         ├── devops-infra/          SKILL.md
-        └── ai-integrations/       SKILL.md
+        ├── ai-integrations/       SKILL.md
+        └── claude-agent-sdk/      SKILL.md
 ```
 
 ---

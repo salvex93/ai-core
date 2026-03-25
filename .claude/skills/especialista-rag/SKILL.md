@@ -63,7 +63,7 @@ node scripts/gemini-bridge.js \
   --mission "<orden-de-mision-redactada>" \
   --file <ruta-al-archivo> \
   --format <json|markdown> \
-  --model gemini-2.0-flash
+  --model gemini-2.5-flash
 ```
 
 ### Paso 4 — Validar y consumir el output
