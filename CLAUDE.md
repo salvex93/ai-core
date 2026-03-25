@@ -101,20 +101,33 @@ Al recibir la instrucción explícita "haz el flujo de git", el agente ejecutar�
 2. Redactar commit técnico exhaustivo.
 3. `git push origin [rama_activa]`.
 
-### Regla 9 — Memoria Dinamica (Protocolo Brain-Sync)
+### Regla 9 — Delegacion de Analisis Masivo (Protocolo Brain-Sync)
 
-Al iniciar sesion en un repositorio anfitrion, verificar si existe un archivo `.env` con la variable `NOTEBOOKLM_WORKSPACE_ID` con valor no vacio.
+Ante cualquier tarea que implique lectura documental profunda, analisis de archivos de gran tamano o procesamiento de corpus extensos, el agente DEBE delegar la operacion al sub-agente Gemini Bridge en lugar de cargar el contenido completo en el contexto activo.
 
-Si la variable esta presente y tiene valor: la memoria externa esta activa. El skill `especialista-rag` puede inyectar documentacion del workspace al contexto activo cuando se le solicite. Continuar con normalidad.
+Condiciones que activan la delegacion obligatoria:
+- El archivo supera 500 lineas o 50 KB.
+- La tarea requiere leer multiples documentos externos de forma simultanea.
+- El analisis demandaria mas del 30% del context window disponible.
 
-Si la variable no existe o esta vacia: el nucleo opera en modo local con plena capacidad. No se bloquea el arranque ni se detiene la sesion. Notificar al usuario con el siguiente mensaje y continuar inmediatamente:
+Comando de delegacion:
+
+```
+node scripts/gemini-bridge.js --mission "<orden-de-mision>" --file <ruta-al-archivo>
+```
+
+El resultado es siempre JSON o Markdown estricto. El agente principal consume el output sintetizado como contexto sin cargar el contenido original.
+
+El skill `especialista-rag` actua como Gestor de Misiones: formula las ordenes de mision con precision tecnica y define el esquema exacto de respuesta antes de invocar el bridge.
+
+Al iniciar sesion, verificar si existe `GEMINI_API_KEY` en el `.env` del proyecto anfitrion:
+- Variable presente con valor: Brain-Sync activo. Delegacion masiva habilitada.
+- Variable ausente o vacia: el nucleo opera en modo local. Notificar y continuar:
 
 ```
 Memoria externa (Brain-Sync): no configurada. El sistema opera en modo local.
-Para activarla en cualquier momento, agregar NOTEBOOKLM_WORKSPACE_ID al archivo .env del proyecto.
+Para activarla, agregar GEMINI_API_KEY al archivo .env del proyecto anfitrion.
 ```
-
-El protocolo completo de configuracion inicial de Brain-Sync (generacion de nombre, creacion de NOTEBOOK_SETUP.md y commit inicial) esta documentado en `OPERATIONS.md` — seccion "Configuracion de Brain-Sync". Ejecutar ese protocolo unicamente bajo instruccion explicita del usuario.
 
 ### Regla 10 — UI/UX Pro Max (Frontend Excellence)
 
@@ -159,6 +172,18 @@ Para localizar referencias, patrones o usos en el codigo, se usan comandos de si
 - Localizar archivos por patron: `find . -name "*.ext" -not -path "*/node_modules/*"`
 - Una lectura masiva de directorio se reemplaza siempre por una busqueda dirigida.
 
+### Regla 15 — Documentacion Viva
+
+Toda modificacion en el codigo, skills o reglas del AI-CORE exige, como ultima accion obligatoria de la tarea, actualizar `README.md` con las instrucciones exactas de uso que reflejen la capacidad nueva o modificada, seguido de la secuencia de sincronizacion:
+
+```
+git add .
+git commit -m "<tipo>: <descripcion precisa del cambio>"
+git push origin <rama-activa>
+```
+
+Un cambio en el nucleo que no sincroniza el repositorio es un cambio incompleto. El commit debe ser descriptivo y seguir el estandar Conventional Commits de la Regla 8.
+
 ---
 
 ## Skills Disponibles
@@ -191,9 +216,9 @@ Archivo: `.claude/skills/release-manager/SKILL.md`
 
 ### especialista-rag
 
-Orquestador de contexto documental agnostico al motor RAG. Localiza la fuente documental configurada en el anfitrion (`NOTEBOOKLM_WORKSPACE_ID` u otro motor vectorial) e inyecta contexto tecnico externo via MCP o API directa. Opera en modo consultivo si no hay servidor MCP disponible en el entorno.
+Gestor de Misiones para el Gemini Bridge. Redacta ordenes de mision de alta precision para `scripts/gemini-bridge.js` y define el esquema JSON/Markdown exacto que se espera como respuesta. Tambien gobierna la arquitectura de pipelines RAG y la evaluacion de calidad de recuperacion semantica.
 
-Activar al: incorporar documentacion externa al contexto, construir o modificar pipelines RAG, gestionar colecciones vectoriales o evaluar la calidad de recuperacion semantica.
+Activar al: delegar analisis documental masivo al bridge, incorporar documentacion externa, construir pipelines RAG, gestionar colecciones vectoriales o evaluar recuperacion semantica.
 
 Archivo: `.claude/skills/especialista-rag/SKILL.md`
 

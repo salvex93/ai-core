@@ -1,0 +1,16 @@
+{
+  "name": "ai-core",
+  "version": "1.0.0",
+  "description": "Nucleo Centralizado de Agentes — MarIA. Submodulo Git con reglas globales, skills y scripts de orquestacion.",
+  "private": true,
+  "scripts": {
+    "init-backlog": "node scripts/init-backlog.js",
+    "gemini-bridge": "node scripts/gemini-bridge.js"
+  },
+  "dependencies": {
+    "@google/generative-ai": "^0.21.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
