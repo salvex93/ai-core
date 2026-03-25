@@ -7,6 +7,10 @@
           {
             "type": "command",
             "command": "node .claude/ai-core/scripts/init-backlog.js"
+          },
+          {
+            "type": "command",
+            "command": "node scripts/premium/auto-sync.js"
           }
         ]
       }

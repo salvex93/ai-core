@@ -294,6 +294,22 @@ Activar al: construir un agente personalizado con el Agent SDK, orquestar subage
 
 Archivo: `.claude/skills/claude-agent-sdk/SKILL.md`
 
+### mcp-server-builder
+
+Especialista en construccion del lado servidor del protocolo MCP. Cubre el ciclo de vida completo (initialize, tools/list, tools/call), transportes stdio y SSE/HTTP, definicion de herramientas con JSON Schema, validacion de inputs, seguridad (autenticacion en SSE, secretos en variables de entorno), testing con MCP Inspector y publicacion en el registro oficial de Anthropic.
+
+Activar al: construir un servidor MCP que expone herramientas de un sistema interno, definir el schema de herramientas que Claude puede invocar, elegir entre transporte stdio y SSE/HTTP, o revisar la seguridad de un servidor MCP existente.
+
+Archivo: `.claude/skills/mcp-server-builder/SKILL.md`
+
+### premium-ops
+
+Perfil de consciencia operativa del ecosistema premium. Garantiza el aislamiento entre la capa publica (repositorio GitHub) y la capa premium (scripts locales en `scripts/premium/`). Verifica que el auto-sync este operativo, que `.gitignore` tenga la entrada de aislamiento y que el hook Stop este registrado correctamente.
+
+Activar al: trabajar directamente en el repositorio ai-core, detectar que `scripts/premium/` existe localmente, revisar o diagnosticar el hook Stop, o incorporar nuevos scripts de automatizacion privados.
+
+Archivo: `.claude/skills/premium-ops/SKILL.md`
+
 ---
 
 ## Directiva de Interrupcion
