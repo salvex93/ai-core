@@ -280,9 +280,9 @@ Activar al: planificar releases, gestionar ramas, configurar pipelines o coordin
 Gestor de Misiones para el Gemini Bridge. Redacta ordenes de mision de alta precision para `scripts/gemini-bridge.js` y define el esquema JSON/Markdown exacto de respuesta. Tambien gobierna la arquitectura de pipelines RAG y la evaluacion de calidad de recuperacion semantica.
 Activar al: delegar analisis documental masivo, construir pipelines RAG, gestionar colecciones vectoriales o evaluar recuperacion semantica.
 
-**aiops-engineer**
-Agente de mantenimiento del propio nucleo ai-core. Audita la coherencia de los skills, analiza nuevas capacidades del ecosistema Anthropic y propone mejoras. Nunca modifica el nucleo sin confirmacion humana explicita.
-Activar al: auditar el estado del ai-core o proponer actualizaciones de skills.
+**aiops-engineer** `[👑 PREMIUM / ENTERPRISE]`
+Agente de mantenimiento del propio nucleo ai-core. Audita la coherencia de los skills, analiza nuevas capacidades del ecosistema Anthropic y propone mejoras. Nunca modifica el nucleo sin confirmacion humana explicita. Requiere la variable `AI_CORE_PREMIUM_KEY` en el `.env` local para operar. Sin ella, el agente aborta silenciosamente.
+Activar al: auditar el estado del ai-core o proponer actualizaciones de skills. Disponible bajo licencia Enterprise/Consultoria — contactar a salvex93.
 
 **qa-engineer**
 Especialista en estrategia de testing, piramide de calidad y contract testing. Agnostico al framework: deduce la herramienta de los manifiestos del anfitrion (Jest, Pytest, Vitest, Go testing, JUnit, etc.).

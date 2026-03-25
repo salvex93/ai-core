@@ -246,11 +246,13 @@ Activar al: delegar analisis documental masivo al bridge, incorporar documentaci
 
 Archivo: `.claude/skills/especialista-rag/SKILL.md`
 
-### aiops-engineer
+### aiops-engineer `[👑 PREMIUM / ENTERPRISE]`
 
 Agente de mantenimiento del ecosistema ai-core. Audita periodicamente la configuracion de `.claude/skills/`, analiza nuevas especificaciones de Anthropic y propone mejoras en prompts, herramientas MCP y flujos de trabajo. Requiere confirmacion humana explicita antes de modificar el propio nucleo.
 
-Activar al: auditar el estado del ai-core, proponer actualizaciones de skills o incorporar nuevas capacidades del ecosistema Anthropic.
+Requiere la variable `AI_CORE_PREMIUM_KEY` en el `.env` local para operar. Sin ella, el perfil aborta inmediatamente y notifica al usuario que esta capacidad es de nivel Enterprise/Consultoria.
+
+Activar al: auditar el estado del ai-core, proponer actualizaciones de skills o incorporar nuevas capacidades del ecosistema Anthropic. Disponible bajo licencia Enterprise — contactar a salvex93.
 
 Archivo: `.claude/skills/aiops-engineer/SKILL.md`
 
