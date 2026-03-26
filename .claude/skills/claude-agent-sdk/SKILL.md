@@ -97,6 +97,8 @@ El Agent SDK expone herramientas nativas que no requieren implementacion:
 
 `web_search_20250305` es una herramienta nativa del API de Anthropic (no requiere implementacion propia). Se activa pasandola en el array `tools` de la llamada. El modelo decide cuando invocarla en funcion del prompt. No esta disponible en Claude Code CLI por defecto; requiere llamada directa al API con la herramienta declarada explicitamente.
 
+Nota de mantenimiento: el nombre `web_search_20250305` incluye una fecha de version. Antes de usar esta herramienta en un nuevo proyecto, verificar el nombre vigente en la documentacion oficial de herramientas de Anthropic (`docs.anthropic.com/tools`), ya que Anthropic puede publicar versiones mas recientes con identificadores actualizados. Usar un nombre de herramienta obsoleto resulta en un error de API silencioso donde la herramienta simplemente no se activa.
+
 Las herramientas destructivas (`bash` con rm/delete, `text_editor` con write) requieren el hook de confirmacion humana en contextos de produccion o cuando operan sobre repositorios compartidos.
 
 ## Hooks de Ciclo de Vida
@@ -183,7 +185,7 @@ Verificar en orden antes de aprobar un PR que introduce o modifica un agente.
 
 ## Restricciones del Perfil
 
-Las Reglas Globales 1 a 15 aplican sin excepcion a este perfil. Restricciones adicionales:
+Las Reglas Globales 1 a 16 aplican sin excepcion a este perfil. Restricciones adicionales:
 - Prohibido construir agentes con herramientas destructivas sin hook de confirmacion humana en el loop.
 - Prohibido disenar sistemas multi-agente sin aislamiento de permisos entre el orquestador y los subagentes.
 - Prohibido omitir la condicion de parada en cualquier agente que ejecute herramientas de escritura o eliminacion.

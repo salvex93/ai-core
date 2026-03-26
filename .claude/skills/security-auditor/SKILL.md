@@ -142,6 +142,18 @@ Ver seccion "Auditoria de Dependencias" de este skill para el protocolo completo
 - Las dependencias se fijan con lockfiles (`package-lock.json`, `poetry.lock`, `go.sum`). Prohibido usar rangos de version sin limite superior en dependencias de produccion.
 - Los workflows de CI/CD que usan Actions de terceros fijan la version al SHA del commit, no a un tag flotante.
 
+#### Seguridad del Pipeline CI/CD (Supply Chain)
+
+El pipeline de CI/CD es superficie de ataque de supply chain. Un atacante que compromete un step del pipeline puede inyectar codigo malicioso en todos los artefactos producidos sin acceso directo al repositorio.
+
+Controles obligatorios:
+
+- Principio de minimo privilegio en tokens CI/CD: los tokens de acceso usados por el pipeline tienen solo los permisos estrictamente necesarios para el step que los usa. Un token de despliegue no tiene permiso de lectura de secretos de produccion.
+- Separacion de entornos en el pipeline: los steps de build no tienen acceso a credenciales de produccion. Las credenciales de produccion solo se inyectan en el step de despliegue, despues de que el artefacto ha pasado todas las verificaciones.
+- Auditoria de Actions de terceros: antes de agregar una Action de GitHub o equivalente, verificar el codigo fuente del repositorio y su historial de cambios. Una Action con acceso a `secrets` tiene el mismo nivel de privilegio que el pipeline completo.
+- SLSA (Supply chain Levels for Software Artifacts): para proyectos con requisitos de compliance, documentar el nivel SLSA alcanzado. El nivel 2 (firma de artefactos con identidad del builder) es el minimo recomendado para pipelines de produccion.
+- Escaneo de secretos en el pipeline: integrar un step de deteccion de secretos (ej: `truffleHog`, `gitleaks`) que bloquee el pipeline si detecta credenciales en el codigo o en los artefactos de build.
+
 ### A09 — Registro y monitoreo insuficientes
 
 - Los eventos de seguridad criticos se registran siempre: intentos de autenticacion fallidos, cambios de contrasena, elevacion de privilegios, acceso a recursos sensibles.
@@ -208,7 +220,7 @@ Verificar en orden antes de aprobar un PR. Un PR con observacion en cualquier pu
 
 ## Restricciones del Perfil
 
-Las Reglas Globales 1 a 15 aplican sin excepcion a este perfil. Restricciones adicionales:
+Las Reglas Globales 1 a 16 aplican sin excepcion a este perfil. Restricciones adicionales:
 - Prohibido emitir recomendaciones de seguridad sin haber leido los manifiestos del anfitrion.
 - Ante la deteccion de un secreto real en el codigo, detener toda otra actividad y notificar al usuario de forma inmediata como primera accion.
 - Prohibido proponer reducir controles de seguridad existentes sin justificacion documentada y aprobacion explicita.

@@ -18,7 +18,7 @@ Este perfil gobierna las decisiones de arquitectura en la capa de cliente. Es ag
 - Al definir como el frontend consume y tipifica las respuestas de la API.
 - Al evaluar si agregar una nueva dependencia al proyecto.
 - Al revisar accesibilidad, semantica HTML o compatibilidad de navegadores.
-- Al decidir entre estrategias de renderizado: CSR, SSR, SSG o ISR.
+- Al decidir entre estrategias de renderizado: CSR, SSR, SSG, ISR o PPR.
 
 ## Primera Accion al Activar
 
@@ -116,6 +116,7 @@ La eleccion de estrategia impacta el SEO, el Time to First Byte y la experiencia
 | SSR (Server-Side Rendering) | Contenido dinamico con requisito de SEO o de datos frescos en cada request. |
 | SSG (Static Site Generation) | Contenido que cambia raramente. Build time alto es aceptable. |
 | ISR (Incremental Static Regeneration) | Contenido semi-estatico con revalidacion periodica. Solo Next.js/Nuxt. |
+| PPR (Partial Prerendering) | Paginas con contenido estatico mayoritario y secciones dinamicas aisladas. Hibrido SSG+SSR via React Suspense. Estable en Next.js 15. |
 
 ## Contrato con la API
 
@@ -185,7 +186,7 @@ Verificar en orden antes de aprobar un PR. Un PR con observacion en cualquier pu
 
 ## Restricciones del Perfil
 
-Las Reglas Globales 1 a 15 aplican sin excepcion a este perfil. Restricciones adicionales:
+Las Reglas Globales 1 a 16 aplican sin excepcion a este perfil. Restricciones adicionales:
 - Prohibido emitir recomendaciones de framework o estado sin haber leido los manifiestos del anfitrion.
 - Prohibido proponer refactorizaciones sin impacto funcional o de rendimiento medible.
 - Todas las respuestas se emiten en español. Los identificadores técnicos conservan su forma original en inglés.

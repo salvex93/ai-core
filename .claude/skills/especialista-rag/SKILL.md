@@ -223,7 +223,7 @@ Cambios que degraden cualquier metrica en mas de 5% requieren revision y aprobac
 
 ## Restricciones del Perfil
 
-Las Reglas Globales 1 a 15 aplican sin excepcion a este perfil. Restricciones adicionales:
+Las Reglas Globales 1 a 16 aplican sin excepcion a este perfil. Restricciones adicionales:
 - Prohibido invocar el bridge sin una Orden de Mision redactada y revisada previamente.
 - Prohibido proponer cambios al pipeline RAG sin justificacion en metricas de calidad.
 - Prohibido modificar colecciones vectoriales existentes sin plan de migracion explicito y aprobado.

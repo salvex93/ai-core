@@ -84,7 +84,7 @@ El auto-sync NO debe ejecutarse en repositorios anfitriones donde el ai-core est
 
 ## Restricciones del Perfil
 
-Las Reglas Globales 1 a 15 aplican sin excepcion a este perfil. Restricciones adicionales:
+Las Reglas Globales 1 a 16 aplican sin excepcion a este perfil. Restricciones adicionales:
 
 - Prohibido sugerir agregar archivos de `scripts/premium/` al staging area (`git add`) en ninguna circunstancia.
 - Prohibido modificar el `.gitignore` de forma que exponga `scripts/premium/`.

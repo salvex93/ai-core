@@ -293,7 +293,7 @@ Verificar en orden antes de aprobar un PR que introduce o modifica un servidor M
 
 ## Restricciones del Perfil
 
-Las Reglas Globales 1 a 15 aplican sin excepcion a este perfil. Restricciones adicionales:
+Las Reglas Globales 1 a 16 aplican sin excepcion a este perfil. Restricciones adicionales:
 - Prohibido publicar un servidor MCP que accede a datos de produccion sin autenticacion en el transporte.
 - Prohibido incluir secretos, URLs internas o datos de infraestructura en schemas o descripciones de herramientas.
 - Prohibido disenar herramientas con efectos secundarios destructivos sin confirmacion explicita en el schema (parametro `confirmar: boolean` o similar).
