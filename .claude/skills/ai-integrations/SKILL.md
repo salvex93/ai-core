@@ -137,6 +137,83 @@ No toda operacion justifica `claude-sonnet-4-6`. Definir el tier por tipo de tar
 - Prohibido incluir archivos completos en prompts cuando solo se necesita un fragmento. Usar el Gemini Bridge o el skill `especialista-rag` para sintetizar el contenido primero.
 - En llamadas que usan tool use con Anthropic, activar la cabecera beta `anthropic-beta: token-efficient-tools-2025-02-19`. Reduce el overhead de tokens en tool use hasta un 70% (promedio 14%). Requiere `claude-sonnet-4-6` o superior.
 
+### Prompt Caching
+
+Prompt Caching permite reutilizar prefijos de prompt ya procesados entre llamadas. El proveedor almacena en cache el contenido marcado como `cache_control` y lo cobra a precio reducido en hits. En Anthropic, el costo de un hit de cache es un 10% del precio de entrada estandar: una reduccion del 90%.
+
+Requiere la cabecera beta `anthropic-beta: prompt-caching-2024-07-31`. Disponible en `claude-sonnet-4-6`, `claude-opus-4-6` y `claude-haiku-4-5-20251001`.
+
+```typescript
+import Anthropic from '@anthropic-ai/sdk';
+
+const cliente = new Anthropic();
+
+const respuesta = await cliente.messages.create({
+  model: 'claude-sonnet-4-6',
+  max_tokens: 1024,
+  system: [
+    {
+      type: 'text',
+      text: instruccionesDelSistema,  // contenido estatico que se cachea
+      cache_control: { type: 'ephemeral' },
+    },
+  ],
+  messages: [{ role: 'user', content: preguntaDelUsuario }],
+}, {
+  headers: { 'anthropic-beta': 'prompt-caching-2024-07-31' },
+});
+
+// Verificar eficiencia del cache en el sistema de observabilidad
+const uso = respuesta.usage;
+logger.info({
+  evento: 'prompt_cache',
+  tokens_entrada: uso.input_tokens,
+  tokens_cache_escritura: uso.cache_creation_input_tokens,  // tokens cacheados por primera vez
+  tokens_cache_lectura: uso.cache_read_input_tokens,        // tokens leidos desde cache (ahorro)
+});
+```
+
+Reglas de uso:
+- Solo marcar con `cache_control` el contenido verdaderamente estatico entre llamadas: instrucciones del sistema, documentos de referencia, ejemplos few-shot. El historial de conversacion no es candidato a cache.
+- El contenido cacheado debe superar los 1024 tokens en Sonnet/Opus o 2048 en Haiku para activar el cache. Por debajo de ese umbral, la marca `cache_control` no tiene efecto.
+- Loguear `cache_creation_input_tokens` y `cache_read_input_tokens` separado de `input_tokens` para auditar el ahorro acumulado.
+- El cache tiene una duracion de 5 minutos de inactividad. En sesiones largas, refrescar el contenido si el intervalo entre llamadas puede superar ese limite.
+- En produccion con alto volumen (>100 llamadas/minuto al mismo prompt de sistema), el ahorro acumulado justifica siempre la implementacion.
+
+### Token Counting API
+
+El endpoint `POST /v1/messages/count_tokens` estima el numero de tokens que consumiria una solicitud antes de ejecutarla. Permite validar que un prompt cabe en el context window y estimar el costo antes de la llamada real.
+
+```typescript
+import Anthropic from '@anthropic-ai/sdk';
+
+const cliente = new Anthropic();
+
+const conteo = await cliente.messages.countTokens({
+  model: 'claude-sonnet-4-6',
+  system: instruccionesDelSistema,
+  messages: [{ role: 'user', content: inputDelUsuario }],
+});
+
+logger.info({
+  evento: 'token_count_estimado',
+  tokens_entrada: conteo.input_tokens,
+  dentro_del_presupuesto: conteo.input_tokens < PRESUPUESTO_MAX_TOKENS,
+});
+
+// Rechazar antes de ejecutar si supera el presupuesto
+if (conteo.input_tokens > PRESUPUESTO_MAX_TOKENS) {
+  throw new Error(`Input supera el presupuesto: ${conteo.input_tokens} tokens`);
+}
+```
+
+Cuando usar Token Counting API:
+- Antes de llamadas con documentos de usuario de tamano variable para prevenir errores `context_length_exceeded`.
+- En pipelines de ingestion que procesan documentos de longitud desconocida para enrutar al modelo correcto segun tamano.
+- Para auditar el costo estimado de un prompt antes de desplegarlo en produccion.
+
+No usar Token Counting API en cada llamada de produccion bajo alta carga: agrega latencia de red. Reservar para validacion de inputs en el punto de entrada o para pipelines de analisis previo.
+
 ### Logging obligatorio de tokens
 
 Todo llamado al LLM registra en el sistema de observabilidad del anfitrion:
