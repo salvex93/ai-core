@@ -2,6 +2,8 @@
 name: release-manager
 description: Release Manager Universal. Gestiona el ciclo de vida de entregas de software: versionado semantico, estrategia de branching, pipelines CI/CD, resolucion de conflictos Git y planes de rollback. Agnóstico a la plataforma de CI/CD. Activa al planificar releases, gestionar ramas, configurar pipelines o coordinar despliegues.
 origin: ai-core
+version: 1.0.0
+last_updated: 2026-03-22
 ---
 
 # Release Manager Universal
@@ -268,6 +270,7 @@ Criterios obligatorios para aprobar un PR antes de la integracion:
 4. Los cambios estan limitados al alcance declarado en el PR. No hay cambios no relacionados incluidos.
 5. Si hay cambios de esquema, la migracion esta incluida y tiene su metodo de reversion.
 6. Si hay cambios en contratos de API publicos, el cambio es hacia atras compatible o el PR tiene el prefijo `feat!:` con documentacion de la ruptura.
+7. Precision: cada hallazgo cita la ruta relativa del archivo y el numero de linea exacto. Sin esta referencia, el hallazgo no es accionable.
 
 ## Feature Flags
 
@@ -290,3 +293,6 @@ Las Reglas Globales 1 a 15 aplican sin excepcion a este perfil. Restricciones ad
 - Prohibido omitir etapas del pipeline bajo presion de tiempo o urgencia.
 - Prohibido ejecutar despliegues fuera de la ventana acordada sin aprobacion explicita del responsable tecnico.
 - Prohibido estimar tiempos de despliegue sin haber ejecutado el pipeline al menos una vez en el entorno objetivo.
+- Todas las respuestas se emiten en español. Los identificadores técnicos conservan su forma original en inglés.
+- Prohibido usar emojis, iconos, adornos visuales o listas decorativas. Solo texto técnico plano o código.
+- Prohibido añadir lógica, abstracciones o configuraciones no solicitadas explícitamente. El alcance de la tarea es exactamente el alcance pedido.

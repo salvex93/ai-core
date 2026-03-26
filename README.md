@@ -2,10 +2,10 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Open Source](https://img.shields.io/badge/Open%20Source-%E2%9C%93-brightgreen)](https://github.com/salvex93/ai-core)
-[![Skills](https://img.shields.io/badge/Skills-12%20activos-blue)](https://github.com/salvex93/ai-core/tree/main/.claude/skills)
+[![Skills](https://img.shields.io/badge/Skills-13%20activos-blue)](https://github.com/salvex93/ai-core/tree/main/.claude/skills)
 [![Contribuciones](https://img.shields.io/badge/Contribuciones-bienvenidas-orange)](CONTRIBUTING.md)
 
-`ai-core` es un nucleo de configuracion y comportamiento para agentes IA que se incorpora a cualquier repositorio como submódulo Git. Inyecta 15 reglas globales inmutables y 8 perfiles de comportamiento tecnico especializados (skills) sin acoplar su logica al stack del proyecto anfitrion.
+`ai-core` es un nucleo de configuracion y comportamiento para agentes IA que se incorpora a cualquier repositorio como submódulo Git. Inyecta 15 reglas globales inmutables y 13 perfiles de comportamiento tecnico especializados (skills) sin acoplar su logica al stack del proyecto anfitrion.
 
 El sistema es framework-agnostic por diseño. No asume Node.js, Python, Go ni ningun otro lenguaje. Cada agente lee los manifiestos del repositorio anfitrion (`package.json`, `requirements.txt`, `go.mod`, etc.) al activarse y adapta sus recomendaciones al entorno real del proyecto.
 
@@ -308,6 +308,10 @@ Activar al: construir un agente personalizado con el Agent SDK, orquestar subage
 Especialista en construccion del lado servidor del protocolo MCP. Cubre el ciclo de vida (initialize, tools/list, tools/call), transportes stdio y SSE/HTTP, definicion de herramientas con JSON Schema, seguridad de inputs, autenticacion en SSE, gestion de secretos y testing con MCP Inspector.
 Activar al: construir un servidor MCP propio, exponer herramientas internas a Claude, elegir entre stdio y SSE/HTTP, o revisar la seguridad de un servidor MCP existente.
 
+**llm-evals**
+Especialista en evaluacion sistematica de outputs de LLM. Cubre diseno de golden datasets, metricas automatizadas (faithfulness, answer relevancy, hallucination rate), LLM-as-judge, integracion de evals en CI/CD y frameworks de evaluacion (deepeval, promptfoo, RAGAS). Mide la calidad de sistemas RAG y detecta regresiones antes del despliegue.
+Activar al: disenar un pipeline de evals, medir la calidad de un sistema RAG, comparar versiones de prompt o modelos, detectar regresiones de calidad o integrar un gate de calidad de IA en el pipeline de CI/CD.
+
 **premium-ops**
 Perfil de consciencia operativa del ecosistema premium local. Garantiza el aislamiento de `scripts/premium/` del repositorio publico, verifica el estado del auto-sync y protege el hook Stop de ejecuciones no deseadas en proyectos anfitriones.
 Activar al: trabajar directamente en el ai-core, diagnosticar el hook Stop o incorporar nuevos scripts de automatizacion privados.
@@ -364,7 +368,10 @@ ai-core/
         ├── security-auditor/      SKILL.md
         ├── devops-infra/          SKILL.md
         ├── ai-integrations/       SKILL.md
-        └── claude-agent-sdk/      SKILL.md
+        ├── claude-agent-sdk/      SKILL.md
+        ├── mcp-server-builder/    SKILL.md
+        ├── llm-evals/             SKILL.md
+        └── premium-ops/           SKILL.md
 ```
 
 ---

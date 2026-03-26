@@ -304,6 +304,14 @@ Activar al: construir un servidor MCP que expone herramientas de un sistema inte
 
 Archivo: `.claude/skills/mcp-server-builder/SKILL.md`
 
+### llm-evals
+
+Especialista en evaluacion sistematica de outputs de LLM. Cubre diseno de golden datasets, metricas automatizadas (faithfulness, answer relevancy, hallucination rate), LLM-as-judge, integracion de evals en CI/CD y frameworks de evaluacion (deepeval, promptfoo, RAGAS). Mide la calidad de sistemas RAG y detecta regresiones antes del despliegue.
+
+Activar al: disenar un pipeline de evals, medir la calidad de un sistema RAG, comparar versiones de prompt o modelos, detectar regresiones de calidad o integrar un gate de calidad de IA en el pipeline de CI/CD.
+
+Archivo: `.claude/skills/llm-evals/SKILL.md`
+
 ### premium-ops
 
 Perfil de consciencia operativa del ecosistema premium. Garantiza el aislamiento entre la capa publica (repositorio GitHub) y la capa premium (scripts locales en `scripts/premium/`). Verifica que el auto-sync este operativo, que `.gitignore` tenga la entrada de aislamiento y que el hook Stop este registrado correctamente.
