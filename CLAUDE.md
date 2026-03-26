@@ -127,14 +127,18 @@ Al recibir la instrucción explícita "haz el flujo de git", el agente ejecutar�
 
 ### Regla 9 — Delegacion de Analisis Masivo (Protocolo Brain-Sync)
 
-Ante cualquier tarea que implique lectura documental profunda, analisis de archivos de gran tamano o procesamiento de corpus extensos, el agente DEBE delegar la operacion al sub-agente Gemini Bridge en lugar de cargar el contenido completo en el contexto activo.
+Ante cualquier tarea que implique lectura documental profunda, analisis de archivos de gran tamano, procesamiento de corpus extensos, o extraccion estructural de codigo fuente local (firmas de funciones, definiciones de clases, mapas de dependencias entre modulos), el agente DEBE delegar la operacion al sub-agente Gemini Bridge en lugar de cargar el contenido completo en el contexto activo.
 
 Esta es una politica de COSTO, no de capacidad. Claude Sonnet 4.6 y Opus 4.6 disponen de un context window de 1M de tokens, pero cargar corpus extensos en el contexto principal consume tokens de entrada facturables y degrada la calidad de respuesta en el resto de la sesion. La delegacion al Bridge externaliza ese costo.
 
+**Rol del Bridge en codigo local — Obrero de Lectura:**
+Gemini actua como obrero de lectura para archivos locales del proyecto. Su mision en este modo es extractiva y no destructiva: extrae firmas de funciones/metodos, definiciones de clases e interfaces, y mapas de dependencias entre modulos. No altera la logica, no propone refactorizaciones, no emite opiniones. Devuelve unicamente el mapa estructural solicitado en JSON o Markdown estricto para que el agente principal opere sobre la sintesis sin cargar el archivo original.
+
 Condiciones que activan la delegacion obligatoria:
 - El archivo supera 500 lineas o 50 KB.
-- La tarea requiere leer multiples documentos externos de forma simultanea.
+- La tarea requiere leer multiples documentos externos o archivos de codigo de forma simultanea.
 - El analisis demandaria mas del 30% del context window disponible.
+- La tarea requiere extraer firmas, clases o mapas de dependencias de un modulo de codigo local.
 
 Comando de delegacion:
 
@@ -145,6 +149,13 @@ node scripts/gemini-bridge.js --mission "<orden-de-mision>" --file <ruta-al-arch
 El resultado es siempre JSON o Markdown estricto. El agente principal consume el output sintetizado como contexto sin cargar el contenido original.
 
 El skill `especialista-rag` actua como Gestor de Misiones: formula las ordenes de mision con precision tecnica y define el esquema exacto de respuesta antes de invocar el bridge.
+
+**Circuit Breaker — Contingencia por cuota agotada:**
+Si el script `gemini-bridge.js` falla con un error de limite de cuota (HTTP 429, `RESOURCE_EXHAUSTED` o equivalente de la API gratuita), el agente DEBE ejecutar el siguiente protocolo en orden estricto:
+1. Abortar la delegacion al bridge sin reintentar.
+2. Notificar al usuario: `[BRAIN-SYNC DEGRADADO: cuota de Gemini agotada. Operando en modo local via Regla 14.]`
+3. Asumir la busqueda utilizando exclusivamente las herramientas de eficiencia de la Regla 14 (grep/find). No cargar archivos completos en el contexto.
+4. Reintentar la delegacion al bridge cada 5 tareas o al inicio de la siguiente sesion. Si la cuota se ha recuperado, restablecer el modo Brain-Sync sin notificacion adicional.
 
 Al iniciar sesion, verificar si existe `GEMINI_API_KEY` en el `.env` del proyecto anfitrion:
 - Variable presente con valor: Brain-Sync activo. Delegacion masiva habilitada.
@@ -210,6 +221,26 @@ git push origin <rama-activa>
 
 Un cambio en el nucleo que no sincroniza el repositorio es un cambio incompleto. El commit debe ser descriptivo y seguir el estandar Conventional Commits de la Regla 8.
 
+### Regla 16 — Higiene de Contexto (Tokenomics)
+
+El agente asume la responsabilidad estricta de proteger el presupuesto de tokens del usuario mediante Compactacion Estrategica. Esta regla define dos triggers inmutables que se activan automaticamente sin instruccion del usuario.
+
+**TRIGGER DE COMPACTACION:**
+Al terminar una fase de investigacion profunda (lectura de multiples archivos, analisis de arquitectura) o planificacion arquitectonica (OPUSPLAN), ANTES de comenzar a generar codigo masivo, el agente DEBE detenerse e imprimir en pantalla el siguiente mensaje exacto:
+
+```
+[ALERTA TOKENOMICS: PUNTO DE CONTROL ALCANZADO. Se recomienda ejecutar /compact para comprimir el historial antes de la implementacion.]
+```
+
+**TRIGGER DE PURGA:**
+Inmediatamente despues de cerrar una tarea y marcar su Estatus como "Terminado" en el `BACKLOG.md`, el agente DEBE imprimir como su ultima linea absoluta de la sesion:
+
+```
+[ALERTA TOKENOMICS: TAREA COMPLETADA Y GUARDADA EN BACKLOG. Ejecuta /clear en la terminal para purgar la memoria antes de iniciar la siguiente tarea.]
+```
+
+Estos triggers no son opcionales. Su omision es una violacion de esta regla equivalente a desperdiciar presupuesto del usuario.
+
 ---
 
 ## Skills Disponibles
@@ -248,7 +279,7 @@ Activar al: delegar analisis documental masivo al bridge, incorporar documentaci
 
 Archivo: `.claude/skills/especialista-rag/SKILL.md`
 
-### aiops-engineer `[👑 PREMIUM / ENTERPRISE]`
+### aiops-engineer `[PREMIUM / ENTERPRISE]`
 
 Agente de mantenimiento del ecosistema ai-core. Audita periodicamente la configuracion de `.claude/skills/`, analiza nuevas especificaciones de Anthropic y propone mejoras en prompts, herramientas MCP y flujos de trabajo. Requiere confirmacion humana explicita antes de modificar el propio nucleo.
 

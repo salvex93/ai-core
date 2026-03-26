@@ -1,6 +1,6 @@
 # AI-CORE: Nexus Multi-Agente Universal
 
-`ai-core` es un nucleo de configuracion y comportamiento para agentes IA que se incorpora a cualquier repositorio como submódulo Git. Inyecta 15 reglas globales inmutables y 13 perfiles de comportamiento tecnico especializados (skills) sin acoplar su logica al stack del proyecto anfitrion.
+`ai-core` es un nucleo de configuracion y comportamiento para agentes IA que se incorpora a cualquier repositorio como submódulo Git. Inyecta 16 reglas globales inmutables y 13 perfiles de comportamiento tecnico especializados (skills) sin acoplar su logica al stack del proyecto anfitrion.
 
 El sistema es framework-agnostic por diseño. No asume Node.js, Python, Go ni ningun otro lenguaje. Cada agente lee los manifiestos del repositorio anfitrion (`package.json`, `requirements.txt`, `go.mod`, etc.) al activarse y adapta sus recomendaciones al entorno real del proyecto.
 
@@ -111,7 +111,7 @@ claude
 claude
 ```
 
-El agente hereda automaticamente las 15 reglas globales del `CLAUDE.md` del nucleo. La primera accion autonoma es leer los manifiestos del proyecto para deducir el stack (Regla 3).
+El agente hereda automaticamente las 16 reglas globales del `CLAUDE.md` del nucleo. La primera accion autonoma es leer los manifiestos del proyecto para deducir el stack (Regla 3).
 
 ---
 
@@ -122,8 +122,13 @@ El Gemini Bridge es el mecanismo de analisis documental masivo del nucleo. Exter
 ### Cuando se activa (automatico por Regla 9)
 
 - El archivo a analizar supera 500 lineas o 50 KB.
-- La tarea requiere leer multiples documentos externos de forma simultanea.
+- La tarea requiere leer multiples documentos externos o archivos de codigo de forma simultanea.
 - El analisis demandaria mas del 30% del context window disponible.
+- La tarea requiere extraer firmas, clases o mapas de dependencias de un modulo de codigo local (modo Obrero de Lectura).
+
+### Circuit Breaker (cuota agotada)
+
+Si el bridge retorna error de cuota (HTTP 429 / `RESOURCE_EXHAUSTED`), el agente aborta la delegacion, notifica con `[BRAIN-SYNC DEGRADADO: cuota de Gemini agotada. Operando en modo local via Regla 14.]` y asume la busqueda usando exclusivamente `grep`/`find`. Reintenta la delegacion al bridge cada 5 tareas o al inicio de la siguiente sesion.
 
 ### Uso directo
 
@@ -315,7 +320,7 @@ Activar al: trabajar directamente en el ai-core, diagnosticar el hook Stop o inc
 
 ## Reglas Globales — Referencia Rapida
 
-Las 15 reglas son inmutables. Aplican a todos los perfiles sin excepcion. El detalle completo esta en `CLAUDE.md`.
+Las 16 reglas son inmutables. Aplican a todos los perfiles sin excepcion. El detalle completo esta en `CLAUDE.md`.
 
 | # | Nombre | Efecto observable |
 |---|---|---|
@@ -327,13 +332,14 @@ Las 15 reglas son inmutables. Aplican a todos los perfiles sin excepcion. El det
 | 6 | Enrutamiento Dinamico y Escalamiento | Define la triada Sonnet/Opus/Gemini. Escala a Opus bajo `[ALERTA_ARQUITECTONICA: REQUIERE_OPUSPLAN]`. Delega corpus grandes al Gemini Bridge. |
 | 7 | Persistencia y Trabajo Oculto | Registra hallazgos en BACKLOG.md (tabla 12 columnas). Registra trabajo oculto. |
 | 8 | Git Flow Universal | Ramas aisladas. Conventional Commits. Pipeline verde antes de merge. |
-| 9 | Brain-Sync (Gemini Bridge) | Delega analisis >500 lineas / >50KB a `scripts/gemini-bridge.js`. |
+| 9 | Brain-Sync (Gemini Bridge) | Delega analisis >500 lineas / >50KB y extraccion estructural de codigo local a `scripts/gemini-bridge.js`. Circuit Breaker activo: fallo por cuota degrada a grep/find (Regla 14). |
 | 10 | UI/UX Pro Max | Atomic Design + micro-interacciones + WCAG AA + Mobile First obligatorios en frontend. |
 | 11 | Project Superpower | Auditoria preventiva autonoma. Corrige cuellos de botella al detectarlos. |
 | 12 | Everything Claude Code | Actualiza `package.json`, `.env.example` y equivalentes tras cambios que lo requieran. |
 | 13 | Duda Activa | Se detiene y pide contexto ante instrucciones ambiguas con riesgo de romper dependencias. |
 | 14 | Eficiencia de Busqueda | Usa `grep`/`find` antes de leer archivos completos para minimizar consumo de tokens. |
 | 15 | Documentacion Viva | Toda modificacion del nucleo exige actualizar README.md + `git add` + `git commit` + `git push`. |
+| 16 | Higiene de Contexto (Tokenomics) | Protege el presupuesto de tokens. TRIGGER DE COMPACTACION: imprime alerta para ejecutar `/compact` antes de generar codigo masivo tras una fase de investigacion. TRIGGER DE PURGA: imprime alerta para ejecutar `/clear` tras cerrar una tarea en BACKLOG.md. |
 
 ---
 
@@ -341,7 +347,7 @@ Las 15 reglas son inmutables. Aplican a todos los perfiles sin excepcion. El det
 
 ```
 ai-core/
-├── CLAUDE.md          Reglas globales (15), skills disponibles, directiva de interrupcion
+├── CLAUDE.md          Reglas globales (16), skills disponibles, directiva de interrupcion
 ├── README.md          Este archivo — manual de usuario
 ├── OPERATIONS.md      Referencia tecnica operativa: filosofia, incorporacion, contribucion
 ├── BACKLOG.md         Tabla de 12 columnas — deuda tecnica y hallazgos del propio nucleo
