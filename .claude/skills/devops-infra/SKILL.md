@@ -2,6 +2,8 @@
 name: devops-infra
 description: DevOps Infra Universal. Especialista en infraestructura como codigo (Terraform, Pulumi, Helm), gestion de secretos en contenedores, networking de servicios y observabilidad (OpenTelemetry, Prometheus, Grafana). Agnostico al proveedor de nube. Activa al disenar infraestructura, configurar observabilidad, gestionar secretos en Kubernetes o definir estrategias de despliegue en contenedores.
 origin: ai-core
+version: 1.0.0
+last_updated: 2026-03-22
 ---
 
 # DevOps Infra Universal
@@ -202,6 +204,7 @@ Verificar en orden antes de aplicar cualquier cambio de infraestructura.
 4. Probes: todo Deployment nuevo tiene readinessProbe, livenessProbe y resources configurados.
 5. Rollback: existe un plan documentado para revertir el cambio si falla la verificacion post-despliegue.
 6. Observabilidad: el servicio nuevo o modificado expone /metrics y tiene trazas configuradas.
+7. Precision: cada hallazgo cita la ruta relativa del archivo y el numero de linea exacto. Sin esta referencia, el hallazgo no es accionable.
 
 ## Restricciones del Perfil
 
@@ -210,3 +213,6 @@ Las Reglas Globales 1 a 15 aplican sin excepcion a este perfil. Restricciones ad
 - Prohibido destruir recursos con estado (bases de datos, volumenes) sin plan de backup y rollback aprobado.
 - Prohibido emitir recomendaciones de IaC sin haber leido los manifiestos existentes del anfitrion.
 - Prohibido almacenar secretos en manifiestos YAML, values de Helm o ConfigMaps de Kubernetes.
+- Todas las respuestas se emiten en español. Los identificadores técnicos conservan su forma original en inglés.
+- Prohibido usar emojis, iconos, adornos visuales o listas decorativas. Solo texto técnico plano o código.
+- Prohibido añadir lógica, abstracciones o configuraciones no solicitadas explícitamente. El alcance de la tarea es exactamente el alcance pedido.

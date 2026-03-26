@@ -2,6 +2,8 @@
 name: claude-agent-sdk
 description: Especialista en construccion de agentes autonomos con el Claude Agent SDK (TypeScript/Python). Cubre herramientas integradas, hooks de ciclo de vida, subagentes, integracion MCP, gestion de permisos y sesiones. Activa al construir agentes personalizados, orquestar subagentes, integrar el Agent SDK en un proyecto anfitrion o disenar flujos de automatizacion con Claude.
 origin: ai-core
+version: 1.0.0
+last_updated: 2026-03-22
 ---
 
 # Claude Agent SDK — Especialista en Agentes Autonomos
@@ -177,6 +179,7 @@ Verificar en orden antes de aprobar un PR que introduce o modifica un agente.
 6. Sesiones: si el agente es multi-turno, las sesiones tienen TTL y aislamiento por usuario.
 7. Costos: el agente tiene un limite de tokens o de iteraciones configurado para evitar bucles costosos.
 8. Injection: el input del usuario al agente pasa por la misma proteccion de prompt injection definida en el skill `ai-integrations`.
+9. Precision: cada hallazgo cita la ruta relativa del archivo y el numero de linea exacto. Sin esta referencia, el hallazgo no es accionable.
 
 ## Restricciones del Perfil
 
@@ -185,3 +188,6 @@ Las Reglas Globales 1 a 15 aplican sin excepcion a este perfil. Restricciones ad
 - Prohibido disenar sistemas multi-agente sin aislamiento de permisos entre el orquestador y los subagentes.
 - Prohibido omitir la condicion de parada en cualquier agente que ejecute herramientas de escritura o eliminacion.
 - Prohibido persistir secretos o PII en el historial de sesion sin cifrado y politica de retencion documentada.
+- Todas las respuestas se emiten en español. Los identificadores técnicos conservan su forma original en inglés.
+- Prohibido usar emojis, iconos, adornos visuales o listas decorativas. Solo texto técnico plano o código.
+- Prohibido añadir lógica, abstracciones o configuraciones no solicitadas explícitamente. El alcance de la tarea es exactamente el alcance pedido.

@@ -2,6 +2,8 @@
 name: ai-integrations
 description: Especialista en integracion de LLMs en aplicaciones de produccion. Cubre diseno de features de IA, gestion de costos por token, prompt versioning, streaming, fallback entre proveedores y evaluacion de outputs. Agnostico al proveedor. Activa al integrar Claude, Gemini u otro LLM en un proyecto anfitrion, disenar endpoints de IA o gestionar costos de inferencia.
 origin: ai-core
+version: 1.1.0
+last_updated: 2026-03-26
 ---
 
 # AI Integrations — Especialista en Features de IA en Produccion
@@ -193,6 +195,164 @@ Reglas de uso:
 - No activar Extended Thinking en operaciones de alto volumen o clasificaciones simples: el costo se multiplica. Reservar para tareas de razonamiento complejo (arquitectura, analisis legal, diagnostico tecnico).
 - Temperatura fija en 1 cuando thinking esta activo (comportamiento del API).
 
+## Interleaved Thinking
+
+Interleaved Thinking es la variante de Extended Thinking activa en conversaciones multi-turno con tool use. Los bloques de razonamiento aparecen intercalados entre los eventos `tool_use` y `tool_result` en lugar de concentrarse solo al inicio de la respuesta. Esto preserva el razonamiento contextual del modelo a lo largo de multiples llamadas a herramientas dentro del mismo turno.
+
+Se habilita con la cabecera beta especifica. No es compatible con la cabecera de Extended Thinking estandar; son modos distintos.
+
+```typescript
+import Anthropic from '@anthropic-ai/sdk';
+
+const cliente = new Anthropic();
+
+const respuesta = await cliente.messages.create({
+  model: 'claude-sonnet-4-6',
+  max_tokens: 16000,
+  betas: ['interleaved-thinking-2025-05-14'],
+  thinking: {
+    type: 'enabled',
+    budget_tokens: 8000,
+  },
+  tools: [/* definicion de herramientas */],
+  messages: historialConversacion,
+});
+
+// La respuesta puede contener bloques en orden: thinking -> text -> tool_use -> thinking -> text
+for (const bloque of respuesta.content) {
+  if (bloque.type === 'thinking') {
+    // Razonamiento intermedio — no exponer al usuario final
+    logger.debug({ evento: 'interleaved_thinking_block', longitud: bloque.thinking.length });
+  }
+  if (bloque.type === 'tool_use') {
+    // Ejecutar la herramienta y agregar tool_result al historial antes del siguiente turno
+  }
+}
+```
+
+Reglas de uso:
+- Al reconstruir el historial para el siguiente turno, los bloques `thinking` deben incluirse tal como los devuelve el API. Eliminarlos rompe la continuidad del razonamiento del modelo.
+- Los tokens de thinking intercalados se facturan igual que en Extended Thinking estandar. Loguearlos separado de los tokens de output.
+- No activar en operaciones de bajo razonamiento (clasificacion, extraccion simple). El costo por turno sube sin beneficio proporcional.
+- Requiere `claude-sonnet-4-6` o superior. No disponible en Haiku.
+
+## Messages Batches (Batch API)
+
+La Batch API permite enviar hasta 10.000 solicitudes de inferencia en un unico lote. El procesamiento es asincrono con una ventana de hasta 24 horas. El costo por token se reduce un 50% respecto a las llamadas sincronas.
+
+```typescript
+import Anthropic from '@anthropic-ai/sdk';
+
+const cliente = new Anthropic();
+
+// Crear el lote — cada item es una solicitud independiente
+const lote = await cliente.beta.messages.batches.create({
+  requests: [
+    {
+      custom_id: 'clasificacion-001',  // identificador propio para correlacionar resultados
+      params: {
+        model: 'claude-haiku-4-5-20251001',
+        max_tokens: 100,
+        messages: [{ role: 'user', content: 'Clasifica el sentimiento: "El producto es excelente"' }],
+      },
+    },
+    // ... hasta 10.000 items
+  ],
+}, {
+  headers: { 'anthropic-beta': 'message-batches-2024-09-24' },
+});
+
+console.log('Lote creado:', lote.id);
+console.log('Estado inicial:', lote.processing_status); // 'in_progress'
+
+// Consultar el estado del lote (polling o webhook)
+const estadoActual = await cliente.beta.messages.batches.retrieve(lote.id, {
+  headers: { 'anthropic-beta': 'message-batches-2024-09-24' },
+});
+
+// Cuando processing_status === 'ended', descargar resultados
+if (estadoActual.processing_status === 'ended') {
+  for await (const resultado of await cliente.beta.messages.batches.results(lote.id, {
+    headers: { 'anthropic-beta': 'message-batches-2024-09-24' },
+  })) {
+    if (resultado.result.type === 'succeeded') {
+      // resultado.custom_id correlaciona con el item original
+      const texto = resultado.result.message.content[0].text;
+    }
+    if (resultado.result.type === 'errored') {
+      logger.error({ custom_id: resultado.custom_id, error: resultado.result.error });
+    }
+  }
+}
+```
+
+Cuando usar Batch API:
+- Clasificacion o etiquetado masivo de documentos sin restriccion de latencia.
+- Evaluacion de calidad sobre conjuntos de datos grandes (regression datasets).
+- Generacion de embeddings o summaries en pipelines de ingestion fuera de horario pico.
+- Cualquier flujo donde el usuario no esta esperando la respuesta en tiempo real.
+
+No usar Batch API en flujos conversacionales, streaming de UI o cualquier operacion donde la latencia afecte la experiencia del usuario.
+
+Reglas operativas:
+- El `custom_id` es la clave de correlacion entre el request y el resultado. Debe ser unico dentro del lote y trazable al registro de origen en el sistema del anfitrion.
+- Los lotes no completados despues de 24 horas se cancelan automaticamente. Disenar el pipeline con reintento a nivel de lote si la ventana se agota.
+- El logging de tokens en Batch API sigue el mismo formato que las llamadas sincronas. El campo `processing_status === 'ended'` puede contener items con `type === 'errored'`; siempre verificar y loguear.
+
+## Files API
+
+La Files API permite subir archivos una vez y referenciarlos por `file_id` en multiples solicitudes. Elimina el overhead de re-serializar y re-transmitir documentos grandes en cada llamada al LLM.
+
+```typescript
+import Anthropic from '@anthropic-ai/sdk';
+import fs from 'fs';
+
+const cliente = new Anthropic();
+
+// Subir el archivo una vez — el file_id persiste en la cuenta
+const archivo = await cliente.beta.files.upload({
+  file: fs.createReadStream('contrato.pdf'),
+}, {
+  headers: { 'anthropic-beta': 'files-api-2025-04-14' },
+});
+
+const fileId = archivo.id; // Guardar en base de datos para reutilizar
+
+// Referenciar el archivo en mensajes posteriores sin re-subir
+const respuesta = await cliente.messages.create({
+  model: 'claude-sonnet-4-6',
+  max_tokens: 1000,
+  messages: [{
+    role: 'user',
+    content: [
+      {
+        type: 'document',
+        source: {
+          type: 'file',
+          file_id: fileId,  // referencia al archivo previamente subido
+        },
+      },
+      { type: 'text', text: 'Resume las clausulas de penalizacion de este contrato.' },
+    ],
+  }],
+}, {
+  headers: { 'anthropic-beta': 'files-api-2025-04-14' },
+});
+
+// Eliminar cuando ya no se necesite (gestion de almacenamiento)
+await cliente.beta.files.delete(fileId, {
+  headers: { 'anthropic-beta': 'files-api-2025-04-14' },
+});
+```
+
+Tipos de archivo soportados: PDF, texto plano, imagenes (PNG, JPEG, GIF, WEBP).
+
+Reglas de uso:
+- El `file_id` se almacena en la base de datos del anfitrion junto con metadatos del archivo (nombre, hash, fecha de subida, tipo). Sin este registro, la correlacion entre archivo y referencia se pierde.
+- Los archivos subidos persisten en la cuenta de Anthropic hasta que se eliminan explicitamente. Implementar una politica de limpieza para archivos que ya no esten en uso activo.
+- La Files API es complementaria al Gemini Bridge: el bridge procesa corpus para analisis masivo; la Files API optimiza la referencia a documentos recurrentes en flujos de produccion con llamadas frecuentes al mismo documento.
+- No exponer `file_id` directamente en respuestas de API publica. Es un identificador interno de la cuenta de Anthropic.
+
 ## Versionado de Prompts en Produccion
 
 ### Principio
@@ -326,6 +486,7 @@ Verificar en orden antes de aprobar un PR que integra un LLM.
 5. Streaming: si se usa streaming, el evento `done` incluye el conteo de tokens y el cliente maneja correctamente el cierre del stream.
 6. Injection: el input del usuario esta delimitado en el prompt y no puede sobreescribir el system prompt.
 7. PII: si el output puede contener datos personales, existe una politica de retencion y borrado documentada.
+8. Precision: cada hallazgo cita la ruta relativa del archivo y el numero de linea exacto. Sin esta referencia, el hallazgo no es accionable.
 
 ## Restricciones del Perfil
 
@@ -334,3 +495,6 @@ Las Reglas Globales 1 a 15 aplican sin excepcion a este perfil. Restricciones ad
 - Prohibido incluir archivos completos en prompts sin pasar primero por el Gemini Bridge si superan 500 lineas.
 - Prohibido desplegar cambios de prompt en produccion sin ejecutar el conjunto de evaluacion documentado.
 - Prohibido omitir el logging de tokens en cualquier llamada a un LLM en produccion.
+- Todas las respuestas se emiten en español. Los identificadores técnicos conservan su forma original en inglés.
+- Prohibido usar emojis, iconos, adornos visuales o listas decorativas. Solo texto técnico plano o código.
+- Prohibido añadir lógica, abstracciones o configuraciones no solicitadas explícitamente. El alcance de la tarea es exactamente el alcance pedido.

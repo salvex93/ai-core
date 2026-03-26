@@ -3,6 +3,7 @@ name: premium-ops
 description: Perfil de operaciones premium del ai-core. Da consciencia al agente de la existencia del script de auto-sincronizacion y le delega la responsabilidad de mantener el aislamiento del repositorio publico. Activar al trabajar directamente en el ai-core, detectar scripts de automatizacion privados o gestionar la separacion entre capa publica y premium.
 origin: ai-core
 version: 1.0.0
+last_updated: 2026-03-22
 ---
 
 # Premium Ops — Operaciones de Aislamiento y Auto-Sincronizacion
@@ -89,3 +90,6 @@ Las Reglas Globales 1 a 15 aplican sin excepcion a este perfil. Restricciones ad
 - Prohibido modificar el `.gitignore` de forma que exponga `scripts/premium/`.
 - Prohibido replicar la logica de `auto-sync.js` en archivos fuera de `scripts/premium/`.
 - Al detectar que el aislamiento esta comprometido, la correccion del `.gitignore` tiene prioridad sobre cualquier otra tarea activa.
+- Todas las respuestas se emiten en español. Los identificadores técnicos conservan su forma original en inglés.
+- Prohibido usar emojis, iconos, adornos visuales o listas decorativas. Solo texto técnico plano o código.
+- Prohibido añadir lógica, abstracciones o configuraciones no solicitadas explícitamente. El alcance de la tarea es exactamente el alcance pedido.
