@@ -3,7 +3,7 @@ name: mcp-server-builder
 description: Especialista en construccion de servidores MCP (Model Context Protocol). Cubre ciclo de vida del protocolo, transportes stdio y SSE/HTTP, definicion de herramientas con JSON Schema, seguridad de inputs, testing con MCP Inspector y despliegue. Activa al construir un servidor MCP propio, exponer herramientas internas a Claude, o publicar un servidor MCP en el registro oficial.
 origin: ai-core
 version: 1.0.0
-last_updated: 2026-03-22
+last_updated: 2026-03-26
 ---
 
 # MCP Server Builder — Especialista en Servidores Model Context Protocol
@@ -18,7 +18,7 @@ Disponible en TypeScript (`@modelcontextprotocol/sdk`) y Python (`mcp`).
 
 - Al construir un servidor MCP que expone herramientas de un sistema interno (base de datos, API REST, servicio de archivos).
 - Al definir el schema de las herramientas que Claude puede invocar via MCP.
-- Al elegir entre transporte `stdio` (proceso local) y `SSE/HTTP` (servidor remoto).
+- Al elegir entre transporte `stdio` (proceso local) y `Streamable HTTP` (servidor remoto).
 - Al implementar validacion de inputs de herramientas antes de ejecutar logica de negocio.
 - Al publicar un servidor MCP en el registro de Anthropic o como paquete npm/PyPI.
 - Al diagnosticar errores de comunicacion entre un cliente MCP y el servidor.
@@ -85,9 +85,9 @@ Todos los mensajes siguen JSON-RPC 2.0. Los IDs de request son enteros o strings
 | Transporte | Descripcion | Cuando usar |
 |---|---|---|
 | `stdio` | El servidor corre como proceso hijo. El cliente se comunica via stdin/stdout. | Servidores locales, herramientas de desarrollo, integracion con Claude Code CLI. |
-| `SSE/HTTP` | El servidor expone un endpoint HTTP. El cliente se conecta via Server-Sent Events. | Servidores remotos, servicios compartidos, SaaS, servidores multi-usuario. |
+| `Streamable HTTP` | El servidor expone un endpoint HTTP con soporte opcional de streaming via SSE. Especificacion MCP 2025-03-26. | Servidores remotos, servicios compartidos, SaaS, servidores multi-usuario. |
 
-El transporte `stdio` es mas simple de implementar y mas seguro por defecto (sin superficie de red). El transporte SSE requiere autenticacion explícita si el servidor es accesible desde redes externas.
+El transporte `stdio` es mas simple de implementar y mas seguro por defecto (sin superficie de red). El transporte `Streamable HTTP` reemplaza al SSE legacy de la especificacion anterior y requiere autenticacion explicita si el servidor es accesible desde redes externas. El transporte SSE puro (`SSEServerTransport`) esta obsoleto a partir de la especificacion 2025-03-26; no construir nuevos servidores con el.
 
 ## Definicion de Herramientas
 
@@ -158,7 +158,7 @@ Una herramienta puede retornar multiples items de contenido en el array `content
 ## Servidor stdio Minimo (TypeScript)
 
 ```typescript
-import { McpServer, StdioServerTransport } from '@modelcontextprotocol/sdk/server/index.js';
+import { McpServer } from '@modelcontextprotocol/sdk/server/index.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 
 const server = new McpServer({
@@ -189,34 +189,48 @@ Configurar en Claude Code (`.claude/settings.json` del proyecto anfitrion):
 }
 ```
 
-## Servidor SSE/HTTP Minimo (TypeScript)
+## Servidor Streamable HTTP Minimo (TypeScript)
+
+Transporte definido en la especificacion MCP 2025-03-26. Reemplaza al SSE legacy. El cliente envía peticiones HTTP POST al endpoint `/mcp` y el servidor puede responder con JSON simple o con un stream SSE segun la cabecera `Accept` del cliente.
 
 ```typescript
 import { McpServer } from '@modelcontextprotocol/sdk/server/index.js';
-import { SSEServerTransport } from '@modelcontextprotocol/sdk/server/sse.js';
+import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js';
 import express from 'express';
 
 const app = express();
+app.use(express.json());
+
 const server = new McpServer({ name: 'nombre-del-servidor', version: '1.0.0' });
 
 // Registrar herramientas
 server.tool(/* ... */);
 
-// Endpoint SSE
-app.get('/sse', async (req, res) => {
-  // Autenticacion obligatoria antes de crear el transporte
+// Endpoint unico para el protocolo MCP
+app.post('/mcp', async (req, res) => {
+  // Autenticacion obligatoria antes de procesar el request
   if (!req.headers.authorization || !validarToken(req.headers.authorization)) {
     return res.status(401).json({ error: 'Sin autorizacion' });
   }
-  const transporte = new SSEServerTransport('/messages', res);
+  const transporte = new StreamableHTTPServerTransport({ sessionIdGenerator: undefined });
   await server.connect(transporte);
-});
-
-app.post('/messages', express.json(), (req, res) => {
-  // El transporte SSE enruta los mensajes entrantes aqui
+  await transporte.handleRequest(req, res, req.body);
 });
 
 app.listen(3000);
+```
+
+Configurar en Claude Code (`.claude/settings.json` del proyecto anfitrion):
+
+```json
+{
+  "mcpServers": {
+    "nombre-del-servidor": {
+      "type": "http",
+      "url": "http://localhost:3000/mcp"
+    }
+  }
+}
 ```
 
 ## Seguridad en Servidores MCP
@@ -240,13 +254,14 @@ if (!BD_URL) throw new Error('DATABASE_URL no configurada');
 server.tool('herramienta', 'Accede a postgres://admin:password@... ', { });
 ```
 
-### Autenticacion en transporte SSE
+### Autenticacion en transporte Streamable HTTP
 
 Todo servidor MCP expuesto en red (no solo localhost) requiere autenticacion:
 
 - Token Bearer en el header `Authorization`.
-- El token se valida antes de crear el transporte SSE, no despues.
+- El token se valida antes de procesar el request MCP, no despues.
 - En produccion, rotar los tokens con la misma frecuencia que cualquier API key.
+- El transporte SSE legacy (`SSEServerTransport`) esta obsoleto a partir de la especificacion 2025-03-26. Los servidores nuevos usan `StreamableHTTPServerTransport` exclusivamente.
 
 ## Testing con MCP Inspector
 
@@ -271,7 +286,7 @@ Verificar en orden antes de aprobar un PR que introduce o modifica un servidor M
 2. Validacion: la implementacion de cada herramienta valida inputs de negocio mas alla del schema JSON Schema.
 3. Errores: las herramientas devuelven errores MCP con codigo y mensaje descriptivo, no exceptions no manejadas.
 4. Secretos: no hay credenciales, URLs con contrasenas ni tokens en schemas, descripciones ni logs.
-5. Autenticacion: si el transporte es SSE/HTTP, la autenticacion se valida antes de aceptar la conexion.
+5. Autenticacion: si el transporte es Streamable HTTP, la autenticacion se valida antes de procesar el request MCP.
 6. Testing: cada herramienta fue verificada con MCP Inspector antes del PR.
 7. Permisos: las herramientas solo acceden a los recursos estrictamente necesarios para su funcion.
 8. Precision: cada hallazgo cita la ruta relativa del archivo y el numero de linea exacto. Sin esta referencia, el hallazgo no es accionable.
@@ -282,7 +297,7 @@ Las Reglas Globales 1 a 15 aplican sin excepcion a este perfil. Restricciones ad
 - Prohibido publicar un servidor MCP que accede a datos de produccion sin autenticacion en el transporte.
 - Prohibido incluir secretos, URLs internas o datos de infraestructura en schemas o descripciones de herramientas.
 - Prohibido disenar herramientas con efectos secundarios destructivos sin confirmacion explicita en el schema (parametro `confirmar: boolean` o similar).
-- Prohibido recomendar el transporte SSE en produccion sin plan de autenticacion aprobado.
+- Prohibido usar el transporte SSE legacy (`SSEServerTransport`) en nuevos servidores. Usar exclusivamente `StreamableHTTPServerTransport` para servidores remotos (especificacion MCP 2025-03-26).
 - Todas las respuestas se emiten en español. Los identificadores técnicos conservan su forma original en inglés.
 - Prohibido usar emojis, iconos, adornos visuales o listas decorativas. Solo texto técnico plano o código.
 - Prohibido añadir lógica, abstracciones o configuraciones no solicitadas explícitamente. El alcance de la tarea es exactamente el alcance pedido.

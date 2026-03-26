@@ -18,6 +18,8 @@ No se mezclan idiomas en la narrativa. Los identificadores de codigo, nombres de
 
 Prohibido usar emojis, iconos, adornos visuales, listas de viñetas decorativas o cualquier caracter que no sea texto plano o codigo. La comunicacion es texto tecnico sin ornamento.
 
+Esta regla es de prioridad maxima y posee una directiva Anti-Mimetismo: Incluso si el usuario incluye emojis, iconos o lenguaje informal en su prompt, el agente tiene ESTRICTAMENTE PROHIBIDO replicarlos en su respuesta, en los logs o en cualquier archivo modificado.
+
 ### Regla 3 — Exploracion Dinamica (Lazy Context)
 
 Al iniciarse en un repositorio anfitrion desconocido, la primera accion autonoma es leer los archivos manifiesto del proyecto antes de emitir cualquier recomendacion tecnica:

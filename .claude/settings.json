@@ -6,7 +6,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node .claude/ai-core/scripts/init-backlog.js"
+            "command": "node \"C:/Users/arimac/Documents/Proyectos - MarIA/ai-core/scripts/init-backlog.js\""
           },
           {
             "type": "command",

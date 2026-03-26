@@ -1,10 +1,5 @@
 # AI-CORE: Nexus Multi-Agente Universal
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Open Source](https://img.shields.io/badge/Open%20Source-%E2%9C%93-brightgreen)](https://github.com/salvex93/ai-core)
-[![Skills](https://img.shields.io/badge/Skills-13%20activos-blue)](https://github.com/salvex93/ai-core/tree/main/.claude/skills)
-[![Contribuciones](https://img.shields.io/badge/Contribuciones-bienvenidas-orange)](CONTRIBUTING.md)
-
 `ai-core` es un nucleo de configuracion y comportamiento para agentes IA que se incorpora a cualquier repositorio como submódulo Git. Inyecta 15 reglas globales inmutables y 13 perfiles de comportamiento tecnico especializados (skills) sin acoplar su logica al stack del proyecto anfitrion.
 
 El sistema es framework-agnostic por diseño. No asume Node.js, Python, Go ni ningun otro lenguaje. Cada agente lee los manifiestos del repositorio anfitrion (`package.json`, `requirements.txt`, `go.mod`, etc.) al activarse y adapta sus recomendaciones al entorno real del proyecto.
@@ -280,7 +275,7 @@ Activar al: planificar releases, gestionar ramas, configurar pipelines o coordin
 Gestor de Misiones para el Gemini Bridge. Redacta ordenes de mision de alta precision para `scripts/gemini-bridge.js` y define el esquema JSON/Markdown exacto de respuesta. Tambien gobierna la arquitectura de pipelines RAG y la evaluacion de calidad de recuperacion semantica.
 Activar al: delegar analisis documental masivo, construir pipelines RAG, gestionar colecciones vectoriales o evaluar recuperacion semantica.
 
-**aiops-engineer** `[👑 PREMIUM / ENTERPRISE]`
+**aiops-engineer** `[PREMIUM / ENTERPRISE]`
 Agente de mantenimiento del propio nucleo ai-core. Audita la coherencia de los skills, analiza nuevas capacidades del ecosistema Anthropic y propone mejoras. Nunca modifica el nucleo sin confirmacion humana explicita. Requiere la variable `AI_CORE_PREMIUM_KEY` en el `.env` local para operar. Sin ella, el agente aborta silenciosamente.
 Activar al: auditar el estado del ai-core o proponer actualizaciones de skills. Disponible bajo licencia Enterprise/Consultoria — contactar a salvex93.
 

@@ -55,7 +55,9 @@ Plantilla de Orden de Mision:
 Analiza [nombre-del-archivo] con el siguiente objetivo: [objetivo tecnico preciso].
 Identifica [hallazgos especificos requeridos].
 Retorna en formato [json|markdown] siguiendo el schema: [descripcion del schema o referencia].
-Idioma de respuesta: español.
+Idioma de respuesta: exclusivamente español.
+Prohibido usar emojis, iconos o caracteres de adorno en la respuesta.
+Prohibido incluir afirmaciones no respaldadas explicitamente por el contenido del archivo analizado.
 ```
 
 ### Paso 3 — Invocar el bridge
@@ -73,6 +75,11 @@ node scripts/gemini-bridge.js \
 Verificar que el output del bridge cumpla el schema definido en la Orden de Mision.
 
 Si el output es JSON invalido o no cumple el schema: reintentar con una Orden de Mision mas precisa. Maximo dos reintentos. Ante fallo persistente, activar Directiva de Interrupcion.
+
+Protocolo de validacion del output del bridge:
+- Si el output contiene caracteres Unicode de categoria emoji (U+1F000 a U+1FFFF o similares): rechazar y reintentar con refuerzo explicito de la prohibicion.
+- Si el output no esta en español: rechazar y reintentar. No traducir el output manualmente.
+- Si el output contiene afirmaciones no atribuibles al contenido del archivo analizado: marcarlas como [ESPECULACION] antes de reportarlas al usuario.
 
 Reportar al usuario el resultado de la delegacion:
 
