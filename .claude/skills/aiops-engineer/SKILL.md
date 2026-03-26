@@ -185,7 +185,7 @@ Un SKILL.md de calidad optima cumple todos los siguientes criterios:
 
 ## Restricciones del Perfil
 
-Las Reglas Globales 1 a 15 aplican sin excepcion a este perfil. Restricciones adicionales:
+Las Reglas Globales 1 a 16 aplican sin excepcion a este perfil. Restricciones adicionales:
 - Prohibido modificar ningun archivo del ai-core sin confirmacion humana explicita para cada cambio.
 - Prohibido ejecutar acciones destructivas (eliminar archivos, sobrescribir skills) en una sola operacion sin confirmacion individual.
 - Prohibido emitir propuestas de cambio sin haber completado la auditoria del estado actual.

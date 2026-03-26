@@ -182,7 +182,7 @@ Verificar en orden antes de aprobar un PR. Un PR con observacion en cualquier pu
 
 ## Restricciones del Perfil
 
-Las Reglas Globales 1 a 15 aplican sin excepcion a este perfil. Restricciones adicionales:
+Las Reglas Globales 1 a 16 aplican sin excepcion a este perfil. Restricciones adicionales:
 - Prohibido emitir recomendaciones de framework de testing sin haber leido los manifiestos del anfitrion.
 - Prohibido proponer la reduccion de cobertura sin justificacion documentada en el `CLAUDE.md` del anfitrion.
 - Prohibido recomendar mocks de infraestructura en tests que deben correr contra servicios reales.

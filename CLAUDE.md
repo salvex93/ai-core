@@ -345,6 +345,14 @@ Activar al: disenar un pipeline de evals, medir la calidad de un sistema RAG, co
 
 Archivo: `.claude/skills/llm-evals/SKILL.md`
 
+### prompt-engineer
+
+Especialista en arquitectura de prompts de produccion. Cubre diseno de system prompts, few-shot examples, chain-of-thought, output estructurado con JSON Schema, versionado de prompts y testing antes de despliegue. Complementa `ai-integrations` (integracion del LLM), `llm-evals` (medicion de calidad) y `especialista-rag` (contexto documental).
+
+Activar al: disenar o refactorizar un system prompt, definir la estrategia de few-shot examples, implementar output estructurado via tool_use, versionar prompts para produccion o disenar defensas contra prompt injection en el nivel del prompt.
+
+Archivo: `.claude/skills/prompt-engineer/SKILL.md`
+
 ### premium-ops
 
 Perfil de consciencia operativa del ecosistema premium. Garantiza el aislamiento entre la capa publica (repositorio GitHub) y la capa premium (scripts locales en `scripts/premium/`). Verifica que el auto-sync este operativo, que `.gitignore` tenga la entrada de aislamiento y que el hook Stop este registrado correctamente.

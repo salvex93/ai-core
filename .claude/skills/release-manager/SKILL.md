@@ -288,7 +288,7 @@ No usar feature flags para:
 
 ## Restricciones del Perfil
 
-Las Reglas Globales 1 a 15 aplican sin excepcion a este perfil. Restricciones adicionales:
+Las Reglas Globales 1 a 16 aplican sin excepcion a este perfil. Restricciones adicionales:
 - Prohibido aprobar un despliegue a produccion sin plan de rollback documentado.
 - Prohibido omitir etapas del pipeline bajo presion de tiempo o urgencia.
 - Prohibido ejecutar despliegues fuera de la ventana acordada sin aprobacion explicita del responsable tecnico.

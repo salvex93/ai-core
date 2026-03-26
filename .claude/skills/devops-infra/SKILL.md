@@ -194,6 +194,45 @@ Los logs se emiten en formato JSON con los campos obligatorios:
 
 Los campos `trace_id` y `span_id` son obligatorios en servicios con trazas distribuidas activas. Permiten correlacionar un log con su traza en el backend de observabilidad.
 
+## FinOps — Gestion de Costo de Nube
+
+La gestion de costo de nube es un pilar operativo obligatorio en 2026, equivalente en prioridad a la observabilidad. Un servicio sin visibilidad de costo en produccion no esta listo para produccion.
+
+### Principios basicos
+
+- Toda cuenta de nube tiene alertas de presupuesto configuradas. Un gasto que supera el 80% del presupuesto mensual genera una alerta. Un gasto que supera el 100% genera una alerta critica.
+- Los recursos efimeros (entornos de PR, instancias de testing) tienen un TTL configurado. No se dejan corriendo indefinidamente.
+- Todo recurso nuevo tiene etiquetas de costo obligatorias: `project`, `environment`, `team`, `owner`. Sin estas etiquetas, el recurso no se despliega.
+
+### Herramientas de visibilidad
+
+| Herramienta | Proveedor | Funcion |
+|---|---|---|
+| AWS Cost Explorer | AWS | Analisis de costo por servicio, cuenta y etiqueta. |
+| GCP Billing Reports | GCP | Descomposicion de costo por proyecto, SKU y etiqueta. |
+| Azure Cost Management | Azure | Presupuestos, alertas y recomendaciones de optimizacion. |
+| OpenCost | Kubernetes (multi-cloud) | Costo de nube asignado por namespace, pod y deployment. |
+| Infracost | Terraform / IaC | Estimacion de costo de un cambio de infraestructura antes del despliegue. |
+
+### Protocolo de revision de costo en IaC
+
+Antes de aplicar cualquier `terraform apply` o equivalente que introduzca recursos nuevos, ejecutar una estimacion de costo:
+
+```bash
+# Infracost: estimacion de delta de costo del plan de Terraform
+infracost breakdown --path . --format json | jq '.totalMonthlyCost'
+```
+
+Si el delta mensual supera el umbral definido por el anfitrion (por defecto: 10% del presupuesto mensual actual), activar la Directiva de Interrupcion antes de proceder.
+
+### Optimizacion obligatoria antes de escalar
+
+Antes de aumentar el tamano de una instancia o el numero de replicas, verificar:
+
+1. CPU y memoria: el uso promedio de los ultimos 7 dias supera el 70% de los recursos actuales.
+2. Costo alternativo: existe un tipo de instancia mas eficiente (ej: instancias con procesador ARM, instancias reservadas, Spot/Preemptible para cargas tolerantes a interrupciones).
+3. Escala horizontal vs. vertical: para servicios sin estado, escalar horizontalmente es siempre preferible antes de escalar verticalmente.
+
 ## Lista de Verificacion de Revision de Infraestructura
 
 Verificar en orden antes de aplicar cualquier cambio de infraestructura.
@@ -208,7 +247,7 @@ Verificar en orden antes de aplicar cualquier cambio de infraestructura.
 
 ## Restricciones del Perfil
 
-Las Reglas Globales 1 a 15 aplican sin excepcion a este perfil. Restricciones adicionales:
+Las Reglas Globales 1 a 16 aplican sin excepcion a este perfil. Restricciones adicionales:
 - Prohibido aplicar cambios a infraestructura de produccion de forma directa sin pasar por el pipeline de CI/CD.
 - Prohibido destruir recursos con estado (bases de datos, volumenes) sin plan de backup y rollback aprobado.
 - Prohibido emitir recomendaciones de IaC sin haber leido los manifiestos existentes del anfitrion.

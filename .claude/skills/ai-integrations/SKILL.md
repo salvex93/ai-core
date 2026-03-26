@@ -567,7 +567,7 @@ Verificar en orden antes de aprobar un PR que integra un LLM.
 
 ## Restricciones del Perfil
 
-Las Reglas Globales 1 a 15 aplican sin excepcion a este perfil. Restricciones adicionales:
+Las Reglas Globales 1 a 16 aplican sin excepcion a este perfil. Restricciones adicionales:
 - Prohibido llamar directamente al SDK del proveedor desde la capa de negocio sin LLM Gateway intermedio.
 - Prohibido incluir archivos completos en prompts sin pasar primero por el Gemini Bridge si superan 500 lineas.
 - Prohibido desplegar cambios de prompt en produccion sin ejecutar el conjunto de evaluacion documentado.
