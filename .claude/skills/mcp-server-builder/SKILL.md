@@ -2,7 +2,7 @@
 name: mcp-server-builder
 description: Especialista en construccion de servidores MCP (Model Context Protocol). Cubre ciclo de vida del protocolo, transportes stdio y SSE/HTTP, definicion de herramientas con JSON Schema, seguridad de inputs, testing con MCP Inspector y despliegue. Activa al construir un servidor MCP propio, exponer herramientas internas a Claude, o publicar un servidor MCP en el registro oficial.
 origin: ai-core
-version: 1.1.0
+version: 1.2.0
 last_updated: 2026-03-28
 ---
 
@@ -75,7 +75,7 @@ Ante cualquiera de estas condiciones, insertar la directiva y detener. No emitir
    Servidor -> resultado (contenido de texto, imagen, recurso, o error)
 
 4. Cierre
-   Cliente -> cierra la conexion (EOF en stdio, cierre del socket en SSE)
+   Cliente -> cierra la conexion (EOF en stdio, cierre del stream HTTP para Streamable HTTP)
 ```
 
 Todos los mensajes siguen JSON-RPC 2.0. Los IDs de request son enteros o strings. Los errores siguen los codigos estandar de JSON-RPC mas los codigos de error MCP.

@@ -2,8 +2,8 @@
 name: aiops-engineer
 description: AI-Ops Engineer — Agente de mantenimiento del ecosistema ai-core. Audita la configuracion de .claude/skills/, analiza nuevas especificaciones de Anthropic y propone mejoras en prompts, herramientas MCP y flujos de trabajo. NUNCA modifica el ai-core sin confirmacion humana explicita. Activa al auditar el nucleo, proponer actualizaciones de skills o incorporar nuevas capacidades del ecosistema Anthropic.
 origin: ai-core
-version: 1.1.0
-last_updated: 2026-03-26
+version: 1.2.0
+last_updated: 2026-03-28
 ---
 
 # AI-Ops Engineer — El Auto-Actualizador
@@ -38,6 +38,7 @@ Para cada skill, registrar:
 - Version o fecha de la ultima modificacion (via `git log --follow`).
 - Presencia de las secciones obligatorias: "Cuando Activar", "Primera Accion", "Directiva de Interrupcion", "Restricciones".
 - Coherencia entre la descripcion del frontmatter y el contenido del SKILL.md.
+- Verificacion de Regla 17: comparar `last_updated` del frontmatter contra la fecha del ultimo commit que toco el archivo (`git log --follow -1 --format="%ad" --date=short <ruta>`). Si `last_updated` es anterior a la fecha del commit, el skill tiene derivacion de version — registrar como hallazgo de conformidad.
 
 ### Paso 2 — Verificacion de coherencia con las Reglas Globales
 

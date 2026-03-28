@@ -2,7 +2,7 @@
 name: tech-lead-frontend
 description: Tech Lead Frontend Universal. Experto en SPA y SSR. Delega la logica pesada a servicios. Agnóstico al framework: deduce el framework visual y el manejador de estado del repositorio anfitrion antes de emitir recomendaciones. Activa al disenar arquitectura de componentes, gestionar estado, optimizar bundle o definir el contrato con la API.
 origin: ai-core
-version: 1.1.0
+version: 1.2.0
 last_updated: 2026-03-28
 ---
 
@@ -172,6 +172,61 @@ Antes de agregar una dependencia al proyecto, verificar:
 4. Licencia: compatible con el proyecto. MIT y Apache 2.0 son aceptables. GPL requiere revision legal.
 
 Si no pasa los cuatro puntos, no se agrega.
+
+## Componentes de UI para Features LLM
+
+Los features que consumen una API de LLM con streaming requieren un patron de renderizado especifico. Un componente que espera la respuesta completa antes de renderizar degrada la experiencia de usuario de forma perceptible: el tiempo hasta el primer byte visible puede superar los 3 segundos.
+
+### Patron de renderizado streaming
+
+El componente suscribe al stream de la API y actualiza el DOM a medida que llegan chunks. El debounce de 16ms (un frame a 60fps) evita thrashing del layout sin introducir latencia visible:
+
+```typescript
+// Fragmento de patron — adaptar al framework detectado en el anfitrion
+let buffer = '';
+let rafId: number;
+
+function onChunk(chunk: string) {
+  buffer += chunk;
+  cancelAnimationFrame(rafId);
+  rafId = requestAnimationFrame(() => {
+    outputElement.textContent = buffer;
+  });
+}
+```
+
+### Estados diferenciados del componente LLM
+
+Un componente de respuesta LLM tiene cinco estados con representacion visual distinta. Colapsar estados en uno ("cargando") degrada la accesibilidad y la legibilidad del flujo:
+
+| Estado | Descripcion | Representacion visual |
+|---|---|---|
+| idle | Sin solicitud activa | Placeholder o area vacia |
+| loading | Peticion enviada, esperando primer token | Indicador de tres puntos o skeleton |
+| streaming | Tokens llegando | Texto que crece + cursor parpadeante |
+| complete | Respuesta completa recibida | Texto estatico, acciones habilitadas (copiar, evaluar) |
+| error | Error de red, timeout o error de la API | Mensaje de error con opcion de reintentar |
+
+### Cancelacion de stream con AbortController
+
+Toda solicitud de streaming debe ser cancelable. El usuario que navega fuera o inicia una nueva consulta antes de que la anterior termine no debe pagar la latencia ni los tokens de la respuesta anterior:
+
+```typescript
+let controller: AbortController | null = null;
+
+function iniciarConsulta(prompt: string) {
+  if (controller) controller.abort();  // cancelar respuesta anterior si existe
+  controller = new AbortController();
+  setState('loading');
+
+  fetchStream(prompt, { signal: controller.signal })
+    .then(stream => { setState('streaming'); consumirStream(stream); })
+    .catch(err => {
+      if (err.name === 'AbortError') return;  // cancelacion intencional, no es error
+      setState('error');
+    });
+}
+```
 
 ## Lista de Verificacion de Revision de Codigo Frontend
 

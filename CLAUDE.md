@@ -261,6 +261,18 @@ Inmediatamente despues de cerrar una tarea y marcar su Estatus como "Terminado" 
 
 Estos triggers no son opcionales. Su omision es una violacion de esta regla equivalente a desperdiciar presupuesto del usuario.
 
+### Regla 17 — Versionado Obligatorio de Skills
+
+Toda modificacion de contenido en un SKILL.md — correcciones de texto, actualizaciones tecnicas, nuevas secciones, cambios de prompting — requiere, en el mismo commit que introduce el cambio, actualizar dos campos del frontmatter del archivo modificado:
+
+1. `version`: incrementar el numero de version siguiendo semver restringido:
+   - Patch (X.Y.Z+1): correcciones de texto, actualizaciones de una linea, fixes de conformidad.
+   - Minor (X.Y+1.0): nuevas secciones, reestructuracion de contenido existente, adicion de ejemplos de codigo.
+   - Major (X+1.0.0): reestructuracion completa del skill o cambio de alcance del perfil.
+2. `last_updated`: fecha actual en formato YYYY-MM-DD.
+
+Un commit que modifica un SKILL.md sin actualizar su frontmatter viola esta regla. La auditoria automatizada del perfil `aiops-engineer` verifica esta regla en el Paso 1 del protocolo de inventario comparando `last_updated` contra `git log --follow` del archivo. Sin este campo actualizado, la auditoria no puede distinguir entre un skill sin modificar y uno recien actualizado, perpetuando falsos hallazgos de derivacion en cada ciclo.
+
 ---
 
 ## Skills Disponibles
@@ -396,6 +408,14 @@ Perfil de consciencia operativa del ecosistema premium. Garantiza el aislamiento
 Activar al: trabajar directamente en el repositorio ai-core, detectar que `scripts/premium/` existe localmente, revisar o diagnosticar el hook Stop, o incorporar nuevos scripts de automatizacion privados.
 
 Archivo: `.claude/skills/premium-ops/SKILL.md`
+
+### ai-guardrails
+
+Especialista en capas de proteccion para sistemas LLM en produccion. Cubre deteccion de prompt injection, validacion de outputs, deteccion de PII, rate limiting por usuario, patron LLM Firewall y seleccion de frameworks (NeMo Guardrails, Guardrails AI, Azure AI Content Safety). Complementa `security-auditor` (seguridad de aplicacion) y `llm-observability` (deteccion reactiva).
+
+Activar al: disenar la capa de proteccion de un endpoint LLM expuesto a usuarios externos, implementar filtros de input/output, definir politicas de uso aceptable o integrar guardrails con el sistema de observabilidad LLM.
+
+Archivo: `.claude/skills/ai-guardrails/SKILL.md`
 
 ---
 

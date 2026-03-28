@@ -2,7 +2,7 @@
 name: claude-agent-sdk
 description: Especialista en construccion de agentes autonomos con el Claude Agent SDK (TypeScript/Python). Cubre herramientas integradas, hooks de ciclo de vida, subagentes, integracion MCP, OAuth 2.0 client flow (Authorization Code + PKCE) para servidores MCP remotos, gestion de permisos y sesiones. Activa al construir agentes personalizados, orquestar subagentes, integrar el Agent SDK en un proyecto anfitrion o disenar flujos de automatizacion con Claude.
 origin: ai-core
-version: 1.2.0
+version: 1.3.0
 last_updated: 2026-03-28
 ---
 
@@ -470,6 +470,74 @@ Verificar en orden antes de aprobar un PR que introduce o modifica un agente.
 7. Costos: el agente tiene un limite de tokens o de iteraciones configurado para evitar bucles costosos.
 8. Injection: el input del usuario al agente pasa por la misma proteccion de prompt injection definida en el skill `ai-integrations`.
 9. Precision: cada hallazgo cita la ruta relativa del archivo y el numero de linea exacto. Sin esta referencia, el hallazgo no es accionable.
+
+## Interleaved Thinking en Agentes Multi-Herramienta
+
+El Extended Thinking con herramientas permite que el modelo emita bloques `thinking` entre llamadas a herramientas en un flujo multi-turno. Esto es cualitativamente distinto al thinking en un turno simple: el modelo puede razonar sobre el resultado de cada herramienta antes de decidir la siguiente accion, produciendo agentes con mayor capacidad de planificacion adaptativa.
+
+### Cuando activar interleaved thinking
+
+- El agente necesita tomar decisiones condicionales basadas en resultados intermedios de herramientas.
+- El flujo tiene mas de tres pasos de herramienta con dependencias entre ellos.
+- La tarea requiere verificacion de coherencia entre resultados de diferentes herramientas antes de continuar.
+
+No activar para flujos de herramienta simples y deterministas (ej: buscar un registro + devolver resultado). El overhead de tokens no justifica la activacion en flujos sin razonamiento adaptativo.
+
+### Patron de implementacion
+
+```typescript
+import Anthropic from "@anthropic-ai/sdk";
+
+const client = new Anthropic();
+
+async function agenteConInterleavedThinking(tarea: string) {
+  const messages: Anthropic.MessageParam[] = [
+    { role: "user", content: tarea }
+  ];
+
+  while (true) {
+    const response = await client.messages.create({
+      model: "claude-opus-4-6",  // interleaved thinking requiere Opus para maximo beneficio
+      max_tokens: 16000,
+      thinking: { type: "enabled", budget_tokens: 8000 },
+      tools: herramientas,
+      messages,
+    });
+
+    // Agregar la respuesta completa (incluyendo bloques thinking) al historial
+    messages.push({ role: "assistant", content: response.content });
+
+    if (response.stop_reason === "end_turn") break;
+
+    if (response.stop_reason === "tool_use") {
+      const resultados: Anthropic.ToolResultBlockParam[] = [];
+
+      for (const block of response.content) {
+        if (block.type === "tool_use") {
+          const resultado = await ejecutarHerramienta(block.name, block.input);
+          resultados.push({
+            type: "tool_result",
+            tool_use_id: block.id,
+            content: JSON.stringify(resultado),
+          });
+        }
+        // Los bloques thinking se preservan en el historial automaticamente
+        // al incluir response.content completo en messages
+      }
+
+      messages.push({ role: "user", content: resultados });
+    }
+  }
+
+  return extraerRespuestaFinal(messages);
+}
+```
+
+### Consideraciones de costo
+
+- Los bloques `thinking` se facturan como tokens de output del turno donde se generan.
+- En flujos multi-turno, el thinking del turno anterior se incluye en el contexto del siguiente turno como tokens de entrada.
+- Para agentes de produccion con muchos turnos, monitorear la acumulacion de tokens thinking en el contexto. Si supera el 40% del context window, considerar estrategias de compactacion del historial.
 
 ## Restricciones del Perfil
 
