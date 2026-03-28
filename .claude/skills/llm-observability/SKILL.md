@@ -2,7 +2,7 @@
 name: llm-observability
 description: Especialista en observabilidad de sistemas LLM en produccion. Cubre instrumentacion con OpenTelemetry, dashboards de costo por operacion, alertas de degradacion de calidad, tracing de prompts y completions, y plataformas de observabilidad IA (Langfuse, Helicone, Phoenix). Activa al instrumentar un sistema que usa LLMs, disenar dashboards de costo/calidad, configurar alertas de degradacion o diagnosticar regresiones de calidad en produccion.
 origin: ai-core
-version: 1.0.0
+version: 1.1.0
 last_updated: 2026-03-28
 ---
 
@@ -254,6 +254,22 @@ Configurar las siguientes alertas como gate de calidad operativa. Los umbrales e
 | Costo fuera de presupuesto | `llm_cost_usd_total` supera el presupuesto diario definido | CRITICAL | Throttling de llamadas no criticas; notificar al responsable de costos |
 | Tasa de errores del proveedor | `llm_errors_total` / `llm_requests_total` > 1% en 5 minutos | WARNING | Revisar status del proveedor; activar circuit breaker si supera 5% |
 | Cache miss rate alto | `llm_tokens_cache_read_total` / `llm_tokens_input_total` < 30% para operaciones con system prompt estatico | INFO | Revisar si el system prompt se esta modificando entre llamadas |
+| Prompt bloat | `gen_ai.usage.input_tokens` promedio por operacion sube mas del 20% respecto al baseline de 24h | WARNING | Revisar si el historial de conversacion no esta siendo truncado; comparar longitud del system prompt con la version anterior desplegada |
+
+Ejemplo de regla PromQL para la alerta de prompt bloat:
+
+```yaml
+- alert: LLMPromptBloat
+  expr: |
+    avg by (operacion) (rate(llm_tokens_input_total[1h]))
+    > 1.2 * avg by (operacion) (rate(llm_tokens_input_total[1h] offset 24h))
+  for: 15m
+  labels:
+    severity: warning
+  annotations:
+    summary: "Incremento anormal de tokens de entrada en {{ $labels.operacion }}"
+    description: "Los tokens de entrada promedio superan en mas del 20% el baseline de 24h. Posible prompt bloat o historial no truncado."
+```
 
 ## Protocolo de Diagnostico de Regresion de Calidad
 
@@ -265,6 +281,45 @@ Cuando una regresion se detecta en produccion (mas quejas de usuarios, metricas 
 4. Comparar tokens de salida: una degradacion de calidad frecuentemente correlaciona con una caida en la longitud del output (el modelo genera menos contenido) o un aumento (el modelo alucina mas para completar).
 5. Ejecutar el golden dataset del skill `llm-evals` contra la configuracion actual para confirmar la regresion de forma controlada.
 6. Revertir el ultimo cambio de prompt o modelo si se identifica como causa. No hacer multiples cambios simultaneos.
+
+## Protocolo de Promocion de Traza a Golden Dataset
+
+Las trazas de produccion son la fuente mas valiosa de casos reales para el golden dataset del skill `llm-evals`. Este protocolo define como promover una traza a item del dataset sin romper el protocolo de revision humana obligatorio.
+
+Condiciones de seleccion de una traza candidata:
+
+- La traza exhibe un output inesperadamente bueno que el sistema deberia reproducir de forma consistente.
+- La traza exhibe una alucinacion o fallo de calidad documentado, util como caso de fallo esperado en el dataset.
+- La traza cubre un caso de uso critico no representado en el golden dataset actual.
+
+Proceso de promocion:
+
+1. Localizar la traza en la plataforma de observabilidad usando su `trace_id`.
+2. Extraer los campos: `input.usuario`, `input.contexto` (chunks RAG si aplica), `output` generado, modelo, version de prompt.
+3. Crear un item candidato con estado `revisor: pendiente`. El campo `origen_traza` vincula el item a la traza de produccion original.
+4. Un revisor humano aprueba o rechaza el candidato: valida el `ground_truth` (si el output fue bueno) o documenta el fallo (si fue un caso negativo).
+5. Una vez aprobado, el item se incorpora al golden dataset con `revisor` actualizado y la fecha de `ultima_revision`.
+
+Estructura del item promovido desde una traza:
+
+```json
+{
+  "id": "eval-from-trace-001",
+  "categoria": "resumen_contrato",
+  "input": {
+    "usuario": "Resume las clausulas de penalizacion",
+    "contexto": ["...chunk recuperado 1...", "...chunk recuperado 2..."]
+  },
+  "ground_truth": "El contrato establece una penalizacion del 10% del valor total.",
+  "criterios": ["cita al menos una clausula con porcentaje", "no introduce terminos no presentes en el contexto"],
+  "umbral_minimo": 0.80,
+  "ultima_revision": "2026-03-28",
+  "revisor": "pendiente",
+  "origen_traza": "trace_abc123_prod_2026-03-28"
+}
+```
+
+El campo `origen_traza` es auditoria: permite rastrear de que sesion real provino el caso y comparar el output original del sistema contra las ejecuciones futuras del eval. Sin este campo, la trazabilidad entre produccion y el dataset de evaluacion se pierde.
 
 ## Lista de Verificacion de Revision de Codigo — LLM Observability
 

@@ -181,9 +181,12 @@ Ninguna etapa puede omitirse. Si una etapa falla, el pipeline se detiene. La pla
 4. build             Construccion del artefacto etiquetado con el SHA del commit.
 5. deploy:staging    Despliegue en staging, identico a produccion en configuracion.
 6. test:smoke        Tests de humo sobre los flujos criticos del negocio en staging.
-7. approve           Gate de aprobacion humana explicita antes de produccion.
-8. deploy:production Despliegue en produccion.
-9. verify            Verificacion de metricas criticas durante minimo 15 minutos post-despliegue.
+7. evals:llm         Gate de calidad de IA: ejecutar el golden dataset contra la configuracion de LLMs del release.
+                     Solo aplica si el release incluye cambios en prompts, modelos o configuracion de inferencia.
+                     Delegar al skill llm-evals. Un fallo bloquea el release igual que un test unitario fallido.
+8. approve           Gate de aprobacion humana explicita antes de produccion.
+9. deploy:production Despliegue en produccion.
+10. verify           Verificacion de metricas criticas durante minimo 15 minutos post-despliegue.
 ```
 
 ### Criterios de calidad del pipeline
