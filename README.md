@@ -4,9 +4,9 @@
 
 El sistema es framework-agnostic por diseño. No asume Node.js, Python, Go ni ningun otro lenguaje. Cada agente lee los manifiestos del repositorio anfitrion (`package.json`, `requirements.txt`, `go.mod`, etc.) al activarse y adapta sus recomendaciones al entorno real del proyecto.
 
-Desde la version actual, el nucleo incorpora dos capacidades nuevas:
+Desde la version actual, el nucleo incorpora las siguientes capacidades:
 
-- **Gemini RAG Bridge**: analisis documental masivo delegado a Gemini como sub-agente para preservar el context window del agente principal.
+- **Brain-Sync Bridge con fallback inteligente**: analisis documental masivo enrutado primero a Gemini (gratuito) y automaticamente a Claude Haiku (economico) cuando la cuota de Gemini se agota. El agente principal recibe el resultado sin importar que modelo lo proceso.
 - **Hook de sesion**: script `scripts/init-backlog.js` que garantiza la presencia del `BACKLOG.md` antes de iniciar cualquier sesion de trabajo.
 
 ---
@@ -33,7 +33,7 @@ git commit -m "chore: actualizar ai-core a la ultima version del nucleo"
 
 ### Paso 2 — Instalar dependencias del nucleo
 
-El nucleo incluye scripts Node.js (`scripts/gemini-bridge.js`) que requieren `@google/generative-ai`.
+El nucleo incluye scripts Node.js (`scripts/gemini-bridge.js`) que requieren dos dependencias:
 
 ```bash
 cd .claude/ai-core
@@ -41,14 +41,23 @@ npm install
 cd ../..
 ```
 
+Dependencias instaladas: `@google/generative-ai` (Gemini) y `@anthropic-ai/sdk` (Haiku fallback).
+
 ### Paso 3 — Configurar variables de entorno
 
-Agregar `GEMINI_API_KEY` al archivo `.env` del proyecto anfitrion:
+Agregar al archivo `.env` del proyecto anfitrion:
 
 ```bash
+# Nivel 1 del router — Gemini 2.5 Flash (gratuito, alta capacidad de contexto).
 # Obtener en: https://aistudio.google.com/app/apikey
 GEMINI_API_KEY=<tu-api-key>
+
+# Nivel 2 del router — Claude Haiku (economico, fallback automatico cuando Gemini agota cuota).
+# Es la misma clave de API de Anthropic que usa Claude Code.
+ANTHROPIC_API_KEY=<tu-api-key>
 ```
+
+Configuracion minima recomendada: ambas claves presentes. Si solo se configura una, el Bridge opera con ese unico nivel sin fallback.
 
 Agregar `.env` al `.gitignore` del proyecto anfitrion:
 
@@ -56,7 +65,7 @@ Agregar `.env` al `.gitignore` del proyecto anfitrion:
 echo ".env" >> .gitignore
 ```
 
-Sin la variable, el nucleo opera en modo local con plena capacidad. El Gemini Bridge es una mejora opcional.
+Sin ninguna de las dos variables, el nucleo opera en modo local (grep/find) con plena capacidad para tareas de busqueda de texto.
 
 ### Paso 4 — Configurar el hook de sesion
 
