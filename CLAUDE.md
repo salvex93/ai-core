@@ -57,19 +57,19 @@ El nucleo opera con una triada de modelos con roles fijos e inamovibles. Ningun 
 **Opus — Arquitecto bajo demanda (escalamiento explícito)**
 `claude-opus-4-6` se invoca EXCLUSIVAMENTE cuando se inserta la directiva de escalamiento. Nunca por defecto, nunca por comodidad. Su funcion es generar el plan de arquitectura de alta complejidad (OPUSPLAN) con adaptive thinking activado antes de que Sonnet proceda a la implementacion.
 
-**Gemini Bridge — Router de analisis documental (dos niveles)**
-`scripts/gemini-bridge.js` es el delegado obligatorio para toda lectura documental que supere los umbrales de la Regla 9 (>500 lineas / >50 KB). Implementa un patron de fallback en dos niveles: intenta `gemini-2.5-flash` primero; si la cuota gratuita se agota, reintenta automaticamente con `claude-haiku-4-5-20251001`. El agente principal recibe el output sintetizado sin importar cual modelo lo proceso.
-
-**Haiku — Economizador bajo demanda (fallback LLM del Bridge)**
-`claude-haiku-4-5-20251001` es activado automaticamente por el Bridge cuando Gemini agota su cuota y `ANTHROPIC_API_KEY` esta configurada. Su costo por token es entre 15x y 20x menor que Sonnet. Es suficiente para extraccion estructural, clasificacion de patrones y sintesis de archivos de complejidad baja-media. No se invoca directamente por el agente principal — el Bridge lo gestiona de forma transparente.
+**LLM Routing Bridge — Router de analisis documental en cascada**
+`scripts/gemini-bridge.js` es el delegado obligatorio para toda lectura documental que supere los umbrales de la Regla 9 (>500 lineas / >50 KB). Implementa enrutamiento por tamano de archivo:
+- Nivel 1 — `claude-haiku-4-5-20251001` (primario): archivos hasta 600K chars (~150K tokens). Alta disponibilidad, sin cuota gratuita que se agote, costo 15-20x menor que Sonnet.
+- Nivel 2 — `gemini-2.5-flash` (archivos masivos): solo cuando el archivo supera el limite practico de Haiku (>600K chars). Su ventana de 1M tokens cubre corpus verdaderamente masivos sin desperdiciar cuota en archivos estandar.
 
 **Tabla de decision de enrutamiento:**
 
 ```
 Tarea de codigo, refactor, review, test, debug   -> Sonnet (default)
 Tarea ambigua o moderadamente compleja           -> Sonnet con Regla 13 (Duda Activa)
-Archivo o corpus > 500 lineas / 50 KB            -> Gemini Bridge (Regla 9)
-  Bridge: intenta Gemini -> si cuota agotada -> Haiku automaticamente
+Archivo o corpus > 500 lineas / 50 KB            -> LLM Routing Bridge (Regla 9)
+  Bridge <= 600K chars: Haiku (Nivel 1, primario)
+  Bridge >  600K chars: Gemini (Nivel 2, archivos masivos)
 Tarea que activa condicion de escalamiento       -> [ALERTA_ARQUITECTONICA: REQUIERE_OPUSPLAN]
                                                     Detener. Esperar plan de Opus.
                                                     Reanudar con Sonnet tras aprobacion.
@@ -129,14 +129,14 @@ Al recibir la instrucción explícita "haz el flujo de git", el agente ejecutar�
 2. Redactar commit técnico exhaustivo.
 3. `git push origin [rama_activa]`.
 
-### Regla 9 — Delegacion de Analisis Masivo (Protocolo Brain-Sync)
+### Regla 9 — Delegacion de Analisis Masivo (LLM Routing Bridge)
 
-Ante cualquier tarea que implique lectura documental profunda, analisis de archivos de gran tamano, procesamiento de corpus extensos, o extraccion estructural de codigo fuente local (firmas de funciones, definiciones de clases, mapas de dependencias entre modulos), el agente DEBE delegar la operacion al sub-agente Gemini Bridge en lugar de cargar el contenido completo en el contexto activo.
+Ante cualquier tarea que implique lectura documental profunda, analisis de archivos de gran tamano, procesamiento de corpus extensos, o extraccion estructural de codigo fuente local (firmas de funciones, definiciones de clases, mapas de dependencias entre modulos), el agente DEBE delegar la operacion al LLM Routing Bridge en lugar de cargar el contenido completo en el contexto activo.
 
 Esta es una politica de COSTO, no de capacidad. Claude Sonnet 4.6 y Opus 4.6 disponen de un context window de 1M de tokens, pero cargar corpus extensos en el contexto principal consume tokens de entrada facturables y degrada la calidad de respuesta en el resto de la sesion. La delegacion al Bridge externaliza ese costo.
 
 **Rol del Bridge en codigo local — Obrero de Lectura:**
-Gemini actua como obrero de lectura para archivos locales del proyecto. Su mision en este modo es extractiva y no destructiva: extrae firmas de funciones/metodos, definiciones de clases e interfaces, y mapas de dependencias entre modulos. No altera la logica, no propone refactorizaciones, no emite opiniones. Devuelve unicamente el mapa estructural solicitado en JSON o Markdown estricto para que el agente principal opere sobre la sintesis sin cargar el archivo original.
+El bridge actua como obrero de lectura para archivos locales del proyecto. Su mision en este modo es extractiva y no destructiva: extrae firmas de funciones/metodos, definiciones de clases e interfaces, y mapas de dependencias entre modulos. No altera la logica, no propone refactorizaciones, no emite opiniones. Devuelve unicamente el mapa estructural solicitado en JSON o Markdown estricto para que el agente principal opere sobre la sintesis sin cargar el archivo original.
 
 Condiciones que activan la delegacion obligatoria:
 - El archivo supera 500 lineas o 50 KB.
@@ -152,31 +152,32 @@ node scripts/gemini-bridge.js --mission "<orden-de-mision>" --file <ruta-al-arch
 
 El resultado es siempre JSON o Markdown estricto. El agente principal consume el output sintetizado como contexto sin cargar el contenido original.
 
-El skill `especialista-rag` actua como Gestor de Misiones: formula las ordenes de mision con precision tecnica y define el esquema exacto de respuesta antes de invocar el bridge.
+El skill `especialista-rag` actua como Gestor de Misiones: formula las ordenes de mision con precision tecnica y define el esquema exacto de respuesta antes de invocar el LLM Routing Bridge.
 
-**Circuit Breaker — Gestion de fallos del Bridge:**
-El script `gemini-bridge.js` gestiona el fallback internamente. Desde la perspectiva del agente principal, el protocolo es:
+**Protocolo de gestion de fallos del Bridge:**
+El bridge gestiona el enrutamiento y los fallos internamente. Desde la perspectiva del agente principal:
 
-1. Invocar el bridge con el comando estandar. El bridge intenta Gemini; si falla por cuota, reintenta con Haiku de forma transparente.
-2. Si el bridge termina con exit code 0: consumir el output. El campo `metadatos.modelo` indica cual modelo proceso la solicitud.
-3. Si el bridge termina con exit code 1 (error tecnico): notificar al usuario y bifurcar segun el tipo de tarea:
-   - Tarea de busqueda de patrones o localizacion de simbolos: usar herramientas de Regla 14 (grep/find). No cargar archivos completos.
-   - Tarea de razonamiento LLM sin disponibilidad de ninguno de los dos modelos: notificar y detener. `[BRAIN-SYNC NO DISPONIBLE: revisar GEMINI_API_KEY y ANTHROPIC_API_KEY en el .env.]`
-4. Si el bridge termina con exit code 2 (sin modelos configurados): ambas API keys estan ausentes. Operar en modo local (grep/find) hasta que el usuario configure al menos una.
-5. Reintentar el bridge al inicio de la siguiente sesion. Si la cuota de Gemini se ha recuperado, el bridge lo usara automaticamente sin intervencion.
+1. Invocar el bridge con el comando estandar. El bridge decide el nivel automaticamente por tamano de archivo.
+2. Exit code 0: consumir el output. El campo `metadatos.modelo` indica que modelo proceso la solicitud.
+3. Exit code 1 (error tecnico — auth, red, JSON invalido): notificar al usuario y bifurcar:
+   - Tarea de busqueda de patrones o localizacion de simbolos: herramientas de Regla 14 (grep/find).
+   - Tarea de razonamiento LLM: notificar y detener. `[LLM BRIDGE NO DISPONIBLE: revisar ANTHROPIC_API_KEY y GEMINI_API_KEY en el .env.]`
+4. Exit code 2 (sin modelos configurados): operar en modo local (grep/find) hasta que el usuario configure al menos ANTHROPIC_API_KEY.
+5. El bridge reintenta el mismo nivel en la siguiente invocacion. No hay estado persistente entre llamadas.
 
 Al iniciar sesion, verificar las variables de entorno en el `.env` del proyecto anfitrion:
 
 | Estado | Comportamiento del Bridge |
 |---|---|
-| Solo `GEMINI_API_KEY` presente | Nivel 1 activo. Sin fallback si Gemini falla. |
-| Solo `ANTHROPIC_API_KEY` presente | Nivel 2 activo. Haiku como unico modelo. |
-| Ambas presentes | Configuracion optima: Gemini principal, Haiku como fallback. |
+| Solo `ANTHROPIC_API_KEY` presente | Haiku como unico modelo. Gemini no disponible para archivos masivos. |
+| Solo `GEMINI_API_KEY` presente | Gemini para todos los tamanos. Sin el modelo primario economico. |
+| Ambas presentes | Configuracion optima: Haiku primario, Gemini para archivos masivos. |
 | Ninguna presente | Bridge inoperativo. Modo local (Regla 14). Notificar: |
 
 ```
-Memoria externa (Brain-Sync): no configurada. El sistema opera en modo local.
-Para activarla, agregar GEMINI_API_KEY y/o ANTHROPIC_API_KEY al .env del proyecto anfitrion.
+LLM Routing Bridge: no configurado. El sistema opera en modo local.
+Para activarlo, agregar ANTHROPIC_API_KEY (Haiku, recomendado) al .env del proyecto anfitrion.
+Agregar GEMINI_API_KEY para habilitar el procesamiento de archivos masivos (> 600K chars).
 ```
 
 ### Regla 10 — UI/UX Pro Max (Frontend Excellence)
@@ -286,7 +287,7 @@ Archivo: `.claude/skills/release-manager/SKILL.md`
 
 ### especialista-rag
 
-Gestor de Misiones para el Gemini Bridge. Redacta ordenes de mision de alta precision para `scripts/gemini-bridge.js` y define el esquema JSON/Markdown exacto que se espera como respuesta. Tambien gobierna la arquitectura de pipelines RAG y la evaluacion de calidad de recuperacion semantica.
+Gestor de Misiones para el LLM Routing Bridge. Redacta ordenes de mision de alta precision para `scripts/gemini-bridge.js`, define el esquema JSON/Markdown exacto de respuesta y selecciona el nivel de enrutamiento adecuado segun el tamano del corpus. Tambien gobierna la arquitectura de pipelines RAG y la evaluacion de calidad de recuperacion semantica.
 
 Activar al: delegar analisis documental masivo al bridge, incorporar documentacion externa, construir pipelines RAG, gestionar colecciones vectoriales o evaluar recuperacion semantica.
 
