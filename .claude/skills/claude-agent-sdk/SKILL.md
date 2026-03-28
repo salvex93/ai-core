@@ -2,8 +2,8 @@
 name: claude-agent-sdk
 description: Especialista en construccion de agentes autonomos con el Claude Agent SDK (TypeScript/Python). Cubre herramientas integradas, hooks de ciclo de vida, subagentes, integracion MCP, gestion de permisos y sesiones. Activa al construir agentes personalizados, orquestar subagentes, integrar el Agent SDK en un proyecto anfitrion o disenar flujos de automatizacion con Claude.
 origin: ai-core
-version: 1.0.0
-last_updated: 2026-03-22
+version: 1.1.0
+last_updated: 2026-03-28
 ---
 
 # Claude Agent SDK — Especialista en Agentes Autonomos
@@ -160,6 +160,158 @@ Antes de agregar un servidor MCP a un agente:
 - Verificar que el servidor MCP esta en el registro oficial de Anthropic o tiene audit externo.
 - Restringir el scope del servidor al directorio o recurso minimo necesario.
 - El servidor MCP no debe tener acceso a variables de entorno del agente principal (aislamiento de credenciales).
+
+## Computer Use — Patrones Seguros
+
+La herramienta `computer` permite al agente controlar interfaces graficas de escritorio mediante capturas de pantalla y acciones de teclado/raton. Su superficie de riesgo es significativamente mayor que `bash` o `text_editor` porque opera sobre el entorno grafico completo del sistema.
+
+### Principios de uso seguro
+
+- Aislamiento obligatorio: el agente que usa `computer` debe correr en un entorno de escritorio aislado (contenedor con Xvfb, maquina virtual, sandbox). Nunca en el escritorio del usuario en produccion.
+- Confirmacion humana por sesion: antes de iniciar cualquier sesion de computer use, el hook `onPreToolCall` debe pausar y requerir confirmacion explicita del usuario.
+- Perimeter de accion declarado: el agente debe recibir en su system prompt una lista exacta de las aplicaciones y acciones permitidas. Cualquier accion fuera del perimeter activa el bloqueo del hook.
+- Logging de capturas: cada captura de pantalla tomada durante la sesion se persiste en un log de auditoria con timestamp. Las capturas pueden contener datos sensibles; gestionar la retencion segun la politica del anfitrion.
+
+### Hook de confirmacion para computer use
+
+```typescript
+agent.onPreToolCall(async (toolName, toolInput) => {
+  if (toolName === 'computer') {
+    // Loguear la accion que el agente intenta ejecutar
+    logger.info({
+      evento: 'computer_use_pre',
+      accion: toolInput.action,
+      coordenadas: toolInput.coordinate,
+      texto: toolInput.text,
+    });
+
+    // En produccion, requerir confirmacion explicita antes de cada accion
+    const accionesDeAltoRiesgo = ['left_click', 'right_click', 'type', 'key'];
+    if (accionesDeAltoRiesgo.includes(toolInput.action)) {
+      const confirmado = await solicitarConfirmacionHumana(
+        `El agente intenta ejecutar: ${toolInput.action}. Confirmar? [s/n]`
+      );
+      if (!confirmado) {
+        return { action: 'block', reason: 'Accion de computer use bloqueada por el operador.' };
+      }
+    }
+  }
+});
+```
+
+### Configuracion de entorno aislado (Docker + Xvfb)
+
+```dockerfile
+FROM ubuntu:22.04
+
+RUN apt-get update && apt-get install -y \
+    xvfb \
+    x11vnc \
+    fluxbox \
+    && rm -rf /var/lib/apt/lists/*
+
+ENV DISPLAY=:99
+CMD ["Xvfb", ":99", "-screen", "0", "1280x800x24"]
+```
+
+El agente se conecta al display virtual via la variable `DISPLAY`. Ningun proceso del contenedor tiene acceso al display fisico del host.
+
+## Observabilidad del Agente
+
+Los agentes autonomos en produccion requieren el mismo nivel de observabilidad que cualquier servicio de backend: trazas distribuidas, metricas de operacion y logs estructurados. Sin esta instrumentacion, los fallos son opacos y el debugging es inviable.
+
+### Trazas distribuidas con OpenTelemetry
+
+Instrumentar el ciclo de vida del agente con spans de OpenTelemetry permite correlacionar cada decision del modelo con las herramientas que invoco y los resultados que obtuvo.
+
+```typescript
+import { trace, SpanStatusCode } from '@anthropic-ai/sdk/instrumentation'; // si el SDK lo expone
+import { NodeTracerProvider } from '@opentelemetry/sdk-trace-node';
+import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-http';
+
+// Configurar el provider de trazas
+const provider = new NodeTracerProvider();
+provider.addSpanProcessor(
+  new SimpleSpanProcessor(new OTLPTraceExporter({
+    url: process.env.OTEL_EXPORTER_OTLP_ENDPOINT,
+  }))
+);
+provider.register();
+
+const tracer = trace.getTracer('agente-nombre', '1.0.0');
+
+// Instrumentar manualmente el loop del agente si el SDK no lo hace automaticamente
+agent.onPreToolCall(async (toolName, toolInput) => {
+  const span = tracer.startSpan(`tool.${toolName}`, {
+    attributes: {
+      'agent.tool.name': toolName,
+      'agent.tool.input': JSON.stringify(toolInput).slice(0, 500), // truncar para evitar spans masivos
+    },
+  });
+  // Adjuntar el span al contexto para cerrarlo en onPostToolCall
+  (toolInput as any).__span = span;
+});
+
+agent.onPostToolCall(async (toolName, toolInput, toolOutput) => {
+  const span = (toolInput as any).__span;
+  if (span) {
+    if (toolOutput.error) {
+      span.setStatus({ code: SpanStatusCode.ERROR, message: toolOutput.error });
+    }
+    span.setAttribute('agent.tool.success', !toolOutput.error);
+    span.end();
+  }
+});
+```
+
+### Metricas de operacion
+
+Exponer las siguientes metricas via Prometheus o el sistema de metricas del anfitrion:
+
+```
+# Contador de invocaciones por herramienta
+agent_tool_calls_total{tool_name, status}
+
+# Histograma de duracion de cada invocacion de herramienta
+agent_tool_duration_seconds{tool_name}
+
+# Contador de tokens consumidos por sesion
+agent_tokens_consumed_total{model, token_type}   # token_type: input | output
+
+# Contador de iteraciones del loop de razonamiento por sesion
+agent_loop_iterations_total{agent_name}
+
+# Gauge de sesiones activas
+agent_sessions_active{agent_name}
+```
+
+### Logs estructurados del agente
+
+Cada evento significativo del ciclo de vida del agente se emite como un log estructurado en JSON con los campos obligatorios de la Regla de Logs del nucleo:
+
+```typescript
+// Eventos obligatorios a loguear
+const EVENTOS_AGENTE = {
+  SESION_INICIADA:    'agent.session.started',
+  SESION_TERMINADA:   'agent.session.ended',
+  HERRAMIENTA_PRE:    'agent.tool.pre_call',
+  HERRAMIENTA_POST:   'agent.tool.post_call',
+  HERRAMIENTA_BLOQ:   'agent.tool.blocked',
+  CONDICION_PARADA:   'agent.stop_condition.reached',
+  ERROR_LOOP:         'agent.loop.error',
+  LIMITE_ALCANZADO:   'agent.limit.reached',   // tokens o iteraciones
+};
+
+logger.info({
+  timestamp: new Date().toISOString(),
+  evento: EVENTOS_AGENTE.HERRAMIENTA_PRE,
+  agente: 'nombre-del-agente',
+  sesion_id: sesionId,
+  herramienta: toolName,
+  iteracion: iteracionActual,
+  trace_id: span?.spanContext().traceId,
+});
+```
 
 ## Gestion de Sesiones
 

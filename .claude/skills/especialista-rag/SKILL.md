@@ -2,8 +2,8 @@
 name: especialista-rag
 description: Gestor de Misiones para el Gemini Bridge. Redacta ordenes de mision de alta precision y define el esquema JSON/Markdown exacto de respuesta. Activa al delegar analisis documental masivo, construir pipelines RAG o evaluar recuperacion semantica.
 origin: ai-core
-version: 1.0.0
-last_updated: 2026-03-22
+version: 1.1.0
+last_updated: 2026-03-28
 ---
 
 # Especialista RAG — Gestor de Misiones (Gemini Bridge)
@@ -61,6 +61,8 @@ Prohibido incluir afirmaciones no respaldadas explicitamente por el contenido de
 ```
 
 ### Paso 3 — Invocar el bridge
+
+Nota de mantenimiento: el identificador `gemini-2.5-flash` puede haber sido reemplazado por una version mas reciente (ej: `gemini-2.5-flash-002` o superior). Antes de usar en un proyecto nuevo, verificar el modelo vigente en ai.google.dev/models. Usar un identificador obsoleto puede producir degradacion silenciosa de calidad sin error explicito.
 
 ```bash
 node scripts/gemini-bridge.js \

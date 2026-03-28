@@ -1,6 +1,6 @@
 # AI-CORE: Nexus Multi-Agente Universal
 
-`ai-core` es un nucleo de configuracion y comportamiento para agentes IA que se incorpora a cualquier repositorio como submódulo Git. Inyecta 16 reglas globales inmutables y 13 perfiles de comportamiento tecnico especializados (skills) sin acoplar su logica al stack del proyecto anfitrion.
+`ai-core` es un nucleo de configuracion y comportamiento para agentes IA que se incorpora a cualquier repositorio como submódulo Git. Inyecta 16 reglas globales inmutables y 14 perfiles de comportamiento tecnico especializados (skills) sin acoplar su logica al stack del proyecto anfitrion.
 
 El sistema es framework-agnostic por diseño. No asume Node.js, Python, Go ni ningun otro lenguaje. Cada agente lee los manifiestos del repositorio anfitrion (`package.json`, `requirements.txt`, `go.mod`, etc.) al activarse y adapta sus recomendaciones al entorno real del proyecto.
 
@@ -305,8 +305,16 @@ Especialista en construccion de agentes autonomos con el Claude Agent SDK (TypeS
 Activar al: construir un agente personalizado con el Agent SDK, orquestar subagentes, definir hooks de validacion o logging, integrar MCP en el ciclo del agente o disenar flujos de automatizacion con Claude.
 
 **mcp-server-builder**
-Especialista en construccion del lado servidor del protocolo MCP. Cubre el ciclo de vida (initialize, tools/list, tools/call), transportes stdio y SSE/HTTP, definicion de herramientas con JSON Schema, seguridad de inputs, autenticacion en SSE, gestion de secretos y testing con MCP Inspector.
-Activar al: construir un servidor MCP propio, exponer herramientas internas a Claude, elegir entre stdio y SSE/HTTP, o revisar la seguridad de un servidor MCP existente.
+Especialista en construccion del lado servidor del protocolo MCP. Cubre el ciclo de vida (initialize, tools/list, tools/call), transportes stdio y Streamable HTTP, las tres primitivas del protocolo (Tools, Resources y Prompts), definicion de herramientas con JSON Schema, seguridad de inputs, autenticacion OAuth 2.0 en servidores remotos, gestion de secretos y testing con MCP Inspector.
+Activar al: construir un servidor MCP propio, exponer herramientas, recursos o prompt templates a Claude, elegir entre stdio y Streamable HTTP, o revisar la seguridad y la autenticacion de un servidor MCP existente.
+
+**claude-agent-sdk**
+Especialista en construccion de agentes autonomos con el Claude Agent SDK (TypeScript/Python). Cubre herramientas integradas (bash, text_editor, browser, computer use seguro con aislamiento en escritorio virtual, web_search_20250305), hooks de ciclo de vida pre/post tool call para auditoria y control, composicion de subagentes con roles diferenciados, integracion de servidores MCP, gestion de permisos por herramienta (minimo privilegio), observabilidad del agente con OpenTelemetry (trazas, metricas, logs estructurados) y sesiones persistentes multi-turno.
+Activar al: construir un agente personalizado con el Agent SDK, orquestar subagentes, definir hooks de validacion o logging, integrar MCP en el ciclo del agente, instrumentar observabilidad de agente o disenar flujos de automatizacion con Claude.
+
+**data-engineer**
+Especialista en ingenieria de datos. Cubre Medallion Architecture (Bronze/Silver/Gold), transformacion con dbt (modelos, snapshots, tests declarativos, materializations), orquestacion con Airflow, Dagster y Prefect, calidad de datos con Great Expectations y Soda Core, Data Contracts con openDataContract y linaje con OpenLineage/Marquez. Agnostico al stack.
+Activar al: disenar pipelines de ingesta o transformacion, modelar capas de un data warehouse o lakehouse, establecer contratos de calidad entre productores y consumidores de datos, configurar validaciones de calidad o instrumentar linaje de datos.
 
 **llm-evals**
 Especialista en evaluacion sistematica de outputs de LLM. Cubre diseno de golden datasets, metricas automatizadas (faithfulness, answer relevancy, hallucination rate), LLM-as-judge, integracion de evals en CI/CD y frameworks de evaluacion (deepeval, promptfoo, RAGAS). Mide la calidad de sistemas RAG y detecta regresiones antes del despliegue.
@@ -372,6 +380,8 @@ ai-core/
         ├── claude-agent-sdk/      SKILL.md
         ├── mcp-server-builder/    SKILL.md
         ├── llm-evals/             SKILL.md
+        ├── prompt-engineer/       SKILL.md
+        ├── data-engineer/         SKILL.md
         └── premium-ops/           SKILL.md
 ```
 

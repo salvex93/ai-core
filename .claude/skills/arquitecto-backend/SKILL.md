@@ -2,8 +2,8 @@
 name: arquitecto-backend
 description: Arquitecto Backend Universal. Experto en SOLID, Clean Architecture y gestion de persistencia. Agnóstico al stack: deduce el ORM y la base de datos del repositorio anfitrion antes de emitir recomendaciones. Activa al disenar APIs, modelar esquemas, escribir migraciones o revisar queries.
 origin: ai-core
-version: 1.0.0
-last_updated: 2026-03-22
+version: 1.1.0
+last_updated: 2026-03-28
 ---
 
 # Arquitecto Backend Universal

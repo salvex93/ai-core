@@ -353,6 +353,14 @@ Activar al: disenar o refactorizar un system prompt, definir la estrategia de fe
 
 Archivo: `.claude/skills/prompt-engineer/SKILL.md`
 
+### data-engineer
+
+Especialista en ingenieria de datos. Cubre Medallion Architecture (Bronze/Silver/Gold), transformacion con dbt (modelos, snapshots, tests declarativos), orquestacion con Airflow, Dagster y Prefect, calidad de datos con Great Expectations y Soda Core, Data Contracts con openDataContract y linaje con OpenLineage/Marquez. Agnostico al stack: deduce el orquestador, el motor de transformacion y el warehouse del repositorio anfitrion antes de emitir recomendaciones.
+
+Activar al: disenar o revisar pipelines de ingesta o transformacion, modelar capas de un data warehouse o lakehouse, establecer contratos de calidad entre productores y consumidores de datos, configurar validaciones de calidad o instrumentar linaje de datos.
+
+Archivo: `.claude/skills/data-engineer/SKILL.md`
+
 ### premium-ops
 
 Perfil de consciencia operativa del ecosistema premium. Garantiza el aislamiento entre la capa publica (repositorio GitHub) y la capa premium (scripts locales en `scripts/premium/`). Verifica que el auto-sync este operativo, que `.gitignore` tenga la entrada de aislamiento y que el hook Stop este registrado correctamente.
