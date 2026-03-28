@@ -2,7 +2,7 @@
 name: especialista-rag
 description: Gestor de Misiones para el Gemini Bridge y especialista en pipelines RAG. Cubre Hybrid Search (BM25+dense+RRF), Contextual Retrieval, re-ranking con cross-encoders y Files API como complemento al bridge. Activa al delegar analisis documental masivo, construir o mejorar pipelines RAG, o evaluar calidad de recuperacion semantica.
 origin: ai-core
-version: 1.2.0
+version: 1.3.0
 last_updated: 2026-03-28
 ---
 
@@ -425,6 +425,55 @@ El campo `file_id_anthropic` es opcional y solo se almacena cuando el documento 
 | Latencia p99 del pipeline completo | Percentil 99 del tiempo de respuesta | Definido por el anfitrion |
 
 Cambios que degraden cualquier metrica en mas de 5% requieren revision y aprobacion antes del despliegue.
+
+## Citations API como Verificacion Nativa de Faithfulness
+
+La Citations API de Anthropic permite que el modelo devuelva referencias exactas a fragmentos del contexto recuperado que sustentan cada afirmacion de la respuesta. Esto elimina la necesidad de un paso separado de LLM-as-judge para verificar faithfulness en los casos donde el contexto es texto plain o documentos subidos via Files API.
+
+### Cuando usar Citations API vs LLM-as-judge
+
+| Criterio | Citations API | LLM-as-judge |
+|---|---|---|
+| Tipo de contexto | Texto plano o documentos con `source.type: "text"` o `"document"` | Cualquier tipo, incluyendo estructurado o sintetico |
+| Tipo de verificacion | Faithfulness: la respuesta esta anclada en el contexto | Faithfulness + relevancia + calidad de redaccion |
+| Costo | Tokens adicionales de output (~10-20% de overhead) | Una llamada adicional completa al LLM |
+| Latencia | Sin latencia adicional (un solo turno) | Latencia de una llamada adicional |
+| Casos donde no aplica | Respuestas generativas sin contexto recuperado, razonamiento matematico | N/A |
+
+### Activacion en la llamada a la API
+
+```python
+# Activar citations en el bloque de documento del mensaje
+response = client.messages.create(
+    model="claude-sonnet-4-6",
+    max_tokens=1024,
+    messages=[{
+        "role": "user",
+        "content": [
+            {
+                "type": "document",
+                "source": {"type": "text", "media_type": "text/plain", "data": contexto_recuperado},
+                "citations": {"enabled": True}  # activar citations en este bloque
+            },
+            {"type": "text", "text": pregunta_usuario}
+        ]
+    }]
+)
+```
+
+### Procesamiento del output con citas
+
+La respuesta incluye bloques `text` con fragmentos de cita referenciados. El pipeline RAG puede registrar estas citas en el span de trazabilidad para auditoria de faithfulness sin llamada adicional al LLM:
+
+```python
+for block in response.content:
+    if block.type == "text":
+        for citation in getattr(block, "citations", []):
+            # citation.cited_text: fragmento exacto del contexto
+            # citation.document_index: indice del documento fuente
+            # citation.start_char_index / end_char_index: posicion exacta
+            registrar_cita_en_span(citation)
+```
 
 ## Restricciones del Perfil
 

@@ -2,7 +2,7 @@
 name: data-engineer
 description: Especialista en ingenieria de datos. Cubre Medallion Architecture (Bronze/Silver/Gold), transformacion con dbt, orquestacion con Airflow/Dagster/Prefect, calidad de datos con Great Expectations y Soda, Data Contracts con openDataContract y linaje con OpenLineage. Agnostico al stack. Activa al disenar pipelines de ingesta, transformacion o exportacion de datos, modelar capas de un data warehouse o lakehouse, o establecer contratos de calidad entre productores y consumidores de datos.
 origin: ai-core
-version: 1.0.0
+version: 1.1.0
 last_updated: 2026-03-28
 ---
 
@@ -37,7 +37,7 @@ Si ningun manifiesto o patron de datos esta disponible, declararlo y solicitar i
 Si un DAG, modelo dbt o archivo de pipeline supera 500 lineas o 50 KB, aplicar Regla 9 antes de cargarlo:
 
 ```
-node scripts/gemini-bridge.js --mission "Analiza el pipeline e identifica: dependencias ciclicas en el grafo, ausencia de idempotencia en tareas de escritura, falta de manejo de late data, transformaciones sin tests de calidad, joins sin validacion de unicidad y fuentes sin definicion de freshness" --file <ruta> --format json
+node scripts/gemini-bridge.js --mission "Analiza el pipeline e identifica problemas criticos. Responde UNICAMENTE con un array JSON con la siguiente estructura exacta: [{\"archivo\": \"<ruta relativa>\", \"linea\": <numero>, \"categoria\": \"<dependencia_ciclica|sin_idempotencia|late_data_ausente|sin_test_calidad|join_sin_unicidad|sin_freshness>\", \"descripcion\": \"<descripcion tecnica del problema>\", \"severidad\": \"<alta|media|baja>\"}]. Si no hay problemas, responde con []." --file <ruta> --format json
 ```
 
 ## Directiva de Interrupcion

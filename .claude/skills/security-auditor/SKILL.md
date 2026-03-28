@@ -2,7 +2,7 @@
 name: security-auditor
 description: Security Auditor Universal. Especialista en seguridad de aplicaciones: auditoria de dependencias (CVEs), modelado de amenazas (STRIDE), headers de seguridad, gestion de secretos y OWASP Top 10. Agnostico al stack. Activa al auditar seguridad, revisar dependencias con CVEs, configurar politicas de seguridad HTTP o evaluar compliance.
 origin: ai-core
-version: 1.1.0
+version: 1.2.0
 last_updated: 2026-03-28
 ---
 
@@ -204,6 +204,51 @@ Aplicar para cada flujo nuevo que involucre datos sensibles o acceso privilegiad
 | Information disclosure (divulgacion) | Exposicion de datos sensibles | Cifrado, control de acceso, logs sin datos sensibles |
 | Denial of service | Agotamiento de recursos | Rate limiting, validacion de entrada, timeouts |
 | Elevation of privilege | Obtener acceso mayor al autorizado | Principio de minimo privilegio, validacion de roles |
+
+## OWASP LLM Top 10 — Verificacion en Sistemas con LLM
+
+Los sistemas que incorporan un LLM como componente de logica de negocio exponen una superficie de ataque distinta a la del OWASP Top 10 clasico. Verificar los siguientes controles en cualquier PR que modifique prompts, pipelines de inference o puntos de entrada de texto al LLM.
+
+### LLM01 — Prompt Injection
+
+El atacante manipula el comportamiento del LLM inyectando instrucciones a traves de entradas controladas por el usuario (campos de formulario, documentos subidos, resultados de herramientas externas).
+
+Controles:
+- El contenido del usuario nunca se concatena directamente al system prompt. Se inserta en un bloque delimitado explicitamente: `<user_input>...</user_input>`.
+- El sistema valida que la respuesta del LLM sigue el schema esperado antes de ejecutar cualquier accion derivada de ella.
+- Las herramientas (tool_use) que el LLM puede invocar tienen una lista blanca de acciones permitidas. El LLM no puede invocar herramientas fuera de esa lista.
+
+### LLM05 — Manejo Inseguro de Output
+
+El output del LLM se renderiza o ejecuta sin sanitizacion, permitiendo XSS si el output llega al DOM, o inyeccion de comandos si el output alimenta una shell.
+
+Controles:
+- Todo output del LLM que se renderiza en HTML pasa por el mecanismo de escape del framework (React: JSX por defecto; Angular: interpolacion por defecto). Prohibido `dangerouslySetInnerHTML` con output de LLM sin sanitizacion explicita.
+- Si el output del LLM genera codigo que se ejecuta (eval, Function constructor, shell), el paso de ejecucion requiere un sandbox aislado sin acceso a filesystem ni red.
+
+### LLM06 — Agencia Excesiva
+
+El LLM tiene acceso a herramientas o permisos que superan lo necesario para la tarea, amplificando el impacto de un ataque de prompt injection exitoso.
+
+Controles:
+- Principio de minimo privilegio en herramientas: si el LLM solo necesita leer datos, no exponer herramientas de escritura o eliminacion.
+- Las herramientas de alto impacto (envio de emails, modificacion de registros, llamadas a APIs externas) requieren confirmacion humana explicita antes de ejecutarse. El LLM propone, el humano aprueba.
+
+### LLM07 — Fuga del System Prompt
+
+Un atacante extrae el contenido del system prompt via instrucciones directas o indirectas al modelo.
+
+Control:
+- El system prompt no contiene secretos (credenciales, instrucciones de evasion de seguridad, datos de clientes). Si el system prompt se filtra, el impacto debe ser cero o minimo.
+
+### LLM10 — Consumo Ilimitado
+
+Un atacante genera solicitudes al endpoint del LLM a un ritmo que agota la cuota de tokens o genera facturas excesivas.
+
+Controles:
+- Rate limiting por usuario autenticado en el endpoint de inference: definir cuantas solicitudes por minuto es razonable para un usuario legitimo.
+- Limitar el `max_tokens` de cada solicitud al maximo necesario para la tarea. No usar el maximo del modelo como default.
+- Monitorear el costo acumulado por usuario o sesion. Alertar y bloquear cuando supere un umbral definido. Delegar la configuracion de la alerta al skill `llm-observability`.
 
 ## Lista de Verificacion de Revision de Codigo — Seguridad
 
