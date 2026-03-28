@@ -55,12 +55,16 @@ El nucleo opera con una triada de modelos con roles fijos e inamovibles. Ningun 
 `claude-sonnet-4-6` es el caballo de batalla del nucleo. Ejecuta codigo, refactorizaciones, reviews, generacion de tests, analisis de bugs, diseno de APIs y toda tarea de desarrollo cotidiano. Su relacion costo/capacidad lo convierte en el unico modelo justificado para el trabajo iterativo diario.
 
 **Opus — Arquitecto bajo demanda (escalamiento explícito)**
-`claude-opus-4-6` se invoca EXCLUSIVAMENTE cuando se inserta la directiva de escalamiento. Nunca por defecto, nunca por comodidad. Su funcion es generar el plan de arquitectura de alta complejidad (OPUSPLAN) con adaptive thinking activado antes de que Sonnet proceda a la implementacion.
+`claude-opus-4-6` se invoca EXCLUSIVAMENTE cuando se inserta la directiva de escalamiento. Nunca por defecto, nunca por comodidad. Su funcion es generar el plan de arquitectura de alta complejidad (OPUSPLAN) con Extended Thinking activado.
+
+Extended Thinking se activa pasando el parametro `thinking: { type: "enabled", budget_tokens: 10000 }` en la llamada a la API. Con este parametro activo, el modelo emite bloques `<thinking>` de razonamiento interno separados del output final. El budget de 10,000 tokens es el minimo recomendado para tareas de arquitectura; para planes de alta complejidad (microservicios, FSM, migraciones criticas) usar 16,000. El bloque `<thinking>` no se factura al mismo precio que el output visible: se cobra como tokens de entrada del siguiente turno. Este mecanismo es el que hace que OPUSPLAN produzca planes cualitativamente distintos a una respuesta directa de Opus.
 
 **LLM Routing Bridge — Router de analisis documental en cascada**
-`scripts/gemini-bridge.js` es el delegado obligatorio para toda lectura documental que supere los umbrales de la Regla 9 (>500 lineas / >50 KB). Implementa enrutamiento por tamano de archivo:
-- Nivel 1 — `claude-haiku-4-5-20251001` (primario): archivos hasta 600K chars (~150K tokens). Alta disponibilidad, sin cuota gratuita que se agote, costo 15-20x menor que Sonnet.
-- Nivel 2 — `gemini-2.5-flash` (archivos masivos): solo cuando el archivo supera el limite practico de Haiku (>600K chars). Su ventana de 1M tokens cubre corpus verdaderamente masivos sin desperdiciar cuota en archivos estandar.
+`scripts/gemini-bridge.js` es el delegado obligatorio para toda lectura documental que supere los umbrales de la Regla 9 (>500 lineas / >50 KB). Implementa enrutamiento por tamano de archivo con tres optimizaciones de costo:
+- Nivel 1 — `claude-haiku-4-5-20251001` (primario): archivos hasta 600K chars (~150K tokens). Prompt Caching activo: el bloque de sistema estatico se cachea con `cache_control: ephemeral` (TTL 5 min), reduciendo el costo de tokens de entrada un 70-90% en cache hits. Sin cuota gratuita que se agote, costo 15-20x menor que Sonnet.
+- Zona borderline (400K-800K chars): Token Counting exacto via `/v1/messages/count_tokens` antes de decidir el nivel. Evita overflow (archivo que no cabe en Haiku) y over-routing (archivo que Haiku maneja pero se manda a Gemini).
+- Nivel 2 — `gemini-2.5-flash` (archivos masivos): solo cuando el archivo supera el limite practico de Haiku (>600K chars / >193K tokens exactos). Su ventana de 1M tokens cubre corpus verdaderamente masivos sin desperdiciar cuota en archivos estandar.
+- Modo batch (`--batch`): procesa multiples `--file` en la Messages Batches API de Anthropic con 50% de descuento sobre precio base. Solo compatible con Haiku. Util al analizar multiples modulos de un monorepo en la misma sesion.
 
 **Tabla de decision de enrutamiento:**
 
@@ -68,10 +72,12 @@ El nucleo opera con una triada de modelos con roles fijos e inamovibles. Ningun 
 Tarea de codigo, refactor, review, test, debug   -> Sonnet (default)
 Tarea ambigua o moderadamente compleja           -> Sonnet con Regla 13 (Duda Activa)
 Archivo o corpus > 500 lineas / 50 KB            -> LLM Routing Bridge (Regla 9)
-  Bridge <= 600K chars: Haiku (Nivel 1, primario)
-  Bridge >  600K chars: Gemini (Nivel 2, archivos masivos)
+  Bridge < 400K chars:    Haiku Nivel 1 (umbral de chars, decision inmediata)
+  Bridge 400K-800K chars: Token Counting exacto, luego Haiku o Gemini segun resultado
+  Bridge > 800K chars:    Gemini Nivel 2 (umbral de chars, decision inmediata)
+  Multiples archivos:     Bridge --batch (Batches API, 50% descuento, solo Haiku)
 Tarea que activa condicion de escalamiento       -> [ALERTA_ARQUITECTONICA: REQUIERE_OPUSPLAN]
-                                                    Detener. Esperar plan de Opus.
+                                                    Detener. Esperar plan de Opus con Extended Thinking.
                                                     Reanudar con Sonnet tras aprobacion.
 ```
 

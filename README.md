@@ -6,7 +6,8 @@ El sistema es framework-agnostic por diseño. No asume Node.js, Python, Go ni ni
 
 Desde la version actual, el nucleo incorpora las siguientes capacidades:
 
-- **LLM Routing Bridge**: router de analisis documental en cascada. Haiku como Nivel 1 (primario, economico, alta disponibilidad) para archivos hasta 600K chars. Gemini como Nivel 2 (archivos masivos > 600K chars, ventana de 1M tokens). El agente principal recibe el resultado sin importar que nivel proceso la solicitud.
+- **LLM Routing Bridge** con tres optimizaciones de costo: (1) Prompt Caching en Haiku — el bloque de sistema estatico se cachea con `cache_control: ephemeral`, reduciendo el costo de tokens de entrada un 70-90% en cache hits; (2) Token Counting exacto para archivos en zona borderline (400K-800K chars) via `/v1/messages/count_tokens`, evitando overflow y over-routing; (3) Modo batch (`--batch`) que procesa multiples archivos con la Messages Batches API al 50% de descuento.
+- **Extended Thinking en OPUSPLAN**: cuando se activa la directiva `[ALERTA_ARQUITECTONICA: REQUIERE_OPUSPLAN]`, Opus genera el plan con `thinking: { type: "enabled", budget_tokens: 10000 }`, produciendo razonamiento interno separado del output final y planes cualitativamente superiores a una respuesta directa.
 - **Hook de sesion**: script `scripts/init-backlog.js` que garantiza la presencia del `BACKLOG.md` antes de iniciar cualquier sesion de trabajo.
 
 ---
@@ -41,7 +42,7 @@ npm install
 cd ../..
 ```
 
-Dependencias instaladas: `@google/generative-ai` (Gemini) y `@anthropic-ai/sdk` (Haiku fallback).
+Dependencias instaladas: `@anthropic-ai/sdk` (Haiku Nivel 1, Prompt Caching, Token Counting, Batches API) y `@google/generative-ai` (Gemini Nivel 2).
 
 ### Paso 3 — Configurar variables de entorno
 
@@ -125,9 +126,20 @@ El agente hereda automaticamente las 16 reglas globales del `CLAUDE.md` del nucl
 
 ---
 
-## Gemini RAG Bridge
+## LLM Routing Bridge
 
-El Gemini Bridge es el mecanismo de analisis documental masivo del nucleo. Externaliza lecturas de archivos grandes a Gemini como proceso separado. Esta es una politica de COSTO, no de capacidad: Claude 4.x dispone de 1M de tokens de contexto, pero cargar corpus extensos consume tokens de entrada facturables y degrada la calidad de respuesta en el resto de la sesion.
+El LLM Routing Bridge es el mecanismo de analisis documental masivo del nucleo. Externaliza lecturas de archivos grandes como proceso separado. Esta es una politica de COSTO, no de capacidad: cargar corpus extensos en el contexto principal consume tokens de entrada facturables y degrada la calidad de respuesta en el resto de la sesion.
+
+### Optimizaciones de costo activas
+
+**Prompt Caching (`cache_control: ephemeral`)**
+El bloque de sistema del bridge (rol, instrucciones de formato, schema) es identico en cada invocacion. Marcarlo con `cache_control: ephemeral` lo cachea en Anthropic por 5 minutos. En sesiones con multiples llamadas al bridge, los cache hits reducen el costo de tokens de entrada un 70-90% (Anthropic cobra el 10% del precio normal en hits).
+
+**Token Counting exacto para la zona borderline**
+Archivos entre 400K y 800K chars se procesan con `/v1/messages/count_tokens` antes de decidir el nivel. Esto evita dos errores: overflow (archivo que no cabe en Haiku y genera error de contexto) y over-routing (archivo que Haiku maneja perfectamente pero se manda a Gemini gastando cuota). Fuera de esta zona, el umbral de chars es suficientemente preciso y no se agrega latencia.
+
+**Modo batch (`--batch`)**
+Procesa multiples archivos en una sola llamada a la Messages Batches API de Anthropic con 50% de descuento sobre el precio base. Util al analizar todos los modulos de un monorepo en la misma sesion. Procesamiento asincrono con polling; el CLI espera hasta completar o hasta el timeout de 10 minutos.
 
 ### Cuando se activa (automatico por Regla 9)
 
@@ -136,14 +148,10 @@ El Gemini Bridge es el mecanismo de analisis documental masivo del nucleo. Exter
 - El analisis demandaria mas del 30% del context window disponible.
 - La tarea requiere extraer firmas, clases o mapas de dependencias de un modulo de codigo local (modo Obrero de Lectura).
 
-### Circuit Breaker (cuota agotada)
-
-Si el bridge retorna error de cuota (HTTP 429 / `RESOURCE_EXHAUSTED`), el agente aborta la delegacion, notifica con `[BRAIN-SYNC DEGRADADO: cuota de Gemini agotada. Operando en modo local via Regla 14.]` y asume la busqueda usando exclusivamente `grep`/`find`. Reintenta la delegacion al bridge cada 5 tareas o al inicio de la siguiente sesion.
-
 ### Uso directo
 
 ```bash
-# Analisis con salida JSON
+# Analisis con salida JSON (Haiku Nivel 1, Prompt Cache activo)
 node .claude/ai-core/scripts/gemini-bridge.js \
   --mission "Analiza el archivo e identifica patrones de acoplamiento entre modulos" \
   --file ./src/services/user.service.ts \
@@ -155,11 +163,20 @@ node .claude/ai-core/scripts/gemini-bridge.js \
   --file ./docs/api-reference.md \
   --format markdown
 
-# Modelo especifico
+# Modelo Gemini especifico para Nivel 2 (archivos masivos > 600K chars)
 node .claude/ai-core/scripts/gemini-bridge.js \
   --mission "Detecta queries N+1 y bloqueos del event loop" \
   --file ./src/repositories/order.repository.js \
   --model gemini-2.5-flash
+
+# Modo batch: multiples archivos, 50% descuento, Batches API
+node .claude/ai-core/scripts/gemini-bridge.js \
+  --mission "Extrae las firmas publicas y dependencias de cada modulo" \
+  --file ./src/services/user.service.ts \
+  --file ./src/services/order.service.ts \
+  --file ./src/repositories/user.repository.ts \
+  --batch \
+  --format json
 ```
 
 ### Schema de salida JSON (estandar)
@@ -191,8 +208,9 @@ El nucleo opera con tres capas de procesamiento con responsabilidades distintas:
 | Capa | Modelo | Rol | Activacion |
 |---|---|---|---|
 | Ejecutor principal | `claude-sonnet-4-6` | 80% de las tareas: codigo, refactor, review, debug, tests | Default en toda sesion |
-| Arquitecto | `claude-opus-4-6` | Tareas que activan `[ALERTA_ARQUITECTONICA: REQUIERE_OPUSPLAN]` | Escalamiento explicito via Regla 6 |
-| Sub-agente documental | `gemini-2.5-flash` | Analisis de corpus >500 lineas o >50 KB | Automatico via Regla 9 |
+| Arquitecto | `claude-opus-4-6` + Extended Thinking | Planes de arquitectura de alta complejidad (OPUSPLAN) | Escalamiento explicito via Regla 6 |
+| Bridge Nivel 1 | `claude-haiku-4-5-20251001` + Prompt Cache | Analisis de corpus. Archivos hasta 600K chars | Automatico via Regla 9 |
+| Bridge Nivel 2 | `gemini-2.5-flash` | Corpus masivos > 600K chars (ventana 1M tokens) | Automatico cuando el archivo supera el limite de Haiku |
 
 ### Tabla de decision de enrutamiento
 
@@ -200,8 +218,11 @@ El nucleo opera con tres capas de procesamiento con responsabilidades distintas:
 |---|---|
 | Tarea de codigo, refactor, review, test, debug | Sonnet (default) |
 | Tarea ambigua o moderadamente compleja | Sonnet + pausa activa (Regla 13) |
-| Archivo o corpus > 500 lineas / 50 KB | Gemini Bridge (Regla 9) |
-| Tarea que activa condicion de escalamiento | `[ALERTA_ARQUITECTONICA: REQUIERE_OPUSPLAN]` → Opus |
+| Archivo o corpus > 500 lineas / 50 KB, < 400K chars | Bridge — Haiku Nivel 1 (decision inmediata) |
+| Archivo entre 400K y 800K chars | Bridge — Token Counting exacto, luego Haiku o Gemini |
+| Archivo > 800K chars | Bridge — Gemini Nivel 2 (decision inmediata) |
+| Multiples archivos en la misma sesion | Bridge `--batch` (Batches API, 50% descuento) |
+| Tarea que activa condicion de escalamiento | `[ALERTA_ARQUITECTONICA: REQUIERE_OPUSPLAN]` → Opus con Extended Thinking |
 
 ### Optimizacion del context window — Configuracion global
 
