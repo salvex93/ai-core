@@ -2,8 +2,8 @@
 name: mcp-server-builder
 description: Especialista en construccion de servidores MCP (Model Context Protocol). Cubre ciclo de vida del protocolo, transportes stdio y SSE/HTTP, definicion de herramientas con JSON Schema, seguridad de inputs, testing con MCP Inspector y despliegue. Activa al construir un servidor MCP propio, exponer herramientas internas a Claude, o publicar un servidor MCP en el registro oficial.
 origin: ai-core
-version: 1.0.0
-last_updated: 2026-03-26
+version: 1.1.0
+last_updated: 2026-03-28
 ---
 
 # MCP Server Builder — Especialista en Servidores Model Context Protocol
@@ -263,6 +263,84 @@ Todo servidor MCP expuesto en red (no solo localhost) requiere autenticacion:
 - En produccion, rotar los tokens con la misma frecuencia que cualquier API key.
 - El transporte SSE legacy (`SSEServerTransport`) esta obsoleto a partir de la especificacion 2025-03-26. Los servidores nuevos usan `StreamableHTTPServerTransport` exclusivamente.
 
+## Primitivas Adicionales del Protocolo
+
+El protocolo MCP define tres tipos de primitivas que un servidor puede exponer: Tools, Resources y Prompts. La seccion anterior cubre Tools. A continuacion se describen Resources y Prompts.
+
+### Resources
+
+Un Resource es un dato o documento que el servidor expone para que el cliente lo lea. No ejecuta logica: es un endpoint de lectura de contenido estructurado.
+
+Casos de uso tipicos: exponer archivos de configuracion, esquemas de base de datos, documentacion interna o cualquier dato de referencia que el modelo necesita leer antes de razonar.
+
+```typescript
+// TypeScript — registro de un recurso estatico
+server.resource(
+  'esquema-base-de-datos',                          // nombre del recurso
+  'db://schema',                                    // URI del recurso (scheme propio)
+  async (uri) => ({
+    contents: [{
+      uri: uri.href,
+      mimeType: 'application/json',
+      text: JSON.stringify(await obtenerEsquemaDB()),
+    }],
+  })
+);
+
+// Recurso con plantilla URI parametrizada (ResourceTemplate)
+import { ResourceTemplate } from '@modelcontextprotocol/sdk/server/index.js';
+
+server.resource(
+  new ResourceTemplate('archivo://{ruta}', { list: undefined }),
+  async (uri, { ruta }) => ({
+    contents: [{
+      uri: uri.href,
+      mimeType: 'text/plain',
+      text: await fs.readFile(ruta, 'utf-8'),
+    }],
+  })
+);
+```
+
+Reglas de seguridad para Resources:
+- Los recursos que exponen rutas del sistema de archivos deben validar que la ruta esta dentro del directorio permitido. Prohibido path traversal (`../`).
+- Los recursos que exponen datos de base de datos deben respetar los mismos controles de autorizacion que las herramientas.
+- No exponer secretos ni credenciales como recursos legibles.
+
+### Prompts
+
+Un Prompt es una plantilla de mensaje reutilizable que el servidor expone para que el cliente la instancie con argumentos. Permite estandarizar la forma en que el modelo aborda tareas recurrentes.
+
+```typescript
+// TypeScript — registro de un prompt
+server.prompt(
+  'analizar-error',                                 // nombre del prompt
+  'Genera un analisis tecnico estructurado de un error de aplicacion.',
+  {
+    mensaje_error: {
+      type: 'string',
+      description: 'El mensaje de error completo incluyendo el stack trace.',
+    },
+    contexto: {
+      type: 'string',
+      description: 'Contexto adicional: que operacion se estaba ejecutando.',
+      required: false,
+    },
+  },
+  async ({ mensaje_error, contexto }) => ({
+    messages: [{
+      role: 'user',
+      content: {
+        type: 'text',
+        text: `Analiza el siguiente error de aplicacion:\n\n${mensaje_error}${contexto ? `\n\nContexto: ${contexto}` : ''}`,
+      },
+    }],
+  })
+);
+```
+
+La diferencia entre un Prompt y una Tool: una Tool ejecuta una accion y devuelve un resultado. Un Prompt devuelve un mensaje estructurado listo para ser enviado al modelo. Los Prompts no ejecutan logica de negocio; solo estructuran la entrada al LLM.
+
 ## Testing con MCP Inspector
 
 El Inspector de MCP es la herramienta oficial para probar servidores sin necesitar un cliente completo:
@@ -277,6 +355,97 @@ El inspector lanza una interfaz web en `localhost:5173` donde puedes:
 - Inspeccionar los mensajes JSON-RPC intercambiados.
 
 Nunca publicar un servidor MCP sin haber verificado cada herramienta con el inspector primero.
+
+## Autenticacion OAuth 2.0 en Servidores Remotos
+
+La especificacion MCP 2025-03-26 define OAuth 2.0 como el mecanismo de autenticacion estandar para servidores MCP accesibles via Streamable HTTP desde redes externas. El flujo recomendado es Authorization Code con PKCE.
+
+### Flujo de autorizacion
+
+```
+1. El cliente MCP descubre el servidor de autorizacion via el endpoint /.well-known/oauth-authorization-server
+2. El cliente inicia el flujo Authorization Code con PKCE
+3. El usuario se autentica en el authorization server
+4. El servidor MCP valida el access token en cada request al endpoint /mcp
+5. El cliente renueva el token via refresh token cuando expira
+```
+
+### Implementacion en el servidor MCP
+
+```typescript
+import { McpServer } from '@modelcontextprotocol/sdk/server/index.js';
+import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js';
+import express from 'express';
+import { createRemoteJWKSet, jwtVerify } from 'jose';
+
+const app = express();
+app.use(express.json());
+
+const server = new McpServer({ name: 'nombre-del-servidor', version: '1.0.0' });
+
+// JWKS del authorization server para verificar tokens
+const JWKS = createRemoteJWKSet(new URL(process.env.AUTH_JWKS_URI));
+
+async function verificarToken(authHeader: string | undefined): Promise<boolean> {
+  if (!authHeader?.startsWith('Bearer ')) return false;
+  const token = authHeader.slice(7);
+  try {
+    await jwtVerify(token, JWKS, {
+      issuer: process.env.AUTH_ISSUER,
+      audience: process.env.AUTH_AUDIENCE,
+    });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+// Endpoint de descubrimiento OAuth (obligatorio para clientes que implementan el flujo completo)
+app.get('/.well-known/oauth-authorization-server', (req, res) => {
+  res.json({
+    issuer: process.env.AUTH_ISSUER,
+    authorization_endpoint: process.env.AUTH_AUTHORIZATION_ENDPOINT,
+    token_endpoint: process.env.AUTH_TOKEN_ENDPOINT,
+    jwks_uri: process.env.AUTH_JWKS_URI,
+    response_types_supported: ['code'],
+    grant_types_supported: ['authorization_code', 'refresh_token'],
+    code_challenge_methods_supported: ['S256'],
+  });
+});
+
+app.post('/mcp', async (req, res) => {
+  // La verificacion del token ocurre antes de cualquier procesamiento MCP
+  const autorizado = await verificarToken(req.headers.authorization);
+  if (!autorizado) {
+    return res.status(401).json({
+      error: 'invalid_token',
+      error_description: 'El token de acceso es invalido o ha expirado.',
+    });
+  }
+  const transporte = new StreamableHTTPServerTransport({ sessionIdGenerator: undefined });
+  await server.connect(transporte);
+  await transporte.handleRequest(req, res, req.body);
+});
+
+app.listen(3000);
+```
+
+Variables de entorno requeridas:
+
+```
+AUTH_JWKS_URI=https://auth.empresa.com/.well-known/jwks.json
+AUTH_ISSUER=https://auth.empresa.com
+AUTH_AUDIENCE=mcp-servidor-nombre
+AUTH_AUTHORIZATION_ENDPOINT=https://auth.empresa.com/authorize
+AUTH_TOKEN_ENDPOINT=https://auth.empresa.com/token
+```
+
+Principios de seguridad para OAuth en servidores MCP:
+- El endpoint `/.well-known/oauth-authorization-server` es publico y no requiere autenticacion.
+- El endpoint `/mcp` requiere un Bearer token valido en cada request, sin excepcion.
+- Los access tokens tienen TTL corto (maximo 1 hora). Los refresh tokens tienen TTL largo pero se rotan al usarse.
+- Nunca hardcodear `AUTH_JWKS_URI` ni ninguna URL del authorization server en el codigo. Solo desde variables de entorno.
+- El servidor MCP actua como Resource Server en el flujo OAuth. No actua como Authorization Server; esa responsabilidad recae en un servicio dedicado (Keycloak, Auth0, AWS Cognito, etc.).
 
 ## Lista de Verificacion de Revision de Codigo — Servidor MCP
 

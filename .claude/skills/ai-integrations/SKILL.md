@@ -135,9 +135,11 @@ No toda operacion justifica `claude-sonnet-4-6`. Definir el tier por tipo de tar
 - El system prompt se cachea semanticamente por algunos proveedores (Anthropic prompt caching). Colocar instrucciones estaticas al inicio del system prompt para maximizar el hit rate de cache.
 - Truncar el historial de conversacion cuando supere el 60% del context window disponible. Conservar el system prompt completo y los ultimos N turnos relevantes.
 - Prohibido incluir archivos completos en prompts cuando solo se necesita un fragmento. Usar el Gemini Bridge o el skill `especialista-rag` para sintetizar el contenido primero.
-- En llamadas que usan tool use con Anthropic, activar la cabecera beta `anthropic-beta: token-efficient-tools-2025-02-19`. Reduce el overhead de tokens en tool use hasta un 70% (promedio 14%). Requiere `claude-sonnet-4-6` o superior.
+- En llamadas que usan tool use con Anthropic, activar la cabecera beta `anthropic-beta: token-efficient-tools-2025-02-19`. Reduce el overhead de tokens en tool use hasta un 70% (promedio 14%). Requiere `claude-sonnet-4-6` o superior. Nota de mantenimiento: verificar en docs.anthropic.com/changelog si esta cabecera fue promovida a GA; en ese caso, eliminarla de las llamadas.
 
 ### Prompt Caching
+
+Nota de mantenimiento: la cabecera `anthropic-beta: prompt-caching-2024-07-31` puede haber sido promovida a disponibilidad general. Antes de usarla en un proyecto nuevo, verificar el estado en docs.anthropic.com/changelog. Si fue promovida a GA, el campo `cache_control` funciona sin la cabecera beta.
 
 Prompt Caching permite reutilizar prefijos de prompt ya procesados entre llamadas. El proveedor almacena en cache el contenido marcado como `cache_control` y lo cobra a precio reducido en hits. En Anthropic, el costo de un hit de cache es un 10% del precio de entrada estandar: una reduccion del 90%.
 
@@ -274,6 +276,8 @@ Reglas de uso:
 
 ## Interleaved Thinking
 
+Nota de mantenimiento: el identificador `interleaved-thinking-2025-05-14` en el array `betas` incluye una fecha de version. Verificar en docs.anthropic.com/changelog si existe un identificador mas reciente o si esta capacidad fue integrada en el comportamiento estandar de Extended Thinking. Usar un identificador obsoleto resulta en que la funcion no se activa sin error explicito.
+
 Interleaved Thinking es la variante de Extended Thinking activa en conversaciones multi-turno con tool use. Los bloques de razonamiento aparecen intercalados entre los eventos `tool_use` y `tool_result` en lugar de concentrarse solo al inicio de la respuesta. Esto preserva el razonamiento contextual del modelo a lo largo de multiples llamadas a herramientas dentro del mismo turno.
 
 Se habilita con la cabecera beta especifica. No es compatible con la cabecera de Extended Thinking estandar; son modos distintos.
@@ -314,6 +318,8 @@ Reglas de uso:
 - Requiere `claude-sonnet-4-6` o superior. No disponible en Haiku.
 
 ## Messages Batches (Batch API)
+
+Nota de mantenimiento: la cabecera `anthropic-beta: message-batches-2024-09-24` puede haber sido promovida a GA. Si fue promovida, el cliente expone `client.messages.batches` sin necesidad de la cabecera y del namespace `beta`. Verificar en docs.anthropic.com/changelog antes de implementar en un proyecto nuevo.
 
 La Batch API permite enviar hasta 10.000 solicitudes de inferencia en un unico lote. El procesamiento es asincrono con una ventana de hasta 24 horas. El costo por token se reduce un 50% respecto a las llamadas sincronas.
 
@@ -377,6 +383,8 @@ Reglas operativas:
 - El logging de tokens en Batch API sigue el mismo formato que las llamadas sincronas. El campo `processing_status === 'ended'` puede contener items con `type === 'errored'`; siempre verificar y loguear.
 
 ## Files API
+
+Nota de mantenimiento: la cabecera `anthropic-beta: files-api-2025-04-14` puede haber sido promovida a GA. Si fue promovida, el cliente expone `client.beta.files` o `client.files` sin necesidad de la cabecera. Verificar en docs.anthropic.com/changelog antes de implementar. El namespace `beta` puede haber migrado a `client.files` directamente.
 
 La Files API permite subir archivos una vez y referenciarlos por `file_id` en multiples solicitudes. Elimina el overhead de re-serializar y re-transmitir documentos grandes en cada llamada al LLM.
 

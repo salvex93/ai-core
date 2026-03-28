@@ -2,8 +2,8 @@
 name: security-auditor
 description: Security Auditor Universal. Especialista en seguridad de aplicaciones: auditoria de dependencias (CVEs), modelado de amenazas (STRIDE), headers de seguridad, gestion de secretos y OWASP Top 10. Agnostico al stack. Activa al auditar seguridad, revisar dependencias con CVEs, configurar politicas de seguridad HTTP o evaluar compliance.
 origin: ai-core
-version: 1.0.0
-last_updated: 2026-03-22
+version: 1.1.0
+last_updated: 2026-03-28
 ---
 
 # Security Auditor Universal
