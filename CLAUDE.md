@@ -241,6 +241,12 @@ git push origin <rama-activa>
 
 Un cambio en el nucleo que no sincroniza el repositorio es un cambio incompleto. El commit debe ser descriptivo y seguir el estandar Conventional Commits de la Regla 8.
 
+**Prohibicion de contadores numericos en documentacion:**
+Prohibido escribir en README.md, OPERATIONS.md o cualquier otro archivo de documentacion contadores numericos de skills o Reglas Globales (ej: "16 reglas", "14 perfiles"). Estos numeros se desactualizan en cada ciclo de evolucion del nucleo y generan hallazgos espurios en auditorias. La lista autoritativa de skills es el indice en `CLAUDE.md`; la lista de reglas es el cuerpo de `CLAUDE.md`. Los archivos de documentacion referencian esas secciones sin duplicar su contenido con numeros hardcodeados.
+
+**Prohibicion de duplicar Reglas Globales en SKILL.md:**
+Prohibido replicar el contenido de una Regla Global dentro de un SKILL.md. Si un perfil necesita invocar una regla, referencia la regla por nombre (ej: "ver Regla 9"). La logica vive exclusivamente en `CLAUDE.md`. Un SKILL.md que duplica una Regla Global crea dos fuentes de verdad que divergen silenciosamente con cada actualizacion del nucleo.
+
 ### Regla 16 — Higiene de Contexto (Tokenomics)
 
 El agente asume la responsabilidad estricta de proteger el presupuesto de tokens del usuario mediante Compactacion Estrategica. Esta regla define dos triggers inmutables que se activan automaticamente sin instruccion del usuario.
@@ -311,13 +317,11 @@ Activar al: delegar analisis documental masivo al bridge, incorporar documentaci
 
 Archivo: `.claude/skills/especialista-rag/SKILL.md`
 
-### aiops-engineer `[PREMIUM / ENTERPRISE]`
+### aiops-engineer
 
 Agente de mantenimiento del ecosistema ai-core. Audita periodicamente la configuracion de `.claude/skills/`, analiza nuevas especificaciones de Anthropic y propone mejoras en prompts, herramientas MCP y flujos de trabajo. Requiere confirmacion humana explicita antes de modificar el propio nucleo.
 
-Requiere la variable `AI_CORE_PREMIUM_KEY` en el `.env` local para operar. Sin ella, el perfil aborta inmediatamente y notifica al usuario que esta capacidad es de nivel Enterprise/Consultoria.
-
-Activar al: auditar el estado del ai-core, proponer actualizaciones de skills o incorporar nuevas capacidades del ecosistema Anthropic. Disponible bajo licencia Enterprise — contactar a salvex93.
+Activar al: auditar el estado del ai-core, proponer actualizaciones de skills o incorporar nuevas capacidades del ecosistema Anthropic.
 
 Archivo: `.claude/skills/aiops-engineer/SKILL.md`
 
@@ -400,14 +404,6 @@ Especialista en ingenieria de datos. Cubre Medallion Architecture (Bronze/Silver
 Activar al: disenar o revisar pipelines de ingesta o transformacion, modelar capas de un data warehouse o lakehouse, establecer contratos de calidad entre productores y consumidores de datos, configurar validaciones de calidad o instrumentar linaje de datos.
 
 Archivo: `.claude/skills/data-engineer/SKILL.md`
-
-### premium-ops
-
-Perfil de consciencia operativa del ecosistema premium. Garantiza el aislamiento entre la capa publica (repositorio GitHub) y la capa premium (scripts locales en `scripts/premium/`). Verifica que el auto-sync este operativo, que `.gitignore` tenga la entrada de aislamiento y que el hook Stop este registrado correctamente.
-
-Activar al: trabajar directamente en el repositorio ai-core, detectar que `scripts/premium/` existe localmente, revisar o diagnosticar el hook Stop, o incorporar nuevos scripts de automatizacion privados.
-
-Archivo: `.claude/skills/premium-ops/SKILL.md`
 
 ### ai-guardrails
 
