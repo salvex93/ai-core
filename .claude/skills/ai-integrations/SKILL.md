@@ -2,8 +2,8 @@
 name: ai-integrations
 description: Especialista en integracion de LLMs en aplicaciones de produccion. Cubre diseno de features de IA, gestion de costos por token, prompt versioning, streaming, fallback entre proveedores y evaluacion de outputs. Agnostico al proveedor. Activa al integrar Claude, Gemini u otro LLM en un proyecto anfitrion, disenar endpoints de IA o gestionar costos de inferencia.
 origin: ai-core
-version: 1.1.0
-last_updated: 2026-03-26
+version: 1.2.0
+last_updated: 2026-03-28
 ---
 
 # AI Integrations — Especialista en Features de IA en Produccion
@@ -235,6 +235,44 @@ Todo llamado al LLM registra en el sistema de observabilidad del anfitrion:
 ```
 
 Sin este log, la auditoria de costos es imposible y las regresiones de eficiencia pasan desapercibidas.
+
+## Capacidades Beta — Estado y Gestion del Ciclo de Vida
+
+Las siguientes capacidades de la API de Anthropic se activaron originalmente con cabeceras beta y pueden haber migrado a disponibilidad general (GA). Antes de implementar en un proyecto nuevo, verificar el estado actual en docs.anthropic.com/changelog.
+
+| Capacidad | Cabecera beta original | Riesgo si se usa beta innecesariamente | Riesgo si se omite cuando es necesaria |
+|---|---|---|---|
+| Prompt Caching | `prompt-caching-2024-07-31` | Sin impacto funcional, cabecera ignorada en GA | Sin impacto si GA: `cache_control` funciona igual |
+| Messages Batches | `message-batches-2024-09-24` | Sin impacto funcional | Namespace `beta` incorrecto en GA rompe la llamada |
+| Files API | `files-api-2025-04-14` | Sin impacto funcional | Namespace `beta.files` vs `files` rompe la llamada en GA |
+| Token-efficient tools | `token-efficient-tools-2025-02-19` | Sin impacto funcional | La optimizacion no aplica sin la cabecera; no es error critico |
+| Interleaved Thinking | `interleaved-thinking-2025-05-14` | Sin impacto funcional | La funcion no se activa; no hay error explicito |
+
+Patron dual-route para manejar la transicion beta->GA sin romper el codigo en produccion:
+
+```typescript
+// Configuracion central de cabeceras beta — actualizar aqui cuando se confirme GA
+const BETA_HEADERS: Record<string, string | undefined> = {
+  // Establecer en undefined cuando se confirme GA para ese feature
+  'prompt-caching': 'prompt-caching-2024-07-31',       // verificar GA en changelog
+  'message-batches': 'message-batches-2024-09-24',      // verificar GA en changelog
+  'files-api': 'files-api-2025-04-14',                  // verificar GA en changelog
+  'token-efficient-tools': 'token-efficient-tools-2025-02-19',
+};
+
+function buildBetaHeaders(features: string[]): Record<string, string> {
+  const activas = features
+    .map((f) => BETA_HEADERS[f])
+    .filter((v): v is string => v !== undefined);
+  return activas.length > 0 ? { 'anthropic-beta': activas.join(',') } : {};
+}
+
+// Uso en cada llamada: declarar las features necesarias, la funcion gestiona las cabeceras
+const headers = buildBetaHeaders(['prompt-caching', 'token-efficient-tools']);
+const respuesta = await cliente.messages.create({ /* ... */ }, { headers });
+```
+
+Al confirmar que una feature fue promovida a GA, establecer su valor en `undefined` en `BETA_HEADERS`. Todos los puntos de uso heredan el cambio automaticamente sin modificacion adicional.
 
 ## Extended Thinking
 

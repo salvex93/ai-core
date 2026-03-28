@@ -2,8 +2,8 @@
 name: llm-evals
 description: Especialista en evaluacion sistematica de outputs de LLM. Cubre diseno de datasets de evaluacion, metricas automatizadas (faithfulness, answer relevancy, hallucination rate), LLM-as-judge, integracion de evals en CI/CD y frameworks de evaluacion (deepeval, promptfoo, RAGAS). Activa al disenar un pipeline de evals, detectar regresiones en calidad de outputs, evaluar cambios de modelo o prompt, o medir la calidad de un sistema RAG.
 origin: ai-core
-version: 1.0.0
-last_updated: 2026-03-26
+version: 1.1.0
+last_updated: 2026-03-28
 ---
 
 # LLM Evals — Especialista en Evaluacion Sistematica de Outputs
@@ -243,6 +243,75 @@ resultado = evaluate(
 
 print(resultado)  # DataFrame con puntuaciones por metrica
 ```
+
+### Langfuse (Python / TypeScript — self-hosteable)
+
+Plataforma de observabilidad y evaluacion open-source. Combina trazabilidad de producccion con evals online (LLM-as-judge ejecutado sobre traces en tiempo real) y offline (batch evals sobre datasets almacenados). Se integra directamente con el skill `llm-observability`.
+
+```python
+import langfuse
+from langfuse import Langfuse
+
+cliente = Langfuse()
+
+# Registrar un dataset de evaluacion en Langfuse
+dataset = cliente.create_dataset(name="resumen-contratos-v1")
+cliente.create_dataset_item(
+    dataset_name="resumen-contratos-v1",
+    input={"pregunta": "Resume las clausulas de penalizacion"},
+    expected_output="El contrato establece una penalizacion del 10%...",
+)
+
+# Ejecutar evals sobre el dataset y registrar resultados
+for item in cliente.get_dataset("resumen-contratos-v1").items:
+    respuesta = sistema_rag.consultar(item.input["pregunta"])
+
+    # LLM-as-judge: el score se registra en Langfuse vinculado al item del dataset
+    item.link(
+        trace_or_observation=cliente.trace(name="eval-run"),
+        run_name="eval-run-2026-03-28",
+    )
+    cliente.score(
+        trace_id=item.trace_id,
+        name="faithfulness",
+        value=evaluar_faithfulness(respuesta, item.input),
+        comment="Evaluacion automatica via LLM-as-judge",
+    )
+```
+
+Langfuse es la opcion recomendada para proyectos que ya instrumentan observabilidad con el skill `llm-observability`. Un eval registrado en Langfuse es un score vinculado a un trace de produccion: la trazabilidad y la evaluacion comparten la misma fuente de verdad.
+
+### Braintrust (Python / TypeScript — SaaS)
+
+Plataforma de evals orientada a flujos de trabajo A/B entre versiones de prompt y modelos. Su diferenciador es el playground integrado con scoring en tiempo real y el SDK ligero que no requiere infraestructura propia.
+
+```typescript
+import { Eval } from "braintrust";
+
+Eval("resumen-contratos", {
+  data: () => [
+    {
+      input: "Resume las clausulas de penalizacion",
+      expected: "El contrato establece una penalizacion del 10%...",
+    },
+  ],
+  task: async (input) => sistema_rag.consultar(input),
+  scores: [
+    // LLM-as-judge usando el modelo juez configurado en el proyecto
+    async ({ input, output, expected }) => ({
+      name: "faithfulness",
+      score: await evaluar_faithfulness(output, input),
+    }),
+  ],
+});
+```
+
+```bash
+# Ejecutar y publicar resultados al dashboard de Braintrust
+npx braintrust eval src/evals/resumen-contratos.eval.ts
+```
+
+Braintrust es preferible cuando el equipo no puede operar infraestructura propia y necesita un dashboard de comparacion A/B entre versiones de prompt con historial persistente. Langfuse es preferible cuando la organizacion requiere self-hosting por requisitos de compliance o ya tiene observabilidad instrumentada.
 
 ## Lista de Verificacion de Revision de Codigo — LLM Evals
 
