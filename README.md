@@ -1,6 +1,6 @@
 # AI-CORE: Nexus Multi-Agente Universal
 
-`ai-core` es un nucleo de configuracion y comportamiento para agentes IA que se incorpora a cualquier repositorio como submódulo Git. Inyecta 16 reglas globales inmutables y 14 perfiles de comportamiento tecnico especializados (skills) sin acoplar su logica al stack del proyecto anfitrion.
+`ai-core` es un nucleo de configuracion y comportamiento para agentes IA que se incorpora a cualquier repositorio como submódulo Git. Inyecta reglas globales inmutables y perfiles de comportamiento tecnico especializados (skills) sin acoplar su logica al stack del proyecto anfitrion. La lista autoritativa de reglas y skills esta en `CLAUDE.md`.
 
 El sistema es framework-agnostic por diseño. No asume Node.js, Python, Go ni ningun otro lenguaje. Cada agente lee los manifiestos del repositorio anfitrion (`package.json`, `requirements.txt`, `go.mod`, etc.) al activarse y adapta sus recomendaciones al entorno real del proyecto.
 
@@ -122,7 +122,7 @@ claude
 claude
 ```
 
-El agente hereda automaticamente las 16 reglas globales del `CLAUDE.md` del nucleo. La primera accion autonoma es leer los manifiestos del proyecto para deducir el stack (Regla 3).
+El agente hereda automaticamente las reglas globales del `CLAUDE.md` del nucleo. La primera accion autonoma es leer los manifiestos del proyecto para deducir el stack (Regla 3).
 
 ---
 
@@ -311,9 +311,9 @@ Activar al: planificar releases, gestionar ramas, configurar pipelines o coordin
 Gestor de Misiones para el Gemini Bridge. Redacta ordenes de mision de alta precision para `scripts/gemini-bridge.js` y define el esquema JSON/Markdown exacto de respuesta. Tambien gobierna la arquitectura de pipelines RAG y la evaluacion de calidad de recuperacion semantica.
 Activar al: delegar analisis documental masivo, construir pipelines RAG, gestionar colecciones vectoriales o evaluar recuperacion semantica.
 
-**aiops-engineer** `[PREMIUM / ENTERPRISE]`
-Agente de mantenimiento del propio nucleo ai-core. Audita la coherencia de los skills, analiza nuevas capacidades del ecosistema Anthropic y propone mejoras. Nunca modifica el nucleo sin confirmacion humana explicita. Requiere la variable `AI_CORE_PREMIUM_KEY` en el `.env` local para operar. Sin ella, el agente aborta silenciosamente.
-Activar al: auditar el estado del ai-core o proponer actualizaciones de skills. Disponible bajo licencia Enterprise/Consultoria — contactar a salvex93.
+**aiops-engineer**
+Agente de mantenimiento del propio nucleo ai-core. Audita la coherencia de los skills, analiza nuevas capacidades del ecosistema Anthropic y propone mejoras. Nunca modifica el nucleo sin confirmacion humana explicita.
+Activar al: auditar el estado del ai-core o proponer actualizaciones de skills.
 
 **qa-engineer**
 Especialista en estrategia de testing, piramide de calidad y contract testing. Agnostico al framework: deduce la herramienta de los manifiestos del anfitrion (Jest, Pytest, Vitest, Go testing, JUnit, etc.).
@@ -332,16 +332,12 @@ Especialista en integracion de LLMs en aplicaciones de produccion. Cubre el patr
 Activar al: integrar un LLM como feature de producto, disenar endpoints de IA, gestionar costos de inferencia, versionar prompts en produccion, implementar streaming o evaluar outputs de LLM.
 
 **claude-agent-sdk**
-Especialista en construccion de agentes autonomos con el Claude Agent SDK (TypeScript/Python). Cubre herramientas integradas (bash, text_editor, browser, computer use, web_search_20250305), hooks de ciclo de vida pre/post tool call para auditoria y control, composicion de subagentes con roles diferenciados, integracion de servidores MCP, gestion de permisos por herramienta (minimo privilegio) y sesiones persistentes multi-turno.
-Activar al: construir un agente personalizado con el Agent SDK, orquestar subagentes, definir hooks de validacion o logging, integrar MCP en el ciclo del agente o disenar flujos de automatizacion con Claude.
+Especialista en construccion de agentes autonomos con el Claude Agent SDK (TypeScript/Python). Cubre herramientas integradas (bash, text_editor, browser, computer use, web_search_20250305), hooks de ciclo de vida pre/post tool call para auditoria y control, composicion de subagentes con roles diferenciados, integracion de servidores MCP, gestion de permisos por herramienta (minimo privilegio), observabilidad con OpenTelemetry y sesiones persistentes multi-turno.
+Activar al: construir un agente personalizado con el Agent SDK, orquestar subagentes, definir hooks de validacion o logging, integrar MCP en el ciclo del agente, instrumentar observabilidad de agente o disenar flujos de automatizacion con Claude.
 
 **mcp-server-builder**
 Especialista en construccion del lado servidor del protocolo MCP. Cubre el ciclo de vida (initialize, tools/list, tools/call), transportes stdio y Streamable HTTP, las tres primitivas del protocolo (Tools, Resources y Prompts), definicion de herramientas con JSON Schema, seguridad de inputs, autenticacion OAuth 2.0 en servidores remotos, gestion de secretos y testing con MCP Inspector.
 Activar al: construir un servidor MCP propio, exponer herramientas, recursos o prompt templates a Claude, elegir entre stdio y Streamable HTTP, o revisar la seguridad y la autenticacion de un servidor MCP existente.
-
-**claude-agent-sdk**
-Especialista en construccion de agentes autonomos con el Claude Agent SDK (TypeScript/Python). Cubre herramientas integradas (bash, text_editor, browser, computer use seguro con aislamiento en escritorio virtual, web_search_20250305), hooks de ciclo de vida pre/post tool call para auditoria y control, composicion de subagentes con roles diferenciados, integracion de servidores MCP, gestion de permisos por herramienta (minimo privilegio), observabilidad del agente con OpenTelemetry (trazas, metricas, logs estructurados) y sesiones persistentes multi-turno.
-Activar al: construir un agente personalizado con el Agent SDK, orquestar subagentes, definir hooks de validacion o logging, integrar MCP en el ciclo del agente, instrumentar observabilidad de agente o disenar flujos de automatizacion con Claude.
 
 **data-engineer**
 Especialista en ingenieria de datos. Cubre Medallion Architecture (Bronze/Silver/Gold), transformacion con dbt (modelos, snapshots, tests declarativos, materializations), orquestacion con Airflow, Dagster y Prefect, calidad de datos con Great Expectations y Soda Core, Data Contracts con openDataContract y linaje con OpenLineage/Marquez. Agnostico al stack.
@@ -351,15 +347,15 @@ Activar al: disenar pipelines de ingesta o transformacion, modelar capas de un d
 Especialista en evaluacion sistematica de outputs de LLM. Cubre diseno de golden datasets, metricas automatizadas (faithfulness, answer relevancy, hallucination rate), LLM-as-judge, integracion de evals en CI/CD y frameworks de evaluacion (deepeval, promptfoo, RAGAS). Mide la calidad de sistemas RAG y detecta regresiones antes del despliegue.
 Activar al: disenar un pipeline de evals, medir la calidad de un sistema RAG, comparar versiones de prompt o modelos, detectar regresiones de calidad o integrar un gate de calidad de IA en el pipeline de CI/CD.
 
-**premium-ops**
-Perfil de consciencia operativa del ecosistema premium local. Garantiza el aislamiento de `scripts/premium/` del repositorio publico, verifica el estado del auto-sync y protege el hook Stop de ejecuciones no deseadas en proyectos anfitriones.
-Activar al: trabajar directamente en el ai-core, diagnosticar el hook Stop o incorporar nuevos scripts de automatizacion privados.
+**ai-guardrails**
+Especialista en capas de proteccion para sistemas LLM en produccion. Cubre deteccion de prompt injection, validacion de outputs, deteccion de PII, rate limiting por usuario, patron LLM Firewall y seleccion de frameworks (NeMo Guardrails, Guardrails AI, Azure AI Content Safety).
+Activar al: disenar la capa de proteccion de un endpoint LLM expuesto a usuarios externos, implementar filtros de input/output o integrar guardrails con la observabilidad LLM.
 
 ---
 
 ## Reglas Globales — Referencia Rapida
 
-Las 16 reglas son inmutables. Aplican a todos los perfiles sin excepcion. El detalle completo esta en `CLAUDE.md`.
+Las reglas globales son inmutables. Aplican a todos los perfiles sin excepcion. El detalle completo esta en `CLAUDE.md`.
 
 | # | Nombre | Efecto observable |
 |---|---|---|
@@ -379,6 +375,7 @@ Las 16 reglas son inmutables. Aplican a todos los perfiles sin excepcion. El det
 | 14 | Eficiencia de Busqueda | Usa `grep`/`find` antes de leer archivos completos para minimizar consumo de tokens. |
 | 15 | Documentacion Viva | Toda modificacion del nucleo exige actualizar README.md + `git add` + `git commit` + `git push`. |
 | 16 | Higiene de Contexto (Tokenomics) | Protege el presupuesto de tokens. TRIGGER DE COMPACTACION: imprime alerta para ejecutar `/compact` antes de generar codigo masivo tras una fase de investigacion. TRIGGER DE PURGA: imprime alerta para ejecutar `/clear` tras cerrar una tarea en BACKLOG.md. |
+| 17 | Versionado Obligatorio de Skills | Toda modificacion de un SKILL.md exige actualizar `version` (semver) y `last_updated` en el frontmatter en el mismo commit. Patch: correcciones. Minor: nuevas secciones. Major: reestructuracion completa. |
 
 ---
 
@@ -386,7 +383,7 @@ Las 16 reglas son inmutables. Aplican a todos los perfiles sin excepcion. El det
 
 ```
 ai-core/
-├── CLAUDE.md          Reglas globales (16), skills disponibles, directiva de interrupcion
+├── CLAUDE.md          Reglas globales, skills disponibles, directiva de interrupcion
 ├── README.md          Este archivo — manual de usuario
 ├── OPERATIONS.md      Referencia tecnica operativa: filosofia, incorporacion, contribucion
 ├── BACKLOG.md         Tabla de 12 columnas — deuda tecnica y hallazgos del propio nucleo
@@ -399,21 +396,23 @@ ai-core/
 └── .claude/
     ├── settings.json      Template de hook Stop para el proyecto anfitrion
     └── skills/
-        ├── arquitecto-backend/    SKILL.md
-        ├── tech-lead-frontend/    SKILL.md
-        ├── release-manager/       SKILL.md
-        ├── especialista-rag/      SKILL.md
-        ├── aiops-engineer/        SKILL.md
-        ├── qa-engineer/           SKILL.md
-        ├── security-auditor/      SKILL.md
-        ├── devops-infra/          SKILL.md
+        ├── ai-guardrails/         SKILL.md
         ├── ai-integrations/       SKILL.md
+        ├── aiops-engineer/        SKILL.md
+        ├── arquitecto-backend/    SKILL.md
         ├── claude-agent-sdk/      SKILL.md
-        ├── mcp-server-builder/    SKILL.md
-        ├── llm-evals/             SKILL.md
-        ├── prompt-engineer/       SKILL.md
         ├── data-engineer/         SKILL.md
-        └── premium-ops/           SKILL.md
+        ├── devops-infra/          SKILL.md
+        ├── especialista-rag/      SKILL.md
+        ├── llm-evals/             SKILL.md
+        ├── llm-observability/     SKILL.md
+        ├── mcp-server-builder/    SKILL.md
+        ├── prompt-engineer/       SKILL.md
+        ├── qa-engineer/           SKILL.md
+        ├── release-manager/       SKILL.md
+        ├── security-auditor/      SKILL.md
+        ├── tech-lead-frontend/    SKILL.md
+        └── (ver CLAUDE.md para la lista autoritativa de skills activos)
 ```
 
 ---

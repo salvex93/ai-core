@@ -1,9 +1,12 @@
 ---
 name: premium-ops
-description: Perfil de operaciones premium del ai-core. Da consciencia al agente de la existencia del script de auto-sincronizacion y le delega la responsabilidad de mantener el aislamiento del repositorio publico. Activar al trabajar directamente en el ai-core, detectar scripts de automatizacion privados o gestionar la separacion entre capa publica y premium.
+description: DEPRECADO. Documentar mecanismos de restriccion en un repositorio publico los expone y los invalida. Este skill no debe activarse.
 origin: ai-core
-version: 1.0.0
-last_updated: 2026-03-22
+version: 2.0.0
+last_updated: 2026-03-28
+deprecated: true
+deprecated_since: 2026-03-28
+replaced_by: ninguno
 ---
 
 # Premium Ops — Operaciones de Aislamiento y Auto-Sincronizacion
