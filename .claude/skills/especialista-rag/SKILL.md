@@ -60,9 +60,23 @@ Prohibido usar emojis, iconos o caracteres de adorno en la respuesta.
 Prohibido incluir afirmaciones no respaldadas explicitamente por el contenido del archivo analizado.
 ```
 
-### Paso 3 — Invocar el bridge
+### Paso 3 — Verificar el modelo Gemini vigente e invocar el bridge
 
-Nota de mantenimiento: el identificador `gemini-2.5-flash` puede haber sido reemplazado por una version mas reciente (ej: `gemini-2.5-flash-002` o superior). Antes de usar en un proyecto nuevo, verificar el modelo vigente en ai.google.dev/models. Usar un identificador obsoleto puede producir degradacion silenciosa de calidad sin error explicito.
+Antes de invocar el bridge en un proyecto nuevo o tras un periodo sin uso, verificar que el identificador de modelo Gemini sigue siendo valido. Usar un identificador obsoleto produce degradacion silenciosa de calidad sin error explicito.
+
+Comando de verificacion ejecutable (requiere `GEMINI_API_KEY` en el entorno):
+
+```bash
+curl -s "https://generativelanguage.googleapis.com/v1beta/models?key=${GEMINI_API_KEY}" \
+  | jq '.models[] | select(.name | contains("gemini")) | {name: .name, displayName: .displayName}' \
+  | grep -E "gemini-2\.[0-9]"
+```
+
+El output lista los modelos Gemini 2.x disponibles en la cuenta. Usar el identificador `name` del modelo deseado en el parametro `--model`.
+
+Criterio de seleccion de modelo:
+- `gemini-2.5-flash`: opcion por defecto para analisis documental. Optimizado para throughput y costo. Adecuado para la mayoria de corpus de documentacion tecnica.
+- `gemini-2.5-pro`: usar cuando la tarea requiere precision sobre throughput: extraccion de relaciones complejas, razonamiento multi-documento o analisis de codigo con logica de negocio no trivial. Costo mas alto; reservar para corpus criticos.
 
 ```bash
 node scripts/gemini-bridge.js \

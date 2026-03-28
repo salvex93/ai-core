@@ -135,7 +135,7 @@ No toda operacion justifica `claude-sonnet-4-6`. Definir el tier por tipo de tar
 - El system prompt se cachea semanticamente por algunos proveedores (Anthropic prompt caching). Colocar instrucciones estaticas al inicio del system prompt para maximizar el hit rate de cache.
 - Truncar el historial de conversacion cuando supere el 60% del context window disponible. Conservar el system prompt completo y los ultimos N turnos relevantes.
 - Prohibido incluir archivos completos en prompts cuando solo se necesita un fragmento. Usar el Gemini Bridge o el skill `especialista-rag` para sintetizar el contenido primero.
-- En llamadas que usan tool use con Anthropic, activar la cabecera beta `anthropic-beta: token-efficient-tools-2025-02-19`. Reduce el overhead de tokens en tool use hasta un 70% (promedio 14%). Requiere `claude-sonnet-4-6` o superior. Nota de mantenimiento: verificar en docs.anthropic.com/changelog si esta cabecera fue promovida a GA; en ese caso, eliminarla de las llamadas.
+- En llamadas que usan tool use con Anthropic, activar la optimizacion de token-efficient tools. Reduce el overhead de tokens en tool use hasta un 70% (promedio 14%). Requiere `claude-sonnet-4-6` o superior. Esta capacidad es GA desde 2026 (comercializada como "Tool Search Tool" y "Programmatic Tool Calling"); no requiere cabecera beta. Actualizar `BETA_HEADERS['token-efficient-tools']` a `undefined` en el patron dual-route para que todos los callers hereden el cambio automaticamente.
 
 ### Prompt Caching
 
@@ -240,13 +240,13 @@ Sin este log, la auditoria de costos es imposible y las regresiones de eficienci
 
 Las siguientes capacidades de la API de Anthropic se activaron originalmente con cabeceras beta y pueden haber migrado a disponibilidad general (GA). Antes de implementar en un proyecto nuevo, verificar el estado actual en docs.anthropic.com/changelog.
 
-| Capacidad | Cabecera beta original | Riesgo si se usa beta innecesariamente | Riesgo si se omite cuando es necesaria |
-|---|---|---|---|
-| Prompt Caching | `prompt-caching-2024-07-31` | Sin impacto funcional, cabecera ignorada en GA | Sin impacto si GA: `cache_control` funciona igual |
-| Messages Batches | `message-batches-2024-09-24` | Sin impacto funcional | Namespace `beta` incorrecto en GA rompe la llamada |
-| Files API | `files-api-2025-04-14` | Sin impacto funcional | Namespace `beta.files` vs `files` rompe la llamada en GA |
-| Token-efficient tools | `token-efficient-tools-2025-02-19` | Sin impacto funcional | La optimizacion no aplica sin la cabecera; no es error critico |
-| Interleaved Thinking | `interleaved-thinking-2025-05-14` | Sin impacto funcional | La funcion no se activa; no hay error explicito |
+| Capacidad | Cabecera beta original | Estado | Riesgo si se usa beta innecesariamente | Riesgo si se omite cuando es necesaria |
+|---|---|---|---|---|
+| Prompt Caching | `prompt-caching-2024-07-31` | Pendiente verificacion | Sin impacto funcional, cabecera ignorada en GA | Sin impacto si GA: `cache_control` funciona igual |
+| Messages Batches | `message-batches-2024-09-24` | Pendiente verificacion | Sin impacto funcional | Namespace `beta` incorrecto en GA rompe la llamada |
+| Files API | `files-api-2025-04-14` | GA confirmado 2026 | Sin impacto funcional | Namespace `beta.files` vs `files` rompe la llamada en GA |
+| Token-efficient tools | `token-efficient-tools-2025-02-19` | GA confirmado 2026 | Sin impacto funcional | La optimizacion no aplica sin la cabecera; no es error critico |
+| Interleaved Thinking | `interleaved-thinking-2025-05-14` | Pendiente verificacion | Sin impacto funcional | La funcion no se activa; no hay error explicito |
 
 Patron dual-route para manejar la transicion beta->GA sin romper el codigo en produccion:
 
@@ -256,8 +256,8 @@ const BETA_HEADERS: Record<string, string | undefined> = {
   // Establecer en undefined cuando se confirme GA para ese feature
   'prompt-caching': 'prompt-caching-2024-07-31',       // verificar GA en changelog
   'message-batches': 'message-batches-2024-09-24',      // verificar GA en changelog
-  'files-api': 'files-api-2025-04-14',                  // verificar GA en changelog
-  'token-efficient-tools': 'token-efficient-tools-2025-02-19',
+  'files-api': undefined,                               // GA confirmado 2026 — namespace client.files, sin cabecera beta
+  'token-efficient-tools': undefined,                   // GA confirmado 2026 (Tool Search Tool / Programmatic Tool Calling)
 };
 
 function buildBetaHeaders(features: string[]): Record<string, string> {
@@ -422,7 +422,7 @@ Reglas operativas:
 
 ## Files API
 
-Nota de mantenimiento: la cabecera `anthropic-beta: files-api-2025-04-14` puede haber sido promovida a GA. Si fue promovida, el cliente expone `client.beta.files` o `client.files` sin necesidad de la cabecera. Verificar en docs.anthropic.com/changelog antes de implementar. El namespace `beta` puede haber migrado a `client.files` directamente.
+La Files API es GA desde 2026. El namespace correcto es `client.files` (no `client.beta.files`). No se requiere la cabecera `anthropic-beta: files-api-2025-04-14`. En proyectos que usaban la version beta, eliminar la cabecera y reemplazar `cliente.beta.files` por `cliente.files` en todas las llamadas.
 
 La Files API permite subir archivos una vez y referenciarlos por `file_id` en multiples solicitudes. Elimina el overhead de re-serializar y re-transmitir documentos grandes en cada llamada al LLM.
 
@@ -433,10 +433,9 @@ import fs from 'fs';
 const cliente = new Anthropic();
 
 // Subir el archivo una vez — el file_id persiste en la cuenta
-const archivo = await cliente.beta.files.upload({
+// GA desde 2026: usar client.files (no client.beta.files), sin cabecera beta
+const archivo = await cliente.files.upload({
   file: fs.createReadStream('contrato.pdf'),
-}, {
-  headers: { 'anthropic-beta': 'files-api-2025-04-14' },
 });
 
 const fileId = archivo.id; // Guardar en base de datos para reutilizar
@@ -458,14 +457,10 @@ const respuesta = await cliente.messages.create({
       { type: 'text', text: 'Resume las clausulas de penalizacion de este contrato.' },
     ],
   }],
-}, {
-  headers: { 'anthropic-beta': 'files-api-2025-04-14' },
 });
 
 // Eliminar cuando ya no se necesite (gestion de almacenamiento)
-await cliente.beta.files.delete(fileId, {
-  headers: { 'anthropic-beta': 'files-api-2025-04-14' },
-});
+await cliente.files.delete(fileId);
 ```
 
 Tipos de archivo soportados: PDF, texto plano, imagenes (PNG, JPEG, GIF, WEBP).
