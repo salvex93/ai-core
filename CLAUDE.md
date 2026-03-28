@@ -231,7 +231,9 @@ Para localizar referencias, patrones o usos en el codigo, se usan comandos de si
 
 ### Regla 15 — Documentacion Viva
 
-Toda modificacion en el codigo, skills o reglas del AI-CORE exige, como ultima accion obligatoria de la tarea, actualizar `README.md` con las instrucciones exactas de uso que reflejen la capacidad nueva o modificada, seguido de la secuencia de sincronizacion:
+`README.md` se actualiza UNICAMENTE cuando el cambio es visible para usuarios externos del nucleo: incorporacion de un skill nuevo, eliminacion de un skill, cambio en los pasos de instalacion o modificacion de una capacidad fundamental del LLM Routing Bridge. Las ediciones de contenido interno de un SKILL.md existente (correcciones de texto, ejemplos de codigo, bumps de version por Regla 17) NO requieren actualizar README.md.
+
+Toda modificacion que si active esta regla exige, como ultima accion obligatoria de la tarea, actualizar `README.md` con las instrucciones exactas de uso que reflejen la capacidad nueva o modificada, seguido de la secuencia de sincronizacion:
 
 ```
 git add .
@@ -412,6 +414,14 @@ Especialista en capas de proteccion para sistemas LLM en produccion. Cubre detec
 Activar al: disenar la capa de proteccion de un endpoint LLM expuesto a usuarios externos, implementar filtros de input/output, definir politicas de uso aceptable o integrar guardrails con el sistema de observabilidad LLM.
 
 Archivo: `.claude/skills/ai-guardrails/SKILL.md`
+
+### osint-investigator
+
+Especialista en OSINT (Open Source Intelligence) y hacking etico. Cubre metodologia de reconocimiento pasivo y activo, herramientas gratuitas y open source (theHarvester, Recon-ng, SpiderFoot, Subfinder, Shodan, Censys, crt.sh), scripting en Python para automatizacion de recoleccion, Google Dorks, analisis de metadatos y construccion de pipelines de investigacion y grafos de entidades. Enfoque en inteligencia de fuentes abiertas dentro del marco legal y etico.
+
+Activar al: planificar la fase de reconocimiento de un pentest o bug bounty autorizado, desarrollar herramientas OSINT en Python, analizar la superficie de ataque de una organizacion, investigar entidades en fuentes publicas o construir un pipeline de inteligencia multi-fuente.
+
+Archivo: `.claude/skills/osint-investigator/SKILL.md`
 
 ---
 

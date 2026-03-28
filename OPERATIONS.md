@@ -138,55 +138,9 @@ Una vez incorporado, el agente detecta el `CLAUDE.md` del nucleo automaticamente
 
 ## Skills Disponibles
 
-Cada skill define un perfil de comportamiento especializado. El agente activa el perfil correspondiente segun la naturaleza de la tarea.
+La lista autoritativa de skills activos, sus descripciones y condiciones de activacion esta en `CLAUDE.md`, seccion "Skills Disponibles". Esta es la unica fuente de verdad para el indice de skills. No se duplica aqui para evitar divergencia silenciosa entre documentos.
 
-### arquitecto-backend
-
-Gobierna las decisiones de arquitectura en la capa de servidor, persistencia e integraciones. Agnóstico al stack: deduce el ORM y el motor de base de datos del repositorio anfitrion antes de emitir cualquier recomendacion.
-
-Activar al: disenar APIs, modelar esquemas, escribir migraciones, revisar queries, definir la capa de repositorio o evaluar seguridad en la capa de servidor.
-
-### tech-lead-frontend
-
-Gobierna la arquitectura de componentes, la gestion de estado y la optimizacion del bundle. Agnóstico al framework: deduce el framework visual y el manejador de estado del repositorio anfitrion.
-
-Activar al: disenar arquitectura de componentes, decidir gestion de estado, optimizar el bundle o definir el contrato con la API.
-
-### release-manager
-
-Gobierna el ciclo de vida completo de las entregas: versionado semantico, estrategia de branching, pipelines CI/CD, resolucion de conflictos y planes de rollback. Universal: aplica a cualquier plataforma de CI/CD.
-
-Activar al: planificar releases, gestionar ramas, configurar pipelines, ejecutar despliegues o preparar planes de rollback.
-
-### especialista-rag
-
-Orquestador de contexto documental. Localiza `NOTEBOOKLM_WORKSPACE_ID` en el `.env` del anfitrion e inyecta documentacion tecnica externa al contexto activo via MCP.
-
-Activar al: incorporar documentacion externa, construir pipelines RAG, gestionar colecciones vectoriales o evaluar recuperacion semantica.
-
-### aiops-engineer
-
-Agente de mantenimiento del ecosistema ai-core. Audita periodicamente los skills, analiza nuevas capacidades del ecosistema Anthropic y propone mejoras. Requiere confirmacion humana explicita antes de modificar el nucleo.
-
-Activar al: auditar el estado del ai-core, proponer actualizaciones de skills o incorporar nuevas capacidades de Anthropic.
-
-### qa-engineer
-
-Especialista en estrategia de testing, piramide de calidad y contract testing. Agnostico al framework: deduce la herramienta de los manifiestos del anfitrion (Jest, Pytest, Vitest, Go testing, JUnit, etc.). Cubre piramide de tests, mocks, gestion de datos de prueba, cobertura por capa y contract testing inter-servicio.
-
-Activar al: definir estrategia de tests, evaluar cobertura, implementar contract testing, diagnosticar regresiones o auditar la calidad de los tests de un PR.
-
-### security-auditor
-
-Especialista en seguridad de aplicaciones. Cubre auditoria de dependencias (CVEs), modelado de amenazas (STRIDE), configuracion de headers de seguridad, gestion de secretos, revision OWASP Top 10 por capa y cumplimiento de requisitos de compliance. Agnostico al stack.
-
-Activar al: auditar seguridad de una capa, revisar dependencias con CVEs, configurar politicas de CORS/CSP/HSTS, detectar secretos hardcodeados o evaluar requisitos de compliance.
-
-### devops-infra
-
-Especialista en infraestructura como codigo y observabilidad. Cubre aprovisionamiento con IaC (Terraform, Pulumi, CloudFormation, Helm), gestion de secretos en contenedores, networking de servicios y configuracion de observabilidad (OpenTelemetry, Prometheus, Grafana). Agnostico al proveedor de nube.
-
-Activar al: disenar o modificar infraestructura, configurar observabilidad, gestionar secretos en Kubernetes o definir la estrategia de despliegue en contenedores.
+Cada skill reside en `.claude/skills/<nombre>/SKILL.md` con frontmatter `name`, `version` y `last_updated`.
 
 ---
 
@@ -225,7 +179,6 @@ Para agregar un skill nuevo al ecosistema:
    - "Directiva de Interrupcion" con condiciones especificas
    - "Restricciones del Perfil" (heredadas de las Reglas Globales, con adiciones especificas)
 4. No sobreescribir ninguna Regla Global.
-5. Actualizar `CLAUDE.md` con la referencia al nuevo skill en la seccion "Skills Disponibles".
-6. Actualizar `OPERATIONS.md` con la descripcion del nuevo skill en la seccion "Skills Disponibles".
+5. Actualizar `CLAUDE.md` con la referencia al nuevo skill en la seccion "Skills Disponibles". Esta es la unica accion de documentacion requerida — `OPERATIONS.md` y `README.md` no duplican el indice de skills.
 
 Todo cambio al nucleo sigue el Git Flow definido en la Regla 8: rama `feature/`, integracion a `develop`, release a `main` via Pull Request con pipeline en verde.

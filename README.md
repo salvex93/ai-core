@@ -295,61 +295,9 @@ Los agentes leen los manifiestos de dependencias disponibles y adaptan sus recom
 
 ### Skills disponibles
 
-**arquitecto-backend**
-Gobierna arquitectura de servidor, persistencia y APIs. Cubre SOLID, Clean Architecture, migraciones, queries N+1, transacciones y seguridad en la capa de servidor.
-Activar al: disenar APIs, modelar esquemas, escribir migraciones, revisar queries o evaluar seguridad de servidor.
+La lista autoritativa de skills con sus descripciones y condiciones de activacion esta en `CLAUDE.md`, seccion "Skills Disponibles". Cada skill reside en `.claude/skills/<nombre>/SKILL.md`.
 
-**tech-lead-frontend**
-Gobierna arquitectura de componentes, estado y bundle. Aplica Atomic Design, WCAG AA y Mobile First de forma preventiva al abrir cualquier archivo de interfaz.
-Activar al: disenar componentes, gestionar estado, optimizar bundle o definir el contrato con la API.
-
-**release-manager**
-Gestiona el ciclo de vida completo de entregas. Universal a cualquier plataforma de CI/CD. Cubre versionado semantico, branching, pipelines, resolucion de conflictos y planes de rollback.
-Activar al: planificar releases, gestionar ramas, configurar pipelines o coordinar despliegues.
-
-**especialista-rag**
-Gestor de Misiones para el Gemini Bridge. Redacta ordenes de mision de alta precision para `scripts/gemini-bridge.js` y define el esquema JSON/Markdown exacto de respuesta. Tambien gobierna la arquitectura de pipelines RAG y la evaluacion de calidad de recuperacion semantica.
-Activar al: delegar analisis documental masivo, construir pipelines RAG, gestionar colecciones vectoriales o evaluar recuperacion semantica.
-
-**aiops-engineer**
-Agente de mantenimiento del propio nucleo ai-core. Audita la coherencia de los skills, analiza nuevas capacidades del ecosistema Anthropic y propone mejoras. Nunca modifica el nucleo sin confirmacion humana explicita.
-Activar al: auditar el estado del ai-core o proponer actualizaciones de skills.
-
-**qa-engineer**
-Especialista en estrategia de testing, piramide de calidad y contract testing. Agnostico al framework: deduce la herramienta de los manifiestos del anfitrion (Jest, Pytest, Vitest, Go testing, JUnit, etc.).
-Activar al: definir estrategia de tests, evaluar cobertura, implementar contract testing, diagnosticar regresiones o auditar la calidad de los tests de un PR.
-
-**security-auditor**
-Especialista en seguridad de aplicaciones. Cubre auditoria de dependencias por severidad CVE, OWASP Top 10 por capa, modelado de amenazas STRIDE, headers HTTP de seguridad, gestion de secretos y protocolo de remediacion ante secreto expuesto en historial Git.
-Activar al: auditar seguridad de una capa, revisar dependencias con CVEs, configurar politicas de seguridad HTTP, detectar secretos hardcodeados o evaluar requisitos de compliance.
-
-**devops-infra**
-Especialista en infraestructura como codigo y observabilidad. Cubre aprovisionamiento con IaC (Terraform, Pulumi, CloudFormation, Helm), Kubernetes, gestion de secretos en contenedores y los tres pilares de observabilidad (metricas, trazas, logs estructurados).
-Activar al: disenar o modificar infraestructura, configurar observabilidad, gestionar secretos en Kubernetes o definir estrategias de despliegue en contenedores.
-
-**ai-integrations**
-Especialista en integracion de LLMs en aplicaciones de produccion. Cubre el patron LLM Gateway para abstraer proveedores (Claude, Gemini, OpenAI), gestion de costos por token con logging obligatorio, prompt versioning con evaluacion antes de promover, streaming con contrato de eventos, fallback con circuit breaker entre proveedores, manejo de rate limits y defensa contra prompt injection. Agnostico al proveedor.
-Activar al: integrar un LLM como feature de producto, disenar endpoints de IA, gestionar costos de inferencia, versionar prompts en produccion, implementar streaming o evaluar outputs de LLM.
-
-**claude-agent-sdk**
-Especialista en construccion de agentes autonomos con el Claude Agent SDK (TypeScript/Python). Cubre herramientas integradas (bash, text_editor, browser, computer use, web_search_20250305), hooks de ciclo de vida pre/post tool call para auditoria y control, composicion de subagentes con roles diferenciados, integracion de servidores MCP, gestion de permisos por herramienta (minimo privilegio), observabilidad con OpenTelemetry y sesiones persistentes multi-turno.
-Activar al: construir un agente personalizado con el Agent SDK, orquestar subagentes, definir hooks de validacion o logging, integrar MCP en el ciclo del agente, instrumentar observabilidad de agente o disenar flujos de automatizacion con Claude.
-
-**mcp-server-builder**
-Especialista en construccion del lado servidor del protocolo MCP. Cubre el ciclo de vida (initialize, tools/list, tools/call), transportes stdio y Streamable HTTP, las tres primitivas del protocolo (Tools, Resources y Prompts), definicion de herramientas con JSON Schema, seguridad de inputs, autenticacion OAuth 2.0 en servidores remotos, gestion de secretos y testing con MCP Inspector.
-Activar al: construir un servidor MCP propio, exponer herramientas, recursos o prompt templates a Claude, elegir entre stdio y Streamable HTTP, o revisar la seguridad y la autenticacion de un servidor MCP existente.
-
-**data-engineer**
-Especialista en ingenieria de datos. Cubre Medallion Architecture (Bronze/Silver/Gold), transformacion con dbt (modelos, snapshots, tests declarativos, materializations), orquestacion con Airflow, Dagster y Prefect, calidad de datos con Great Expectations y Soda Core, Data Contracts con openDataContract y linaje con OpenLineage/Marquez. Agnostico al stack.
-Activar al: disenar pipelines de ingesta o transformacion, modelar capas de un data warehouse o lakehouse, establecer contratos de calidad entre productores y consumidores de datos, configurar validaciones de calidad o instrumentar linaje de datos.
-
-**llm-evals**
-Especialista en evaluacion sistematica de outputs de LLM. Cubre diseno de golden datasets, metricas automatizadas (faithfulness, answer relevancy, hallucination rate), LLM-as-judge, integracion de evals en CI/CD y frameworks de evaluacion (deepeval, promptfoo, RAGAS). Mide la calidad de sistemas RAG y detecta regresiones antes del despliegue.
-Activar al: disenar un pipeline de evals, medir la calidad de un sistema RAG, comparar versiones de prompt o modelos, detectar regresiones de calidad o integrar un gate de calidad de IA en el pipeline de CI/CD.
-
-**ai-guardrails**
-Especialista en capas de proteccion para sistemas LLM en produccion. Cubre deteccion de prompt injection, validacion de outputs, deteccion de PII, rate limiting por usuario, patron LLM Firewall y seleccion de frameworks (NeMo Guardrails, Guardrails AI, Azure AI Content Safety).
-Activar al: disenar la capa de proteccion de un endpoint LLM expuesto a usuarios externos, implementar filtros de input/output o integrar guardrails con la observabilidad LLM.
+Para ver los skills activos: `ls .claude/skills/`
 
 ---
 
