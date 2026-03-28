@@ -359,11 +359,19 @@ Archivo: `.claude/skills/mcp-server-builder/SKILL.md`
 
 ### llm-evals
 
-Especialista en evaluacion sistematica de outputs de LLM. Cubre diseno de golden datasets, metricas automatizadas (faithfulness, answer relevancy, hallucination rate), LLM-as-judge, integracion de evals en CI/CD y frameworks de evaluacion (deepeval, promptfoo, RAGAS). Mide la calidad de sistemas RAG y detecta regresiones antes del despliegue.
+Especialista en evaluacion sistematica de outputs de LLM. Cubre diseno de golden datasets, metricas automatizadas (faithfulness, answer relevancy, hallucination rate), LLM-as-judge, integracion de evals en CI/CD y frameworks de evaluacion (deepeval, promptfoo, RAGAS, Langfuse, Braintrust). Mide la calidad de sistemas RAG y detecta regresiones antes del despliegue.
 
 Activar al: disenar un pipeline de evals, medir la calidad de un sistema RAG, comparar versiones de prompt o modelos, detectar regresiones de calidad o integrar un gate de calidad de IA en el pipeline de CI/CD.
 
 Archivo: `.claude/skills/llm-evals/SKILL.md`
+
+### llm-observability
+
+Especialista en observabilidad de sistemas LLM en produccion. Cubre instrumentacion con OpenTelemetry y los semantic conventions `gen_ai.*`, dashboards de costo por operacion, alertas de degradacion de calidad, tracing de prompts y completions, y plataformas de observabilidad IA (Langfuse self-hosted, Helicone, Phoenix by Arize). Complementa `ai-integrations` (integracion del LLM) y `llm-evals` (evaluacion de calidad): observabilidad es la capa entre ambos.
+
+Activar al: instrumentar un sistema LLM con trazabilidad de produccion, configurar dashboards de costo y latencia, definir alertas de degradacion, elegir una plataforma de observabilidad IA o diagnosticar un incidente de calidad en produccion.
+
+Archivo: `.claude/skills/llm-observability/SKILL.md`
 
 ### prompt-engineer
 

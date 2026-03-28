@@ -1,8 +1,8 @@
 ---
 name: especialista-rag
-description: Gestor de Misiones para el Gemini Bridge. Redacta ordenes de mision de alta precision y define el esquema JSON/Markdown exacto de respuesta. Activa al delegar analisis documental masivo, construir pipelines RAG o evaluar recuperacion semantica.
+description: Gestor de Misiones para el Gemini Bridge y especialista en pipelines RAG. Cubre Hybrid Search (BM25+dense+RRF), Contextual Retrieval, re-ranking con cross-encoders y Files API como complemento al bridge. Activa al delegar analisis documental masivo, construir o mejorar pipelines RAG, o evaluar calidad de recuperacion semantica.
 origin: ai-core
-version: 1.1.0
+version: 1.2.0
 last_updated: 2026-03-28
 ---
 
@@ -211,6 +211,195 @@ El solapamiento no debe eliminarse para reducir el volumen de vectores. Su funci
   creado_en: <timestamp ISO 8601 de la ingestion>
 }
 ```
+
+## Tecnicas Avanzadas de Recuperacion
+
+### Hybrid Search (Busqueda Hibrida)
+
+La busqueda puramente vectorial falla en consultas de terminos exactos: nombres propios, identificadores de producto, codigos de error, siglas. La busqueda hibrida combina recuperacion densa (embeddings) con recuperacion lexica (BM25) y fusiona los rankings con Reciprocal Rank Fusion (RRF).
+
+Cuando usar Hybrid Search:
+- El corpus contiene terminos tecnicos, codigos o nombres propios que el modelo de embedding puede no capturar con fidelidad semantica.
+- Las consultas del usuario son frecuentemente de tipo lookup (buscar un termino especifico, no una idea).
+- La busqueda vectorial sola produce respuestas vacias o de baja precision en esos casos.
+
+Patron de implementacion con Qdrant (motor vectorial con soporte nativo de busqueda hibrida):
+
+```python
+from qdrant_client import QdrantClient
+from qdrant_client.models import SparseVector, NamedSparseVector, NamedVector
+
+cliente = QdrantClient(url="http://localhost:6333")
+
+# Busqueda densa (semantica) — usa el vector de embedding de la consulta
+resultados_densos = cliente.query_points(
+    collection_name="contratos",
+    query=vector_embedding_consulta,           # vector denso del embedding de la consulta
+    using="dense",
+    limit=20,
+)
+
+# Busqueda lexica (BM25) — usa el vector disperso del tokenizador BM25
+resultados_lexicos = cliente.query_points(
+    collection_name="contratos",
+    query=NamedSparseVector(
+        name="sparse",
+        vector=SparseVector(
+            indices=indices_bm25_consulta,     # indices de tokens presentes
+            values=pesos_bm25_consulta,        # pesos TF-IDF de cada token
+        ),
+    ),
+    using="sparse",
+    limit=20,
+)
+
+# Fusion via RRF (Reciprocal Rank Fusion)
+# Qdrant lo expone directamente via query_points con prefetch
+resultados_fusion = cliente.query_points(
+    collection_name="contratos",
+    prefetch=[
+        {"query": vector_embedding_consulta, "using": "dense", "limit": 20},
+        {"query": NamedSparseVector(...), "using": "sparse", "limit": 20},
+    ],
+    query={"fusion": "rrf"},  # RRF nativo de Qdrant
+    limit=10,
+)
+```
+
+Formula RRF para implementacion manual (si el motor vectorial no la incluye):
+
+```python
+def reciprocal_rank_fusion(listas_de_ids: list[list[str]], k: int = 60) -> list[str]:
+    scores: dict[str, float] = {}
+    for lista in listas_de_ids:
+        for rango, doc_id in enumerate(lista):
+            scores[doc_id] = scores.get(doc_id, 0.0) + 1.0 / (k + rango + 1)
+    return sorted(scores.keys(), key=lambda d: scores[d], reverse=True)
+```
+
+El parametro `k=60` es el valor de amortiguacion estandar de RRF. Valores mas bajos amplifican la diferencia entre el primer y el segundo resultado; valores mas altos la suavizan.
+
+### Contextual Retrieval (Recuperacion Contextual)
+
+Tecnica desarrollada por Anthropic. El problema que resuelve: un chunk extraido de su documento original pierde el contexto que lo hace interpretable. Un chunk que dice "la tasa de interes aplicable es del 12% anual" no es recuperable si la consulta es "cual es la tasa del contrato de prestamo con Empresa X", porque el chunk no menciona el tipo de documento ni el cliente.
+
+La solucion es generar un prefijo de contexto para cada chunk antes de almacenarlo, usando un LLM ligero (Haiku). El prefijo describe el documento de origen y la posicion del chunk dentro de el.
+
+```python
+import anthropic
+
+cliente_llm = anthropic.Anthropic()
+
+PROMPT_CONTEXTO = """Dado el siguiente documento:
+<document>
+{documento_completo}
+</document>
+
+El siguiente fragmento fue extraido de ese documento:
+<chunk>
+{chunk}
+</chunk>
+
+Genera un prefijo de contexto conciso (2-3 oraciones) que describa de que documento proviene este fragmento y que informacion del documento completo es necesaria para interpretar correctamente el fragmento. El prefijo se antepone al fragmento para mejorar su recuperacion semantica. No incluyas ninguna otra cosa ademas del prefijo."""
+
+def generar_contexto_chunk(documento_completo: str, chunk: str) -> str:
+    respuesta = cliente_llm.messages.create(
+        model="claude-haiku-4-5-20251001",  # modelo economico para procesamiento masivo
+        max_tokens=200,
+        system=[
+            {
+                "type": "text",
+                "text": documento_completo,
+                "cache_control": {"type": "ephemeral"},  # cachear el documento completo
+            }
+        ],
+        messages=[{"role": "user", "content": PROMPT_CONTEXTO.format(
+            documento_completo="[ver system]",
+            chunk=chunk,
+        )}],
+    )
+    return respuesta.content[0].text
+
+def chunk_con_contexto(documento_completo: str, chunk: str) -> str:
+    contexto = generar_contexto_chunk(documento_completo, chunk)
+    return f"{contexto}\n\n{chunk}"  # el chunk almacenado combina contexto + contenido original
+```
+
+El Prompt Caching sobre el `documento_completo` en el system es critico para viabilidad economica: en un documento de 50 paginas con 100 chunks, sin cache cada chunk paga el costo de ingestacion del documento completo. Con cache, solo el primer chunk lo paga; los 99 restantes lo leen desde cache al 10% del costo.
+
+Contextual Retrieval se combina con Hybrid Search. El contexto generado mejora la recuperacion semantica; BM25 mejora la recuperacion lexica. El pipeline completo con ambas tecnicas supera a la busqueda vectorial sola en precision y recall.
+
+### Re-ranking
+
+El retrieval de top-K chunks tiene precision limitada porque el modelo de embedding es bi-encoder: calcula la similitud entre la consulta y cada chunk por separado, sin modelar la interaccion directa entre ellos. Un cross-encoder (re-ranker) evalua la consulta y cada chunk de forma conjunta y produce un score mas preciso, a mayor costo computacional.
+
+La estrategia es two-stage: recuperar un conjunto amplio con el bi-encoder (top-20 o top-50) y luego re-rankear con el cross-encoder para seleccionar el top-K final (top-5 o top-10).
+
+```python
+from sentence_transformers import CrossEncoder
+
+# BGE-Reranker-v2-m3 es un modelo open-source de alto rendimiento
+reranker = CrossEncoder("BAAI/bge-reranker-v2-m3")
+
+def reranquear_chunks(consulta: str, chunks: list[str], top_k: int = 5) -> list[str]:
+    pares = [(consulta, chunk) for chunk in chunks]
+    scores = reranker.predict(pares)
+    clasificados = sorted(zip(chunks, scores), key=lambda x: x[1], reverse=True)
+    return [chunk for chunk, _ in clasificados[:top_k]]
+```
+
+Alternativa SaaS — Cohere Rerank API (sin infraestructura propia):
+
+```python
+import cohere
+
+cliente_cohere = cohere.Client(api_key="...")
+
+def reranquear_con_cohere(consulta: str, chunks: list[str], top_k: int = 5) -> list[str]:
+    respuesta = cliente_cohere.rerank(
+        model="rerank-v3.5",
+        query=consulta,
+        documents=chunks,
+        top_n=top_k,
+    )
+    return [chunks[r.index] for r in respuesta.results]
+```
+
+Cuando usar re-ranking:
+- La precision del top-5 del bi-encoder es insuficiente para el sistema (tasa de alucinaciones alta por chunks irrelevantes en el contexto del LLM).
+- El corpus es grande (>10.000 chunks) y la busqueda vectorial recupera mucho ruido.
+- La latencia adicional del re-ranker (50-200ms para top-20) es aceptable para el caso de uso.
+
+No usar re-ranking en flujos de tiempo real con restriccion de latencia estricta (<200ms end-to-end). En esos casos, priorizar la calidad del chunking y del modelo de embedding.
+
+## Files API como Complemento al Bridge
+
+La Files API de Anthropic permite subir documentos una vez y referenciarlos por `file_id` en multiples llamadas al LLM. En el contexto del especialista RAG, complementa al Gemini Bridge de forma especifica: el bridge procesa corpus para extraccion masiva y analisis estructural; la Files API optimiza la referencia a documentos recurrentes en flujos de generacion donde el mismo documento se consulta repetidamente.
+
+Criterio de decision:
+
+| Escenario | Herramienta recomendada |
+|---|---|
+| Analizar un archivo de codigo o documentacion por primera vez (extraccion estructural, mapa de dependencias) | Gemini Bridge (Regla 9) |
+| Mismo contrato consultado por multiples usuarios en paralelo durante la jornada | Files API (un upload, N referencias) |
+| Corpus de 50 documentos para una ingestion RAG masiva | Gemini Bridge con `--batch` |
+| Documento de referencia que el LLM necesita como contexto en cada llamada de un pipeline | Files API (el `file_id` se almacena en base de datos junto al `documento_id` del payload vectorial) |
+
+Integracion del `file_id` en el payload vectorial del chunk:
+
+```json
+{
+  "texto_fragmento": "<contenido del chunk>",
+  "documento_id": "contrato-2026-001",
+  "file_id_anthropic": "file_abc123",
+  "documento_titulo": "Contrato de prestamo Empresa X",
+  "posicion": 3,
+  "version_documento": "sha256:abc...",
+  "creado_en": "2026-03-28T10:00:00Z"
+}
+```
+
+El campo `file_id_anthropic` es opcional y solo se almacena cuando el documento fue subido via Files API para uso recurrente. Cuando el pipeline de generacion necesita adjuntar el documento completo al contexto del LLM (ademas de los chunks recuperados), referencia el `file_id` directamente sin re-subir el archivo.
 
 ## Evaluacion de Calidad del Pipeline RAG
 

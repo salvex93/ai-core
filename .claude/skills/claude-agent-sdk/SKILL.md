@@ -1,8 +1,8 @@
 ---
 name: claude-agent-sdk
-description: Especialista en construccion de agentes autonomos con el Claude Agent SDK (TypeScript/Python). Cubre herramientas integradas, hooks de ciclo de vida, subagentes, integracion MCP, gestion de permisos y sesiones. Activa al construir agentes personalizados, orquestar subagentes, integrar el Agent SDK en un proyecto anfitrion o disenar flujos de automatizacion con Claude.
+description: Especialista en construccion de agentes autonomos con el Claude Agent SDK (TypeScript/Python). Cubre herramientas integradas, hooks de ciclo de vida, subagentes, integracion MCP, OAuth 2.0 client flow (Authorization Code + PKCE) para servidores MCP remotos, gestion de permisos y sesiones. Activa al construir agentes personalizados, orquestar subagentes, integrar el Agent SDK en un proyecto anfitrion o disenar flujos de automatizacion con Claude.
 origin: ai-core
-version: 1.1.0
+version: 1.2.0
 last_updated: 2026-03-28
 ---
 
@@ -225,7 +225,7 @@ Los agentes autonomos en produccion requieren el mismo nivel de observabilidad q
 Instrumentar el ciclo de vida del agente con spans de OpenTelemetry permite correlacionar cada decision del modelo con las herramientas que invoco y los resultados que obtuvo.
 
 ```typescript
-import { trace, SpanStatusCode } from '@anthropic-ai/sdk/instrumentation'; // si el SDK lo expone
+import { trace, SpanStatusCode } from '@opentelemetry/api';
 import { NodeTracerProvider } from '@opentelemetry/sdk-trace-node';
 import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-http';
 
@@ -320,6 +320,142 @@ Una sesion del Agent SDK preserva el historial de mensajes y el estado de las he
 - El historial de sesion no debe incluir datos sensibles (PII, secretos) en texto plano.
 - Definir un TTL maximo de sesion para liberar recursos y evitar acumulacion de tokens en el contexto.
 - En sistemas multi-usuario, cada sesion debe estar aislada por identificador de usuario.
+
+## Consumo de Servidores MCP Remotos con OAuth 2.0
+
+Los servidores MCP accesibles via SSE/HTTP pueden requerir autenticacion OAuth 2.0 para proteger el acceso a herramientas que actuan sobre recursos del usuario (repositorios, calendarios, CRMs). El cliente MCP — en este caso el agente construido con el Agent SDK — implementa el flujo Authorization Code + PKCE como cliente OAuth.
+
+El flujo completo tiene cuatro pasos: obtencion de la URL de autorizacion, redireccion del usuario al proveedor de identidad, intercambio del codigo de autorizacion por tokens, y llamada autenticada al servidor MCP con el `access_token`.
+
+### Implementacion del flujo Authorization Code + PKCE (TypeScript)
+
+```typescript
+import crypto from 'crypto';
+
+// Paso 1 — Generar PKCE code_verifier y code_challenge
+function generarPKCE(): { verifier: string; challenge: string } {
+  const verifier = crypto.randomBytes(32).toString('base64url');
+  const challenge = crypto
+    .createHash('sha256')
+    .update(verifier)
+    .digest('base64url');
+  return { verifier, challenge };
+}
+
+// Paso 2 — Construir la URL de autorizacion
+function construirUrlAutorizacion(params: {
+  authorizationEndpoint: string;  // URL del endpoint de autorizacion del servidor MCP
+  clientId: string;
+  redirectUri: string;
+  scopes: string[];
+  codeChallenge: string;
+  state: string;                  // valor aleatorio para prevenir CSRF
+}): string {
+  const url = new URL(params.authorizationEndpoint);
+  url.searchParams.set('response_type', 'code');
+  url.searchParams.set('client_id', params.clientId);
+  url.searchParams.set('redirect_uri', params.redirectUri);
+  url.searchParams.set('scope', params.scopes.join(' '));
+  url.searchParams.set('code_challenge', params.codeChallenge);
+  url.searchParams.set('code_challenge_method', 'S256');
+  url.searchParams.set('state', params.state);
+  return url.toString();
+}
+
+// Paso 3 — Intercambiar el codigo de autorizacion por tokens
+async function intercambiarCodigo(params: {
+  tokenEndpoint: string;
+  clientId: string;
+  redirectUri: string;
+  code: string;
+  codeVerifier: string;
+}): Promise<{ accessToken: string; refreshToken?: string; expiresIn: number }> {
+  const respuesta = await fetch(params.tokenEndpoint, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: new URLSearchParams({
+      grant_type: 'authorization_code',
+      client_id: params.clientId,
+      redirect_uri: params.redirectUri,
+      code: params.code,
+      code_verifier: params.codeVerifier,
+    }),
+  });
+
+  if (!respuesta.ok) {
+    const error = await respuesta.json();
+    throw new Error(`Token exchange failed: ${error.error_description ?? error.error}`);
+  }
+
+  const tokens = await respuesta.json();
+  return {
+    accessToken: tokens.access_token,
+    refreshToken: tokens.refresh_token,
+    expiresIn: tokens.expires_in,
+  };
+}
+
+// Paso 4 — Conectar el agente al servidor MCP usando el access_token
+import Anthropic from '@anthropic-ai/sdk';
+
+const cliente = new Anthropic();
+
+async function ejecutarAgenteConMCPAutenticado(accessToken: string): Promise<void> {
+  const respuesta = await cliente.beta.messages.create({
+    model: 'claude-sonnet-4-6',
+    max_tokens: 4096,
+    tools: [
+      {
+        type: 'mcp',
+        server_label: 'mi-servidor-mcp',
+        server_url: 'https://mi-servidor-mcp.example.com/sse',
+        headers: {
+          Authorization: `Bearer ${accessToken}`,  // token incluido en cada llamada al servidor MCP
+        },
+      } as any,
+    ],
+    messages: [{ role: 'user', content: 'Ejecuta la tarea via el servidor MCP' }],
+  });
+}
+```
+
+### Almacenamiento y renovacion de tokens
+
+Los tokens OAuth son credenciales sensibles. Reglas de manejo obligatorio:
+
+- El `access_token` no se almacena en texto plano en base de datos. Usar el gestor de secretos del proveedor de nube (AWS Secrets Manager, GCP Secret Manager, Azure Key Vault) o el keychain del sistema operativo en entornos locales.
+- El `refresh_token` se almacena cifrado. Si el proveedor lo emite con TTL indefinido, tratarlo como secreto de larga duracion.
+- Implementar renovacion proactiva: refrescar el `access_token` cuando falten menos de 60 segundos para su expiracion (`expires_in` del token), no despues de recibir un error 401.
+
+```typescript
+async function refrescarToken(params: {
+  tokenEndpoint: string;
+  clientId: string;
+  refreshToken: string;
+}): Promise<{ accessToken: string; expiresIn: number }> {
+  const respuesta = await fetch(params.tokenEndpoint, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: new URLSearchParams({
+      grant_type: 'refresh_token',
+      client_id: params.clientId,
+      refresh_token: params.refreshToken,
+    }),
+  });
+
+  if (!respuesta.ok) {
+    // refresh_token expirado o revocado: relanzar el flujo completo de autorizacion
+    throw new Error('REFRESH_TOKEN_INVALID: requiere re-autorizacion del usuario');
+  }
+
+  const tokens = await respuesta.json();
+  return { accessToken: tokens.access_token, expiresIn: tokens.expires_in };
+}
+```
+
+### Condicion de activacion de la Directiva de Interrupcion para OAuth
+
+Si la integracion OAuth del servidor MCP actua en nombre de un usuario final (user-delegated access) y tiene scopes que permiten escritura o eliminacion sobre datos del usuario, agregar la condicion de confirmacion humana en el loop del agente antes de ejecutar cualquier herramienta destructiva. Un agente que obtiene tokens de usuario y los usa para actuar sin confirmacion es un riesgo de seguridad de nivel critico.
 
 ## Lista de Verificacion de Revision de Codigo — Agentes
 
