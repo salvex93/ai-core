@@ -57,8 +57,11 @@ El nucleo opera con una triada de modelos con roles fijos e inamovibles. Ningun 
 **Opus — Arquitecto bajo demanda (escalamiento explícito)**
 `claude-opus-4-6` se invoca EXCLUSIVAMENTE cuando se inserta la directiva de escalamiento. Nunca por defecto, nunca por comodidad. Su funcion es generar el plan de arquitectura de alta complejidad (OPUSPLAN) con adaptive thinking activado antes de que Sonnet proceda a la implementacion.
 
-**Gemini Bridge — Sub-agente explorador (ingesta masiva)**
-`gemini-2.5-flash` via `scripts/gemini-bridge.js` es el delegado obligatorio para toda lectura documental que supere los umbrales de la Regla 9 (>500 lineas / >50 KB). Preserva el context window de Sonnet al externalizar el procesamiento de corpus extensos.
+**Gemini Bridge — Router de analisis documental (dos niveles)**
+`scripts/gemini-bridge.js` es el delegado obligatorio para toda lectura documental que supere los umbrales de la Regla 9 (>500 lineas / >50 KB). Implementa un patron de fallback en dos niveles: intenta `gemini-2.5-flash` primero; si la cuota gratuita se agota, reintenta automaticamente con `claude-haiku-4-5-20251001`. El agente principal recibe el output sintetizado sin importar cual modelo lo proceso.
+
+**Haiku — Economizador bajo demanda (fallback LLM del Bridge)**
+`claude-haiku-4-5-20251001` es activado automaticamente por el Bridge cuando Gemini agota su cuota y `ANTHROPIC_API_KEY` esta configurada. Su costo por token es entre 15x y 20x menor que Sonnet. Es suficiente para extraccion estructural, clasificacion de patrones y sintesis de archivos de complejidad baja-media. No se invoca directamente por el agente principal — el Bridge lo gestiona de forma transparente.
 
 **Tabla de decision de enrutamiento:**
 
@@ -66,6 +69,7 @@ El nucleo opera con una triada de modelos con roles fijos e inamovibles. Ningun 
 Tarea de codigo, refactor, review, test, debug   -> Sonnet (default)
 Tarea ambigua o moderadamente compleja           -> Sonnet con Regla 13 (Duda Activa)
 Archivo o corpus > 500 lineas / 50 KB            -> Gemini Bridge (Regla 9)
+  Bridge: intenta Gemini -> si cuota agotada -> Haiku automaticamente
 Tarea que activa condicion de escalamiento       -> [ALERTA_ARQUITECTONICA: REQUIERE_OPUSPLAN]
                                                     Detener. Esperar plan de Opus.
                                                     Reanudar con Sonnet tras aprobacion.
@@ -150,20 +154,29 @@ El resultado es siempre JSON o Markdown estricto. El agente principal consume el
 
 El skill `especialista-rag` actua como Gestor de Misiones: formula las ordenes de mision con precision tecnica y define el esquema exacto de respuesta antes de invocar el bridge.
 
-**Circuit Breaker — Contingencia por cuota agotada:**
-Si el script `gemini-bridge.js` falla con un error de limite de cuota (HTTP 429, `RESOURCE_EXHAUSTED` o equivalente de la API gratuita), el agente DEBE ejecutar el siguiente protocolo en orden estricto:
-1. Abortar la delegacion al bridge sin reintentar.
-2. Notificar al usuario: `[BRAIN-SYNC DEGRADADO: cuota de Gemini agotada. Operando en modo local via Regla 14.]`
-3. Asumir la busqueda utilizando exclusivamente las herramientas de eficiencia de la Regla 14 (grep/find). No cargar archivos completos en el contexto.
-4. Reintentar la delegacion al bridge cada 5 tareas o al inicio de la siguiente sesion. Si la cuota se ha recuperado, restablecer el modo Brain-Sync sin notificacion adicional.
+**Circuit Breaker — Gestion de fallos del Bridge:**
+El script `gemini-bridge.js` gestiona el fallback internamente. Desde la perspectiva del agente principal, el protocolo es:
 
-Al iniciar sesion, verificar si existe `GEMINI_API_KEY` en el `.env` del proyecto anfitrion:
-- Variable presente con valor: Brain-Sync activo. Delegacion masiva habilitada.
-- Variable ausente o vacia: el nucleo opera en modo local. Notificar y continuar:
+1. Invocar el bridge con el comando estandar. El bridge intenta Gemini; si falla por cuota, reintenta con Haiku de forma transparente.
+2. Si el bridge termina con exit code 0: consumir el output. El campo `metadatos.modelo` indica cual modelo proceso la solicitud.
+3. Si el bridge termina con exit code 1 (error tecnico): notificar al usuario y bifurcar segun el tipo de tarea:
+   - Tarea de busqueda de patrones o localizacion de simbolos: usar herramientas de Regla 14 (grep/find). No cargar archivos completos.
+   - Tarea de razonamiento LLM sin disponibilidad de ninguno de los dos modelos: notificar y detener. `[BRAIN-SYNC NO DISPONIBLE: revisar GEMINI_API_KEY y ANTHROPIC_API_KEY en el .env.]`
+4. Si el bridge termina con exit code 2 (sin modelos configurados): ambas API keys estan ausentes. Operar en modo local (grep/find) hasta que el usuario configure al menos una.
+5. Reintentar el bridge al inicio de la siguiente sesion. Si la cuota de Gemini se ha recuperado, el bridge lo usara automaticamente sin intervencion.
+
+Al iniciar sesion, verificar las variables de entorno en el `.env` del proyecto anfitrion:
+
+| Estado | Comportamiento del Bridge |
+|---|---|
+| Solo `GEMINI_API_KEY` presente | Nivel 1 activo. Sin fallback si Gemini falla. |
+| Solo `ANTHROPIC_API_KEY` presente | Nivel 2 activo. Haiku como unico modelo. |
+| Ambas presentes | Configuracion optima: Gemini principal, Haiku como fallback. |
+| Ninguna presente | Bridge inoperativo. Modo local (Regla 14). Notificar: |
 
 ```
 Memoria externa (Brain-Sync): no configurada. El sistema opera en modo local.
-Para activarla, agregar GEMINI_API_KEY al archivo .env del proyecto anfitrion.
+Para activarla, agregar GEMINI_API_KEY y/o ANTHROPIC_API_KEY al .env del proyecto anfitrion.
 ```
 
 ### Regla 10 — UI/UX Pro Max (Frontend Excellence)
