@@ -6,7 +6,7 @@ El sistema es framework-agnostic por diseño. No asume Node.js, Python, Go ni ni
 
 Desde la version actual, el nucleo incorpora las siguientes capacidades:
 
-- **Brain-Sync Bridge con fallback inteligente**: analisis documental masivo enrutado primero a Gemini (gratuito) y automaticamente a Claude Haiku (economico) cuando la cuota de Gemini se agota. El agente principal recibe el resultado sin importar que modelo lo proceso.
+- **LLM Routing Bridge**: router de analisis documental en cascada. Haiku como Nivel 1 (primario, economico, alta disponibilidad) para archivos hasta 600K chars. Gemini como Nivel 2 (archivos masivos > 600K chars, ventana de 1M tokens). El agente principal recibe el resultado sin importar que nivel proceso la solicitud.
 - **Hook de sesion**: script `scripts/init-backlog.js` que garantiza la presencia del `BACKLOG.md` antes de iniciar cualquier sesion de trabajo.
 
 ---
@@ -48,16 +48,17 @@ Dependencias instaladas: `@google/generative-ai` (Gemini) y `@anthropic-ai/sdk` 
 Agregar al archivo `.env` del proyecto anfitrion:
 
 ```bash
-# Nivel 1 del router — Gemini 2.5 Flash (gratuito, alta capacidad de contexto).
+# Nivel 1 del router — Claude Haiku (primario, economico, alta disponibilidad).
+# Cubre archivos hasta 600K chars (~150K tokens). Es la misma clave que usa Claude Code.
+ANTHROPIC_API_KEY=<tu-api-key>
+
+# Nivel 2 del router — Gemini 2.5 Flash (archivos masivos > 600K chars).
+# Ventana de 1M tokens. Cuota preservada exclusivamente para corpus masivos.
 # Obtener en: https://aistudio.google.com/app/apikey
 GEMINI_API_KEY=<tu-api-key>
-
-# Nivel 2 del router — Claude Haiku (economico, fallback automatico cuando Gemini agota cuota).
-# Es la misma clave de API de Anthropic que usa Claude Code.
-ANTHROPIC_API_KEY=<tu-api-key>
 ```
 
-Configuracion minima recomendada: ambas claves presentes. Si solo se configura una, el Bridge opera con ese unico nivel sin fallback.
+Configuracion recomendada: ambas claves. Minimo viable: solo `ANTHROPIC_API_KEY` (Haiku cubre el 95%+ de los archivos que llegan al bridge).
 
 Agregar `.env` al `.gitignore` del proyecto anfitrion:
 
