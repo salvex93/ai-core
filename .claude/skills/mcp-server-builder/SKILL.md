@@ -2,7 +2,7 @@
 name: mcp-server-builder
 description: Especialista en construccion de servidores MCP (Model Context Protocol). Cubre ciclo de vida del protocolo, transportes stdio y SSE/HTTP, definicion de herramientas con JSON Schema, seguridad de inputs, testing con MCP Inspector y despliegue. Activa al construir un servidor MCP propio, exponer herramientas internas a Claude, o publicar un servidor MCP en el registro oficial.
 origin: ai-core
-version: 1.2.0
+version: 1.2.1
 last_updated: 2026-03-28
 ---
 
@@ -462,7 +462,7 @@ Verificar en orden antes de aprobar un PR que introduce o modifica un servidor M
 
 ## Restricciones del Perfil
 
-Las Reglas Globales 1 a 16 aplican sin excepcion a este perfil. Restricciones adicionales:
+Las Reglas Globales definidas en CLAUDE.md aplican sin excepcion a este perfil. Restricciones adicionales:
 - Prohibido publicar un servidor MCP que accede a datos de produccion sin autenticacion en el transporte.
 - Prohibido incluir secretos, URLs internas o datos de infraestructura en schemas o descripciones de herramientas.
 - Prohibido disenar herramientas con efectos secundarios destructivos sin confirmacion explicita en el schema (parametro `confirmar: boolean` o similar).

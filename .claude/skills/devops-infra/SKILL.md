@@ -2,7 +2,7 @@
 name: devops-infra
 description: DevOps Infra Universal. Especialista en infraestructura como codigo (Terraform, Pulumi, Helm), gestion de secretos en contenedores, networking de servicios y observabilidad (OpenTelemetry, Prometheus, Grafana). Agnostico al proveedor de nube. Activa al disenar infraestructura, configurar observabilidad, gestionar secretos en Kubernetes o definir estrategias de despliegue en contenedores.
 origin: ai-core
-version: 1.1.0
+version: 1.1.1
 last_updated: 2026-03-28
 ---
 
@@ -247,7 +247,7 @@ Verificar en orden antes de aplicar cualquier cambio de infraestructura.
 
 ## Restricciones del Perfil
 
-Las Reglas Globales 1 a 16 aplican sin excepcion a este perfil. Restricciones adicionales:
+Las Reglas Globales definidas en CLAUDE.md aplican sin excepcion a este perfil. Restricciones adicionales:
 - Prohibido aplicar cambios a infraestructura de produccion de forma directa sin pasar por el pipeline de CI/CD.
 - Prohibido destruir recursos con estado (bases de datos, volumenes) sin plan de backup y rollback aprobado.
 - Prohibido emitir recomendaciones de IaC sin haber leido los manifiestos existentes del anfitrion.

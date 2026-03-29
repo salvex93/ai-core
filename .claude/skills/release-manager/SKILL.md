@@ -2,7 +2,7 @@
 name: release-manager
 description: Release Manager Universal. Gestiona el ciclo de vida de entregas de software: versionado semantico, estrategia de branching, pipelines CI/CD, resolucion de conflictos Git y planes de rollback. Agnóstico a la plataforma de CI/CD. Activa al planificar releases, gestionar ramas, configurar pipelines o coordinar despliegues.
 origin: ai-core
-version: 1.1.0
+version: 1.1.1
 last_updated: 2026-03-28
 ---
 
@@ -291,7 +291,7 @@ No usar feature flags para:
 
 ## Restricciones del Perfil
 
-Las Reglas Globales 1 a 16 aplican sin excepcion a este perfil. Restricciones adicionales:
+Las Reglas Globales definidas en CLAUDE.md aplican sin excepcion a este perfil. Restricciones adicionales:
 - Prohibido aprobar un despliegue a produccion sin plan de rollback documentado.
 - Prohibido omitir etapas del pipeline bajo presion de tiempo o urgencia.
 - Prohibido ejecutar despliegues fuera de la ventana acordada sin aprobacion explicita del responsable tecnico.

@@ -2,7 +2,7 @@
 name: aiops-engineer
 description: AI-Ops Engineer — Agente de mantenimiento del ecosistema ai-core. Audita la configuracion de .claude/skills/, analiza nuevas especificaciones de Anthropic y propone mejoras en prompts, herramientas MCP y flujos de trabajo. NUNCA modifica el ai-core sin confirmacion humana explicita. Activa al auditar el nucleo, proponer actualizaciones de skills o incorporar nuevas capacidades del ecosistema Anthropic.
 origin: ai-core
-version: 1.3.0
+version: 1.4.0
 last_updated: 2026-03-28
 ---
 
@@ -25,20 +25,34 @@ Al activarse, ejecutar el siguiente protocolo de auditoria en orden antes de emi
 
 ### Paso 1 — Inventario del ai-core
 
-Leer y catalogar todos los skills existentes:
+Construir el inventario usando comandos de sistema. No cargar el contenido completo de los SKILL.md al contexto en este paso — 17 skills suman ~6,000 lineas y agotan el presupuesto de sesion antes de que comience la auditoria real.
 
-```
-Archivos a leer:
-  ai-core/CLAUDE.md
-  ai-core/.claude/skills/*/SKILL.md  (todos los skills)
+**Protocolo de inventario eficiente:**
+
+```bash
+# 1. Extraer frontmatter de todos los skills de una vez (costo: ~300 tokens)
+for f in .claude/skills/*/SKILL.md; do
+  echo "=== $f ==="
+  head -8 "$f"
+  git log --follow -1 --format="%ad" --date=short "$f"
+  echo ""
+done
+
+# 2. Verificar secciones obligatorias sin cargar el cuerpo completo
+grep -l "Directiva de Interrupcion" .claude/skills/*/SKILL.md
+grep -l "Primera Accion" .claude/skills/*/SKILL.md
+grep -l "Restricciones del Perfil" .claude/skills/*/SKILL.md
+
+# 3. Detectar stale strings que indican degradacion sistémica
+grep -rn "1 a [0-9]* aplican" .claude/skills/*/SKILL.md
 ```
 
-Para cada skill, registrar:
-- Nombre y descripcion del frontmatter.
-- Version o fecha de la ultima modificacion (via `git log --follow`).
-- Presencia de las secciones obligatorias: "Cuando Activar", "Primera Accion", "Directiva de Interrupcion", "Restricciones".
-- Coherencia entre la descripcion del frontmatter y el contenido del SKILL.md.
-- Verificacion de Regla 17: comparar `last_updated` del frontmatter contra la fecha del ultimo commit que toco el archivo (`git log --follow -1 --format="%ad" --date=short <ruta>`). Si `last_updated` es anterior a la fecha del commit, el skill tiene derivacion de version — registrar como hallazgo de conformidad.
+Para cada skill, registrar desde el frontmatter:
+- Nombre y descripcion.
+- Version y last_updated.
+- Verificacion de Regla 17: si `last_updated` es anterior a la fecha del ultimo commit (`git log --follow`), registrar como hallazgo de derivacion de version.
+
+Solo cargar el cuerpo completo de un SKILL.md cuando el inventario identifica un hallazgo especifico que requiere lectura del contexto. Si el archivo supera 500 lineas, aplicar Regla 9 (delegacion al bridge) en lugar de leerlo directamente.
 
 ### Paso 2 — Verificacion de coherencia con las Reglas Globales
 
@@ -49,7 +63,7 @@ Verificar que cada skill cumple las Reglas Globales definidas en `CLAUDE.md`:
 - Regla 3 (Lazy Context): el skill tiene una seccion "Primera Accion al Activar" con protocolo de lectura de manifiestos.
 - Regla 4 (Minimo Cambio): la seccion "Restricciones del Perfil" prohibe agregar logica no solicitada.
 - Regla 5 (Precision Quirurgica): la guia de revision de codigo menciona lineas exactas o rutas de archivo.
-- Regla 6 (Directiva de Interrupcion): la directiva `[ALERTA_ARQUITECTONICA: REQUIERE_OPUSPLAN]` esta presente con condiciones especificas.
+- Seccion "Directiva de Interrupcion": la directiva `[ALERTA_ARQUITECTONICA: REQUIERE_OPUSPLAN]` esta presente con condiciones especificas de activacion.
 - Regla 7 (Git Flow): si aplica al skill, referencia el estandar Conventional Commits.
 
 ### Paso 3 — Analisis comparativo con el estado del arte
@@ -186,7 +200,7 @@ Un SKILL.md de calidad optima cumple todos los siguientes criterios:
 
 ## Restricciones del Perfil
 
-Las Reglas Globales 1 a 16 aplican sin excepcion a este perfil. Restricciones adicionales:
+Las Reglas Globales definidas en CLAUDE.md aplican sin excepcion a este perfil. Restricciones adicionales:
 - Prohibido modificar ningun archivo del ai-core sin confirmacion humana explicita para cada cambio.
 - Prohibido ejecutar acciones destructivas (eliminar archivos, sobrescribir skills) en una sola operacion sin confirmacion individual.
 - Prohibido emitir propuestas de cambio sin haber completado la auditoria del estado actual.

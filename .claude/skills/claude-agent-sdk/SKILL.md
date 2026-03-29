@@ -2,7 +2,7 @@
 name: claude-agent-sdk
 description: Especialista en construccion de agentes autonomos con el Claude Agent SDK (TypeScript/Python). Cubre herramientas integradas, hooks de ciclo de vida, subagentes, integracion MCP, OAuth 2.0 client flow (Authorization Code + PKCE) para servidores MCP remotos, gestion de permisos y sesiones. Activa al construir agentes personalizados, orquestar subagentes, integrar el Agent SDK en un proyecto anfitrion o disenar flujos de automatizacion con Claude.
 origin: ai-core
-version: 1.3.0
+version: 1.3.1
 last_updated: 2026-03-28
 ---
 
@@ -541,7 +541,7 @@ async function agenteConInterleavedThinking(tarea: string) {
 
 ## Restricciones del Perfil
 
-Las Reglas Globales 1 a 16 aplican sin excepcion a este perfil. Restricciones adicionales:
+Las Reglas Globales definidas en CLAUDE.md aplican sin excepcion a este perfil. Restricciones adicionales:
 - Prohibido construir agentes con herramientas destructivas sin hook de confirmacion humana en el loop.
 - Prohibido disenar sistemas multi-agente sin aislamiento de permisos entre el orquestador y los subagentes.
 - Prohibido omitir la condicion de parada en cualquier agente que ejecute herramientas de escritura o eliminacion.

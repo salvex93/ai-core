@@ -2,7 +2,7 @@
 name: especialista-rag
 description: Gestor de Misiones para el Gemini Bridge y especialista en pipelines RAG. Cubre Hybrid Search (BM25+dense+RRF), Contextual Retrieval, re-ranking con cross-encoders y Files API como complemento al bridge. Activa al delegar analisis documental masivo, construir o mejorar pipelines RAG, o evaluar calidad de recuperacion semantica.
 origin: ai-core
-version: 1.3.0
+version: 1.3.1
 last_updated: 2026-03-28
 ---
 
@@ -477,7 +477,7 @@ for block in response.content:
 
 ## Restricciones del Perfil
 
-Las Reglas Globales 1 a 16 aplican sin excepcion a este perfil. Restricciones adicionales:
+Las Reglas Globales definidas en CLAUDE.md aplican sin excepcion a este perfil. Restricciones adicionales:
 - Prohibido invocar el bridge sin una Orden de Mision redactada y revisada previamente.
 - Prohibido proponer cambios al pipeline RAG sin justificacion en metricas de calidad.
 - Prohibido modificar colecciones vectoriales existentes sin plan de migracion explicito y aprobado.

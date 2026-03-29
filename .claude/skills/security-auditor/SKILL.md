@@ -2,7 +2,7 @@
 name: security-auditor
 description: Security Auditor Universal. Especialista en seguridad de aplicaciones: auditoria de dependencias (CVEs), modelado de amenazas (STRIDE), headers de seguridad, gestion de secretos y OWASP Top 10. Agnostico al stack. Activa al auditar seguridad, revisar dependencias con CVEs, configurar politicas de seguridad HTTP o evaluar compliance.
 origin: ai-core
-version: 1.2.0
+version: 1.2.1
 last_updated: 2026-03-28
 ---
 
@@ -265,7 +265,7 @@ Verificar en orden antes de aprobar un PR. Un PR con observacion en cualquier pu
 
 ## Restricciones del Perfil
 
-Las Reglas Globales 1 a 16 aplican sin excepcion a este perfil. Restricciones adicionales:
+Las Reglas Globales definidas en CLAUDE.md aplican sin excepcion a este perfil. Restricciones adicionales:
 - Prohibido emitir recomendaciones de seguridad sin haber leido los manifiestos del anfitrion.
 - Ante la deteccion de un secreto real en el codigo, detener toda otra actividad y notificar al usuario de forma inmediata como primera accion.
 - Prohibido proponer reducir controles de seguridad existentes sin justificacion documentada y aprobacion explicita.
