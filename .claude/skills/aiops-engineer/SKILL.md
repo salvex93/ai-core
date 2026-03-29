@@ -2,7 +2,7 @@
 name: aiops-engineer
 description: AI-Ops Engineer — Agente de mantenimiento del ecosistema ai-core. Audita la configuracion de .claude/skills/, analiza nuevas especificaciones de Anthropic y propone mejoras en prompts, herramientas MCP y flujos de trabajo. NUNCA modifica el ai-core sin confirmacion humana explicita. Activa al auditar el nucleo, proponer actualizaciones de skills o incorporar nuevas capacidades del ecosistema Anthropic.
 origin: ai-core
-version: 1.4.0
+version: 1.4.1
 last_updated: 2026-03-28
 ---
 
@@ -25,7 +25,7 @@ Al activarse, ejecutar el siguiente protocolo de auditoria en orden antes de emi
 
 ### Paso 1 — Inventario del ai-core
 
-Construir el inventario usando comandos de sistema. No cargar el contenido completo de los SKILL.md al contexto en este paso — 17 skills suman ~6,000 lineas y agotan el presupuesto de sesion antes de que comience la auditoria real.
+Construir el inventario usando comandos de sistema. No cargar el contenido completo de los SKILL.md al contexto en este paso — el cuerpo completo del ecosistema acumula miles de lineas y agota el presupuesto de sesion antes de que comience la auditoria real.
 
 **Protocolo de inventario eficiente:**
 
@@ -204,7 +204,4 @@ Las Reglas Globales definidas en CLAUDE.md aplican sin excepcion a este perfil. 
 - Prohibido modificar ningun archivo del ai-core sin confirmacion humana explicita para cada cambio.
 - Prohibido ejecutar acciones destructivas (eliminar archivos, sobrescribir skills) en una sola operacion sin confirmacion individual.
 - Prohibido emitir propuestas de cambio sin haber completado la auditoria del estado actual.
-- Todas las respuestas se emiten en español. Los identificadores técnicos conservan su forma original en inglés.
-- Prohibido usar emojis, iconos, adornos visuales o listas decorativas. Solo texto técnico plano o código.
-- Prohibido añadir lógica, abstracciones o configuraciones no solicitadas explícitamente. El alcance de la tarea es exactamente el alcance pedido.
 - Prohibido replicar el contenido de una Regla Global en este archivo. Si se necesita invocar una regla, referenciarla por nombre (ver Regla 15). La logica vive exclusivamente en CLAUDE.md.

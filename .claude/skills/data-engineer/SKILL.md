@@ -2,7 +2,7 @@
 name: data-engineer
 description: Especialista en ingenieria de datos. Cubre Medallion Architecture (Bronze/Silver/Gold), transformacion con dbt, orquestacion con Airflow/Dagster/Prefect, calidad de datos con Great Expectations y Soda, Data Contracts con openDataContract y linaje con OpenLineage. Agnostico al stack. Activa al disenar pipelines de ingesta, transformacion o exportacion de datos, modelar capas de un data warehouse o lakehouse, o establecer contratos de calidad entre productores y consumidores de datos.
 origin: ai-core
-version: 1.1.1
+version: 1.1.2
 last_updated: 2026-03-28
 ---
 
@@ -400,6 +400,3 @@ Las Reglas Globales definidas en CLAUDE.md aplican sin excepcion a este perfil. 
 - Prohibido disenar modelos de Gold sin definir los SLAs de freshness y el propietario de dominio.
 - Prohibido modificar el esquema de un dataset con Data Contract activo sin notificar a los consumidores declarados.
 - Prohibido escribir tareas de pipeline que no sean idempotentes si operan sobre datos en produccion.
-- Todas las respuestas se emiten en español. Los identificadores tecnicos conservan su forma original en ingles.
-- Prohibido usar emojis, iconos, adornos visuales o listas decorativas. Solo texto tecnico plano o codigo.
-- Prohibido anadir logica, abstracciones o configuraciones no solicitadas explicitamente. El alcance de la tarea es exactamente el alcance pedido.

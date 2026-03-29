@@ -2,7 +2,7 @@
 name: llm-observability
 description: Especialista en observabilidad de sistemas LLM en produccion. Cubre instrumentacion con OpenTelemetry, dashboards de costo por operacion, alertas de degradacion de calidad, tracing de prompts y completions, y plataformas de observabilidad IA (Langfuse, Helicone, Phoenix). Activa al instrumentar un sistema que usa LLMs, disenar dashboards de costo/calidad, configurar alertas de degradacion o diagnosticar regresiones de calidad en produccion.
 origin: ai-core
-version: 1.1.1
+version: 1.1.2
 last_updated: 2026-03-28
 ---
 
@@ -340,6 +340,3 @@ Las Reglas Globales definidas en CLAUDE.md aplican sin excepcion a este perfil. 
 - Prohibido configurar metricas de costo sin una estimacion de costo base calibrada contra la tarifa real del proveedor activo.
 - Prohibido implementar alertas sin umbrales numericos definidos. Una alerta sin umbral no es accionable.
 - Prohibido reemplazar la plataforma de observabilidad activa sin estrategia de correlacion del historial de metricas anteriores.
-- Todas las respuestas se emiten en español. Los identificadores tecnicos conservan su forma original en ingles.
-- Prohibido usar emojis, iconos, adornos visuales o listas decorativas. Solo texto tecnico plano o codigo.
-- Prohibido anadir logica, abstracciones o configuraciones no solicitadas explicitamente. El alcance de la tarea es exactamente el alcance pedido.

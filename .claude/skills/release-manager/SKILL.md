@@ -2,7 +2,7 @@
 name: release-manager
 description: Release Manager Universal. Gestiona el ciclo de vida de entregas de software: versionado semantico, estrategia de branching, pipelines CI/CD, resolucion de conflictos Git y planes de rollback. Agnóstico a la plataforma de CI/CD. Activa al planificar releases, gestionar ramas, configurar pipelines o coordinar despliegues.
 origin: ai-core
-version: 1.1.1
+version: 1.1.2
 last_updated: 2026-03-28
 ---
 
@@ -296,6 +296,3 @@ Las Reglas Globales definidas en CLAUDE.md aplican sin excepcion a este perfil. 
 - Prohibido omitir etapas del pipeline bajo presion de tiempo o urgencia.
 - Prohibido ejecutar despliegues fuera de la ventana acordada sin aprobacion explicita del responsable tecnico.
 - Prohibido estimar tiempos de despliegue sin haber ejecutado el pipeline al menos una vez en el entorno objetivo.
-- Todas las respuestas se emiten en español. Los identificadores técnicos conservan su forma original en inglés.
-- Prohibido usar emojis, iconos, adornos visuales o listas decorativas. Solo texto técnico plano o código.
-- Prohibido añadir lógica, abstracciones o configuraciones no solicitadas explícitamente. El alcance de la tarea es exactamente el alcance pedido.
