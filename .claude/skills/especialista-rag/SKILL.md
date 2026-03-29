@@ -1,14 +1,14 @@
 ---
 name: especialista-rag
-description: Gestor de Misiones para el Gemini Bridge y especialista en pipelines RAG. Cubre Hybrid Search (BM25+dense+RRF), Contextual Retrieval, re-ranking con cross-encoders y Files API como complemento al bridge. Activa al delegar analisis documental masivo, construir o mejorar pipelines RAG, o evaluar calidad de recuperacion semantica.
+description: Gestor de Misiones para el LLM Routing Bridge y especialista en pipelines RAG. Cubre Hybrid Search (BM25+dense+RRF), Contextual Retrieval, re-ranking con cross-encoders y Files API como complemento al bridge. Activa al delegar analisis documental masivo, construir o mejorar pipelines RAG, o evaluar calidad de recuperacion semantica.
 origin: ai-core
-version: 1.3.1
+version: 1.5.0
 last_updated: 2026-03-28
 ---
 
-# Especialista RAG — Gestor de Misiones (Gemini Bridge)
+# Especialista RAG — Gestor de Misiones (LLM Routing Bridge)
 
-Este perfil es el orquestador de contexto documental del ai-core. Su responsabilidad primaria es formular Ordenes de Mision de alta precision para el Gemini Bridge (`scripts/gemini-bridge.js`) y definir el esquema de respuesta exacto que el agente principal debe esperar. Tambien gobierna la arquitectura de los pipelines RAG y la calidad de recuperacion semantica.
+Este perfil es el orquestador de contexto documental del ai-core. Su responsabilidad primaria es formular Ordenes de Mision de alta precision para el LLM Routing Bridge (`scripts/gemini-bridge.js`) y definir el esquema de respuesta exacto que el agente principal debe esperar. Tambien gobierna la arquitectura de los pipelines RAG y la calidad de recuperacion semantica.
 
 ## Cuando Activar Este Perfil
 
@@ -23,6 +23,22 @@ Este perfil es el orquestador de contexto documental del ai-core. Su responsabil
 
 Al activarse, ejecutar el siguiente protocolo antes de emitir recomendaciones de contenido.
 
+### Paso 0 — Detectar el stack de vectorstore del proyecto anfitrion
+
+Antes de proponer cualquier componente de pipeline RAG, leer:
+
+1. `package.json` / `requirements.txt` / `pyproject.toml` — detectar librerias de vectorstore ya presentes:
+   - `pgvector` / `asyncpg` con extension `pgvector` — PostgreSQL como vectorstore
+   - `chromadb` — Chroma embebido o cliente
+   - `qdrant-client` — Qdrant
+   - `pinecone-client` / `pinecone` — Pinecone
+   - `weaviate-client` — Weaviate
+   - `langchain` / `llama-index` — framework que puede abstraer el vectorstore
+
+2. `.env.example` — detectar variables de conexion a vectorstores existentes (`PINECONE_API_KEY`, `QDRANT_URL`, `DATABASE_URL` con vectores, etc.).
+
+Si ya existe un vectorstore en el proyecto, proponer extensiones sobre el stack existente. No proponer migraciones a otro vectorstore sin justificacion tecnica explicita y sin verificar con el usuario.
+
 ### Paso 1 — Verificar disponibilidad del bridge
 
 Leer el archivo `.env` del repositorio anfitrion y buscar la variable `GEMINI_API_KEY`.
@@ -33,7 +49,7 @@ Si la variable no existe o esta vacia, notificar con el mensaje exacto:
 
 ```
 GEMINI_API_KEY no encontrada en el .env del proyecto anfitrion.
-Para habilitar el Gemini Bridge, agregar:
+Para habilitar el LLM Routing Bridge, agregar:
 
 GEMINI_API_KEY=<tu-api-key>
 
@@ -388,15 +404,15 @@ No usar re-ranking en flujos de tiempo real con restriccion de latencia estricta
 
 ## Files API como Complemento al Bridge
 
-La Files API de Anthropic permite subir documentos una vez y referenciarlos por `file_id` en multiples llamadas al LLM. En el contexto del especialista RAG, complementa al Gemini Bridge de forma especifica: el bridge procesa corpus para extraccion masiva y analisis estructural; la Files API optimiza la referencia a documentos recurrentes en flujos de generacion donde el mismo documento se consulta repetidamente.
+La Files API de Anthropic permite subir documentos una vez y referenciarlos por `file_id` en multiples llamadas al LLM. En el contexto del especialista RAG, complementa al LLM Routing Bridge de forma especifica: el bridge procesa corpus para extraccion masiva y analisis estructural; la Files API optimiza la referencia a documentos recurrentes en flujos de generacion donde el mismo documento se consulta repetidamente.
 
 Criterio de decision:
 
 | Escenario | Herramienta recomendada |
 |---|---|
-| Analizar un archivo de codigo o documentacion por primera vez (extraccion estructural, mapa de dependencias) | Gemini Bridge (Regla 9) |
+| Analizar un archivo de codigo o documentacion por primera vez (extraccion estructural, mapa de dependencias) | LLM Routing Bridge (Regla 9) |
 | Mismo contrato consultado por multiples usuarios en paralelo durante la jornada | Files API (un upload, N referencias) |
-| Corpus de 50 documentos para una ingestion RAG masiva | Gemini Bridge con `--batch` |
+| Corpus de 50 documentos para una ingestion RAG masiva | LLM Routing Bridge con `--batch` |
 | Documento de referencia que el LLM necesita como contexto en cada llamada de un pipeline | Files API (el `file_id` se almacena en base de datos junto al `documento_id` del payload vectorial) |
 
 Integracion del `file_id` en el payload vectorial del chunk:

@@ -2,7 +2,7 @@
 name: osint-investigator
 description: Especialista en OSINT (Open Source Intelligence) y hacking etico. Cubre metodologia de reconocimiento pasivo y activo, herramientas gratuitas y open source (theHarvester, Recon-ng, SpiderFoot, Maltego CE, Shodan), scripting en Python para automatizacion de recoleccion, Google Dorks, analisis de metadatos y construccion de pipelines de investigacion. Enfoque en inteligencia de fuentes abiertas dentro del marco legal y etico. Activa al planificar operaciones de reconocimiento, desarrollar herramientas OSINT en Python, analizar superficies de ataque o investigar entidades en fuentes publicas.
 origin: ai-core
-version: 1.0.0
+version: 1.1.0
 last_updated: 2026-03-28
 ---
 
@@ -142,6 +142,23 @@ intitle:"index of" site:obj    Directorios con listado abierto
 "@objetivo.com" -site:objetivo  Emails del dominio en otras fuentes
 site:pastebin.com "objetivo.com" Menciones en paste sites
 ```
+
+### Herramienta Nativa de Busqueda Web (Claude Agent SDK)
+
+Cuando este perfil se activa dentro de un agente construido con el Claude Agent SDK, la herramienta `web_search` esta disponible de forma nativa sin necesidad de scripts externos. Es la opcion preferida para reconocimiento pasivo inicial porque no requiere configurar APIs de terceros y opera en el mismo ciclo de razonamiento del agente.
+
+Activar `web_search` para:
+- Enumeracion rapida de subdominios y presencia web de un objetivo.
+- Busqueda de empleados, perfiles publicos y presencia en redes sociales.
+- Verificacion de breaches conocidos en fuentes publicas (Have I Been Pwned sin API).
+- Google Dorks ejecutados directamente sin abrir un navegador.
+
+Limitaciones de `web_search` respecto a herramientas especializadas:
+- No accede a bases de datos de Shodan, Censys o GreyNoise directamente; para esos casos, usar sus APIs.
+- No resuelve DNS ni escanea puertos; para eso usar Subfinder, DNSx o nmap.
+- Los resultados dependen del indice del motor de busqueda; puede no ver infraestructura no indexada.
+
+Patron de uso combinado: usar `web_search` para la fase inicial de reconocimiento pasivo (enumeracion de superficie, Google Dorks, perfiles publicos), y delegar a scripts Python del arsenal cuando se necesita cobertura de fuentes especializadas o automatizacion de alto volumen.
 
 ## Scripting Python para OSINT
 
@@ -411,7 +428,7 @@ Herramientas y plataformas que se mantienen actualizadas por sus comunidades:
 
 ## Restricciones del Perfil
 
-Las Reglas Globales 1 a 17 aplican sin excepcion a este perfil. Restricciones adicionales:
+Las Reglas Globales definidas en CLAUDE.md aplican sin excepcion a este perfil. Restricciones adicionales:
 
 - Prohibido planificar o generar codigo para operaciones sobre objetivos sin scope y autorizacion documentados.
 - Prohibido recopilar informacion de individuos privados fuera del contexto de investigacion corporativa autorizada.
