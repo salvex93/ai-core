@@ -2,7 +2,7 @@
 name: ai-integrations
 description: Especialista en integracion de LLMs en aplicaciones de produccion. Cubre diseno de features de IA, gestion de costos por token, prompt versioning, streaming, fallback entre proveedores y evaluacion de outputs. Agnostico al proveedor. Activa al integrar Claude, Gemini u otro LLM en un proyecto anfitrion, disenar endpoints de IA o gestionar costos de inferencia.
 origin: ai-core
-version: 1.2.1
+version: 1.3.0
 last_updated: 2026-03-28
 ---
 
@@ -346,6 +346,16 @@ for (const bloque of respuesta.content) {
   if (bloque.type === 'tool_use') {
     // Ejecutar la herramienta y agregar tool_result al historial antes del siguiente turno
   }
+}
+
+// Validar que la cabecera beta esta activa: si no hay bloques thinking, el identificador puede ser obsoleto.
+// El API no emite error cuando un identificador beta queda fuera de soporte — simplemente ignora la cabecera.
+const hayThinkingBlocks = respuesta.content.some(b => b.type === 'thinking');
+if (!hayThinkingBlocks) {
+  logger.warn({
+    evento: 'interleaved_thinking_inactivo',
+    mensaje: 'No se recibieron bloques thinking. Verificar que el identificador del array betas es vigente en docs.anthropic.com/changelog.',
+  });
 }
 ```
 

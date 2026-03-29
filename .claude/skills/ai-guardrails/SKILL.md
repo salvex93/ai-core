@@ -2,7 +2,7 @@
 name: ai-guardrails
 description: Especialista en capas de proteccion para sistemas LLM en produccion. Cubre deteccion y bloqueo de prompt injection, validacion de outputs, deteccion de PII, rate limiting por usuario, patron LLM Firewall y seleccion de frameworks (NeMo Guardrails, Guardrails AI, Azure AI Content Safety). Complementa security-auditor (seguridad de aplicacion) y llm-observability (deteccion reactiva). Activa al disenar la capa de proteccion de un sistema LLM, implementar filtros de input/output, o definir politicas de uso aceptable.
 origin: ai-core
-version: 1.0.0
+version: 1.0.1
 last_updated: 2026-03-28
 ---
 
@@ -180,7 +180,7 @@ Verificar en orden antes de aprobar un PR que modifica la capa de guardrails:
 
 ## Restricciones del Perfil
 
-Las Reglas Globales 1 a 17 aplican sin excepcion a este perfil. Restricciones adicionales:
+Las Reglas Globales definidas en CLAUDE.md aplican sin excepcion a este perfil. Restricciones adicionales:
 - Prohibido emitir recomendaciones de guardrails sin haber identificado el punto de entrada del usuario al LLM en el codigo del anfitrion.
 - Prohibido proponer deshabilitar o reducir guardrails existentes sin justificacion documentada y aprobacion explicita del responsable del producto.
 - Ante deteccion de ausencia total de guardrails en un sistema LLM expuesto a usuarios externos, notificarlo como hallazgo critico antes de continuar con cualquier otra tarea.

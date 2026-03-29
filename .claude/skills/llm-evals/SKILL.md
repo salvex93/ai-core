@@ -2,7 +2,7 @@
 name: llm-evals
 description: Especialista en evaluacion sistematica de outputs de LLM. Cubre diseno de datasets de evaluacion, metricas automatizadas (faithfulness, answer relevancy, hallucination rate), LLM-as-judge, integracion de evals en CI/CD y frameworks de evaluacion (deepeval, promptfoo, RAGAS). Activa al disenar un pipeline de evals, detectar regresiones en calidad de outputs, evaluar cambios de modelo o prompt, o medir la calidad de un sistema RAG.
 origin: ai-core
-version: 1.1.1
+version: 1.2.0
 last_updated: 2026-03-28
 ---
 
@@ -87,6 +87,21 @@ Ante cualquiera de estas condiciones, insertar la directiva y detener. No emitir
 | Hallucination Rate | Porcentaje de respuestas con afirmaciones sin soporte en el contexto recuperado | < 5% |
 
 Un cambio que degrada cualquiera de estas metricas en mas de 5 puntos porcentuales requiere revision antes del despliegue.
+
+Alternativa nativa para Faithfulness: la Citations API de Anthropic (`claude-sonnet-4-6` y superiores) devuelve junto a cada fragmento de respuesta la cita exacta del documento fuente que lo respalda. Esto convierte la verificacion de faithfulness en una operacion determinista en lugar de una evaluacion LLM-as-judge sujeta a variabilidad. Cuando el sistema RAG usa Claude como modelo de generacion, usar Citations API como primera capa de verificacion antes de aplicar RAGAS o un juez LLM externo.
+
+```python
+# La respuesta incluye citas estructuradas: cada afirmacion tiene una referencia al chunk fuente
+respuesta = cliente.messages.create(
+    model="claude-sonnet-4-6",
+    messages=[{
+        "role": "user",
+        "content": [{"type": "document", "source": {"type": "text", "media_type": "text/plain", "data": chunk}, "citations": {"enabled": True}} for chunk in chunks_recuperados]
+        + [{"type": "text", "text": pregunta}]
+    }]
+)
+# Verificar que cada afirmacion en el output tiene una cita: ausencia de cita es un indicador de alucinacion
+```
 
 ### Para outputs de texto libre (LLM-as-judge)
 
