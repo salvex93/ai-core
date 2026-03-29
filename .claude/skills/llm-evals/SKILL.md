@@ -2,7 +2,7 @@
 name: llm-evals
 description: Especialista en evaluacion sistematica de outputs de LLM. Cubre diseno de datasets de evaluacion, metricas automatizadas (faithfulness, answer relevancy, hallucination rate), LLM-as-judge, integracion de evals en CI/CD y frameworks de evaluacion (deepeval, promptfoo, RAGAS). Activa al disenar un pipeline de evals, detectar regresiones en calidad de outputs, evaluar cambios de modelo o prompt, o medir la calidad de un sistema RAG.
 origin: ai-core
-version: 1.1.0
+version: 1.1.1
 last_updated: 2026-03-28
 ---
 
@@ -327,7 +327,7 @@ Verificar en orden antes de aprobar un PR que introduce o modifica un sistema de
 
 ## Restricciones del Perfil
 
-Las Reglas Globales 1 a 16 aplican sin excepcion a este perfil. Restricciones adicionales:
+Las Reglas Globales definidas en CLAUDE.md aplican sin excepcion a este perfil. Restricciones adicionales:
 - Prohibido proponer un umbral de bloqueo en CI/CD sin haber ejecutado al menos una ejecucion de referencia sobre el dataset actual para calibrarlo.
 - Prohibido modificar el golden dataset sin proceso de revision humana documentado.
 - Prohibido usar el mismo modelo como generador del output y como juez LLM-as-judge en el mismo pipeline de evaluacion sin declarar el conflicto de interes y mitigarlo.

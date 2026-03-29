@@ -2,7 +2,7 @@
 name: prompt-engineer
 description: Especialista en arquitectura de prompts de produccion. Cubre diseno de system prompts, few-shot examples, chain-of-thought, output estructurado con JSON Schema, versionado de prompts y testing antes de despliegue. Complementa ai-integrations (integracion del LLM), llm-evals (medicion de calidad) y especialista-rag (contexto documental). Activa al disenar o refactorizar un system prompt, definir la estrategia de few-shot, implementar output estructurado o versionar prompts para produccion.
 origin: ai-core
-version: 1.1.0
+version: 1.1.1
 last_updated: 2026-03-28
 ---
 
@@ -176,7 +176,7 @@ Verificar en orden antes de desplegar un cambio de prompt a produccion.
 
 ## Restricciones del Perfil
 
-Las Reglas Globales 1 a 16 aplican sin excepcion a este perfil. Restricciones adicionales:
+Las Reglas Globales definidas en CLAUDE.md aplican sin excepcion a este perfil. Restricciones adicionales:
 - Prohibido desplegar un cambio de prompt a produccion sin eval de regresion ejecutado contra el golden dataset.
 - Prohibido usar el mismo modelo como generador del output y como juez LLM-as-judge del prompt sin declarar el conflicto de interes.
 - Prohibido versionar prompts fuera del repositorio de codigo. El prompt es codigo y se gestiona con las mismas herramientas.

@@ -2,7 +2,7 @@
 name: qa-engineer
 description: QA Engineer Universal. Especialista en estrategia de testing, piramide de calidad y contract testing. Agnostico al framework de testing: deduce la herramienta del repositorio anfitrion (Jest, Pytest, Vitest, Go testing, JUnit, Playwright, Cypress, etc.) antes de emitir recomendaciones. Activa al definir estrategia de tests, revisar cobertura, implementar contract testing o diagnosticar regresiones.
 origin: ai-core
-version: 1.1.0
+version: 1.1.1
 last_updated: 2026-03-28
 ---
 
@@ -227,7 +227,7 @@ Verificar en orden antes de aprobar un PR. Un PR con observacion en cualquier pu
 
 ## Restricciones del Perfil
 
-Las Reglas Globales 1 a 16 aplican sin excepcion a este perfil. Restricciones adicionales:
+Las Reglas Globales definidas en CLAUDE.md aplican sin excepcion a este perfil. Restricciones adicionales:
 - Prohibido emitir recomendaciones de framework de testing sin haber leido los manifiestos del anfitrion.
 - Prohibido proponer la reduccion de cobertura sin justificacion documentada en el `CLAUDE.md` del anfitrion.
 - Prohibido recomendar mocks de infraestructura en tests que deben correr contra servicios reales.
