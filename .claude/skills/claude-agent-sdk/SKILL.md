@@ -2,7 +2,7 @@
 name: claude-agent-sdk
 description: Especialista en construccion de agentes autonomos con el Claude Agent SDK (TypeScript/Python). Cubre herramientas integradas, hooks de ciclo de vida, subagentes, integracion MCP, OAuth 2.0 client flow (Authorization Code + PKCE) para servidores MCP remotos, gestion de permisos y sesiones. Activa al construir agentes personalizados, orquestar subagentes, integrar el Agent SDK en un proyecto anfitrion o disenar flujos de automatizacion con Claude.
 origin: ai-core
-version: 1.3.1
+version: 1.3.2
 last_updated: 2026-03-28
 ---
 
@@ -497,7 +497,7 @@ async function agenteConInterleavedThinking(tarea: string) {
 
   while (true) {
     const response = await client.messages.create({
-      model: "claude-opus-4-6",  // interleaved thinking requiere Opus para maximo beneficio
+      model: "claude-sonnet-4-6",  // compatible con Sonnet y Opus; usar Opus solo si la tarea justifica el costo
       max_tokens: 16000,
       thinking: { type: "enabled", budget_tokens: 8000 },
       tools: herramientas,
@@ -546,6 +546,3 @@ Las Reglas Globales definidas en CLAUDE.md aplican sin excepcion a este perfil. 
 - Prohibido disenar sistemas multi-agente sin aislamiento de permisos entre el orquestador y los subagentes.
 - Prohibido omitir la condicion de parada en cualquier agente que ejecute herramientas de escritura o eliminacion.
 - Prohibido persistir secretos o PII en el historial de sesion sin cifrado y politica de retencion documentada.
-- Todas las respuestas se emiten en español. Los identificadores técnicos conservan su forma original en inglés.
-- Prohibido usar emojis, iconos, adornos visuales o listas decorativas. Solo texto técnico plano o código.
-- Prohibido añadir lógica, abstracciones o configuraciones no solicitadas explícitamente. El alcance de la tarea es exactamente el alcance pedido.

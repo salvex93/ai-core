@@ -2,7 +2,7 @@
 name: ai-integrations
 description: Especialista en integracion de LLMs en aplicaciones de produccion. Cubre diseno de features de IA, gestion de costos por token, prompt versioning, streaming, fallback entre proveedores y evaluacion de outputs. Agnostico al proveedor. Activa al integrar Claude, Gemini u otro LLM en un proyecto anfitrion, disenar endpoints de IA o gestionar costos de inferencia.
 origin: ai-core
-version: 1.3.0
+version: 1.4.0
 last_updated: 2026-03-28
 ---
 
@@ -243,10 +243,10 @@ Las siguientes capacidades de la API de Anthropic se activaron originalmente con
 | Capacidad | Cabecera beta original | Estado | Riesgo si se usa beta innecesariamente | Riesgo si se omite cuando es necesaria |
 |---|---|---|---|---|
 | Prompt Caching | `prompt-caching-2024-07-31` | Pendiente verificacion | Sin impacto funcional, cabecera ignorada en GA | Sin impacto si GA: `cache_control` funciona igual |
-| Messages Batches | `message-batches-2024-09-24` | Pendiente verificacion | Sin impacto funcional | Namespace `beta` incorrecto en GA rompe la llamada |
+| Messages Batches | `message-batches-2024-09-24` | GA confirmado 2025 | Sin impacto funcional | Namespace `beta` incorrecto en GA rompe la llamada |
 | Files API | `files-api-2025-04-14` | GA confirmado 2026 | Sin impacto funcional | Namespace `beta.files` vs `files` rompe la llamada en GA |
 | Token-efficient tools | `token-efficient-tools-2025-02-19` | GA confirmado 2026 | Sin impacto funcional | La optimizacion no aplica sin la cabecera; no es error critico |
-| Interleaved Thinking | `interleaved-thinking-2025-05-14` | Pendiente verificacion | Sin impacto funcional | La funcion no se activa; no hay error explicito |
+| Interleaved Thinking | `interleaved-thinking-2025-05-14` | VIGENTE (verificado ago-2025) — re-verificar si hay id posterior | Sin impacto funcional | La funcion no se activa; no hay error explicito |
 
 Patron dual-route para manejar la transicion beta->GA sin romper el codigo en produccion:
 
@@ -255,7 +255,7 @@ Patron dual-route para manejar la transicion beta->GA sin romper el codigo en pr
 const BETA_HEADERS: Record<string, string | undefined> = {
   // Establecer en undefined cuando se confirme GA para ese feature
   'prompt-caching': 'prompt-caching-2024-07-31',       // verificar GA en changelog
-  'message-batches': 'message-batches-2024-09-24',      // verificar GA en changelog
+  'message-batches': undefined,                          // GA confirmado 2025 — namespace client.messages.batches, sin cabecera beta
   'files-api': undefined,                               // GA confirmado 2026 — namespace client.files, sin cabecera beta
   'token-efficient-tools': undefined,                   // GA confirmado 2026 (Tool Search Tool / Programmatic Tool Calling)
 };
@@ -367,7 +367,7 @@ Reglas de uso:
 
 ## Messages Batches (Batch API)
 
-Nota de mantenimiento: la cabecera `anthropic-beta: message-batches-2024-09-24` puede haber sido promovida a GA. Si fue promovida, el cliente expone `client.messages.batches` sin necesidad de la cabecera y del namespace `beta`. Verificar en docs.anthropic.com/changelog antes de implementar en un proyecto nuevo.
+Messages Batches fue promovida a GA en 2025. El cliente expone `client.messages.batches` directamente sin cabecera beta ni namespace `beta`. No requiere configuracion adicional.
 
 La Batch API permite enviar hasta 10.000 solicitudes de inferencia en un unico lote. El procesamiento es asincrono con una ventana de hasta 24 horas. El costo por token se reduce un 50% respecto a las llamadas sincronas.
 
@@ -377,7 +377,7 @@ import Anthropic from '@anthropic-ai/sdk';
 const cliente = new Anthropic();
 
 // Crear el lote — cada item es una solicitud independiente
-const lote = await cliente.beta.messages.batches.create({
+const lote = await cliente.messages.batches.create({
   requests: [
     {
       custom_id: 'clasificacion-001',  // identificador propio para correlacionar resultados
@@ -389,23 +389,17 @@ const lote = await cliente.beta.messages.batches.create({
     },
     // ... hasta 10.000 items
   ],
-}, {
-  headers: { 'anthropic-beta': 'message-batches-2024-09-24' },
 });
 
 console.log('Lote creado:', lote.id);
 console.log('Estado inicial:', lote.processing_status); // 'in_progress'
 
 // Consultar el estado del lote (polling o webhook)
-const estadoActual = await cliente.beta.messages.batches.retrieve(lote.id, {
-  headers: { 'anthropic-beta': 'message-batches-2024-09-24' },
-});
+const estadoActual = await cliente.messages.batches.retrieve(lote.id);
 
 // Cuando processing_status === 'ended', descargar resultados
 if (estadoActual.processing_status === 'ended') {
-  for await (const resultado of await cliente.beta.messages.batches.results(lote.id, {
-    headers: { 'anthropic-beta': 'message-batches-2024-09-24' },
-  })) {
+  for await (const resultado of await cliente.messages.batches.results(lote.id)) {
     if (resultado.result.type === 'succeeded') {
       // resultado.custom_id correlaciona con el item original
       const texto = resultado.result.message.content[0].text;
@@ -616,6 +610,58 @@ Verificar en orden antes de aprobar un PR que integra un LLM.
 7. PII: si el output puede contener datos personales, existe una politica de retencion y borrado documentada.
 8. Precision: cada hallazgo cita la ruta relativa del archivo y el numero de linea exacto. Sin esta referencia, el hallazgo no es accionable.
 
+## Token Counting Previo a Llamadas Costosas
+
+Antes de enviar un mensaje con documentos extensos, historial largo o contexto variable al LLM, contar los tokens exactos via `/v1/messages/count_tokens` para evitar sobrecostos inesperados o errores por overflow de context window.
+
+```typescript
+import Anthropic from '@anthropic-ai/sdk';
+
+const cliente = new Anthropic();
+
+async function contarTokensAntesDeLlamar(
+  messages: Anthropic.MessageParam[],
+  systemPrompt: string
+): Promise<number> {
+  const resultado = await cliente.messages.countTokens({
+    model: 'claude-sonnet-4-6',
+    system: systemPrompt,
+    messages,
+  });
+  return resultado.input_tokens;
+}
+
+// Patron defensivo antes de una llamada con contexto variable
+const tokenCount = await contarTokensAntesDeLlamar(mensajes, systemPrompt);
+
+const CONTEXT_WINDOW = 200_000; // claude-sonnet-4-6
+const MAX_OUTPUT_TOKENS = 8_192;
+
+if (tokenCount + MAX_OUTPUT_TOKENS > CONTEXT_WINDOW) {
+  // Estrategia 1: truncar el historial mas antiguo
+  // Estrategia 2: resumir el contexto via llamada previa
+  // Estrategia 3: delegar al LLM Routing Bridge si es un documento grande (ver Regla 9)
+  throw new Error(`Contexto demasiado grande: ${tokenCount} tokens de entrada + ${MAX_OUTPUT_TOKENS} superan la ventana.`);
+}
+
+// Loguear en observabilidad para calibrar costos antes de facturacion real
+logger.info({ evento: 'token_count_pre_call', tokens: tokenCount, modelo: 'claude-sonnet-4-6' });
+
+const respuesta = await cliente.messages.create({
+  model: 'claude-sonnet-4-6',
+  max_tokens: MAX_OUTPUT_TOKENS,
+  system: systemPrompt,
+  messages: mensajes,
+});
+```
+
+Reglas de uso:
+- Activar este patron cuando el contexto de entrada es variable (historial de chat, documentos cargados por el usuario, resultados de herramientas acumulados).
+- No activar en llamadas con prompts fijos y conocidos: el costo de la llamada extra no se justifica si el tamano es predecible.
+- `countTokens` cuenta los tokens exactos del modelo objetivo, incluyendo el overhead del formato de mensajes. Es mas preciso que estimaciones por caracteres.
+- El resultado de `countTokens` no consume cuota de inferencia: es una operacion de solo lectura sobre el tokenizador.
+- Para la zona borderline del LLM Routing Bridge (400K-800K chars), usar `countTokens` en lugar de estimaciones de caracteres para la decision de enrutamiento exacta (ver Regla 6).
+
 ## Restricciones del Perfil
 
 Las Reglas Globales definidas en CLAUDE.md aplican sin excepcion a este perfil. Restricciones adicionales:
@@ -623,6 +669,3 @@ Las Reglas Globales definidas en CLAUDE.md aplican sin excepcion a este perfil. 
 - Prohibido incluir archivos completos en prompts sin pasar primero por el Gemini Bridge si superan 500 lineas.
 - Prohibido desplegar cambios de prompt en produccion sin ejecutar el conjunto de evaluacion documentado.
 - Prohibido omitir el logging de tokens en cualquier llamada a un LLM en produccion.
-- Todas las respuestas se emiten en español. Los identificadores técnicos conservan su forma original en inglés.
-- Prohibido usar emojis, iconos, adornos visuales o listas decorativas. Solo texto técnico plano o código.
-- Prohibido añadir lógica, abstracciones o configuraciones no solicitadas explícitamente. El alcance de la tarea es exactamente el alcance pedido.

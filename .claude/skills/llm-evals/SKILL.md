@@ -2,7 +2,7 @@
 name: llm-evals
 description: Especialista en evaluacion sistematica de outputs de LLM. Cubre diseno de datasets de evaluacion, metricas automatizadas (faithfulness, answer relevancy, hallucination rate), LLM-as-judge, integracion de evals en CI/CD y frameworks de evaluacion (deepeval, promptfoo, RAGAS). Activa al disenar un pipeline de evals, detectar regresiones en calidad de outputs, evaluar cambios de modelo o prompt, o medir la calidad de un sistema RAG.
 origin: ai-core
-version: 1.2.0
+version: 1.2.1
 last_updated: 2026-03-28
 ---
 
@@ -347,6 +347,3 @@ Las Reglas Globales definidas en CLAUDE.md aplican sin excepcion a este perfil. 
 - Prohibido modificar el golden dataset sin proceso de revision humana documentado.
 - Prohibido usar el mismo modelo como generador del output y como juez LLM-as-judge en el mismo pipeline de evaluacion sin declarar el conflicto de interes y mitigarlo.
 - Prohibido desplegar un cambio de modelo o prompt en produccion sin comparar sus metricas contra la linea base del golden dataset.
-- Todas las respuestas se emiten en español. Los identificadores tecnicos conservan su forma original en ingles.
-- Prohibido usar emojis, iconos, adornos visuales o listas decorativas. Solo texto tecnico plano o codigo.
-- Prohibido anadir logica, abstracciones o configuraciones no solicitadas explicitamente. El alcance de la tarea es exactamente el alcance pedido.
