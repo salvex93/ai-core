@@ -415,13 +415,13 @@ Activar al: disenar la capa de proteccion de un endpoint LLM expuesto a usuarios
 
 Archivo: `.claude/skills/ai-guardrails/SKILL.md`
 
-### osint-investigator
+### attack-surface-analyst
 
-Especialista en OSINT (Open Source Intelligence) y hacking etico. Cubre metodologia de reconocimiento pasivo y activo, herramientas gratuitas y open source (theHarvester, Recon-ng, SpiderFoot, Subfinder, Shodan, Censys, crt.sh), scripting en Python para automatizacion de recoleccion, Google Dorks, analisis de metadatos y construccion de pipelines de investigacion y grafos de entidades. Enfoque en inteligencia de fuentes abiertas dentro del marco legal y etico.
+Analista de superficie de ataque del propio producto en construccion. Adopta la perspectiva de un atacante externo para identificar exposicion no intencionada: subdominios y servicios expuestos, credenciales filtradas en repositorios, entradas DNS huerfanas con riesgo de takeover y endpoints indexados sin proteccion. Complementa a security-auditor (que audita el codigo interno) desde la perspectiva de lo visible desde internet sin acceso privilegiado.
 
-Activar al: planificar la fase de reconocimiento de un pentest o bug bounty autorizado, desarrollar herramientas OSINT en Python, analizar la superficie de ataque de una organizacion, investigar entidades en fuentes publicas o construir un pipeline de inteligencia multi-fuente.
+Activar al: mapear la superficie de ataque publica del propio producto, auditar el repositorio en busca de credenciales expuestas, detectar subdominios huerfanos, construir scripts Python de escaneo defensivo periodico o preparar la defensa ante un pentest o bug bounty.
 
-Archivo: `.claude/skills/osint-investigator/SKILL.md`
+Archivo: `.claude/skills/attack-surface-analyst/SKILL.md`
 
 ---
 
