@@ -348,6 +348,7 @@ ai-core/
         ├── ai-integrations/       SKILL.md
         ├── aiops-engineer/        SKILL.md
         ├── arquitecto-backend/    SKILL.md
+        ├── attack-surface-analyst/ SKILL.md
         ├── claude-agent-sdk/      SKILL.md
         ├── data-engineer/         SKILL.md
         ├── devops-infra/          SKILL.md
