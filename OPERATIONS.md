@@ -83,6 +83,58 @@ Ambos mecanismos son complementarios. Ninguno reemplaza al otro.
 
 ---
 
+### RAG Local via MCP Filesystem (alternativa offline)
+
+Para repositorios que requieren operar sin OAuth, sin dependencia de Google o en entornos air-gapped, el ecosistema soporta un RAG local montado sobre el directorio `docs/` del proyecto anfitrion mediante el servidor MCP `@modelcontextprotocol/server-filesystem`.
+
+**Cuando usar esta opcion en lugar de NotebookLM:**
+- El proyecto opera en red privada o sin acceso a servicios Google.
+- La documentacion es interna y no debe salir del repositorio.
+- Se prefiere un setup reproducible sin pasos manuales de configuracion de workspace.
+
+**Paso 1 — Crear el directorio de documentacion.**
+
+```bash
+mkdir docs
+```
+
+Depositar en `docs/` los archivos Markdown, PDF o texto plano que conforman la base de conocimiento del proyecto.
+
+**Paso 2 — Agregar DOCS_PATH al `.env` del proyecto anfitrion.**
+
+```
+DOCS_PATH=./docs
+```
+
+**Paso 3 — Configurar el servidor MCP en `.claude/settings.json` del proyecto anfitrion.**
+
+```json
+{
+  "mcpServers": {
+    "filesystem": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-filesystem", "./docs"]
+    }
+  }
+}
+```
+
+Sustituir `"./docs"` por el valor real de `DOCS_PATH` si difiere. El servidor expone herramientas de lectura (`read_file`, `list_directory`, `search_files`) que el agente puede invocar directamente desde el contexto activo.
+
+**Paso 4 — Verificar la configuracion.**
+
+```bash
+claude mcp list
+```
+
+La salida debe mostrar `filesystem` como servidor activo. Si aparece con error, verificar que `npx` este disponible en el PATH y que la ruta en `args` exista.
+
+**Distincion con NotebookLM:**
+- MCP filesystem: documentacion interna del proyecto, offline, versionada en Git.
+- NotebookLM: documentacion externa de referencia (APIs de terceros, RFCs, especificaciones), con recuperacion semantica avanzada.
+
+---
+
 ## Estructura del Repositorio
 
 ```
