@@ -247,7 +247,7 @@ Ubicacion: `.claude/skills/`. Cada skill se carga bajo demanda via `/skill <nomb
 
 | Skill | Activar al... |
 |---|---|
-| `arquitecto-backend` | Disenar APIs, modelar esquemas, migraciones, revisar queries, capa de repositorio |
+| `backend-architect` | Scaffolding de proyectos nuevos, disenar APIs, modelar esquemas, migraciones, revisar queries, capa de repositorio |
 | `tech-lead-frontend` | Arquitectura de componentes, estado, bundle, contrato API, accesibilidad |
 | `mobile-engineer` | Apps Flutter, state management (BLoC/Riverpod), navegacion, Firebase, mapas, graficos, builds Android/iOS |
 | `release-manager` | Releases, branching, CI/CD, despliegues, rollback |
