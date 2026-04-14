@@ -347,8 +347,8 @@ ai-core/
         ├── ai-guardrails/         SKILL.md
         ├── ai-integrations/       SKILL.md
         ├── aiops-engineer/        SKILL.md
-        ├── arquitecto-backend/    SKILL.md
         ├── attack-surface-analyst/ SKILL.md
+        ├── backend-architect/     SKILL.md
         ├── claude-agent-sdk/      SKILL.md
         ├── data-engineer/         SKILL.md
         ├── devops-infra/          SKILL.md
@@ -356,6 +356,7 @@ ai-core/
         ├── llm-evals/             SKILL.md
         ├── llm-observability/     SKILL.md
         ├── mcp-server-builder/    SKILL.md
+        ├── mobile-engineer/       SKILL.md
         ├── prompt-engineer/       SKILL.md
         ├── qa-engineer/           SKILL.md
         ├── release-manager/       SKILL.md
