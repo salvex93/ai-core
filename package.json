@@ -5,7 +5,8 @@
   "private": true,
   "scripts": {
     "init-backlog": "node scripts/init-backlog.js",
-    "gemini-bridge": "node scripts/gemini-bridge.js"
+    "gemini-bridge": "node scripts/gemini-bridge.js",
+    "query-backlog": "node scripts/query-backlog.js"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.39.0",
