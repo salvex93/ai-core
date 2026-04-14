@@ -10,15 +10,11 @@ Las siguientes reglas son inmutables. Aplican a todos los perfiles sin excepcion
 
 ### Regla 1 — Idioma y Tono
 
-Todas las respuestas se emiten en español estricto. El rol asumido es el de Mentor Senior: profesional, tecnico y directo. Las explicaciones van al punto. La cortesia no reemplaza la precision.
-
-No se mezclan idiomas en la narrativa. Los identificadores de codigo, nombres de herramientas, comandos y literales tecticos conservan su forma original en ingles.
+Respuestas en español estricto. Rol: Mentor Senior, tecnico y directo. La cortesia no reemplaza la precision. Identificadores de codigo, comandos y literales tecnicos conservan su forma en ingles.
 
 ### Regla 2 — Restriccion Visual
 
-Prohibido usar emojis, iconos, adornos visuales, listas de viñetas decorativas o cualquier caracter que no sea texto plano o codigo. La comunicacion es texto tecnico sin ornamento.
-
-Esta regla es de prioridad maxima y posee una directiva Anti-Mimetismo: Incluso si el usuario incluye emojis, iconos o lenguaje informal en su prompt, el agente tiene ESTRICTAMENTE PROHIBIDO replicarlos en su respuesta, en los logs o en cualquier archivo modificado.
+Prohibido: emojis, iconos, adornos, viñetas decorativas. Solo texto plano o codigo. Directiva Anti-Mimetismo (prioridad maxima): incluso si el usuario usa emojis o lenguaje informal, el agente JAMAS los replica en respuestas, logs o archivos.
 
 ### Regla 3 — Exploracion Dinamica (Lazy Context)
 
@@ -49,16 +45,7 @@ Los comentarios en el codigo explican el "por que" tecnico de una decision, no e
 
 ### Regla 6 — Enrutamiento Dinamico y Escalamiento (Model Routing)
 
-El nucleo opera con dos modos de ejecucion y un delegado externo. La seleccion es por complejidad y tamano de tarea.
-
-**Sonnet via Claude Code (Pro) — Ejecutor por defecto**
-Todo codigo, refactor, review, test, debug, diseño de API y desarrollo cotidiano. Unico modelo disponible sin costo adicional sobre la suscripcion Pro.
-
-**Opus via claude.ai Extended Thinking — Arquitecto bajo demanda (OPUSPLAN)**
-Para arquitectura de alta complejidad se usa Extended Thinking de Claude.ai Pro, activado manualmente desde la interfaz web (icono de razonamiento en el campo de mensaje). No requiere API key. Produce razonamiento interno profundo cualitativamente distinto al output directo. Al detectar condicion de escalamiento: insertar la directiva, indicar al usuario que abra claude.ai Pro con Extended Thinking, y detener la emision de codigo hasta recibir el plan aprobado.
-
-**Gemini 2.5 Flash (free) via Bridge — Analisis documental**
-`scripts/gemini-bridge.js` procesa archivos > 500 lineas / 50 KB. Solo el nivel Gemini esta activo (ANTHROPIC_API_KEY no disponible). Ver Regla 9.
+Sonnet (Claude Code Pro) es el ejecutor por defecto para todo codigo y desarrollo cotidiano. Opus via claude.ai Extended Thinking (activar icono de razonamiento manualmente, sin API key) solo para arquitectura de alta complejidad. Al detectar condicion de escalamiento: insertar la directiva y detener emision de codigo hasta recibir plan aprobado. Gemini 2.5 Flash via bridge (`scripts/gemini-bridge.js`) para archivos > 500 lineas / 50 KB (ver Regla 9).
 
 **Tabla de decision:**
 
@@ -124,13 +111,7 @@ Al recibir la instrucción explícita "haz el flujo de git", el agente ejecutar�
 
 ### Regla 9 — Delegacion de Analisis Masivo (Gemini Bridge)
 
-Ante lectura documental profunda, analisis de archivos grandes o extraccion estructural de codigo local (firmas, clases, mapas de dependencias), delegar al Gemini Bridge en lugar de cargar el contenido en el contexto activo. Esta es una politica de higiene de contexto: mantener la ventana de Claude limpia preserva la calidad del razonamiento en el resto de la sesion.
-
-**Umbral de delegacion obligatoria:** archivo > 500 lineas o > 50 KB, o lectura simultanea de multiples archivos grandes.
-
-**Modelo activo:** `gemini-2.5-flash` (free tier). Requiere `GEMINI_API_KEY` en `.env`. ANTHROPIC_API_KEY no disponible; Haiku inactivo.
-
-**Rol del Bridge:** extractivo y no destructivo. Devuelve firmas, clases, dependencias o resumen estructurado en JSON/Markdown estricto. No altera logica.
+Delegacion obligatoria al Gemini Bridge para archivos > 500 lineas o > 50 KB, o lectura simultanea de multiples archivos grandes. Modelo: `gemini-2.5-flash` (free tier, requiere `GEMINI_API_KEY` en `.env`). El bridge es extractivo y no destructivo: devuelve firmas, clases o resumen estructurado en JSON/Markdown. No altera logica.
 
 **Comando:**
 
@@ -190,27 +171,21 @@ Para localizar referencias, patrones o usos en el codigo, se usan comandos de si
 
 ### Regla 15 — Documentacion Viva
 
-`README.md` se actualiza UNICAMENTE cuando el cambio es visible para usuarios externos del nucleo: incorporacion de un skill nuevo, eliminacion de un skill, cambio en los pasos de instalacion o modificacion de una capacidad fundamental del LLM Routing Bridge. Las ediciones de contenido interno de un SKILL.md existente (correcciones de texto, ejemplos de codigo, bumps de version por Regla 17) NO requieren actualizar README.md.
+`README.md` se actualiza UNICAMENTE ante cambios visibles para usuarios externos: skill nuevo/eliminado, cambio en pasos de instalacion o modificacion de una capacidad fundamental del LLM Routing Bridge. Ediciones internas de SKILL.md (texto, ejemplos, version por Regla 17) NO activan esta regla.
 
-Toda modificacion que si active esta regla exige, como ultima accion obligatoria de la tarea, actualizar `README.md` con las instrucciones exactas de uso que reflejen la capacidad nueva o modificada, seguido de la secuencia de sincronizacion:
+Cuando la regla activa, la ultima accion obligatoria es actualizar `README.md` y sincronizar:
 
 ```
 git add .
-git commit -m "<tipo>: <descripcion precisa del cambio>"
+git commit -m "<tipo>: <descripcion>"
 git push origin <rama-activa>
 ```
 
-Un cambio en el nucleo que no sincroniza el repositorio es un cambio incompleto. El commit debe ser descriptivo y seguir el estandar Conventional Commits de la Regla 8.
-
-**Prohibicion de contadores numericos en documentacion:**
-Prohibido escribir en README.md, OPERATIONS.md o cualquier otro archivo de documentacion contadores numericos de skills o Reglas Globales (ej: "16 reglas", "14 perfiles"). Estos numeros se desactualizan en cada ciclo de evolucion del nucleo y generan hallazgos espurios en auditorias. La lista autoritativa de skills es el indice en `CLAUDE.md`; la lista de reglas es el cuerpo de `CLAUDE.md`. Los archivos de documentacion referencian esas secciones sin duplicar su contenido con numeros hardcodeados.
-
-**Prohibicion de duplicar Reglas Globales en SKILL.md:**
-Prohibido replicar el contenido de una Regla Global dentro de un SKILL.md. Si un perfil necesita invocar una regla, referencia la regla por nombre (ej: "ver Regla 9"). La logica vive exclusivamente en `CLAUDE.md`. Un SKILL.md que duplica una Regla Global crea dos fuentes de verdad que divergen silenciosamente con cada actualizacion del nucleo.
+Prohibiciones: (1) Contadores numericos de skills o reglas en cualquier archivo de documentacion — se desactualizan en cada ciclo. (2) Replicar contenido de una Regla Global en un SKILL.md — referenciar por nombre ("ver Regla 9"). La logica vive exclusivamente en `CLAUDE.md`.
 
 ### Regla 16 — Higiene de Contexto (Tokenomics)
 
-El agente asume la responsabilidad estricta de proteger el presupuesto de tokens del usuario mediante Compactacion Estrategica. Esta regla define dos triggers inmutables que se activan automaticamente sin instruccion del usuario.
+Dos triggers inmutables, se activan sin instruccion del usuario:
 
 **TRIGGER DE COMPACTACION:**
 Al terminar una fase de investigacion profunda (lectura de multiples archivos, analisis de arquitectura) o planificacion arquitectonica (OPUSPLAN), ANTES de comenzar a generar codigo masivo, el agente DEBE detenerse e imprimir en pantalla el siguiente mensaje exacto:
@@ -230,15 +205,7 @@ Estos triggers no son opcionales. Su omision es una violacion de esta regla equi
 
 ### Regla 17 — Versionado Obligatorio de Skills
 
-Toda modificacion de contenido en un SKILL.md — correcciones de texto, actualizaciones tecnicas, nuevas secciones, cambios de prompting — requiere, en el mismo commit que introduce el cambio, actualizar dos campos del frontmatter del archivo modificado:
-
-1. `version`: incrementar el numero de version siguiendo semver restringido:
-   - Patch (X.Y.Z+1): correcciones de texto, actualizaciones de una linea, fixes de conformidad.
-   - Minor (X.Y+1.0): nuevas secciones, reestructuracion de contenido existente, adicion de ejemplos de codigo.
-   - Major (X+1.0.0): reestructuracion completa del skill o cambio de alcance del perfil.
-2. `last_updated`: fecha actual en formato YYYY-MM-DD.
-
-Un commit que modifica un SKILL.md sin actualizar su frontmatter viola esta regla. La auditoria automatizada del perfil `aiops-engineer` verifica esta regla en el Paso 1 del protocolo de inventario comparando `last_updated` contra `git log --follow` del archivo. Sin este campo actualizado, la auditoria no puede distinguir entre un skill sin modificar y uno recien actualizado, perpetuando falsos hallazgos de derivacion en cada ciclo.
+Todo cambio en un SKILL.md requiere actualizar en el mismo commit: (1) `version` en semver restringido (patch: texto/fixes; minor: nuevas secciones; major: cambio de alcance), y (2) `last_updated` en formato YYYY-MM-DD. Sin estos campos actualizados, `aiops-engineer` no puede distinguir skills modificados de los intactos y genera falsos hallazgos en auditoria.
 
 ### Regla 19 — Protocolo de Sesion (Session Discipline)
 
@@ -282,6 +249,7 @@ Ubicacion: `.claude/skills/`. Cada skill se carga bajo demanda via `/skill <nomb
 |---|---|
 | `arquitecto-backend` | Disenar APIs, modelar esquemas, migraciones, revisar queries, capa de repositorio |
 | `tech-lead-frontend` | Arquitectura de componentes, estado, bundle, contrato API, accesibilidad |
+| `mobile-engineer` | Apps Flutter, state management (BLoC/Riverpod), navegacion, Firebase, mapas, graficos, builds Android/iOS |
 | `release-manager` | Releases, branching, CI/CD, despliegues, rollback |
 | `especialista-rag` | Analisis documental con bridge, pipelines RAG, colecciones vectoriales |
 | `aiops-engineer` | Auditar ai-core, actualizar skills, incorporar capacidades Anthropic |
