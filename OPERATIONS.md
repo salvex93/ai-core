@@ -145,22 +145,8 @@ ai-core/
 ├── BACKLOG.md                         Deuda tecnica y hallazgos persistidos
 └── .claude/
     └── skills/
-        ├── arquitecto-backend/
-        │   └── SKILL.md
-        ├── tech-lead-frontend/
-        │   └── SKILL.md
-        ├── release-manager/
-        │   └── SKILL.md
-        ├── especialista-rag/
-        │   └── SKILL.md
-        ├── aiops-engineer/
-        │   └── SKILL.md
-        ├── qa-engineer/
-        │   └── SKILL.md
-        ├── security-auditor/
-        │   └── SKILL.md
-        └── devops-infra/
-            └── SKILL.md
+        └── <nombre-skill>/
+            └── SKILL.md               Indice autoritativo en CLAUDE.md
 ```
 
 El archivo `CLAUDE.md` es la entrada de lectura obligatoria para cualquier agente que opere en un repositorio que incluya `ai-core` como submodulo.
@@ -207,15 +193,46 @@ Las reglas globales son inmutables y aplican a todos los perfiles sin excepcion.
 | 3 | Exploracion Dinamica | Leer manifiestos del anfitrion antes de emitir cualquier recomendacion. |
 | 4 | Minimo Cambio y Proactividad Selectiva | Sin logica no solicitada en backend/negocio. Excepciones activas para Reglas 10, 11 y 12. |
 | 5 | Precision Quirurgica | Toda modificacion indica ruta relativa y numero de linea exacto. |
-| 6 | Gatillo de Escalamiento | ALERTA_ARQUITECTONICA: REQUIERE_OPUSPLAN ante tareas de alto impacto. |
+| 6 | Enrutamiento Dinamico y Escalamiento | Triada Sonnet/Opus/Gemini. ALERTA_ARQUITECTONICA activa ante condiciones de alto impacto. |
 | 7 | Persistencia de Hallazgos y Trabajo Oculto | Preguntar si registrar hallazgos en BACKLOG.md (tabla 12 columnas). Registrar trabajo oculto obligatoriamente. |
 | 8 | Git Flow Universal | Ramas aisladas. Conventional Commits. Pipeline verde antes de merge. Gatillo de sincronizacion disponible. |
-| 9 | Brain-Sync | Sin NOTEBOOKLM_WORKSPACE_ID, activar protocolo de configuracion de memoria. |
+| 9 | Delegacion de Analisis Masivo | Delegar corpus >500 lineas / 50 KB al LLM Routing Bridge (Gemini free tier). |
 | 10 | UI/UX Pro Max | Atomic Design + micro-interacciones + WCAG AA + Mobile First obligatorios en frontend. |
 | 11 | Project Superpower | Auditoria preventiva autonoma. Fix inmediato de cuellos de botella al abrir archivo. |
 | 12 | Everything Claude Code | Actualizar package.json y .env.example de inmediato tras cambios que lo requieran. |
 | 13 | Duda Activa | Detenerse y pedir contexto ante instrucciones ambiguas o con riesgo de romper dependencias. |
 | 14 | Eficiencia de Busqueda | Usar grep/find para localizar referencias antes de leer archivos completos. Minimiza consumo de tokens. |
+| 15 | Documentacion Viva | README.md solo ante cambios externos. Sin contadores numericos hardcodeados. SKILL.md no duplica Reglas Globales. |
+| 16 | Higiene de Contexto | Triggers de compactacion y purga automaticos para proteger el presupuesto de tokens del usuario. |
+| 17 | Versionado Obligatorio de Skills | Toda modificacion de SKILL.md requiere bump de version semver y last_updated en el mismo commit. |
+| 18 | Brevedad y Densidad | Respuestas directas por defecto. Sin frases de confirmacion. Formato progresivo segun complejidad. Silencio Positivo. |
+| 19 | Disciplina de Sesion | Una sesion = una tarea. Memoria antes que archivos. /compact en fronteras de fase. /clear al cerrar tarea. |
+
+---
+
+## Protocolo de Sesion Eficiente
+
+Checklist de inicio y cierre de sesion para maximizar el presupuesto de tokens de Claude Pro.
+
+### Inicio de sesion (antes de abrir cualquier archivo)
+
+1. Verificar memoria persistida: leer `~/.claude/projects/<proyecto>/memory/MEMORY.md` para recuperar contexto de sesiones anteriores sin releer archivos.
+2. Consultar tareas abiertas: `node scripts/query-backlog.js` — muestra solo las tareas activas sin cargar el BACKLOG completo en contexto.
+3. Definir el alcance: una sesion = una tarea. Escribir la tarea en una linea antes de comenzar.
+4. Verificar bridge: `cat .env | grep GEMINI_API_KEY` — confirmar que el bridge esta disponible si la tarea requiere analisis documental.
+
+### Durante la sesion
+
+- Al terminar una fase de investigacion (lectura de multiples archivos, analisis de arquitectura): ejecutar `/compact` antes de generar codigo masivo.
+- Para leer archivos de estado del proyecto: usar `node scripts/query-backlog.js` en lugar de leer `BACKLOG.md` completo.
+- Para analizar archivos > 500 lineas: usar el bridge en lugar de Read: `node scripts/gemini-bridge.js --mission "<orden>" --file <ruta>`
+
+### Cierre de sesion
+
+1. Registrar hallazgos en BACKLOG.md si los hay (Regla 7).
+2. Marcar la tarea como "Terminado" en BACKLOG.md.
+3. Ejecutar el flujo Git si hubo cambios (Regla 8).
+4. Ejecutar `/clear` para purgar la sesion antes de iniciar la siguiente tarea.
 
 ---
 

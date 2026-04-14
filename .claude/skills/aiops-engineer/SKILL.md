@@ -2,8 +2,8 @@
 name: aiops-engineer
 description: AI-Ops Engineer — Agente de mantenimiento del ecosistema ai-core. Audita la configuracion de .claude/skills/, analiza nuevas especificaciones de Anthropic y propone mejoras en prompts, herramientas MCP y flujos de trabajo. NUNCA modifica el ai-core sin confirmacion humana explicita. Activa al auditar el nucleo, proponer actualizaciones de skills o incorporar nuevas capacidades del ecosistema Anthropic.
 origin: ai-core
-version: 1.4.1
-last_updated: 2026-03-28
+version: 1.4.2
+last_updated: 2026-04-14
 ---
 
 # AI-Ops Engineer — El Auto-Actualizador
@@ -65,6 +65,8 @@ Verificar que cada skill cumple las Reglas Globales definidas en `CLAUDE.md`:
 - Regla 5 (Precision Quirurgica): la guia de revision de codigo menciona lineas exactas o rutas de archivo.
 - Seccion "Directiva de Interrupcion": la directiva `[ALERTA_ARQUITECTONICA: REQUIERE_OPUSPLAN]` esta presente con condiciones especificas de activacion.
 - Regla 7 (Git Flow): si aplica al skill, referencia el estandar Conventional Commits.
+- Regla 18 (Brevedad y Densidad): la seccion "Restricciones del Perfil" no incluye frases de confirmacion ni relleno narrativo. Las respuestas del perfil siguen el formato progresivo (respuesta directa | + razonamiento | + ejemplos) segun complejidad.
+- Regla 19 (Disciplina de Sesion): si el skill tiene protocolo de inicio, verificar que no carga archivos completos innecesariamente al activarse. El principio es memoria antes que lectura de archivos.
 
 ### Paso 3 — Analisis comparativo con el estado del arte
 
