@@ -6,7 +6,7 @@ El sistema es framework-agnostic por diseño. No asume Node.js, Python, Go ni ni
 
 Desde la version actual, el nucleo incorpora las siguientes capacidades:
 
-- **LLM Routing Bridge** con tres optimizaciones de costo: (1) Prompt Caching en Haiku — el bloque de sistema estatico se cachea con `cache_control: ephemeral`, reduciendo el costo de tokens de entrada un 70-90% en cache hits; (2) Token Counting exacto para archivos en zona borderline (400K-800K chars) via `/v1/messages/count_tokens`, evitando overflow y over-routing; (3) Modo batch (`--batch`) que procesa multiples archivos con la Messages Batches API al 50% de descuento.
+- **LLM Routing Bridge** via Gemini 2.5 Flash (free tier): externaliza el analisis de archivos > 500 lineas / 50 KB como proceso separado, protegiendo el context window principal. Requiere solo `GEMINI_API_KEY` (Google AI Studio, gratuito).
 - **Extended Thinking en OPUSPLAN**: cuando se activa la directiva `[ALERTA_ARQUITECTONICA: REQUIERE_OPUSPLAN]`, Opus genera el plan con `thinking: { type: "enabled", budget_tokens: 10000 }`, produciendo razonamiento interno separado del output final y planes cualitativamente superiores a una respuesta directa.
 - **Hook de sesion**: script `scripts/init-backlog.js` que garantiza la presencia del `BACKLOG.md` antes de iniciar cualquier sesion de trabajo.
 
@@ -34,7 +34,7 @@ git commit -m "chore: actualizar ai-core a la ultima version del nucleo"
 
 ### Paso 2 — Instalar dependencias del nucleo
 
-El nucleo incluye scripts Node.js (`scripts/gemini-bridge.js`) que requieren dos dependencias:
+El nucleo incluye scripts Node.js (`scripts/gemini-bridge.js`) que requieren una dependencia:
 
 ```bash
 cd .claude/ai-core
@@ -42,24 +42,17 @@ npm install
 cd ../..
 ```
 
-Dependencias instaladas: `@anthropic-ai/sdk` (Haiku Nivel 1, Prompt Caching, Token Counting, Batches API) y `@google/generative-ai` (Gemini Nivel 2).
+Dependencia instalada: `@google/generative-ai` (Gemini 2.5 Flash, free tier).
 
 ### Paso 3 — Configurar variables de entorno
 
 Agregar al archivo `.env` del proyecto anfitrion:
 
 ```bash
-# Nivel 1 del router — Claude Haiku (primario, economico, alta disponibilidad).
-# Cubre archivos hasta 600K chars (~150K tokens). Es la misma clave que usa Claude Code.
-ANTHROPIC_API_KEY=<tu-api-key>
-
-# Nivel 2 del router — Gemini 2.5 Flash (archivos masivos > 600K chars).
-# Ventana de 1M tokens. Cuota preservada exclusivamente para corpus masivos.
+# LLM Routing Bridge — Gemini 2.5 Flash (free tier, 1500 req/dia, 1M tokens/req).
 # Obtener en: https://aistudio.google.com/app/apikey
 GEMINI_API_KEY=<tu-api-key>
 ```
-
-Configuracion recomendada: ambas claves. Minimo viable: solo `ANTHROPIC_API_KEY` (Haiku cubre el 95%+ de los archivos que llegan al bridge).
 
 Agregar `.env` al `.gitignore` del proyecto anfitrion:
 
@@ -67,7 +60,7 @@ Agregar `.env` al `.gitignore` del proyecto anfitrion:
 echo ".env" >> .gitignore
 ```
 
-Sin ninguna de las dos variables, el nucleo opera en modo local (grep/find) con plena capacidad para tareas de busqueda de texto.
+Sin esta variable, el nucleo opera en modo local (grep/find) con plena capacidad para tareas de busqueda de texto.
 
 ### Paso 4 — Configurar el hook de sesion
 
@@ -130,16 +123,9 @@ El agente hereda automaticamente las reglas globales del `CLAUDE.md` del nucleo.
 
 El LLM Routing Bridge es el mecanismo de analisis documental masivo del nucleo. Externaliza lecturas de archivos grandes como proceso separado. Esta es una politica de COSTO, no de capacidad: cargar corpus extensos en el contexto principal consume tokens de entrada facturables y degrada la calidad de respuesta en el resto de la sesion.
 
-### Optimizaciones de costo activas
+### Politica de delegacion
 
-**Prompt Caching (`cache_control: ephemeral`)**
-El bloque de sistema del bridge (rol, instrucciones de formato, schema) es identico en cada invocacion. Marcarlo con `cache_control: ephemeral` lo cachea en Anthropic por 5 minutos. En sesiones con multiples llamadas al bridge, los cache hits reducen el costo de tokens de entrada un 70-90% (Anthropic cobra el 10% del precio normal en hits).
-
-**Token Counting exacto para la zona borderline**
-Archivos entre 400K y 800K chars se procesan con `/v1/messages/count_tokens` antes de decidir el nivel. Esto evita dos errores: overflow (archivo que no cabe en Haiku y genera error de contexto) y over-routing (archivo que Haiku maneja perfectamente pero se manda a Gemini gastando cuota). Fuera de esta zona, el umbral de chars es suficientemente preciso y no se agrega latencia.
-
-**Modo batch (`--batch`)**
-Procesa multiples archivos en una sola llamada a la Messages Batches API de Anthropic con 50% de descuento sobre el precio base. Util al analizar todos los modulos de un monorepo en la misma sesion. Procesamiento asincrono con polling; el CLI espera hasta completar o hasta el timeout de 10 minutos.
+El bridge es una politica de COSTO, no de capacidad: cargar corpus extensos en el contexto principal consume el presupuesto de tokens de la sesion y degrada la calidad de respuesta. Gemini 2.5 Flash (free tier, 1500 req/dia, ventana de 1M tokens) cubre todos los casos de uso del bridge sin costo adicional.
 
 ### Cuando se activa (automatico por Regla 9)
 
@@ -151,7 +137,7 @@ Procesa multiples archivos en una sola llamada a la Messages Batches API de Anth
 ### Uso directo
 
 ```bash
-# Analisis con salida JSON (Haiku Nivel 1, Prompt Cache activo)
+# Analisis con salida JSON
 node .claude/ai-core/scripts/gemini-bridge.js \
   --mission "Analiza el archivo e identifica patrones de acoplamiento entre modulos" \
   --file ./src/services/user.service.ts \
@@ -162,21 +148,6 @@ node .claude/ai-core/scripts/gemini-bridge.js \
   --mission "Extrae todos los endpoints documentados y sus contratos de entrada/salida" \
   --file ./docs/api-reference.md \
   --format markdown
-
-# Modelo Gemini especifico para Nivel 2 (archivos masivos > 600K chars)
-node .claude/ai-core/scripts/gemini-bridge.js \
-  --mission "Detecta queries N+1 y bloqueos del event loop" \
-  --file ./src/repositories/order.repository.js \
-  --model gemini-2.5-flash
-
-# Modo batch: multiples archivos, 50% descuento, Batches API
-node .claude/ai-core/scripts/gemini-bridge.js \
-  --mission "Extrae las firmas publicas y dependencias de cada modulo" \
-  --file ./src/services/user.service.ts \
-  --file ./src/services/order.service.ts \
-  --file ./src/repositories/user.repository.ts \
-  --batch \
-  --format json
 ```
 
 ### Schema de salida JSON (estandar)
@@ -195,7 +166,7 @@ node .claude/ai-core/scripts/gemini-bridge.js \
 }
 ```
 
-El skill `especialista-rag` actua como Gestor de Misiones: redacta las ordenes de mision con precision y puede ampliar el schema segun la tarea especifica (ver `.claude/skills/especialista-rag/SKILL.md`).
+El skill `rag-specialist` actua como Gestor de Misiones: redacta las ordenes de mision con precision y puede ampliar el schema segun la tarea especifica (ver `.claude/skills/rag-specialist/SKILL.md`).
 
 ---
 
@@ -209,8 +180,7 @@ El nucleo opera con tres capas de procesamiento con responsabilidades distintas:
 |---|---|---|---|
 | Ejecutor principal | `claude-sonnet-4-6` | 80% de las tareas: codigo, refactor, review, debug, tests | Default en toda sesion |
 | Arquitecto | `claude-opus-4-6` + Extended Thinking | Planes de arquitectura de alta complejidad (OPUSPLAN) | Escalamiento explicito via Regla 6 |
-| Bridge Nivel 1 | `claude-haiku-4-5-20251001` + Prompt Cache | Analisis de corpus. Archivos hasta 600K chars | Automatico via Regla 9 |
-| Bridge Nivel 2 | `gemini-2.5-flash` | Corpus masivos > 600K chars (ventana 1M tokens) | Automatico cuando el archivo supera el limite de Haiku |
+| Bridge | `gemini-2.5-flash` | Analisis de corpus. Archivos > 500 lineas / 50 KB (ventana 1M tokens) | Automatico via Regla 9 |
 
 ### Tabla de decision de enrutamiento
 
@@ -218,10 +188,7 @@ El nucleo opera con tres capas de procesamiento con responsabilidades distintas:
 |---|---|
 | Tarea de codigo, refactor, review, test, debug | Sonnet (default) |
 | Tarea ambigua o moderadamente compleja | Sonnet + pausa activa (Regla 13) |
-| Archivo o corpus > 500 lineas / 50 KB, < 400K chars | Bridge — Haiku Nivel 1 (decision inmediata) |
-| Archivo entre 400K y 800K chars | Bridge — Token Counting exacto, luego Haiku o Gemini |
-| Archivo > 800K chars | Bridge — Gemini Nivel 2 (decision inmediata) |
-| Multiples archivos en la misma sesion | Bridge `--batch` (Batches API, 50% descuento) |
+| Archivo o corpus > 500 lineas / 50 KB | Bridge — Gemini 2.5 Flash (decision inmediata) |
 | Tarea que activa condicion de escalamiento | `[ALERTA_ARQUITECTONICA: REQUIERE_OPUSPLAN]` → Opus con Extended Thinking |
 
 ### Optimizacion del context window — Configuracion global
@@ -356,7 +323,7 @@ ai-core/
         ├── claude-agent-sdk/      SKILL.md
         ├── data-engineer/         SKILL.md
         ├── devops-infra/          SKILL.md
-        ├── especialista-rag/      SKILL.md
+        ├── rag-specialist/      SKILL.md
         ├── llm-evals/             SKILL.md
         ├── llm-observability/     SKILL.md
         ├── mcp-server-builder/    SKILL.md

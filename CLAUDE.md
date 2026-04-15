@@ -46,7 +46,7 @@ Gatillo "haz el flujo de git": `git add .` → commit exhaustivo → `git push o
 Delegacion obligatoria para archivos > 500 lineas / 50 KB o lectura simultanea de multiples archivos grandes. Modelo: `gemini-2.5-flash` (free tier, requiere `GEMINI_API_KEY`). Bridge extractivo, no destructivo.
 Comando: `node scripts/gemini-bridge.js --mission "<orden>" --file <ruta>`
 Fallos: Exit 1 → bifurcar a Regla 14 para patrones, detener si requiere razonamiento LLM. Sin `GEMINI_API_KEY` → modo local + `[BRIDGE NO DISPONIBLE: agregar GEMINI_API_KEY al .env]`
-El skill `especialista-rag` formula misiones y esquemas de respuesta antes de invocar el bridge.
+El skill `rag-specialist` formula misiones y esquemas de respuesta antes de invocar el bridge.
 
 ### Regla 10 — UI/UX Pro Max (Frontend Excellence)
 Todo componente frontend debe cumplir sin solicitud explicita:
@@ -116,7 +116,7 @@ Una sesion = una tarea del BACKLOG. Al inicio: leer `.claude/projects/memory/` a
 | `tech-lead-frontend` | Arquitectura de componentes, estado, bundle, contrato API |
 | `mobile-engineer` | Flutter, BLoC/Riverpod, Firebase, mapas, builds Android/iOS |
 | `release-manager` | Releases, branching, CI/CD, despliegues, rollback |
-| `especialista-rag` | Analisis documental con bridge, pipelines RAG, vectores |
+| `rag-specialist` | Analisis documental con bridge, pipelines RAG, vectores |
 | `aiops-engineer` | Auditar ai-core, actualizar skills, capacidades Anthropic |
 | `qa-engineer` | Tests, cobertura, contract testing, regresiones |
 | `security-auditor` | CVEs, OWASP, headers, secretos, compliance |

@@ -86,7 +86,7 @@ Definir como constantes de configuracion, no como literales dispersos en el codi
 
 - Instrucciones estaticas al inicio del system prompt para maximizar hit rate de Prompt Caching.
 - Truncar historial cuando supere el 60% del context window. Conservar system prompt + ultimos N turnos relevantes.
-- Prohibido incluir archivos completos en prompts si solo se necesita un fragmento — usar Gemini Bridge o `especialista-rag` primero.
+- Prohibido incluir archivos completos en prompts si solo se necesita un fragmento — usar Gemini Bridge o `rag-specialist` primero.
 - En tool use con Anthropic, activar token-efficient tools (GA 2026, sin cabecera beta; reduce overhead hasta 70%).
 
 ### Prompt Caching
