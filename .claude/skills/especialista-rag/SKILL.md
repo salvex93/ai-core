@@ -2,50 +2,32 @@
 name: especialista-rag
 description: Gestor de Misiones para el LLM Routing Bridge y especialista en pipelines RAG. Cubre Hybrid Search (BM25+dense+RRF), Contextual Retrieval, re-ranking con cross-encoders y Files API como complemento al bridge. Activa al delegar analisis documental masivo, construir o mejorar pipelines RAG, o evaluar calidad de recuperacion semantica.
 origin: ai-core
-version: 1.5.1
-last_updated: 2026-03-28
+version: 2.0.0
+last_updated: 2026-04-14
 ---
 
 # Especialista RAG — Gestor de Misiones (LLM Routing Bridge)
 
-Este perfil es el orquestador de contexto documental del ai-core. Su responsabilidad primaria es formular Ordenes de Mision de alta precision para el LLM Routing Bridge (`scripts/gemini-bridge.js`) y definir el esquema de respuesta exacto que el agente principal debe esperar. Tambien gobierna la arquitectura de los pipelines RAG y la calidad de recuperacion semantica.
+Orquestador de contexto documental del ai-core. Responsabilidad primaria: formular Ordenes de Mision de alta precision para el LLM Routing Bridge (`scripts/gemini-bridge.js`) y definir el schema de respuesta exacto. Tambien gobierna la arquitectura de pipelines RAG y la calidad de recuperacion semantica.
 
 ## Cuando Activar Este Perfil
 
-- Al necesitar analizar archivos que superen 500 lineas o 50 KB (Regla 9: delegacion obligatoria).
+- Al analizar archivos > 500 lineas o 50 KB (Regla 9: delegacion obligatoria).
 - Al construir o modificar un pipeline de ingestion, embedding, retrieval o generacion.
-- Al gestionar colecciones vectoriales: creacion, actualizacion de esquema, reingesion.
+- Al gestionar colecciones vectoriales: creacion, actualizacion de esquema, reingestion.
 - Al evaluar la calidad de recuperacion semantica de un pipeline existente.
-- Al diagnosticar alucinaciones o respuestas sin fuente identificada en el pipeline RAG.
+- Al diagnosticar alucinaciones o respuestas sin fuente identificada.
 - Al incorporar nuevos documentos al corpus documental del proyecto anfitrion.
 
-## Primera Accion al Activar: Protocolo de Conexion Brain-Sync
+## Protocolo de Conexion Brain-Sync
 
-Al activarse, ejecutar el siguiente protocolo antes de emitir recomendaciones de contenido.
+### Paso 0 — Detectar stack de vectorstore
 
-### Paso 0 — Detectar el stack de vectorstore del proyecto anfitrion
-
-Antes de proponer cualquier componente de pipeline RAG, leer:
-
-1. `package.json` / `requirements.txt` / `pyproject.toml` — detectar librerias de vectorstore ya presentes:
-   - `pgvector` / `asyncpg` con extension `pgvector` — PostgreSQL como vectorstore
-   - `chromadb` — Chroma embebido o cliente
-   - `qdrant-client` — Qdrant
-   - `pinecone-client` / `pinecone` — Pinecone
-   - `weaviate-client` — Weaviate
-   - `langchain` / `llama-index` — framework que puede abstraer el vectorstore
-
-2. `.env.example` — detectar variables de conexion a vectorstores existentes (`PINECONE_API_KEY`, `QDRANT_URL`, `DATABASE_URL` con vectores, etc.).
-
-Si ya existe un vectorstore en el proyecto, proponer extensiones sobre el stack existente. No proponer migraciones a otro vectorstore sin justificacion tecnica explicita y sin verificar con el usuario.
+Leer `package.json` / `requirements.txt` y `.env.example` antes de proponer componentes RAG. Detectar: `pgvector`, `chromadb`, `qdrant-client`, `pinecone-client`, `weaviate-client`, `langchain`/`llama-index`. Si ya existe un vectorstore, proponer extensiones sobre el stack existente — no proponer migraciones sin justificacion tecnica y confirmacion del usuario.
 
 ### Paso 1 — Verificar disponibilidad del bridge
 
-Leer el archivo `.env` del repositorio anfitrion y buscar la variable `GEMINI_API_KEY`.
-
-Si `GEMINI_API_KEY` esta presente y tiene valor: proceder al Paso 2.
-
-Si la variable no existe o esta vacia, notificar con el mensaje exacto:
+Buscar `GEMINI_API_KEY` en `.env`. Si no existe o esta vacia, notificar con el mensaje exacto:
 
 ```
 GEMINI_API_KEY no encontrada en el .env del proyecto anfitrion.
@@ -58,12 +40,7 @@ Obtener la key en: https://aistudio.google.com/app/apikey
 
 ### Paso 2 — Redactar la Orden de Mision
 
-Antes de invocar el bridge, formular la Orden de Mision siguiendo el contrato de calidad:
-
-- La orden describe el objetivo con precision tecnica (1-3 oraciones).
-- Especifica el tipo de salida requerido: `json` o `markdown`.
-- Si se requiere JSON, define o referencia el schema exacto esperado.
-- La orden no puede ser ambigua: si lo es, aplicar Regla 13 y solicitar contexto antes de continuar.
+La orden describe el objetivo con precision tecnica (1-3 oraciones), especifica el tipo de salida (`json` o `markdown`) y define o referencia el schema exacto. Si es ambigua: Regla 13 antes de continuar.
 
 Plantilla de Orden de Mision:
 
@@ -76,11 +53,9 @@ Prohibido usar emojis, iconos o caracteres de adorno en la respuesta.
 Prohibido incluir afirmaciones no respaldadas explicitamente por el contenido del archivo analizado.
 ```
 
-### Paso 3 — Verificar el modelo Gemini vigente e invocar el bridge
+### Paso 3 — Verificar modelo Gemini e invocar el bridge
 
-Antes de invocar el bridge en un proyecto nuevo o tras un periodo sin uso, verificar que el identificador de modelo Gemini sigue siendo valido. Usar un identificador obsoleto produce degradacion silenciosa de calidad sin error explicito.
-
-Comando de verificacion ejecutable (requiere `GEMINI_API_KEY` en el entorno):
+En proyecto nuevo o tras periodo sin uso, verificar que el identificador de modelo sigue vigente:
 
 ```bash
 curl -s "https://generativelanguage.googleapis.com/v1beta/models?key=${GEMINI_API_KEY}" \
@@ -88,11 +63,9 @@ curl -s "https://generativelanguage.googleapis.com/v1beta/models?key=${GEMINI_AP
   | grep -E "gemini-2\.[0-9]"
 ```
 
-El output lista los modelos Gemini 2.x disponibles en la cuenta. Usar el identificador `name` del modelo deseado en el parametro `--model`.
-
-Criterio de seleccion de modelo:
-- `gemini-2.5-flash`: opcion por defecto para analisis documental. Optimizado para throughput y costo. Adecuado para la mayoria de corpus de documentacion tecnica.
-- `gemini-2.5-pro`: usar cuando la tarea requiere precision sobre throughput: extraccion de relaciones complejas, razonamiento multi-documento o analisis de codigo con logica de negocio no trivial. Costo mas alto; reservar para corpus criticos.
+Criterio de seleccion:
+- `gemini-2.5-flash`: default. Optimizado para throughput y costo. Adecuado para la mayoria de corpus de documentacion tecnica.
+- `gemini-2.5-pro`: cuando la tarea requiere precision sobre throughput — relaciones complejas, razonamiento multi-documento, logica de negocio no trivial.
 
 ```bash
 node scripts/gemini-bridge.js \
@@ -104,37 +77,24 @@ node scripts/gemini-bridge.js \
 
 ### Paso 4 — Validar y consumir el output
 
-Verificar que el output del bridge cumpla el schema definido en la Orden de Mision.
+Verificar que el output cumpla el schema. Maximo dos reintentos con Orden de Mision mas precisa. Ante fallo persistente: Directiva de Interrupcion.
 
-Si el output es JSON invalido o no cumple el schema: reintentar con una Orden de Mision mas precisa. Maximo dos reintentos. Ante fallo persistente, activar Directiva de Interrupcion.
+Reglas de validacion: rechazar y reintentar si el output contiene emojis (U+1F000–U+1FFFF), no esta en español, o contiene afirmaciones no atribuibles al archivo (marcarlas como [ESPECULACION]).
 
-Protocolo de validacion del output del bridge:
-- Si el output contiene caracteres Unicode de categoria emoji (U+1F000 a U+1FFFF o similares): rechazar y reintentar con refuerzo explicito de la prohibicion.
-- Si el output no esta en español: rechazar y reintentar. No traducir el output manualmente.
-- Si el output contiene afirmaciones no atribuibles al contenido del archivo analizado: marcarlas como [ESPECULACION] antes de reportarlas al usuario.
-
-Reportar al usuario el resultado de la delegacion:
-
-```
-Gemini Bridge ejecutado sobre: <nombre-del-archivo>
-Modelo: <model-id>
-Hallazgos sintetizados: <resumen en 1-2 oraciones del resultado>
-```
+Reportar al usuario: nombre del archivo, model-id, resumen de hallazgos en 1-2 oraciones.
 
 ## Schemas de Respuesta Estandar
 
 ### Schema JSON base
 
-El Gestor de Misiones puede ampliar este schema segun la tarea especifica.
-
 ```json
 {
   "resumen": "<sintesis ejecutiva en 3-5 oraciones>",
   "hallazgos_clave": ["<hallazgo 1>", "<hallazgo 2>"],
-  "recomendaciones": ["<recomendacion 1>", "<recomendacion 2>"],
+  "recomendaciones": ["<recomendacion 1>"],
   "advertencias": ["<advertencia critica — omitir array si no hay>"],
   "metadatos": {
-    "archivo_analizado": "<nombre del archivo>",
+    "archivo_analizado": "<nombre>",
     "modelo": "<id del modelo Gemini>",
     "timestamp": "<ISO 8601>"
   }
@@ -159,8 +119,6 @@ El Gestor de Misiones puede ampliar este schema segun la tarea especifica.
 
 ### Schema JSON extendido para analisis de codigo
 
-Usar cuando la Orden de Mision analiza archivos de codigo fuente.
-
 ```json
 {
   "resumen": "<sintesis ejecutiva>",
@@ -174,18 +132,13 @@ Usar cuando la Orden de Mision analiza archivos de codigo fuente.
     }
   ],
   "recomendaciones": ["<recomendacion accionable>"],
-  "metadatos": {
-    "archivo_analizado": "<nombre>",
-    "modelo": "<model-id>",
-    "timestamp": "<ISO 8601>"
-  }
+  "metadatos": { "archivo_analizado": "<nombre>", "modelo": "<model-id>", "timestamp": "<ISO 8601>" }
 }
 ```
 
 ## Directiva de Interrupcion
 
-Ante cualquiera de estas condiciones, insertar la directiva y detener. No modificar nada hasta tener el plan aprobado.
-
+Ante cualquiera de estas condiciones insertar la directiva y detener:
 - La tarea modifica la estructura de una coleccion vectorial existente con datos en produccion.
 - La tarea cambia el modelo de embedding (dimension del vector o proveedor).
 - La tarea altera el contrato de un endpoint RAG ya consumido por otro servicio.
@@ -201,22 +154,11 @@ Ante cualquiera de estas condiciones, insertar la directiva y detener. No modifi
 
 ### Fases del pipeline
 
-```
-1. Ingestion
-   Fuente (PDF, HTML, texto, Markdown) -> Extraccion de texto -> Limpieza -> Segmentacion en chunks
-
-2. Embedding
-   Chunks de texto -> Modelo de embedding -> Vectores de punto flotante
-
-3. Indexacion
-   Vectores + metadatos del chunk -> Motor vectorial (Qdrant, Pinecone, Chroma, pgvector, etc.)
-
-4. Retrieval
-   Consulta del usuario -> Embedding de consulta -> Busqueda por similitud -> Top-K chunks relevantes
-
-5. Generacion
-   Chunks recuperados + consulta original -> Construccion del prompt -> LLM -> Respuesta con fuentes citadas
-```
+1. Ingestion: Fuente (PDF, HTML, texto, Markdown) -> Extraccion de texto -> Limpieza -> Chunking
+2. Embedding: Chunks -> Modelo de embedding -> Vectores de punto flotante
+3. Indexacion: Vectores + metadatos -> Motor vectorial (Qdrant, Pinecone, Chroma, pgvector)
+4. Retrieval: Consulta -> Embedding de consulta -> Busqueda por similitud -> Top-K chunks
+5. Generacion: Chunks + consulta -> Construccion del prompt -> LLM -> Respuesta con fuentes
 
 ### Parametros base de chunking
 
@@ -225,275 +167,80 @@ Ante cualquiera de estas condiciones, insertar la directiva y detener. No modifi
 | Tamano del chunk | 512 tokens | Equilibrio entre contexto y precision de recuperacion |
 | Solapamiento | 64 tokens | Preserva contexto en los limites entre chunks consecutivos |
 
-El solapamiento no debe eliminarse para reducir el volumen de vectores. Su funcion es evitar que una idea dividida entre dos chunks sea irrecuperable.
+No eliminar el solapamiento para reducir volumen de vectores. Evita que ideas divididas entre dos chunks sean irrecuperables.
 
 ### Estructura del payload vectorial
 
-```
-{
-  texto_fragmento: <contenido del chunk>,
-  documento_id: <identificador del documento fuente>,
-  documento_titulo: <titulo legible del documento>,
-  seccion: <seccion o capitulo dentro del documento, si aplica>,
-  pagina: <numero de pagina, si aplica>,
-  posicion: <indice del chunk dentro del documento>,
-  version_documento: <hash o fecha del documento al momento de la ingestion>,
-  creado_en: <timestamp ISO 8601 de la ingestion>
-}
-```
+Campos obligatorios: `texto_fragmento`, `documento_id`, `documento_titulo`, `seccion`, `pagina`, `posicion`, `version_documento` (hash o fecha), `creado_en` (ISO 8601).
 
 ## Tecnicas Avanzadas de Recuperacion
 
-### Hybrid Search (Busqueda Hibrida)
+### Hybrid Search
 
-La busqueda puramente vectorial falla en consultas de terminos exactos: nombres propios, identificadores de producto, codigos de error, siglas. La busqueda hibrida combina recuperacion densa (embeddings) con recuperacion lexica (BM25) y fusiona los rankings con Reciprocal Rank Fusion (RRF).
+Combina recuperacion densa (embeddings) con recuperacion lexica (BM25), fusionada con Reciprocal Rank Fusion (RRF).
 
-Cuando usar Hybrid Search:
-- El corpus contiene terminos tecnicos, codigos o nombres propios que el modelo de embedding puede no capturar con fidelidad semantica.
-- Las consultas del usuario son frecuentemente de tipo lookup (buscar un termino especifico, no una idea).
-- La busqueda vectorial sola produce respuestas vacias o de baja precision en esos casos.
+Cuando usar: corpus con terminos tecnicos, codigos de error o nombres propios; consultas de tipo lookup frecuentes; busqueda vectorial sola produce respuestas vacias o de baja precision.
 
-Patron de implementacion con Qdrant (motor vectorial con soporte nativo de busqueda hibrida):
+Implementacion: Qdrant soporta Hybrid Search nativo via `prefetch` con `{"fusion": "rrf"}`. Para motores sin soporte nativo, RRF manual: `score(doc) = sum(1 / (k + rank))` con `k=60` (amortiguacion estandar; valores menores amplifican diferencias entre posiciones).
 
-```python
-from qdrant_client import QdrantClient
-from qdrant_client.models import SparseVector, NamedSparseVector, NamedVector
+Combinar siempre con Contextual Retrieval: el contexto mejora la recuperacion semantica; BM25 mejora la lexica.
 
-cliente = QdrantClient(url="http://localhost:6333")
+### Contextual Retrieval
 
-# Busqueda densa (semantica) — usa el vector de embedding de la consulta
-resultados_densos = cliente.query_points(
-    collection_name="contratos",
-    query=vector_embedding_consulta,           # vector denso del embedding de la consulta
-    using="dense",
-    limit=20,
-)
+Resuelve la perdida de contexto del chunk al extraerlo del documento original. Genera un prefijo de 2-3 oraciones por chunk usando un LLM ligero (Haiku), describiendo el documento de origen y la posicion del chunk dentro de el. El chunk almacenado es `{prefijo}\n\n{contenido_original}`.
 
-# Busqueda lexica (BM25) — usa el vector disperso del tokenizador BM25
-resultados_lexicos = cliente.query_points(
-    collection_name="contratos",
-    query=NamedSparseVector(
-        name="sparse",
-        vector=SparseVector(
-            indices=indices_bm25_consulta,     # indices de tokens presentes
-            values=pesos_bm25_consulta,        # pesos TF-IDF de cada token
-        ),
-    ),
-    using="sparse",
-    limit=20,
-)
+Prompt de generacion de contexto: indicar al LLM que genere el prefijo conciso que describe de que documento proviene el fragmento y que informacion del documento completo es necesaria para interpretarlo correctamente.
 
-# Fusion via RRF (Reciprocal Rank Fusion)
-# Qdrant lo expone directamente via query_points con prefetch
-resultados_fusion = cliente.query_points(
-    collection_name="contratos",
-    prefetch=[
-        {"query": vector_embedding_consulta, "using": "dense", "limit": 20},
-        {"query": NamedSparseVector(...), "using": "sparse", "limit": 20},
-    ],
-    query={"fusion": "rrf"},  # RRF nativo de Qdrant
-    limit=10,
-)
-```
-
-Formula RRF para implementacion manual (si el motor vectorial no la incluye):
-
-```python
-def reciprocal_rank_fusion(listas_de_ids: list[list[str]], k: int = 60) -> list[str]:
-    scores: dict[str, float] = {}
-    for lista in listas_de_ids:
-        for rango, doc_id in enumerate(lista):
-            scores[doc_id] = scores.get(doc_id, 0.0) + 1.0 / (k + rango + 1)
-    return sorted(scores.keys(), key=lambda d: scores[d], reverse=True)
-```
-
-El parametro `k=60` es el valor de amortiguacion estandar de RRF. Valores mas bajos amplifican la diferencia entre el primer y el segundo resultado; valores mas altos la suavizan.
-
-### Contextual Retrieval (Recuperacion Contextual)
-
-Tecnica desarrollada por Anthropic. El problema que resuelve: un chunk extraido de su documento original pierde el contexto que lo hace interpretable. Un chunk que dice "la tasa de interes aplicable es del 12% anual" no es recuperable si la consulta es "cual es la tasa del contrato de prestamo con Empresa X", porque el chunk no menciona el tipo de documento ni el cliente.
-
-La solucion es generar un prefijo de contexto para cada chunk antes de almacenarlo, usando un LLM ligero (Haiku). El prefijo describe el documento de origen y la posicion del chunk dentro de el.
-
-```python
-import anthropic
-
-cliente_llm = anthropic.Anthropic()
-
-PROMPT_CONTEXTO = """Dado el siguiente documento:
-<document>
-{documento_completo}
-</document>
-
-El siguiente fragmento fue extraido de ese documento:
-<chunk>
-{chunk}
-</chunk>
-
-Genera un prefijo de contexto conciso (2-3 oraciones) que describa de que documento proviene este fragmento y que informacion del documento completo es necesaria para interpretar correctamente el fragmento. El prefijo se antepone al fragmento para mejorar su recuperacion semantica. No incluyas ninguna otra cosa ademas del prefijo."""
-
-def generar_contexto_chunk(documento_completo: str, chunk: str) -> str:
-    respuesta = cliente_llm.messages.create(
-        model="claude-haiku-4-5-20251001",  # modelo economico para procesamiento masivo
-        max_tokens=200,
-        system=[
-            {
-                "type": "text",
-                "text": documento_completo,
-                "cache_control": {"type": "ephemeral"},  # cachear el documento completo
-            }
-        ],
-        messages=[{"role": "user", "content": PROMPT_CONTEXTO.format(
-            documento_completo="[ver system]",
-            chunk=chunk,
-        )}],
-    )
-    return respuesta.content[0].text
-
-def chunk_con_contexto(documento_completo: str, chunk: str) -> str:
-    contexto = generar_contexto_chunk(documento_completo, chunk)
-    return f"{contexto}\n\n{chunk}"  # el chunk almacenado combina contexto + contenido original
-```
-
-El Prompt Caching sobre el `documento_completo` en el system es critico para viabilidad economica: en un documento de 50 paginas con 100 chunks, sin cache cada chunk paga el costo de ingestacion del documento completo. Con cache, solo el primer chunk lo paga; los 99 restantes lo leen desde cache al 10% del costo.
-
-Contextual Retrieval se combina con Hybrid Search. El contexto generado mejora la recuperacion semantica; BM25 mejora la recuperacion lexica. El pipeline completo con ambas tecnicas supera a la busqueda vectorial sola en precision y recall.
+Activar Prompt Caching sobre el `documento_completo` en el system prompt. En un documento de 50 paginas con 100 chunks, sin cache cada chunk paga el costo de ingestion completa; con cache solo el primero lo paga.
 
 ### Re-ranking
 
-El retrieval de top-K chunks tiene precision limitada porque el modelo de embedding es bi-encoder: calcula la similitud entre la consulta y cada chunk por separado, sin modelar la interaccion directa entre ellos. Un cross-encoder (re-ranker) evalua la consulta y cada chunk de forma conjunta y produce un score mas preciso, a mayor costo computacional.
+Two-stage: bi-encoder recupera top-20/50 (mayor recall); cross-encoder re-rankea para seleccionar top-5/10 (mayor precision). El cross-encoder evalua consulta y chunk de forma conjunta — score mas preciso que similitud separada.
 
-La estrategia es two-stage: recuperar un conjunto amplio con el bi-encoder (top-20 o top-50) y luego re-rankear con el cross-encoder para seleccionar el top-K final (top-5 o top-10).
+Opciones: `BAAI/bge-reranker-v2-m3` (open-source, alta precision) via `sentence-transformers`; Cohere Rerank API (`rerank-v3.5`) si se prefiere SaaS sin infraestructura propia.
 
-```python
-from sentence_transformers import CrossEncoder
+Cuando usar: precision del top-5 del bi-encoder insuficiente, corpus > 10.000 chunks con ruido, latencia adicional (50-200ms) aceptable para el caso de uso.
 
-# BGE-Reranker-v2-m3 es un modelo open-source de alto rendimiento
-reranker = CrossEncoder("BAAI/bge-reranker-v2-m3")
-
-def reranquear_chunks(consulta: str, chunks: list[str], top_k: int = 5) -> list[str]:
-    pares = [(consulta, chunk) for chunk in chunks]
-    scores = reranker.predict(pares)
-    clasificados = sorted(zip(chunks, scores), key=lambda x: x[1], reverse=True)
-    return [chunk for chunk, _ in clasificados[:top_k]]
-```
-
-Alternativa SaaS — Cohere Rerank API (sin infraestructura propia):
-
-```python
-import cohere
-
-cliente_cohere = cohere.Client(api_key="...")
-
-def reranquear_con_cohere(consulta: str, chunks: list[str], top_k: int = 5) -> list[str]:
-    respuesta = cliente_cohere.rerank(
-        model="rerank-v3.5",
-        query=consulta,
-        documents=chunks,
-        top_n=top_k,
-    )
-    return [chunks[r.index] for r in respuesta.results]
-```
-
-Cuando usar re-ranking:
-- La precision del top-5 del bi-encoder es insuficiente para el sistema (tasa de alucinaciones alta por chunks irrelevantes en el contexto del LLM).
-- El corpus es grande (>10.000 chunks) y la busqueda vectorial recupera mucho ruido.
-- La latencia adicional del re-ranker (50-200ms para top-20) es aceptable para el caso de uso.
-
-No usar re-ranking en flujos de tiempo real con restriccion de latencia estricta (<200ms end-to-end). En esos casos, priorizar la calidad del chunking y del modelo de embedding.
+No usar en flujos con restriccion de latencia estricta (<200ms end-to-end). Priorizar calidad del chunking y del modelo de embedding en esos casos.
 
 ## Files API como Complemento al Bridge
 
-La Files API de Anthropic permite subir documentos una vez y referenciarlos por `file_id` en multiples llamadas al LLM. En el contexto del especialista RAG, complementa al LLM Routing Bridge de forma especifica: el bridge procesa corpus para extraccion masiva y analisis estructural; la Files API optimiza la referencia a documentos recurrentes en flujos de generacion donde el mismo documento se consulta repetidamente.
-
-Criterio de decision:
-
 | Escenario | Herramienta recomendada |
 |---|---|
-| Analizar un archivo de codigo o documentacion por primera vez (extraccion estructural, mapa de dependencias) | LLM Routing Bridge (Regla 9) |
-| Mismo contrato consultado por multiples usuarios en paralelo durante la jornada | Files API (un upload, N referencias) |
-| Corpus de 50 documentos para una ingestion RAG masiva | LLM Routing Bridge con `--batch` |
-| Documento de referencia que el LLM necesita como contexto en cada llamada de un pipeline | Files API (el `file_id` se almacena en base de datos junto al `documento_id` del payload vectorial) |
+| Analizar archivo por primera vez (extraccion estructural, mapa de dependencias) | LLM Routing Bridge (Regla 9) |
+| Mismo documento consultado por multiples usuarios en paralelo | Files API (un upload, N referencias) |
+| Corpus de 50 documentos para ingestion RAG masiva | LLM Routing Bridge con `--batch` |
+| Documento de referencia que el LLM necesita en cada llamada del pipeline | Files API (`file_id` se almacena en el payload vectorial junto al `documento_id`) |
 
-Integracion del `file_id` en el payload vectorial del chunk:
-
-```json
-{
-  "texto_fragmento": "<contenido del chunk>",
-  "documento_id": "contrato-2026-001",
-  "file_id_anthropic": "file_abc123",
-  "documento_titulo": "Contrato de prestamo Empresa X",
-  "posicion": 3,
-  "version_documento": "sha256:abc...",
-  "creado_en": "2026-03-28T10:00:00Z"
-}
-```
-
-El campo `file_id_anthropic` es opcional y solo se almacena cuando el documento fue subido via Files API para uso recurrente. Cuando el pipeline de generacion necesita adjuntar el documento completo al contexto del LLM (ademas de los chunks recuperados), referencia el `file_id` directamente sin re-subir el archivo.
+El campo `file_id_anthropic` en el payload vectorial es opcional; se almacena solo cuando el documento fue subido via Files API para uso recurrente.
 
 ## Evaluacion de Calidad del Pipeline RAG
 
 | Metrica | Descripcion | Umbral minimo |
 |---|---|---|
-| Precision de fuente | Porcentaje de respuestas donde la fuente citada es correcta | 90% |
-| Tasa de admision de ignorancia | Porcentaje de casos donde el sistema admite no tener informacion vs. alucinacion | 95% |
-| Latencia p50 del pipeline completo | Mediana de tiempo desde la consulta hasta la respuesta generada | Definido por el anfitrion |
+| Precision de fuente | Respuestas donde la fuente citada es correcta | 90% |
+| Tasa de admision de ignorancia | Casos donde el sistema admite no tener informacion vs. alucinacion | 95% |
+| Latencia p50 del pipeline completo | Mediana desde la consulta hasta la respuesta generada | Definido por el anfitrion |
 | Latencia p99 del pipeline completo | Percentil 99 del tiempo de respuesta | Definido por el anfitrion |
 
 Cambios que degraden cualquier metrica en mas de 5% requieren revision y aprobacion antes del despliegue.
 
 ## Citations API como Verificacion Nativa de Faithfulness
 
-La Citations API de Anthropic permite que el modelo devuelva referencias exactas a fragmentos del contexto recuperado que sustentan cada afirmacion de la respuesta. Esto elimina la necesidad de un paso separado de LLM-as-judge para verificar faithfulness en los casos donde el contexto es texto plain o documentos subidos via Files API.
-
-### Cuando usar Citations API vs LLM-as-judge
+Permite que el modelo devuelva referencias exactas a fragmentos del contexto que sustentan cada afirmacion. Elimina la necesidad de LLM-as-judge para verificar faithfulness cuando el contexto es texto plano o documentos via Files API.
 
 | Criterio | Citations API | LLM-as-judge |
 |---|---|---|
-| Tipo de contexto | Texto plano o documentos con `source.type: "text"` o `"document"` | Cualquier tipo, incluyendo estructurado o sintetico |
-| Tipo de verificacion | Faithfulness: la respuesta esta anclada en el contexto | Faithfulness + relevancia + calidad de redaccion |
-| Costo | Tokens adicionales de output (~10-20% de overhead) | Una llamada adicional completa al LLM |
+| Tipo de contexto | Texto plano o documentos con `source.type: "text"/"document"` | Cualquier tipo, incluyendo estructurado |
+| Tipo de verificacion | Faithfulness: respuesta anclada en el contexto | Faithfulness + relevancia + calidad |
+| Costo | ~10-20% overhead en tokens de output | Una llamada adicional completa al LLM |
 | Latencia | Sin latencia adicional (un solo turno) | Latencia de una llamada adicional |
-| Casos donde no aplica | Respuestas generativas sin contexto recuperado, razonamiento matematico | N/A |
+| No aplica | Respuestas sin contexto recuperado, razonamiento matematico | N/A |
 
-### Activacion en la llamada a la API
-
-```python
-# Activar citations en el bloque de documento del mensaje
-response = client.messages.create(
-    model="claude-sonnet-4-6",
-    max_tokens=1024,
-    messages=[{
-        "role": "user",
-        "content": [
-            {
-                "type": "document",
-                "source": {"type": "text", "media_type": "text/plain", "data": contexto_recuperado},
-                "citations": {"enabled": True}  # activar citations en este bloque
-            },
-            {"type": "text", "text": pregunta_usuario}
-        ]
-    }]
-)
-```
-
-### Procesamiento del output con citas
-
-La respuesta incluye bloques `text` con fragmentos de cita referenciados. El pipeline RAG puede registrar estas citas en el span de trazabilidad para auditoria de faithfulness sin llamada adicional al LLM:
-
-```python
-for block in response.content:
-    if block.type == "text":
-        for citation in getattr(block, "citations", []):
-            # citation.cited_text: fragmento exacto del contexto
-            # citation.document_index: indice del documento fuente
-            # citation.start_char_index / end_char_index: posicion exacta
-            registrar_cita_en_span(citation)
-```
+Activacion: en el bloque de documento del mensaje, incluir `"citations": {"enabled": True}`. El output incluye bloques `text` con fragmentos citados (`cited_text`, `document_index`, `start_char_index`/`end_char_index`) — registrar en span de trazabilidad para auditoria de faithfulness.
 
 ## Restricciones del Perfil
 
-Las Reglas Globales definidas en CLAUDE.md aplican sin excepcion a este perfil. Restricciones adicionales:
 - Prohibido invocar el bridge sin una Orden de Mision redactada y revisada previamente.
 - Prohibido proponer cambios al pipeline RAG sin justificacion en metricas de calidad.
 - Prohibido modificar colecciones vectoriales existentes sin plan de migracion explicito y aprobado.
