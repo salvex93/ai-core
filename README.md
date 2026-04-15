@@ -315,7 +315,7 @@ Las reglas globales son inmutables. Aplican a todos los perfiles sin excepcion. 
 | 6 | Enrutamiento Dinamico y Escalamiento | Define la triada Sonnet/Opus/Gemini. Escala a Opus bajo `[ALERTA_ARQUITECTONICA: REQUIERE_OPUSPLAN]`. Delega corpus grandes al Gemini Bridge. |
 | 7 | Persistencia y Trabajo Oculto | Registra hallazgos en BACKLOG.md (tabla 12 columnas). Registra trabajo oculto. |
 | 8 | Git Flow Universal | Ramas aisladas. Conventional Commits. Pipeline verde antes de merge. |
-| 9 | Brain-Sync (Gemini Bridge) | Delega analisis >500 lineas / >50KB y extraccion estructural de codigo local a `scripts/gemini-bridge.js`. Circuit Breaker activo: fallo por cuota degrada a grep/find (Regla 14). |
+| 9 | Delegacion de Analisis Masivo | Delega analisis >500 lineas / >50KB y extraccion estructural de codigo local a `scripts/gemini-bridge.js`. Circuit Breaker activo: fallo por cuota degrada a grep/find (Regla 14). |
 | 10 | UI/UX Pro Max | Atomic Design + micro-interacciones + WCAG AA + Mobile First obligatorios en frontend. |
 | 11 | Project Superpower | Auditoria preventiva autonoma. Corrige cuellos de botella al detectarlos. |
 | 12 | Everything Claude Code | Actualiza `package.json`, `.env.example` y equivalentes tras cambios que lo requieran. |
@@ -324,6 +324,8 @@ Las reglas globales son inmutables. Aplican a todos los perfiles sin excepcion. 
 | 15 | Documentacion Viva | Toda modificacion del nucleo exige actualizar README.md + `git add` + `git commit` + `git push`. |
 | 16 | Higiene de Contexto (Tokenomics) | Protege el presupuesto de tokens. TRIGGER DE COMPACTACION: imprime alerta para ejecutar `/compact` antes de generar codigo masivo tras una fase de investigacion. TRIGGER DE PURGA: imprime alerta para ejecutar `/clear` tras cerrar una tarea en BACKLOG.md. |
 | 17 | Versionado Obligatorio de Skills | Toda modificacion de un SKILL.md exige actualizar `version` (semver) y `last_updated` en el frontmatter en el mismo commit. Patch: correcciones. Minor: nuevas secciones. Major: reestructuracion completa. |
+| 18 | Brevedad de Respuesta | Sin frases de confirmacion ni resumenes post-tarea. Formato escalonado: linea unica para preguntas, bloque corregido para errores de sintaxis, solo el "por que" para logica compleja. Silencio Positivo como norma. |
+| 19 | Disciplina de Sesion | Una sesion = una tarea. Leer memoria antes que archivos al inicio. `/compact` en fronteras de fase investigacion→codigo. `/clear` al cerrar tarea. Guardar hallazgos no triviales en memoria antes del `/clear`. |
 
 ---
 
@@ -340,7 +342,9 @@ ai-core/
 ├── .env.example       Plantilla de variables de entorno — versionado
 ├── scripts/
 │   ├── init-backlog.js    Crea BACKLOG.md en el proyecto anfitrion si no existe
-│   └── gemini-bridge.js   Delega analisis documental a Gemini y retorna JSON/Markdown
+│   ├── gemini-bridge.js   Delega analisis documental a Gemini y retorna JSON/Markdown
+│   ├── query-backlog.js   Filtra BACKLOG.md sin cargarlo en contexto activo
+│   └── session-close.js   Persiste last_session.md en memoria al cierre (hook Stop)
 └── .claude/
     ├── settings.json      Template de hook Stop para el proyecto anfitrion
     └── skills/
@@ -387,7 +391,7 @@ El agente leera su propio codigo, propondra las mejoras y, tras tu aprobacion, e
    - "Directiva de Interrupcion" con condiciones especificas y la directiva literal
    - "Restricciones del Perfil" (hereda las Reglas Globales, puede agregar restricciones especificas)
 4. No sobreescribir ninguna Regla Global.
-5. Actualizar `CLAUDE.md`, `README.md` y `OPERATIONS.md` con la referencia al nuevo skill.
+5. Actualizar `CLAUDE.md`, seccion "Skills Disponibles". Esta es la unica accion de documentacion requerida. `README.md` y `OPERATIONS.md` no duplican el indice (Regla 15).
 6. Ejecutar `git add . && git commit && git push` (Regla 15).
 
 ---
