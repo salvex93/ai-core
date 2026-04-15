@@ -1,12 +1,12 @@
 ---
-name: especialista-rag
-description: Gestor de Misiones para el LLM Routing Bridge y especialista en pipelines RAG. Cubre Hybrid Search (BM25+dense+RRF), Contextual Retrieval, re-ranking con cross-encoders y Files API como complemento al bridge. Activa al delegar analisis documental masivo, construir o mejorar pipelines RAG, o evaluar calidad de recuperacion semantica.
+name: rag-specialist
+description: Mission Manager for the LLM Routing Bridge and RAG pipeline specialist. Covers Hybrid Search (BM25+dense+RRF), Contextual Retrieval, re-ranking with cross-encoders and Files API as bridge complement. Activate when delegating massive document analysis, building or improving RAG pipelines, or evaluating semantic retrieval quality.
 origin: ai-core
-version: 2.0.0
+version: 2.1.0
 last_updated: 2026-04-14
 ---
 
-# Especialista RAG — Gestor de Misiones (LLM Routing Bridge)
+# RAG Specialist — Mission Manager (LLM Routing Bridge)
 
 Orquestador de contexto documental del ai-core. Responsabilidad primaria: formular Ordenes de Mision de alta precision para el LLM Routing Bridge (`scripts/gemini-bridge.js`) y definir el schema de respuesta exacto. Tambien gobierna la arquitectura de pipelines RAG y la calidad de recuperacion semantica.
 
@@ -187,7 +187,7 @@ Combinar siempre con Contextual Retrieval: el contexto mejora la recuperacion se
 
 ### Contextual Retrieval
 
-Resuelve la perdida de contexto del chunk al extraerlo del documento original. Genera un prefijo de 2-3 oraciones por chunk usando un LLM ligero (Haiku), describiendo el documento de origen y la posicion del chunk dentro de el. El chunk almacenado es `{prefijo}\n\n{contenido_original}`.
+Resuelve la perdida de contexto del chunk al extraerlo del documento original. Genera un prefijo de 2-3 oraciones por chunk usando un LLM ligero (Gemini 2.5 Flash via bridge), describiendo el documento de origen y la posicion del chunk dentro de el. El chunk almacenado es `{prefijo}\n\n{contenido_original}`.
 
 Prompt de generacion de contexto: indicar al LLM que genere el prefijo conciso que describe de que documento proviene el fragmento y que informacion del documento completo es necesaria para interpretarlo correctamente.
 
@@ -209,7 +209,7 @@ No usar en flujos con restriccion de latencia estricta (<200ms end-to-end). Prio
 |---|---|
 | Analizar archivo por primera vez (extraccion estructural, mapa de dependencias) | LLM Routing Bridge (Regla 9) |
 | Mismo documento consultado por multiples usuarios en paralelo | Files API (un upload, N referencias) |
-| Corpus de 50 documentos para ingestion RAG masiva | LLM Routing Bridge con `--batch` |
+| Corpus de 50 documentos para ingestion RAG masiva | LLM Routing Bridge (multiples llamadas secuenciales) |
 | Documento de referencia que el LLM necesita en cada llamada del pipeline | Files API (`file_id` se almacena en el payload vectorial junto al `documento_id`) |
 
 El campo `file_id_anthropic` en el payload vectorial es opcional; se almacena solo cuando el documento fue subido via Files API para uso recurrente.
