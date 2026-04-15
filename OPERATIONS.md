@@ -24,9 +24,9 @@ El `BACKLOG.md` no es un documento de texto libre. Opera estrictamente bajo una 
 
 Esta disciplina esta codificada como la Regla 7 del nucleo y es obligatoria para todos los perfiles sin excepcion.
 
-### Configuracion de Brain-Sync
+### Configuracion de NotebookLM (RAG Documental Externo)
 
-Este protocolo se ejecuta una sola vez por repositorio anfitrion, bajo instruccion explicita del usuario. El comportamiento runtime de Brain-Sync esta definido en la Regla 9 de `CLAUDE.md`.
+Este protocolo se ejecuta una sola vez por repositorio anfitrion, bajo instruccion explicita del usuario. Complementa el Gemini Bridge (Regla 9): el bridge analiza corpus de codigo local, NotebookLM gestiona documentacion tecnica externa (RFCs, APIs de terceros, especificaciones).
 
 **Paso 1 — Generar nombre de proyecto.**
 Derivar un identificador descriptivo en mayusculas a partir del nombre del directorio raiz del repositorio anfitrion. Formato: `BRAIN-{NOMBRE-DEL-PROYECTO}`. Ejemplo: para un directorio `mi-proyecto`, el nombre es `BRAIN-MI-PROYECTO`.
@@ -143,6 +143,11 @@ ai-core/
 ├── README.md                          Consola de mando del ecosistema
 ├── OPERATIONS.md                      Este archivo
 ├── BACKLOG.md                         Deuda tecnica y hallazgos persistidos
+├── scripts/
+│   ├── init-backlog.js                Crea BACKLOG.md en el anfitrion si no existe (hook Stop)
+│   ├── gemini-bridge.js               Delega analisis documental masivo a Gemini
+│   ├── query-backlog.js               Filtra BACKLOG.md sin cargarlo en contexto activo
+│   └── session-close.js               Persiste last_session.md en memoria al cierre
 └── .claude/
     └── skills/
         └── <nombre-skill>/
