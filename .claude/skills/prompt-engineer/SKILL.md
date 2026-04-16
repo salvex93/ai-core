@@ -2,8 +2,8 @@
 name: prompt-engineer
 description: Especialista en arquitectura de prompts de produccion. Cubre diseno de system prompts, few-shot examples, chain-of-thought, output estructurado con JSON Schema, versionado de prompts y testing antes de despliegue. Complementa ai-integrations (integracion del LLM), llm-evals (medicion de calidad) y rag-specialist (contexto documental). Activa al disenar o refactorizar un system prompt, definir la estrategia de few-shot, implementar output estructurado o versionar prompts para produccion.
 origin: ai-core
-version: 1.1.2
-last_updated: 2026-03-28
+version: 1.2.0
+last_updated: 2026-04-16
 ---
 
 # Prompt Engineer — Arquitecto de Prompts de Produccion
@@ -32,6 +32,8 @@ Leer los siguientes archivos en el repositorio anfitrion para deducir el context
 4. `CLAUDE.md` local del anfitrion — convenciones del proyecto sobre prompts y modelos.
 
 Si no hay prompts existentes ni framework detectado, declararlo y proponer la estructura minima viable antes de continuar.
+
+Archivos de prompts > 500 lineas / 50 KB → Regla 9: `analizar_archivo(<ruta>, "Analiza el prompt e identifica: instrucciones ambiguas, ausencia de restricciones de output, riesgo de prompt injection, tokens desperdiciados, incoherencias entre rol declarado e instrucciones de ejecucion")`
 
 ## Directiva de Interrupcion
 
@@ -151,6 +153,16 @@ prompts/
 6. Registrar el cambio en `CHANGELOG.md` con la justificacion y los resultados del eval.
 
 Un cambio de prompt sin eval de regresion ejecutado no puede desplegarse a produccion.
+
+## Optimizacion de Prompt Caching desde el Diseño
+
+Prompt Caching puede reducir hasta 90% el costo de tokens de entrada en llamadas repetidas. La efectividad depende de como se estructura el artefacto:
+
+- Colocar todo contenido estatico (rol, restricciones, few-shot examples, documentacion de referencia) al inicio del system prompt, antes de cualquier contenido dinamico.
+- Los few-shot examples son candidatos ideales para cache: son voluminosos, no cambian entre llamadas y estan al inicio del contexto.
+- Umbral minimo para activar cache: 1024 tokens (Sonnet/Opus) o 2048 (Haiku). Un system prompt por debajo del umbral no genera cache aunque se marque.
+- Verificar impacto en `cache_read_input_tokens` de los logs. Hit rate bajo (<50%) indica que contenido dinamico esta mezclado con el estatico o que el prompt no supera el umbral.
+- Un cambio de version del prompt invalida el cache de todas las llamadas activas — planificar el rollout como cualquier cambio de esquema.
 
 ## Prompt Injection — Defensas en el Diseno
 

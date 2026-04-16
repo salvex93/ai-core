@@ -130,6 +130,7 @@ Una sesion = una tarea del BACKLOG. Al inicio: leer `.claude/projects/memory/` a
 | `devops-infra` | IaC, Kubernetes, networking, OTel/Grafana |
 | `ai-integrations` | Integrar LLM, costos, streaming, fallback |
 | `claude-agent-sdk` | Agentes autonomos, subagentes, hooks, MCP |
+| `managed-agents-specialist` | Agentes gestionados Anthropic, herramientas integradas, loops de agente |
 | `mcp-server-builder` | Servidor MCP, herramientas JSON Schema, stdio/SSE |
 | `llm-evals` | Evals, calidad RAG, comparar prompts, gate CI/CD |
 | `llm-observability` | Tracing LLM, dashboards costo/latencia, alertas |

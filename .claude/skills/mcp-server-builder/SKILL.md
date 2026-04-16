@@ -2,8 +2,8 @@
 name: mcp-server-builder
 description: Especialista en construccion de servidores MCP (Model Context Protocol). Cubre ciclo de vida del protocolo, transportes stdio y SSE/HTTP, definicion de herramientas con JSON Schema, seguridad de inputs, testing con MCP Inspector y despliegue. Activa al construir un servidor MCP propio, exponer herramientas internas a Claude, o publicar un servidor MCP en el registro oficial.
 origin: ai-core
-version: 1.2.2
-last_updated: 2026-03-28
+version: 1.3.0
+last_updated: 2026-04-16
 ---
 
 # MCP Server Builder — Especialista en Servidores Model Context Protocol
@@ -144,6 +144,29 @@ def buscar_producto(query: str, limite: int = 10) -> str:
 - La descripcion explica el objetivo de negocio, no la implementacion tecnica. Claude la usa para decidir si invocar la herramienta.
 - Cada argumento tiene su propio `description` con el formato esperado y los limites validos. Claude construye el llamado basandose en estas descripciones.
 - No incluir secretos, URLs internas ni detalles de infraestructura en la descripcion ni en el schema. Son visibles para el modelo.
+
+### Anotaciones de herramientas (Tool Annotations)
+
+La especificacion MCP 2025-03-26 define metadatos opcionales de comportamiento por herramienta. El cliente MCP puede usarlos para solicitar confirmacion del usuario antes de ejecutar operaciones sensibles.
+
+| Anotacion | Tipo | Significado |
+|---|---|---|
+| `readOnlyHint` | boolean | La herramienta no modifica estado ni datos |
+| `destructiveHint` | boolean | Puede tener efectos irreversibles |
+| `idempotentHint` | boolean | Llamadas repetidas con mismos argumentos producen el mismo resultado |
+| `openWorldHint` | boolean | Accede a servicios o redes externas |
+
+```typescript
+server.tool(
+  'eliminar_registro',
+  'Elimina un registro de la base de datos por ID.',
+  { id: { type: 'string', description: 'ID del registro a eliminar.' } },
+  { destructiveHint: true, idempotentHint: false },
+  async ({ id }) => { /* implementacion */ }
+);
+```
+
+Regla: declarar `destructiveHint: true` en toda herramienta con efectos irreversibles. El cliente usa esta anotacion para mostrar confirmacion al usuario antes de ejecutar.
 
 ### Tipos de contenido en la respuesta
 
