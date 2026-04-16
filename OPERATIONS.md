@@ -145,7 +145,8 @@ ai-core/
 ├── BACKLOG.md                         Deuda tecnica y hallazgos persistidos
 ├── scripts/
 │   ├── init-backlog.js                Crea BACKLOG.md en el anfitrion si no existe (hook Stop)
-│   ├── gemini-bridge.js               Delega analisis documental masivo a Gemini
+│   ├── gemini-bridge.js               CLI de respaldo: delega analisis documental a Gemini
+│   ├── mcp-gemini.js                  Servidor MCP stdio: expone analizar_archivo y analizar_contenido
 │   ├── query-backlog.js               Filtra BACKLOG.md sin cargarlo en contexto activo
 │   └── session-close.js               Persiste last_session.md en memoria al cierre
 └── .claude/
@@ -230,7 +231,7 @@ Checklist de inicio y cierre de sesion para maximizar el presupuesto de tokens d
 
 - Al terminar una fase de investigacion (lectura de multiples archivos, analisis de arquitectura): ejecutar `/compact` antes de generar codigo masivo.
 - Para leer archivos de estado del proyecto: usar `node scripts/query-backlog.js` en lugar de leer `BACKLOG.md` completo.
-- Para analizar archivos > 500 lineas: usar el bridge en lugar de Read: `node scripts/gemini-bridge.js --mission "<orden>" --file <ruta>`
+- Para analizar archivos > 500 lineas: el agente invoca automaticamente `analizar_archivo(ruta, mision)` via MCP. CLI de respaldo: `node scripts/gemini-bridge.js --mission "<orden>" --file <ruta>`
 
 ### Cierre de sesion
 

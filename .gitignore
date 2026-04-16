@@ -1,3 +1,6 @@
+# Dependencias Node.js
+node_modules/
+
 # Variables de entorno — nunca al repositorio
 .env
 .env.local

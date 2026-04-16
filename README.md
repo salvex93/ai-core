@@ -1,4 +1,4 @@
-# AI-CORE: Nexus Multi-Agente Universal
+# AI-CORE: Nucleo Multi-Agente Universal
 
 `ai-core` es un nucleo de configuracion y comportamiento para agentes IA que se incorpora a cualquier repositorio como submódulo Git. Inyecta reglas globales inmutables y perfiles de comportamiento tecnico especializados (skills) sin acoplar su logica al stack del proyecto anfitrion. La lista autoritativa de reglas y skills esta en `CLAUDE.md`.
 
@@ -34,7 +34,7 @@ git commit -m "chore: actualizar ai-core a la ultima version del nucleo"
 
 ### Paso 2 — Instalar dependencias del nucleo
 
-El nucleo incluye scripts Node.js (`scripts/gemini-bridge.js`) que requieren una dependencia:
+El nucleo incluye el servidor MCP (`scripts/mcp-gemini.js`) y el script CLI de respaldo (`scripts/gemini-bridge.js`), ambos requieren una dependencia:
 
 ```bash
 cd .claude/ai-core
@@ -135,6 +135,13 @@ El bridge es una politica de COSTO, no de capacidad: cargar corpus extensos en e
 - La tarea requiere extraer firmas, clases o mapas de dependencias de un modulo de codigo local (modo Obrero de Lectura).
 
 ### Uso directo
+
+La interfaz primaria es via herramientas MCP (activadas automaticamente por el agente segun Regla 9):
+
+- `analizar_archivo(ruta, mision)` — detecta umbral y delega a Gemini si supera 500 lineas / 50 KB
+- `analizar_contenido(contenido, mision)` — para texto ya cargado en memoria
+
+Como respaldo CLI (sin servidor MCP activo):
 
 ```bash
 # Analisis con salida JSON
@@ -282,7 +289,7 @@ Las reglas globales son inmutables. Aplican a todos los perfiles sin excepcion. 
 | 6 | Enrutamiento Dinamico y Escalamiento | Define la triada Sonnet/Opus/Gemini. Escala a Opus bajo `[ALERTA_ARQUITECTONICA: REQUIERE_OPUSPLAN]`. Delega corpus grandes al Gemini Bridge. |
 | 7 | Persistencia y Trabajo Oculto | Registra hallazgos en BACKLOG.md (tabla 12 columnas). Registra trabajo oculto. |
 | 8 | Git Flow Universal | Ramas aisladas. Conventional Commits. Pipeline verde antes de merge. |
-| 9 | Delegacion de Analisis Masivo | Delega analisis >500 lineas / >50KB y extraccion estructural de codigo local a `scripts/gemini-bridge.js`. Circuit Breaker activo: fallo por cuota degrada a grep/find (Regla 14). |
+| 9 | Delegacion de Analisis Masivo | Delega analisis >500 lineas / >50KB via MCP tools `analizar_archivo` / `analizar_contenido` (servidor `gemini-bridge`). Circuit Breaker activo: fallo por cuota degrada a grep/find (Regla 14). |
 | 10 | UI/UX Pro Max | Atomic Design + micro-interacciones + WCAG AA + Mobile First obligatorios en frontend. |
 | 11 | Project Superpower | Auditoria preventiva autonoma. Corrige cuellos de botella al detectarlos. |
 | 12 | Everything Claude Code | Actualiza `package.json`, `.env.example` y equivalentes tras cambios que lo requieran. |
@@ -309,7 +316,8 @@ ai-core/
 ├── .env.example       Plantilla de variables de entorno — versionado
 ├── scripts/
 │   ├── init-backlog.js    Crea BACKLOG.md en el proyecto anfitrion si no existe
-│   ├── gemini-bridge.js   Delega analisis documental a Gemini y retorna JSON/Markdown
+│   ├── gemini-bridge.js   CLI de respaldo: delega analisis a Gemini y retorna JSON/Markdown
+│   ├── mcp-gemini.js      Servidor MCP stdio: expone analizar_archivo y analizar_contenido
 │   ├── query-backlog.js   Filtra BACKLOG.md sin cargarlo en contexto activo
 │   └── session-close.js   Persiste last_session.md en memoria al cierre (hook Stop)
 └── .claude/
