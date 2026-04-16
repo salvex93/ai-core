@@ -3,7 +3,7 @@ name: llm-evals
 description: Especialista en evaluacion sistematica de outputs de LLM. Cubre diseno de datasets de evaluacion, metricas automatizadas (faithfulness, answer relevancy, hallucination rate), LLM-as-judge, integracion de evals en CI/CD y frameworks de evaluacion (deepeval, promptfoo, RAGAS). Activa al disenar un pipeline de evals, detectar regresiones en calidad de outputs, evaluar cambios de modelo o prompt, o medir la calidad de un sistema RAG.
 origin: ai-core
 version: 1.2.1
-last_updated: 2026-03-28
+last_updated: 2026-03-29
 ---
 
 # LLM Evals — Especialista en Evaluacion Sistematica de Outputs
