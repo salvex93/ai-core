@@ -6,11 +6,13 @@
   "scripts": {
     "init-backlog": "node scripts/init-backlog.js",
     "gemini-bridge": "node scripts/gemini-bridge.js",
+    "mcp-gemini": "node scripts/mcp-gemini.js",
     "query-backlog": "node scripts/query-backlog.js"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.39.0",
-    "@google/generative-ai": "^0.21.0"
+    "@google/generative-ai": "^0.21.0",
+    "@modelcontextprotocol/sdk": "^1.29.0"
   },
   "engines": {
     "node": ">=18.0.0"
