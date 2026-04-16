@@ -24,7 +24,7 @@ Toda modificacion indica ruta relativa y numero de linea exacto. Comentarios exp
 ### Regla 6 — Enrutamiento Dinamico (Model Routing)
 - Codigo, refactor, review, test, debug → Sonnet (default)
 - Ambiguedad o riesgo de ruptura → Sonnet + Regla 13
-- Archivo > 500 lineas / 50 KB → Gemini Bridge (Regla 9)
+- Archivo > 500 lineas / 50 KB → MCP tool `analizar_archivo` (Regla 9) — PROHIBIDO usar Read directamente
 - Condicion de escalamiento arquitectonico → emitir `[ALERTA_ARQUITECTONICA: REQUIERE_OPUSPLAN]`, detener codigo, abrir claude.ai Pro con Extended Thinking, reanudar tras plan aprobado.
 
 Condiciones de escalamiento a OPUSPLAN:
@@ -43,10 +43,16 @@ Tests y linting obligatorios antes de merge. Pipeline rojo bloquea sin excepcion
 Gatillo "haz el flujo de git": `git add .` → commit exhaustivo → `git push origin [rama_activa]`.
 
 ### Regla 9 — Delegacion de Analisis Masivo (Gemini Bridge)
-Delegacion obligatoria para archivos > 500 lineas / 50 KB o lectura simultanea de multiples archivos grandes. Modelo: `gemini-2.5-flash` (free tier, requiere `GEMINI_API_KEY`). Bridge extractivo, no destructivo.
-Comando: `node scripts/gemini-bridge.js --mission "<orden>" --file <ruta>`
-Fallos: Exit 1 → bifurcar a Regla 14 para patrones, detener si requiere razonamiento LLM. Sin `GEMINI_API_KEY` → modo local + `[BRIDGE NO DISPONIBLE: agregar GEMINI_API_KEY al .env]`
-El skill `rag-specialist` formula misiones y esquemas de respuesta antes de invocar el bridge.
+Delegacion obligatoria para archivos > 500 lineas / 50 KB. Modelo: `gemini-2.5-flash` (free tier). Bridge extractivo: devuelve sintesis, nunca carga el contenido completo en el contexto de Claude.
+
+Protocolo de pre-lectura (Regla 14 extendida): antes de cualquier `Read`, ejecutar `wc -l <ruta>`. Si supera el umbral, invocar el MCP tool en su lugar.
+
+Herramientas MCP disponibles (servidor `gemini-bridge`):
+- `analizar_archivo(ruta, mision)` — lee el archivo y delega a Gemini si supera umbral
+- `analizar_contenido(contenido, mision)` — delega texto ya cargado en memoria
+
+Fallos: sin `GEMINI_API_KEY` → `[BRIDGE NO DISPONIBLE: agregar GEMINI_API_KEY al .env]`. Cuota agotada → bifurcar a patrones con Regla 14, detener si requiere razonamiento LLM.
+El skill `rag-specialist` formula misiones antes de invocar las herramientas.
 
 ### Regla 10 — UI/UX Pro Max (Frontend Excellence)
 Todo componente frontend debe cumplir sin solicitud explicita:
@@ -72,6 +78,7 @@ Detenerse y solicitar contexto si:
 
 ### Regla 14 — Eficiencia de Busqueda
 Usar `grep` / `find` antes de leer archivos completos. Busqueda dirigida siempre antes de lectura masiva de directorio.
+Pre-check obligatorio: `wc -l <ruta>` antes de `Read`. Si resultado > 500, invocar `analizar_archivo` (Regla 9) en lugar de Read.
 
 ### Regla 15 — Documentacion Viva
 `README.md` se actualiza SOLO ante cambios visibles para usuarios externos: skill nuevo/eliminado, cambio en instalacion, modificacion del LLM Routing Bridge. Ediciones internas de SKILL.md no activan esta regla.

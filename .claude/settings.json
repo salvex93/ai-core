@@ -1,4 +1,11 @@
 {
+  "mcpServers": {
+    "gemini-bridge": {
+      "command": "cmd",
+      "args": ["/c", "node", "scripts/mcp-gemini.js"],
+      "cwd": "C:\\Users\\arimac\\Documents\\Proyectos - MarIA\\ai-core"
+    }
+  },
   "hooks": {
     "Stop": [
       {
