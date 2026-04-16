@@ -2,8 +2,8 @@
 name: claude-agent-sdk
 description: Especialista en construccion de agentes autonomos con el Claude Agent SDK (TypeScript/Python). Cubre herramientas integradas, hooks de ciclo de vida, subagentes, integracion MCP, OAuth 2.0 client flow (Authorization Code + PKCE) para servidores MCP remotos, gestion de permisos y sesiones. Activa al construir agentes personalizados, orquestar subagentes, integrar el Agent SDK en un proyecto anfitrion o disenar flujos de automatizacion con Claude.
 origin: ai-core
-version: 2.0.0
-last_updated: 2026-04-14
+version: 2.1.0
+last_updated: 2026-04-16
 ---
 
 # Claude Agent SDK — Especialista en Agentes Autonomos
@@ -176,6 +176,27 @@ Reglas: incluir bloques `thinking` del turno anterior en el historial del siguie
 7. Costos: limite de tokens o iteraciones configurado para evitar bucles costosos.
 8. Injection: input del usuario pasa por proteccion de prompt injection (ver `ai-integrations`).
 9. Precision: cada hallazgo cita ruta relativa y numero de linea exacto.
+
+## Managed Agents vs Agent SDK — Arbol de Decision
+
+Anthropic ofrece dos rutas para ejecutar agentes en produccion (desde abril 2026):
+
+| Criterio | Agent SDK (self-hosted) | Managed Agents (hosted) |
+|---|---|---|
+| Control del loop | Total: el runtime vive en tu proceso | Ninguno: Anthropic ejecuta el loop |
+| Infraestructura | Requieres desplegar y mantener el runtime | Cero infraestructura propia |
+| Costo | Solo tokens del modelo | Tokens + $0.08/session-hora |
+| Sesiones long-running | Manual: debes persistir estado | Nativo: estado gestionado por Anthropic |
+| Herramientas built-in | Debes registrarlas manualmente | Disponibles via API sin setup |
+| Casos de uso | Control total, loops deterministas, pipeline critico | Prototipado rapido, tareas delegadas, agentes autonomos sin infra |
+
+Cuándo elegir Agent SDK: el loop de razonamiento tiene logica condicional propia, necesitas observabilidad completa con spans OTel propios, o el agente forma parte de un pipeline critico que no puede depender de la disponibilidad de un servicio externo.
+
+Cuándo elegir Managed Agents: el objetivo es desplegar sin operar infraestructura, el costo de $0.08/session-hora es aceptable, y las sesiones son long-running (minutos a horas) con herramientas built-in (web search, code execution, computer use).
+
+Header obligatorio en Managed Agents: `managed-agents-2026-04-01` (beta). El SDK lo inyecta automaticamente.
+
+Patron de cost optimization en multi-agente: usar `claude-haiku-4-5` para sub-tareas de clasificacion, extraccion y validacion; reservar Opus/Sonnet para razonamiento complejo. Ahorro empirico: 60-70% en costo por token.
 
 ## Restricciones del Perfil
 

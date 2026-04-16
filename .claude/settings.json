@@ -1,8 +1,8 @@
 {
   "mcpServers": {
     "gemini-bridge": {
-      "command": "cmd",
-      "args": ["/c", "node", "scripts/mcp-gemini.js"],
+      "command": "C:\\nvm4w\\nodejs\\node.exe",
+      "args": ["--env-file=.env", "scripts/mcp-gemini.js"],
       "cwd": "C:\\Users\\arimac\\Documents\\Proyectos - MarIA\\ai-core"
     }
   },

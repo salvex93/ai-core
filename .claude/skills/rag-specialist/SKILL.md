@@ -1,9 +1,9 @@
 ---
 name: rag-specialist
-description: Mission Manager for the LLM Routing Bridge and RAG pipeline specialist. Covers Hybrid Search (BM25+dense+RRF), Contextual Retrieval, re-ranking with cross-encoders and Files API as bridge complement. Activate when delegating massive document analysis, building or improving RAG pipelines, or evaluating semantic retrieval quality.
+description: Especialista en pipelines RAG y Mission Manager del LLM Routing Bridge. Cubre Hybrid Search (BM25+denso+RRF), Contextual Retrieval, re-ranking con cross-encoders y Files API como complemento del bridge. Activa al delegar analisis documental masivo, construir o mejorar pipelines RAG, o evaluar la calidad de recuperacion semantica.
 origin: ai-core
-version: 2.1.0
-last_updated: 2026-04-14
+version: 2.2.0
+last_updated: 2026-04-16
 ---
 
 # RAG Specialist — Mission Manager (LLM Routing Bridge)
@@ -18,6 +18,19 @@ Orquestador de contexto documental del ai-core. Responsabilidad primaria: formul
 - Al evaluar la calidad de recuperacion semantica de un pipeline existente.
 - Al diagnosticar alucinaciones o respuestas sin fuente identificada.
 - Al incorporar nuevos documentos al corpus documental del proyecto anfitrion.
+
+## Primera Accion al Activar (ver Regla 3)
+
+Antes de formular cualquier Orden de Mision o proponer componentes RAG:
+
+```
+package.json / requirements.txt  → detectar vectorstore, embedding library, LLM client
+.env / .env.example               → verificar GEMINI_API_KEY y endpoints de inferencia
+```
+
+Si existe un vectorstore activo (`pgvector`, `chromadb`, `qdrant-client`, `pinecone-client`, `weaviate-client`), proponer extensiones sobre ese stack. No proponer migraciones sin justificacion tecnica y confirmacion explicita.
+
+Verificar disponibilidad del bridge (ver Paso 1 del Protocolo de Conexion) antes de asumir que la delegacion esta disponible.
 
 ## Protocolo de Conexion Brain-Sync
 
@@ -60,12 +73,15 @@ En proyecto nuevo o tras periodo sin uso, verificar que el identificador de mode
 ```bash
 curl -s "https://generativelanguage.googleapis.com/v1beta/models?key=${GEMINI_API_KEY}" \
   | jq '.models[] | select(.name | contains("gemini")) | {name: .name, displayName: .displayName}' \
-  | grep -E "gemini-2\.[0-9]"
+  | grep -E "gemini-(2\.[0-9]|3\.[0-9])"
 ```
 
-Criterio de seleccion:
-- `gemini-2.5-flash`: default. Optimizado para throughput y costo. Adecuado para la mayoria de corpus de documentacion tecnica.
-- `gemini-2.5-pro`: cuando la tarea requiere precision sobre throughput — relaciones complejas, razonamiento multi-documento, logica de negocio no trivial.
+Criterio de seleccion (actualizado 2026-04-16):
+- `gemini-2.5-flash`: default. Optimizado para throughput y costo. Adecuado para corpus de documentacion tecnica de hasta ~100MB.
+- `gemini-3.1-flash`: cuando se requiere mayor capacidad de razonamiento con velocidad comparable a 2.5-flash. Limite de archivo: 100MB.
+- `gemini-3.1-pro`: cuando la tarea requiere precision sobre throughput — relaciones complejas, razonamiento multi-documento, logica de negocio no trivial. Context window: 1M tokens.
+
+Nota: el limite de archivo de la Gemini API subio de 20MB a 100MB. Archivos entre 20MB y 100MB son ahora delegables sin preprocesamiento adicional.
 
 ```bash
 node scripts/gemini-bridge.js \
