@@ -329,6 +329,7 @@ ai-core/
         ├── attack-surface-analyst/ SKILL.md
         ├── backend-architect/     SKILL.md
         ├── claude-agent-sdk/      SKILL.md
+        ├── managed-agents-specialist/ SKILL.md
         ├── data-engineer/         SKILL.md
         ├── devops-infra/          SKILL.md
         ├── rag-specialist/      SKILL.md

@@ -2,8 +2,8 @@
 name: ai-integrations
 description: Especialista en integracion de LLMs en aplicaciones de produccion. Cubre diseno de features de IA, gestion de costos por token, prompt versioning, streaming, fallback entre proveedores y evaluacion de outputs. Agnostico al proveedor. Activa al integrar Claude, Gemini u otro LLM en un proyecto anfitrion, disenar endpoints de IA o gestionar costos de inferencia.
 origin: ai-core
-version: 2.0.0
-last_updated: 2026-04-14
+version: 2.0.1
+last_updated: 2026-04-16
 ---
 
 # AI Integrations — Especialista en Features de IA en Produccion
@@ -120,7 +120,7 @@ Verificar estado actual en `docs.anthropic.com/changelog` antes de implementar e
 | Messages Batches | `message-batches-2024-09-24` | GA 2025 — `client.messages.batches`, sin cabecera |
 | Files API | `files-api-2025-04-14` | GA 2026 — `client.files`, sin cabecera |
 | Token-efficient tools | `token-efficient-tools-2025-02-19` | GA 2026 — sin cabecera |
-| Interleaved Thinking | `interleaved-thinking-2025-05-14` | Beta vigente (ago-2025) — re-verificar |
+| Interleaved Thinking | `interleaved-thinking-2025-05-14` | Beta activa — verificar en changelog antes de implementar |
 
 Patron de gestion: mapa centralizado `BETA_HEADERS`. Al confirmar GA, establecer valor en `undefined` — todos los callers heredan el cambio automaticamente.
 
