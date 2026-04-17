@@ -16,10 +16,16 @@ const fs   = require('fs');
 const path = require('path');
 
 const BACKLOG_PATH  = path.resolve(__dirname, '../BACKLOG.md');
-const MEMORY_DIR    = path.resolve(
-  process.env.USERPROFILE || process.env.HOME,
-  '.claude/projects/C--Users-arimac-Documents-Proyectos---MarIA-ai-core/memory'
-);
+
+// Deriva el ID de proyecto que Claude Code genera a partir de la ruta:
+// cada caracter :  \  /  espacio se reemplaza por un guion individual.
+const MEMORY_DIR = (function () {
+  const base        = process.env.USERPROFILE || process.env.HOME;
+  const projectRoot = path.resolve(__dirname, '..');
+  const projectId   = projectRoot.replace(/[:\\/\s]/g, '-');
+  return path.resolve(base, `.claude/projects/${projectId}/memory`);
+})();
+
 const SNAPSHOT_PATH = path.join(MEMORY_DIR, 'last_session.md');
 
 // Parsear filas de la tabla Markdown del BACKLOG
