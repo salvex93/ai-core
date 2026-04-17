@@ -10,5 +10,9 @@ node_modules/
 # Archivos de configuracion de workspace generados localmente
 NOTEBOOK_SETUP.md
 
+# Archivos de configuracion Claude Code con credenciales personales
+.claude/settings.local.json
+.claude.json
+
 # Scripts de automatizacion premium — nunca al repositorio publico
 scripts/premium/
