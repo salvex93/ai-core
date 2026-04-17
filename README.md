@@ -44,7 +44,11 @@ cd ../..
 
 Dependencia instalada: `@google/generative-ai` (Gemini 2.5 Flash, free tier).
 
-### Paso 3 — Configurar variables de entorno
+### Paso 3 — Configurar el Gemini Bridge
+
+El LLM Routing Bridge requiere una clave de API de Google (gratuita) para operar. Hay dos formas de configurarla.
+
+#### Opcion A — Variables de entorno (recomendado para proyectos locales)
 
 Agregar al archivo `.env` del proyecto anfitrion:
 
@@ -60,7 +64,53 @@ Agregar `.env` al `.gitignore` del proyecto anfitrion:
 echo ".env" >> .gitignore
 ```
 
-Sin esta variable, el nucleo opera en modo local (grep/find) con plena capacidad para tareas de busqueda de texto.
+#### Opcion B — Configuracion global `.claude.json` (recomendado para produccion)
+
+Para reutilizar la misma clave de API en multiples proyectos sin duplicar `.env`, configurar a nivel global en el directorio home del usuario.
+
+**Paso 1: Obtener la clave de API**
+
+Visitar https://aistudio.google.com/app/apikey y crear una nueva clave en la consola de Google AI Studio (gratuito, sin tarjeta de credito requerida).
+
+**Paso 2: Crear o editar `~/.claude.json` (Linux/Mac) o `%USERPROFILE%\.claude.json` (Windows)**
+
+Estructura minima:
+
+```json
+{
+  "gemini-bridge": {
+    "api_key": "tu-clave-de-api-aqui"
+  }
+}
+```
+
+O si ya existe el archivo con otra configuracion:
+
+```json
+{
+  "model": "claude-sonnet-4-6",
+  "gemini-bridge": {
+    "api_key": "tu-clave-de-api-aqui"
+  }
+}
+```
+
+**Paso 3: Verificar conectividad**
+
+```bash
+node .claude/ai-core/scripts/gemini-bridge.js --mission "test" --file README.md --format json
+```
+
+Respuesta esperada: un JSON con `resumen`, `hallazgos_clave` y `metadatos`. Si hay error de autenticacion, revisar que la clave este copiada exactamente sin espacios en blanco.
+
+**Precedencia de configuracion**
+
+El agente busca `GEMINI_API_KEY` en este orden:
+1. Variable de entorno `.env` del proyecto anfitrion.
+2. Archivo global `~/.claude.json` del usuario (Opcion B).
+3. Si ningun origen configura la clave → modo degradado: grep/find en el contexto principal sin delegacion al bridge.
+
+Sin esta configuracion, el nucleo opera en modo local (grep/find) con plena capacidad para tareas de busqueda de texto. El Bridge es opcional pero recomendado para proyectos con corpus de codigo extenso (Regla 9).
 
 ### Paso 4 — Configurar el hook de sesion
 
@@ -315,6 +365,49 @@ Los agentes leen los manifiestos de dependencias disponibles y adaptan sus recom
 La lista autoritativa de skills con sus descripciones y condiciones de activacion esta en `CLAUDE.md`, seccion "Skills Disponibles". Cada skill reside en `.claude/skills/<nombre>/SKILL.md`.
 
 Para ver los skills activos: `ls .claude/skills/`
+
+#### Manual de Skills — Auto-Activacion por Palabras Clave (Regla 20 + Regla 22)
+
+El agente activa skills automaticamente al detectar dominio tecnico en la solicitud del usuario (zero-shot, sin instruccion explicita). Esta tabla documenta los lexemas que disparan cada skill a confidence > 85%.
+
+| Skill | Palabras Clave de Activacion | Confidence | Auto-Trigger | Ejemplo de Activacion |
+|---|---|---|---|---|
+| `tech-lead-frontend` | componente, estado, bundle, CSS, styled, Tailwind, React, Vue, Angular, layout, UI, WCAG, accesibilidad | 85%+ | Si | "¿Como estructuro el estado compartido entre componentes?" |
+| `claude-agent-sdk` | agente, subagente, hook, SDK, autonomo, decorator, tool_use | 85%+ | Si | "Quiero construir un agente que ejecute multiples herramientas" |
+| `managed-agents-specialist` | agente gestionado, tools Anthropic, loop de agente, control agent | 85%+ | Si | "Configura un agente gestionado con herramientas integradas" |
+| `ai-integrations` | LLM, modelo, streaming, fallback, proveedor, costos, token counting | 80%+ | Si | "¿Como cambiar entre Claude y otro modelo?" |
+| `prompt-engineer` | prompt, few-shot, system message, chain-of-thought, versionado prompt | 85%+ | Si | "Optimiza este prompt de clasificacion" |
+| `mcp-server-builder` | MCP, servidor, herramienta, JSON Schema, stdio, SSE | 85%+ | Si | "Quiero crear una nueva herramienta MCP" |
+| `llm-evals` | eval, benchmark, calidad LLM, golden dataset, metrica, gate CI/CD | 85%+ | Si | "Diseña un golden dataset para evaluar resumen" |
+| `llm-observability` | tracing, observabilidad, dashboard, costo LLM, latencia, Grafana | 85%+ | Si | "¿Como monitoreo el costo total de mis llamadas al LLM?" |
+| `rag-specialist` | RAG, vector, embedding, retrieval, documento, indexacion | 85%+ | Si | "Construye un pipeline RAG para base de conocimiento" |
+| `backend-architect` | API, schema, migracion, query, BD, ORM, Knex, SQL, Prisma | 90%+ | Si | "Diseña el schema para entidades de usuario y permisos" |
+| `mobile-engineer` | Flutter, BLoC, Riverpod, Firebase, iOS, Android, mobile, build | 85%+ | Si | "¿Como manejo el estado con Riverpod en Flutter?" |
+| `release-manager` | release, branching, deploy, CI/CD, rollback, Git Flow, SemVer | 85%+ | Si | "Prepara un release v2.4.0 con plan de rollback" |
+| `qa-engineer` | test, jest, pytest, vitest, cobertura, coverage, contract testing | 90%+ | Si | "¿Cual es la cobertura minima para logica critica?" |
+| `security-auditor` | seguridad, CVE, OWASP, secreto, password, token, compliance | 95%+ | Si | "Audita este endpoint contra ataques OWASP Top 10" |
+| `devops-infra` | Kubernetes, IaC, Terraform, Docker, infraestructura, networking | 85%+ | Si | "Configura Kubernetes para escalar automaticamente por CPU" |
+| `data-engineer` | pipeline, dbt, Medallion, airflow, dagster, datos, linaje | 85%+ | Si | "Diseña una capa Silver idempotente en Medallion" |
+| `ai-guardrails` | guardrail, filtro, validacion input, output filter, jailbreak | 90%+ | Si | "Implementa filtros contra prompt injection" |
+| `attack-surface-analyst` | superficie, exposicion, credencial, subdominio, reconocimiento | 85%+ | Si | "¿Que subdominios y puertos tengo expuestos?" |
+| `aiops-engineer` | auditoria, skill, Anthropic, changelog, nueva capacidad, version | 90%+ | Si | "Audita el ai-core para inconsistencias post-update" |
+
+**Mecanismo de activacion**
+
+Cuando escribas una pregunta o instruccion que contiene una palabra clave de esta tabla, el agente:
+1. Detecta la palabra clave automaticamente (lexeme-scan, Regla 22).
+2. Si confidence > 85%, invoca el skill sin esperar confirmacion.
+3. Emite encabezado `[SKILL ACTIVO: <nombre>]` como primer linea de respuesta (transparencia).
+4. Procede a responder bajo ese perfil tecnico especializado.
+
+**Ejemplo en vivo**
+
+Usuario: "¿Como particiono una tabla en BigQuery para reducir costos?"
+→ Agente detecta "particiono", "BigQuery", "tabla" = dominio data-engineer
+→ Confidence 85%+
+→ Invoca automaticamente `/skill data-engineer`
+→ Primera linea: `[SKILL ACTIVO: data-engineer]`
+→ Responde bajo perfil especializado en arquitectura de datos
 
 ---
 

@@ -10,10 +10,10 @@ La forma mas impactante de contribuir es crear un nuevo `skill`: un perfil de co
 
 Antes de crear cualquier contribucion, debes internalizar dos documentos:
 
-- `CLAUDE.md` — Las 15 reglas globales inmutables. Ninguna contribucion puede violarlas, sobrescribirlas ni ignorarlas.
+- `CLAUDE.md` — Las 22 reglas globales inmutables. Ninguna contribucion puede violarlas, sobrescribirlas ni ignorarlas.
 - `OPERATIONS.md` — La arquitectura operativa del nucleo y los protocolos de incorporacion.
 
-Un skill que viola la Regla 2 (emojis prohibidos) o ignora la Regla 3 (Lazy Context) sera rechazado en review sin importar la calidad del resto del contenido.
+Un skill que viola la Regla 2 (emojis prohibidos), ignora la Regla 3 (Lazy Context), o exige narrativa extensa contra la Regla 18 (Brevedad) sera rechazado en review sin importar la calidad del resto del contenido. Todos los skills estan subordinados a las Reglas Globales (Regla 21).
 
 ---
 
@@ -46,21 +46,32 @@ version: 1.0.0
 - `origin: ai-core`: obligatorio. Identifica al skill como parte del nucleo.
 - `version`: semantico. Empieza en `1.0.0`.
 
+### Entendimiento Previo: Orquestacion Ibrida (Regla 20 + Regla 22)
+
+**Regla 20 (Dispatcher + Escalamiento Unificado)**: El agente mapea automaticamente el dominio tecnico de la solicitud del usuario contra la tabla de 19 skills disponibles. Si la confianza es > 85%, invoca el skill correspondiente SIN esperar instruccion explicita del usuario. Esto significa: tu skill sera invocado de forma **zero-shot** por simples palabras clave (lexemas) en el prompt del usuario. Disena la `description` del frontmatter para que sea un diagnostico preciso de cuando el skill aplica.
+
+**Regla 22 (Sensor de Eficiencia)**: Previene gasto perezoso de tokens. Antes de cualquier accion, el agente detecta si la tarea es trivial (<50 tokens: lectura simple, CRUD, busqueda grep). Si es trivial, **fuerza Haiku** (modelo mas pequeno). Si el usuario menciona un archivo con >300 lineas, el agente delega a `analizar_archivo` via MCP Gemini en lugar de cargar el archivo directamente. Tu skill debe respetar estas optimizaciones: nunca demandes lectura de archivos enteros si la informacion se puede obtener via grep/find.
+
+Implicacion para tu skill: si incluyes un protocolo "Primera Accion al Activar" que lee manifiestos o archivos de configuracion, asegura que:
+1. Los archivos sean < 300 lineas (si no, invoca `analizar_archivo`).
+2. Usa `grep` / `find` antes de leer archivos completos.
+3. El protocolo es eficiente: minimo contexto, maximo informacion.
+
 ### Secciones obligatorias del SKILL.md
 
 El cuerpo del archivo debe contener exactamente estas cuatro secciones, en este orden:
 
 **1. Cuando Activar Este Perfil**
-Lista concreta de triggers. No generica. Ejemplos: "Al escribir migrations en Ecto", "Al disenar schemas en Prisma con PostgreSQL", "Al revisar queries N+1 en ActiveRecord".
+Lista concreta de triggers que el agente usara para detectar via Regla 20. Incluyelas en la `description` del frontmatter (es la fuente de verdad para el lexema-scan). Ejemplos: "Al escribir migrations en Ecto", "Al disenar schemas en Prisma con PostgreSQL", "Al revisar queries N+1 en ActiveRecord".
 
 **2. Primera Accion al Activar (Lazy Context)**
-Protocolo de exploracion especifico del dominio. El skill debe deducir el entorno antes de emitir recomendaciones. Ejemplo: leer `mix.exs` para Elixir, `Gemfile.lock` para Ruby, `pubspec.yaml` para Flutter.
+Protocolo de exploracion especifico del dominio (Regla 3). El skill debe deducir el entorno antes de emitir recomendaciones. **IMPORTANTE**: Respeta Regla 22 — lee manifiestos pequenos (<300 lineas) directo; para archivos grandes, invoca `analizar_archivo(ruta, mision)` via MCP Gemini. Ejemplo: leer `mix.exs` para Elixir, `Gemfile.lock` para Ruby, `pubspec.yaml` para Flutter.
 
 **3. Directiva de Interrupcion**
 Condiciones especificas bajo las cuales el skill debe insertar `[ALERTA_ARQUITECTONICA: REQUIERE_OPUSPLAN]` y detener la ejecucion. Ser conservador aqui es preferible a ser laxo.
 
 **4. Restricciones del Perfil**
-El skill hereda las 15 reglas globales sin excepcion. Esta seccion solo agrega restricciones adicionales especificas del dominio. Ejemplo: "Nunca emitir codigo de smart contract sin auditoria de seguridad previa en el mismo turno."
+El skill hereda las 22 reglas globales sin excepcion (Regla 21: subordinacion explicita). Esta seccion solo agrega restricciones adicionales especificas del dominio. Ejemplo: "Nunca emitir codigo de smart contract sin auditoria de seguridad previa en el mismo turno." **CLAVE**: Tu skill NO puede demandar narrativa larga o extensiones de brevedad — Regla 18 (Brevedad) siempre manda.
 
 ### Ejemplo rapido — skill `mobile-flutter`
 
