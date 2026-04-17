@@ -13,6 +13,18 @@
 const fs   = require('fs');
 const path = require('path');
 
+// Carga .env desde la raiz del proyecto si la key no esta en el entorno
+(function loadEnv() {
+  if (process.env.GEMINI_API_KEY) return;
+  const envPath = path.resolve(__dirname, '../.env');
+  if (!fs.existsSync(envPath)) return;
+  for (const line of fs.readFileSync(envPath, 'utf8').split('\n')) {
+    const m = line.match(/^([^#=\s][^=]*)=(.*)$/);
+    if (!m) continue;
+    process.env[m[1].trim()] = m[2].trim().replace(/^['"]|['"]$/g, '');
+  }
+})();
+
 const GEMINI_DEFAULT = 'gemini-2.5-flash';
 
 // --- Parseo de argumentos CLI ---
