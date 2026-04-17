@@ -177,26 +177,69 @@ El skill `rag-specialist` actua como Gestor de Misiones: redacta las ordenes de 
 
 ---
 
-## Enrutamiento de Modelos y Optimizacion de Tokens
+## Orquestacion Hibrida: Enrutamiento de Modelos + Auto-Routing de Skills
 
-### La triada de ejecucion
+El nucleo implementa un sistema de orquestacion en tres capas: seleccion de modelo (Haiku/Sonnet/Opus), dispatch automatico de skills segun dominio, y delegacion de analisis masivo via Gemini Bridge.
 
-El nucleo opera con tres capas de procesamiento con responsabilidades distintas:
+### Capa 1: Triada de Ejecucion (Enrutamiento de Modelos)
 
 | Capa | Modelo | Rol | Activacion |
 |---|---|---|---|
-| Ejecutor principal | `claude-sonnet-4-6` | 80% de las tareas: codigo, refactor, review, debug, tests | Default en toda sesion |
-| Arquitecto | `claude-opus-4-6` + Extended Thinking | Planes de arquitectura de alta complejidad (OPUSPLAN) | Escalamiento explicito via Regla 6 |
-| Bridge | `gemini-2.5-flash` | Analisis de corpus. Archivos > 500 lineas / 50 KB (ventana 1M tokens) | Automatico via Regla 9 |
+| Gatekeeper | `claude-haiku-4-5` | Decisiones rapidas: lectura de manifiestos, CRUD, busquedas grep, documentacion | Default para tareas triviales |
+| Ejecutor principal | `claude-sonnet-4-6` | 80% de las tareas complejas: codigo, refactor, review, debug, tests, logica multi-archivo | Default para tareas sustanciales |
+| Arquitecto | `claude-opus-4-6` + Extended Thinking | Planes de arquitectura de maxima complejidad (OPUSPLAN) | Escalamiento explicito via Regla 6 |
 
-### Tabla de decision de enrutamiento
+Politica de escalamiento: Haiku por defecto. Escalar a Sonnet solo si la tarea requiere razonamiento sobre multiples archivos, cambios arquitectonicos, o coordinacion de servicios. Sonnet requiere justificacion tecnica de una linea: `[ESCALAMIENTO MOTIVADO POR: <razon>]`. Escalar a Opus solo tras `[ALERTA_ARQUITECTONICA: REQUIERE_OPUSPLAN]` con Extended Thinking activado.
+
+### Capa 2: Auto-Routing de Skills (Regla 20)
+
+El agente mapea automaticamente el dominio tecnico de la solicitud contra una tabla de 19 skills especializados. La invocacion es zero-shot: no requiere instruccion explicita del usuario. Confidence > 85% = activacion inmediata.
+
+| Dominio | Skill | Comando | Activacion |
+|---|---|---|---|
+| Componentes, estado, bundle, API frontend | `tech-lead-frontend` | `/skill tech-lead-frontend` | Arquitectura de componentes, estado, bundle |
+| Agentes autonomos, subagentes, hooks, MCP SDK | `claude-agent-sdk` | `/skill claude-agent-sdk` | Construir agentes con Anthropic SDK |
+| Agentes gestionados, herramientas integradas, loops | `managed-agents-specialist` | `/skill managed-agents-specialist` | Agentes con built-in tools, control loops |
+| LLM, costos, streaming, fallback, proveedores | `ai-integrations` | `/skill ai-integrations` | Integrar LLM, manejo de costos, fallbacks |
+| System prompts, few-shot, output estructurado | `prompt-engineer` | `/skill prompt-engineer` | Versionado de prompts, optimizacion |
+| Servidor MCP, herramientas JSON Schema, stdio/SSE | `mcp-server-builder` | `/skill mcp-server-builder` | Crear nuevas herramientas MCP |
+| Evals, calidad RAG, comparacion de prompts, gate CI/CD | `llm-evals` | `/skill llm-evals` | Golden datasets, metricas de calidad LLM |
+| Tracing LLM, dashboards, alertas | `llm-observability` | `/skill llm-observability` | Observabilidad de costos y latencia |
+| Analisis documental, RAG, vectores, bridge | `rag-specialist` | `/skill rag-specialist` | Pipelines RAG, embedding, recuperacion |
+| APIs, esquemas, migraciones, queries | `backend-architect` | `/skill backend-architect` | Persistencia, SOLID, Clean Arch, scaffolding |
+| Flutter, BLoC/Riverpod, Firebase, builds | `mobile-engineer` | `/skill mobile-engineer` | Mobile end-to-end: UI, estado, deploy |
+| Releases, branching, CI/CD, despliegues | `release-manager` | `/skill release-manager` | Git Flow, SemVer, rollback, pipelines |
+| Tests, cobertura, contract testing | `qa-engineer` | `/skill qa-engineer` | Estrategia de calidad, piramide de tests |
+| CVEs, OWASP, headers, secretos | `security-auditor` | `/skill security-auditor` | Compliance, pentest, surface attack |
+| IaC, Kubernetes, networking, OTel | `devops-infra` | `/skill devops-infra` | Infraestructura, deployment, observabilidad |
+| Pipelines, dbt, Medallion, linaje | `data-engineer` | `/skill data-engineer` | Data architecture, calidad, contratos |
+| Proteccion endpoint LLM, filtros I/O | `ai-guardrails` | `/skill ai-guardrails` | Validacion inputs/outputs de LLM |
+| Superficie publica, credenciales | `attack-surface-analyst` | `/skill attack-surface-analyst` | Reconocimiento externo, subdominios |
+| Auditoria ai-core, actualizacion skills | `aiops-engineer` | `/skill aiops-engineer` | Mantenimiento del nucleo |
+
+Mecanismo de resolucion de conflictos (jerarquia Regla 21): Seguridad > Backend/BD > Arquitectura general. Si una solicitud puede disparar multiples skills, prioridad: security-auditor > backend-architect > devops-infra > release-manager.
+
+### Capa 3: Delegacion de Analisis Masivo (Regla 9)
+
+Archivos > 500 lineas / 50 KB se analizan via Gemini 2.5 Flash sin cargar el contenido completo en contexto:
+
+| Herramienta MCP | Uso |
+|---|---|
+| `analizar_archivo(ruta, mision)` | Delega a Gemini si supera umbral; retorna sintesis JSON |
+| `analizar_contenido(contenido, mision)` | Para texto ya cargado en memoria |
+| `analizar_repositorio(ruta_raiz, mision)` | Escanea 11 manifest files, detecta stack |
+
+Circuit Breaker activo: fallo por cuota degradado a grep/find (Regla 14).
+
+### Tabla de decision de enrutamiento (integrada)
 
 | Condicion de la tarea | Accion del agente |
 |---|---|
-| Tarea de codigo, refactor, review, test, debug | Sonnet (default) |
-| Tarea ambigua o moderadamente compleja | Sonnet + pausa activa (Regla 13) |
-| Archivo o corpus > 500 lineas / 50 KB | Bridge — Gemini 2.5 Flash (decision inmediata) |
-| Tarea que activa condicion de escalamiento | `[ALERTA_ARQUITECTONICA: REQUIERE_OPUSPLAN]` → Opus con Extended Thinking |
+| Tarea trivial: lectura, docs, CRUD, busqueda | Haiku (default) |
+| Tarea sustancial: codigo, refactor, test, debug | Sonnet (default con justificacion si ambigua) |
+| Archivo o corpus > 500 lineas / 50 KB | Bridge — Gemini 2.5 Flash (decision inmediata, Regla 9) |
+| Solicitud mapea a dominio conocido (>85% confidence) | Invocar skill correspondiente (Regla 20) + modelo base |
+| Tarea que activa condicion de escalamiento | `[ALERTA_ARQUITECTONICA: REQUIERE_OPUSPLAN]` → Opus con Extended Thinking (Regla 6) |
 
 ### Optimizacion del context window — Configuracion global
 
@@ -300,6 +343,8 @@ Las reglas globales son inmutables. Aplican a todos los perfiles sin excepcion. 
 | 17 | Versionado Obligatorio de Skills | Toda modificacion de un SKILL.md exige actualizar `version` (semver) y `last_updated` en el frontmatter en el mismo commit. Patch: correcciones. Minor: nuevas secciones. Major: reestructuracion completa. |
 | 18 | Brevedad de Respuesta | Sin frases de confirmacion ni resumenes post-tarea. Formato escalonado: linea unica para preguntas, bloque corregido para errores de sintaxis, solo el "por que" para logica compleja. Silencio Positivo como norma. |
 | 19 | Disciplina de Sesion | Una sesion = una tarea. Leer memoria antes que archivos al inicio. `/compact` en fronteras de fase investigacion→codigo. `/clear` al cerrar tarea. Guardar hallazgos no triviales en memoria antes del `/clear`. |
+| 20 | Auto-Routing de Skills (Dispatcher) | Mapeo automatico de dominio tecnico a skill especializado (19 disponibles) con confidence > 85%. Invocacion zero-shot sin esperar instruccion explicita. Resolucion de conflictos: Seguridad > Backend/BD > Arquitectura. |
+| 21 | Jerarquia de Anulacion | En conflictos entre Reglas Globales y directivas de skills: Reglas Globales siempre mandan. Precedencia: Brevedad (R18) > Extensión; Lazy Context (R3) > Pre-lectura; Minimo Cambio (R4) > Autonomia; Precision (R5) > Generico; Tokenomics (R16) > Alcance. |
 
 ---
 
