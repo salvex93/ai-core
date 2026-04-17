@@ -21,17 +21,35 @@ Alcance exacto al pedido. Sin abstracciones "por si acaso". Excepcion activa par
 ### Regla 5 — Precision Quirurgica
 Toda modificacion indica ruta relativa y numero de linea exacto. Comentarios explican el "por que", no el "que".
 
-### Regla 6 — Enrutamiento Dinamico (Model Routing)
-- Codigo, refactor, review, test, debug → Sonnet (default)
-- Ambiguedad o riesgo de ruptura → Sonnet + Regla 13
-- Archivo > 500 lineas / 50 KB → MCP tool `analizar_archivo` (Regla 9) — PROHIBIDO usar Read directamente
-- Condicion de escalamiento arquitectonico → emitir `[ALERTA_ARQUITECTONICA: REQUIERE_OPUSPLAN]`, detener codigo, abrir claude.ai Pro con Extended Thinking, reanudar tras plan aprobado.
+### Regla 6 — Enrutamiento Hibrido (Model + Skill Routing)
 
-Condiciones de escalamiento a OPUSPLAN:
+**Pilar 1: Enrutamiento de Modelos**
+- Haiku (Base): Lectura, documentacion, tests CRUD, consultas estructuradas sin logica critica.
+- Sonnet (Default): Codigo, refactor, review, debug, logica de negocio, cambios en >2 archivos.
+- Opus (Trigger): Solo tras escalamiento arquitectonico explicitado o aprobacion en OPUSPLAN.
+
+**Pilar 2: Enrutamiento de Skills (Zero-Shot)**
+Al recibir primera instruccion de sesion: mapear dominio vs tabla "Skills Disponibles" automaticamente.
+Si confidence > 85%, invocar `/skill <nombre>` ANTES de cualquier respuesta. No esperar instruccion explicita.
+
+Criterios de prioridad (cuando hay overlap):
+1. Seguridad / Guardrails > Todo (security-auditor, ai-guardrails)
+2. Backend / Base de Datos (Knex, migraciones) > DevOps / Frontend
+3. Arquitectura de cambios > Implementacion de skills
+
+**Pilar 3: Condiciones de Escalamiento a OPUSPLAN**
+Emitir `[ALERTA_ARQUITECTONICA: REQUIERE_OPUSPLAN]`, detener codigo, abrir claude.ai Pro con Extended Thinking.
+
+Triggers de escalamiento:
 - Afecta mas de un servicio con contrato publico compartido.
 - Involucra concurrencia o FSM criticas con mas de cuatro estados.
 - Requiere migracion de datos irreversible.
 - Modifica capa de autenticacion o autorizacion.
+- Cambio en core de seguridad (credenciales, derivacion criptografica, tokens).
+- Reestructuracion de multiples skills simultaneamente.
+
+**Regla 6.1 — Archivo > 500 lineas / 50 KB**
+PROHIBIDO usar Read directamente. Invocar MCP tool `analizar_archivo` (Regla 9) en su lugar.
 
 ### Regla 7 — Persistencia de Hallazgos y Trabajo Oculto
 Al cerrar sesion, preguntar si registrar hallazgos en `BACKLOG.md` (tabla de 12 columnas exactas). Al recibir "ejecuta el cierre de tarea", marcar Estatus como "Terminado". Todo esfuerzo tecnico no visibilizado en la instruccion original se registra como fila adicional (Trabajo Oculto).
@@ -130,33 +148,54 @@ Silencio Positivo: instruccion clara = resultado directo. No anula Regla 13.
 ### Regla 19 — Protocolo de Sesion (Session Discipline)
 Una sesion = una tarea del BACKLOG. Al inicio: leer `.claude/projects/memory/` antes que codigo. Antes de codigo masivo: `/compact`. Al cerrar tarea: `/clear`. Guardar en memoria todo hallazgo no trivial antes del `/clear`.
 
-### Regla 20 — Auto-Routing de Skills (Dispatcher Automatico)
-Al recibir la primera instruccion de tarea en sesion, mapear el dominio de la solicitud contra la tabla "Skills Disponibles". Si hay match claro, invocar el Skill tool automaticamente antes de responder. No esperar instruccion explicita del usuario.
+### Regla 20 — Dispatcher de Skills Zero-Shot y Escalamiento Inteligente
 
-Tabla de dispatch (dominio → skill):
-- Componentes, estado, bundle, API frontend → `tech-lead-frontend`
-- Agentes autonomos, subagentes, hooks, MCP SDK → `claude-agent-sdk`
-- Agentes gestionados Anthropic, tools built-in, loops → `managed-agents-specialist`
-- Integrar LLM, costos, streaming, fallback, proveedores → `ai-integrations`
-- System prompts, few-shot, output estructurado, versionado → `prompt-engineer`
-- Servidor MCP, herramientas JSON Schema, stdio/SSE → `mcp-server-builder`
-- Evals, calidad RAG, comparar prompts, gate CI/CD → `llm-evals`
-- Tracing LLM, dashboards costo/latencia, alertas → `llm-observability`
-- Analisis documental, RAG, vectores, bridge → `rag-specialist`
-- APIs, esquemas, migraciones, queries, scaffolding → `backend-architect`
-- Flutter, BLoC/Riverpod, Firebase, builds → `mobile-engineer`
-- Releases, branching, CI/CD, despliegues → `release-manager`
-- Tests, cobertura, contract testing → `qa-engineer`
-- CVEs, OWASP, headers, secretos → `security-auditor`
-- IaC, Kubernetes, networking, OTel → `devops-infra`
-- Pipelines, dbt, Medallion, linaje → `data-engineer`
-- Proteccion endpoint LLM, filtros input/output → `ai-guardrails`
-- Superficie publica, credenciales, subdominios → `attack-surface-analyst`
-- Auditar ai-core, actualizar skills → `aiops-engineer`
+**Mecanismo de Invocacion**
 
-Delegacion a Gemini (Regla 9): antes de leer cualquier archivo, ejecutar `wc -l <ruta>`. Si supera 500 lineas o 50 KB, invocar `analizar_archivo` via MCP en lugar de Read. Esta comprobacion es obligatoria — no opciones.
+Primera accion de cada sesion (antes que cualquier respuesta):
+1. Leer instruccion de usuario.
+2. Mapear dominio contra tabla "Skills Disponibles" (abajo).
+3. Si confidence > 85%, ejecutar: `/skill <nombre>` automaticamente.
+4. Responder directamente. No solicitar confirmacion para skill match claro.
 
-Si MCP gemini-bridge no esta disponible: emitir `[BRIDGE NO DISPONIBLE: verificar GEMINI_API_KEY en .env y conexion del servidor MCP gemini-bridge]` y detener el analisis del archivo hasta que el usuario confirme reparacion.
+**Tabla de Dispatch (Dominio → Skill)**
+
+| Dominio | Skill | Confidence clave |
+|---|---|---|
+| Componentes, estado, bundle, API frontend | `tech-lead-frontend` | "componente", "estado", "bundle", "frontend" |
+| Agentes autonomos, subagentes, hooks, MCP SDK | `claude-agent-sdk` | "agente", "subagente", "hook", "SDK" |
+| Agentes gestionados Anthropic, herramientas integradas | `managed-agents-specialist` | "agente gestionado", "tools", "loop" |
+| Integrar LLM, costos, streaming, fallback | `ai-integrations` | "LLM", "modelo", "streaming", "fallback" |
+| System prompts, few-shot, output estructurado | `prompt-engineer` | "prompt", "few-shot", "chain-of-thought" |
+| Servidor MCP, herramientas JSON Schema, stdio | `mcp-server-builder` | "MCP", "servidor", "stdio", "SSE" |
+| Evals, RAG quality, comparar prompts | `llm-evals` | "eval", "benchmark", "gate CI/CD", "evals:llm" |
+| Tracing LLM, dashboards, alertas latencia | `llm-observability` | "tracing", "observabilidad", "dashboard", "latencia" |
+| Analisis documental, RAG, vectores, bridge | `rag-specialist` | "RAG", "vector", "embeddings", "retrieval" |
+| APIs, esquemas, migraciones, queries, scaffolding | `backend-architect` | "API", "migracion", "query", "schema", "BD" |
+| Flutter, BLoC/Riverpod, Firebase | `mobile-engineer` | "Flutter", "BLoC", "Firebase", "mobile" |
+| Releases, branching, CI/CD, despliegues | `release-manager` | "release", "branching", "CI/CD", "deploy" |
+| Tests, cobertura, contract testing | `qa-engineer` | "test", "cobertura", "contract", "QA" |
+| CVEs, OWASP, headers, secretos, compliance | `security-auditor` | "seguridad", "CVE", "OWASP", "secreto" |
+| IaC, Kubernetes, networking, OTel | `devops-infra` | "Kubernetes", "IaC", "Terraform", "infraestructura" |
+| Pipelines, dbt, Medallion, linaje, calidad datos | `data-engineer` | "pipeline", "dbt", "Medallion", "datos" |
+| Proteccion endpoint LLM, filtros input/output | `ai-guardrails` | "guardrail", "filtro", "input validation", "output filter" |
+| Superficie publica, credenciales, subdominios | `attack-surface-analyst` | "superficie", "credencial", "exposicion", "subdominio" |
+| Auditar ai-core, actualizar skills, Anthropic | `aiops-engineer` | "auditoria", "skill", "Anthropic", "Gemini" |
+
+**Criterios de Resolucion de Conflictos (Prioridad Descendente)**
+1. **Seguridad > Todo**: Si hay palabras clave de security-auditor o ai-guardrails, disparar esos skills.
+2. **Backend/BD > DevOps/Frontend**: Migraciones, queries, esquemas → backend-architect antes que devops-infra.
+3. **Arquitectura > Implementacion**: Cambios multi-skill → aiops-engineer antes que skills individuales.
+
+**Delegacion a Gemini (Regla 9)**
+Antes de leer archivo: ejecutar `wc -l <ruta>`. Si > 500 lineas o 50 KB, invocar `analizar_archivo` via MCP.
+Comprobacion obligatoria — sin excepciones.
+
+Si MCP gemini-bridge no disponible:
+```
+[BRIDGE NO DISPONIBLE: verificar GEMINI_API_KEY en .env y conexion servidor MCP gemini-bridge]
+```
+Detener analisis de archivo hasta confirmacion de reparacion.
 
 ---
 
