@@ -99,7 +99,7 @@ Producir un reporte en formato tabular/viñetado (NO narrativa extensa). Omitir 
 **1. ESTADO DE CONFORMIDAD**
 | Skill | Regla 1 | Regla 2 | Regla 3 | Regla 4 | Regla 5 | Regla 18 | Status |
 |---|:-:|:-:|:-:|:-:|:-:|:-:|---|
-| skill-name | ✓ | ✓ | ✗ | ✓ | ✓ | ✓ | PARCIALMENTE CONFORME |
+| skill-name | [OK] | [OK] | [NO] | [OK] | [OK] | [OK] | PARCIALMENTE CONFORME |
 
 **2. DEGRADACION DETECTADA**
 - Skill: ruta/relativa/SKILL.md | Regla incumplida | Hallazgo especifico | Severidad: alta/media/baja

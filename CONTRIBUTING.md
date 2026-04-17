@@ -2,7 +2,7 @@
 
 Este nucleo lleva semanas ahorrando horas de trabajo real en produccion. Si llegaste hasta aqui es porque ya lo usas, lo entiendes y quieres que sea mejor. Eso es exactamente lo que necesitamos.
 
-La forma mas impactante de contribuir es crear un nuevo `skill`: un perfil de comportamiento tecnico que el agente puede asumir al instante. Ya tenemos 10 skills activos — arquitecto-backend, tech-lead-frontend, qa-engineer, security-auditor y seis mas. Pero el nucleo es framework-agnostico por diseno. Si trabajas con Elixir, Ruby, Kotlin, Dart o cualquier otro stack que el nucleo no cubre todavia, tu skill puede ser la pieza que le faltaba a otro desarrollador.
+La forma mas impactante de contribuir es crear un nuevo `skill`: un perfil de comportamiento tecnico que el agente puede asumir al instante. Ya tenemos 20 skills activos — backend-architect, tech-lead-frontend, qa-engineer, security-auditor, audio-voice-engineer (NUEVO Abril 2026) y dieciséis mas. Pero el nucleo es framework-agnostico por diseno. Si trabajas con Elixir, Ruby, Kotlin, Dart o cualquier otro stack que el nucleo no cubre todavia, tu skill puede ser la pieza que le faltaba a otro desarrollador.
 
 ---
 
@@ -10,7 +10,7 @@ La forma mas impactante de contribuir es crear un nuevo `skill`: un perfil de co
 
 Antes de crear cualquier contribucion, debes internalizar dos documentos:
 
-- `CLAUDE.md` — Las 22 reglas globales inmutables. Ninguna contribucion puede violarlas, sobrescribirlas ni ignorarlas.
+- `CLAUDE.md` — Las 22 Reglas Globales inmutables (actualizado Abril 2026 con Regla 20 + Regla 22 para auto-routing de skills y sensor de eficiencia). Ninguna contribucion puede violarlas, sobrescribirlas ni ignorarlas.
 - `OPERATIONS.md` — La arquitectura operativa del nucleo y los protocolos de incorporacion.
 
 Un skill que viola la Regla 2 (emojis prohibidos), ignora la Regla 3 (Lazy Context), o exige narrativa extensa contra la Regla 18 (Brevedad) sera rechazado en review sin importar la calidad del resto del contenido. Todos los skills estan subordinados a las Reglas Globales (Regla 21).
@@ -106,7 +106,7 @@ Insertar `[ALERTA_ARQUITECTONICA: REQUIERE_OPUSPLAN]` y detener si:
 
 ## Restricciones del Perfil
 
-- Hereda las 15 Reglas Globales de CLAUDE.md sin excepcion.
+- Hereda las 22 Reglas Globales de CLAUDE.md sin excepcion (Regla 21: subordinacion explicita).
 - Nunca recomendar setState para estado compartido entre pantallas.
 - Toda solucion de animacion debe evaluar primero AnimationController antes de paquetes externos.
 ```
