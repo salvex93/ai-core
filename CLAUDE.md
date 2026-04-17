@@ -52,6 +52,13 @@ Herramientas MCP disponibles (servidor `gemini-bridge`):
 - `analizar_contenido(contenido, mision)` — delega texto ya cargado en memoria
 - `buscar_web(consulta, mision)` — busqueda web en tiempo real via Gemini Google Search grounding; usar para: changelogs de Anthropic/Claude, actualizaciones de API, nuevas capacidades MCP, estado de betas
 
+Auto-trigger `buscar_web` (sin instruccion del usuario): invocar automaticamente cuando la tarea requiere estado externo:
+- Verificar actualizaciones de modelos Claude/Anthropic o Gemini.
+- Confirmar si una capacidad beta paso a GA.
+- Consultar changelog de API, MCP protocol, o dependencias del proyecto.
+- Cualquier informacion que no este en el repositorio local ni en el contexto de sesion.
+El resultado de `buscar_web` va directo a la tarea — no consume tokens de Claude en la busqueda.
+
 Fallos: sin `GEMINI_API_KEY` → `[BRIDGE NO DISPONIBLE: agregar GEMINI_API_KEY al .env]`. Cuota agotada → bifurcar a patrones con Regla 14, detener si requiere razonamiento LLM.
 El skill `rag-specialist` formula misiones antes de invocar las herramientas.
 
@@ -98,16 +105,25 @@ TRIGGER DE PURGA — al marcar tarea como "Terminado" en BACKLOG.md, emitir como
 ### Regla 17 — Versionado Obligatorio de Skills
 Todo cambio en SKILL.md requiere actualizar en el mismo commit: `version` (semver: patch=texto/fixes, minor=secciones nuevas, major=cambio de alcance) y `last_updated` (YYYY-MM-DD).
 
-### Regla 18 — Brevedad de Respuesta (Response Density)
-Prohibido: frases de confirmacion ("entendido", "claro", "perfecto"), ofrecer ayuda adicional al finalizar, explicar conceptos basicos evidentes del stack, resumir lo que el diff ya muestra.
+### Regla 18 — Brevedad de Respuesta (Caveman Mode)
+Patron base: `[cosa] [accion] [razon]. [siguiente paso].` Fragmentos de oracion permitidos. Sin titubeos.
 
-Formato escalonado:
+Prohibido siempre:
+- Aperturas: "Entendido", "Claro", "Perfecto", "Por supuesto", "Genial".
+- Cierres: ofrecer ayuda adicional, preguntar si hay dudas, resumir lo que el diff ya muestra.
+- Relleno: "just", "really", "basically", "en esencia", "a continuacion", "es importante destacar".
+- Repetir la pregunta del usuario antes de responder.
+- Elogios de cualquier tipo.
+- Explicar conceptos evidentes del stack activo.
+
+Formato por tipo:
 - Pregunta corta → una linea.
-- Error de sintaxis → bloque corregido + linea exacta.
-- Logica compleja → solo el "por que" tecnico indispensable.
-- Codigo → solo el fragmento afectado.
+- Error de sintaxis → bloque corregido + numero de linea.
+- Logica compleja → solo el "por que" tecnico, sin el "que" (el codigo ya lo dice).
+- Codigo → solo el fragmento afectado. Sin explicacion salvo que el codigo no sea autoexplicativo.
+- Tarea completada → resultado + siguiente paso si aplica. Nada mas.
 
-Silencio Positivo: instruccion clara = mostrar solo el resultado. No anula Regla 13.
+Silencio Positivo: instruccion clara = resultado directo. No anula Regla 13.
 
 ### Regla 19 — Protocolo de Sesion (Session Discipline)
 Una sesion = una tarea del BACKLOG. Al inicio: leer `.claude/projects/memory/` antes que codigo. Antes de codigo masivo: `/compact`. Al cerrar tarea: `/clear`. Guardar en memoria todo hallazgo no trivial antes del `/clear`.
