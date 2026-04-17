@@ -7,6 +7,18 @@
     }
   },
   "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"C:/Users/arimac/Documents/Proyectos - MarIA/ai-core/.claude/bin/norm-harness.js\"",
+            "statusMessage": "Normalizando entorno..."
+          }
+        ]
+      }
+    ],
     "Stop": [
       {
         "matcher": "",
