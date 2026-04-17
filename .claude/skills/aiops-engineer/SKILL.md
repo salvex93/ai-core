@@ -2,7 +2,7 @@
 name: aiops-engineer
 description: AI-Ops Engineer — Agente de mantenimiento del ecosistema ai-core. Audita la configuracion de .claude/skills/, analiza nuevas especificaciones de Anthropic y propone mejoras en prompts, herramientas MCP y flujos de trabajo. NUNCA modifica el ai-core sin confirmacion humana explicita. Activa al auditar el nucleo, proponer actualizaciones de skills o incorporar nuevas capacidades del ecosistema Anthropic.
 origin: ai-core
-version: 1.4.3
+version: 1.5.0
 last_updated: 2026-04-16
 ---
 
@@ -92,39 +92,29 @@ Si se dispone de changelogs, release notes o especificaciones de Anthropic o Goo
 node scripts/gemini-bridge.js --mission "Extrae las nuevas capacidades, cambios de API y mejores practicas relevantes para agentes IA y prompt engineering" --file <ruta> --format json
 ```
 
-### Paso 4 — Generacion del reporte de auditoria
+### Paso 4 — Generacion del reporte de auditoria (Formato Compacto per Regla 18)
 
-Producir un reporte estructurado con las siguientes secciones:
+Producir un reporte en formato tabular/viñetado (NO narrativa extensa). Omitir párrafos descriptivos.
 
-```
-REPORTE DE AUDITORIA AI-CORE
-Fecha: YYYY-MM-DD
-Auditor: aiops-engineer
+**1. ESTADO DE CONFORMIDAD**
+| Skill | Regla 1 | Regla 2 | Regla 3 | Regla 4 | Regla 5 | Regla 18 | Status |
+|---|:-:|:-:|:-:|:-:|:-:|:-:|---|
+| skill-name | ✓ | ✓ | ✗ | ✓ | ✓ | ✓ | PARCIALMENTE CONFORME |
 
-1. ESTADO DE CONFORMIDAD
-   Para cada skill: CONFORME | PARCIALMENTE CONFORME | NO CONFORME
-   Detallar las reglas que no se cumplen en los casos no conformes.
+**2. DEGRADACION DETECTADA**
+- Skill: ruta/relativa/SKILL.md | Regla incumplida | Hallazgo especifico | Severidad: alta/media/baja
 
-2. DEGRADACION DETECTADA
-   Skills cuyo contenido tecnico ha quedado desactualizado respecto al estado del arte.
-   Descripcion del delta entre el estado actual y el estado recomendado.
+**3. PROPUESTAS DE MEJORA** (máximo 5)
+- Skill | Tipo (conformidad|tecnica|nuevo|deprecacion) | Cambio propuesto | Justificacion (una linea) | Impacto
 
-3. PROPUESTAS DE MEJORA
-   Lista priorizada de cambios propuestos. Para cada propuesta:
-   - Skill afectado.
-   - Tipo de cambio: correccion de conformidad | actualizacion tecnica | nuevo skill | deprecacion.
-   - Descripcion exacta del cambio propuesto.
-   - Justificacion tecnica.
-   - Impacto estimado en los proyectos anfitriones que usan el ai-core.
+**4. NUEVAS CAPACIDADES**
+- Capacidad | Skill candidato | Linea donde se integra
 
-4. NUEVAS CAPACIDADES IDENTIFICADAS
-   Capacidades de Claude o herramientas MCP no aprovechadas actualmente en ningun skill,
-   con una recomendacion de como incorporarlas.
+**5. ACCIONES PENDIENTES**
+- [ ] Accion 1
+- [ ] Accion 2
 
-5. ACCIONES PENDIENTES DE CONFIRMACION HUMANA
-   Lista completa de todas las acciones que requieren aprobacion antes de ejecutarse.
-   Ninguna accion se ejecuta hasta recibir confirmacion explicita.
-```
+Nota: No cargar contenido completo de SKILL.md en contexto. Usar comandos bash + Regla 9 para archivos > 500 lineas.
 
 ## Directiva de Interrupcion
 

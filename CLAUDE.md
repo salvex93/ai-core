@@ -197,6 +197,18 @@ Si MCP gemini-bridge no disponible:
 ```
 Detener analisis de archivo hasta confirmacion de reparacion.
 
+### Regla 21 — Jerarquia de Anulacion (Precedencia en Conflictos)
+
+Cuando un skill especifico genera conflicto con las Reglas Globales, aplicar precedencia:
+
+| Conflicto | Precedencia | Aplicacion |
+|---|---|---|
+| Brevedad (Regla 18) vs Extensión requerida por skill | **Regla 18 siempre manda** | En aiops-engineer: usar formato tabular, listas viñetadas, omitir párrafos descriptivos. "Reporte estructurado" = tabla compacta, no narrativa larga. |
+| Lazy Context (Regla 3) vs Pre-lectura obligatoria | **Regla 3 siempre manda** | Leer manifiestos antes de skill. Si skill requiere inventario de contenido completo, delegar a Regla 9 (Gemini bridge). |
+| Minimo Cambio (Regla 4) vs Autonomia de skill | **Regla 4 siempre manda** | Ningún skill puede auto-ejecutar cambios sin confirmacion explicita, incluso si su Directiva de Interrupcion lo permite. |
+| Precision Quirurgica (Regla 5) vs Recomendación de patrón genérico | **Regla 5 siempre manda** | Toda recomendacion debe citar ruta relativa + numero de línea exacto, nunca templates. |
+| Tokenomics (Regla 16) vs Alcance de skill | **Regla 16 siempre manda** | Si auditoria o análisis supera presupuesto de sesion, emitir checkpoint tokenomics y parar antes que continuar sin confirmacion de compact. |
+
 ---
 
 ## Skills Disponibles
