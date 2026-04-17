@@ -106,7 +106,7 @@ async function callWithRetry(model, userMessage) {
   throw lastError;
 }
 
-// --- System instruction estatica (candidata a cache en Gemini) ---
+// --- System instructions estaticas (candidatas a cache en Gemini) ---
 const SYSTEM_ANALISIS = `Eres un analizador documental de alta precision. Tu funcion es sintetizar archivos de codigo o documentacion para reducir la carga del context window del agente principal.
 
 Responde UNICAMENTE con JSON valido. Sin markdown fence, sin texto adicional fuera del JSON.
@@ -119,6 +119,33 @@ Reglas de calidad:
 - hallazgos_clave: al menos 2 items, especificos y con referencia a lineas o secciones del archivo.
 - recomendaciones: accionables, con ruta y numero de linea cuando aplica.
 - advertencias: solo para riesgos criticos de seguridad, correctitud o produccion.`;
+
+const SYSTEM_REPOSITORIO = `Eres un analizador de repositorios. Tu funcion es extraer el stack tecnico, dependencias de IA y convenciones de un proyecto a partir de sus manifiestos.
+
+Responde UNICAMENTE con JSON valido. Sin markdown fence, sin texto adicional fuera del JSON.
+
+Schema requerido:
+{"stack":{"lenguaje":"","framework":"","orm_db":""},"dependencias_ia":["sdk1"],"variables_entorno":["VAR1"],"convenciones":["convencion 1"],"resumen":"<3-5 oraciones sobre el proyecto>"}
+
+Reglas:
+- stack: deducir del package.json/requirements.txt/go.mod. Si no hay framework claro, escribir "no detectado".
+- dependencias_ia: solo SDKs de LLM/IA (@anthropic-ai/sdk, @google/generative-ai, openai, langchain, etc.).
+- variables_entorno: extraer de .env.example o CLAUDE.md. Incluir solo nombres de variables, sin valores.
+- convenciones: extraer de CLAUDE.md local. Si no existe, escribir ["no declaradas"].
+- resumen: minimo 3 oraciones con el proposito del proyecto y decisiones tecnicas clave.`;
+
+const SYSTEM_BACKLOG = `Eres un parser de BACKLOG.md. Extrae las tareas abiertas (Estatus: Pendiente, En Progreso, Backlog) y devuelve JSON estructurado.
+
+Responde UNICAMENTE con JSON valido. Sin markdown fence, sin texto adicional fuera del JSON.
+
+Schema requerido:
+{"tareas_abiertas":[{"id":"T1","tipo":"","descripcion":"","estatus":"","jerarquia":""}],"total_abiertas":0,"resumen":"<N tareas abiertas. Resumen ejecutivo.>"}
+
+Reglas:
+- tareas_abiertas: solo filas con Estatus Pendiente, En Progreso o Backlog (case-insensitive).
+- id: columna #Tarea tal cual aparece en la tabla.
+- descripcion: truncar a 80 caracteres si es mas larga.
+- Ignorar filas con Estatus Terminado, Cancelado o Diferido.`;
 
 // --- Herramientas ---
 
@@ -176,6 +203,78 @@ async function analizarContenido({ contenido, mision }) {
     };
     if (warnings.length > 0) result.calidad_warnings = warnings;
     return result;
+  } catch (err) {
+    return { error: `Gemini error: ${err.message}` };
+  }
+}
+
+// Analiza manifiestos del repositorio anfitrion para deducir stack y convenciones.
+// Reemplaza el protocolo "Primera Accion al Activar" de todos los skills.
+async function analizarRepositorio({ ruta_raiz, mision }) {
+  const rootPath = path.resolve(ruta_raiz || '.');
+  const manifests = [
+    'package.json', 'pubspec.yaml', 'requirements.txt', 'pyproject.toml',
+    'go.mod', 'Cargo.toml', 'pom.xml', 'build.gradle',
+    'docker-compose.yml', '.env.example', 'CLAUDE.md',
+  ];
+
+  const found = [];
+  for (const name of manifests) {
+    const filePath = path.join(rootPath, name);
+    if (fs.existsSync(filePath)) {
+      const raw = fs.readFileSync(filePath, 'utf8');
+      found.push({ name, content: raw.slice(0, 3000) });
+    }
+  }
+
+  if (found.length === 0) {
+    return { error: `No se encontraron manifiestos en: ${rootPath}` };
+  }
+
+  const concatenado = found.map(f => `### ${f.name}\n${f.content}`).join('\n\n');
+
+  try {
+    const model = getModel({ systemInstruction: SYSTEM_REPOSITORIO });
+    const userMessage = `Orden de Mision: ${mision}\n\nRepositorio: ${path.basename(rootPath)}\n\nManifiestos:\n---\n${concatenado}\n---`;
+    const { parsed, warnings } = await callWithRetry(model, userMessage);
+    const result = {
+      delegado: true,
+      metadatos: {
+        repositorio: path.basename(rootPath),
+        manifiestos_analizados: found.map(f => f.name),
+        modelo: GEMINI_DEFAULT,
+        timestamp: new Date().toISOString(),
+      },
+      ...parsed,
+    };
+    if (warnings.length > 0) result.calidad_warnings = warnings;
+    return result;
+  } catch (err) {
+    return { error: `Gemini error: ${err.message}` };
+  }
+}
+
+// Parsea BACKLOG.md y devuelve tareas abiertas estructuradas.
+// Reemplaza el parser fragil de session-close.js y evita que Claude lea el BACKLOG completo.
+async function resumirBacklog({ ruta_backlog }) {
+  const filePath = path.resolve(ruta_backlog || 'BACKLOG.md');
+  if (!fs.existsSync(filePath)) {
+    return { error: `Archivo no encontrado: ${filePath}` };
+  }
+
+  const contenido = fs.readFileSync(filePath, 'utf8');
+
+  try {
+    const model = getModel({ systemInstruction: SYSTEM_BACKLOG });
+    const result = await model.generateContent(contenido);
+    const raw    = result.response.text().trim();
+    if (isRefusal(raw)) return { error: `Gemini rechazo el backlog: ${raw.slice(0, 120)}` };
+    const parsed = extractJson(raw);
+    return {
+      delegado: true,
+      metadatos: { modelo: GEMINI_DEFAULT, timestamp: new Date().toISOString() },
+      ...parsed,
+    };
   } catch (err) {
     return { error: `Gemini error: ${err.message}` };
   }
@@ -253,6 +352,34 @@ const TOOLS = [
     },
   },
   {
+    name: 'analizar_repositorio',
+    description:
+      'Analiza los manifiestos del repositorio anfitrion (package.json, requirements.txt, .env.example, CLAUDE.md, etc.) ' +
+      'y devuelve stack tecnico, dependencias IA, variables de entorno y convenciones. ' +
+      'Invocar al inicio de cada sesion en lugar de leer archivos manualmente (reemplaza Primera Accion al Activar).',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        ruta_raiz: { type: 'string', description: 'Ruta raiz del repositorio (default: ".")' },
+        mision:   { type: 'string', description: 'Que informacion especifica extraer del repositorio' },
+      },
+      required: ['mision'],
+    },
+  },
+  {
+    name: 'resumir_backlog',
+    description:
+      'Parsea BACKLOG.md y devuelve tareas abiertas (Pendiente/En Progreso/Backlog) en JSON estructurado. ' +
+      'Usar en lugar de leer BACKLOG.md directamente — evita que el contenido completo consuma el contexto de Claude.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        ruta_backlog: { type: 'string', description: 'Ruta al BACKLOG.md (default: "BACKLOG.md")' },
+      },
+      required: [],
+    },
+  },
+  {
     name: 'buscar_web',
     description:
       'Realiza una busqueda web en tiempo real via Gemini con Google Search grounding. ' +
@@ -283,7 +410,7 @@ async function dispatch(msg) {
       result: {
         protocolVersion: '2024-11-05',
         capabilities: { tools: {} },
-        serverInfo: { name: 'mcp-gemini', version: '2.0.0' },
+        serverInfo: { name: 'mcp-gemini', version: '2.1.0' },
       },
     });
     return;
@@ -305,9 +432,11 @@ async function dispatch(msg) {
     const { name, arguments: args } = params;
     try {
       let result;
-      if      (name === 'analizar_archivo')  result = await analizarArchivo(args);
-      else if (name === 'analizar_contenido') result = await analizarContenido(args);
-      else if (name === 'buscar_web')         result = await buscarWeb(args);
+      if      (name === 'analizar_archivo')      result = await analizarArchivo(args);
+      else if (name === 'analizar_contenido')    result = await analizarContenido(args);
+      else if (name === 'analizar_repositorio')  result = await analizarRepositorio(args);
+      else if (name === 'resumir_backlog')        result = await resumirBacklog(args);
+      else if (name === 'buscar_web')             result = await buscarWeb(args);
       else {
         send({ jsonrpc: '2.0', id, error: { code: -32601, message: `Herramienta desconocida: ${name}` } });
         return;

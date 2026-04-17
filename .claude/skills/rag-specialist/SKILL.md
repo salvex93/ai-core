@@ -2,8 +2,8 @@
 name: rag-specialist
 description: Especialista en pipelines RAG y Mission Manager del LLM Routing Bridge. Cubre Hybrid Search (BM25+denso+RRF), Contextual Retrieval, re-ranking con cross-encoders y Files API como complemento del bridge. Activa al delegar analisis documental masivo, construir o mejorar pipelines RAG, o evaluar la calidad de recuperacion semantica.
 origin: ai-core
-version: 2.2.1
-last_updated: 2026-04-16
+version: 2.3.0
+last_updated: 2026-04-17
 ---
 
 # RAG Specialist — Mission Manager (LLM Routing Bridge)
@@ -257,6 +257,60 @@ Permite que el modelo devuelva referencias exactas a fragmentos del contexto que
 | No aplica | Respuestas sin contexto recuperado, razonamiento matematico | N/A |
 
 Activacion: en el bloque de documento del mensaje, incluir `"citations": {"enabled": True}`. El output incluye bloques `text` con fragmentos citados (`cited_text`, `document_index`, `start_char_index`/`end_char_index`) — registrar en span de trazabilidad para auditoria de faithfulness.
+
+## Embeddings Multimodal (Gemini Embedding 2 Preview)
+
+Gemini Embedding 2 (`gemini-embedding-2-preview`) soporta vectorizacion de multiples modalidades en una sola llamada: texto, imagenes, videos, audio, y PDFs. Dimensión flexible (128 a 768) con recompensas de costo por dimension reducida.
+
+### Cuando usar Gemini Embedding 2
+
+- Corpus documental heterogeneo (texto + imagenes + PDFs).
+- Recuperacion semantica que cruza modalidades (ej: buscar con texto pero recuperar imagenes relevantes).
+- Presupuesto de embeddings estricto: dimension reducida (256 o 512 en lugar de 1024) amortiza costo sin degradacion severa en precision.
+- Necesidad de actualizar modelo de embedding sin reingestion completa (Embedding 2 es compatible con colecciones legacy via reembed progresivo).
+
+### Configuracion
+
+```python
+from google.generativeai import embed_content
+
+# Texto + imagen simultaneamente
+response = embed_content(
+    model="models/gemini-embedding-2-preview",
+    content=[
+        {"text": "Descripcion de la imagen: [contenido]"},
+        {"inline_data": {"mime_type": "image/jpeg", "data": base64_encoded_image}}
+    ],
+    embedding_dimension=512  # Flexibilidad: 128, 256, 384, 512, 768
+)
+
+# Recuperacion cruzada: embeddings de texto vs PDFs
+pdf_chunks_with_embeddings = [
+    {
+        "id": "pdf_001_chunk_5",
+        "texto": "[contenido extraido del PDF]",
+        "embedding": embed_content(..., content=[{"pdf": pdf_file}]).embedding,
+        "documento_tipo": "pdf"
+    }
+]
+
+# Consulta de usuario embebida
+query_embedding = embed_content(
+    model="models/gemini-embedding-2-preview",
+    content=[{"text": "Mi pregunta en texto"}]
+).embedding
+
+# Busqueda: top-K chunks con mayor similitud coseno
+similitudes = [cosine_similarity(query_embedding, chunk["embedding"]) for chunk in pdf_chunks_with_embeddings]
+```
+
+### Reglas de deployment
+
+- Dimension 256-384: suficiente para corpus tecnico. 40-50% reduccion de costo vs 1024.
+- Dimension 512-768: para corpus con ruido o requiere mayor precision semantica. 20-30% reduccion.
+- Embedding 2 es backward compatible: colecciones existentes con Embedding 1 pueden reembeberse progresivamente sin migracion forzada.
+- Loguear `embedding_dimension` y `modelo` en payload vectorial. Permite rollback si es necesario.
+- Monitorear hit rate de recuperacion (precision y recall) durante primeros 100 queries tras cambio. Si degrada >5%, revertir a Embedding 1 o aumentar dimension.
 
 ## Restricciones del Perfil
 

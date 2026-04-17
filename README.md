@@ -233,11 +233,13 @@ El nucleo implementa un sistema de orquestacion en tres capas: seleccion de mode
 
 ### Capa 1: Triada de Ejecucion (Enrutamiento de Modelos)
 
-| Capa | Modelo | Rol | Activacion |
-|---|---|---|---|
-| Gatekeeper | `claude-haiku-4-5` | Decisiones rapidas: lectura de manifiestos, CRUD, busquedas grep, documentacion | Default para tareas triviales |
-| Ejecutor principal | `claude-sonnet-4-6` | 80% de las tareas complejas: codigo, refactor, review, debug, tests, logica multi-archivo | Default para tareas sustanciales |
-| Arquitecto | `claude-opus-4-6` + Extended Thinking | Planes de arquitectura de maxima complejidad (OPUSPLAN) | Escalamiento explicito via Regla 6 |
+| Capa | Modelo | Rol | Activacion | Capacidades Abril 2026 |
+|---|---|---|---|---|
+| Gatekeeper | `claude-haiku-4-5` | Decisiones rapidas: lectura de manifiestos, CRUD, busquedas grep, documentacion | Default para tareas triviales | Base |
+| Ejecutor principal | `claude-sonnet-4-6` | 80% de las tareas complejas: codigo, refactor, review, debug, tests, logica multi-archivo | Default para tareas sustanciales | Prompt Caching GA, Token-efficient tools GA |
+| Arquitecto (Adaptive) | `claude-opus-4-7` + Adaptive Thinking | Agentes multi-paso con razonamiento adaptativo por paso; presupuesto de tokens flexible; vision 98.5% acuidad (3.75MP); cybersecurity safeguards nativos. OPUSPLAN con reasoning dynamico | Escalamiento explicito via Regla 6 | **NUEVO Abril 2026**: `task_budgets` (presupuesto adaptativo per-step), `effort` levels (low/high/xhigh), vision mejorada, compliance nativa |
+| Arquitecto (Reasoning) | `claude-opus-4-6` + Extended Thinking | Planes de arquitectura de maxima complejidad (OPUSPLAN legacy) con razonamiento intenso; context window 200K | Escalamiento explicito (legacy) | Extended Thinking (razonamiento pre-OPUSPLAN) |
+| Razonador (Gemini) | `gemini-3.1-flash-live` | Voice AI real-time, audio-to-audio con latencia submilisegundo, thinking_level dinamico ("auto"/"enabled"/"disabled") | Audio streaming, conversational interfaces | **NUEVO Abril 2026**: `thinking_level` (dynamic reasoning), audio nativo, gemini-embedding-2-preview (multimodal: texto+imagen+video+audio+PDF en una llamada) |
 
 Politica de escalamiento: Haiku por defecto. Escalar a Sonnet solo si la tarea requiere razonamiento sobre multiples archivos, cambios arquitectonicos, o coordinacion de servicios. Sonnet requiere justificacion tecnica de una linea: `[ESCALAMIENTO MOTIVADO POR: <razon>]`. Escalar a Opus solo tras `[ALERTA_ARQUITECTONICA: REQUIERE_OPUSPLAN]` con Extended Thinking activado.
 
@@ -257,6 +259,7 @@ El agente mapea automaticamente el dominio tecnico de la solicitud contra una ta
 | Tracing LLM, dashboards, alertas | `llm-observability` | `/skill llm-observability` | Observabilidad de costos y latencia |
 | Analisis documental, RAG, vectores, bridge | `rag-specialist` | `/skill rag-specialist` | Pipelines RAG, embedding, recuperacion |
 | APIs, esquemas, migraciones, queries | `backend-architect` | `/skill backend-architect` | Persistencia, SOLID, Clean Arch, scaffolding |
+| Voice AI, audio real-time, Gemini 3.1-flash-live | `audio-voice-engineer` | `/skill audio-voice-engineer` | Streaming audio, conversational voice interfaces |
 | Flutter, BLoC/Riverpod, Firebase, builds | `mobile-engineer` | `/skill mobile-engineer` | Mobile end-to-end: UI, estado, deploy |
 | Releases, branching, CI/CD, despliegues | `release-manager` | `/skill release-manager` | Git Flow, SemVer, rollback, pipelines |
 | Tests, cobertura, contract testing | `qa-engineer` | `/skill qa-engineer` | Estrategia de calidad, piramide de tests |
@@ -283,13 +286,14 @@ Circuit Breaker activo: fallo por cuota degradado a grep/find (Regla 14).
 
 ### Tabla de decision de enrutamiento (integrada)
 
-| Condicion de la tarea | Accion del agente |
-|---|---|
-| Tarea trivial: lectura, docs, CRUD, busqueda | Haiku (default) |
-| Tarea sustancial: codigo, refactor, test, debug | Sonnet (default con justificacion si ambigua) |
-| Archivo o corpus > 500 lineas / 50 KB | Bridge — Gemini 2.5 Flash (decision inmediata, Regla 9) |
-| Solicitud mapea a dominio conocido (>85% confidence) | Invocar skill correspondiente (Regla 20) + modelo base |
-| Tarea que activa condicion de escalamiento | `[ALERTA_ARQUITECTONICA: REQUIERE_OPUSPLAN]` → Opus con Extended Thinking (Regla 6) |
+| Condicion de la tarea | Accion del agente | Parametros Abril 2026 |
+|---|---|---|
+| Tarea trivial: lectura, docs, CRUD, busqueda | Haiku (default) | Base |
+| Tarea sustancial: codigo, refactor, test, debug | Sonnet (default con justificacion si ambigua) | Prompt Caching: `cache_control: {type: "ephemeral"}` en system prompt; Token-efficient tools activos |
+| Archivo o corpus > 500 lineas / 50 KB | Bridge — Gemini 2.5 Flash (decision inmediata, Regla 9) | Soporta 100MB (antes 20MB) con transcodificacion integrada |
+| Solicitud mapea a dominio conocido (>85% confidence) | Invocar skill correspondiente (Regla 20) + modelo base | Gemini 3.1-flash-live para Voice AI; Gemini Embedding 2 para RAG multimodal |
+| Agente multi-paso con complejidad variable | Opus 4.7 con `task_budgets` (presupuesto adaptativo per-step) | `total_budget`, `per_step_min/max`, `allocation_strategy: "adaptive"` |
+| Tarea que activa condicion de escalamiento | `[ALERTA_ARQUITECTONICA: REQUIERE_OPUSPLAN]` → Opus 4.7 con Adaptive Thinking (Regla 6) | `effort: "high"` o `"xhigh"` segun complejidad; presupuesto de razonamiento en task_budgets |
 
 ### Optimizacion del context window — Configuracion global
 
@@ -375,8 +379,8 @@ El agente activa skills automaticamente al detectar dominio tecnico en la solici
 | `tech-lead-frontend` | componente, estado, bundle, CSS, styled, Tailwind, React, Vue, Angular, layout, UI, WCAG, accesibilidad | 85%+ | Si | "¿Como estructuro el estado compartido entre componentes?" |
 | `claude-agent-sdk` | agente, subagente, hook, SDK, autonomo, decorator, tool_use | 85%+ | Si | "Quiero construir un agente que ejecute multiples herramientas" |
 | `managed-agents-specialist` | agente gestionado, tools Anthropic, loop de agente, control agent | 85%+ | Si | "Configura un agente gestionado con herramientas integradas" |
-| `ai-integrations` | LLM, modelo, streaming, fallback, proveedor, costos, token counting | 80%+ | Si | "¿Como cambiar entre Claude y otro modelo?" |
-| `prompt-engineer` | prompt, few-shot, system message, chain-of-thought, versionado prompt | 85%+ | Si | "Optimiza este prompt de clasificacion" |
+| `ai-integrations` | LLM, modelo, streaming, fallback, proveedor, costos, token counting, presupuesto, budget, task_budgets, adaptive reasoning | 80%+ | Si | "¿Como cambiar entre Claude y otro modelo?" |
+| `prompt-engineer` | prompt, few-shot, system message, chain-of-thought, versionado prompt, thinking_level, effort, reasoning dynamico | 85%+ | Si | "Optimiza este prompt de clasificacion" |
 | `mcp-server-builder` | MCP, servidor, herramienta, JSON Schema, stdio, SSE | 85%+ | Si | "Quiero crear una nueva herramienta MCP" |
 | `llm-evals` | eval, benchmark, calidad LLM, golden dataset, metrica, gate CI/CD | 85%+ | Si | "Diseña un golden dataset para evaluar resumen" |
 | `llm-observability` | tracing, observabilidad, dashboard, costo LLM, latencia, Grafana | 85%+ | Si | "¿Como monitoreo el costo total de mis llamadas al LLM?" |
@@ -466,12 +470,13 @@ ai-core/
         ├── ai-integrations/       SKILL.md
         ├── aiops-engineer/        SKILL.md
         ├── attack-surface-analyst/ SKILL.md
+        ├── audio-voice-engineer/  SKILL.md (NUEVO Abril 2026)
         ├── backend-architect/     SKILL.md
         ├── claude-agent-sdk/      SKILL.md
         ├── managed-agents-specialist/ SKILL.md
         ├── data-engineer/         SKILL.md
         ├── devops-infra/          SKILL.md
-        ├── rag-specialist/      SKILL.md
+        ├── rag-specialist/        SKILL.md
         ├── llm-evals/             SKILL.md
         ├── llm-observability/     SKILL.md
         ├── mcp-server-builder/    SKILL.md

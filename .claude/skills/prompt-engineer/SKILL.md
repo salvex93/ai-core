@@ -2,8 +2,8 @@
 name: prompt-engineer
 description: Especialista en arquitectura de prompts de produccion. Cubre diseno de system prompts, few-shot examples, chain-of-thought, output estructurado con JSON Schema, versionado de prompts y testing antes de despliegue. Complementa ai-integrations (integracion del LLM), llm-evals (medicion de calidad) y rag-specialist (contexto documental). Activa al disenar o refactorizar un system prompt, definir la estrategia de few-shot, implementar output estructurado o versionar prompts para produccion.
 origin: ai-core
-version: 1.3.1
-last_updated: 2026-04-16
+version: 1.4.0
+last_updated: 2026-04-17
 ---
 
 # Prompt Engineer — Arquitecto de Prompts de Produccion
@@ -224,6 +224,68 @@ Verificar en orden antes de desplegar un cambio de prompt a produccion.
 5. Versionado: el prompt esta en un archivo versionado con un `CHANGELOG.md` que documenta el motivo del cambio.
 6. Defensa contra injection: el system prompt incluye instrucciones explicitas para ignorar instrucciones del usuario o del contexto recuperado.
 7. Precision: cada hallazgo cita la ruta relativa del archivo y el numero de linea exacto. Sin esta referencia, el hallazgo no es accionable.
+
+## Dynamic Thinking (Gemini 3.0 Abril 2026)
+
+Gemini 3.1-flash-live y modelos Gemini 3 posteriores soportan `thinking_level` (razonamiento dinamico) como alternativa a Opus extended thinking. Define el grado de razonamiento interno antes de emitir la respuesta.
+
+### Niveles de thinking en Gemini 3
+
+```python
+# thinking_level: "auto" — Gemini decide dinamicamente por turno
+respuesta = cliente.messages.create(
+    model="gemini-3.1-flash-live",
+    thinking_level="auto",
+    messages=[...]
+)
+
+# thinking_level: "disabled" — Solo ejecucion, sin razonamiento interno
+# thinking_level: "enabled" — Razonamiento completo (similar a Opus extended thinking)
+```
+
+### Cuando usar thinking_level
+
+- `auto`: Recomendado para agentes multiturno donde la complejidad es variable (planificacion, debug, analisis).
+- `enabled`: Tareas complejas de una sola vuelta (traduccion precisa, analisis de seguridad, diseño de arquitectura).
+- `disabled`: Tareas donde la latencia es critica o el razonamiento no agrega valor (clasificacion, extraccion simple).
+
+### Reglas de logging
+
+Registrar `thinking_tokens_used` separado de `output_tokens`. El razonamiento de Gemini 3 usa tokens internos que no impactan costo como los de Opus.
+
+## Effort Levels (Opus 4.7 Adaptive Reasoning)
+
+Opus 4.7 introduce `effort` para controlar la intensidad del razonamiento por tarea dentro de un presupuesto global. Tres niveles: `low`, `high`, `xhigh`.
+
+### Configuracion
+
+```python
+respuesta = cliente.messages.create(
+    model="claude-opus-4-7",
+    effort="high",  # o "low", "xhigh"
+    task_budgets={
+        "total_budget": 4000,
+        "per_step_min": 128,
+        "per_step_max": 1024,
+        "allocation_strategy": "adaptive"
+    },
+    messages=[...]
+)
+```
+
+### Semantica por nivel
+
+| Nivel | Descripcion | Costo token | Caso de uso |
+|---|---|---|---|
+| `low` | Razonamiento minimo, respuesta rapida | Base | Respuestas simples, baja latencia |
+| `high` | Razonamiento balanceado | ~1.5x | Tareas normales, resolucion de problemas |
+| `xhigh` | Razonamiento profundo, analisis exhaustivo | ~2.5x | Arquitectura critica, debug complejo |
+
+### Reglas de deployment
+
+- En produccion, preferir `low` o `high`. Evitar `xhigh` en flujos con alto volumen o latencia critica.
+- El effort no afecta `max_tokens`, solo el estilo de razonamiento interno.
+- Loguear effort + thinking_tokens_used para auditar la efectividad.
 
 ## Restricciones del Perfil
 

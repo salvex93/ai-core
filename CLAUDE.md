@@ -1,4 +1,4 @@
-# ai-core — Nucleo Centralizado de Agentes
+# ai-core — Nucleo Centralizado de Agentes (v2.4.0)
 
 ## Reglas Globales
 
@@ -154,8 +154,9 @@ Primera accion de cada sesion (antes que cualquier respuesta):
 | Componentes, estado, bundle, API frontend | `tech-lead-frontend` | "componente", "estado", "bundle", "frontend" |
 | Agentes autonomos, subagentes, hooks, MCP SDK | `claude-agent-sdk` | "agente", "subagente", "hook", "SDK" |
 | Agentes gestionados Anthropic, herramientas integradas | `managed-agents-specialist` | "agente gestionado", "tools", "loop" |
-| Integrar LLM, costos, streaming, fallback | `ai-integrations` | "LLM", "modelo", "streaming", "fallback" |
-| System prompts, few-shot, output estructurado | `prompt-engineer` | "prompt", "few-shot", "chain-of-thought" |
+| Integrar LLM, costos, streaming, fallback, presupuesto | `ai-integrations` | "LLM", "modelo", "streaming", "fallback", "presupuesto", "budget", "task_budgets" |
+| Audio en tiempo real, Voice AI, Gemini flash-live | `audio-voice-engineer` | "audio", "voice", "streaming", "real-time", "speech", "gemini-flash-live" |
+| System prompts, few-shot, output estructurado, thinking | `prompt-engineer` | "prompt", "few-shot", "chain-of-thought", "thinking_level", "effort", "reasoning" |
 | Servidor MCP, herramientas JSON Schema, stdio | `mcp-server-builder` | "MCP", "servidor", "stdio", "SSE" |
 | Evals, RAG quality, comparar prompts | `llm-evals` | "eval", "benchmark", "gate CI/CD", "evals:llm" |
 | Tracing LLM, dashboards, alertas latencia | `llm-observability` | "tracing", "observabilidad", "dashboard", "latencia" |
@@ -267,7 +268,8 @@ Sensor preventivo contra gasto perezoso de tokens. El agente ejecuta este protoc
 | agente gestionado, tools, loop | `managed-agents-specialist` | 85%+ | `/skill managed-agents-specialist` |
 | guardrail, filtro, validacion input/output | `ai-guardrails` | 90%+ | `/skill ai-guardrails` |
 | superficie, exposicion, credencial, subdominio | `attack-surface-analyst` | 85%+ | `/skill attack-surface-analyst` |
-| LLM, modelo, streaming, fallback, integración | `ai-integrations` | 80%+ | `/skill ai-integrations` |
+| LLM, modelo, streaming, fallback, integración, presupuesto, budget, task_budgets | `ai-integrations` | 80%+ | `/skill ai-integrations` |
+| audio, voice, streaming, real-time, speech, gemini-flash-live | `audio-voice-engineer` | 90%+ | `/skill audio-voice-engineer` |
 | tracing, dashboard, observabilidad, latencia | `llm-observability` | 85%+ | `/skill llm-observability` |
 
 **Regla 22.1 — Silencio Positivo + Confirmación de Dispatch**
@@ -309,7 +311,8 @@ En estos casos: pausa activa. Diagnosticar explícitamente. No auto-disparar.
 | `qa-engineer` | Tests, cobertura, contract testing, regresiones |
 | `security-auditor` | CVEs, OWASP, headers, secretos, compliance |
 | `devops-infra` | IaC, Kubernetes, networking, OTel/Grafana |
-| `ai-integrations` | Integrar LLM, costos, streaming, fallback |
+| `ai-integrations` | Integrar LLM, costos, streaming, fallback, presupuesto |
+| `audio-voice-engineer` | Voice AI, audio real-time, Gemini 3.1-flash-live, streaming |
 | `claude-agent-sdk` | Agentes autonomos, subagentes, hooks, MCP |
 | `managed-agents-specialist` | Agentes gestionados Anthropic, herramientas integradas, loops de agente |
 | `mcp-server-builder` | Servidor MCP, herramientas JSON Schema, stdio/SSE |
