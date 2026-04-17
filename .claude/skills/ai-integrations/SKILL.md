@@ -2,7 +2,7 @@
 name: ai-integrations
 description: Especialista en integracion de LLMs en aplicaciones de produccion. Cubre diseno de features de IA, gestion de costos por token, prompt versioning, streaming, fallback entre proveedores y evaluacion de outputs. Agnostico al proveedor. Activa al integrar Claude, Gemini u otro LLM en un proyecto anfitrion, disenar endpoints de IA o gestionar costos de inferencia.
 origin: ai-core
-version: 2.0.1
+version: 2.1.0
 last_updated: 2026-04-16
 ---
 
@@ -78,7 +78,8 @@ Definir como constantes de configuracion, no como literales dispersos en el codi
 
 | Tier | Modelo | Cuando usar |
 |---|---|---|
-| Razonamiento complejo | `claude-opus-4-6` | Arquitectura, planificacion, analisis critico |
+| Adaptive thinking | `claude-opus-4-7` | Agentes multi-paso, planificacion con complejidad variable por paso |
+| Razonamiento complejo | `claude-opus-4-6` | Arquitectura, analisis critico de carga uniforme |
 | Ejecucion estandar | `claude-sonnet-4-6` | Codigo, resumen, chat, operaciones cotidianas |
 | Volumen alto | `claude-haiku-4-5-20251001` | Clasificacion, extraccion, moderacion, lotes |
 
@@ -89,9 +90,9 @@ Definir como constantes de configuracion, no como literales dispersos en el codi
 - Prohibido incluir archivos completos en prompts si solo se necesita un fragmento — usar Gemini Bridge o `rag-specialist` primero.
 - En tool use con Anthropic, activar token-efficient tools (GA 2026, sin cabecera beta; reduce overhead hasta 70%).
 
-### Prompt Caching
+### Prompt Caching (GA 2026)
 
-Marcar `cache_control: { type: "ephemeral" }` sobre contenido estatico (system prompt, documentos de referencia, few-shot). Reglas:
+API simplificada: un unico campo `cache_control: { type: "ephemeral" }` por bloque sin cabecera beta. Compatible con tool use sin ruptura de cache (tool search dinamico preserva el cache de llamadas anteriores). Marcar sobre contenido estatico (system prompt, documentos de referencia, few-shot). Reglas:
 - Solo marcar contenido estatico entre llamadas — no el historial de conversacion.
 - Umbral minimo: 1024 tokens (Sonnet/Opus) o 2048 (Haiku) para activar el cache.
 - Loguear `cache_creation_input_tokens` y `cache_read_input_tokens` separado de `input_tokens`.
@@ -116,7 +117,7 @@ Verificar estado actual en `docs.anthropic.com/changelog` antes de implementar e
 
 | Capacidad | Cabecera beta original | Estado |
 |---|---|---|
-| Prompt Caching | `prompt-caching-2024-07-31` | Pendiente verificacion |
+| Prompt Caching | `prompt-caching-2024-07-31` | GA 2026 — sin cabecera beta |
 | Messages Batches | `message-batches-2024-09-24` | GA 2025 — `client.messages.batches`, sin cabecera |
 | Files API | `files-api-2025-04-14` | GA 2026 — `client.files`, sin cabecera |
 | Token-efficient tools | `token-efficient-tools-2025-02-19` | GA 2026 — sin cabecera |
