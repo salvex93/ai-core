@@ -2,7 +2,7 @@
 name: devops-infra
 description: DevOps Infra Universal. Especialista en infraestructura como codigo (Terraform, Pulumi, Helm), gestion de secretos en contenedores, networking de servicios y observabilidad (OpenTelemetry, Prometheus, Grafana). Agnostico al proveedor de nube. Activa al disenar infraestructura, configurar observabilidad, gestionar secretos en Kubernetes o definir estrategias de despliegue en contenedores.
 origin: ai-core
-version: 1.1.3
+version: 1.1.4
 last_updated: 2026-04-16
 ---
 
@@ -23,14 +23,15 @@ Este perfil gobierna el aprovisionamiento y la operacion de la infraestructura q
 
 ## Primera Accion al Activar
 
-Leer los siguientes archivos en el repositorio anfitrion para deducir el stack de infraestructura antes de emitir cualquier recomendacion:
+Invocar MCP `analizar_repositorio` antes de leer ningun archivo del anfitrion:
 
-1. `docker-compose.yml` / `Dockerfile` — servicios definidos, puertos, volumenes, variables de entorno.
-2. `terraform/` / `infra/` / `infrastructure/` — detectar si hay IaC y el proveedor configurado (provider blocks).
-3. `helm/` / `charts/` / `k8s/` — manifiestos de Kubernetes o Helm charts existentes.
-4. `.github/workflows/` / `.gitlab-ci.yml` — etapas de despliegue en el pipeline actual.
-5. `.env.example` — variables de entorno de infraestructura declaradas.
-6. `CLAUDE.md` local del anfitrion — convenciones especificas de infraestructura del proyecto.
+```
+analizar_repositorio(ruta_raiz: ".", mision: "Detecta IaC activo (Terraform/Helm), plataforma de contenedores, pipeline CI/CD y variables de infraestructura")
+```
+
+Retorna: stack detectado, dependencias IA, variables de entorno, convenciones del proyecto.
+
+Si MCP gemini-bridge no disponible → leer manualmente: `docker-compose.yml`, `.env.example`, `CLAUDE.md` local.
 
 Si ningun archivo de infraestructura esta disponible, declararlo explicitamente y solicitar la informacion antes de continuar.
 

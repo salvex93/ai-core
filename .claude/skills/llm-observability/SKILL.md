@@ -2,7 +2,7 @@
 name: llm-observability
 description: Especialista en observabilidad de sistemas LLM en produccion. Cubre instrumentacion con OpenTelemetry, dashboards de costo por operacion, alertas de degradacion de calidad, tracing de prompts y completions, y plataformas de observabilidad IA (Langfuse, Helicone, Phoenix). Activa al instrumentar un sistema que usa LLMs, disenar dashboards de costo/calidad, configurar alertas de degradacion o diagnosticar regresiones de calidad en produccion.
 origin: ai-core
-version: 1.1.3
+version: 1.1.4
 last_updated: 2026-04-16
 ---
 
@@ -23,17 +23,15 @@ Complementa al skill `ai-integrations` (integracion del LLM como feature) y al s
 
 ## Primera Accion al Activar
 
-Leer los siguientes archivos en el repositorio anfitrion para deducir el stack de observabilidad activo antes de emitir cualquier recomendacion:
+Invocar MCP `analizar_repositorio` antes de leer ningun archivo del anfitrion:
 
-1. `package.json` / `requirements.txt` — detectar herramientas de observabilidad presentes:
-   - `@opentelemetry/api`, `@opentelemetry/sdk-trace-node` — OTel base
-   - `langfuse`, `langfuse-langchain` — plataforma Langfuse
-   - `helicone` — proxy de observabilidad Helicone
-   - `@arizeai/phoenix-client` — plataforma Phoenix by Arize
-   - `@wandb/sdk` / `wandb` — Weights and Biases Weave
-2. `.env.example` — variables de entorno de plataformas de observabilidad (LANGFUSE_PUBLIC_KEY, HELICONE_API_KEY, OTEL_EXPORTER_OTLP_ENDPOINT, etc.).
-3. Buscar instrumentacion existente: `grep -r "trace\|span\|logger.*tokens\|usage.*tokens" --include="*.ts" --include="*.py" . | grep -v node_modules`
-4. `CLAUDE.md` local del anfitrion — politicas de retencion de datos y restricciones de privacidad que afecten el envio de prompts a plataformas externas.
+```
+analizar_repositorio(ruta_raiz: ".", mision: "Detecta herramientas de observabilidad (Langfuse/Helicone/Phoenix/OTel), variables de plataformas externas y politicas de privacidad")
+```
+
+Retorna: stack detectado, dependencias IA, variables de entorno, convenciones del proyecto.
+
+Si MCP gemini-bridge no disponible → leer manualmente: `package.json`, `.env.example`, `CLAUDE.md` local.
 
 Si no hay instrumentacion activa, declararlo y proponer la estrategia minima viable antes de continuar.
 

@@ -2,7 +2,7 @@
 name: ai-guardrails
 description: Especialista en capas de proteccion para sistemas LLM en produccion. Cubre deteccion y bloqueo de prompt injection, validacion de outputs, deteccion de PII, rate limiting por usuario, patron LLM Firewall y seleccion de frameworks (NeMo Guardrails, Guardrails AI, Azure AI Content Safety). Complementa security-auditor (seguridad de aplicacion) y llm-observability (deteccion reactiva). Activa al disenar la capa de proteccion de un sistema LLM, implementar filtros de input/output, o definir politicas de uso aceptable.
 origin: ai-core
-version: 1.0.3
+version: 1.0.4
 last_updated: 2026-04-16
 ---
 
@@ -22,12 +22,15 @@ Este perfil gobierna la capa de proteccion activa de sistemas LLM en produccion.
 
 ## Primera Accion al Activar
 
-Leer los siguientes archivos en el repositorio anfitrion para entender la superficie de ataque antes de emitir recomendaciones:
+Invocar MCP `analizar_repositorio` antes de leer ningun archivo del anfitrion:
 
-1. El endpoint o handler que recibe la entrada del usuario y llama al LLM — identificar donde se inyecta el contenido del usuario en el prompt.
-2. `package.json` / `requirements.txt` — verificar si hay frameworks de guardrails ya presentes.
-3. `.env.example` — verificar si hay claves de servicios de moderacion configuradas (Azure Content Safety, Perspective API).
-4. `CLAUDE.md` local del anfitrion — convenciones de seguridad del proyecto.
+```
+analizar_repositorio(ruta_raiz: ".", mision: "Detecta frameworks de guardrails, endpoints LLM expuestos, servicios de moderacion y politicas de filtrado")
+```
+
+Retorna: stack detectado, dependencias IA, variables de entorno, convenciones del proyecto.
+
+Si MCP gemini-bridge no disponible → leer manualmente: `package.json`, `.env.example`, `CLAUDE.md` local.
 
 Si el archivo del handler supera 500 lineas, aplicar Regla 9 antes de cargarlo.
 

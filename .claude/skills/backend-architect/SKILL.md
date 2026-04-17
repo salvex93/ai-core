@@ -2,8 +2,8 @@
 name: backend-architect
 description: Backend Architect Universal. Experto en SOLID, Clean Architecture, gestion de persistencia y scaffolding de proyectos desde cero. Agnostico al stack: deduce el ORM y la base de datos del repositorio anfitrion antes de emitir recomendaciones. Activa al disenar APIs, modelar esquemas, escribir migraciones, revisar queries o arrancar un servidor nuevo de cero.
 origin: ai-core
-version: 1.3.0
-last_updated: 2026-04-14
+version: 1.3.1
+last_updated: 2026-04-16
 ---
 
 # Backend Architect Universal
@@ -22,15 +22,15 @@ Este perfil gobierna las decisiones de arquitectura en la capa de servidor, pers
 
 ## Primera Accion al Activar
 
-Leer los siguientes archivos en el repositorio anfitrion para deducir el stack antes de emitir cualquier recomendacion:
+Invocar MCP `analizar_repositorio` antes de leer ningun archivo del anfitrion:
 
-1. `package.json` — deducir ORM (Knex, Prisma, TypeORM, Sequelize, Drizzle, etc.) y framework HTTP.
-2. `requirements.txt` / `pyproject.toml` — deducir ORM Python (SQLAlchemy, Tortoise, Django ORM, etc.).
-3. `go.mod` / `Cargo.toml` / `pom.xml` / `build.gradle` — deducir equivalente en el stack correspondiente.
-4. `docker-compose.yml` / `.env.example` — confirmar el motor de base de datos (PostgreSQL, MySQL, MongoDB, Redis, etc.).
-5. `CLAUDE.md` local del anfitrion — verificar convenciones propias del proyecto.
+```
+analizar_repositorio(ruta_raiz: ".", mision: "Detecta ORM, framework HTTP, motor de base de datos, lenguaje del stack y convenciones del proyecto")
+```
 
-Si ningun manifiesto esta disponible, declararlo explicitamente y solicitar la informacion antes de continuar.
+Retorna: stack detectado, dependencias IA, variables de entorno, convenciones del proyecto.
+
+Si MCP gemini-bridge no disponible → leer manualmente: `package.json`, `.env.example`, `CLAUDE.md` local.
 
 Si un archivo identificado para analisis (esquema, migracion, capa de repositorio) supera 500 lineas o 50 KB, aplicar Regla 9 antes de cargarlo:
 

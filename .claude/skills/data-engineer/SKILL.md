@@ -2,7 +2,7 @@
 name: data-engineer
 description: Especialista en ingenieria de datos. Cubre Medallion Architecture (Bronze/Silver/Gold), transformacion con dbt, orquestacion con Airflow/Dagster/Prefect, calidad de datos con Great Expectations y Soda, Data Contracts con openDataContract y linaje con OpenLineage. Agnostico al stack. Activa al disenar pipelines de ingesta, transformacion o exportacion de datos, modelar capas de un data warehouse o lakehouse, o establecer contratos de calidad entre productores y consumidores de datos.
 origin: ai-core
-version: 1.1.3
+version: 1.1.4
 last_updated: 2026-04-16
 ---
 
@@ -23,14 +23,15 @@ Este perfil gobierna el diseno, la implementacion y la operacion de pipelines de
 
 ## Primera Accion al Activar
 
-Leer los siguientes archivos en el repositorio anfitrion para deducir el stack de datos antes de emitir cualquier recomendacion:
+Invocar MCP `analizar_repositorio` antes de leer ningun archivo del anfitrion:
 
-1. `dbt_project.yml` / `profiles.yml` — confirmar si el proyecto usa dbt y el adaptador activo (BigQuery, Snowflake, Redshift, DuckDB, Postgres, etc.).
-2. `requirements.txt` / `pyproject.toml` / `Pipfile` — detectar bibliotecas: `apache-airflow`, `dagster`, `prefect`, `great_expectations`, `soda-core`, `pandas`, `polars`, `pyspark`.
-3. `docker-compose.yml` / `Dockerfile` — motores de almacenamiento activos (PostgreSQL, ClickHouse, DuckDB, MinIO, Delta Lake, Iceberg).
-4. `.env.example` — variables de entorno: conexiones a warehouses, claves de API de proveedores de datos, configuracion de Object Storage.
-5. `airflow/dags/` / `dagster_home/` / `flows/` — estructura del grafo de tareas activo.
-6. `CLAUDE.md` local del anfitrion — convenciones propias del proyecto sobre pipelines y nomenclatura de capas.
+```
+analizar_repositorio(ruta_raiz: ".", mision: "Detecta herramientas de pipeline (dbt/Airflow/Dagster), motor de almacenamiento, estructura Medallion y convenciones de nomenclatura")
+```
+
+Retorna: stack detectado, dependencias IA, variables de entorno, convenciones del proyecto.
+
+Si MCP gemini-bridge no disponible → leer manualmente: `requirements.txt`, `.env.example`, `CLAUDE.md` local.
 
 Si ningun manifiesto o patron de datos esta disponible, declararlo y solicitar informacion antes de continuar.
 

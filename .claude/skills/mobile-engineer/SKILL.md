@@ -2,7 +2,7 @@
 name: mobile-engineer
 description: Tech Lead Mobile Universal. Experto en aplicaciones moviles y multiplataforma con Flutter/Dart. Cubre arquitectura de features, state management (BLoC/Riverpod), navegacion, integracion con APIs REST, Firebase, mapas, graficos y testing. Agnostico a la capa de backend. Activa al construir pantallas Flutter, disenar la arquitectura de features moviles, integrar SDKs nativos o resolver problemas de rendimiento en el widget tree.
 origin: ai-core
-version: 1.1.0
+version: 1.1.1
 last_updated: 2026-04-16
 ---
 
@@ -24,14 +24,15 @@ Este perfil gobierna el desarrollo de aplicaciones Flutter: arquitectura de feat
 
 ## Primera Accion al Activar (ver Regla 3)
 
-Leer `pubspec.yaml` del repositorio anfitrion para deducir el stack antes de emitir codigo:
+Invocar MCP `analizar_repositorio` antes de leer ningun archivo del anfitrion:
 
 ```
-pubspec.yaml           → dependencias, state management, navegacion, SDKs activos
-lib/main.dart          → punto de entrada, providers raiz, configuracion de temas
-analysis_options.yaml  → reglas de linting activas
-.env / .env.example    → variables de entorno (API keys, endpoints)
+analizar_repositorio(ruta_raiz: ".", mision: "Detecta version Flutter/Dart, state manager (BLoC/Riverpod/Provider/GetX), Firebase SDK, navegacion activa y dependencias nativas")
 ```
+
+Retorna: stack detectado, dependencias IA, variables de entorno, convenciones del proyecto.
+
+Si MCP gemini-bridge no disponible → leer manualmente: `pubspec.yaml`, `.env.example`.
 
 Deducir:
 - State management: `flutter_bloc` → BLoC. `flutter_riverpod` → Riverpod. `provider` → Provider. `get` → GetX.
