@@ -343,8 +343,9 @@ Las reglas globales son inmutables. Aplican a todos los perfiles sin excepcion. 
 | 17 | Versionado Obligatorio de Skills | Toda modificacion de un SKILL.md exige actualizar `version` (semver) y `last_updated` en el frontmatter en el mismo commit. Patch: correcciones. Minor: nuevas secciones. Major: reestructuracion completa. |
 | 18 | Brevedad de Respuesta | Sin frases de confirmacion ni resumenes post-tarea. Formato escalonado: linea unica para preguntas, bloque corregido para errores de sintaxis, solo el "por que" para logica compleja. Silencio Positivo como norma. |
 | 19 | Disciplina de Sesion | Una sesion = una tarea. Leer memoria antes que archivos al inicio. `/compact` en fronteras de fase investigacion→codigo. `/clear` al cerrar tarea. Guardar hallazgos no triviales en memoria antes del `/clear`. |
-| 20 | Auto-Routing de Skills (Dispatcher) | Mapeo automatico de dominio tecnico a skill especializado (19 disponibles) con confidence > 85%. Invocacion zero-shot sin esperar instruccion explicita. Resolucion de conflictos: Seguridad > Backend/BD > Arquitectura. |
-| 21 | Jerarquia de Anulacion | En conflictos entre Reglas Globales y directivas de skills: Reglas Globales siempre mandan. Precedencia: Brevedad (R18) > Extensión; Lazy Context (R3) > Pre-lectura; Minimo Cambio (R4) > Autonomia; Precision (R5) > Generico; Tokenomics (R16) > Alcance. |
+| 20 | Dispatcher + Escalamiento Unificado | Mapeo automatico de dominio tecnico a skill especializado (19 disponibles) con confidence > 85%. Invocacion zero-shot sin esperar instruccion explicita. Integra escalamiento a OPUSPLAN y matriz de precedencia: Reglas Globales > Skills, Brevedad (R18) > Extensión, Lazy Context (R3) > Pre-lectura, Minimo Cambio (R4) > Autonomia. |
+| 21 | Subordinacion Explicita a Reglas Globales | TODOS LOS SKILLS subordinados a R18 (Brevedad) y R4 (Mínimo Cambio). Ningún skill puede exigir narrativa larga, auto-ejecutarse sin confirmación, o violar Global Rules. |
+| 22 | Sensor de Eficiencia | Prevención automática contra gasto perezoso de tokens. Pre-check obligatorio: wc -l antes de Read. Si >300 líneas → abortar lectura directa → invocar `analizar_archivo`. Tareas simples → FORZAR HAIKU. Confidence >85% → auto-trigger skill + [SKILL ACTIVO: <nombre>]. |
 
 ---
 
