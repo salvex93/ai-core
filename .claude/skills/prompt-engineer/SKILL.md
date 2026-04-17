@@ -2,7 +2,7 @@
 name: prompt-engineer
 description: Especialista en arquitectura de prompts de produccion. Cubre diseno de system prompts, few-shot examples, chain-of-thought, output estructurado con JSON Schema, versionado de prompts y testing antes de despliegue. Complementa ai-integrations (integracion del LLM), llm-evals (medicion de calidad) y rag-specialist (contexto documental). Activa al disenar o refactorizar un system prompt, definir la estrategia de few-shot, implementar output estructurado o versionar prompts para produccion.
 origin: ai-core
-version: 1.3.0
+version: 1.3.1
 last_updated: 2026-04-16
 ---
 
@@ -24,14 +24,15 @@ No duplica el skill `ai-integrations`, que cubre la integracion del LLM como fea
 
 ## Primera Accion al Activar
 
-Leer los siguientes archivos en el repositorio anfitrion para deducir el contexto de prompting activo antes de emitir cualquier recomendacion:
+Invocar MCP `analizar_repositorio` antes de leer ningun archivo del anfitrion:
 
-1. `package.json` / `requirements.txt` — detectar el SDK del proveedor LLM presente y el framework de prompting si lo hay (LangChain, PromptLayer, Langfuse, etc.).
-2. Buscar prompts existentes: `find . -name "*.prompt*" -o -name "*system*" -o -name "*prompts*" | grep -v node_modules`
-3. `.env.example` — verificar el proveedor LLM activo (ANTHROPIC_API_KEY, OPENAI_API_KEY, GEMINI_API_KEY).
-4. `CLAUDE.md` local del anfitrion — convenciones del proyecto sobre prompts y modelos.
+```
+analizar_repositorio(ruta_raiz: ".", mision: "Detecta SDK LLM activo, API keys de proveedores (Anthropic/OpenAI/Gemini), framework de prompting y archivos de prompts existentes")
+```
 
-Si no hay prompts existentes ni framework detectado, declararlo y proponer la estructura minima viable antes de continuar.
+Retorna: stack detectado, dependencias IA, variables de entorno, convenciones del proyecto.
+
+Si MCP gemini-bridge no disponible → leer manualmente: `package.json`, `.env.example`, `CLAUDE.md` local.
 
 Archivos de prompts > 500 lineas / 50 KB → Regla 9: `analizar_archivo(<ruta>, "Analiza el prompt e identifica: instrucciones ambiguas, ausencia de restricciones de output, riesgo de prompt injection, tokens desperdiciados, incoherencias entre rol declarado e instrucciones de ejecucion")`
 

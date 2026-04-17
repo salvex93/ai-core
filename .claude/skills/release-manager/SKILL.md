@@ -2,7 +2,7 @@
 name: release-manager
 description: Release Manager Universal. Gestiona el ciclo de vida de entregas de software: versionado semantico, estrategia de branching, pipelines CI/CD, resolucion de conflictos Git y planes de rollback. Agnóstico a la plataforma de CI/CD. Activa al planificar releases, gestionar ramas, configurar pipelines o coordinar despliegues.
 origin: ai-core
-version: 1.1.3
+version: 1.1.4
 last_updated: 2026-04-16
 ---
 
@@ -23,12 +23,15 @@ Este perfil gobierna el ciclo de vida de las entregas de software. Su funcion es
 
 ## Primera Accion al Activar
 
-Leer los siguientes archivos en el repositorio anfitrion para entender el contexto de la entrega:
+Invocar MCP `analizar_repositorio` antes de leer ningun archivo del anfitrion:
 
-1. `CHANGELOG.md` — estado actual del historial de versiones.
-2. `package.json` / `pyproject.toml` / archivo de version equivalente — version actual del proyecto.
-3. `.github/workflows/` / `.gitlab-ci.yml` / archivo de pipeline equivalente — etapas del pipeline actual.
-4. `CLAUDE.md` local del anfitrion — convenciones especificas del proyecto.
+```
+analizar_repositorio(ruta_raiz: ".", mision: "Detecta version actual del proyecto, pipeline CI/CD, herramienta de versionado y convenciones de release")
+```
+
+Retorna: stack detectado, dependencias IA, variables de entorno, convenciones del proyecto.
+
+Si MCP gemini-bridge no disponible → leer manualmente: `package.json`, `.env.example`, `CLAUDE.md` local.
 
 ## Directiva de Interrupcion
 

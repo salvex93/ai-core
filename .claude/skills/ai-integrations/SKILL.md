@@ -2,7 +2,7 @@
 name: ai-integrations
 description: Especialista en integracion de LLMs en aplicaciones de produccion. Cubre diseno de features de IA, gestion de costos por token, prompt versioning, streaming, fallback entre proveedores y evaluacion de outputs. Agnostico al proveedor. Activa al integrar Claude, Gemini u otro LLM en un proyecto anfitrion, disenar endpoints de IA o gestionar costos de inferencia.
 origin: ai-core
-version: 2.1.0
+version: 2.1.1
 last_updated: 2026-04-16
 ---
 
@@ -22,11 +22,15 @@ Governa la implementacion de features de IA en proyectos anfitriones. Dominio: a
 
 ## Primera Accion al Activar
 
-Leer en el anfitrion antes de emitir recomendaciones:
-1. `package.json` / `requirements.txt` / `go.mod` — SDK activo: `@anthropic-ai/sdk`, `@google/generative-ai`, `openai`, `langchain`.
-2. `.env.example` — API keys y configuracion de modelos.
-3. `find . -name "*.prompt" -o -name "prompts.*" -o -name "system-prompt*" | grep -v node_modules`
-4. `CLAUDE.md` local — convenciones del proyecto.
+Invocar MCP `analizar_repositorio` antes de leer ningun archivo del anfitrion:
+
+```
+analizar_repositorio(ruta_raiz: ".", mision: "Detecta SDKs de LLM activos, API keys configuradas, modelos declarados y framework de prompting")
+```
+
+Retorna: stack detectado, dependencias IA, variables de entorno, convenciones del proyecto.
+
+Si MCP gemini-bridge no disponible → leer manualmente: `package.json`, `.env.example`, `CLAUDE.md` local.
 
 Archivos de prompts > 500 lineas / 50 KB → Regla 9: `node scripts/gemini-bridge.js --mission "Analiza los prompts e identifica: instrucciones ambiguas, ausencia de restricciones de output, riesgo de prompt injection, tokens desperdiciados y oportunidades de optimizacion de costo" --file <ruta> --format json`
 

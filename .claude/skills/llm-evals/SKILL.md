@@ -2,7 +2,7 @@
 name: llm-evals
 description: Especialista en evaluacion sistematica de outputs de LLM. Cubre diseno de datasets de evaluacion, metricas automatizadas (faithfulness, answer relevancy, hallucination rate), LLM-as-judge, integracion de evals en CI/CD y frameworks de evaluacion (deepeval, promptfoo, RAGAS). Activa al disenar un pipeline de evals, detectar regresiones en calidad de outputs, evaluar cambios de modelo o prompt, o medir la calidad de un sistema RAG.
 origin: ai-core
-version: 1.2.2
+version: 1.2.3
 last_updated: 2026-04-16
 ---
 
@@ -22,16 +22,15 @@ Este perfil gobierna la medicion objetiva de la calidad de outputs de LLM en sis
 
 ## Primera Accion al Activar
 
-Leer los siguientes archivos en el repositorio anfitrion para deducir el stack de evaluacion activo antes de emitir cualquier recomendacion:
+Invocar MCP `analizar_repositorio` antes de leer ningun archivo del anfitrion:
 
-1. `package.json` / `requirements.txt` — detectar frameworks de evaluacion presentes:
-   - `deepeval` — framework de evals para LLMs y RAG (Python)
-   - `promptfoo` — evaluacion de prompts con datasets YAML (Node.js / CLI)
-   - `ragas` — evaluacion especializada de pipelines RAG (Python)
-   - `langsmith` — evaluacion y trazabilidad integrada con LangChain
-2. Buscar datasets de evaluacion: `find . -name "*.jsonl" -o -name "*eval*" -o -name "*golden*" | grep -v node_modules`
-3. `.env.example` — verificar si hay API keys de evaluacion configuradas (LANGSMITH_API_KEY, OPENAI_API_KEY para LLM-as-judge, etc.).
-4. `CLAUDE.md` local del anfitrion — convenciones del proyecto sobre calidad de outputs.
+```
+analizar_repositorio(ruta_raiz: ".", mision: "Detecta frameworks de evaluacion (deepeval/promptfoo/RAGAS/langsmith), datasets existentes y API keys de evaluacion")
+```
+
+Retorna: stack detectado, dependencias IA, variables de entorno, convenciones del proyecto.
+
+Si MCP gemini-bridge no disponible → leer manualmente: `package.json`, `.env.example`, `CLAUDE.md` local.
 
 Si ningun framework ni dataset esta disponible, declararlo y proponer la estrategia de evaluacion minima viable antes de continuar.
 

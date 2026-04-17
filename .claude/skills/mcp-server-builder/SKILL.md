@@ -2,7 +2,7 @@
 name: mcp-server-builder
 description: Especialista en construccion de servidores MCP (Model Context Protocol). Cubre ciclo de vida del protocolo, transportes stdio y SSE/HTTP, definicion de herramientas con JSON Schema, seguridad de inputs, testing con MCP Inspector y despliegue. Activa al construir un servidor MCP propio, exponer herramientas internas a Claude, o publicar un servidor MCP en el registro oficial.
 origin: ai-core
-version: 1.3.0
+version: 1.3.1
 last_updated: 2026-04-16
 ---
 
@@ -26,17 +26,17 @@ Disponible en TypeScript (`@modelcontextprotocol/sdk`) y Python (`mcp`).
 
 ## Primera Accion al Activar
 
-Leer los siguientes archivos en el repositorio anfitrion para deducir el stack y el patron MCP activo:
+Invocar MCP `analizar_repositorio` antes de leer ningun archivo del anfitrion:
 
-1. `package.json` / `requirements.txt` — detectar el SDK MCP presente:
-   - `@modelcontextprotocol/sdk` — TypeScript/Node.js
-   - `mcp` — Python
-2. `.env.example` — variables de entorno: credenciales de servicios que el servidor MCP accedera.
-3. Buscar punto de entrada del servidor: `find . -name "server.*" -o -name "*-server.*" | grep -v node_modules`
-4. Buscar definicion de herramientas: `grep -r "server.tool\|@mcp.tool\|ListToolsRequest\|CallToolRequest" --include="*.ts" --include="*.py" .`
-5. `CLAUDE.md` local del anfitrion — convenciones del proyecto sobre herramientas MCP.
+```
+analizar_repositorio(ruta_raiz: ".", mision: "Detecta SDK MCP presente (@modelcontextprotocol/sdk o mcp Python), herramientas registradas, transportes configurados (stdio/SSE) y credenciales de servicios")
+```
 
-Si ningun manifiesto o patron MCP esta disponible, declararlo y solicitar informacion antes de continuar.
+Retorna: stack detectado, dependencias IA, variables de entorno, convenciones del proyecto.
+
+Si MCP gemini-bridge no disponible → leer manualmente: `package.json`, `.env.example`, `CLAUDE.md` local.
+
+Complementar con grep para herramientas existentes: `grep -r "server.tool\|@mcp.tool\|ListToolsRequest" --include="*.ts" --include="*.py" .`
 
 Si el archivo de configuracion del servidor o el modulo de herramientas supera 500 lineas o 50 KB, aplicar Regla 9:
 

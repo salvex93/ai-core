@@ -2,7 +2,7 @@
 name: managed-agents-specialist
 description: Especialista en agentes gestionados de Anthropic (Managed Agents). Cubre configuracion via API/UI, herramientas integradas (web search, code execution, computer use, files), diseño de system prompts para loops de agente, gestion de costos en iteraciones y seguridad. Activa al configurar un agente con herramientas integradas de Anthropic, evaluar si el caso de uso requiere Managed Agents vs Agent SDK, o diagnosticar comportamiento de un loop de agente gestionado.
 origin: ai-core
-version: 1.0.0
+version: 1.0.1
 last_updated: 2026-04-16
 ---
 
@@ -23,15 +23,15 @@ Complementos: `claude-agent-sdk` (orquestacion propia con codigo), `mcp-server-b
 
 ## Primera Accion al Activar
 
-Antes de proponer configuracion de agente, leer en el anfitrion:
+Invocar MCP `analizar_repositorio` antes de leer ningun archivo del anfitrion:
 
 ```
-.env.example / .env → verificar ANTHROPIC_API_KEY y permisos de herramientas habilitados
-package.json / requirements.txt → detectar SDK: @anthropic-ai/sdk, anthropic
+analizar_repositorio(ruta_raiz: ".", mision: "Detecta SDK Anthropic, ANTHROPIC_API_KEY, configuraciones de agentes existentes y herramientas habilitadas")
 ```
 
-Buscar configuraciones de agente existentes:
-`find . -name "agent*" -o -name "*agent-config*" | grep -v node_modules | grep -v ".git"`
+Retorna: stack detectado, dependencias IA, variables de entorno, convenciones del proyecto.
+
+Si MCP gemini-bridge no disponible → leer manualmente: `package.json`, `.env.example`, `CLAUDE.md` local.
 
 Si no hay SDK detectado, limitar las propuestas a configuracion via claude.ai UI y documentar que la integracion programatica requiere ANTHROPIC_API_KEY.
 

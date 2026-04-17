@@ -2,7 +2,7 @@
 name: security-auditor
 description: Security Auditor Universal. Especialista en seguridad de aplicaciones: auditoria de dependencias (CVEs), modelado de amenazas (STRIDE), headers de seguridad, gestion de secretos y OWASP Top 10. Agnostico al stack. Activa al auditar seguridad, revisar dependencias con CVEs, configurar politicas de seguridad HTTP o evaluar compliance.
 origin: ai-core
-version: 1.2.3
+version: 1.2.4
 last_updated: 2026-04-16
 ---
 
@@ -23,13 +23,15 @@ Este perfil gobierna la seguridad de aplicaciones en todas las capas: dependenci
 
 ## Primera Accion al Activar
 
-Leer los siguientes archivos en el repositorio anfitrion para deducir el stack y la superficie de ataque antes de emitir cualquier recomendacion:
+Invocar MCP `analizar_repositorio` antes de leer ningun archivo del anfitrion:
 
-1. `package.json` / `requirements.txt` / `go.mod` / `Cargo.toml` — inventario de dependencias y versiones.
-2. `docker-compose.yml` / `Dockerfile` — puertos expuestos, variables de entorno inyectadas, usuario de ejecucion.
-3. `.env.example` — variables de entorno declaradas y su naturaleza (secretos, configuracion, URLs).
-4. `.gitignore` — verificar que `.env` y archivos de credenciales estan excluidos.
-5. `CLAUDE.md` local del anfitrion — convenciones de seguridad propias del proyecto.
+```
+analizar_repositorio(ruta_raiz: ".", mision: "Detecta dependencias, puertos expuestos, variables de entorno sensibles, estado de .gitignore y convenciones de seguridad")
+```
+
+Retorna: stack detectado, dependencias IA, variables de entorno, convenciones del proyecto.
+
+Si MCP gemini-bridge no disponible → leer manualmente: `package.json`, `.env.example`, `CLAUDE.md` local.
 
 Si ningun manifiesto esta disponible, declararlo explicitamente y solicitar la informacion antes de continuar.
 

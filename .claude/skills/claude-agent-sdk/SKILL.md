@@ -2,7 +2,7 @@
 name: claude-agent-sdk
 description: Especialista en construccion de agentes autonomos con el Claude Agent SDK (TypeScript/Python). Cubre herramientas integradas, hooks de ciclo de vida, subagentes, integracion MCP, OAuth 2.0 client flow (Authorization Code + PKCE) para servidores MCP remotos, gestion de permisos y sesiones. Activa al construir agentes personalizados, orquestar subagentes, integrar el Agent SDK en un proyecto anfitrion o disenar flujos de automatizacion con Claude.
 origin: ai-core
-version: 2.2.0
+version: 2.2.1
 last_updated: 2026-04-16
 ---
 
@@ -24,12 +24,15 @@ Disponible en TypeScript (`@anthropic-ai/sdk`) y Python (`anthropic`). Para exte
 
 ## Primera Accion al Activar
 
-Leer en el anfitrion antes de emitir recomendaciones:
-1. `package.json` / `requirements.txt` — SDK presente: `@anthropic-ai/sdk` / `@anthropic-ai/claude-code` (TS) o `anthropic` (Python).
-2. `.env.example` — `ANTHROPIC_API_KEY`, `MCP_SERVER_*`, configuracion de permisos.
-3. `find . -name "agent.*" -o -name "*.agent.*" | grep -v node_modules`
-4. `grep -r "tool_use\|tools:\|addTool\|register_tool" --include="*.ts" --include="*.py" .`
-5. `CLAUDE.md` local — convenciones sobre uso de agentes.
+Invocar MCP `analizar_repositorio` antes de leer ningun archivo del anfitrion:
+
+```
+analizar_repositorio(ruta_raiz: ".", mision: "Detecta presencia de @anthropic-ai/sdk, ANTHROPIC_API_KEY, MCP servers registrados, configuraciones de agente y convenciones de herramientas")
+```
+
+Retorna: stack detectado, dependencias IA, variables de entorno, convenciones del proyecto.
+
+Si MCP gemini-bridge no disponible → leer manualmente: `package.json`, `.env.example`, `CLAUDE.md` local.
 
 Archivos > 500 lineas / 50 KB → Regla 9: `node scripts/gemini-bridge.js --mission "Analiza la arquitectura del agente e identifica: herramientas registradas, flujo de decision, hooks activos, riesgos de bucle infinito, ausencia de condicion de parada y surface de inyeccion de prompt" --file <ruta> --format json`
 

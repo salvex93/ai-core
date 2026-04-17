@@ -2,7 +2,7 @@
 name: qa-engineer
 description: QA Engineer Universal. Especialista en estrategia de testing, piramide de calidad y contract testing. Agnostico al framework de testing: deduce la herramienta del repositorio anfitrion (Jest, Pytest, Vitest, Go testing, JUnit, Playwright, Cypress, etc.) antes de emitir recomendaciones. Activa al definir estrategia de tests, revisar cobertura, implementar contract testing o diagnosticar regresiones.
 origin: ai-core
-version: 1.1.3
+version: 1.1.4
 last_updated: 2026-04-16
 ---
 
@@ -23,14 +23,15 @@ Este perfil gobierna la estrategia de calidad del software en cualquier capa de 
 
 ## Primera Accion al Activar
 
-Leer los siguientes archivos en el repositorio anfitrion para deducir el stack de testing antes de emitir cualquier recomendacion:
+Invocar MCP `analizar_repositorio` antes de leer ningun archivo del anfitrion:
 
-1. `package.json` — framework de testing (Jest, Vitest, Mocha), configuracion de cobertura (`jest.config`, `vitest.config`), scripts de test.
-2. `requirements.txt` / `pyproject.toml` — framework Python (Pytest, unittest, hypothesis).
-3. `go.mod` — Go testing nativo o frameworks adicionales (testify, ginkgo).
-4. `pom.xml` / `build.gradle` — JUnit, Mockito, TestContainers.
-5. Buscar directorio de tests: `find . -type d -name "__tests__" -o -name "tests" -o -name "test" -o -name "spec" | grep -v node_modules`
-6. `CLAUDE.md` local del anfitrion — umbrales de cobertura y convenciones propias del proyecto.
+```
+analizar_repositorio(ruta_raiz: ".", mision: "Detecta framework de testing activo (Jest/Pytest/Vitest), configuracion de cobertura y scripts de test")
+```
+
+Retorna: stack detectado, dependencias IA, variables de entorno, convenciones del proyecto.
+
+Si MCP gemini-bridge no disponible → leer manualmente: `package.json`, `.env.example`, `CLAUDE.md` local.
 
 Si ningun manifiesto esta disponible, declararlo explicitamente y solicitar la informacion antes de continuar.
 

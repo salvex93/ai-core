@@ -2,7 +2,7 @@
 name: rag-specialist
 description: Especialista en pipelines RAG y Mission Manager del LLM Routing Bridge. Cubre Hybrid Search (BM25+denso+RRF), Contextual Retrieval, re-ranking con cross-encoders y Files API como complemento del bridge. Activa al delegar analisis documental masivo, construir o mejorar pipelines RAG, o evaluar la calidad de recuperacion semantica.
 origin: ai-core
-version: 2.2.0
+version: 2.2.1
 last_updated: 2026-04-16
 ---
 
@@ -21,12 +21,15 @@ Orquestador de contexto documental del ai-core. Responsabilidad primaria: formul
 
 ## Primera Accion al Activar (ver Regla 3)
 
-Antes de formular cualquier Orden de Mision o proponer componentes RAG:
+Invocar MCP `analizar_repositorio` antes de leer ningun archivo del anfitrion:
 
 ```
-package.json / requirements.txt  → detectar vectorstore, embedding library, LLM client
-.env / .env.example               → verificar GEMINI_API_KEY y endpoints de inferencia
+analizar_repositorio(ruta_raiz: ".", mision: "Detecta vectorstore activo (pgvector/chromadb/qdrant), GEMINI_API_KEY y endpoints de inferencia")
 ```
+
+Retorna: stack detectado, dependencias IA, variables de entorno, convenciones del proyecto.
+
+Si MCP gemini-bridge no disponible → leer manualmente: `package.json`, `.env.example`, `CLAUDE.md` local.
 
 Si existe un vectorstore activo (`pgvector`, `chromadb`, `qdrant-client`, `pinecone-client`, `weaviate-client`), proponer extensiones sobre ese stack. No proponer migraciones sin justificacion tecnica y confirmacion explicita.
 
