@@ -50,6 +50,7 @@ Protocolo de pre-lectura (Regla 14 extendida): antes de cualquier `Read`, ejecut
 Herramientas MCP disponibles (servidor `gemini-bridge`):
 - `analizar_archivo(ruta, mision)` — lee el archivo y delega a Gemini si supera umbral
 - `analizar_contenido(contenido, mision)` — delega texto ya cargado en memoria
+- `buscar_web(consulta, mision)` — busqueda web en tiempo real via Gemini Google Search grounding; usar para: changelogs de Anthropic/Claude, actualizaciones de API, nuevas capacidades MCP, estado de betas
 
 Fallos: sin `GEMINI_API_KEY` → `[BRIDGE NO DISPONIBLE: agregar GEMINI_API_KEY al .env]`. Cuota agotada → bifurcar a patrones con Regla 14, detener si requiere razonamiento LLM.
 El skill `rag-specialist` formula misiones antes de invocar las herramientas.
