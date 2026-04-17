@@ -37,17 +37,6 @@ Criterios de prioridad (cuando hay overlap):
 2. Backend / Base de Datos (Knex, migraciones) > DevOps / Frontend
 3. Arquitectura de cambios > Implementacion de skills
 
-**Pilar 3: Condiciones de Escalamiento a OPUSPLAN**
-Emitir `[ALERTA_ARQUITECTONICA: REQUIERE_OPUSPLAN]`, detener codigo, abrir claude.ai Pro con Extended Thinking.
-
-Triggers de escalamiento:
-- Afecta mas de un servicio con contrato publico compartido.
-- Involucra concurrencia o FSM criticas con mas de cuatro estados.
-- Requiere migracion de datos irreversible.
-- Modifica capa de autenticacion o autorizacion.
-- Cambio en core de seguridad (credenciales, derivacion criptografica, tokens).
-- Reestructuracion de multiples skills simultaneamente.
-
 **Regla 6.1 — Archivo > 500 lineas / 50 KB**
 PROHIBIDO usar Read directamente. Invocar MCP tool `analizar_archivo` (Regla 9) en su lugar.
 
@@ -155,8 +144,8 @@ Una sesion = una tarea del BACKLOG. Al inicio: leer `.claude/projects/memory/` a
 Primera accion de cada sesion (antes que cualquier respuesta):
 1. Leer instruccion de usuario.
 2. Mapear dominio contra tabla "Skills Disponibles" (abajo).
-3. Si confidence > 85%, ejecutar: `/skill <nombre>` automaticamente.
-4. Responder directamente. No solicitar confirmacion para skill match claro.
+3. Si confidence > 85%, ejecutar: `/skill <nombre>` automaticamente (silencio positivo; ver Regla 22.1).
+4. Responder directamente. No solicitar confirmacion para skill match claro. Si confidence 70-85%, diagnosticar candidatos sin auto-disparar (Regla 22.2).
 
 **Tabla de Dispatch (Dominio → Skill)**
 
@@ -182,6 +171,24 @@ Primera accion de cada sesion (antes que cualquier respuesta):
 | Superficie publica, credenciales, subdominios | `attack-surface-analyst` | "superficie", "credencial", "exposicion", "subdominio" |
 | Auditar ai-core, actualizar skills, Anthropic | `aiops-engineer` | "auditoria", "skill", "Anthropic", "Gemini" |
 
+**Condiciones de Escalamiento a OPUSPLAN y Matriz de Precedencia**
+
+Triggers que activan `[ALERTA_ARQUITECTONICA: REQUIERE_OPUSPLAN]` (detener código, abrir Extended Thinking):
+
+| Condicion | Efecto | Regla |
+|---|---|---|
+| Afecta >1 servicio con contrato público compartido | OPUSPLAN obligatorio | R20 |
+| Concurrencia / FSM críticas con >4 estados | OPUSPLAN obligatorio | R20 |
+| Migracion de datos irreversible | OPUSPLAN obligatorio | R20 |
+| Modifica capa autenticacion / autorizacion | OPUSPLAN obligatorio | R20 |
+| Cambio en core de seguridad (credenciales, derivacion criptografica, tokens) | OPUSPLAN obligatorio | R20 |
+| Reestructuracion de >2 skills simultaneamente | OPUSPLAN obligatorio | R20 |
+| Brevedad (R18) vs Extensión requerida por skill | **R18 siempre manda** → tabular, viñetado, compacto | R20 |
+| Lazy Context (R3) vs Pre-lectura obligatoria | **R3 siempre manda** → leer manifiestos primero | R20 |
+| Mínimo Cambio (R4) vs Autonomía de skill | **R4 siempre manda** → sin auto-ejecución sin confirmación | R20 |
+| Precisión Quirúrgica (R5) vs Patrón genérico | **R5 siempre manda** → ruta + línea exacta | R20 |
+| Tokenomics (R16) vs Alcance de skill | **R16 siempre manda** → /compact si >70% presupuesto | R20 |
+
 **Criterios de Resolucion de Conflictos (Prioridad Descendente)**
 1. **Seguridad > Todo**: Si hay palabras clave de security-auditor o ai-guardrails, disparar esos skills.
 2. **Backend/BD > DevOps/Frontend**: Migraciones, queries, esquemas → backend-architect antes que devops-infra.
@@ -197,17 +204,93 @@ Si MCP gemini-bridge no disponible:
 ```
 Detener analisis de archivo hasta confirmacion de reparacion.
 
-### Regla 21 — Jerarquia de Anulacion (Precedencia en Conflictos)
+### Regla 21 — Subordinacion Explicita de Skills a Reglas Globales
 
-Cuando un skill especifico genera conflicto con las Reglas Globales, aplicar precedencia:
+**TODOS LOS SKILLS ESTAN SUBORDINADOS A REGLA 18 (BREVEDAD) Y REGLA 4 (MINIMO CAMBIO).**
 
-| Conflicto | Precedencia | Aplicacion |
-|---|---|---|
-| Brevedad (Regla 18) vs Extensión requerida por skill | **Regla 18 siempre manda** | En aiops-engineer: usar formato tabular, listas viñetadas, omitir párrafos descriptivos. "Reporte estructurado" = tabla compacta, no narrativa larga. |
-| Lazy Context (Regla 3) vs Pre-lectura obligatoria | **Regla 3 siempre manda** | Leer manifiestos antes de skill. Si skill requiere inventario de contenido completo, delegar a Regla 9 (Gemini bridge). |
-| Minimo Cambio (Regla 4) vs Autonomia de skill | **Regla 4 siempre manda** | Ningún skill puede auto-ejecutar cambios sin confirmacion explicita, incluso si su Directiva de Interrupcion lo permite. |
-| Precision Quirurgica (Regla 5) vs Recomendación de patrón genérico | **Regla 5 siempre manda** | Toda recomendacion debe citar ruta relativa + numero de línea exacto, nunca templates. |
-| Tokenomics (Regla 16) vs Alcance de skill | **Regla 16 siempre manda** | Si auditoria o análisis supera presupuesto de sesion, emitir checkpoint tokenomics y parar antes que continuar sin confirmacion de compact. |
+Ningun skill puede:
+- Exigir narrativa larga, párrafos descriptivos, o explicaciones expansivas (R18 manda siempre).
+- Auto-ejecutar cambios en el ai-core sin confirmación explícita, incluso si su "Directiva de Interrupción" lo permite (R4 manda siempre).
+- Violar Reglas Globales: la precedencia es **Global Rule > Skill Directive**.
+
+La matriz de precedencia está integrada en Regla 20 "Condiciones de Escalamiento a OPUSPLAN y Matriz de Precedencia".
+
+### Regla 22 — Sensor de Eficiencia (Activacion Automatica de Skills)
+
+Sensor preventivo contra gasto perezoso de tokens. El agente ejecuta este protocolo automáticamente ANTES de procesar cualquier solicitud:
+
+**Protocolo de Escaneo (ANTES de responder)**
+
+1. **Detección de Tareas Simples (Haiku Priority)**: ANTES de mapear skills, verificar alcance:
+   - Si tarea = lectura, busqueda dirigida, edit simple (< 10 líneas), o doc update → **FORZAR HAIKU** (Regla 6 Pilar 1).
+   - Si tarea requiere skill específico pero es rápida (< 50 tokens), delegación a Haiku + diagnóstico de skill candidato.
+
+2. **Pre-Check Obligatorio (Regla 14 reforzado)**:
+   - ANTES de cualquier `Read`: ejecutar `wc -l <ruta>`.
+   - Si líneas > 300 (umbral reducido), **ABORTAR lectura directa** → invocar `analizar_archivo` via MCP Gemini.
+   - Comprobación sin excepción: no saltarse, no negociar.
+
+3. **Lexema-Scan de Entidades Tecnicas**: Buscar en el prompt del usuario palabras clave de la tabla "Skills Disponibles" (Regla 20).
+   - Ejemplos: "knex" (backend-architect), "css module" (tech-lead-frontend), "test unitario" (qa-engineer), "CVE-2026" (security-auditor), "dbt" (data-engineer).
+   - Exactitud: coincidencia parcial permitida (prefijos, sinónimos, variantes semánticas).
+
+4. **Calculo de Confianza y Dispatch**: Si palabra clave matchea tabla dispatch (Regla 20), confianza = 85%+. Accion inmediata: invocar `/skill <nombre>` en silencio (Regla 22.1).
+
+5. **Validacion de Eficiencia Pre-Accion**:
+   - Si la tarea podría resolverse en < 100 tokens con bridge Gemini (ej: "analiza este archivo de 2000 lineas"), invocar `analizar_archivo` en lugar de skill completo.
+   - Si confidence < 85%, emitir diagnóstico compacto (una línea) explicando candidatos, luego proceder con respuesta base.
+
+6. **Circuit Breaker de Contexto**: Si contexto actual > 70% del presupuesto de sesión, emitir:
+   ```
+   [ALERTA TOKENOMICS: CONTEXTO >70%. Recomienda /compact antes de continuar.]
+   ```
+   No interrumpir tarea, pero advertir al usuario.
+
+**Tabla de Entidades → Skills (Auto-Trigger)**
+
+| Entidades Detectadas | Skill Disparado | Confianza | Acciones |
+|---|---|---|---|
+| knex, migrations, schema, ORM, SQL | `backend-architect` | 90%+ | `/skill backend-architect` |
+| CSS, styled-components, layout, componentes, Tailwind | `tech-lead-frontend` | 85%+ | `/skill tech-lead-frontend` |
+| test, jest, vitest, pytest, cobertura, coverage | `qa-engineer` | 90%+ | `/skill qa-engineer` |
+| CVE, OWASP, seguridad, secreto, password, token | `security-auditor` | 95%+ (prioridad máxima) | `/skill security-auditor` |
+| dbt, pipeline, Medallion, airflow, dagster | `data-engineer` | 85%+ | `/skill data-engineer` |
+| prompt, few-shot, system message, versionado | `prompt-engineer` | 85%+ | `/skill prompt-engineer` |
+| MCP, servidor, herramienta, JSON Schema | `mcp-server-builder` | 85%+ | `/skill mcp-server-builder` |
+| auditoria, Anthropic, changelog, nueva capacidad | `aiops-engineer` | 90%+ | `/skill aiops-engineer` |
+| RAG, vector, embedding, retrieval, documento | `rag-specialist` | 85%+ | `/skill rag-specialist` |
+| Flutter, BLoC, Firebase, mobile | `mobile-engineer` | 85%+ | `/skill mobile-engineer` |
+| release, branching, deploy, CI/CD | `release-manager` | 85%+ | `/skill release-manager` |
+| eval, benchmark, calidad LLM, golden dataset | `llm-evals` | 85%+ | `/skill llm-evals` |
+| Kubernetes, IaC, Terraform, infraestructura | `devops-infra` | 85%+ | `/skill devops-infra` |
+| agente, subagente, hook, SDK | `claude-agent-sdk` | 85%+ | `/skill claude-agent-sdk` |
+| agente gestionado, tools, loop | `managed-agents-specialist` | 85%+ | `/skill managed-agents-specialist` |
+| guardrail, filtro, validacion input/output | `ai-guardrails` | 90%+ | `/skill ai-guardrails` |
+| superficie, exposicion, credencial, subdominio | `attack-surface-analyst` | 85%+ | `/skill attack-surface-analyst` |
+| LLM, modelo, streaming, fallback, integración | `ai-integrations` | 80%+ | `/skill ai-integrations` |
+| tracing, dashboard, observabilidad, latencia | `llm-observability` | 85%+ | `/skill llm-observability` |
+
+**Regla 22.1 — Silencio Positivo + Confirmación de Dispatch**
+
+Cuando confidence > 85% y se dispara skill automáticamente:
+- **Confirmación transparente**: Emitir exactamente `[SKILL ACTIVO: <nombre>]` como primera línea de respuesta.
+- NO anunciar verbalmente: "He invocado X skill". El encabezado confirma dispatch sin narrativa.
+- El usuario verá el skill cargado en sesión; transparencia garantizada.
+
+Excepción: Si confidence < 80%, emitir línea diagnóstica:
+```
+[SKILLS CANDIDATOS: backend-architect (80%), dev-ops-infra (75%)]
+```
+Luego proceder con respuesta base sin skill auto-trigger.
+
+**Regla 22.2 — Puerta de Seguridad**
+
+Auto-trigger inhibido si:
+- Regla 13 (Duda Activa) detecta ambigüedad no resuelta.
+- Security-auditor + ai-guardrails aplican simultáneamente (prioridad a security-auditor, luego preguntar al usuario sobre guardrails).
+- Dos skills de alta confianza chocan sin jerarquía clara en Regla 21.
+
+En estos casos: pausa activa. Diagnosticar explícitamente. No auto-disparar.
 
 ---
 
