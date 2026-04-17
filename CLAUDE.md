@@ -48,6 +48,8 @@ Delegacion obligatoria para archivos > 500 lineas / 50 KB. Modelo: `gemini-2.5-f
 Protocolo de pre-lectura (Regla 14 extendida): antes de cualquier `Read`, ejecutar `wc -l <ruta>`. Si supera el umbral, invocar el MCP tool en su lugar.
 
 Herramientas MCP disponibles (servidor `gemini-bridge`):
+- `analizar_repositorio(ruta_raiz, mision)` — escanea 11 manifest files, trunca cada uno a 3000 chars, delega a Gemini, retorna `{stack, dependencias_ia, variables_entorno, convenciones, resumen}`
+- `resumir_backlog(ruta_backlog, mision)` — delega parsing de BACKLOG.md a Gemini, retorna sintesis JSON con metricas y tareas pendientes
 - `analizar_archivo(ruta, mision)` — lee el archivo y delega a Gemini si supera umbral
 - `analizar_contenido(contenido, mision)` — delega texto ya cargado en memoria
 - `buscar_web(consulta, mision)` — busqueda web en tiempo real via Gemini Google Search grounding; usar para: changelogs de Anthropic/Claude, actualizaciones de API, nuevas capacidades MCP, estado de betas
