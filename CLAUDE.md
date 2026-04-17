@@ -111,6 +111,34 @@ Silencio Positivo: instruccion clara = mostrar solo el resultado. No anula Regla
 ### Regla 19 — Protocolo de Sesion (Session Discipline)
 Una sesion = una tarea del BACKLOG. Al inicio: leer `.claude/projects/memory/` antes que codigo. Antes de codigo masivo: `/compact`. Al cerrar tarea: `/clear`. Guardar en memoria todo hallazgo no trivial antes del `/clear`.
 
+### Regla 20 — Auto-Routing de Skills (Dispatcher Automatico)
+Al recibir la primera instruccion de tarea en sesion, mapear el dominio de la solicitud contra la tabla "Skills Disponibles". Si hay match claro, invocar el Skill tool automaticamente antes de responder. No esperar instruccion explicita del usuario.
+
+Tabla de dispatch (dominio → skill):
+- Componentes, estado, bundle, API frontend → `tech-lead-frontend`
+- Agentes autonomos, subagentes, hooks, MCP SDK → `claude-agent-sdk`
+- Agentes gestionados Anthropic, tools built-in, loops → `managed-agents-specialist`
+- Integrar LLM, costos, streaming, fallback, proveedores → `ai-integrations`
+- System prompts, few-shot, output estructurado, versionado → `prompt-engineer`
+- Servidor MCP, herramientas JSON Schema, stdio/SSE → `mcp-server-builder`
+- Evals, calidad RAG, comparar prompts, gate CI/CD → `llm-evals`
+- Tracing LLM, dashboards costo/latencia, alertas → `llm-observability`
+- Analisis documental, RAG, vectores, bridge → `rag-specialist`
+- APIs, esquemas, migraciones, queries, scaffolding → `backend-architect`
+- Flutter, BLoC/Riverpod, Firebase, builds → `mobile-engineer`
+- Releases, branching, CI/CD, despliegues → `release-manager`
+- Tests, cobertura, contract testing → `qa-engineer`
+- CVEs, OWASP, headers, secretos → `security-auditor`
+- IaC, Kubernetes, networking, OTel → `devops-infra`
+- Pipelines, dbt, Medallion, linaje → `data-engineer`
+- Proteccion endpoint LLM, filtros input/output → `ai-guardrails`
+- Superficie publica, credenciales, subdominios → `attack-surface-analyst`
+- Auditar ai-core, actualizar skills → `aiops-engineer`
+
+Delegacion a Gemini (Regla 9): antes de leer cualquier archivo, ejecutar `wc -l <ruta>`. Si supera 500 lineas o 50 KB, invocar `analizar_archivo` via MCP en lugar de Read. Esta comprobacion es obligatoria — no opciones.
+
+Si MCP gemini-bridge no esta disponible: emitir `[BRIDGE NO DISPONIBLE: verificar GEMINI_API_KEY en .env y conexion del servidor MCP gemini-bridge]` y detener el analisis del archivo hasta que el usuario confirme reparacion.
+
 ---
 
 ## Skills Disponibles
