@@ -1,0 +1,63 @@
+{
+  "version": "2.6.2",
+  "last_updated": "2026-04-19T23:03:00.920Z",
+  "branch": "main",
+  "map": {
+    "root": "ai-core/",
+    "directories": {
+      ".claude/": [
+        ".claude/bin/norm-harness.js",
+        ".claude/bin/norm-harness.ps1",
+        ".claude/settings.json",
+        ".claude/skills/ai-guardrails/SKILL.md",
+        ".claude/skills/ai-integrations/SKILL.md",
+        ".claude/skills/aiops-engineer/SKILL.md",
+        ".claude/skills/attack-surface-analyst/SKILL.md",
+        ".claude/skills/audio-voice-engineer/SKILL.md",
+        ".claude/skills/backend-architect/SKILL.md",
+        ".claude/skills/claude-agent-sdk/SKILL.md",
+        ".claude/skills/data-engineer/SKILL.md",
+        ".claude/skills/devops-infra/SKILL.md",
+        ".claude/skills/llm-evals/SKILL.md",
+        ".claude/skills/llm-observability/SKILL.md",
+        ".claude/skills/managed-agents-specialist/SKILL.md",
+        ".claude/skills/mcp-server-builder/SKILL.md",
+        ".claude/skills/mobile-engineer/SKILL.md",
+        ".claude/skills/prompt-engineer/SKILL.md",
+        ".claude/skills/qa-engineer/SKILL.md",
+        ".claude/skills/rag-specialist/SKILL.md",
+        ".claude/skills/release-manager/SKILL.md",
+        ".claude/skills/security-auditor/SKILL.md",
+        ".claude/skills/tech-lead-frontend/SKILL.md"
+      ],
+      "docs/": [
+        "docs/OPUSPLAN-files-api-bridge.md"
+      ],
+      "scripts/": [
+        "scripts/gemini-bridge.js",
+        "scripts/init-backlog.js",
+        "scripts/mcp-gemini.js",
+        "scripts/query-backlog.js",
+        "scripts/session-close.js"
+      ]
+    },
+    "root_files": [
+      ".env.example",
+      ".gitignore",
+      "BACKLOG.md",
+      "CLAUDE.md",
+      "CONTRIBUTING.md",
+      "LICENSE",
+      "OPERATIONS.md",
+      "README.md",
+      "SPONSORING.md",
+      "package-lock.json",
+      "package.json"
+    ],
+    "excluded": [
+      "node_modules/",
+      ".git/"
+    ],
+    "total_files": 40
+  }
+}
