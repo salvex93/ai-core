@@ -519,94 +519,108 @@ Las reglas globales son inmutables. Aplican a todos los perfiles sin excepcion. 
 
 ```
 ai-core/
-├── CLAUDE.md          Reglas globales, skills disponibles, directiva de interrupcion
-├── README.md          Este archivo — manual de usuario
-├── OPERATIONS.md      Referencia tecnica operativa: filosofia, incorporacion, contribucion
-├── BACKLOG.md         Tabla de 12 columnas — deuda tecnica y hallazgos del propio nucleo
-├── package.json       Dependencias Node.js de los scripts del nucleo
-├── .env               Variables de entorno (GEMINI_API_KEY) — no versionado
-├── .env.example       Plantilla de variables de entorno — versionado
+├── CLAUDE.md              Autoridad única: reglas globales, skills, enrutamiento, protocolos
+├── README.md              Este archivo — manual de usuario
+├── package.json           Dependencias Node.js de los scripts del nucleo
+├── .env                   Variables de entorno (GEMINI_API_KEY) — no versionado
+├── .env.example           Plantilla de variables de entorno — versionado
+├── CONTEXT_MAP.json       Mapeo grafo de archivos (auto-generado). Indice para Lazy Context (Regla 3)
 ├── scripts/
-│   ├── init-backlog.js    Crea BACKLOG.md en el proyecto anfitrion si no existe
+│   ├── init-backlog.js    Crea BACKLOG.md en proyecto anfitrion si no existe
 │   ├── gemini-bridge.js   CLI de respaldo: delega analisis a Gemini y retorna JSON/Markdown
 │   ├── mcp-gemini.js      Servidor MCP stdio: expone analizar_archivo y analizar_contenido
-│   ├── query-backlog.js   Filtra BACKLOG.md sin cargarlo en contexto activo
-│   └── session-close.js   Persiste last_session.md en memoria al cierre (hook Stop)
-└── .claude/
-    ├── settings.json      Template de hook Stop para el proyecto anfitrion
-    └── skills/
-        ├── ai-guardrails/         SKILL.md
-        ├── ai-integrations/       SKILL.md
-        ├── aiops-engineer/        SKILL.md
-        ├── attack-surface-analyst/ SKILL.md
-        ├── audio-voice-engineer/  SKILL.md (NUEVO Abril 2026)
-        ├── backend-architect/     SKILL.md
-        ├── claude-agent-sdk/      SKILL.md
-        ├── managed-agents-specialist/ SKILL.md
-        ├── data-engineer/         SKILL.md
-        ├── devops-infra/          SKILL.md
-        ├── rag-specialist/        SKILL.md
-        ├── llm-evals/             SKILL.md
-        ├── llm-observability/     SKILL.md
-        ├── mcp-server-builder/    SKILL.md
-        ├── mobile-engineer/       SKILL.md
-        ├── prompt-engineer/       SKILL.md
-        ├── qa-engineer/           SKILL.md
-        ├── release-manager/       SKILL.md
-        ├── security-auditor/      SKILL.md
-        ├── tech-lead-frontend/    SKILL.md
-        └── (ver CLAUDE.md para la lista autoritativa de skills activos)
+│   ├── generate-map.js    Regenera CONTEXT_MAP.json (automatizado pre-push)
+│   ├── query-backlog.js   Filtra BACKLOG.md sin cargarlo en contexto
+│   └── session-close.js   Persiste last_session.md en memoria (hook Stop)
+├── .claude/
+│   ├── CONTEXT_MAP.json   Mapeo grafo generado
+│   ├── settings.json      Template de hooks (Stop) para proyecto anfitrion
+│   ├── bin/
+│   │   ├── norm-harness.js    Normaliza entorno, valida symlinks
+│   │   ├── norm-harness.ps1   Equivalente PowerShell
+│   │   ├── generate-map.js    Genera/actualiza CONTEXT_MAP.json
+│   │   ├── detox.js           Limpia archivos legacy (.md reportes v2.4/v2.5)
+│   │   └── benchmark-fernet.js Testea cifrado Fernet (PII)
+│   └── skills/
+│       ├── ai-guardrails/              SKILL.md
+│       ├── ai-integrations/            SKILL.md
+│       ├── aiops-engineer/             SKILL.md
+│       ├── attack-surface-analyst/     SKILL.md
+│       ├── audio-voice-engineer/       SKILL.md (NUEVO Abril 2026)
+│       ├── backend-architect/          SKILL.md
+│       ├── claude-agent-sdk/           SKILL.md
+│       ├── managed-agents-specialist/  SKILL.md
+│       ├── data-engineer/              SKILL.md
+│       ├── devops-infra/               SKILL.md
+│       ├── llm-evals/                  SKILL.md
+│       ├── llm-observability/          SKILL.md
+│       ├── mcp-server-builder/         SKILL.md
+│       ├── mobile-engineer/            SKILL.md
+│       ├── prompt-engineer/            SKILL.md
+│       ├── qa-engineer/                SKILL.md
+│       ├── rag-specialist/             SKILL.md
+│       ├── release-manager/            SKILL.md
+│       ├── security-auditor/           SKILL.md
+│       └── tech-lead-frontend/         SKILL.md
 ```
+
+**Notas de v2.6.2 (Sentinel Protocol)**
+- Documentación legacy (CONTRIBUTING.md, OPERATIONS.md, SPONSORING.md) consolidada en CLAUDE.md. Esta es la autoridad única.
+- BACKLOG.md es artefacto dinámico del proyecto anfitrion, no del nucleo.
+- CONTEXT_MAP.json es mapeo autoridad de estructura (regenerado automaticamente, consulta Regla 3).
 
 ---
 
-## Protocolo de Evolucion (Mantenimiento Autonomo)
+## Mantenimiento y Evolucion Autonoma
 
 Para que el sistema evalúe nuevas opciones RAG, actualice skills deprecados o mejore sus propios prompts, disparar el SOP de Mantenimiento:
 
-> "Actua como aiops-engineer. Tu tarea es auditar el ecosistema. Analiza nuevas especificaciones del ecosistema Anthropic y Gemini. Lee los archivos SKILL.md y propón refactorizaciones en el prompting para hacerlos mas eficientes. Identifica si necesitamos un nuevo skill basado en tendencias actuales."
+```
+/skill aiops-engineer
+Tu tarea: audita el ecosistema. Analiza nuevas especificaciones de Anthropic y Gemini. 
+Lee los archivos SKILL.md y propón refactorizaciones en prompting para eficiencia. 
+Identifica si necesitamos un nuevo skill basado en tendencias actuales.
+```
 
-El agente leera su propio codigo, propondra las mejoras y, tras tu aprobacion, ejecutara el commit automatico (Regla 15).
+El agente leera su propio codigo, propondra las mejoras y, tras aprobacion, ejecutara el commit automatico (Regla 15).
 
 ---
 
-## Como Contribuir con un Nuevo Skill
+## Como Contribuir: Crear un Nuevo Skill
 
-1. Crear la carpeta `.claude/skills/{nombre-en-kebab-case}/`.
-2. Crear `SKILL.md` con el frontmatter obligatorio: `name`, `description`, `origin: ai-core`.
-3. Incluir las cuatro secciones obligatorias:
+1. Crear carpeta `.claude/skills/{nombre-en-kebab-case}/`.
+2. Crear `SKILL.md` con frontmatter YAML: `name`, `description`, `version`, `last_updated`, `origin: ai-core`.
+3. Incluir obligatoriamente:
    - "Cuando Activar Este Perfil"
-   - "Primera Accion al Activar" (protocolo de Lazy Context especifico del perfil)
-   - "Directiva de Interrupcion" con condiciones especificas y la directiva literal
-   - "Restricciones del Perfil" (hereda las Reglas Globales, puede agregar restricciones especificas)
+   - "Primera Accion al Activar" (Lazy Context del skill)
+   - "Directiva de Interrupcion" (condiciones y regla literal)
+   - "Restricciones del Perfil" (hereda Reglas Globales, puede agregar restricciones)
 4. No sobreescribir ninguna Regla Global.
-5. Actualizar `CLAUDE.md`, seccion "Skills Disponibles". Esta es la unica accion de documentacion requerida. `README.md` y `OPERATIONS.md` no duplican el indice (Regla 15).
-6. Ejecutar `git add . && git commit && git push` (Regla 15).
+5. Actualizar `CLAUDE.md`, seccion "Skills Disponibles" con entrada en tabla de auto-routing. `README.md` no duplica el indice (Regla 15).
+6. Ejecutar `git add . && git commit && git push` (Regla 15 — Documentacion Viva).
 
 ---
 
-*Configuracion tecnica detallada: `CLAUDE.md`*
-*Documentacion operativa completa: `OPERATIONS.md`*
+## Autoridad Unica: CLAUDE.md
+
+Toda la especificacion operativa esta en `CLAUDE.md` desde v2.6.2:
+
+- Reglas Globales (22 reglas inmutables)
+- Triada de Ejecucion (Haiku/Sonnet/Opus)
+- Auto-routing de Skills (19 especialistas)
+- Delegacion via Gemini Bridge
+- Tablas de decision de enrutamiento
+- Politicas de escalamiento
+
+No hay duplicacion: `README.md` = instalacion y uso; `CLAUDE.md` = sistema completo.
 
 ---
 
-## Unete a la Revolucion (Comunidad y Enterprise)
+## Licencia y Comunidad
 
-AI-CORE nacio de un problema real: trabajar con LLMs en produccion sin un sistema de reglas es costoso, inconsistente y dificil de mantener. Este nucleo es la solucion sistematizada.
+**MIT License.** Usa, modifica y distribuye libremente en proyectos comerciales. Autoría permanece en historial git.
 
-Esta liberado bajo licencia MIT. Puedes usarlo, modificarlo y distribuirlo en proyectos comerciales sin restricciones. La autoría es de salvex93 y permanece en el historial del repositorio.
+**Contribuir:** Si trabajas con Elixir, Flutter, Solidity, Ruby on Rails u otro stack no cubierto, tu skill cierra esa brecha para toda la comunidad. Sigue el proceso "Como Contribuir" arriba.
 
-### Contribuir
-
-La forma mas impactante de contribuir es crear un nuevo skill para tu dominio tecnico. Si trabajas con Elixir, Flutter, Solidity, Ruby on Rails, o cualquier stack que el nucleo no cubre todavia, tu skill cierra esa brecha para toda la comunidad.
-
-La guia completa esta en [CONTRIBUTING.md](CONTRIBUTING.md). Incluye:
-
-- El frontmatter YAML obligatorio con ejemplo funcional.
-- Las cuatro secciones que todo `SKILL.md` debe tener.
-- Los estandares de codigo y commit que aplican sin excepcion.
-
-### Sponsoring
-
-Si este nucleo te ahorra horas reales a la semana, considera patrocinar el proyecto via GitHub Sponsors. Para equipos y organizaciones que necesitan configuracion privada, consultoría directa o formacion tecnica, las opciones Enterprise estan documentadas en [SPONSORING.md](SPONSORING.md).
+**Enterprise/Consultoría:** Contacta a salvex93@gmail.com para configuracion privada, asesoria tecnica o formacion especializada.
 
