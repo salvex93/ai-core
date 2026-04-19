@@ -1,11 +1,15 @@
 {
   "version": "2.6.2",
-  "last_updated": "2026-04-19T23:03:00.920Z",
+  "last_updated": "2026-04-19T23:15:13.122Z",
   "branch": "main",
   "map": {
     "root": "ai-core/",
     "directories": {
       ".claude/": [
+        ".claude/CONTEXT_MAP.json",
+        ".claude/bin/benchmark-fernet.js",
+        ".claude/bin/detox.js",
+        ".claude/bin/generate-map.js",
         ".claude/bin/norm-harness.js",
         ".claude/bin/norm-harness.ps1",
         ".claude/settings.json",
@@ -58,6 +62,6 @@
       "node_modules/",
       ".git/"
     ],
-    "total_files": 40
+    "total_files": 44
   }
 }
