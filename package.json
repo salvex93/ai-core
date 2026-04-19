@@ -1,6 +1,6 @@
 {
   "name": "ai-core",
-  "version": "1.0.0",
+  "version": "2.6.2",
   "description": "Nucleo Centralizado de Agentes — MarIA. Submodulo Git con reglas globales, skills y scripts de orquestacion.",
   "private": true,
   "scripts": {
