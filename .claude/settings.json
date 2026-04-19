@@ -2,37 +2,11 @@
   "mcpServers": {
     "gemini-bridge": {
       "command": "C:\\nvm4w\\nodejs\\node.exe",
-      "args": ["--env-file=.env", "scripts/mcp-gemini.js"],
+      "args": [
+        "--env-file=.env",
+        "scripts/mcp-gemini.js"
+      ],
       "cwd": "C:\\Users\\arimac\\Documents\\Proyectos - MarIA\\ai-core"
     }
-  },
-  "hooks": {
-    "SessionStart": [
-      {
-        "matcher": "",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "node \"C:/Users/arimac/Documents/Proyectos - MarIA/ai-core/.claude/bin/norm-harness.js\"",
-            "statusMessage": "Normalizando entorno..."
-          }
-        ]
-      }
-    ],
-    "Stop": [
-      {
-        "matcher": "",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "node scripts/init-backlog.js"
-          },
-          {
-            "type": "command",
-            "command": "node scripts/session-close.js"
-          }
-        ]
-      }
-    ]
   }
 }

@@ -1,156 +1,88 @@
 #!/usr/bin/env node
-// AI-CORE v2.6.0 | Arquitectura por salvex93
+// AI-CORE v2.6.2 | salvex93 | Sentinel Edition | Blindaje de Entorno
 
-const fs = require('fs');
-const path = require('path');
-const { execSync } = require('child_process');
-const os = require('os');
+const fs = require("fs");
+const path = require("path");
+const { execSync } = require("child_process");
+const os = require("os");
 
 const platform = os.platform();
 const homeDir = os.homedir();
-
-const CORE_PATH = path.resolve(__dirname, '..', '..');
-
+const CORE_PATH = path.resolve(__dirname, "..", "..");
 const projectDir = process.cwd();
-const claudeMdPath = path.join(projectDir, 'CLAUDE.md');
-const skillsDirPath = path.join(projectDir, '.claude', 'skills');
+
+// Módulo Detox: Archivos que deben morir para ahorrar tokens
+const BLACKLIST = [
+  "AI_RESPONSE_OPTIMIZATION_ANALYSIS.md",
+  "SECURITY_CHANGES_v2.4.0.md",
+  "INTEGRATION_VALIDATION_REPORT.md",
+  "HISTORIAS_USUARIO_SEGURIDAD.md",
+];
 
 function getSessionsDir() {
-  if (platform === 'win32') {
-    return path.resolve(homeDir, 'AppData', 'Roaming', '.claude', 'sessions');
-  } else if (platform === 'darwin') {
-    return path.resolve(homeDir, 'Library', 'Application Support', '.claude', 'sessions');
-  } else {
-    return path.resolve(homeDir, '.config', '.claude', 'sessions');
-  }
-}
-
-function isGitRepository(dir) {
-  try {
-    execSync('git rev-parse --git-dir', {
-      cwd: dir,
-      stdio: 'ignore',
-    });
-    return true;
-  } catch {
-    return false;
-  }
-}
-
-function isSymlink(targetPath) {
-  try {
-    const stat = fs.lstatSync(targetPath);
-    return stat.isSymbolicLink();
-  } catch {
-    return false;
-  }
+  if (platform === "win32")
+    return path.resolve(homeDir, "AppData", "Roaming", ".claude", "sessions");
+  return path.resolve(homeDir, ".config", ".claude", "sessions");
 }
 
 function removeRecursive(targetPath) {
   if (!fs.existsSync(targetPath)) return;
   const stat = fs.lstatSync(targetPath);
   if (stat.isDirectory() && !stat.isSymbolicLink()) {
-    fs.readdirSync(targetPath).forEach(file => {
-      removeRecursive(path.join(targetPath, file));
-    });
+    fs.readdirSync(targetPath).forEach((file) =>
+      removeRecursive(path.join(targetPath, file)),
+    );
     fs.rmdirSync(targetPath);
   } else {
     fs.unlinkSync(targetPath);
   }
 }
 
-function createSymlink(linkPath, targetPath, isDir = false) {
-  removeRecursive(linkPath);
-
-  if (platform === 'win32' && isDir) {
-    fs.symlinkSync(targetPath, linkPath, 'junction');
-  } else {
-    fs.symlinkSync(targetPath, linkPath, isDir ? 'dir' : 'file');
-  }
-}
-
-function autoUpdate() {
-  if (!isGitRepository(CORE_PATH)) return;
-
-  try {
-    execSync('git pull origin main --quiet', {
-      cwd: CORE_PATH,
-      stdio: 'ignore',
-    });
-  } catch {
-  }
-}
-
-function normalizeSymlinks() {
-  const coreClaude = path.join(CORE_PATH, 'CLAUDE.md');
-  if (!isSymlink(claudeMdPath)) {
-    try {
-      createSymlink(claudeMdPath, coreClaude, false);
-    } catch (err) {
-      if (err.code === 'EPERM') {
-        console.error('[!] ERROR: Permisos insuficientes para crear enlaces simbolicos. Ejecuta como Administrador.');
-        process.exit(1);
-      }
+function sanitizeEnvironment() {
+  console.log("--- [DETOX] Limpiando archivos legacy ---");
+  BLACKLIST.forEach((file) => {
+    const filePath = path.join(projectDir, file);
+    if (fs.existsSync(filePath)) {
+      fs.unlinkSync(filePath);
+      console.log(`[-] Eliminado: ${file}`);
     }
-  }
-
-  const coreSkills = path.join(CORE_PATH, '.claude', 'skills');
-  if (!isSymlink(skillsDirPath)) {
-    try {
-      createSymlink(skillsDirPath, coreSkills, true);
-    } catch (err) {
-      if (err.code === 'EPERM') {
-        console.error('[!] ERROR: Permisos insuficientes para crear enlaces simbolicos. Ejecuta como Administrador.');
-        process.exit(1);
-      }
-    }
-  }
-}
-
-function purgeSessionsDir() {
-  const sessionsDir = getSessionsDir();
-  if (!fs.existsSync(sessionsDir)) return;
-
-  fs.readdirSync(sessionsDir).forEach(file => {
-    removeRecursive(path.join(sessionsDir, file));
   });
 }
 
-function injectProjectRules() {
-  const projectClaudeDir = path.join(projectDir, '.claude');
-  if (!fs.existsSync(projectClaudeDir)) {
-    fs.mkdirSync(projectClaudeDir, { recursive: true });
-  }
+function normalizeSymlinks() {
+  const claudeMdPath = path.join(projectDir, "CLAUDE.md");
+  const coreClaude = path.join(CORE_PATH, "CLAUDE.md");
 
-  const projectSettingsPath = path.join(projectClaudeDir, 'settings.json');
-  let settings = {};
-
-  if (fs.existsSync(projectSettingsPath)) {
+  // Evitar recreación si ya es un link válido
+  if (!fs.existsSync(claudeMdPath)) {
     try {
-      settings = JSON.parse(fs.readFileSync(projectSettingsPath, 'utf8'));
-    } catch {
-      settings = {};
+      if (platform === "win32") {
+        fs.symlinkSync(coreClaude, claudeMdPath, "file");
+      } else {
+        fs.symlinkSync(coreClaude, claudeMdPath);
+      }
+      console.log("[+] Simlink CLAUDE.md creado.");
+    } catch (e) {
+      console.error("[!] Error en symlinks. Ejecuta como Administrador.");
     }
   }
-
-  if (!settings.permissions) {
-    settings.permissions = {};
-  }
-
-  if (!settings.permissions.allow) {
-    settings.permissions.allow = [];
-  }
-
-  if (!settings.permissions.allow.includes('Read') && !settings.permissions.allow.includes('Read(.claude)')) {
-    settings.permissions.allow.push('Read');
-  }
-
-  fs.writeFileSync(projectSettingsPath, JSON.stringify(settings, null, 2), 'utf8');
 }
 
-autoUpdate();
-normalizeSymlinks();
-injectProjectRules();
-purgeSessionsDir();
+function purgeSessions() {
+  const sDir = getSessionsDir();
+  if (fs.existsSync(sDir)) {
+    fs.readdirSync(sDir).forEach((f) => removeRecursive(path.join(sDir, f)));
+    console.log("[+] Sesiones antiguas purgadas.");
+  }
+}
 
-console.log('[SUCCESS] AI-CORE v2.6.0 | salvex93 | Entorno Sincronizado.');
+// Ejecución controlada
+try {
+  sanitizeEnvironment();
+  normalizeSymlinks();
+  purgeSessions();
+  console.log("[SUCCESS] AI-CORE v2.6.2 | Entorno Blindado por salvex93.");
+} catch (err) {
+  console.error("[ERROR] Fallo en la normalización:", err.message);
+  process.exit(1);
+}
