@@ -2,8 +2,8 @@
 name: ai-integrations
 description: Especialista en integracion de LLMs en aplicaciones de produccion. Cubre diseno de features de IA, gestion de costos por token, prompt versioning, streaming, fallback entre proveedores y evaluacion de outputs. Agnostico al proveedor. Activa al integrar Claude, Gemini u otro LLM en un proyecto anfitrion, disenar endpoints de IA o gestionar costos de inferencia.
 origin: ai-core
-version: 2.2.0
-last_updated: 2026-04-17
+version: 2.3.0
+last_updated: 2026-04-19
 ---
 
 # AI Integrations — Especialista en Features de IA en Produccion
@@ -80,12 +80,13 @@ Definir como constantes de configuracion, no como literales dispersos en el codi
 
 ### Seleccion de tier de modelo
 
-| Tier | Modelo | Cuando usar |
-|---|---|---|
-| Adaptive thinking | `claude-opus-4-7` | Agentes multi-paso, planificacion con complejidad variable por paso |
-| Razonamiento complejo | `claude-opus-4-6` | Arquitectura, analisis critico de carga uniforme |
-| Ejecucion estandar | `claude-sonnet-4-6` | Codigo, resumen, chat, operaciones cotidianas |
-| Volumen alto | `claude-haiku-4-5-20251001` | Clasificacion, extraccion, moderacion, lotes |
+| Tier | Modelo | Caracteristicas | Cuando usar |
+|---|---|---|---|
+| Adaptive thinking | `claude-opus-4-7` | Presupuesto adaptativo por paso (`task_budgets`), `effort` dinamico (low/high/xhigh), vision 3.75MP | Agentes multi-paso, planificacion con complejidad variable, debug profundo |
+| Razonamiento complejo | `claude-opus-4-6` | Extended thinking fijo (`budget_tokens`), context 200K | Arquitectura critica, analisis profundo de carga uniforme |
+| Ejecucion estandar | `claude-sonnet-4-6` | Prompt Caching GA, token-efficient tools GA, rendimiento optimo | Codigo, resumen, chat, 80% de tareas sustanciales |
+| Volumen alto | `claude-haiku-4-5-20251001` | Latencia minima, costo base | Clasificacion, extraccion, moderacion, lotes, tareas triviales |
+| Voice nativo | `gemini-3.1-flash-live` | Audio-to-audio nativo, WebSocket full-duplex, `thinking_level` dinamico | Voice agents, interfaces conversacionales reales, audio streaming |
 
 ### Optimizacion de prompts
 
@@ -184,9 +185,42 @@ No usar en: operaciones internas con output procesado programaticamente, generac
 
 Contrato del evento `done`: siempre incluye `tokens_totales` para logging.
 
-## Fallback y Resiliencia
+## Fallback y Routing Inteligente (Opus 4.7 + Sonnet 4.6)
 
-Circuit breaker: primario (Claude) → fallo tras timeout o 5 errores consecutivos → secundario (Gemini). Periodo de recuperacion: 60s. Transparente para la capa de negocio.
+Patrón recomendado: router dinamico según complejidad inferida de la tarea.
+
+### Matriz de routing (Abril 2026)
+
+| Complejidad | Modelo | Reasoning | Budget | Latencia SLA |
+|---|---|---|---|---|
+| Trivial (clasificacion, extraccion) | Haiku 4.5 | none | N/A | <200ms |
+| Simple (resumen, respuesta directa) | Sonnet 4.6 | none | N/A | <500ms |
+| Moderada (debug, analisis, generacion) | Sonnet 4.6 + cache | extended | budget_tokens: 2000 | <2s |
+| Compleja (arquitectura, planificacion multistep) | Opus 4.7 | adaptive | task_budgets, effort: high | <5s |
+| Muy compleja (debug exhaustivo, diseño critico) | Opus 4.7 | adaptive | task_budgets, effort: xhigh | <15s |
+| Voice conversacional (real-time) | Gemini 3.1-flash-live | dynamic | thinking_level: auto | <150ms |
+
+### Implementacion del router
+
+```python
+def route_request(task_description, user_context):
+    complexity = classify_complexity(task_description)
+    
+    if complexity == "trivial":
+        return haiku_request()
+    elif complexity == "simple":
+        return sonnet_request(cache_control="ephemeral")
+    elif complexity == "moderate":
+        return sonnet_request(thinking_budget=2000)
+    elif complexity == "complex":
+        return opus_request(effort="high", task_budgets={...})
+    elif complexity == "voice":
+        return gemini_live_request(thinking_level="auto")
+```
+
+### Fallback y Circuit Breaker
+
+Primario: modelo basado en complejidad. Fallo tras timeout (3s) o 3 errores consecutivos → secundario (Sonnet como fallback de Opus, Haiku como fallback de Sonnet). Periodo de recuperacion: 60s.
 
 Rate limits 429: retry con backoff exponencial — 0s, 1s, 2s, 4s (maximo 4 intentos), luego propagar error con contexto.
 
