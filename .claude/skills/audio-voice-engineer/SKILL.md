@@ -2,8 +2,8 @@
 name: audio-voice-engineer
 description: Especialista en Voice AI y sistemas de audio real-time. Cubre streaming de audio, conversational interfaces nativas, Gemini 3.1-flash-live, APIs de speech-to-text/text-to-speech, latencia submilisegundo, y orquestacion de voice workflows. Activa al disenar interfaces de voz, implementar streaming de audio en produccion, o integrar modelos speech de Gemini.
 origin: ai-core
-version: 1.0.0
-last_updated: 2026-04-17
+version: 1.1.0
+last_updated: 2026-04-19
 ---
 
 # Audio Voice Engineer — Sistemas de Audio Real-Time
@@ -50,34 +50,40 @@ Ante cualquiera de estas condiciones, insertar la directiva y detener. No emitir
 [ALERTA_ARQUITECTONICA: REQUIERE_OPUSPLAN]
 ```
 
-## Gemini 3.1-Flash-Live (Audio Nativo)
+## Gemini 3.1-Flash-Live (Audio-to-Audio Nativo)
 
-El modelo `gemini-3.1-flash-live` soporta entrada y salida de audio directamente, sin necesidad de transcodificacion a texto intermedia.
+El modelo `gemini-3.1-flash-live` (Marzo 2026) es arquitectura multimodal nativa que elimina el pipeline legado transcribe-reason-synthesize. Soporta entrada y salida de audio directamente en un proceso de extremo a extremo.
 
-### Caracteristicas
+### Caracteristicas (Arquitectura Nativa Abril 2026)
 
-- Entrada: audio/opus, audio/pcm (16-bit, 16kHz), audio/wav.
-- Salida: audio/opus (real-time) o texto.
-- Latencia de extremo a extremo: 150-300ms tipicamente.
-- Modelo: razonamiento dinamico habilitado por defecto (`thinking_level` parametrizable).
+- Entrada: audio/pcm (16-bit, 16kHz), audio/opus, audio/wav, video frames (multimodal).
+- Salida: audio/opus (bidireccional real-time) o texto.
+- Latencia de extremo a extremo: 80-150ms tipicamente (vs 300-500ms en pipeline tradicional).
+- Soporte multimodal nativo: audio + video + transcriptos en una sola llamada.
+- Razonamiento dinamico: `thinking_level` parametrizable (auto|enabled|disabled).
+- Interrupcion de usuario: el protocolo WebSocket soporta full-duplex para que el usuario interrumpa en tiempo real.
 
-### Arquitectura recomendada para Voice Agent
+### Arquitectura recomendada para Voice Agent (Audio-to-Audio Nativo)
 
 ```
-Cliente Audio Stream → WebRTC/Socket.io → Gateway normaliza codec → API Gemini flash-live
-← Audio respuesta + razonamiento → Cliente renderiza
+Cliente Audio+Video → WebSocket (full-duplex) → Gemini 3.1-flash-live (audio-to-audio nativo)
+← Audio respuesta en tiempo real + transcriptos opcionales → Cliente renderiza
 ```
 
-### Protocolo de handshake
+NO hay pipeline intermedio de transcodificacion. Gemini procesa audio nativamente.
 
-1. Cliente abre conexion WebRTC/Socket.io con server.
-2. Server valida sesion y abre stream bidireccional con Gemini.
-3. Cliente envía frame de audio (20-40ms de duracion).
-4. Server bufferea 1-2 frames en el lado del cliente y envia 1-2 frames a Gemini.
-5. Gemini procesa y devuelve audio de respuesta.
-6. Server envia audio al cliente, reintenta en caso de latencia > 300ms.
+### Protocolo WebSocket con Gemini 3.1-flash-live
 
-Prohibido: serializar TODO el audio en una sola peticion si la duracion supera 60 segundos. Usar streaming sincronico.
+1. Cliente abre WebSocket con endpoint del agente.
+2. Agente valida sesion y establece conexion con Gemini 3.1-flash-live via `streaming_config`.
+3. Cliente envia frame de audio PCM/Opus (20ms duracion recomendada).
+4. Gemini procesa el frame y emite audio de respuesta inmediatamente (sin esperar a que termine el usuario).
+5. Cliente puede interrumpir en cualquier momento — Gemini detiene la respuesta actual y comienza a procesar la nueva entrada.
+6. Latencia tipica: primer audio de respuesta recibido en 80-150ms desde el ultimo frame del usuario.
+
+Ventaja sobre pipeline legado: Gemini entiende el audio directamente. No hay perdida de entonacion, ritmo o pausas por transcodificacion.
+
+Prohibido: no serializar audio si duracion > 60s. Usar siempre streaming. Opus codec recomendado para mobile (reduce ancho de banda 10x vs PCM).
 
 ## Calidad de Audio
 
@@ -122,35 +128,54 @@ Sintoma: Audio entrecortado, saltos en la conversacion.
 Diagnostico: verificar que no hay drops de paquetes en la red (medir packet loss en ruta critica).
 Solucion: implementar retransmision selective, usar FEC (Forward Error Correction) si perdida > 1%.
 
-## Integracion con Gemini 3.1-Flash-Live
+## Integracion con Gemini 3.1-Flash-Live (Nativo)
 
-### Ejemplo: Voice Agent simple
+### Ejemplo: Voice Agent audio-to-audio
 
 ```python
 import asyncio
 from google.genai import client as genai
 
-async def voice_agent(audio_stream):
-    """Procesa stream de audio con Gemini 3.1-flash-live."""
-    session = genai.GenerativeService.create_streaming_session(
-        model="gemini-3.1-flash-live",
-        system_instruction="Eres un asistente conversacional. Responde en espanol.",
-        config={"audio_in_config": {"mime_type": "audio/pcm", "sample_rate_hertz": 16000}}
-    )
+async def voice_agent_native():
+    """Procesa audio nativo con Gemini 3.1-flash-live (sin transcodificacion)."""
+    client = genai.Client()
     
-    async for audio_chunk in audio_stream:
-        await session.send({"audio": audio_chunk})
-        response = await session.recv()
-        yield response["audio"]
-
-# Uso
-async def main():
-    client = create_websocket_client()
-    async for frame in client.stream_audio():
-        async for response_frame in voice_agent(frame):
-            await client.send_response(response_frame)
-
-asyncio.run(main())
+    # Configuracion nativa de audio
+    streaming_config = {
+        "audio_in_config": {
+            "mime_type": "audio/pcm",
+            "sample_rate_hertz": 16000
+        },
+        "audio_out_config": {
+            "mime_type": "audio/pcm",
+            "sample_rate_hertz": 24000
+        },
+        "thinking_level": "auto"  # Razonamiento dinamico
+    }
+    
+    async with client.aio.live.connect(
+        model="gemini-3.1-flash-live",
+        config=streaming_config
+    ) as session:
+        # Enviar instruccion del sistema
+        await session.send({
+            "setup": {
+                "system_instruction": "Eres un asistente conversacional. Responde en espanol."
+            }
+        })
+        
+        # Stream de audio del usuario
+        async for audio_chunk in receive_audio_from_microphone():
+            await session.send({"media": {"data": audio_chunk}})
+            
+            # Recibir respuesta de audio en tiempo real
+            async for response in session.receive():
+                if response.get("media"):
+                    # Audio de respuesta — enviar directamente al altavoz
+                    await play_audio(response["media"]["data"])
+                if response.get("thinking"):
+                    # Razonamiento interno (opcional registrar)
+                    log_thinking(response["thinking"])
 ```
 
 ## Lista de Verificacion — Voice Systems

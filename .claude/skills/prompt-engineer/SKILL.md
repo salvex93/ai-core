@@ -2,8 +2,8 @@
 name: prompt-engineer
 description: Especialista en arquitectura de prompts de produccion. Cubre diseno de system prompts, few-shot examples, chain-of-thought, output estructurado con JSON Schema, versionado de prompts y testing antes de despliegue. Complementa ai-integrations (integracion del LLM), llm-evals (medicion de calidad) y rag-specialist (contexto documental). Activa al disenar o refactorizar un system prompt, definir la estrategia de few-shot, implementar output estructurado o versionar prompts para produccion.
 origin: ai-core
-version: 1.4.0
-last_updated: 2026-04-17
+version: 1.5.0
+last_updated: 2026-04-19
 ---
 
 # Prompt Engineer — Arquitecto de Prompts de Produccion
@@ -44,6 +44,7 @@ Ante cualquiera de estas condiciones, insertar la directiva y detener. No emitir
 - La tarea cambia el modelo LLM asociado al prompt sin comparar los outputs del nuevo modelo contra el golden dataset del sistema.
 - La tarea introduce instrucciones en el system prompt que contradicen reglas de seguridad o compliance documentadas del proyecto anfitrion.
 - El system prompt propuesto supera 4000 tokens sin justificacion documentada de por que no puede reducirse.
+- La tarea usa Opus 4.7 con `effort: "xhigh"` o `task_budgets` en flujo de alto volumen (>100 req/min) sin justificacion de ROI de razonamiento adaptativo.
 
 ```
 [ALERTA_ARQUITECTONICA: REQUIERE_OPUSPLAN]
@@ -264,10 +265,10 @@ respuesta = cliente.messages.create(
     model="claude-opus-4-7",
     effort="high",  # o "low", "xhigh"
     task_budgets={
-        "total_budget": 4000,
-        "per_step_min": 128,
-        "per_step_max": 1024,
-        "allocation_strategy": "adaptive"
+        "total_budget": 8000,          # Presupuesto global para toda la sesion
+        "per_step_min": 512,           # Razonamiento minimo por paso
+        "per_step_max": 2048,          # Razonamiento maximo por paso
+        "allocation_strategy": "adaptive"  # Opus decide dinamicamente
     },
     messages=[...]
 )
@@ -277,15 +278,38 @@ respuesta = cliente.messages.create(
 
 | Nivel | Descripcion | Costo token | Caso de uso |
 |---|---|---|---|
-| `low` | Razonamiento minimo, respuesta rapida | Base | Respuestas simples, baja latencia |
-| `high` | Razonamiento balanceado | ~1.5x | Tareas normales, resolucion de problemas |
-| `xhigh` | Razonamiento profundo, analisis exhaustivo | ~2.5x | Arquitectura critica, debug complejo |
+| `low` | Razonamiento minimo, respuesta rapida | Base | Respuestas simples, clasificacion, baja latencia |
+| `high` | Razonamiento balanceado, decision adaptativa | ~1.5x | Tareas normales, resolucion de problemas, agentes multistep |
+| `xhigh` | Razonamiento profundo, analisis exhaustivo | ~2.5x | Arquitectura critica, debug profundo, planificacion compleja |
+
+### Task Budgets vs Effort
+
+- **`effort`**: controla la *intensidad* del razonamiento (como de profundo piensa).
+- **`task_budgets`**: controla el *presupuesto total* y la *distribucion* entre pasos de un agente multiturn.
+
+Usar ambos juntos en agentes multi-paso donde la complejidad es variable:
+
+```python
+# Agente que puede tener pasos simples y pasos complejos
+cliente.messages.create(
+    model="claude-opus-4-7",
+    effort="high",  # Razonamiento balanceado por defecto
+    task_budgets={
+        "total_budget": 10000,         # Presupuesto global para toda la sesion del agente
+        "per_step_min": 256,
+        "per_step_max": 2000,
+        "allocation_strategy": "adaptive"  # Opus asigna tokens segun complejidad real de cada paso
+    },
+    messages=[...]
+)
+```
 
 ### Reglas de deployment
 
-- En produccion, preferir `low` o `high`. Evitar `xhigh` en flujos con alto volumen o latencia critica.
+- En produccion, preferir `low` o `high`. Evitar `xhigh` en flujos con alto volumen (>100 req/min) o latencia critica (<500ms).
 - El effort no afecta `max_tokens`, solo el estilo de razonamiento interno.
-- Loguear effort + thinking_tokens_used para auditar la efectividad.
+- Loguear `effort`, `thinking_tokens_used` y `budget_remaining` para auditar la efectividad.
+- En agentes multistep, `task_budgets` es obligatorio si `effort: "high"` o superior.
 
 ## Restricciones del Perfil
 
