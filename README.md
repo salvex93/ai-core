@@ -12,9 +12,9 @@ Desde la version actual, el nucleo incorpora las siguientes capacidades:
 
 ---
 
-## Como usar este AI-CORE en cualquier proyecto
+## Instalación como Submódulo Git
 
-### Paso 1 — Incorporar ai-core como submodulo Git
+### Paso 1A — Incorporar ai-core como submodulo (recomendado para distribucion)
 
 ```bash
 cd /ruta/a/tu-proyecto
@@ -31,6 +31,52 @@ git submodule update --remote .claude/ai-core
 git add .claude/ai-core
 git commit -m "chore: actualizar ai-core a la ultima version del nucleo"
 ```
+
+### Paso 1B — Alternativa: Vincular ai-core via Symlinks (recomendado para desarrollo centralizado)
+
+Para proyectos que necesitan sincronizacion inmediata de cambios en `CLAUDE.md` y `.claude/skills/` sin esperar actualizaciones de submodulo, usa symlinks. Este metodo garantiza heredancia fisica de las Reglas Globales — toda la cadena recibe Regla 2 (Sin emojis) y Regla 18 (Brevedad) automaticamente.
+
+**En Windows PowerShell (como Administrador):**
+
+```powershell
+# Borrar CLAUDE.md local si existe
+Remove-Item './CLAUDE.md' -ErrorAction SilentlyContinue
+
+# Crear symlink a CLAUDE.md del nucleo
+New-Item -ItemType SymbolicLink -Path './CLAUDE.md' -Target 'C:/Users/arimac/Documents/Proyectos - MarIA/ai-core/CLAUDE.md' -Force
+
+# Crear symlink a la carpeta de skills del nucleo
+New-Item -ItemType SymbolicLink -Path './.claude/skills' -Target 'C:/Users/arimac/Documents/Proyectos - MarIA/ai-core/.claude/skills' -Force
+
+# Crear symlink a settings.json del nucleo
+New-Item -ItemType SymbolicLink -Path './.claude/settings.json' -Target 'C:/Users/arimac/Documents/Proyectos - MarIA/ai-core/.claude/settings.json' -Force
+```
+
+Si alguno de los comandos falla con permiso denegado:
+- Ejecutar PowerShell **como Administrador**.
+- En Windows 11, activar `Developer Mode` en Settings > Developer para permitir symlinks sin permisos elevados en futuras sesiones.
+
+**En Linux/Mac:**
+
+```bash
+rm -f ./CLAUDE.md
+ln -s /ruta/a/ai-core/CLAUDE.md ./CLAUDE.md
+
+rm -rf ./.claude/skills
+ln -s /ruta/a/ai-core/.claude/skills ./.claude/skills
+
+ln -s /ruta/a/ai-core/.claude/settings.json ./.claude/settings.json
+```
+
+**Cuando Usar Symlinks vs Submodulos:**
+
+| Criterio | Symlinks | Submodulos |
+|---|---|---|
+| Equipos multiples trabajando con ai-core | Recomendado | Alternativa |
+| Desarrollo centralizado del nucleo | Recomendado | No recomendado |
+| Distribucion a terceros (GitHub) | No recomendado | Recomendado |
+| Frecuencia de cambio en CLAUDE.md | Alta (varias veces/semana) | Baja (varias veces/mes) |
+| Sincronizacion tipo "fire and forget" | Si | No |
 
 ### Paso 2 — Instalar dependencias del nucleo
 
@@ -169,72 +215,47 @@ El agente hereda automaticamente las reglas globales del `CLAUDE.md` del nucleo.
 
 ---
 
-## Protocolo de Integración (Symlink setup)
+---
 
-### Alternativa: Vincular ai-core como Symlink en lugar de Submodulo
+## Protocolo Gemini Bridge: Análisis Delegado de Contenido Extenso
 
-Para proyectos que necesitan sincronizacion inmediata de cambios en `CLAUDE.md` y `.claude/skills/` sin esperar actualizaciones de submodulo (caso comun en equipos que trabajan con el nucleo de forma centralizada), usa symlinks.
+El LLM Routing Bridge es el mecanismo de analisis documental masivo del nucleo. Externaliza lecturas de archivos grandes como proceso separado a traves de `TO_GEMINI.md`. Esta es una politica de COSTO, no de capacidad: cargar corpus extensos en el contexto principal consume tokens de entrada facturables y degrada la calidad de respuesta en el resto de la sesion.
 
-Este metodo garantiza heredancia fisica de las Reglas Globales — toda la cadena recibe Regla 2 (Sin emojis) y Regla 18 (Brevedad) automáticamente.
+### Cuando usar TO_GEMINI.md (Regla 2 del Bridge)
 
-### Pasos para configurar Symlinks en Windows PowerShell
+Si el agente genera `.claude/TO_GEMINI.md`, significa que:
+- El archivo analizado excede 500 lineas o 50 KB.
+- El contexto disponible es insuficiente para procesar el contenido completo sin degradacion.
+- La tarea requiere extraccion de patrones, analisis de dependencias o sintesis extensas.
 
-Ejecutar los siguientes comandos en PowerShell **con permisos de administrador** en la carpeta raiz del proyecto anfitrion:
+**Instrucciones de uso:**
 
-```powershell
-# Paso 1: Borrar CLAUDE.md local si existe (preservar versiones customizadas antes)
-Remove-Item './CLAUDE.md' -ErrorAction SilentlyContinue
+1. El archivo `.claude/TO_GEMINI.md` contiene la mision tecnica formateada para Gemini.
+2. Abre https://gemini.google.com (free tier, sin login requerido).
+3. Pega el contenido completo de `TO_GEMINI.md` en la interfaz.
+4. Gemini procesa el contenido masivo y retorna hallazgos clave.
+5. Copia los hallazgos de vuelta al agente en la siguiente sesion para continuacion.
 
-# Paso 2: Crear symlink a CLAUDE.md del nucleo
-New-Item -ItemType SymbolicLink -Path './CLAUDE.md' -Target 'C:/Users/arimac/Documents/Proyectos - MarIA/ai-core/CLAUDE.md' -Force
+**Ventajas:**
+- Protege el context window principal de saturacion.
+- Usa quota gratuita de Gemini 2.5 Flash (1.5M tokens/dia).
+- El agente se mantiene disponible para tareas simultáneas.
 
-# Paso 3: Crear symlink a la carpeta de skills del nucleo
-New-Item -ItemType SymbolicLink -Path './.claude/skills' -Target 'C:/Users/arimac/Documents/Proyectos - MarIA/ai-core/.claude/skills' -Force
+---
 
-# Paso 4: Crear symlink a settings.json del nucleo (template de hooks)
-New-Item -ItemType SymbolicLink -Path './.claude/settings.json' -Target 'C:/Users/arimac/Documents/Proyectos - MarIA/ai-core/.claude/settings.json' -Force
-```
+## Tabla de Comandos Sentinel — CLI del Nucleo
 
-Si alguno de los comandos falla con permiso denegado:
-- Verificar que PowerShell corre **como Administrador**.
-- En Windows 11, abrir Settings > Developer → activar `Developer Mode` para permitir symlinks sin permisos elevados en futuras sesiones.
+Los scripts del nucleo extienden la capacidad del agente para automatizar tareas recurrentes de mantenimiento y analisis. Estos comandos se ejecutan desde la raiz del proyecto anfitrion o dentro de `.claude/ai-core/`.
 
-### Alternativa en Linux/Mac
+| Comando | Ruta | Propósito | Uso |
+|---|---|---|---|
+| `generate-map` | `./.claude/ai-core/scripts/generate-map.js` | Regenera `CONTEXT_MAP.json` (índice de archivos y relaciones) para optimizar Lazy Context. | `node .claude/ai-core/scripts/generate-map.js` |
+| `detox` | `./.claude/ai-core/scripts/detox.js` | Limpia archivos legacy (.md reportes v2.4/v2.5) que contaminan la memoria del agente. | `node .claude/ai-core/scripts/detox.js` |
+| `gemini-bridge` (CLI) | `./.claude/ai-core/scripts/gemini-bridge.js` | Analiza archivos extensos via Gemini sin cargar en contexto principal. Retorna JSON o Markdown. | `node .claude/ai-core/scripts/gemini-bridge.js --mission "Analiza patrones" --file path.ts --format json` |
+| `init-backlog` | `./.claude/ai-core/scripts/init-backlog.js` | Crea `BACKLOG.md` (tabla 12 columnas) si no existe. Garantiza persistencia de hallazgos entre sesiones. | `node .claude/ai-core/scripts/init-backlog.js` |
+| `query-backlog` | `./.claude/ai-core/scripts/query-backlog.js` | Filtra tareas activas en `BACKLOG.md` sin cargar el archivo completo. Optimizado para Regla 14 (Eficiencia de Busqueda). | `node .claude/ai-core/scripts/query-backlog.js --status "En Progreso"` |
 
-```bash
-# Bash: equivalentes Unix
-rm -f ./CLAUDE.md
-ln -s /ruta/a/ai-core/CLAUDE.md ./CLAUDE.md
-
-rm -rf ./.claude/skills
-ln -s /ruta/a/ai-core/.claude/skills ./.claude/skills
-
-ln -s /ruta/a/ai-core/.claude/settings.json ./.claude/settings.json
-```
-
-### Proteccion contra Deriva de Estilo
-
-El vinculum via symlinks garantiza:
-
-1. **Regla 2 — Sin Emojis**: Toda respuesta hereda el estandar visual del nucleo.
-2. **Regla 18 — Brevedad**: Respuestas concisas, sin preámbulos ni resumenes.
-3. **Reglas Globales > Skills**: Ningun proyecto anfitrion puede sobreescribir inmutables.
-4. **Actualizacion Instantanea**: Cambios en `CLAUDE.md` del nucleo se propagan sin delay a todos los proyectos vinculados.
-
-Sin este protocolo de symlinks, cada proyecto anfitrion podria mantener copias divergentes de `CLAUDE.md`, resultando en:
-- Comportamiento inconsistente entre equipos.
-- Obsolescencia de reglas en proyectos que no actualicen submodulos.
-- Regression en calidad de respuesta por relajacion de Reglas Globales.
-
-### Cuando Usar Symlinks vs Submodulos
-
-| Criterio | Symlinks | Submodulos |
-|---|---|---|
-| Equipos multiples trabajando con ai-core | Recomendado | Alternativa |
-| Desarrollo centralizado del nucleo | Recomendado | No recomendado |
-| Distribucion a terceros (GitHub) | No recomendado | Recomendado |
-| Frecuencia de cambio en CLAUDE.md | Alta (varias veces/semana) | Baja (varias veces/mes) |
-| Sincronizacion tipo "fire and forget" | Si | No |
+**Recomendacion:** Ejecutar `detox` después de cada actualización del nucleo para eliminar reportes legacy y mantener el contexto limpio.
 
 ---
 
