@@ -3,7 +3,7 @@ const path = require('path');
 const { execSync } = require('child_process');
 
 function generateContextMap() {
-  const projectRoot = process.cwd();
+  const projectRoot = execSync('git rev-parse --show-toplevel', { encoding: 'utf-8' }).trim();
 
   const branch = execSync('git branch --show-current', { encoding: 'utf-8' }).trim();
   const filesOutput = execSync('git ls-files', { encoding: 'utf-8' });
