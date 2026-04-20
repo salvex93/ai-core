@@ -2,7 +2,8 @@ const fs = require('fs');
 const path = require('path');
 
 function detoxRootDirectory() {
-  const projectRoot = process.cwd();
+  const { execSync } = require('child_process');
+  const projectRoot = execSync('git rev-parse --show-toplevel', { encoding: 'utf-8' }).trim();
   const protectedFiles = ['CLAUDE.md', 'README.md'];
   let purgedCount = 0;
 
