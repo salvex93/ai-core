@@ -25,7 +25,7 @@ const path = require('path');
   }
 })();
 
-const GEMINI_DEFAULT = 'gemini-2.5-flash';
+const GEMINI_DEFAULT = 'gemini-1.5-flash';
 
 // --- Parseo de argumentos CLI ---
 function parseArgs(argv) {
@@ -141,7 +141,7 @@ async function main() {
         '  node scripts/gemini-bridge.js --mission "<orden>" --file <ruta>',
         'Flags opcionales:',
         '  --format  json|markdown  (default: json)',
-        '  --model   <gemini-id>    (default: gemini-2.5-flash)',
+        '  --model   <gemini-id>    (default: gemini-1.5-flash)',
         '',
         'Requiere GEMINI_API_KEY en el .env del proyecto anfitrion.',
         '',
