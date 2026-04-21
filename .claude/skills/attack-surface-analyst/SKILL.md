@@ -38,7 +38,7 @@ Definir el alcance del analisis despues de revisar el output: solo enumeracion p
 Si el archivo analizado supera 500 lineas o 50 KB, delegar al LLM Routing Bridge (ver Regla 9):
 
 ```
-node scripts/gemini-bridge.js --mission "Extrae todos los dominios, endpoints y servicios externos referenciados en la configuracion" --file <ruta-al-archivo>
+node scripts/mcp-gemini.js --mission "Extrae todos los dominios, endpoints y servicios externos referenciados en la configuracion" --file <ruta-al-archivo>
 ```
 
 ## Directiva de Interrupcion

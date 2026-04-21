@@ -41,7 +41,7 @@ Complementar con grep para herramientas existentes: `grep -r "server.tool\|@mcp.
 Si el archivo de configuracion del servidor o el modulo de herramientas supera 500 lineas o 50 KB, aplicar Regla 9:
 
 ```
-node scripts/gemini-bridge.js --mission "Analiza el servidor MCP e identifica: herramientas sin validacion de schema, ausencia de manejo de errores JSON-RPC, secretos en schemas de herramientas, ausencia de autenticacion en transportes HTTP y herramientas con permisos excesivos" --file <ruta> --format json
+node scripts/mcp-gemini.js --mission "Analiza el servidor MCP e identifica: herramientas sin validacion de schema, ausencia de manejo de errores JSON-RPC, secretos en schemas de herramientas, ausencia de autenticacion en transportes HTTP y herramientas con permisos excesivos" --file <ruta> --format json
 ```
 
 ## Directiva de Interrupcion

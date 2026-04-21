@@ -38,7 +38,7 @@ Si ningun manifiesto esta disponible, declararlo explicitamente y solicitar la i
 Si un archivo de codigo fuente a auditar supera 500 lineas o 50 KB, aplicar Regla 9 antes de cargarlo:
 
 ```
-node scripts/gemini-bridge.js --mission "Audita el archivo segun OWASP Top 10: detecta inyecciones, secretos hardcodeados, endpoints sin autenticacion, validacion ausente en entradas de usuario y exposicion de datos sensibles en logs o respuestas de error" --file <ruta> --format json
+node scripts/mcp-gemini.js --mission "Audita el archivo segun OWASP Top 10: detecta inyecciones, secretos hardcodeados, endpoints sin autenticacion, validacion ausente en entradas de usuario y exposicion de datos sensibles en logs o respuestas de error" --file <ruta> --format json
 ```
 
 ## Directiva de Interrupcion

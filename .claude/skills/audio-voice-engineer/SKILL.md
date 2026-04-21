@@ -34,7 +34,7 @@ Si MCP gemini-bridge no disponible → leer manualmente: `package.json`, `requir
 Si archivo de configuracion de audio supera 300 lineas o 50 KB, aplicar Regla 9 antes de cargarlo:
 
 ```
-node scripts/gemini-bridge.js --mission "Analiza la configuracion de audio y streaming. Identifica: latencia de extremo a extremo, compresion de codec, tamanio de buffer, sincronizacion entre streams multiplex. Responde con array JSON [{\"seccion\": \"<nombre>\", \"hallazgo\": \"<descripcion>\", \"latencia_estimada\": \"<ms>\", \"severidad\": \"<alta|media|baja>\"}]" --file <ruta> --format json
+node scripts/mcp-gemini.js --mission "Analiza la configuracion de audio y streaming. Identifica: latencia de extremo a extremo, compresion de codec, tamanio de buffer, sincronizacion entre streams multiplex. Responde con array JSON [{\"seccion\": \"<nombre>\", \"hallazgo\": \"<descripcion>\", \"latencia_estimada\": \"<ms>\", \"severidad\": \"<alta|media|baja>\"}]" --file <ruta> --format json
 ```
 
 ## Directiva de Interrupcion

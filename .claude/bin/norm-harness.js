@@ -1,10 +1,9 @@
 #!/usr/bin/env node
-// AI-CORE v2.6.2 | salvex93 | Sentinel Edition | Blindaje de Entorno
-
 const fs = require("fs");
 const path = require("path");
 const { execSync } = require("child_process");
 const os = require("os");
+const { version } = require(path.resolve(__dirname, "../../package.json"));
 
 const platform = os.platform();
 const homeDir = os.homedir();
@@ -81,7 +80,7 @@ try {
   sanitizeEnvironment();
   normalizeSymlinks();
   purgeSessions();
-  console.log("[SUCCESS] AI-CORE v2.6.2 | Entorno Blindado por salvex93.");
+  console.log(`[SUCCESS] AI-CORE v${version} | Entorno Blindado por salvex93.`);
 } catch (err) {
   console.error("[ERROR] Fallo en la normalización:", err.message);
   process.exit(1);

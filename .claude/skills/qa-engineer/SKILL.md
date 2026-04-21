@@ -38,7 +38,7 @@ Si ningun manifiesto esta disponible, declararlo explicitamente y solicitar la i
 Si un archivo de suite de tests o de configuracion de cobertura supera 500 lineas o 50 KB, aplicar Regla 9 antes de cargarlo:
 
 ```
-node scripts/gemini-bridge.js --mission "Identifica tests sin aserciones, mocks de infraestructura en tests de integracion, dependencias de orden de ejecucion y brechas de cobertura critica" --file <ruta> --format json
+node scripts/mcp-gemini.js --mission "Identifica tests sin aserciones, mocks de infraestructura en tests de integracion, dependencias de orden de ejecucion y brechas de cobertura critica" --file <ruta> --format json
 ```
 
 ## Directiva de Interrupcion

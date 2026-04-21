@@ -1,7 +1,7 @@
 {
-  "version": "2.6.2",
-  "last_updated": "2026-04-19T23:15:13.122Z",
-  "branch": "main",
+  "version": "2.6.3",
+  "last_updated": "2026-04-21T17:42:24.507Z",
+  "branch": "temp-fix",
   "map": {
     "root": "ai-core/",
     "directories": {
@@ -38,23 +38,25 @@
         "docs/OPUSPLAN-files-api-bridge.md"
       ],
       "scripts/": [
+        "scripts/anthropic-bridge.js",
+        "scripts/dry-run-cost-sim.js",
         "scripts/gemini-bridge.js",
         "scripts/init-backlog.js",
         "scripts/mcp-gemini.js",
         "scripts/query-backlog.js",
+        "scripts/services/AgentRoles.js",
+        "scripts/services/ContextIndex.js",
+        "scripts/services/ErrorRepairLoop.js",
+        "scripts/services/ModelRouter.js",
         "scripts/session-close.js"
       ]
     },
     "root_files": [
       ".env.example",
       ".gitignore",
-      "BACKLOG.md",
       "CLAUDE.md",
-      "CONTRIBUTING.md",
       "LICENSE",
-      "OPERATIONS.md",
       "README.md",
-      "SPONSORING.md",
       "package-lock.json",
       "package.json"
     ],
@@ -62,6 +64,6 @@
       "node_modules/",
       ".git/"
     ],
-    "total_files": 44
+    "total_files": 46
   }
 }
