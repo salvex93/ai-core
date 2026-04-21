@@ -1,6 +1,7 @@
 param()
 
-$CORE_PATH = "C:/Users/arimac/Documents/Proyectos - MarIA/ai-core"
+# Resolucion dinamica — portable a cualquier equipo o ruta de instalacion
+$CORE_PATH = (Resolve-Path (Join-Path $PSScriptRoot ".." "..")).Path
 $ProjectDir = (Get-Location).Path
 $ClaudeMd = Join-Path $ProjectDir "CLAUDE.md"
 $SkillsDir = Join-Path $ProjectDir ".\.claude\skills"
@@ -58,4 +59,5 @@ if (Test-Path $SessionsDir) {
     Remove-Item -Path "$SessionsDir\*" -Force -Recurse -ErrorAction SilentlyContinue
 }
 
-Write-Output "[SUCCESS] Melius v2.4.1: Sincronizacion remota y normalizacion completada."
+$pkg = Get-Content (Join-Path $CORE_PATH "package.json") | ConvertFrom-Json
+Write-Output "[SUCCESS] AI-CORE v$($pkg.version): Sincronizacion remota y normalizacion completada."

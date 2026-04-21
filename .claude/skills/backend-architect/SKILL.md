@@ -35,7 +35,7 @@ Si MCP gemini-bridge no disponible → leer manualmente: `package.json`, `.env.e
 Si un archivo identificado para analisis (esquema, migracion, capa de repositorio) supera 500 lineas o 50 KB, aplicar Regla 9 antes de cargarlo:
 
 ```
-node scripts/gemini-bridge.js --mission "Identifica patrones N+1, queries sin indice, violaciones de separacion de capas y riesgos de inyeccion SQL" --file <ruta> --format json
+node scripts/mcp-gemini.js --mission "Identifica patrones N+1, queries sin indice, violaciones de separacion de capas y riesgos de inyeccion SQL" --file <ruta> --format json
 ```
 
 ## Directiva de Interrupcion
