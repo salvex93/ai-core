@@ -645,12 +645,17 @@ Las reglas globales son inmutables. Aplican a todos los perfiles sin excepcion. 
 
 ## Mantenimiento y Evolucion Autonoma
 
+Para auditar el ecosistema, escribir la siguiente instruccion al agente en Claude Code:
+
 ```
-/skill aiops-engineer
+skill aiops-engineer
 Tu tarea: audita el ecosistema. Analiza nuevas especificaciones de Anthropic y Gemini.
 Lee los archivos SKILL.md y propón refactorizaciones para eficiencia.
 Identifica si necesitamos un nuevo skill basado en tendencias actuales.
 ```
+
+Nota: los skills de ai-core no son slash commands de Claude Code. Se invocan escribiendo
+`skill <nombre>` como instruccion al agente, o activando el skill via la interfaz de Claude Code.
 
 El agente leera su propio codigo, propondra las mejoras y tras aprobacion ejecutara el commit automatico (Regla 15).
 

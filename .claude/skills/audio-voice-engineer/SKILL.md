@@ -1,6 +1,6 @@
 ---
 name: audio-voice-engineer
-description: Especialista en Voice AI y sistemas de audio real-time. Cubre streaming de audio, conversational interfaces nativas, Gemini 3.1-flash-live, APIs de speech-to-text/text-to-speech, latencia submilisegundo, y orquestacion de voice workflows. Activa al disenar interfaces de voz, implementar streaming de audio en produccion, o integrar modelos speech de Gemini.
+description: Especialista en Voice AI y sistemas de audio real-time. Cubre streaming de audio, conversational interfaces nativas, gemini-2.0-flash-live-001, APIs de speech-to-text/text-to-speech, latencia submilisegundo, y orquestacion de voice workflows. Activa al disenar interfaces de voz, implementar streaming de audio en produccion, o integrar modelos speech de Gemini.
 origin: ai-core
 version: 1.1.0
 last_updated: 2026-04-19
@@ -12,7 +12,7 @@ Este perfil gobierna el diseno e implementacion de sistemas de audio real-time y
 
 ## Cuando Activar Este Perfil
 
-- Al disenar una interfaz conversacional con Voice AI (Gemini 3.1-flash-live).
+- Al disenar una interfaz conversacional con Voice AI (gemini-2.0-flash-live-001).
 - Al implementar streaming de audio bidireccional en produccion.
 - Al configurar pipelines speech-to-text / text-to-speech con latencia critica.
 - Al optimizar el uso de ancho de banda en aplicaciones mobile con audio comprimido.
@@ -50,9 +50,9 @@ Ante cualquiera de estas condiciones, insertar la directiva y detener. No emitir
 [ALERTA_ARQUITECTONICA: REQUIERE_OPUSPLAN]
 ```
 
-## Gemini 3.1-Flash-Live (Audio-to-Audio Nativo)
+## gemini-2.0-flash-live-001 (Audio-to-Audio Nativo)
 
-El modelo `gemini-3.1-flash-live` (Marzo 2026) es arquitectura multimodal nativa que elimina el pipeline legado transcribe-reason-synthesize. Soporta entrada y salida de audio directamente en un proceso de extremo a extremo.
+El modelo `gemini-2.0-flash-live-001` (Marzo 2026) es arquitectura multimodal nativa que elimina el pipeline legado transcribe-reason-synthesize. Soporta entrada y salida de audio directamente en un proceso de extremo a extremo.
 
 ### Caracteristicas (Arquitectura Nativa Abril 2026)
 
@@ -66,16 +66,16 @@ El modelo `gemini-3.1-flash-live` (Marzo 2026) es arquitectura multimodal nativa
 ### Arquitectura recomendada para Voice Agent (Audio-to-Audio Nativo)
 
 ```
-Cliente Audio+Video → WebSocket (full-duplex) → Gemini 3.1-flash-live (audio-to-audio nativo)
+Cliente Audio+Video → WebSocket (full-duplex) → gemini-2.0-flash-live-001 (audio-to-audio nativo)
 ← Audio respuesta en tiempo real + transcriptos opcionales → Cliente renderiza
 ```
 
 NO hay pipeline intermedio de transcodificacion. Gemini procesa audio nativamente.
 
-### Protocolo WebSocket con Gemini 3.1-flash-live
+### Protocolo WebSocket con gemini-2.0-flash-live-001
 
 1. Cliente abre WebSocket con endpoint del agente.
-2. Agente valida sesion y establece conexion con Gemini 3.1-flash-live via `streaming_config`.
+2. Agente valida sesion y establece conexion con gemini-2.0-flash-live-001 via `streaming_config`.
 3. Cliente envia frame de audio PCM/Opus (20ms duracion recomendada).
 4. Gemini procesa el frame y emite audio de respuesta inmediatamente (sin esperar a que termine el usuario).
 5. Cliente puede interrumpir en cualquier momento — Gemini detiene la respuesta actual y comienza a procesar la nueva entrada.
@@ -128,7 +128,7 @@ Sintoma: Audio entrecortado, saltos en la conversacion.
 Diagnostico: verificar que no hay drops de paquetes en la red (medir packet loss en ruta critica).
 Solucion: implementar retransmision selective, usar FEC (Forward Error Correction) si perdida > 1%.
 
-## Integracion con Gemini 3.1-Flash-Live (Nativo)
+## Integracion con gemini-2.0-flash-live-001 (Nativo)
 
 ### Ejemplo: Voice Agent audio-to-audio
 
@@ -137,7 +137,7 @@ import asyncio
 from google.genai import client as genai
 
 async def voice_agent_native():
-    """Procesa audio nativo con Gemini 3.1-flash-live (sin transcodificacion)."""
+    """Procesa audio nativo con gemini-2.0-flash-live-001 (sin transcodificacion)."""
     client = genai.Client()
     
     # Configuracion nativa de audio
@@ -154,7 +154,7 @@ async def voice_agent_native():
     }
     
     async with client.aio.live.connect(
-        model="gemini-3.1-flash-live",
+        model="gemini-2.0-flash-live-001",
         config=streaming_config
     ) as session:
         # Enviar instruccion del sistema
