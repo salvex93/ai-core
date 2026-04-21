@@ -1,13 +1,15 @@
 {
   "name": "ai-core",
-  "version": "2.6.2",
-  "description": "Nucleo Centralizado de Agentes — MarIA. Submodulo Git con reglas globales, skills y scripts de orquestacion.",
+  "version": "2.6.3",
+  "description": "AI-CORE by salvex93. Nucleo Centralizado de Agentes para proyectos de desarrollo. Submodulo Git con reglas globales, skills y scripts de orquestacion.",
   "private": true,
   "scripts": {
     "init-backlog": "node scripts/init-backlog.js",
     "gemini-bridge": "node scripts/gemini-bridge.js",
+    "anthropic-bridge": "node scripts/anthropic-bridge.js",
     "mcp-gemini": "node scripts/mcp-gemini.js",
-    "query-backlog": "node scripts/query-backlog.js"
+    "query-backlog": "node scripts/query-backlog.js",
+    "dry-run": "node scripts/dry-run-cost-sim.js"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.39.0",

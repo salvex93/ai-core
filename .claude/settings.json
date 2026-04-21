@@ -3,10 +3,9 @@
     "gemini-bridge": {
       "command": "C:\\nvm4w\\nodejs\\node.exe",
       "args": [
-        "--env-file=.env",
         "scripts/mcp-gemini.js"
       ],
-      "cwd": "C:\\Users\\arimac\\Documents\\Proyectos - MarIA\\ai-core"
+      "cwd": "C:\\Users\\arimac\\Documents\\Proyectos - MarIA\\Maria-backend-yde-sandbox\\.claude\\ai-core"
     }
   }
 }

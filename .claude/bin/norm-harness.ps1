@@ -1,6 +1,7 @@
 param()
 
-$CORE_PATH = "C:/Users/arimac/Documents/Proyectos - MarIA/ai-core"
+# Resolucion dinamica — portable a cualquier equipo o ruta de instalacion
+$CORE_PATH = (Resolve-Path (Join-Path $PSScriptRoot ".." "..")).Path
 $ProjectDir = (Get-Location).Path
 $ClaudeMd = Join-Path $ProjectDir "CLAUDE.md"
 $SkillsDir = Join-Path $ProjectDir ".\.claude\skills"
