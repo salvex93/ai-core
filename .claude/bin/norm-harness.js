@@ -79,7 +79,7 @@ function purgeSessions() {
 try {
   sanitizeEnvironment();
   normalizeSymlinks();
-  purgeSessions();
+  // purgeSessions(); — deshabilitado: borra historial de sesiones sin confirmación
   console.log(`[SUCCESS] AI-CORE v${version} | Entorno Blindado por salvex93.`);
 } catch (err) {
   console.error("[ERROR] Fallo en la normalización:", err.message);
