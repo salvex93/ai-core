@@ -59,4 +59,5 @@ if (Test-Path $SessionsDir) {
     Remove-Item -Path "$SessionsDir\*" -Force -Recurse -ErrorAction SilentlyContinue
 }
 
-Write-Output "[SUCCESS] Melius v2.4.1: Sincronizacion remota y normalizacion completada."
+$pkg = Get-Content (Join-Path $CORE_PATH "package.json") | ConvertFrom-Json
+Write-Output "[SUCCESS] AI-CORE v$($pkg.version): Sincronizacion remota y normalizacion completada."

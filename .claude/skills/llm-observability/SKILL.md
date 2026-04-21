@@ -38,7 +38,7 @@ Si no hay instrumentacion activa, declararlo y proponer la estrategia minima via
 Si archivos de configuracion de observabilidad o logs superan 500 lineas o 50 KB, aplicar Regla 9:
 
 ```
-node scripts/gemini-bridge.js --mission "Analiza la configuracion de observabilidad e identifica: metricas sin umbral definido, llamadas LLM sin logging de tokens, ausencia de trace_id en los logs, y gaps entre la cobertura de observabilidad y los flujos criticos de negocio" --file <ruta> --format json
+node scripts/mcp-gemini.js --mission "Analiza la configuracion de observabilidad e identifica: metricas sin umbral definido, llamadas LLM sin logging de tokens, ausencia de trace_id en los logs, y gaps entre la cobertura de observabilidad y los flujos criticos de negocio" --file <ruta> --format json
 ```
 
 ## Directiva de Interrupcion

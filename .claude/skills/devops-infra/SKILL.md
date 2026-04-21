@@ -38,7 +38,7 @@ Si ningun archivo de infraestructura esta disponible, declararlo explicitamente 
 Si un manifiesto de Kubernetes, Helm chart o modulo de Terraform supera 500 lineas o 50 KB, aplicar Regla 9 antes de cargarlo:
 
 ```
-node scripts/gemini-bridge.js --mission "Identifica recursos sin probes, secretos en texto plano, ausencia de resource limits, drift de estado y riesgos de disponibilidad durante el despliegue" --file <ruta> --format json
+node scripts/mcp-gemini.js --mission "Identifica recursos sin probes, secretos en texto plano, ausencia de resource limits, drift de estado y riesgos de disponibilidad durante el despliegue" --file <ruta> --format json
 ```
 
 ## Directiva de Interrupcion

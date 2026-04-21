@@ -89,7 +89,7 @@ Buscar informacion actualizada sobre:
 Si se dispone de changelogs, release notes o especificaciones de Anthropic o Google que superen 500 lineas o 50 KB, aplicar Regla 9 antes de procesarlos directamente:
 
 ```
-node scripts/gemini-bridge.js --mission "Extrae las nuevas capacidades, cambios de API y mejores practicas relevantes para agentes IA y prompt engineering" --file <ruta> --format json
+node scripts/mcp-gemini.js --mission "Extrae las nuevas capacidades, cambios de API y mejores practicas relevantes para agentes IA y prompt engineering" --file <ruta> --format json
 ```
 
 ### Paso 4 — Generacion del reporte de auditoria (Formato Compacto per Regla 18)

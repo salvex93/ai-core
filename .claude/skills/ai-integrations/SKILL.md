@@ -32,7 +32,7 @@ Retorna: stack detectado, dependencias IA, variables de entorno, convenciones de
 
 Si MCP gemini-bridge no disponible → leer manualmente: `package.json`, `.env.example`, `CLAUDE.md` local.
 
-Archivos de prompts > 500 lineas / 50 KB → Regla 9: `node scripts/gemini-bridge.js --mission "Analiza los prompts e identifica: instrucciones ambiguas, ausencia de restricciones de output, riesgo de prompt injection, tokens desperdiciados y oportunidades de optimizacion de costo" --file <ruta> --format json`
+Archivos de prompts > 500 lineas / 50 KB → Regla 9: `node scripts/mcp-gemini.js --mission "Analiza los prompts e identifica: instrucciones ambiguas, ausencia de restricciones de output, riesgo de prompt injection, tokens desperdiciados y oportunidades de optimizacion de costo" --file <ruta> --format json`
 
 ## Directiva de Interrupcion
 

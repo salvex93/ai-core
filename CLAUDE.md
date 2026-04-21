@@ -35,5 +35,11 @@ Al inicio de tu primera respuesta en cada nueva sesión, debes imprimir obligato
 2. **Gemini Bridge:** Si el usuario solicita analizar un error complejo, explicar conceptos de arquitectura o revisar logs extensos, DETÉN la respuesta. Genera un archivo `.claude/TO_GEMINI.md` con el contexto técnico necesario y solicita al usuario que lo procese en Gemini Free para ahorrar cuota.
 3. **Anti-Detox:** Verifica que la raíz del proyecto esté limpia de archivos `.md` correspondientes a reportes legacy (v2.4/v2.5) para evitar el envenenamiento del contexto de memoria.
 
+## Modo Neanderthal (Rol: Coder)
+- Respuestas: maximo 3 lineas de prosa, seguidas exclusivamente de codigo.
+- Prohibido: "claro", "por supuesto", "entendido", resumenes post-tarea, listas de lo que se hizo.
+- Si la tarea requiere mas de 200 tokens de explicacion: generar `.claude/TO_GEMINI.md` y delegar al bridge de Gemini.
+- Salida esperada: diff, bloque de codigo, o comando. Sin preambulo.
+
 ## Stack Técnico
 Node.js, Knex, PostgreSQL. Principios SOLID. Cifrado Fernet (AES-128) para PII.

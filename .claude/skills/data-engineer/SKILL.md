@@ -38,7 +38,7 @@ Si ningun manifiesto o patron de datos esta disponible, declararlo y solicitar i
 Si un DAG, modelo dbt o archivo de pipeline supera 500 lineas o 50 KB, aplicar Regla 9 antes de cargarlo:
 
 ```
-node scripts/gemini-bridge.js --mission "Analiza el pipeline e identifica problemas criticos. Responde UNICAMENTE con un array JSON con la siguiente estructura exacta: [{\"archivo\": \"<ruta relativa>\", \"linea\": <numero>, \"categoria\": \"<dependencia_ciclica|sin_idempotencia|late_data_ausente|sin_test_calidad|join_sin_unicidad|sin_freshness>\", \"descripcion\": \"<descripcion tecnica del problema>\", \"severidad\": \"<alta|media|baja>\"}]. Si no hay problemas, responde con []." --file <ruta> --format json
+node scripts/mcp-gemini.js --mission "Analiza el pipeline e identifica problemas criticos. Responde UNICAMENTE con un array JSON con la siguiente estructura exacta: [{\"archivo\": \"<ruta relativa>\", \"linea\": <numero>, \"categoria\": \"<dependencia_ciclica|sin_idempotencia|late_data_ausente|sin_test_calidad|join_sin_unicidad|sin_freshness>\", \"descripcion\": \"<descripcion tecnica del problema>\", \"severidad\": \"<alta|media|baja>\"}]. Si no hay problemas, responde con []." --file <ruta> --format json
 ```
 
 ## Directiva de Interrupcion

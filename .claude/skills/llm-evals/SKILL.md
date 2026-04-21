@@ -37,7 +37,7 @@ Si ningun framework ni dataset esta disponible, declararlo y proponer la estrate
 Si archivos de dataset superan 500 lineas o 50 KB, aplicar Regla 9:
 
 ```
-node scripts/gemini-bridge.js --mission "Analiza este dataset de evaluacion e identifica: distribucion de casos por categoria, casos sin ground truth definido, casos duplicados o contradictorios, y cobertura de los escenarios criticos del sistema" --file <ruta> --format json
+node scripts/mcp-gemini.js --mission "Analiza este dataset de evaluacion e identifica: distribucion de casos por categoria, casos sin ground truth definido, casos duplicados o contradictorios, y cobertura de los escenarios criticos del sistema" --file <ruta> --format json
 ```
 
 ## Directiva de Interrupcion

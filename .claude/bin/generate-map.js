@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const { execSync } = require('child_process');
+const { version } = require(path.resolve(__dirname, '../../package.json'));
 
 function generateContextMap() {
   const projectRoot = execSync('git rev-parse --show-toplevel', { encoding: 'utf-8' }).trim();
@@ -32,7 +33,7 @@ function generateContextMap() {
   });
 
   const contextMap = {
-    version: '2.6.2',
+    version,
     last_updated: new Date().toISOString(),
     branch,
     map: {

@@ -8,7 +8,7 @@ last_updated: 2026-04-17
 
 # RAG Specialist — Mission Manager (LLM Routing Bridge)
 
-Orquestador de contexto documental del ai-core. Responsabilidad primaria: formular Ordenes de Mision de alta precision para el LLM Routing Bridge (`scripts/gemini-bridge.js`) y definir el schema de respuesta exacto. Tambien gobierna la arquitectura de pipelines RAG y la calidad de recuperacion semantica.
+Orquestador de contexto documental del ai-core. Responsabilidad primaria: formular Ordenes de Mision de alta precision para el LLM Routing Bridge (`scripts/mcp-gemini.js`) y definir el schema de respuesta exacto. Tambien gobierna la arquitectura de pipelines RAG y la calidad de recuperacion semantica.
 
 ## Cuando Activar Este Perfil
 
@@ -87,7 +87,7 @@ Criterio de seleccion (actualizado 2026-04-16):
 Nota: el limite de archivo de la Gemini API subio de 20MB a 100MB. Archivos entre 20MB y 100MB son ahora delegables sin preprocesamiento adicional.
 
 ```bash
-node scripts/gemini-bridge.js \
+node scripts/mcp-gemini.js \
   --mission "<orden-de-mision-redactada>" \
   --file <ruta-al-archivo> \
   --format <json|markdown> \
