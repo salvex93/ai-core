@@ -16,10 +16,11 @@ const path     = require('path');
 const readline = require('readline');
 const { capturarError } = require('./services/ErrorRepairLoop');
 
-const GEMINI_DEFAULT  = 'gemini-2.5-flash';
-const LINE_THRESHOLD  = 500;
-const SIZE_THRESHOLD  = 50 * 1024; // 50 KB
-const MAX_RETRIES     = 2;
+const GEMINI_DEFAULT      = 'gemini-2.5-flash';
+const LINE_THRESHOLD      = 500;
+const SIZE_THRESHOLD      = 50 * 1024; // 50 KB
+const MAX_RETRIES         = 2;
+const COMPACT_TOKEN_LIMIT = 800; // si el JSON de respuesta supera este numero de palabras, se recompacta
 
 // Carga .env desde la raiz del proyecto (un nivel arriba de /scripts)
 function loadEnv() {
@@ -107,6 +108,43 @@ async function callWithRetry(model, userMessage) {
   throw lastError;
 }
 
+// Estima palabras en un objeto serializado — proxy barato de tokens.
+function wordCount(obj) {
+  return JSON.stringify(obj).split(/\s+/).length;
+}
+
+const MAX_COMPACT_ROUNDS = 2;
+
+// Recompacta una respuesta si supera COMPACT_TOKEN_LIMIT palabras.
+// Itera hasta MAX_COMPACT_ROUNDS veces para garantizar output compacto.
+async function compactarSiNecesario(parsed, modelo) {
+  const SYSTEM_COMPACT = `Eres un compresor de informacion tecnica. Recibiras un JSON de analisis y debes reducirlo al minimo sin perder datos criticos. Responde UNICAMENTE con JSON valido con el mismo schema.`;
+
+  let current      = parsed;
+  let rondas       = 0;
+  const palabrasOrig = wordCount(parsed);
+
+  while (wordCount(current) > COMPACT_TOKEN_LIMIT && rondas < MAX_COMPACT_ROUNDS) {
+    try {
+      const model  = getModel({ systemInstruction: SYSTEM_COMPACT });
+      const msg    = `Compacta este JSON manteniendo los datos tecnicamente relevantes:\n${JSON.stringify(current)}`;
+      const result = await model.generateContent(msg);
+      const raw    = result.response.text().trim();
+      current      = extractJson(raw);
+      rondas++;
+    } catch (_) {
+      break;
+    }
+  }
+
+  const compactado = rondas > 0;
+  return {
+    ...current,
+    _ia_activa: modelo,
+    ...(compactado && { _compactado: true, _rondas_compactacion: rondas, _palabras_originales: palabrasOrig }),
+  };
+}
+
 // --- System instructions estaticas (candidatas a cache en Gemini) ---
 const SYSTEM_ANALISIS = `Eres un analizador documental de alta precision. Tu funcion es sintetizar archivos de codigo o documentacion para reducir la carga del context window del agente principal.
 
@@ -172,6 +210,7 @@ async function analizarArchivo({ ruta, mision }) {
     const model = getModel({ systemInstruction: SYSTEM_ANALISIS });
     const userMessage = `Orden de Mision: ${mision}\n\nArchivo: ${path.basename(filePath)} (${lineas} lineas)\n\nContenido:\n---\n${contenido}\n---`;
     const { parsed, warnings } = await callWithRetry(model, userMessage);
+    const compacted = await compactarSiNecesario(parsed, GEMINI_DEFAULT);
     const result = {
       delegado: true,
       metadatos: {
@@ -180,7 +219,7 @@ async function analizarArchivo({ ruta, mision }) {
         timestamp: new Date().toISOString(),
         lineas,
       },
-      ...parsed,
+      ...compacted,
     };
     if (warnings.length > 0) result.calidad_warnings = warnings;
     return result;
@@ -194,13 +233,14 @@ async function analizarContenido({ contenido, mision }) {
     const model = getModel({ systemInstruction: SYSTEM_ANALISIS });
     const userMessage = `Orden de Mision: ${mision}\n\nContenido:\n---\n${contenido}\n---`;
     const { parsed, warnings } = await callWithRetry(model, userMessage);
+    const compacted = await compactarSiNecesario(parsed, GEMINI_DEFAULT);
     const result = {
       delegado: true,
       metadatos: {
         modelo: GEMINI_DEFAULT,
         timestamp: new Date().toISOString(),
       },
-      ...parsed,
+      ...compacted,
     };
     if (warnings.length > 0) result.calidad_warnings = warnings;
     return result;
@@ -240,6 +280,7 @@ async function analizarRepositorio({ ruta_raiz, mision }) {
     const { parsed, warnings } = await callWithRetry(model, userMessage);
     const result = {
       delegado: true,
+      _ia_activa: GEMINI_DEFAULT,
       metadatos: {
         repositorio: path.basename(rootPath),
         manifiestos_analizados: found.map(f => f.name),
@@ -273,6 +314,7 @@ async function resumirBacklog({ ruta_backlog }) {
     const parsed = extractJson(raw);
     return {
       delegado: true,
+      _ia_activa: GEMINI_DEFAULT,
       metadatos: { modelo: GEMINI_DEFAULT, timestamp: new Date().toISOString() },
       ...parsed,
     };
@@ -304,6 +346,7 @@ async function buscarWeb({ consulta, mision }) {
 
     return {
       delegado: true,
+      _ia_activa: GEMINI_DEFAULT,
       respuesta: text,
       fuentes,
       queries_ejecutadas: queries,
@@ -411,7 +454,7 @@ async function dispatch(msg) {
       result: {
         protocolVersion: '2024-11-05',
         capabilities: { tools: {} },
-        serverInfo: { name: 'mcp-gemini', version: '2.1.0' },
+        serverInfo: { name: 'mcp-gemini', version: '2.2.0', ia_activa: GEMINI_DEFAULT },
       },
     });
     return;
