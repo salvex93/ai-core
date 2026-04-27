@@ -14,6 +14,7 @@
 const fs       = require('fs');
 const path     = require('path');
 const readline = require('readline');
+const { capturarError } = require('./services/ErrorRepairLoop');
 
 const GEMINI_DEFAULT  = 'gemini-2.5-flash';
 const LINE_THRESHOLD  = 500;
@@ -443,7 +444,8 @@ async function dispatch(msg) {
       }
       send({ jsonrpc: '2.0', id, result: { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] } });
     } catch (err) {
-      send({ jsonrpc: '2.0', id, error: { code: -32603, message: err.message } });
+      const meta = capturarError(err, { herramienta: params?.name });
+      send({ jsonrpc: '2.0', id, error: { code: -32603, message: err.message, data: meta } });
     }
     return;
   }

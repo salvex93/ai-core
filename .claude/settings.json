@@ -1,11 +1,24 @@
 {
   "mcpServers": {
     "gemini-bridge": {
-      "command": "C:\\nvm4w\\nodejs\\node.exe",
+      "command": "node",
       "args": [
         "scripts/mcp-gemini.js"
       ],
-      "cwd": "C:\\Users\\arimac\\Documents\\Proyectos - MarIA\\Maria-backend-yde-sandbox\\.claude\\ai-core"
+      "cwd": "/home/cyber/ai-core"
     }
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node /home/cyber/ai-core/.claude/bin/validate-map.js 2>/dev/null || true"
+          }
+        ]
+      }
+    ]
   }
 }
