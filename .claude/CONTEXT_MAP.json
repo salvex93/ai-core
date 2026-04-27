@@ -1,13 +1,12 @@
 {
   "version": "2.6.3",
-  "last_updated": "2026-04-21T17:42:24.507Z",
-  "branch": "temp-fix",
+  "last_updated": "2026-04-27T19:03:15.103Z",
+  "branch": "main",
   "map": {
     "root": "ai-core/",
     "directories": {
       ".claude/": [
         ".claude/CONTEXT_MAP.json",
-        ".claude/bin/benchmark-fernet.js",
         ".claude/bin/detox.js",
         ".claude/bin/generate-map.js",
         ".claude/bin/norm-harness.js",
@@ -35,12 +34,12 @@
         ".claude/skills/tech-lead-frontend/SKILL.md"
       ],
       "docs/": [
-        "docs/OPUSPLAN-files-api-bridge.md"
+        "docs/OPUSPLAN-files-api-bridge.md",
+        "docs/benchmarks/benchmark-fernet.js"
       ],
       "scripts/": [
         "scripts/anthropic-bridge.js",
         "scripts/dry-run-cost-sim.js",
-        "scripts/gemini-bridge.js",
         "scripts/init-backlog.js",
         "scripts/mcp-gemini.js",
         "scripts/query-backlog.js",
@@ -48,6 +47,7 @@
         "scripts/services/ContextIndex.js",
         "scripts/services/ErrorRepairLoop.js",
         "scripts/services/ModelRouter.js",
+        "scripts/services/RootGuard.js",
         "scripts/session-close.js"
       ]
     },
@@ -55,6 +55,7 @@
       ".env.example",
       ".gitignore",
       "CLAUDE.md",
+      "DOCS_MAESTRA.md",
       "LICENSE",
       "README.md",
       "package-lock.json",
@@ -64,6 +65,6 @@
       "node_modules/",
       ".git/"
     ],
-    "total_files": 46
+    "total_files": 47
   }
 }

@@ -53,6 +53,25 @@ const MODELO_POR_ROL = {
   [ROLES.AUDITOR]:   MODELOS.SONNET,  // Balance diagnostico/costo — Sonnet
 };
 
+// Skills recomendados por rol — se inyectan automaticamente si el llamador no pasa skills explícitos
+const SKILLS_POR_ROL = Object.freeze({
+  [ROLES.ARCHITECT]: ['backend-architect', 'devops-infra', 'prompt-engineer'],
+  [ROLES.CODER]:     ['backend-architect', 'qa-engineer'],
+  [ROLES.AUDITOR]:   ['security-auditor', 'attack-surface-analyst', 'llm-observability'],
+});
+
+/**
+ * Retorna los skills recomendados para una herramienta dada.
+ * Usado por anthropic-bridge cuando skills=[] para evitar inyeccion manual.
+ *
+ * @param {string} nombreHerramienta
+ * @returns {string[]}
+ */
+function inferirSkills(nombreHerramienta) {
+  const rol = HERRAMIENTA_A_ROL[nombreHerramienta] ?? ROLES.CODER;
+  return SKILLS_POR_ROL[rol] ?? [];
+}
+
 // Herramientas MCP → rol inferido automaticamente
 // Cuando el ModelRouter no puede determinar el rol, usa esta tabla.
 const HERRAMIENTA_A_ROL = {
@@ -109,4 +128,4 @@ function systemPromptParaRol(rol) {
   return SYSTEM_PROMPTS[rol] ?? SYSTEM_PROMPTS[ROLES.CODER];
 }
 
-module.exports = { ROLES, obtenerPerfil, inferirRol, systemPromptParaRol, MODELO_POR_ROL };
+module.exports = { ROLES, obtenerPerfil, inferirRol, inferirSkills, systemPromptParaRol, MODELO_POR_ROL, SKILLS_POR_ROL };

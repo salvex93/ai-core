@@ -20,7 +20,7 @@ const fs   = require('fs');
 const path = require('path');
 
 const { route, estimarCosto, MODELOS }         = require('./services/ModelRouter');
-const { inferirRol, systemPromptParaRol }       = require('./services/AgentRoles');
+const { inferirRol, inferirSkills, systemPromptParaRol } = require('./services/AgentRoles');
 const { resolver: resolverIndice, diagnostico } = require('./services/ContextIndex');
 
 const MAX_TURNS_WINDOW = 6;  // maximo de turnos user/assistant en el historial enviado
@@ -191,7 +191,10 @@ async function completar({ herramienta, mensajeUsuario, historial = [], skills =
   const { modelo, razon } = route(herramienta, tokensContexto);
   const rol               = inferirRol(herramienta);
 
-  const systemBlocks = buildSystemBlocks(skills, rol);
+  // Auto-seleccion de skills si el llamador no los especifica
+  const skillsResueltos = skills.length > 0 ? skills : inferirSkills(herramienta);
+
+  const systemBlocks = buildSystemBlocks(skillsResueltos, rol);
   const messages     = [
     ...historialTruncado,
     { role: 'user', content: mensajeUsuario },
