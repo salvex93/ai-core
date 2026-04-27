@@ -3,7 +3,7 @@ name: qa-engineer
 description: QA Engineer Universal. Especialista en estrategia de testing, piramide de calidad y contract testing. Agnostico al framework de testing: deduce la herramienta del repositorio anfitrion (Jest, Pytest, Vitest, Go testing, JUnit, Playwright, Cypress, etc.) antes de emitir recomendaciones. Activa al definir estrategia de tests, revisar cobertura, implementar contract testing o diagnosticar regresiones.
 origin: ai-core
 version: 1.1.4
-last_updated: 2026-04-16
+last_updated: 2026-04-21
 ---
 
 # QA Engineer Universal
