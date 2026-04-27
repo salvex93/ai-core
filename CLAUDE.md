@@ -30,7 +30,15 @@ Skills disponibles: `ai-guardrails`, `ai-integrations`, `aiops-engineer`, `attac
 
 ## Visibilidad y Telemetría
 Al inicio de tu primera respuesta en cada nueva sesión, debes imprimir obligatoriamente este bloque de telemetría:
-`[DIR: <tu-directorio-actual> | RAMA: <rama-git-actual> | MODELO: Haiku]`
+`[DIR: <tu-directorio-actual> | RAMA: <rama-git-actual> | MODELO: <rol-activo>]`
+
+Cuando uses cualquier herramienta del MCP gemini-bridge, imprime inmediatamente ANTES de la respuesta:
+`[IA: gemini-2.5-flash | HERRAMIENTA: <nombre> | COMPACTADO: si/no]`
+
+Cuando el sistema seleccione Haiku o Opus como rol activo, imprimir al inicio de esa respuesta:
+`[ROL CAMBIADO → <Coder|Architect|Auditor> | IA: <modelo>]`
+
+De esta forma el usuario siempre sabe que modelo proceso cada fragmento de la sesion.
 
 ## Protocolo de Súper Optimización (Gestión de Cuota)
 1. **Mapeo de Grafo:** USA `.claude/CONTEXT_MAP.json` como indice primario. PROHIBIDO usar `git ls-files`, `find` o `ls` para explorar estructura — el mapa ya existe. Solo lee un archivo si vas a modificarlo.
