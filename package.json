@@ -8,7 +8,8 @@
     "anthropic-bridge": "node scripts/anthropic-bridge.js",
     "mcp-gemini": "node scripts/mcp-gemini.js",
     "query-backlog": "node scripts/query-backlog.js",
-    "dry-run": "node scripts/dry-run-cost-sim.js"
+    "dry-run": "node scripts/dry-run-cost-sim.js",
+    "mcp-anthropic": "node scripts/mcp-anthropic.js"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.90.0",

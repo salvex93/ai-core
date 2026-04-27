@@ -6,6 +6,13 @@
         "scripts/mcp-gemini.js"
       ],
       "cwd": "/home/cyber/ai-core"
+    },
+    "anthropic-router": {
+      "command": "node",
+      "args": [
+        "scripts/mcp-anthropic.js"
+      ],
+      "cwd": "/home/cyber/ai-core"
     }
   },
   "permissions": {

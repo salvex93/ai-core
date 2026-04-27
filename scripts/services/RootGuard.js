@@ -1,7 +1,8 @@
 'use strict';
 
-const fs   = require('fs');
-const path = require('path');
+const fs     = require('fs');
+const path   = require('path');
+const crypto = require('crypto');
 
 const MAP_CANDIDATES = [
   path.resolve(__dirname, '../../../../.claude/CONTEXT_MAP.json'),
@@ -10,17 +11,30 @@ const MAP_CANDIDATES = [
 
 let _guardActivado = false;
 let _raizMapa      = null;
+let _raizHash      = null; // SHA-256 de la ruta absoluta normalizada — evita falsos positivos por symlinks
 
 /**
- * Carga el primer CONTEXT_MAP disponible y extrae la raiz del proyecto anfitrion.
- * Usa fs.readdir local — costo de tokens: 0.
+ * Calcula un hash determinista de una ruta absoluta normalizada.
+ * Elimina la ambigüedad causada por case-sensitivity en Windows y symlinks.
+ */
+function _hashRuta(rutaAbsoluta) {
+  return crypto.createHash('sha256').update(path.normalize(rutaAbsoluta).toLowerCase()).digest('hex');
+}
+
+/**
+ * Carga el primer CONTEXT_MAP valido y extrae la raiz del proyecto anfitrion.
+ * Usa ruta absoluta estricta — descarta candidatos con JSON invalido o version ausente.
  */
 function _cargarRaizMapa() {
   for (const candidato of MAP_CANDIDATES) {
     if (!fs.existsSync(candidato)) continue;
     try {
       const data = JSON.parse(fs.readFileSync(candidato, 'utf8'));
-      return path.dirname(path.dirname(candidato));
+      // Requiere campo version para descartar CONTEXT_MAP huerfanos o malformados
+      if (!data.version) continue;
+      const raiz = path.resolve(path.dirname(path.dirname(candidato)));
+      _raizHash  = _hashRuta(raiz);
+      return raiz;
     } catch (_) {}
   }
   return null;
@@ -55,12 +69,13 @@ function verificar() {
     return { bloqueado: true, raizMapa: null, cwdActual };
   }
 
-  const raizNormalizada = path.normalize(_raizMapa);
-  const cwdNormalizado  = path.normalize(cwdActual);
+  const cwdHash = _hashRuta(cwdActual);
 
-  // Coincidencia exacta o el cwd esta dentro de la raiz del mapa
-  const dentroDelMapa = cwdNormalizado === raizNormalizada ||
-                        cwdNormalizado.startsWith(raizNormalizada + path.sep);
+  // Coincidencia por hash (raiz exacta) o por prefijo normalizado (subdir del proyecto)
+  const raizNormalizada = path.normalize(_raizMapa).toLowerCase();
+  const cwdNormalizado  = path.normalize(cwdActual).toLowerCase();
+  const dentroDelMapa   = cwdHash === _raizHash ||
+                          cwdNormalizado.startsWith(raizNormalizada + path.sep);
 
   if (!dentroDelMapa) {
     const entradas = escanearRaizLocal(cwdActual);
