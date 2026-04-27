@@ -3,7 +3,7 @@ name: mcp-server-builder
 description: Especialista en construccion de servidores MCP (Model Context Protocol). Cubre ciclo de vida del protocolo, transportes stdio y SSE/HTTP, definicion de herramientas con JSON Schema, seguridad de inputs, testing con MCP Inspector y despliegue. Activa al construir un servidor MCP propio, exponer herramientas internas a Claude, o publicar un servidor MCP en el registro oficial.
 origin: ai-core
 version: 1.3.1
-last_updated: 2026-04-16
+last_updated: 2026-04-21
 ---
 
 # MCP Server Builder — Especialista en Servidores Model Context Protocol

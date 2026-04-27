@@ -3,7 +3,7 @@ name: attack-surface-analyst
 description: Analista de superficie de ataque del propio producto en construccion. Analiza la exposicion publica de la propia infraestructura, detecta filtracion de informacion en repositorios y DNS, identifica endpoints y servicios expuestos no protegidos, y complementa a security-auditor desde perspectiva externa. Activa al auditar la superficie de ataque propia, detectar credenciales expuestas, mapear subdominios y servicios del producto, o construir herramientas de escaneo defensivo en Python.
 origin: ai-core
 version: 2.0.1
-last_updated: 2026-04-16
+last_updated: 2026-04-21
 ---
 
 # Attack Surface Analyst

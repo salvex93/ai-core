@@ -3,7 +3,7 @@ name: rag-specialist
 description: Especialista en pipelines RAG y Mission Manager del LLM Routing Bridge. Cubre Hybrid Search (BM25+denso+RRF), Contextual Retrieval, re-ranking con cross-encoders y Files API como complemento del bridge. Activa al delegar analisis documental masivo, construir o mejorar pipelines RAG, o evaluar la calidad de recuperacion semantica.
 origin: ai-core
 version: 2.3.0
-last_updated: 2026-04-17
+last_updated: 2026-04-21
 ---
 
 # RAG Specialist — Mission Manager (LLM Routing Bridge)

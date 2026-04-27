@@ -3,7 +3,7 @@ name: ai-integrations
 description: Especialista en integracion de LLMs en aplicaciones de produccion. Cubre diseno de features de IA, gestion de costos por token, prompt versioning, streaming, fallback entre proveedores y evaluacion de outputs. Agnostico al proveedor. Activa al integrar Claude, Gemini u otro LLM en un proyecto anfitrion, disenar endpoints de IA o gestionar costos de inferencia.
 origin: ai-core
 version: 2.3.0
-last_updated: 2026-04-19
+last_updated: 2026-04-21
 ---
 
 # AI Integrations — Especialista en Features de IA en Produccion

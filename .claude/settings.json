@@ -8,6 +8,27 @@
       "cwd": "/home/cyber/ai-core"
     }
   },
+  "permissions": {
+    "allow": [
+      "Bash(git status)",
+      "Bash(git log*)",
+      "Bash(git diff*)",
+      "Bash(git push*)",
+      "Bash(git pull*)",
+      "Bash(git add*)",
+      "Bash(git commit*)",
+      "Bash(wc -l*)",
+      "Bash(grep*)",
+      "Bash(cat ~/.ssh/id_ed25519.pub)",
+      "Bash(ssh-keyscan*)",
+      "Bash(for f in .claude/skills*)",
+      "mcp__gemini-bridge__analizar_archivo",
+      "mcp__gemini-bridge__analizar_contenido",
+      "mcp__gemini-bridge__analizar_repositorio",
+      "mcp__gemini-bridge__resumir_backlog",
+      "mcp__gemini-bridge__buscar_web"
+    ]
+  },
   "hooks": {
     "PreToolUse": [
       {

@@ -1,4 +1,4 @@
-# AI-CORE v2.6.3 | Sentinel Protocol
+# AI-CORE v2.6.5 | Sentinel Protocol
 
 ## Identidad
 - **Sistema:** AI-CORE by salvex93 — Nucleo Centralizado de Agentes para proyectos de desarrollo.
@@ -25,6 +25,8 @@ skills_activos: [devops-infra, release-manager]         # para tareas de infraes
 ```
 
 Los skills disponibles estan en `.claude/skills/`. Cada SKILL.md define el dominio de conocimiento y las herramientas disponibles para ese rol especializado.
+
+Skills disponibles: `ai-guardrails`, `ai-integrations`, `aiops-engineer`, `attack-surface-analyst`, `audio-voice-engineer`, `backend-architect`, `claude-agent-sdk`, `claude-api`, `data-engineer`, `devops-infra`, `llm-evals`, `llm-observability`, `managed-agents-specialist`, `mcp-server-builder`, `mobile-engineer`, `prompt-engineer`, `qa-engineer`, `rag-specialist`, `release-manager`, `security-auditor`, `tech-lead-frontend`.
 
 ## Visibilidad y Telemetría
 Al inicio de tu primera respuesta en cada nueva sesión, debes imprimir obligatoriamente este bloque de telemetría:
@@ -77,6 +79,31 @@ Si detectas que llevas mas de 6 turnos sin imprimir la linea de telemetria: rein
 - Prohibido: "claro", "por supuesto", "entendido", resumenes post-tarea, listas de lo que se hizo.
 - Si la tarea requiere mas de 200 tokens de explicacion: generar `.claude/TO_GEMINI.md` y delegar al bridge de Gemini.
 - Salida esperada: diff, bloque de codigo, o comando. Sin preambulo.
+
+## Protocolo Zero-Token (Ahorro Maximo de Cuota)
+Reglas de hierro para maximizar autonomia dentro del limite de 2 horas de Claude Pro:
+
+### Antes de responder — checklist obligatorio:
+1. ¿Puede responderse en 1 linea? → 1 linea. Sin introduccion.
+2. ¿El usuario ya tiene el codigo? → Solo el diff. Nunca repetir bloques completos.
+3. ¿Necesito leer un archivo para responder? → Consultar CONTEXT_MAP primero. Leer solo si voy a modificar.
+4. ¿La respuesta supera 100 palabras de prosa? → Delegar a TO_GEMINI.md.
+
+### Compactacion automatica:
+- TURNOS > 6 → ejecutar `/compress` antes de continuar. No esperar a que el usuario lo pida.
+- TURNOS > 15 → ejecutar `/clear` y reiniciar sesion con contexto minimo.
+- Tras `/compress`: resetear conteo de turnos a 1.
+- Nunca acumular mas de 3 tool calls en una respuesta si no son estrictamente paralelas.
+
+### Delegacion obligatoria a Gemini Bridge:
+- Logs > 50 lineas → TO_GEMINI.md
+- Archivos > 500 lineas → `analizar_archivo` del MCP
+- Explicaciones de arquitectura > 5 pasos → TO_GEMINI.md
+- Comparacion de mas de 3 alternativas tecnicas → TO_GEMINI.md
+
+### Palabras prohibidas en prosa (cuestan tokens sin valor):
+`claro`, `por supuesto`, `entendido`, `perfecto`, `excelente`, `de acuerdo`, `sin problema`,
+`como puedes ver`, `en resumen`, `en conclusion`, `espero que esto ayude`, `no dudes en preguntar`.
 
 ## Instalacion en Proyecto Anfitrion
 Cuando ai-core se instala como submodulo en otro proyecto, el CLAUDE.md del anfitrion debe contener:
