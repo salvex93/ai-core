@@ -22,6 +22,7 @@ const path = require('path');
 const { route, estimarCosto, MODELOS }         = require('./services/ModelRouter');
 const { inferirRol, inferirSkills, systemPromptParaRol } = require('./services/AgentRoles');
 const { resolver: resolverIndice, diagnostico } = require('./services/ContextIndex');
+const rateLimiter                               = require('./services/RateLimiter');
 
 const MAX_TURNS_WINDOW = 6;  // maximo de turnos user/assistant en el historial enviado
 const MAX_TOKENS_OUT   = 4096;
@@ -46,10 +47,6 @@ function getClient() {
   const { default: Anthropic } = require('@anthropic-ai/sdk');
   _anthropic = new Anthropic({
     apiKey: process.env.ANTHROPIC_API_KEY,
-    defaultHeaders: {
-      // Headers para trazabilidad de costos por sesion
-      'anthropic-beta': 'prompt-caching-2024-07-31',
-    },
   });
   return _anthropic;
 }
@@ -186,6 +183,14 @@ function estimarTokensMensajes(mensajes) {
 async function completar({ herramienta, mensajeUsuario, historial = [], skills = [], sessionId }) {
   loadEnv();
 
+  // Validacion temprana — falla antes de construir contexto o abrir conexiones
+  if (!process.env.ANTHROPIC_API_KEY || process.env.ANTHROPIC_API_KEY.trim() === '') {
+    throw new Error(
+      '[anthropic-bridge] ANTHROPIC_API_KEY no esta configurada. ' +
+      'Copie .env.example a .env y complete el valor antes de invocar el bridge.'
+    );
+  }
+
   const historialTruncado = aplicarVentanaDeslizante(historial);
   const tokensContexto    = estimarTokensMensajes(historialTruncado) + Math.ceil(mensajeUsuario.length / 4);
   const { modelo, razon } = route(herramienta, tokensContexto);
@@ -199,6 +204,13 @@ async function completar({ herramienta, mensajeUsuario, historial = [], skills =
     ...historialTruncado,
     { role: 'user', content: mensajeUsuario },
   ];
+
+  // Verificar rate limits antes de llamar a la API
+  const tokensEstimados = estimarTokensMensajes(messages);
+  rateLimiter.verificar({
+    tokensInput:  tokensEstimados,
+    tokensOutput: MAX_TOKENS_OUT,
+  });
 
   const client = getClient();
 
@@ -215,12 +227,16 @@ async function completar({ herramienta, mensajeUsuario, historial = [], skills =
   const respuesta   = response.content[0]?.text ?? '';
   const uso         = response.usage ?? {};
 
+  // Registrar uso real para contabilidad de rate limit
+  rateLimiter.registrar(uso);
+
   return {
     respuesta,
     uso,
     modelo,
     razonRouting: razon,
     turnosEnHistorial: historialTruncado.length,
+    cuota_restante: rateLimiter.estado(),
   };
 }
 

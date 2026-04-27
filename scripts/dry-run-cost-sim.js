@@ -81,10 +81,23 @@ function generarHistorialSimulado(numeroDeTurnos) {
 // Calculo de costos por turno
 // ---------------------------------------------------------------------------
 
+/**
+ * Estima tokens de una cadena de texto usando la heuristica determinista del bridge:
+ * 1 token = 4 caracteres UTF-8. Metrica unica para toda la simulacion.
+ * Razon: evitar mezcla con tokens_input_estimados (declarados en la tabla de escenarios)
+ * que ya son tokens reales, no caracteres.
+ */
+function charsToTokens(chars) {
+  return Math.ceil(chars / 4);
+}
+
 function calcularTurno(turnoData, historialPrevio) {
   const { herramienta, tokens_input_estimados, tokens_output_estimados } = turnoData;
 
-  const tokensContexto = estimarTokensMensajes(historialPrevio) + Math.ceil(tokens_input_estimados / 4);
+  // Tokens del historial usando la misma heuristica que anthropic-bridge.js
+  const tokensHistorial = estimarTokensMensajes(historialPrevio);
+  // tokens_input_estimados ya es una cantidad de tokens (no chars) — se usa directamente
+  const tokensContexto  = tokensHistorial + tokens_input_estimados;
   const { modelo, tier, razon } = route(herramienta, tokensContexto);
 
   // Sin optimizaciones: se paga el input completo cada vez
