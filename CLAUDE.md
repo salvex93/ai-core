@@ -53,6 +53,15 @@ Al inicio de CADA respuesta imprime:
 - Si COMPRESS: agregar ` → ejecuta /compress`
 - Si CLEAR: agregar ` → ejecuta /clear ahora`
 
+## Tokenomics Claude Pro (sesion web sin API)
+Reglas para no llegar al limite de cuota en 2 horas:
+- Respuestas: maximo 150 palabras de prosa. Si necesitas mas → genera TO_GEMINI.md y delega.
+- PROHIBIDO leer archivos para "explorar" — solo si vas a modificarlos.
+- PROHIBIDO repetir codigo que el usuario ya tiene — solo diffs o bloques minimos.
+- Antes de responder: preguntate si la respuesta puede ser 1 linea. Si si → hazla 1 linea.
+- Si el usuario pregunta algo que ya esta en CONTEXT_MAP → responde desde el mapa, no releas el archivo.
+- /compress cuando TURNOS > 6. /clear solo al cambiar de tema completamente.
+
 ## Reglas Criticas Anti-Degradacion (ANCLA — releer si el contexto se siente pesado)
 PROHIBIDO absoluto sin excepcion:
 - Usar emojis, iconos o adornos visuales
