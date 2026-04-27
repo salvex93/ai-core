@@ -1,4 +1,4 @@
-# AI-CORE v2.6.3 — Documentacion Maestra
+# AI-CORE v2.6.4 — Documentacion Maestra
 
 Referencia tecnica unica para instalacion, mantenimiento y reparacion del nucleo.
 Todas las rutas son relativas a la raiz del proyecto anfitrion (`./`) para garantizar portabilidad entre equipos.
@@ -76,7 +76,7 @@ node ./.claude/ai-core/.claude/bin/norm-harness.js
 Salida esperada:
 
 ```
-[SUCCESS] AI-CORE v2.6.3 | Entorno Blindado por salvex93.
+[SUCCESS] AI-CORE v2.6.4 | Entorno Blindado por salvex93.
 ```
 
 ### 1.5 Inicializar el sistema de tracking
@@ -263,7 +263,7 @@ Salida esperada:
 ```json
 {
   "estado": "cargado",
-  "version": "2.6.3",
+  "version": "2.6.4",
   "total_archivos": 610,
   "raiz_resuelta": "/ruta/al/proyecto"
 }

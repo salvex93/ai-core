@@ -4,7 +4,7 @@
 
 El sistema es framework-agnostic por diseño. No asume Node.js, Python, Go ni ningun otro lenguaje. Cada agente lee los manifiestos del repositorio anfitrion (`package.json`, `requirements.txt`, `go.mod`, etc.) al activarse y adapta sus recomendaciones al entorno real del proyecto.
 
-Desde v2.6.3, el nucleo incorpora:
+Desde v2.6.4, el nucleo incorpora:
 
 - **Model Router** (`scripts/services/ModelRouter.js`): enruta cada llamada al modelo optimo (Haiku/Sonnet/Opus) segun herramienta y volumen de contexto. Incluye estimacion de costo con descuento por cache hit.
 - **Context Index** (`scripts/services/ContextIndex.js`): resuelve rutas via `CONTEXT_MAP.json` antes de ir al disco. Elimina lecturas ciegas en el repo anfitrion.
@@ -13,6 +13,7 @@ Desde v2.6.3, el nucleo incorpora:
 - **Anthropic Bridge** (`scripts/anthropic-bridge.js`): fallback al API de Anthropic con Prompt Caching de tres puntos y ventana deslizante de historial.
 - **LLM Routing Bridge** via Gemini 2.5 Flash: externaliza el analisis de archivos > 500 lineas / 50 KB como proceso separado, protegiendo el context window principal.
 - **Hook de sesion**: `scripts/init-backlog.js` garantiza la presencia de `BACKLOG.md` antes de iniciar cualquier sesion de trabajo.
+- **Tokenomics v2.6.4**: auto-seleccion de skills por herramienta (`inferirSkills()`), telemetria de contexto en cada respuesta, threshold de compress reducido a 6 turnos, ancla anti-degradacion en `CLAUDE.md`, validador de drift `validate-map.js` via hook `PreToolUse`, `ErrorRepairLoop` integrado al dispatcher MCP.
 
 ---
 
@@ -136,7 +137,7 @@ El agente hereda automaticamente las reglas globales del `CLAUDE.md` del nucleo.
 
 ---
 
-## Arquitectura v2.6.3
+## Arquitectura v2.6.4
 
 ### Mapa de modulos
 
@@ -165,7 +166,7 @@ El agente hereda automaticamente las reglas globales del `CLAUDE.md` del nucleo.
 │   │   └── benchmark-fernet.js  Testea cifrado Fernet (PII)
 │   └── skills/                  20 skills especializados (ver tabla Auto-Routing)
 ├── CLAUDE.md                    Autoridad unica: 22 reglas, triada, skills, enrutamiento
-├── package.json                 v2.6.3 — Node >= 18.0.0
+├── package.json                 v2.6.4 — Node >= 18.0.0
 └── .env.example                 Plantilla de variables de entorno
 ```
 
