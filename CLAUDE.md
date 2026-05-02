@@ -1,4 +1,4 @@
-# AI-CORE v2.6.5 | Sentinel Protocol
+# AI-CORE v2.7.0 | Sentinel Protocol
 
 ## Identidad
 - **Sistema:** AI-CORE by salvex93 — Nucleo Centralizado de Agentes para proyectos de desarrollo.
@@ -24,11 +24,19 @@ npm run map          # regenerar CONTEXT_MAP.json
 ## Roles del Agente
 AI-CORE opera con tres roles especializados segun la naturaleza de la tarea. El rol se selecciona automaticamente via `scripts/services/AgentRoles.js`:
 
-| Rol | Trigger | Modelo | Perfil |
+| Rol | Trigger | Modelo por defecto | Perfil |
 |---|---|---|---|
-| **Architect** | Diseño de sistema, analisis de repositorio, busqueda web | Opus 4.7 | Razonamiento profundo, especificaciones tecnicas |
-| **Coder** | Parseo, resumen, shell, analisis de contenido | Haiku 4.5 | Modo Neanderthal — zero verbosidad, solo codigo |
-| **Auditor** | Analisis de archivos, diagnostico de errores, seguridad | Sonnet 4.6 | Deteccion de vulnerabilidades, severidad clasificada |
+| **Architect** | Diseño de sistema NUEVO, arquitectura multi-modulo | Sonnet 4.6 (Opus solo si herramienta = `disenar_sistema` / `refactorizar_arquitectura`) | Especificaciones tecnicas accionables |
+| **Coder** | Parseo, resumen, shell, lectura de archivos, refactor simple | Gemini → Haiku (segun volumen) | Modo Neanderthal — zero verbosidad, solo codigo |
+| **Auditor** | Diagnostico de errores, seguridad, revision de calidad | Sonnet 4.6 | Deteccion de vulnerabilidades, severidad clasificada |
+
+**Jerarquia de costo (siempre usar el mas barato que complete la tarea):**
+`Gemini free (tier 0) → Haiku → Sonnet → Opus (excepcional)`
+
+- Gemini: lecturas de archivos, resumenes, analisis de repositorio, logs extensos
+- Haiku: transformaciones simples de bajo volumen (< 8k tokens de contexto)
+- Sonnet: refactorizacion, busqueda web, diagnostico, analisis de calidad
+- Opus: SOLO diseno de sistemas nuevos y refactorizacion de arquitectura multi-modulo
 
 ## Seleccion de Skills
 Al inicio de cada sesion, declara los skills activos en el contexto invocando el rol correspondiente:
@@ -56,7 +64,7 @@ Cuando el sistema seleccione Haiku o Opus como rol activo, imprimir al inicio de
 De esta forma el usuario siempre sabe que modelo proceso cada fragmento de la sesion.
 
 ## Protocolo de Súper Optimización (Gestión de Cuota)
-1. **Mapeo de Grafo:** USA `.claude/CONTEXT_MAP.json` como indice primario. PROHIBIDO usar `git ls-files`, `find` o `ls` para explorar estructura — el mapa ya existe. Solo lee un archivo si vas a modificarlo.
+1. **Mapeo de Grafo:** USA `.claude/CONTEXT_MAP.json` como indice primario. Al inicio de sesion, el hook `PreToolUse` ejecuta `.claude/bin/validate-map.js`, que genera el mapa automaticamente si no existe o lo regenera si hay drift >= 3 archivos respecto a `git ls-files`. PROHIBIDO usar `git ls-files`, `find` o `ls` para explorar estructura. Solo lee un archivo si vas a modificarlo.
 2. **Gemini Bridge:** Si el usuario solicita analizar un error complejo, explicar conceptos de arquitectura o revisar logs extensos, DETÉN la respuesta. Genera un archivo `.claude/TO_GEMINI.md` con el contexto técnico necesario y solicita al usuario que lo procese en Gemini Free para ahorrar cuota.
 3. **Anti-Detox:** Verifica que la raíz del proyecto esté limpia de archivos `.md` correspondientes a reportes legacy (v2.4/v2.5) para evitar el envenenamiento del contexto de memoria.
 4. **Gestion de Contexto (compress/clean):**
@@ -65,10 +73,22 @@ De esta forma el usuario siempre sabe que modelo proceso cada fragmento de la se
    - Para estimar: contar turnos visibles en la sesion. Mas de 8 turnos = zona de compress. Mas de 20 turnos = zona de clear.
    - Tras un compress exitoso, resetear el conteo mental de turnos.
 
-## Reglas de Delegacion a Gemini Bridge
-- ANTES de usar `Read` en cualquier archivo: estima su tamaño via `wc -l`. Si supera 500 lineas → usar `analizar_archivo` del MCP gemini-bridge. NUNCA leer el archivo completo en ese caso.
-- Si el usuario pide analizar logs, errores extensos o documentacion larga: generar `.claude/TO_GEMINI.md` y delegar.
-- Herramientas disponibles en gemini-bridge: `analizar_archivo`, `analizar_contenido`, `analizar_repositorio`, `resumir_backlog`, `buscar_web`.
+## Reglas de Delegacion a Gemini Bridge (TIER 0 — siempre primero)
+Gemini es GRATUITO. Usarlo antes que cualquier modelo Claude para las siguientes tareas:
+
+| Tarea | Umbral | Accion |
+|---|---|---|
+| Leer un archivo | > 200 lineas | `analizar_archivo` del MCP gemini-bridge |
+| Analizar logs / errores | > 50 lineas | `analizar_contenido` del MCP gemini-bridge |
+| Analizar el repositorio completo | siempre | `analizar_repositorio` del MCP gemini-bridge |
+| Resumir backlog / listas | siempre | `resumir_backlog` del MCP gemini-bridge |
+| Busqueda web / investigacion | siempre | `buscar_web` del MCP gemini-bridge |
+
+- Si el MCP gemini-bridge NO esta disponible (error de cuota/conexion): usar el modelo Claude del tier inmediatamente superior segun la jerarquia.
+- ANTES de usar `Read` en cualquier archivo: estima su tamaño via `wc -l`. Si supera 200 lineas → `analizar_archivo` de Gemini. NUNCA leer archivos grandes directamente.
+- Si la tarea requiere razonamiento profundo ADEMAS de la lectura → Gemini lee, Claude razona sobre el resumen.
+- **FILTRO DE INPUT a Gemini:** El contenido que se envie a Gemini DEBE pasar por `truncarInputGemini()`. Limite: 8.000 tokens (~32k chars). Protege la cuota diaria gratuita. Si el archivo supera ese limite, se conservan inicio + fin del contenido.
+- **FILTRO DE OUTPUT de Gemini:** El output de Gemini que se pase al historial de Claude DEBE pasar por `truncarOutputGemini()`. Limite: 1.500 tokens (~6.000 chars). Un output Gemini largo en el historial = tokens pagados en cada turno siguiente de Claude. Si necesitas mas detalle, pide un resumen especifico.
 
 ## Telemetria de Contexto
 Al inicio de CADA respuesta imprime:

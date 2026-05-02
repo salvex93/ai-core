@@ -9,41 +9,54 @@
  *   DIP: los consumidores dependen de la interfaz route(), no del modelo concreto.
  */
 
-// Catalogo de modelos disponibles (abril 2026)
+// Catalogo de modelos disponibles (mayo 2026)
 const MODELOS = Object.freeze({
-  HAIKU:  'claude-haiku-4-5-20251001',  // $0.80/$4 por MTok — validaciones, parseo
-  SONNET: 'claude-sonnet-4-6',          // $3/$15 por MTok  — analisis, busqueda
-  OPUS:   'claude-opus-4-7',            // $15/$75 por MTok — refactorizacion compleja
+  GEMINI: 'gemini-2.5-flash',           // gratis (cuota diaria) — lectura de archivos grandes, logs
+  HAIKU:  'claude-haiku-4-5-20251001',  // $0.80/$4 por MTok — parseo simple, transformaciones
+  SONNET: 'claude-sonnet-4-6',          // $3/$15 por MTok  — refactorizacion, analisis, busqueda
+  OPUS:   'claude-opus-4-7',            // $15/$75 por MTok — arquitectura critica, diseno de sistema
 });
 
 // Costos en USD por 1M tokens (input / output)
 const COSTO_POR_MODELO = Object.freeze({
+  [MODELOS.GEMINI]: { input: 0,     output: 0     },  // free tier
   [MODELOS.HAIKU]:  { input: 0.80,  output: 4.00  },
   [MODELOS.SONNET]: { input: 3.00,  output: 15.00 },
   [MODELOS.OPUS]:   { input: 15.00, output: 75.00 },
 });
 
-// Herramientas MCP → tier de modelo
-// Haiku: parseo estructurado, bajo costo, sin razonamiento profundo
+// Tier GEMINI: lectura de archivos grandes, logs, contenido extenso — costo cero
+// Siempre preferir Gemini antes que Haiku para estas tareas
+const TIER_GEMINI = new Set([
+  'analizar_archivo',       // lectura de archivos > 200 lineas
+  'analizar_repositorio',   // analisis global del repo
+  'resumir_backlog',        // resumen de listas largas
+  'analizar_contenido',     // procesamiento de texto extenso
+]);
+
+// Tier HAIKU: transformaciones simples de bajo volumen, sin razonamiento
 const TIER_HAIKU = new Set([
-  'resumir_backlog',
-  'analizar_contenido',
+  'reparar_error',          // fix puntual de un error conocido
+  'parsear_schema',         // transformacion estructurada simple
 ]);
 
-// Sonnet: analisis de archivos, busqueda web — balance costo/rendimiento
+// Tier SONNET: refactorizacion, busqueda web, analisis de calidad — uso normal
 const TIER_SONNET = new Set([
-  'analizar_archivo',
-  'analizar_repositorio',
   'buscar_web',
+  'refactorizar_archivo',   // refactor de un archivo concreto
+  'diagnosticar_error',     // diagnostico de errores complejos
+  'auditar_calidad',        // revision de codigo
 ]);
 
-// Opus: refactorizacion de arquitectura compleja — uso excepcional
+// Tier OPUS: diseno de sistemas nuevos, arquitectura critica — uso excepcional
 const TIER_OPUS = new Set([
-  'refactorizar_arquitectura',
-  'disenar_sistema',
-  'auditar_seguridad_critica',
+  'refactorizar_arquitectura',  // reestructuracion de multiples modulos
+  'disenar_sistema',            // nuevo sistema desde cero
+  'auditar_seguridad_critica',  // auditoria de seguridad profunda
 ]);
 
+// Umbral de tokens para recomendar Gemini Bridge en lugar de Haiku
+const UMBRAL_RECOMENDAR_GEMINI = 8_000;
 // Umbral de tokens para escalar Haiku→Sonnet por tamano de contexto
 const UMBRAL_ESCALADO_SONNET = 12_000;
 // Umbral para escalar Sonnet→Opus por complejidad de contexto
@@ -52,38 +65,62 @@ const UMBRAL_ESCALADO_OPUS   = 60_000;
 /**
  * Retorna el modelo adecuado para una herramienta y tamano de contexto dados.
  *
+ * Jerarquia de costo (menor a mayor):
+ *   Gemini (free) → Haiku → Sonnet → Opus
+ *
+ * Regla de oro: usar el modelo mas barato que pueda completar la tarea.
+ * Gemini siempre tiene preferencia para lecturas y resumenes extensos.
+ *
  * @param {string} nombreHerramienta - nombre de la tool MCP
  * @param {number} [tokensContexto=0] - tokens estimados del contexto actual
  * @returns {{ modelo: string, tier: string, razon: string }}
  */
 function route(nombreHerramienta, tokensContexto = 0) {
-  // Escalado por tamano de contexto — tiene prioridad sobre el tier base
-  if (tokensContexto >= UMBRAL_ESCALADO_OPUS) {
+  // Opus solo si la tarea lo requiere explicitamente Y el contexto no es gigante
+  // (contexto gigante con Opus = factura brutal)
+  if (TIER_OPUS.has(nombreHerramienta) && tokensContexto < UMBRAL_ESCALADO_OPUS) {
     return {
       modelo: MODELOS.OPUS,
       tier: 'opus',
-      razon: `Contexto muy grande (${tokensContexto} tokens >= ${UMBRAL_ESCALADO_OPUS}) — Opus requerido`,
+      razon: `Arquitectura critica: ${nombreHerramienta}`,
     };
   }
 
-  if (TIER_OPUS.has(nombreHerramienta)) {
+  // Escalado forzado a Sonnet si el contexto supera el umbral de Opus
+  // (evita llamadas Opus con contextos gigantes)
+  if (tokensContexto >= UMBRAL_ESCALADO_OPUS) {
     return {
-      modelo: MODELOS.OPUS,
-      tier: 'opus',
-      razon: `Tarea de arquitectura compleja: ${nombreHerramienta}`,
+      modelo: MODELOS.SONNET,
+      tier: 'sonnet',
+      razon: `Contexto muy grande (${tokensContexto} tokens) — Sonnet para controlar costo`,
     };
   }
 
   if (TIER_SONNET.has(nombreHerramienta)) {
+    if (tokensContexto >= UMBRAL_ESCALADO_SONNET) {
+      return {
+        modelo: MODELOS.SONNET,
+        tier: 'sonnet',
+        razon: `Contexto grande (${tokensContexto} tokens) — Sonnet confirmado`,
+      };
+    }
     return {
       modelo: MODELOS.SONNET,
       tier: 'sonnet',
-      razon: `Analisis o busqueda — balance costo/rendimiento: ${nombreHerramienta}`,
+      razon: `Analisis o busqueda: ${nombreHerramienta}`,
+    };
+  }
+
+  // Gemini primero para tareas de lectura/resumen — costo cero
+  if (TIER_GEMINI.has(nombreHerramienta)) {
+    return {
+      modelo: MODELOS.GEMINI,
+      tier: 'gemini',
+      razon: `Lectura/resumen extenso — Gemini free tier: ${nombreHerramienta}`,
     };
   }
 
   if (TIER_HAIKU.has(nombreHerramienta)) {
-    // Escalar a Sonnet si el contexto supera el umbral intermedio
     if (tokensContexto >= UMBRAL_ESCALADO_SONNET) {
       return {
         modelo: MODELOS.SONNET,
@@ -91,18 +128,26 @@ function route(nombreHerramienta, tokensContexto = 0) {
         razon: `Contexto grande (${tokensContexto} tokens) — escalado Haiku→Sonnet`,
       };
     }
+    // Si el contexto supera el umbral de recomendacion, sugerir Gemini
+    if (tokensContexto >= UMBRAL_RECOMENDAR_GEMINI) {
+      return {
+        modelo: MODELOS.GEMINI,
+        tier: 'gemini',
+        razon: `Contexto medio-alto (${tokensContexto} tokens) — Gemini free antes que Haiku`,
+      };
+    }
     return {
       modelo: MODELOS.HAIKU,
       tier: 'haiku',
-      razon: `Parseo/resumen de bajo costo: ${nombreHerramienta}`,
+      razon: `Transformacion simple de bajo volumen: ${nombreHerramienta}`,
     };
   }
 
-  // Fallback conservador: Sonnet
+  // Fallback: Sonnet (nunca Opus por defecto)
   return {
     modelo: MODELOS.SONNET,
     tier: 'sonnet',
-    razon: `Herramienta desconocida — fallback a Sonnet: ${nombreHerramienta}`,
+    razon: `Herramienta no clasificada — fallback a Sonnet: ${nombreHerramienta}`,
   };
 }
 

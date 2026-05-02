@@ -4,16 +4,18 @@
 
 El sistema es framework-agnostic por diseño. No asume Node.js, Python, Go ni ningun otro lenguaje. Cada agente lee los manifiestos del repositorio anfitrion (`package.json`, `requirements.txt`, `go.mod`, etc.) al activarse y adapta sus recomendaciones al entorno real del proyecto.
 
-Desde v2.6.4, el nucleo incorpora:
+Desde v2.7.0, el nucleo incorpora:
 
-- **Model Router** (`scripts/services/ModelRouter.js`): enruta cada llamada al modelo optimo (Haiku/Sonnet/Opus) segun herramienta y volumen de contexto. Incluye estimacion de costo con descuento por cache hit.
+- **Model Router v2.7** (`scripts/services/ModelRouter.js`): jerarquia de costo de 4 niveles — **Gemini free (tier 0) → Haiku → Sonnet → Opus**. Gemini tiene prioridad absoluta para lecturas, resumenes y analisis de repositorio. Opus queda reservado exclusivamente para diseno de sistemas nuevos y refactorizacion de arquitectura multi-modulo. Incluye estimacion de costo con descuento por cache hit.
+- **Intent Classifier** (`scripts/services/IntentClassifier.js`): arbol de decision que infiere herramienta y modelo desde el mensaje crudo del usuario. Distingue refactor simple (Sonnet) de refactor de arquitectura (Opus) para evitar escalado innecesario.
+- **Response Validator** (`scripts/services/ResponseValidator.js`): validacion deterministica (regex, sin LLM) del output antes de entregarlo. Detecta emojis, respuestas en ingles, frases prohibidas y acciones no solicitadas. Integrado al bridge — loguea violaciones en stderr sin bloquear.
+- **Style Profiler** (`scripts/services/StyleProfiler.js`): acumula rasgos de escritura del usuario en la sesion (longitud de oraciones, densidad tecnica, uso de abreviaciones) y genera un bloque de instruccion de tono que se inyecta dinamicamente en el system prompt.
 - **Context Index** (`scripts/services/ContextIndex.js`): resuelve rutas via `CONTEXT_MAP.json` antes de ir al disco. Elimina lecturas ciegas en el repo anfitrion.
-- **Agent Roles** (`scripts/services/AgentRoles.js`): asigna system prompt y modelo segun el rol inferido de la herramienta (Architect / Coder / Auditor).
+- **Agent Roles** (`scripts/services/AgentRoles.js`): asigna system prompt y modelo segun el rol inferido de la herramienta (Architect / Coder / Auditor). Architect ya no fuerza Opus por defecto — usa Sonnet y escala solo si la herramienta lo requiere.
 - **Error Repair Loop** (`scripts/services/ErrorRepairLoop.js`): ciclo automatico de deteccion, diagnostico y reparacion de errores en tres fases.
-- **Anthropic Bridge** (`scripts/anthropic-bridge.js`): fallback al API de Anthropic con Prompt Caching de tres puntos y ventana deslizante de historial.
-- **LLM Routing Bridge** via Gemini 2.5 Flash: externaliza el analisis de archivos > 500 lineas / 50 KB como proceso separado, protegiendo el context window principal.
-- **Hook de sesion**: `scripts/init-backlog.js` garantiza la presencia de `BACKLOG.md` antes de iniciar cualquier sesion de trabajo.
-- **Tokenomics v2.6.4**: auto-seleccion de skills por herramienta (`inferirSkills()`), telemetria de contexto en cada respuesta, threshold de compress reducido a 6 turnos, ancla anti-degradacion en `CLAUDE.md`, validador de drift `validate-map.js` via hook `PreToolUse`, `ErrorRepairLoop` integrado al dispatcher MCP.
+- **Anthropic Bridge** (`scripts/anthropic-bridge.js`): fallback al API de Anthropic con Prompt Caching de tres puntos, ventana deslizante de historial, StyleProfiler integrado y recomendacion automatica de Gemini cuando el tier 0 aplica.
+- **LLM Routing Bridge** via Gemini 2.5 Flash: tier 0 gratuito para analisis de archivos > 200 lineas, logs extensos, resumenes de backlog y busqueda web. Umbral bajado de 500 a 200 lineas para maximizar el ahorro de cuota.
+- **Tokenomics v2.7**: Gemini como tier 0 antes que Haiku, Opus solo para arquitectura critica, ResponseValidator integrado al bridge, StyleProfiler activo en cada sesion.
 
 ---
 

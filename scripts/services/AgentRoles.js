@@ -47,8 +47,10 @@ Idioma: Espanol estricto. Sin emojis ni adornos.`,
 };
 
 // Modelos recomendados por rol
+// IMPORTANTE: Gemini es el tier 0 para lecturas/resumenes — estos valores
+// son el fallback cuando Gemini no aplica (tareas de razonamiento puro).
 const MODELO_POR_ROL = {
-  [ROLES.ARCHITECT]: MODELOS.OPUS,    // Razonamiento complejo — requiere Opus
+  [ROLES.ARCHITECT]: MODELOS.SONNET,  // Sonnet por defecto — Opus solo via route() si la herramienta lo requiere
   [ROLES.CODER]:     MODELOS.HAIKU,   // Baja entropia, alta velocidad — Haiku
   [ROLES.AUDITOR]:   MODELOS.SONNET,  // Balance diagnostico/costo — Sonnet
 };
@@ -73,18 +75,29 @@ function inferirSkills(nombreHerramienta) {
 }
 
 // Herramientas MCP → rol inferido automaticamente
-// Cuando el ModelRouter no puede determinar el rol, usa esta tabla.
+// Las herramientas de lectura/resumen usan Gemini (tier 0) — su rol es CODER
+// porque no requieren razonamiento profundo, solo procesamiento de contenido.
 const HERRAMIENTA_A_ROL = {
-  resumir_backlog:         ROLES.CODER,
-  analizar_contenido:      ROLES.CODER,
-  analizar_archivo:        ROLES.AUDITOR,
-  analizar_repositorio:    ROLES.ARCHITECT,
-  buscar_web:              ROLES.ARCHITECT,
+  // Tier Gemini (free) — procesamiento de contenido extenso
+  resumir_backlog:           ROLES.CODER,
+  analizar_contenido:        ROLES.CODER,
+  analizar_archivo:          ROLES.CODER,     // Gemini lee el archivo, no Sonnet
+  analizar_repositorio:      ROLES.CODER,     // Gemini analiza el repo completo
+
+  // Tier Haiku — transformaciones simples
+  reparar_error:             ROLES.CODER,
+  parsear_schema:            ROLES.CODER,
+
+  // Tier Sonnet — analisis y busqueda
+  buscar_web:                ROLES.ARCHITECT,
+  refactorizar_archivo:      ROLES.AUDITOR,
+  diagnosticar_error:        ROLES.AUDITOR,
+  auditar_calidad:           ROLES.AUDITOR,
+
+  // Tier Opus — arquitectura critica (uso excepcional)
   refactorizar_arquitectura: ROLES.ARCHITECT,
-  disenar_sistema:         ROLES.ARCHITECT,
+  disenar_sistema:           ROLES.ARCHITECT,
   auditar_seguridad_critica: ROLES.AUDITOR,
-  diagnosticar_error:      ROLES.AUDITOR,
-  reparar_error:           ROLES.CODER,
 };
 
 // ---------------------------------------------------------------------------

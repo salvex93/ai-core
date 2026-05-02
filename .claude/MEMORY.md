@@ -9,6 +9,7 @@
 - [Modo Neanderthal confirmado](../../../.claude/projects/-home-cyber-ai-core/memory/feedback_neanderthal.md) — respuestas ultra-cortas validadas por el usuario
 - [Sin emojis ni adornos](../../../.claude/projects/-home-cyber-ai-core/memory/feedback_no_emojis.md) — regla critica confirmada en multiples sesiones
 - [Push via SSH](../../../.claude/projects/-home-cyber-ai-core/memory/feedback_ssh_git.md) — git configurado con SSH ed25519 en esta sesion
+- [Autoría de commits](../../../.claude/projects/-home-cyber-Proyectos-ai-core/memory/feedback_commits_autoria.md) — ai-core=salvex93, anfitrión=Andrew Arizmendi, nunca Co-Authored-By IA
 
 ## Proyecto
 - [Estado del ecosistema v2.6.4](../../../.claude/projects/-home-cyber-ai-core/memory/project_estado.md) — 20 skills conformes, MCP gemini-bridge activo, SSH configurado

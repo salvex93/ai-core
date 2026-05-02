@@ -19,10 +19,13 @@
 const fs   = require('fs');
 const path = require('path');
 
-const { route, estimarCosto, MODELOS }         = require('./services/ModelRouter');
-const { inferirRol, inferirSkills, systemPromptParaRol } = require('./services/AgentRoles');
-const { resolver: resolverIndice, diagnostico } = require('./services/ContextIndex');
-const rateLimiter                               = require('./services/RateLimiter');
+const { route, estimarCosto, MODELOS }                   = require('./services/ModelRouter');
+const { inferirRol, inferirSkills, systemPromptParaRol }  = require('./services/AgentRoles');
+const { resolver: resolverIndice, diagnostico }           = require('./services/ContextIndex');
+const { verificar: verificarRootGuard }                   = require('./services/RootGuard');
+const { validar: validarRespuesta }                       = require('./services/ResponseValidator');
+const StyleProfiler                                        = require('./services/StyleProfiler');
+const rateLimiter                                          = require('./services/RateLimiter');
 
 const MAX_TURNS_WINDOW = 6;  // maximo de turnos user/assistant en el historial enviado
 const MAX_TOKENS_OUT   = 4096;
@@ -169,6 +172,50 @@ function estimarTokensMensajes(mensajes) {
   }, 0);
 }
 
+// Limites para el canal Gemini — protegen la cuota diaria gratuita en ambas direcciones.
+// Input:  texto que enviamos a Gemini (cuota de request)
+// Output: respuesta de Gemini que metemos al historial de Claude (tokens pagados en Claude)
+const MAX_TOKENS_GEMINI_INPUT  = 8_000;   // ~32k chars — suficiente para analizar un archivo grande
+const MAX_CHARS_GEMINI_INPUT   = MAX_TOKENS_GEMINI_INPUT * 4;
+const MAX_TOKENS_GEMINI_OUTPUT = 1_500;   // ~6k chars — resumen conciso, no el archivo completo
+const MAX_CHARS_GEMINI_OUTPUT  = MAX_TOKENS_GEMINI_OUTPUT * 4;
+
+/**
+ * Trunca el contenido que se va a enviar a Gemini como input.
+ * Protege la cuota diaria gratuita de Gemini evitando requests gigantes.
+ * Si supera el limite, conserva inicio + fin (cabecera y cola del archivo).
+ *
+ * @param {string} contenido - texto a enviar a Gemini
+ * @returns {string} texto truncado
+ */
+function truncarInputGemini(contenido) {
+  if (!contenido || typeof contenido !== 'string') return '';
+  if (contenido.length <= MAX_CHARS_GEMINI_INPUT) return contenido;
+
+  const mitad     = Math.floor(MAX_CHARS_GEMINI_INPUT / 2);
+  const inicio    = contenido.slice(0, mitad);
+  const fin       = contenido.slice(-mitad);
+  const tokensOrig = Math.ceil(contenido.length / 4);
+  return `${inicio}\n\n[... CONTENIDO CENTRAL OMITIDO — ${tokensOrig} tokens originales, se muestran inicio y fin ...]\n\n${fin}`;
+}
+
+/**
+ * Trunca el output de Gemini para que no envenene el historial de Claude.
+ * Un output largo de Gemini en el historial = tokens pagados en cada turno siguiente de Claude.
+ * Si supera el limite, conserva el inicio (el resumen suele estar al principio).
+ *
+ * @param {string} outputGemini - respuesta cruda del MCP gemini-bridge
+ * @returns {string} texto truncado listo para insertar en el historial
+ */
+function truncarOutputGemini(outputGemini) {
+  if (!outputGemini || typeof outputGemini !== 'string') return '';
+  if (outputGemini.length <= MAX_CHARS_GEMINI_OUTPUT) return outputGemini;
+
+  const truncado = outputGemini.slice(0, MAX_CHARS_GEMINI_OUTPUT);
+  const tokensOriginal = Math.ceil(outputGemini.length / 4);
+  return `${truncado}\n\n[OUTPUT GEMINI TRUNCADO — ${tokensOriginal} tokens originales, mostrados primeros ${MAX_TOKENS_GEMINI_OUTPUT}. Si necesitas mas detalle, pide un resumen especifico.]`;
+}
+
 /**
  * Envia una solicitud al API de Anthropic usando el Model Router y Prompt Caching.
  *
@@ -182,6 +229,10 @@ function estimarTokensMensajes(mensajes) {
  */
 async function completar({ herramienta, mensajeUsuario, historial = [], skills = [], sessionId }) {
   loadEnv();
+  verificarRootGuard();
+
+  // Registrar mensaje del usuario para ajuste de estilo de sesion
+  StyleProfiler.registrar(mensajeUsuario);
 
   // Validacion temprana — falla antes de construir contexto o abrir conexiones
   if (!process.env.ANTHROPIC_API_KEY || process.env.ANTHROPIC_API_KEY.trim() === '') {
@@ -193,14 +244,31 @@ async function completar({ herramienta, mensajeUsuario, historial = [], skills =
 
   const historialTruncado = aplicarVentanaDeslizante(historial);
   const tokensContexto    = estimarTokensMensajes(historialTruncado) + Math.ceil(mensajeUsuario.length / 4);
-  const { modelo, razon } = route(herramienta, tokensContexto);
-  const rol               = inferirRol(herramienta);
+  const { modelo, tier, razon } = route(herramienta, tokensContexto);
+  const rol                     = inferirRol(herramienta);
+
+  // Si el router recomienda Gemini, retornar recomendacion sin gastar tokens Claude
+  if (tier === 'gemini') {
+    return {
+      respuesta:         null,
+      recomendacionGemini: true,
+      herramienta,
+      razonRouting:      razon,
+      mensaje:           `[GEMINI RECOMENDADO] Usa el MCP gemini-bridge → herramienta: ${herramienta}. Razon: ${razon}`,
+    };
+  }
 
   // Auto-seleccion de skills si el llamador no los especifica
   const skillsResueltos = skills.length > 0 ? skills : inferirSkills(herramienta);
 
-  const systemBlocks = buildSystemBlocks(skillsResueltos, rol);
-  const messages     = [
+  // Bloque de estilo de sesion (no va al cache — varia por sesion)
+  const systemBlocks  = buildSystemBlocks(skillsResueltos, rol);
+  const bloqueEstilo  = StyleProfiler.generarBloqueEstilo();
+  if (bloqueEstilo) {
+    systemBlocks.push({ type: 'text', text: bloqueEstilo });
+  }
+
+  const messages = [
     ...historialTruncado,
     { role: 'user', content: mensajeUsuario },
   ];
@@ -224,8 +292,14 @@ async function completar({ herramienta, mensajeUsuario, historial = [], skills =
     }),
   });
 
-  const respuesta   = response.content[0]?.text ?? '';
-  const uso         = response.usage ?? {};
+  const respuesta = response.content[0]?.text ?? '';
+  const uso       = response.usage ?? {};
+
+  // Validar output antes de entregarlo — log de violaciones sin bloquear
+  const informe = validarRespuesta(respuesta);
+  if (!informe.valido) {
+    process.stderr.write(`[ResponseValidator] ${informe.resumen}\n`);
+  }
 
   // Registrar uso real para contabilidad de rate limit
   rateLimiter.registrar(uso);
@@ -234,10 +308,11 @@ async function completar({ herramienta, mensajeUsuario, historial = [], skills =
     respuesta,
     uso,
     modelo,
-    razonRouting: razon,
+    razonRouting:      razon,
     turnosEnHistorial: historialTruncado.length,
-    cuota_restante: rateLimiter.estado(),
+    validacion:        informe.resumen,
+    cuota_restante:    rateLimiter.estado(),
   };
 }
 
-module.exports = { completar, buildSystemBlocks, aplicarVentanaDeslizante, estimarTokensMensajes };
+module.exports = { completar, buildSystemBlocks, aplicarVentanaDeslizante, estimarTokensMensajes, truncarInputGemini, truncarOutputGemini };
