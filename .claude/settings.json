@@ -43,7 +43,11 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node /home/cyber/ai-core/.claude/bin/validate-map.js 2>/dev/null || true"
+            "command": "node /home/cyber/Proyectos/ai-core/.claude/bin/validate-map.js 2>/dev/null || true"
+          },
+          {
+            "type": "command",
+            "command": "node /home/cyber/Proyectos/ai-core/.claude/bin/detox.js 2>/dev/null || true"
           }
         ]
       }

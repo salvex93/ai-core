@@ -1,6 +1,6 @@
 {
   "version": "2.7.0",
-  "last_updated": "2026-05-02T01:56:07.420Z",
+  "last_updated": "2026-05-02T01:59:00.069Z",
   "branch": "main",
   "map": {
     "root": "ai-core/",
@@ -42,15 +42,21 @@
       ],
       "scripts/": [
         "scripts/anthropic-bridge.js",
+        "scripts/context-monitor.js",
         "scripts/dry-run-cost-sim.js",
         "scripts/init-backlog.js",
+        "scripts/mcp-anthropic.js",
         "scripts/mcp-gemini.js",
         "scripts/query-backlog.js",
         "scripts/services/AgentRoles.js",
         "scripts/services/ContextIndex.js",
         "scripts/services/ErrorRepairLoop.js",
+        "scripts/services/IntentClassifier.js",
         "scripts/services/ModelRouter.js",
+        "scripts/services/RateLimiter.js",
+        "scripts/services/ResponseValidator.js",
         "scripts/services/RootGuard.js",
+        "scripts/services/StyleProfiler.js",
         "scripts/session-close.js"
       ]
     },
@@ -62,12 +68,13 @@
       "LICENSE",
       "README.md",
       "package-lock.json",
-      "package.json"
+      "package.json",
+      "sonar-project.properties"
     ],
     "excluded": [
       "node_modules/",
       ".git/"
     ],
-    "total_files": 50
+    "total_files": 57
   }
 }
