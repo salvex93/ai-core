@@ -38,30 +38,37 @@ AI-CORE opera con tres roles especializados segun la naturaleza de la tarea. El 
 - Sonnet: refactorizacion, busqueda web, diagnostico, analisis de calidad
 - Opus: SOLO diseno de sistemas nuevos y refactorizacion de arquitectura multi-modulo
 
-## Seleccion de Skills
-Al inicio de cada sesion, declara los skills activos en el contexto invocando el rol correspondiente:
+## Seleccion de Skills — Automatica por contexto
 
-```
-skills_activos: [backend-architect, security-auditor]   # para tareas de diseño + auditoria
-skills_activos: [prompt-engineer, ai-integrations]      # para tareas de LLM
-skills_activos: [devops-infra, release-manager]         # para tareas de infraestructura
-```
+NO esperar a que el usuario declare skills. Seleccionar automaticamente segun la naturaleza de la tarea:
 
-Los skills disponibles estan en `.claude/skills/`. Cada SKILL.md define el dominio de conocimiento y las herramientas disponibles para ese rol especializado.
+| Contexto detectado | Skills que se activan |
+|---|---|
+| Diseño de sistema, arquitectura, nuevos modulos | `backend-architect`, `data-engineer` |
+| Integracion con LLM, Claude API, prompts | `prompt-engineer`, `ai-integrations`, `claude-api` |
+| Infraestructura, deploy, Docker, CI/CD | `devops-infra`, `release-manager` |
+| Seguridad, auditoria, vulnerabilidades | `security-auditor`, `attack-surface-analyst` |
+| Agentes, MCP, flujos automatizados | `managed-agents-specialist`, `mcp-server-builder` |
+| Frontend, dashboard, UI | `tech-lead-frontend` |
+| Calidad, tests, cobertura | `qa-engineer` |
+| RAG, embeddings, recuperacion de contexto | `rag-specialist` |
+
+Declarar al inicio de la primera respuesta relevante:
+`skills_activos: [skill1, skill2]`
+
+Los skills disponibles estan en `.claude/skills/`. Cada SKILL.md define el dominio y herramientas del rol.
 
 Skills disponibles: `ai-guardrails`, `ai-integrations`, `aiops-engineer`, `attack-surface-analyst`, `audio-voice-engineer`, `backend-architect`, `claude-agent-sdk`, `claude-api`, `data-engineer`, `devops-infra`, `llm-evals`, `llm-observability`, `managed-agents-specialist`, `mcp-server-builder`, `mobile-engineer`, `prompt-engineer`, `qa-engineer`, `rag-specialist`, `release-manager`, `security-auditor`, `tech-lead-frontend`.
 
 ## Visibilidad y Telemetría
-Al inicio de tu primera respuesta en cada nueva sesión, debes imprimir obligatoriamente este bloque de telemetría:
-`[DIR: <tu-directorio-actual> | RAMA: <rama-git-actual> | MODELO: <rol-activo>]`
+Imprimir una sola línea al inicio de la **primera respuesta de cada sesión**:
+`[DIR: <directorio-actual> | RAMA: <rama-git> | MODELO: <Architect|Coder|Auditor>]`
 
-Cuando uses cualquier herramienta del MCP gemini-bridge, imprime inmediatamente ANTES de la respuesta:
-`[IA: gemini-2.5-flash | HERRAMIENTA: <nombre> | COMPACTADO: si/no]`
+Reglas adicionales (solo cuando aplique):
+- Al usar cualquier herramienta gemini-bridge: `[IA: gemini-2.5-flash | HERRAMIENTA: <nombre>]` antes del resultado.
+- Al cambiar de rol durante la sesión: `[ROL → <nuevo-rol> | IA: <modelo>]` una vez por cambio.
 
-Cuando el sistema seleccione Haiku o Opus como rol activo, imprimir al inicio de esa respuesta:
-`[ROL CAMBIADO → <Coder|Architect|Auditor> | IA: <modelo>]`
-
-De esta forma el usuario siempre sabe que modelo proceso cada fragmento de la sesion.
+No repetir la línea de telemetría en cada turno — solo en el primero de la sesión.
 
 ## Protocolo de Súper Optimización (Gestión de Cuota)
 1. **Mapeo de Grafo:** USA `.claude/CONTEXT_MAP.json` como indice primario. Al inicio de sesion, el hook `PreToolUse` ejecuta `.claude/bin/validate-map.js`, que genera el mapa automaticamente si no existe o lo regenera si hay drift >= 3 archivos respecto a `git ls-files`. PROHIBIDO usar `git ls-files`, `find` o `ls` para explorar estructura. Solo lee un archivo si vas a modificarlo.
@@ -91,12 +98,10 @@ Gemini es GRATUITO. Usarlo antes que cualquier modelo Claude para las siguientes
 - **FILTRO DE OUTPUT de Gemini:** El output de Gemini que se pase al historial de Claude DEBE pasar por `truncarOutputGemini()`. Limite: 1.500 tokens (~6.000 chars). Un output Gemini largo en el historial = tokens pagados en cada turno siguiente de Claude. Si necesitas mas detalle, pide un resumen especifico.
 
 ## Telemetria de Contexto
-Al inicio de CADA respuesta imprime:
-`[TURNOS: N | CONTEXTO: ~Xk tokens | ESTADO: OK/COMPRESS/CLEAR]`
-- N = turnos visibles en la sesion. Tokens estimados = N * 800.
-- ESTADO OK si N <= 6 | COMPRESS si 6 < N <= 15 | CLEAR si N > 15.
-- Si COMPRESS: agregar ` → ejecuta /compress`
-- Si CLEAR: agregar ` → ejecuta /clear ahora`
+Imprimir solo cuando el estado no sea OK:
+- TURNOS > 6: `[AVISO: contexto pesado — ejecuta /compress]` al inicio de esa respuesta.
+- TURNOS > 15: `[CRITICO: contexto saturado — ejecuta /clear]` al inicio de esa respuesta.
+- Estimacion: N turnos visibles × 800 tokens. Tras `/compress`, resetear conteo a 1.
 
 ## Tokenomics Claude Pro (sesion web sin API)
 Reglas para no llegar al limite de cuota en 2 horas:
@@ -157,6 +162,50 @@ Ejecuta al inicio de sesion: node .claude/ai-core/.claude/bin/norm-harness.js
 ```
 El norm-harness crea el symlink CLAUDE.md → ai-core/CLAUDE.md en la raiz del anfitrion.
 Sin ese symlink, Claude Code no carga las reglas de ai-core.
+
+## Estandares de Documentacion Tecnica
+
+### Archivos .md (ROADMAP, HISTORIAS, README, etc.)
+- Sin emojis, iconos ni adornos visuales en ningun archivo de documentacion
+- Un archivo por proposito — ROADMAP no mezcla con historias, historias no mezclan con costos
+- Nunca incluir nombres de sistemas del cliente sin respaldo explicito en el brief
+- Lo no documentado por el cliente va como "a definir en discovery" — prohibido inventar alcance
+- Todo entregable debe tener criterio de exito medible y especifico
+- Separar documentos internos (uso propio) de documentos para cliente
+
+### Comentarios en codigo
+- Sin emojis, iconos ni adornos visuales en comentarios
+- Estilo: tecnico, directo, conciso — sin narrativas ni historias
+- Comentar el POR QUE, no el QUE — el codigo bien nombrado ya dice el que
+- Un comentario por bloque logico no obvio; prohibido comentar cada linea
+- Maximo 1 linea por comentario inline; bloques de comentario maximos 3 lineas
+- Prohibido: referencias a tareas, tickets, fechas o nombres de herramientas en comentarios de codigo
+- Formato 2026: JSDoc/docstring minimo para funciones publicas — solo firma, parametros y retorno
+
+### Buenas practicas de codigo (marcos 2026)
+- **Naming:** nombres descriptivos en ingles para codigo, comentarios en español
+- **Funciones:** una funcion, una responsabilidad — maximo 20 lineas; si supera, extraer
+- **Parametros:** maximo 3 parametros por funcion; si necesita mas, usar objeto de configuracion
+- **Error handling:** errores explicitos con contexto — prohibido `except: pass` o `catch {}` vacios
+- **Inmutabilidad:** preferir datos inmutables; evitar mutacion de estado compartido
+- **Early return:** validar y retornar temprano para evitar anidacion profunda (max 3 niveles)
+- **Tests:** toda funcion publica con al menos 1 test de camino feliz y 1 de error esperado
+- **Secrets:** prohibido hardcodear credenciales, tokens o URLs de produccion en codigo fuente
+- **Logging:** logs estructurados en JSON — nivel, timestamp, contexto; prohibido `print` en produccion
+
+## Estandares de Propuestas Comerciales
+- Solo incluir lo que el brief del cliente documenta de forma explicita
+- Verificacion aritmetica obligatoria antes de entregar: filas > subtotales > total > pagos
+- Esquema de pagos recomendado: 30% anticipo / 40% MVP validado / 30% entrega final
+- PDF con Puppeteer: `scale: 0.9`, `preferCSSPageSize: false`, formato A4
+- Frases prohibidas en propuestas: "no paga por promesas", "alguien del equipo", "sin deuda tecnica", "sin que nadie lo haga", menciones a herramientas de IA
+- Lenguaje ejecutivo: neutro, orientado a resultado, sin señalar culpables ni usar jerga tecnica con el cliente
+
+## Protocolo de Commits Git
+- Identidad obligatoria en todo repositorio: `git config user.name "Andrew Arizmendi"` / `git config user.email "salvex93@gmail.com"`
+- Verificar identidad con `git config user.name` antes del primer commit en cada proyecto
+- PROHIBIDO incluir "Co-Authored-By", menciones a Claude, IA o herramientas externas en cualquier mensaje de commit
+- El mensaje debe parecer escrito enteramente por Andrew — tecnico, limpio, sin rastro de herramientas
 
 ## Stack Técnico
 Node.js, Knex, PostgreSQL. Principios SOLID. Cifrado Fernet (AES-128) para PII.
