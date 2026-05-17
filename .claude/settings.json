@@ -5,14 +5,14 @@
       "args": [
         "scripts/mcp-gemini.js"
       ],
-      "cwd": "/home/cyber/ai-core"
+      "cwd": "/home/cyber/Proyectos/ai-core"
     },
     "anthropic-router": {
       "command": "node",
       "args": [
         "scripts/mcp-anthropic.js"
       ],
-      "cwd": "/home/cyber/ai-core"
+      "cwd": "/home/cyber/Proyectos/ai-core"
     }
   },
   "permissions": {
@@ -29,6 +29,8 @@
       "Bash(cat ~/.ssh/id_ed25519.pub)",
       "Bash(ssh-keyscan*)",
       "Bash(for f in .claude/skills*)",
+      "Bash(node*)",
+      "Bash(npm*)",
       "mcp__gemini-bridge__analizar_archivo",
       "mcp__gemini-bridge__analizar_contenido",
       "mcp__gemini-bridge__analizar_repositorio",

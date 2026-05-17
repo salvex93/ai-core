@@ -21,6 +21,21 @@ const LINE_THRESHOLD      = 500;
 const SIZE_THRESHOLD      = 50 * 1024; // 50 KB
 const MAX_RETRIES         = 2;
 const COMPACT_TOKEN_LIMIT = 800; // si el JSON de respuesta supera este numero de palabras, se recompacta
+const MAX_INPUT_CHARS     = 32000; // ~8k tokens — limite de cuota para input a Gemini
+const MAX_OUTPUT_CHARS    = 6000;  // ~1.5k tokens — limite para output que entra al historial de Claude
+
+// Protege la cuota de Gemini: trunca el input conservando inicio + fin si supera el limite.
+function truncarInputGemini(texto) {
+  if (texto.length <= MAX_INPUT_CHARS) return texto;
+  const mitad = Math.floor(MAX_INPUT_CHARS / 2);
+  return texto.slice(0, mitad) + '\n\n[...CONTENIDO TRUNCADO POR LIMITE DE CUOTA...]\n\n' + texto.slice(-mitad);
+}
+
+// Protege el historial de Claude: trunca el output de Gemini antes de retornarlo.
+function truncarOutputGemini(texto) {
+  if (typeof texto !== 'string' || texto.length <= MAX_OUTPUT_CHARS) return texto;
+  return texto.slice(0, MAX_OUTPUT_CHARS) + '\n[OUTPUT TRUNCADO — solicita resumen especifico si necesitas mas detalle]';
+}
 
 // Carga .env desde la raiz del proyecto (un nivel arriba de /scripts)
 function loadEnv() {
@@ -208,7 +223,8 @@ async function analizarArchivo({ ruta, mision }) {
 
   try {
     const model = getModel({ systemInstruction: SYSTEM_ANALISIS });
-    const userMessage = `Orden de Mision: ${mision}\n\nArchivo: ${path.basename(filePath)} (${lineas} lineas)\n\nContenido:\n---\n${contenido}\n---`;
+    const contenidoFiltrado = truncarInputGemini(contenido);
+    const userMessage = `Orden de Mision: ${mision}\n\nArchivo: ${path.basename(filePath)} (${lineas} lineas)\n\nContenido:\n---\n${contenidoFiltrado}\n---`;
     const { parsed, warnings } = await callWithRetry(model, userMessage);
     const compacted = await compactarSiNecesario(parsed, GEMINI_DEFAULT);
     const result = {
@@ -222,6 +238,7 @@ async function analizarArchivo({ ruta, mision }) {
       ...compacted,
     };
     if (warnings.length > 0) result.calidad_warnings = warnings;
+    if (result.resumen) result.resumen = truncarOutputGemini(result.resumen);
     return result;
   } catch (err) {
     return { error: `Gemini error: ${err.message}` };
@@ -231,7 +248,8 @@ async function analizarArchivo({ ruta, mision }) {
 async function analizarContenido({ contenido, mision }) {
   try {
     const model = getModel({ systemInstruction: SYSTEM_ANALISIS });
-    const userMessage = `Orden de Mision: ${mision}\n\nContenido:\n---\n${contenido}\n---`;
+    const contenidoFiltrado = truncarInputGemini(contenido);
+    const userMessage = `Orden de Mision: ${mision}\n\nContenido:\n---\n${contenidoFiltrado}\n---`;
     const { parsed, warnings } = await callWithRetry(model, userMessage);
     const compacted = await compactarSiNecesario(parsed, GEMINI_DEFAULT);
     const result = {
@@ -243,6 +261,7 @@ async function analizarContenido({ contenido, mision }) {
       ...compacted,
     };
     if (warnings.length > 0) result.calidad_warnings = warnings;
+    if (result.resumen) result.resumen = truncarOutputGemini(result.resumen);
     return result;
   } catch (err) {
     return { error: `Gemini error: ${err.message}` };
@@ -272,7 +291,7 @@ async function analizarRepositorio({ ruta_raiz, mision }) {
     return { error: `No se encontraron manifiestos en: ${rootPath}` };
   }
 
-  const concatenado = found.map(f => `### ${f.name}\n${f.content}`).join('\n\n');
+  const concatenado = truncarInputGemini(found.map(f => `### ${f.name}\n${f.content}`).join('\n\n'));
 
   try {
     const model = getModel({ systemInstruction: SYSTEM_REPOSITORIO });
@@ -290,6 +309,7 @@ async function analizarRepositorio({ ruta_raiz, mision }) {
       ...parsed,
     };
     if (warnings.length > 0) result.calidad_warnings = warnings;
+    if (result.resumen) result.resumen = truncarOutputGemini(result.resumen);
     return result;
   } catch (err) {
     return { error: `Gemini error: ${err.message}` };
@@ -304,20 +324,22 @@ async function resumirBacklog({ ruta_backlog }) {
     return { error: `Archivo no encontrado: ${filePath}` };
   }
 
-  const contenido = fs.readFileSync(filePath, 'utf8');
+  const contenido = truncarInputGemini(fs.readFileSync(filePath, 'utf8'));
 
   try {
     const model = getModel({ systemInstruction: SYSTEM_BACKLOG });
-    const result = await model.generateContent(contenido);
-    const raw    = result.response.text().trim();
+    const geminiResult = await model.generateContent(contenido);
+    const raw          = geminiResult.response.text().trim();
     if (isRefusal(raw)) return { error: `Gemini rechazo el backlog: ${raw.slice(0, 120)}` };
     const parsed = extractJson(raw);
-    return {
+    const result = {
       delegado: true,
       _ia_activa: GEMINI_DEFAULT,
       metadatos: { modelo: GEMINI_DEFAULT, timestamp: new Date().toISOString() },
       ...parsed,
     };
+    if (result.resumen) result.resumen = truncarOutputGemini(result.resumen);
+    return result;
   } catch (err) {
     return { error: `Gemini error: ${err.message}` };
   }
@@ -347,7 +369,7 @@ async function buscarWeb({ consulta, mision }) {
     return {
       delegado: true,
       _ia_activa: GEMINI_DEFAULT,
-      respuesta: text,
+      respuesta: truncarOutputGemini(text),
       fuentes,
       queries_ejecutadas: queries,
       metadatos: {
