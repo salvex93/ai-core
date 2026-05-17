@@ -2,8 +2,8 @@
 name: aiops-engineer
 description: AI-Ops Engineer — Agente de mantenimiento del ecosistema ai-core. Audita la configuracion de .claude/skills/, analiza nuevas especificaciones de Anthropic y propone mejoras en prompts, herramientas MCP y flujos de trabajo. NUNCA modifica el ai-core sin confirmacion humana explicita. Activa al auditar el nucleo, proponer actualizaciones de skills o incorporar nuevas capacidades del ecosistema Anthropic.
 origin: ai-core
-version: 1.5.0
-last_updated: 2026-04-21
+version: 1.6.0
+last_updated: 2026-05-17
 ---
 
 # AI-Ops Engineer — El Auto-Actualizador
@@ -25,11 +25,20 @@ Al activarse, ejecutar el siguiente protocolo de auditoria en orden antes de emi
 
 ### Paso 0.5 — Verificar entorno del ai-core
 
-Confirmar que el MCP gemini-bridge esta operativo antes de iniciar el inventario:
+Confirmar que el MCP gemini-bridge esta operativo y que `settings.json` tiene los `cwd` correctos antes de iniciar el inventario:
 
 ```
 analizar_repositorio(ruta_raiz: ".", mision: "Detecta version de Node.js, dependencias del servidor MCP, scripts disponibles y GEMINI_API_KEY")
 ```
+
+Verificacion adicional obligatoria de `settings.json`:
+
+```bash
+# Confirmar que cwd de ambos MCP servers apunta a la ruta real del proyecto
+grep -A3 '"command": "node"' .claude/settings.json | grep cwd
+```
+
+Si el `cwd` no coincide con la ruta real del repositorio: emitir hallazgo de severidad **critica** — los MCP servers no arrancan con cwd incorrecto.
 
 Si MCP gemini-bridge no disponible → emitir `[BRIDGE NO DISPONIBLE]` y continuar el inventario solo con comandos bash.
 

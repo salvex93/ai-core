@@ -1,9 +1,9 @@
 ---
 name: prompt-engineer
-description: Especialista en arquitectura de prompts de produccion. Cubre diseno de system prompts, few-shot examples, chain-of-thought, output estructurado con JSON Schema, versionado de prompts y testing antes de despliegue. Complementa ai-integrations (integracion del LLM), llm-evals (medicion de calidad) y rag-specialist (contexto documental). Activa al disenar o refactorizar un system prompt, definir la estrategia de few-shot, implementar output estructurado o versionar prompts para produccion.
+description: Especialista en arquitectura de prompts de produccion. Cubre diseno de system prompts, few-shot examples, chain-of-thought, prefill de respuesta, cache breakpoints estrategicos, output estructurado con JSON Schema, versionado de prompts y testing antes de despliegue. Complementa ai-integrations (integracion del LLM), llm-evals (medicion de calidad) y rag-specialist (contexto documental). Activa al disenar o refactorizar un system prompt, definir la estrategia de few-shot, implementar output estructurado o versionar prompts para produccion.
 origin: ai-core
-version: 1.5.0
-last_updated: 2026-04-19
+version: 1.6.0
+last_updated: 2026-05-17
 ---
 
 # Prompt Engineer — Arquitecto de Prompts de Produccion
@@ -165,6 +165,53 @@ Prompt Caching puede reducir hasta 90% el costo de tokens de entrada en llamadas
 - Umbral minimo para activar cache: 1024 tokens (Sonnet/Opus) o 2048 (Haiku). Un system prompt por debajo del umbral no genera cache aunque se marque.
 - Verificar impacto en `cache_read_input_tokens` de los logs. Hit rate bajo (<50%) indica que contenido dinamico esta mezclado con el estatico o que el prompt no supera el umbral.
 - Un cambio de version del prompt invalida el cache de todas las llamadas activas — planificar el rollout como cualquier cambio de esquema.
+
+### Cache Breakpoints — Posicionamiento Estrategico
+
+El breakpoint `cache_control: ephemeral` debe colocarse despues del bloque mas largo y mas estable del system prompt. El contenido **antes** del breakpoint se cachea; el de despues, no.
+
+```python
+system = [
+    # Bloque 1: rol + restricciones + few-shot (estatico entre sesiones) — CACHEAR AQUI
+    {
+        "type": "text",
+        "text": INSTRUCCIONES_FIJAS_Y_FEW_SHOT,
+        "cache_control": {"type": "ephemeral"}
+    },
+    # Bloque 2: contexto dinamico de la sesion actual — sin cache
+    {
+        "type": "text",
+        "text": contexto_de_la_llamada_actual
+    }
+]
+```
+
+Antipatron: colocar el breakpoint al final del ultimo bloque — en ese caso el contexto dinamico queda dentro del bloque cacheado y el cache se invalida en cada llamada.
+
+## Prefill de Respuesta — Forzar Formato sin Instrucciones Extra
+
+El prefill inicia la respuesta del modelo con contenido predefinido, eliminando la necesidad de instrucciones de formato largas en el prompt.
+
+```python
+# Forzar inicio de JSON sin instrucciones de formato en el system prompt
+response = client.messages.create(
+    model="claude-haiku-4-5-20251001",
+    max_tokens=512,
+    messages=[
+        {"role": "user", "content": "Analiza este texto: " + texto},
+        {"role": "assistant", "content": "{"}  # prefill — el modelo continua desde aqui
+    ]
+)
+# La respuesta NO incluye el prefill — concatenar: "{" + response.content[0].text
+resultado_json = "{" + response.content[0].text
+```
+
+Casos de uso del prefill:
+- Forzar inicio de JSON o XML cuando el output siempre sigue un formato fijo.
+- Forzar el idioma de la respuesta sin agregarlo en el system prompt.
+- Saltar saludos o introducciones cuando se necesita directamente el contenido.
+
+Regla: no usar prefill simultaneamente con `tool_use` forzado — elegir uno de los dos mecanismos para controlar el formato de output.
 
 ## Prompt Injection — Defensas en el Diseno
 

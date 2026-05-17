@@ -2,8 +2,8 @@
 name: rag-specialist
 description: Especialista en pipelines RAG y Mission Manager del LLM Routing Bridge. Cubre Hybrid Search (BM25+denso+RRF), Contextual Retrieval, re-ranking con cross-encoders y Files API como complemento del bridge. Activa al delegar analisis documental masivo, construir o mejorar pipelines RAG, o evaluar la calidad de recuperacion semantica.
 origin: ai-core
-version: 2.3.0
-last_updated: 2026-04-21
+version: 2.4.0
+last_updated: 2026-05-17
 ---
 
 # RAG Specialist — Mission Manager (LLM Routing Bridge)
@@ -244,9 +244,9 @@ El campo `file_id_anthropic` en el payload vectorial es opcional; se almacena so
 
 Cambios que degraden cualquier metrica en mas de 5% requieren revision y aprobacion antes del despliegue.
 
-## Citations API como Verificacion Nativa de Faithfulness
+## Citations API — Verificacion Nativa de Faithfulness (Preferir sobre LLM-as-judge)
 
-Permite que el modelo devuelva referencias exactas a fragmentos del contexto que sustentan cada afirmacion. Elimina la necesidad de LLM-as-judge para verificar faithfulness cuando el contexto es texto plano o documentos via Files API.
+Permite que el modelo devuelva referencias exactas a fragmentos del contexto que sustentan cada afirmacion. Elimina la necesidad de LLM-as-judge para verificar faithfulness cuando el contexto es texto plano o documentos via Files API. **Usar Citations API por defecto antes de considerar LLM-as-judge** — es mas barato, mas rapido y no introduce un modelo adicional como fuente de error.
 
 | Criterio | Citations API | LLM-as-judge |
 |---|---|---|
