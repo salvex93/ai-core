@@ -139,7 +139,7 @@ El agente hereda automaticamente las reglas globales del `CLAUDE.md` del nucleo.
 
 ---
 
-## Arquitectura v2.6.4
+## Arquitectura v2.7.0
 
 ### Mapa de modulos
 
@@ -166,9 +166,9 @@ El agente hereda automaticamente las reglas globales del `CLAUDE.md` del nucleo.
 │   │   ├── generate-map.js      Genera/actualiza CONTEXT_MAP.json
 │   │   ├── detox.js             Limpia archivos legacy que contaminan contexto
 │   │   └── benchmark-fernet.js  Testea cifrado Fernet (PII)
-│   └── skills/                  20 skills especializados (ver tabla Auto-Routing)
+│   └── skills/                  23 skills especializados (ver tabla Auto-Routing)
 ├── CLAUDE.md                    Autoridad unica: 22 reglas, triada, skills, enrutamiento
-├── package.json                 v2.6.4 — Node >= 18.0.0
+├── package.json                 v2.7.0 — Node >= 18.0.0
 └── .env.example                 Plantilla de variables de entorno
 ```
 
@@ -586,19 +586,21 @@ Protocolo Regla 7:
 
 ### Auto-Routing (Regla 20)
 
-El agente mapea automaticamente el dominio tecnico de la solicitud contra 20 skills especializados. Confidence > 85% = activacion inmediata sin instruccion explicita.
+El agente mapea automaticamente el dominio tecnico de la solicitud contra 23 skills especializados. Confidence > 85% = activacion inmediata sin instruccion explicita.
 
 | Skill | Palabras clave de activacion | Modelo base |
 |---|---|---|
 | `tech-lead-frontend` | componente, estado, bundle, CSS, React, Vue, Angular, WCAG | Sonnet |
 | `claude-agent-sdk` | agente, subagente, hook, SDK, autonomo, tool_use | Opus |
 | `managed-agents-specialist` | agente gestionado, tools Anthropic, loop de agente | Sonnet |
+| `workflow-orchestrator` | fan-out, fan-in, retry, checkpoint, orquestacion multi-agente | Sonnet |
 | `ai-integrations` | LLM, streaming, fallback, proveedor, costos, token | Sonnet |
-| `prompt-engineer` | prompt, few-shot, system message, chain-of-thought, versionado | Sonnet |
+| `claude-api` | anthropic SDK, prompt caching, tool use, Batch API, Files API | Sonnet |
+| `prompt-engineer` | prompt, few-shot, system message, chain-of-thought, prefill, versionado | Sonnet |
 | `mcp-server-builder` | MCP, servidor, JSON Schema, stdio, SSE | Sonnet |
 | `llm-evals` | eval, benchmark, calidad LLM, golden dataset, metrica | Sonnet |
 | `llm-observability` | tracing, dashboard, costo LLM, latencia, Grafana | Sonnet |
-| `rag-specialist` | RAG, vector, embedding, retrieval, indexacion | Sonnet |
+| `rag-specialist` | RAG, vector, embedding, retrieval, indexacion, Citations API | Sonnet |
 | `backend-architect` | API, schema, migracion, query, BD, ORM, Knex, SQL | Sonnet |
 | `audio-voice-engineer` | voice, audio, streaming, speech, latencia, Gemini live | Sonnet |
 | `mobile-engineer` | Flutter, BLoC, Riverpod, Firebase, iOS, Android | Sonnet |
@@ -610,6 +612,7 @@ El agente mapea automaticamente el dominio tecnico de la solicitud contra 20 ski
 | `ai-guardrails` | guardrail, filtro, input validation, jailbreak | Sonnet |
 | `attack-surface-analyst` | superficie, exposicion, credencial, subdominio | Sonnet |
 | `aiops-engineer` | auditoria, skill, ai-core, Anthropic changelog | Sonnet |
+| `doc-builder` | propuesta, documento HTML, PDF, entregable, cliente | Sonnet |
 
 Jerarquia de conflicto (Regla 21): `security-auditor > backend-architect > devops-infra > release-manager`.
 
@@ -677,7 +680,7 @@ El agente leera su propio codigo, propondra las mejoras y tras aprobacion ejecut
 
 ## Autoridad Unica: CLAUDE.md
 
-`README.md` = instalacion, arquitectura y uso. `CLAUDE.md` = sistema operativo completo (22 reglas, triada, 20 skills, tablas de enrutamiento, politicas de escalamiento).
+`README.md` = instalacion, arquitectura y uso. `CLAUDE.md` = sistema operativo completo (22 reglas, triada, 23 skills, tablas de enrutamiento, politicas de escalamiento).
 
 ---
 
