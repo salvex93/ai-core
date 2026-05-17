@@ -54,9 +54,6 @@ NO esperar a que el usuario declare skills. Seleccionar automaticamente segun la
 | Calidad, tests, cobertura | `qa-engineer` |
 | RAG, embeddings, recuperacion de contexto | `rag-specialist` |
 
-Declarar al inicio de la primera respuesta relevante:
-`skills_activos: [skill1, skill2]`
-
 Los skills disponibles estan en `.claude/skills/`. Cada SKILL.md define el dominio y herramientas del rol.
 
 Skills disponibles: `ai-guardrails`, `ai-integrations`, `aiops-engineer`, `attack-surface-analyst`, `audio-voice-engineer`, `backend-architect`, `claude-agent-sdk`, `claude-api`, `data-engineer`, `devops-infra`, `doc-builder`, `llm-evals`, `llm-observability`, `managed-agents-specialist`, `mcp-server-builder`, `mobile-engineer`, `prompt-engineer`, `qa-engineer`, `rag-specialist`, `release-manager`, `security-auditor`, `tech-lead-frontend`.

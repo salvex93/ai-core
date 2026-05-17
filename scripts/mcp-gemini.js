@@ -20,7 +20,7 @@ const GEMINI_DEFAULT      = 'gemini-2.5-flash';
 const LINE_THRESHOLD      = 500;
 const SIZE_THRESHOLD      = 50 * 1024; // 50 KB
 const MAX_RETRIES         = 2;
-const COMPACT_TOKEN_LIMIT = 800; // si el JSON de respuesta supera este numero de palabras, se recompacta
+const COMPACT_TOKEN_LIMIT = 1125; // ~1.500 tokens (1 token ≈ 0.75 palabras) — alineado con limite de output declarado en CLAUDE.md
 const MAX_INPUT_CHARS     = 32000; // ~8k tokens — limite de cuota para input a Gemini
 const MAX_OUTPUT_CHARS    = 6000;  // ~1.5k tokens — limite para output que entra al historial de Claude
 
