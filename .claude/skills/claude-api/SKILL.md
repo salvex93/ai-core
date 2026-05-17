@@ -1,9 +1,9 @@
 ---
 name: claude-api
-description: Especialista en Claude API y Anthropic SDK (Python/TypeScript). Cubre prompt caching, extended thinking, tool use, streaming, Batch API, Files API, modelos Opus/Sonnet/Haiku, migracion entre versiones de modelo y optimizacion de costo por token. Activa al escribir codigo que importa anthropic/@anthropic-ai/sdk, disenar pipelines con cache de prompts, implementar tool use nativo, o migrar entre versiones de Claude.
+description: Especialista en Claude API y Anthropic SDK (Python/TypeScript). Cubre prompt caching, extended thinking, tool use, streaming, Batch API, Files API, Citations API, modelos Opus/Sonnet/Haiku, migracion entre versiones de modelo y optimizacion de costo por token. Activa al escribir codigo que importa anthropic/@anthropic-ai/sdk, disenar pipelines con cache de prompts, implementar tool use nativo, o migrar entre versiones de Claude.
 origin: ai-core
-version: 1.0.0
-last_updated: 2026-04-27
+version: 1.1.0
+last_updated: 2026-05-17
 ---
 
 # Claude API Specialist
@@ -12,9 +12,10 @@ last_updated: 2026-04-27
 
 - Codigo importa `anthropic` o `@anthropic-ai/sdk`.
 - El usuario pregunta sobre prompt caching, cache hit rate, o costos de inferencia.
-- Implementacion de tool use, streaming, thinking extendido o Batch API.
+- Implementacion de tool use, streaming, extended thinking o Batch API.
 - Migracion de modelo: Haiku 4.5 → Sonnet 4.6 → Opus 4.7, o reemplazo de modelos retirados.
 - Disenar system prompts con cache para reducir costo en sesiones largas.
+- Uso de Citations API para documentos estructurados o Files API para contexto persistente.
 
 ## Primera Accion al Activar
 
@@ -26,20 +27,22 @@ last_updated: 2026-04-27
 grep -r "cache_control\|anthropic\|claude-" src/ --include="*.ts" --include="*.py" -l
 ```
 
-## Modelos Vigentes (2026-04)
+## Modelos Vigentes (2026-05)
 
-| Modelo | ID | Uso recomendado |
+| Modelo | ID exacto | Uso recomendado |
 |---|---|---|
-| Opus 4.7 | `claude-opus-4-7` | Razonamiento complejo, agentes autonomos |
+| Opus 4.7 | `claude-opus-4-7` | Razonamiento complejo, agentes autonomos, arquitectura |
 | Sonnet 4.6 | `claude-sonnet-4-6` | Produccion general, balance costo/calidad |
 | Haiku 4.5 | `claude-haiku-4-5-20251001` | Tareas simples, maximo ahorro de tokens |
 
+Jerarquia de costo: Haiku < Sonnet < Opus. Usar siempre el minimo suficiente.
+
 ## Prompt Caching — Patron Obligatorio
 
-Todo proyecto con Claude API DEBE incluir cache en el system prompt si supera 1024 tokens:
+Todo proyecto con Claude API DEBE incluir cache en el system prompt si supera 1024 tokens.
+Cache reduce costo hasta 90% en tokens de input repetidos. TTL: 5 minutos.
 
 ```python
-# Python — cache en system prompt
 response = client.messages.create(
     model="claude-sonnet-4-6",
     max_tokens=1024,
@@ -55,84 +58,165 @@ response = client.messages.create(
 ```
 
 ```typescript
-// TypeScript — cache en system prompt
 const response = await client.messages.create({
   model: "claude-sonnet-4-6",
   max_tokens: 1024,
-  system: [
-    {
-      type: "text",
-      text: SYSTEM_PROMPT_LARGO,
-      cache_control: { type: "ephemeral" }
-    }
-  ],
+  system: [{ type: "text", text: SYSTEM_PROMPT_LARGO, cache_control: { type: "ephemeral" } }],
   messages: [{ role: "user", content: userMessage }]
 });
 ```
 
-Cache reduce costo hasta 90% en tokens de input repetidos. TTL: 5 minutos.
+### Cache Breakpoints — Posicionamiento Estrategico
+
+Posicionar `cache_control` despues del bloque que cambia con menor frecuencia:
+
+```python
+system = [
+    {"type": "text", "text": INSTRUCCIONES_FIJAS, "cache_control": {"type": "ephemeral"}},  # cache aqui
+    {"type": "text", "text": contexto_dinamico_de_sesion}  # sin cache — cambia por turno
+]
+```
+
+Regla: el contenido antes del breakpoint se cachea; el de despues, no. Colocar el breakpoint despues del bloque mas largo y mas estable.
+
+## Extended Thinking — Patron con Streaming
+
+Para razonamiento profundo en Opus 4.7. Usar streaming para no bloquear el proceso:
+
+```python
+with client.messages.stream(
+    model="claude-opus-4-7",
+    max_tokens=16000,
+    thinking={"type": "enabled", "budget_tokens": 10000},
+    messages=[{"role": "user", "content": pregunta_compleja}]
+) as stream:
+    for event in stream:
+        if event.type == "content_block_start" and event.content_block.type == "thinking":
+            pass  # bloque de razonamiento interno — no mostrar al usuario
+        elif event.type == "text":
+            print(event.text, end="", flush=True)
+```
+
+`budget_tokens`: cuantos tokens puede usar Claude para razonar internamente. Ajustar al 60-80% de `max_tokens`.
 
 ## Tool Use — Patron Minimo
 
 ```python
-tools = [
-    {
-        "name": "get_data",
-        "description": "Obtiene datos del sistema",
-        "input_schema": {
-            "type": "object",
-            "properties": {
-                "query": {"type": "string", "description": "Consulta a ejecutar"}
-            },
-            "required": ["query"]
-        }
+tools = [{
+    "name": "get_data",
+    "description": "Obtiene datos del sistema",
+    "input_schema": {
+        "type": "object",
+        "properties": {"query": {"type": "string"}},
+        "required": ["query"]
     }
-]
+}]
 
 response = client.messages.create(
-    model="claude-sonnet-4-6",
-    max_tokens=1024,
-    tools=tools,
+    model="claude-sonnet-4-6", max_tokens=1024, tools=tools,
     messages=[{"role": "user", "content": "Busca los datos de X"}]
 )
 
-# Manejar tool_use en la respuesta
 if response.stop_reason == "tool_use":
     tool_block = next(b for b in response.content if b.type == "tool_use")
     result = execute_tool(tool_block.name, tool_block.input)
 ```
 
-## Streaming
-
-```python
-with client.messages.stream(
-    model="claude-sonnet-4-6",
-    max_tokens=1024,
-    messages=[{"role": "user", "content": prompt}]
-) as stream:
-    for text in stream.text_stream:
-        print(text, end="", flush=True)
-```
-
-## Batch API (procesamiento masivo con 50% descuento)
+## Batch API — 50% de descuento para procesamiento no urgente
 
 ```python
 batch = client.messages.batches.create(
     requests=[
-        {"custom_id": f"req-{i}", "params": {"model": "claude-haiku-4-5-20251001", "max_tokens": 256, "messages": [{"role": "user", "content": prompt}]}}
+        {"custom_id": f"req-{i}", "params": {
+            "model": "claude-haiku-4-5-20251001",
+            "max_tokens": 256,
+            "messages": [{"role": "user", "content": prompt}]
+        }}
         for i, prompt in enumerate(prompts)
     ]
 )
-# Recuperar resultados cuando batch.processing_status == "ended"
+# Recuperar cuando batch.processing_status == "ended"
+for result in client.messages.batches.results(batch.id):
+    print(result.custom_id, result.result.message.content)
+```
+
+Usar Batch API para: evaluaciones masivas, enriquecimiento de datos, generacion de embeddings, cualquier tarea con > 10 requests independientes sin SLA de tiempo real.
+
+## Files API — Contexto Persistente entre Sesiones
+
+Subir archivos grandes una vez, referenciarlos en multiples requests sin retransmitir el contenido:
+
+```python
+# Subir una vez
+with open("documento.pdf", "rb") as f:
+    file_obj = client.beta.files.upload(file=("documento.pdf", f, "application/pdf"))
+
+# Referenciar en requests subsiguientes
+response = client.messages.create(
+    model="claude-sonnet-4-6",
+    max_tokens=1024,
+    messages=[{
+        "role": "user",
+        "content": [
+            {"type": "document", "source": {"type": "file", "file_id": file_obj.id}},
+            {"type": "text", "text": "Resume los puntos clave de este documento."}
+        ]
+    }],
+    betas=["files-api-2025-04-14"]
+)
+```
+
+Caso de uso optimo: documentos de referencia que se consultan en muchos turnos (manuales, specs, bases de conocimiento).
+
+## Citations API — Respuestas con Fuentes Verificables
+
+Para documentos estructurados donde el usuario necesita saber de donde proviene cada afirmacion:
+
+```python
+response = client.messages.create(
+    model="claude-sonnet-4-6",
+    max_tokens=1024,
+    messages=[{
+        "role": "user",
+        "content": [
+            {
+                "type": "document",
+                "source": {"type": "text", "media_type": "text/plain", "data": contenido_doc},
+                "title": "Documento de referencia",
+                "citations": {"enabled": True}
+            },
+            {"type": "text", "text": "¿Cuales son los requisitos de seguridad?"}
+        ]
+    }]
+)
+```
+
+## Prefill de Respuesta — Forzar Formato sin Tokens Extra
+
+Forzar JSON u otro formato estructurado sin necesidad de instrucciones largas en el prompt:
+
+```python
+response = client.messages.create(
+    model="claude-haiku-4-5-20251001",
+    max_tokens=512,
+    messages=[
+        {"role": "user", "content": "Analiza este texto: " + texto},
+        {"role": "assistant", "content": "{"}  # prefill fuerza inicio de JSON
+    ]
+)
+# La respuesta comienza despues del prefill — concatenar: "{" + response.content[0].text
 ```
 
 ## Checklist de Optimizacion de Costo
 
 - [ ] System prompt > 1024 tokens tiene `cache_control: ephemeral`.
-- [ ] Modelo seleccionado es el minimo suficiente para la tarea (Haiku si aplica).
-- [ ] Batch API activo para > 10 requests independientes.
-- [ ] `max_tokens` ajustado al output esperado, no al maximo.
+- [ ] Cache breakpoints posicionados despues del bloque mas estable (no al final).
+- [ ] Modelo seleccionado es el minimo suficiente (Haiku si la tarea lo permite).
+- [ ] Batch API activo para > 10 requests independientes sin SLA de tiempo real.
+- [ ] `max_tokens` ajustado al output esperado, no al maximo del modelo.
 - [ ] Streaming activo si el usuario espera respuesta en tiempo real.
+- [ ] Files API para documentos > 10KB consultados en multiples turnos.
+- [ ] Prefill activo si el output siempre sigue un formato fijo (JSON, XML, tabla).
 
 ## Directiva de Interrupcion
 

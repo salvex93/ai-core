@@ -72,11 +72,12 @@ No repetir la línea de telemetría en cada turno — solo en el primero de la s
 1. **Mapeo de Grafo:** USA `.claude/CONTEXT_MAP.json` como indice primario. Al inicio de sesion, el hook `PreToolUse` ejecuta `.claude/bin/validate-map.js`, que genera el mapa automaticamente si no existe o lo regenera si hay drift >= 3 archivos respecto a `git ls-files`. PROHIBIDO usar `git ls-files`, `find` o `ls` para explorar estructura. Solo lee un archivo si vas a modificarlo.
 2. **Gemini Bridge:** Si el usuario solicita analizar un error complejo, explicar conceptos de arquitectura o revisar logs extensos, DETÉN la respuesta. Genera un archivo `.claude/TO_GEMINI.md` con el contexto técnico necesario y solicita al usuario que lo procese en Gemini Free para ahorrar cuota.
 3. **Anti-Detox:** Verifica que la raíz del proyecto esté limpia de archivos `.md` correspondientes a reportes legacy (v2.4/v2.5) para evitar el envenenamiento del contexto de memoria.
-4. **Gestion de Contexto (compress/clean):**
-   - Contexto estimado > 10k tokens → imprimir al inicio de la respuesta: `[AVISO: contexto pesado — considera ejecutar /compress]`
-   - Contexto estimado > 40k tokens → imprimir: `[CRITICO: contexto saturado — ejecuta /clear antes de continuar]`
-   - Para estimar: contar turnos visibles en la sesion. Mas de 8 turnos = zona de compress. Mas de 20 turnos = zona de clear.
-   - Tras un compress exitoso, resetear el conteo mental de turnos.
+4. **Gestion de Contexto (compress/clear):**
+   - Estimacion: N turnos visibles × 800 tokens.
+   - TURNOS >= 6 → imprimir AL INICIO de la respuesta: `[AVISO: contexto pesado — ejecuta /compact]` y avisar al usuario.
+   - TURNOS >= 15 → imprimir AL INICIO de la respuesta: `[CRITICO: contexto saturado — ejecuta /clear antes de continuar]` y detener la tarea hasta que el usuario ejecute el comando.
+   - Tras `/compact` exitoso: resetear conteo a 1. Tras `/clear`: resetear conteo a 0.
+   - REGLA: nunca esperar a que el usuario lo pida — anticiparse siempre.
 
 ## Reglas de Delegacion a Gemini Bridge (TIER 0 — siempre primero)
 Gemini es GRATUITO. Usarlo antes que cualquier modelo Claude para las siguientes tareas:
@@ -97,9 +98,9 @@ Gemini es GRATUITO. Usarlo antes que cualquier modelo Claude para las siguientes
 
 ## Telemetria de Contexto
 Imprimir solo cuando el estado no sea OK:
-- TURNOS > 6: `[AVISO: contexto pesado — ejecuta /compress]` al inicio de esa respuesta.
-- TURNOS > 15: `[CRITICO: contexto saturado — ejecuta /clear]` al inicio de esa respuesta.
-- Estimacion: N turnos visibles × 800 tokens. Tras `/compress`, resetear conteo a 1.
+- TURNOS >= 6: `[AVISO: contexto pesado — ejecuta /compact]` al inicio de esa respuesta.
+- TURNOS >= 15: `[CRITICO: contexto saturado — ejecuta /clear]` al inicio de esa respuesta.
+- Estimacion: N turnos visibles × 800 tokens. Tras `/compact`, resetear conteo a 1. Tras `/clear`, resetear a 0.
 
 ## Tokenomics Claude Pro (sesion web sin API)
 Reglas para no llegar al limite de cuota en 2 horas:
@@ -108,7 +109,7 @@ Reglas para no llegar al limite de cuota en 2 horas:
 - PROHIBIDO repetir codigo que el usuario ya tiene — solo diffs o bloques minimos.
 - Antes de responder: preguntate si la respuesta puede ser 1 linea. Si si → hazla 1 linea.
 - Si el usuario pregunta algo que ya esta en CONTEXT_MAP → responde desde el mapa, no releas el archivo.
-- /compress cuando TURNOS > 6. /clear solo al cambiar de tema completamente.
+- /compact cuando TURNOS >= 6. /clear solo al cambiar de tema completamente.
 
 ## Reglas Criticas Anti-Degradacion (ANCLA — releer si el contexto se siente pesado)
 PROHIBIDO absoluto sin excepcion:
@@ -136,9 +137,9 @@ Reglas de hierro para maximizar autonomia dentro del limite de 2 horas de Claude
 4. ¿La respuesta supera 100 palabras de prosa? → Delegar a TO_GEMINI.md.
 
 ### Compactacion automatica:
-- TURNOS > 6 → ejecutar `/compress` antes de continuar. No esperar a que el usuario lo pida.
-- TURNOS > 15 → ejecutar `/clear` y reiniciar sesion con contexto minimo.
-- Tras `/compress`: resetear conteo de turnos a 1.
+- TURNOS >= 6 → avisar con `[AVISO: contexto pesado — ejecuta /compact]`. No esperar a que el usuario lo pida.
+- TURNOS >= 15 → avisar con `[CRITICO: contexto saturado — ejecuta /clear]` y detener la tarea.
+- Tras `/compact`: resetear conteo de turnos a 1. Tras `/clear`: resetear a 0.
 - Nunca acumular mas de 3 tool calls en una respuesta si no son estrictamente paralelas.
 
 ### Delegacion obligatoria a Gemini Bridge:
