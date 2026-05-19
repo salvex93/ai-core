@@ -3,7 +3,7 @@ name: llm-evals
 description: Especialista en evaluacion sistematica de outputs de LLM. Cubre diseno de datasets de evaluacion, metricas automatizadas (faithfulness, answer relevancy, hallucination rate), LLM-as-judge, integracion de evals en CI/CD y frameworks de evaluacion (deepeval, promptfoo, RAGAS). Activa al disenar un pipeline de evals, detectar regresiones en calidad de outputs, evaluar cambios de modelo o prompt, o medir la calidad de un sistema RAG.
 origin: ai-core
 version: 1.2.3
-last_updated: 2026-04-27
+last_updated: 2026-05-19
 ---
 
 # LLM Evals — Especialista en Evaluacion Sistematica de Outputs
@@ -175,6 +175,52 @@ Los umbrales se definen por metrica y por operacion. Un umbral global unico para
   "accion_si_falla": "bloquear_merge"
 }
 ```
+
+## Batch API de Anthropic para Evals Masivas
+
+Cuando el dataset de evaluacion supera 10 items, usar la Batch API en lugar de llamadas LLM-as-judge sincronas. Costo 50% menor, sin rate limits.
+
+### Cuando usar Batch API
+
+- Dataset de eval >= 10 items con el mismo template de prompt.
+- Evals offline (no requieren resultado en tiempo real).
+- Re-evaluacion de golden dataset completo tras cambio de modelo o prompt.
+
+### Patron de implementacion
+
+```python
+import anthropic
+
+client = anthropic.Anthropic()
+
+# Construir requests batch desde el golden dataset
+requests = [
+    {
+        "custom_id": f"eval-{item['id']}",
+        "params": {
+            "model": "claude-haiku-4-5-20251001",  # Haiku para evals masivas
+            "max_tokens": 256,
+            "messages": [
+                {"role": "user", "content": JUDGE_PROMPT_TEMPLATE.format(
+                    question=item["input"],
+                    expected=item["expected_output"],
+                    actual=item["actual_output"]
+                )}
+            ]
+        }
+    }
+    for item in golden_dataset
+]
+
+# Enviar batch — respuesta asincrona (minutos a horas segun volumen)
+batch = client.messages.batches.create(requests=requests)
+
+# Recuperar resultados cuando el batch este completo
+results = client.messages.batches.results(batch.id)
+scores = [parse_judge_score(r.result.message.content[0].text) for r in results]
+```
+
+Regla: si el presupuesto de eval usa > $0.10 en llamadas sincronas, recalcular con batch. El ahorro empirico en datasets de 100+ items es del 45-55%.
 
 ## Frameworks de Evaluacion
 

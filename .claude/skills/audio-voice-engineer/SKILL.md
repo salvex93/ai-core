@@ -3,7 +3,7 @@ name: audio-voice-engineer
 description: Especialista en Voice AI y sistemas de audio real-time. Cubre streaming de audio, conversational interfaces nativas, Gemini 2.5 Flash Live API, APIs de speech-to-text/text-to-speech, latencia submilisegundo, y orquestacion de voice workflows. Activa al disenar interfaces de voz, implementar streaming de audio en produccion, o integrar modelos speech de Gemini.
 origin: ai-core
 version: 1.2.0
-last_updated: 2026-05-17
+last_updated: 2026-05-19
 ---
 
 # Audio Voice Engineer — Sistemas de Audio Real-Time

@@ -2,8 +2,8 @@
 name: cost-optimizer
 description: Optimizador de costos de inferencia LLM. Selecciona el modelo mas barato que completa la tarea, fuerza Gemini como tier 0, aplica prompt caching, prefill y batch inference. Activa al detectar consumo excesivo de tokens, al iniciar sesion con tareas multiples, o al disenar pipelines de agentes donde el costo es variable.
 origin: ai-core
-version: 1.0.0
-last_updated: 2026-05-18
+version: 1.1.0
+last_updated: 2026-05-19
 ---
 
 # Cost Optimizer
@@ -22,7 +22,13 @@ Este perfil gobierna la seleccion de modelo, la estrategia de caching y la reduc
 ## Jerarquia de Modelos (releer antes de cada llamada LLM)
 
 ```
-Tier 0 — Gemini 2.5 Flash (GRATUITO)
+Tier 0A — Gemini 2.5 Flash Lite (GRATUITO — escala masiva)
+  Volumen > 10.000 requests/dia donde Flash es suficiente
+  Clasificacion masiva, moderacion de contenido, extraccion simple a escala
+  Latencia objetivo < 300ms con contextos cortos (< 4k tokens)
+  Pipelines de alto throughput donde el costo por token es la variable critica
+
+Tier 0B — Gemini 2.5 Flash (GRATUITO — uso general)
   Leer archivos > 200 lineas
   Analizar logs > 50 lineas
   Resumir repositorios completos

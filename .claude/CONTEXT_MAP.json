@@ -1,6 +1,6 @@
 {
-  "version": "2.7.0",
-  "last_updated": "2026-05-19T05:43:38.037Z",
+  "version": "2.8.0",
+  "last_updated": "2026-05-19T06:27:25.874Z",
   "branch": "main",
   "map": {
     "root": "ai-core/",
@@ -31,6 +31,7 @@
         ".claude/skills/data-engineer/SKILL.md",
         ".claude/skills/devops-infra/SKILL.md",
         ".claude/skills/doc-builder/SKILL.md",
+        ".claude/skills/gemini-2-5-specialist/SKILL.md",
         ".claude/skills/llm-evals/SKILL.md",
         ".claude/skills/llm-observability/SKILL.md",
         ".claude/skills/managed-agents-specialist/SKILL.md",
@@ -42,6 +43,7 @@
         ".claude/skills/release-manager/SKILL.md",
         ".claude/skills/security-auditor/SKILL.md",
         ".claude/skills/tech-lead-frontend/SKILL.md",
+        ".claude/skills/web-scraping-specialist/SKILL.md",
         ".claude/skills/workflow-orchestrator/SKILL.md"
       ],
       "docs/": [
@@ -71,7 +73,9 @@
     "root_files": [
       ".env.example",
       ".gitignore",
+      "CHANGELOG.md",
       "CLAUDE.md",
+      "CONTRIBUTING.md",
       "DOCS_MAESTRA.md",
       "LICENSE",
       "README.md",
@@ -83,6 +87,6 @@
       "node_modules/",
       ".git/"
     ],
-    "total_files": 65
+    "total_files": 69
   }
 }
