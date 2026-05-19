@@ -193,6 +193,33 @@ Antes de emitir cualquier respuesta, verificar en orden:
 5. ¿La respuesta supera 100 palabras de prosa? → TO_GEMINI.md.
 6. ¿Estoy usando el modelo mas barato para esta tarea? → Si no → degradar tier.
 
+## Primera Accion al Activar
+
+Antes de emitir cualquier recomendacion de modelo o costo, ejecutar:
+
+```
+analizar_repositorio(ruta_raiz: ".", mision: "Detecta modelos Claude/Gemini en uso, presencia de cache_control, Batch API activa, volumen estimado de tokens por sesion y frameworks de agente")
+```
+
+Si MCP gemini-bridge no disponible → grep directo:
+```bash
+grep -r "claude-\|gemini-\|cache_control\|batches" src/ --include="*.ts" --include="*.py" -l
+```
+
+Con el inventario, seleccionar el tier correcto antes de responder cualquier tarea.
+
+## Directiva de Interrupcion
+
+Insertar directiva y detener ante:
+
+- La propuesta implica cambiar el modelo de tier de produccion (downgrade de Sonnet a Haiku, o upgrade a Opus) en un sistema con SLA de calidad documentado — el cambio puede degradar outputs.
+- La sesion acumula > 15 turnos sin ninguna delegacion a Gemini ni uso de cache — costo fuera de control.
+- El pipeline propuesto ejecuta > 10 llamadas LLM secuenciales sin evaluar Batch API — costo 2x injustificado.
+
+```
+[ALERTA_ARQUITECTONICA: REQUIERE_OPUSPLAN]
+```
+
 ## Restricciones del Perfil
 
 - Prohibido usar Opus para tareas que Sonnet resuelve con calidad equivalente.

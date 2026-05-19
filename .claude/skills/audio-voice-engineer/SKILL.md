@@ -141,6 +141,63 @@ Solucion: normalizar a reloj comun (NTP, UNIX timestamp en milisegundos).
 Sintoma: audio entrecortado, saltos en la conversacion.
 Solucion: implementar retransmision selectiva, usar FEC (Forward Error Correction) si perdida > 1%.
 
+## Gemini 2.5 Flash TTS Nativo — Text-to-Speech de Alta Calidad
+
+Disponible desde 2026. Dos variantes con objetivos distintos:
+
+| Modelo TTS | Optimizacion | Latencia tipica | Uso |
+|---|---|---|---|
+| `gemini-2.5-flash-preview-tts` | Baja latencia | 80-120ms | Conversacion real-time |
+| `gemini-2.5-pro-preview-tts` | Alta calidad | 200-400ms | Narracion, contenido grabado |
+
+```python
+from google import genai
+
+client = genai.Client()
+
+# TTS con expresividad controlada
+response = client.models.generate_content(
+    model="gemini-2.5-flash-preview-tts",
+    contents=[{
+        "parts": [{
+            "text": "Bienvenido al sistema. ¿En que puedo ayudarte hoy?"
+        }]
+    }],
+    config=genai.types.GenerateContentConfig(
+        response_modalities=["AUDIO"],
+        speech_config=genai.types.SpeechConfig(
+            voice_config=genai.types.VoiceConfig(
+                prebuilt_voice_config=genai.types.PrebuiltVoiceConfig(voice_name="Aoede")
+            )
+        )
+    )
+)
+audio_data = response.candidates[0].content.parts[0].inline_data.data
+```
+
+Voces disponibles (30 HD en 24 idiomas): Aoede, Charon, Fenrir, Kore, Puck — entre otras. Verificar lista completa en `ai.google.dev/gemini-api/docs/speech-generation`.
+
+## Affective Dialog — Respuesta Emocional Contextual
+
+`gemini-2.5-flash` con Live API detecta y responde adecuadamente al tono emocional del usuario (urgencia, frustracion, entusiasmo). Activo por defecto en Live API.
+
+```python
+config = {
+    "response_modalities": ["AUDIO"],
+    "speech_config": {
+        "voice_config": {"prebuilt_voice_config": {"voice_name": "Aoede"}}
+    },
+    "system_instruction": (
+        "Detecta el tono emocional del usuario. "
+        "Si expresa urgencia, responde de forma concisa y directa. "
+        "Si expresa frustracion, valida antes de dar solucion. "
+        "Responde siempre en espanol."
+    )
+}
+```
+
+Affective Dialog no requiere configuracion adicional — es capacidad nativa de `gemini-2.5-flash`. El system prompt define el comportamiento de respuesta emocional.
+
 ## Lista de Verificacion — Voice Systems
 
 1. Latencia end-to-end documentada y < 300ms en ruta critica.

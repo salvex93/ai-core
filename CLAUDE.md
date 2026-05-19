@@ -1,4 +1,4 @@
-# AI-CORE v2.7.0 | Sentinel Protocol
+# AI-CORE v2.8.0 | Sentinel Protocol
 
 ## Identidad
 - **Sistema:** AI-CORE by salvex93 — Nucleo Centralizado de Agentes para proyectos de desarrollo.
@@ -50,6 +50,8 @@ NO esperar a que el usuario declare skills. Seleccionar automaticamente segun la
 | Seguridad, auditoria, vulnerabilidades | `security-auditor`, `attack-surface-analyst` |
 | Agentes, MCP, flujos automatizados | `managed-agents-specialist`, `mcp-server-builder` |
 | Orquestacion multi-agente, fan-out/fan-in, retry, checkpointing | `workflow-orchestrator` |
+| Gemini 2.5 directo: thinking budgets, Flash-Lite, Live API, image gen | `gemini-2-5-specialist` |
+| Scraping web, monitores de precios, OCR retail, bypass CAPTCHA, proxies | `web-scraping-specialist` |
 | Frontend, dashboard, UI | `tech-lead-frontend` |
 | Documentos HTML/PDF para clientes, propuestas, requerimientos, entregables formales | `doc-builder` |
 | Calidad, tests, cobertura | `qa-engineer` |
@@ -57,7 +59,7 @@ NO esperar a que el usuario declare skills. Seleccionar automaticamente segun la
 
 Los skills disponibles estan en `.claude/skills/`. Cada SKILL.md define el dominio y herramientas del rol.
 
-Skills disponibles: `ai-guardrails`, `ai-integrations`, `aiops-engineer`, `attack-surface-analyst`, `audio-voice-engineer`, `backend-architect`, `claude-agent-sdk`, `claude-api`, `cost-optimizer`, `data-engineer`, `devops-infra`, `doc-builder`, `llm-evals`, `llm-observability`, `managed-agents-specialist`, `mcp-server-builder`, `mobile-engineer`, `prompt-engineer`, `qa-engineer`, `rag-specialist`, `release-manager`, `security-auditor`, `tech-lead-frontend`, `workflow-orchestrator`.
+Skills disponibles: `ai-guardrails`, `ai-integrations`, `aiops-engineer`, `attack-surface-analyst`, `audio-voice-engineer`, `backend-architect`, `claude-agent-sdk`, `claude-api`, `cost-optimizer`, `data-engineer`, `devops-infra`, `doc-builder`, `gemini-2-5-specialist`, `llm-evals`, `llm-observability`, `managed-agents-specialist`, `mcp-server-builder`, `mobile-engineer`, `prompt-engineer`, `qa-engineer`, `rag-specialist`, `release-manager`, `security-auditor`, `tech-lead-frontend`, `web-scraping-specialist`, `workflow-orchestrator`.
 
 ## Visibilidad y Telemetría
 Imprimir una sola línea al inicio de la **primera respuesta de cada sesión**:

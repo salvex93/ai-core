@@ -190,6 +190,32 @@ def consolidar_con_fallos(exitos: list, fallos: list, umbral_minimo: float = 0.8
     }
 ```
 
+## Context Compaction en Workflows Largos
+
+Para pipelines de > 20 pasos donde el historial de Claude crece linealmente, implementar compaction entre fases:
+
+```python
+MAX_TOKENS_HISTORIAL = 50000  # umbral antes de compactar
+
+async def compactar_si_necesario(historial: list, client) -> list:
+    tokens_estimados = sum(len(m["content"]) // 4 for m in historial)
+    if tokens_estimados < MAX_TOKENS_HISTORIAL:
+        return historial
+
+    resumen_response = await client.messages.create(
+        model="claude-haiku-4-5-20251001",   # Haiku para compactar — es mas barato
+        max_tokens=2048,
+        messages=historial + [{
+            "role": "user",
+            "content": "Resume los pasos completados, sus outputs clave y el estado actual del workflow en formato JSON estructurado."
+        }]
+    )
+    resumen = resumen_response.content[0].text
+    return [{"role": "assistant", "content": f"[HISTORIAL COMPACTADO]\n{resumen}"}]
+```
+
+Regla: compactar siempre con Haiku (no con Sonnet/Opus) — la tarea es resumen, no razonamiento. Ahorro tipico: 70-80% en tokens de contexto.
+
 ## Seleccion de Framework de Orquestacion
 
 | Criterio | Sin framework (asyncio) | LangGraph | Temporal / Prefect |

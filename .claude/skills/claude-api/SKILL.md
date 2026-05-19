@@ -218,6 +218,80 @@ response = client.messages.create(
 - [ ] Files API para documentos > 10KB consultados en multiples turnos.
 - [ ] Prefill activo si el output siempre sigue un formato fijo (JSON, XML, tabla).
 
+## ant CLI — Cliente de Linea de Comandos
+
+`ant` es el cliente oficial de Anthropic para interactuar con la Claude API desde terminal. Integrado con Claude Code y con versionado de recursos en YAML.
+
+```bash
+# Instalar
+npm install -g @anthropic-ai/ant
+
+# Llamada directa al modelo
+ant messages create --model claude-sonnet-4-6 --max-tokens 1024 "Analiza este error: ..."
+
+# Versionado de recursos en YAML
+ant prompts push prompts/system.yaml   # versionar prompt
+ant prompts pull system-v2             # recuperar version
+```
+
+Caso de uso en ai-core: invocar Claude desde hooks de CI/CD sin levantar un proceso Node.js completo. Util para `PreToolUse` hooks que necesitan validacion rapida de inputs.
+
+## Adaptive Thinking — Calibracion Automatica de Razonamiento
+
+Disponible en `claude-opus-4-7`. El modelo asigna presupuesto de razonamiento por paso segun la complejidad local, sin requerir `budget_tokens` fijo.
+
+```python
+# Thinking adaptativo — el modelo decide cuanto razonar por llamada
+response = client.messages.create(
+    model="claude-opus-4-7",
+    max_tokens=16000,
+    thinking={"type": "auto"},   # adaptativo vs {"type": "enabled", "budget_tokens": N}
+    messages=[{"role": "user", "content": pregunta}]
+)
+```
+
+Cuando usar `auto` vs `budget_tokens`:
+- `auto`: tareas con complejidad variable entre llamadas — ahorra tokens en pasos simples.
+- `budget_tokens: N`: costo predecible por llamada, flujos con complejidad uniforme.
+
+## Context Compaction — Sesiones de Ejecucion Larga
+
+El agente puede compactar su propio historial de contexto para continuar tareas sin alcanzar el limite de tokens. Util en pipelines de agentes con > 20 pasos.
+
+```python
+# Activar compaction en el loop del agente
+response = client.messages.create(
+    model="claude-sonnet-4-6",
+    max_tokens=8192,
+    system=[{"type": "text", "text": SYSTEM, "cache_control": {"type": "ephemeral"}}],
+    messages=historial,
+    # Si el historial se acerca al limite, Claude compacta automaticamente
+    # No requiere parametro explicito — se activa por politica del modelo
+)
+```
+
+Regla: si el pipeline supera 20 iteraciones, implementar compaction manual como fallback:
+1. Llamar a Claude con el historial completo pidiendo un resumen estructurado de los pasos completados.
+2. Reemplazar el historial por `[{"role": "assistant", "content": resumen_compacto}]`.
+3. Continuar el pipeline con el historial compactado.
+
+## Batch API — Limite 300k tokens (actualizado)
+
+Limite actualizado en 2026: `max_tokens` de hasta 300.000 en Message Batches API para Opus 4.7 y Sonnet 4.6. Aplica para procesamiento masivo de documentos largos.
+
+```python
+batch = client.messages.batches.create(
+    requests=[{
+        "custom_id": f"doc-{i}",
+        "params": {
+            "model": "claude-sonnet-4-6",
+            "max_tokens": 300000,   # limite actualizado 2026
+            "messages": [{"role": "user", "content": doc_largo}]
+        }
+    } for i, doc_largo in enumerate(documentos)]
+)
+```
+
 ## Directiva de Interrupcion
 
 ```
