@@ -2,8 +2,8 @@
 name: ai-guardrails
 description: Especialista en capas de proteccion para sistemas LLM en produccion. Cubre deteccion y bloqueo de prompt injection, validacion de outputs, deteccion de PII, rate limiting por usuario, patron LLM Firewall y seleccion de frameworks (NeMo Guardrails, Guardrails AI, Azure AI Content Safety). Complementa security-auditor (seguridad de aplicacion) y llm-observability (deteccion reactiva). Activa al disenar la capa de proteccion de un sistema LLM, implementar filtros de input/output, o definir politicas de uso aceptable.
 origin: ai-core
-version: 1.0.4
-last_updated: 2026-04-16
+version: 1.1.0
+last_updated: 2026-05-19
 ---
 
 # AI Guardrails
@@ -80,7 +80,7 @@ Accion ante deteccion: no enviar el output al usuario. Retornar un mensaje de fa
 | NeMo Guardrails (NVIDIA) | Flujos conversacionales con rails declarativas en Colang; control fino de topicos permitidos y prohibidos | Curva de aprendizaje de Colang; overhead de latencia de ~200-500ms por turno |
 | Guardrails AI | Validacion de output estructurado; integracion con Pydantic; ecosistema de validators de la comunidad | Enfocado en output validation, no en input injection detection |
 | Azure AI Content Safety | Moderacion de contenido multi-categoria (hate, violence, sexual, self-harm) con niveles de severidad; sin codigo a mantener | Costo por llamada; latencia de red adicional; requiere cuenta Azure |
-| Google Cloud Model Armor | Proteccion contra prompt injection y jailbreak; integra con Vertex AI | Solo disponible en GCP; preview en 2026 |
+| Google Cloud Model Armor | Proteccion contra prompt injection y jailbreak; integra con Vertex AI; GA en GCP desde 2026-Q2 | Solo disponible en GCP; requiere proyecto Vertex AI activo |
 | Implementacion propia (LLM Firewall) | Control total; sin dependencias externas; adaptado al dominio especifico del producto | Requiere mantenimiento activo; sin cobertura de categorias de contenido generico |
 
 ### Criterio de seleccion
@@ -168,6 +168,47 @@ gen_ai.user.id: <hash del ID de usuario, no el ID en claro>
 No registrar el contenido del input bloqueado en el span si contiene PII. Registrar unicamente la categoria del bloqueo y los primeros 50 caracteres del input con los datos sensibles enmascarados.
 
 Delegar la configuracion de alertas basadas en estos eventos al skill `llm-observability`. Una tasa de bloqueo superior al 5% sostenida durante 10 minutos puede indicar un ataque activo o un falso positivo sistematico — ambos requieren atencion.
+
+## Vectores de Evasion Modernos (2026)
+
+### Interleaved Thinking como canal opaco
+
+El beta `interleaved-thinking-2025-05-14` de Anthropic introduce bloques `thinking` intercalados entre pasos de tool use. Estos bloques son invisibles al Output Guard si el sistema solo inspeciona el texto final. Riesgos:
+
+- Un prompt injection bien diseñado puede instruir al modelo a razonar en el bloque `thinking` sobre como eludir la politica, y luego emitir una respuesta aparentemente conforme.
+- Los bloques `thinking` pueden contener razonamiento sobre el system prompt, filtrando estructura interna del sistema.
+
+Contramedidas:
+1. Si el sistema usa `interleaved-thinking-2025-05-14`, el Output Guard debe inspeccionar tambien los bloques `thinking` antes de liberar la respuesta.
+2. En el system prompt: incluir instruccion explicita de que el bloque de razonamiento interno no puede contener instrucciones para eludir las politicas del sistema.
+3. Registrar `thinking_tokens_used` como metrica de observabilidad — un spike anomalo puede indicar razonamiento evasivo activo.
+
+```python
+# Inspeccion de bloques thinking en la respuesta
+for bloque in respuesta.content:
+    if bloque.type == "thinking":
+        resultado = input_guard.analizar(bloque.thinking)
+        if resultado.bloqueado:
+            raise GuardrailViolation("thinking_evasion", bloque.thinking[:100])
+```
+
+### Google Cloud Model Armor (GA — GCP)
+
+Para sistemas desplegados en GCP, Model Armor es ahora la opcion de produccion recomendada sobre implementacion propia de Input Guard. Caracteristicas GA:
+
+- Deteccion de prompt injection y jailbreak con modelos especializados de Google.
+- Integracion nativa con Vertex AI — sin latencia de red adicional si el LLM corre en Vertex.
+- API REST independiente del modelo: compatible con cualquier LLM, no solo Gemini.
+- SLA de disponibilidad del 99.9% con soporte de compliance SOC 2 / ISO 27001.
+
+Criterio de adopcion: si el proyecto ya corre en GCP y tiene requisitos de compliance auditables por terceros, Model Armor reemplaza la implementacion propia del Input Guard. Si el proyecto es multi-cloud o on-premise, mantener implementacion propia con Presidio + clasificador custom.
+
+### Adaptive Thinking (Opus 4.7) — superficie de ataque ampliada
+
+`task_budgets` de Opus 4.7 permite al modelo asignar razonamiento adaptativo por paso. El presupuesto no esta acotado por defecto en la API. Guardrail obligatorio para sistemas con Opus 4.7:
+
+- Definir `max_tokens` global y `budget_tokens` maximo por paso para acotar el costo de un ataque de tokens.
+- El rate limiting debe incluir `thinking_tokens` en el calculo del presupuesto por usuario — un atacante puede forzar razonamiento extensivo con inputs de complejidad artificial.
 
 ## Lista de Verificacion de Revision de Codigo — Guardrails
 

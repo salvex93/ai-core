@@ -53,6 +53,7 @@ NO esperar a que el usuario declare skills. Seleccionar automaticamente segun la
 | Orquestacion multi-agente, fan-out/fan-in, retry, checkpointing | `workflow-orchestrator` |
 | Gemini 2.5 directo: thinking budgets, Flash-Lite, Live API, image gen | `gemini-2-5-specialist` |
 | Scraping web, monitores de precios, OCR retail, bypass CAPTCHA, proxies | `web-scraping-specialist` |
+| Vision, imagenes, PDFs, extraccion estructurada, multimodal Claude/Gemini | `multimodal-engineer` |
 | Frontend, dashboard, UI | `tech-lead-frontend` |
 | Documentos HTML/PDF para clientes, propuestas, requerimientos, entregables formales | `doc-builder` |
 | Calidad, tests, cobertura | `qa-engineer` |
@@ -60,7 +61,7 @@ NO esperar a que el usuario declare skills. Seleccionar automaticamente segun la
 
 Los skills disponibles estan en `.claude/skills/`. Cada SKILL.md define el dominio y herramientas del rol.
 
-Skills disponibles: `agent-testing`, `ai-guardrails`, `ai-integrations`, `aiops-engineer`, `attack-surface-analyst`, `audio-voice-engineer`, `backend-architect`, `claude-agent-sdk`, `claude-api`, `cost-optimizer`, `data-engineer`, `devops-infra`, `doc-builder`, `gemini-2-5-specialist`, `llm-evals`, `llm-observability`, `managed-agents-specialist`, `mcp-server-builder`, `mobile-engineer`, `prompt-engineer`, `qa-engineer`, `rag-specialist`, `release-manager`, `security-auditor`, `tech-lead-frontend`, `web-scraping-specialist`, `workflow-orchestrator`.
+Skills disponibles: `agent-testing`, `ai-guardrails`, `ai-integrations`, `aiops-engineer`, `attack-surface-analyst`, `audio-voice-engineer`, `backend-architect`, `claude-agent-sdk`, `claude-api`, `cost-optimizer`, `data-engineer`, `devops-infra`, `doc-builder`, `gemini-2-5-specialist`, `llm-evals`, `llm-observability`, `managed-agents-specialist`, `mcp-server-builder`, `mobile-engineer`, `multimodal-engineer`, `prompt-engineer`, `qa-engineer`, `rag-specialist`, `release-manager`, `security-auditor`, `tech-lead-frontend`, `web-scraping-specialist`, `workflow-orchestrator`.
 
 ## Visibilidad y Telemetría
 Imprimir una sola línea al inicio de la **primera respuesta de cada sesión**:

@@ -2,8 +2,8 @@
 name: mobile-engineer
 description: Tech Lead Mobile Universal. Experto en aplicaciones moviles y multiplataforma con Flutter/Dart. Cubre arquitectura de features, state management (BLoC/Riverpod), navegacion, integracion con APIs REST, Firebase, mapas, graficos y testing. Agnostico a la capa de backend. Activa al construir pantallas Flutter, disenar la arquitectura de features moviles, integrar SDKs nativos o resolver problemas de rendimiento en el widget tree.
 origin: ai-core
-version: 1.1.1
-last_updated: 2026-04-16
+version: 1.2.0
+last_updated: 2026-05-19
 ---
 
 # Mobile Engineer — Tech Lead Movil y Multiplataforma (Flutter/Dart)
@@ -112,7 +112,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 }
 ```
 
-Si `pubspec.yaml` incluye `flutter_riverpod`, usar AsyncNotifier con StateNotifierProvider o NotifierProvider segun la version.
+Si `pubspec.yaml` incluye `flutter_riverpod`, usar `AsyncNotifier` con `NotifierProvider` (Riverpod 2.x+). `StateNotifierProvider` esta deprecado desde Riverpod 2.0 — migrar a `Notifier`/`AsyncNotifier`.
 
 ### Navegacion con GoRouter
 
@@ -160,6 +160,40 @@ Background handler debe ser funcion top-level (no metodo de clase). Solicitar pe
 
 ### Upload a AWS S3 (fotos/feed)
 No usar AWS Amplify (demasiado pesado). Usar `aws_s3_api` o llamada directa a presigned URL generada por el backend Node.js. El backend firma la URL con `@aws-sdk/s3-request-presigner`; el cliente Flutter hace PUT directo al bucket. Esto evita exponer credenciales AWS en el cliente.
+
+### IA en Edge con firebase_vertexai (Flutter 3.32+)
+
+Para funcionalidades de IA en cliente (clasificacion de imagenes, embeddings locales, generacion de texto sin latencia de red):
+
+```yaml
+# pubspec.yaml — SDK de IA en edge via Firebase
+firebase_vertexai: ^1.0.0  # Gemini en el dispositivo via Firebase App Check
+```
+
+```dart
+// Inicializar modelo Gemini en edge
+final modelo = FirebaseVertexAI.instance.generativeModel(
+  model: 'gemini-2.0-flash-lite',  // tier 0 — modelo ligero para edge
+);
+
+final respuesta = await modelo.generateContent([
+  Content.text('Clasifica esta imagen de padel: $descripcion')
+]);
+```
+
+Reglas de uso:
+- Requerir Firebase App Check activo antes de habilitar `firebase_vertexai` — evita abuso de cuota.
+- Usar `gemini-2.0-flash-lite` para edge (latencia minima, costo minimo). Reservar modelos mayores para el backend.
+- No enviar datos personales del usuario al modelo de edge sin consentimiento explicito — los datos pasan por Firebase.
+
+### Impeller (Renderer por Defecto — Flutter 3.32)
+
+Impeller es el renderer de produccion en Flutter 3.32 para iOS y Android. No requiere configuracion adicional. Implicaciones:
+
+- Eliminar `--enable-impeller` de scripts de build — activo por defecto.
+- Si el proyecto usa shaders SKSL precompilados (`--bundle-sksl-path`), estos ya no son necesarios con Impeller.
+- `RepaintBoundary` sigue siendo relevante para aislar capas de animacion costosas.
+- Reportar bugs de renderizado visuales con `flutter run --profile` antes de asumir que es un bug del codigo — Impeller tiene comportamiento diferente a Skia en degradados y sombras complejas.
 
 ## Reglas de Calidad de Widget Tree (ver Regla 10)
 

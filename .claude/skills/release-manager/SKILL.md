@@ -2,8 +2,8 @@
 name: release-manager
 description: Release Manager Universal. Gestiona el ciclo de vida de entregas de software: versionado semantico, estrategia de branching, pipelines CI/CD, resolucion de conflictos Git y planes de rollback. Agnóstico a la plataforma de CI/CD. Activa al planificar releases, gestionar ramas, configurar pipelines o coordinar despliegues.
 origin: ai-core
-version: 1.1.4
-last_updated: 2026-04-16
+version: 1.2.0
+last_updated: 2026-05-19
 ---
 
 # Release Manager Universal
@@ -88,6 +88,27 @@ Reglas de proteccion de ramas:
 - `main` y `develop`: push directo prohibido. Solo merges via Pull Request con al menos una revision aprobada y pipeline en verde.
 - Todo merge a `main` requiere que el pipeline de staging haya pasado completamente.
 - Una rama `hotfix` tiene prioridad sobre cualquier otro trabajo en curso.
+
+### Merge Queues (GitHub Actions — GA)
+
+Para repositorios con alta frecuencia de merges concurrentes, activar Merge Queue en la configuracion de proteccion de rama `main`. Evita el problema de "merge race" donde dos PRs pasan el pipeline individualmente pero fallan al integrarse juntos.
+
+```yaml
+# .github/workflows/merge-queue.yml
+on:
+  merge_group:
+    types: [checks_requested]
+
+jobs:
+  validate-merge-group:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Tests en grupo de merge
+        run: npm run test:integration
+```
+
+Criterio de adopcion: activar Merge Queue cuando el equipo supera 3 desarrolladores integrando a `main` o `develop` en paralelo, o cuando los fallos de integracion post-merge son recurrentes.
 
 ### Flujo de release paso a paso
 
@@ -251,6 +272,50 @@ Formato Keep a Changelog. El archivo vive en la raiz del repositorio.
 
 ## [2.3.1] - 2026-03-10
 ...
+```
+
+## Evals como Gate de Release (Sistemas LLM)
+
+Para proyectos que incluyen componentes de IA (prompts, modelos, configuracion de inferencia), el pipeline de release incluye un gate de calidad de evals obligatorio. Un fallo en este gate bloquea el release igual que un test unitario fallido.
+
+### Cuando activar el gate de evals
+
+El gate `evals:llm` aplica si el release incluye cualquiera de:
+- Cambios en system prompts o few-shot examples.
+- Migracion entre versiones de modelo (ej: Sonnet 4.5 → Sonnet 4.6, Opus 4.6 → Opus 4.7).
+- Cambios en parametros de inferencia (temperature, max_tokens, thinking budget).
+- Cambios en el pipeline RAG (chunking, embeddings, re-ranker).
+- Cambios en la configuracion de guardrails que afecten la tasa de bloqueo.
+
+### Umbrales minimos de calidad
+
+| Metrica | Umbral de bloqueo | Framework de medicion |
+|---|---|---|
+| Faithfulness (RAG) | < 0.85 | RAGAS |
+| Answer relevancy | < 0.80 | RAGAS / deepeval |
+| Hallucination rate | > 5% | deepeval HallucinationMetric |
+| Task success rate (agentes) | < 90% | promptfoo tool use evals |
+| Latencia P95 | Regresion > 20% vs baseline | Medicion directa |
+
+Si el proyecto no tiene un golden dataset de evaluacion, el gate de evals no puede activarse. Crear el dataset minimo antes del primer release que incluya cambios de IA. Delegar la implementacion del pipeline de evals al skill `llm-evals`.
+
+### Integracion en GitHub Actions
+
+```yaml
+# Etapa evals:llm — solo se ejecuta si hay cambios en rutas de IA
+evals-llm:
+  needs: [test-integration]
+  if: |
+    contains(github.event.pull_request.labels.*.name, 'ai-change') ||
+    contains(toJson(github.event.commits.*.modified), 'prompts/') ||
+    contains(toJson(github.event.commits.*.modified), 'src/ai/')
+  runs-on: ubuntu-latest
+  steps:
+    - uses: actions/checkout@v4
+    - name: Ejecutar golden dataset
+      run: npm run evals:ci
+    - name: Verificar umbrales
+      run: node scripts/check-eval-thresholds.js --fail-below 0.85
 ```
 
 ## Lista de Verificacion Pre-Despliegue a Produccion

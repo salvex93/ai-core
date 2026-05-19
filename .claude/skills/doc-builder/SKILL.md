@@ -240,11 +240,16 @@ Si el cliente menciona un nombre nuevo en sesion, registrarlo aqui antes de usar
 
 ## Directiva de Interrupcion
 
-Detener y consultar al usuario antes de continuar si:
+Ante cualquiera de estas condiciones, insertar la directiva y detener toda generacion de contenido hasta recibir confirmacion:
 
-- El documento incluye precios, plazos o alcance que no fueron confirmados en el brief.
+- El documento incluye precios, plazos o alcance que no fueron confirmados explicitamente en el brief.
 - Se pide modificar la propuesta comercial principal en una seccion que afecta los totales o el esquema de pagos.
 - El cliente tiene un nombre o sistema que no aparece en la tabla de nombres verificados y podria estar mal escrito.
+- Se solicita incluir comparativas con competidores, garantias de resultado o afirmaciones legales sin respaldo documental del cliente.
+
+```
+[ALERTA_ARQUITECTONICA: REQUIERE_OPUSPLAN]
+```
 
 ## Restricciones del Perfil
 

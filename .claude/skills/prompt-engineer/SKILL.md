@@ -273,33 +273,38 @@ Verificar en orden antes de desplegar un cambio de prompt a produccion.
 6. Defensa contra injection: el system prompt incluye instrucciones explicitas para ignorar instrucciones del usuario o del contexto recuperado.
 7. Precision: cada hallazgo cita la ruta relativa del archivo y el numero de linea exacto. Sin esta referencia, el hallazgo no es accionable.
 
-## Dynamic Thinking (Gemini 3.0 Abril 2026)
+## Dynamic Thinking (Gemini 2.5 Pro — thinking_level)
 
-Gemini 3.1-flash-live y modelos Gemini 3 posteriores soportan `thinking_level` (razonamiento dinamico) como alternativa a Opus extended thinking. Define el grado de razonamiento interno antes de emitir la respuesta.
+Gemini 2.5 Pro soporta `thinking_level` (razonamiento dinamico) como alternativa a Opus extended thinking. Define el grado de razonamiento interno antes de emitir la respuesta. Disponible via Google AI SDK (`google-genai`) o Vertex AI; no confundir con `thinking_budget` de la Live API.
 
-### Niveles de thinking en Gemini 3
+### Niveles de thinking en Gemini 2.5 Pro
 
 ```python
-# thinking_level: "auto" — Gemini decide dinamicamente por turno
-respuesta = cliente.messages.create(
-    model="gemini-3.1-flash-live",
-    thinking_level="auto",
-    messages=[...]
+import google.generativeai as genai
+
+# thinking_level: "auto" — Gemini asigna presupuesto de razonamiento adaptativo por turno
+modelo = genai.GenerativeModel(
+    model_name="gemini-2.5-pro",
+    generation_config={"thinking_config": {"thinking_budget": -1}}  # -1 = auto
 )
 
-# thinking_level: "disabled" — Solo ejecucion, sin razonamiento interno
-# thinking_level: "enabled" — Razonamiento completo (similar a Opus extended thinking)
+# thinking_level equivalente con budget fijo (0 = disabled, N tokens = enabled con techo)
+config_disabled = {"thinking_config": {"thinking_budget": 0}}
+config_enabled  = {"thinking_config": {"thinking_budget": 8000}}  # hasta 8k tokens de razonamiento
 ```
 
-### Cuando usar thinking_level
+### Cuando usar thinking_level en Gemini 2.5 Pro
 
-- `auto`: Recomendado para agentes multiturno donde la complejidad es variable (planificacion, debug, analisis).
-- `enabled`: Tareas complejas de una sola vuelta (traduccion precisa, analisis de seguridad, diseño de arquitectura).
-- `disabled`: Tareas donde la latencia es critica o el razonamiento no agrega valor (clasificacion, extraccion simple).
+- `auto` (`budget: -1`): agentes multiturno con complejidad variable — planificacion, debug, analisis. El modelo ajusta el presupuesto por paso.
+- `enabled` (budget fijo): tareas de una sola vuelta donde la precision es critica — traduccion tecnica, analisis de seguridad, diseño de arquitectura.
+- `disabled` (`budget: 0`): tareas donde la latencia domina o el razonamiento no aporta — clasificacion, extraccion simple, formateo.
 
-### Reglas de logging
+### Reglas de costo y logging
 
-Registrar `thinking_tokens_used` separado de `output_tokens`. El razonamiento de Gemini 3 usa tokens internos que no impactan costo como los de Opus.
+- Los tokens de razonamiento (`thoughts_token_count`) se facturan a la misma tarifa que los tokens de salida en Gemini 2.5 Pro.
+- Registrar `thoughts_token_count` separado de `candidates[0].token_count` para medir el costo real del razonamiento.
+- Con `budget: -1`, el costo puede ser impredecible en produccion — establecer un techo explicito si el presupuesto de inferencia es fijo.
+- Para integracion via bridge MCP del ai-core, delegar al skill `gemini-2-5-specialist`. Este bloque aplica a integracion directa via SDK.
 
 ## Effort Levels (Opus 4.7 Adaptive Reasoning)
 
