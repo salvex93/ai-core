@@ -25,24 +25,27 @@ const COSTO_POR_MODELO = Object.freeze({
   [MODELOS.OPUS]:   { input: 15.00, output: 75.00 },
 });
 
-// Tier GEMINI: lectura de archivos grandes, logs, contenido extenso — costo cero
+// Tier GEMINI: lectura de archivos grandes, logs, contenido extenso, busqueda web — costo cero
 // Siempre preferir Gemini antes que Haiku para estas tareas
 const TIER_GEMINI = new Set([
   'analizar_archivo',       // lectura de archivos > 200 lineas
   'analizar_repositorio',   // analisis global del repo
   'resumir_backlog',        // resumen de listas largas
   'analizar_contenido',     // procesamiento de texto extenso
+  'buscar_web',             // busqueda web — Gemini la hace gratis, Sonnet no justificado
 ]);
 
-// Tier HAIKU: transformaciones simples de bajo volumen, sin razonamiento
+// Tier HAIKU: transformaciones simples + prosa corta de bajo volumen, sin razonamiento profundo
 const TIER_HAIKU = new Set([
   'reparar_error',          // fix puntual de un error conocido
   'parsear_schema',         // transformacion estructurada simple
+  'responder_pregunta',     // respuesta conversacional corta (< 2k tokens output)
+  'explicar_concepto',      // explicacion tecnica concisa sin diseño de sistema
+  'generar_haiku',          // prosa corta de proposito general — tier intermedio antes de Sonnet
 ]);
 
-// Tier SONNET: refactorizacion, busqueda web, analisis de calidad — uso normal
+// Tier SONNET: refactorizacion, analisis de calidad — uso normal
 const TIER_SONNET = new Set([
-  'buscar_web',
   'refactorizar_archivo',   // refactor de un archivo concreto
   'diagnosticar_error',     // diagnostico de errores complejos
   'auditar_calidad',        // revision de codigo
@@ -143,11 +146,18 @@ function route(nombreHerramienta, tokensContexto = 0) {
     };
   }
 
-  // Fallback: Sonnet (nunca Opus por defecto)
+  // Fallback: Haiku (nunca Sonnet/Opus por defecto — si la tarea no esta clasificada, es simple)
+  if (tokensContexto >= UMBRAL_ESCALADO_SONNET) {
+    return {
+      modelo: MODELOS.SONNET,
+      tier: 'sonnet',
+      razon: `Herramienta no clasificada con contexto grande (${tokensContexto} tokens) — escalado a Sonnet`,
+    };
+  }
   return {
-    modelo: MODELOS.SONNET,
-    tier: 'sonnet',
-    razon: `Herramienta no clasificada — fallback a Sonnet: ${nombreHerramienta}`,
+    modelo: MODELOS.HAIKU,
+    tier: 'haiku',
+    razon: `Herramienta no clasificada — fallback conservador a Haiku: ${nombreHerramienta}`,
   };
 }
 

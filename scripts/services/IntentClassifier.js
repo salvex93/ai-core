@@ -45,6 +45,8 @@ const SENALES_CODER = [
   /arregla|fix|corrige|parchea|patch/i,
   /agrega.*linea|modifica.*linea|cambia.*en.*archivo/i,
   /refactoriza\b|refactor\b/i,   // refactor simple → Coder (Gemini/Haiku/Sonnet segun volumen)
+  /que es|como funciona|explica.*brevemente|en que consiste/i,  // preguntas cortas → Haiku
+  /responde|dime|cual.*es|cuanto.*cuesta/i,                     // prosa conversacional corta
 ];
 
 // Herramienta MCP recomendada por combinacion de rol + tipo de tarea
@@ -62,6 +64,9 @@ const HERRAMIENTA_POR_INTENT = {
   [`${ROLES.CODER}_contenido`]:         'analizar_contenido',      // Gemini
   [`${ROLES.CODER}_reparacion`]:        'reparar_error',           // Haiku
   [`${ROLES.CODER}_refactor`]:          'refactorizar_archivo',    // Sonnet — refactor simple
+  [`${ROLES.CODER}_pregunta`]:          'responder_pregunta',      // Haiku — conversacion corta
+  [`${ROLES.CODER}_concepto`]:          'explicar_concepto',       // Haiku — explicacion tecnica
+  [`${ROLES.CODER}_prosa`]:             'generar_haiku',           // Haiku — prosa general corta
 };
 
 // ---------------------------------------------------------------------------
@@ -107,9 +112,12 @@ function inferirSubtipoArchitect(texto) {
  * @returns {string}
  */
 function inferirSubtipoCoder(texto) {
-  if (/resume|backlog|lista|pendiente/i.test(texto))  return 'resumen';
-  if (/arregla|fix|corrige|parchea/i.test(texto))     return 'reparacion';
-  if (/refactoriza\b|refactor\b/i.test(texto))        return 'refactor';  // → refactorizar_archivo (Sonnet)
+  if (/resume|backlog|lista|pendiente/i.test(texto))                   return 'resumen';
+  if (/arregla|fix|corrige|parchea/i.test(texto))                     return 'reparacion';
+  if (/refactoriza\b|refactor\b/i.test(texto))                        return 'refactor';  // → refactorizar_archivo (Sonnet)
+  if (/que es|como funciona|explica.*brevemente|en que consiste/i.test(texto)) return 'concepto'; // → explicar_concepto (Haiku)
+  if (/responde|dime|cual.*es|cuanto.*cuesta/i.test(texto))           return 'pregunta'; // → responder_pregunta (Haiku)
+  if (texto.length < 200)                                              return 'prosa';    // mensaje corto → generar_haiku (Haiku)
   return 'contenido';
 }
 

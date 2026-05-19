@@ -126,6 +126,22 @@ function buildSystemBlocks(skillsActivos = [], opcionesRol = null) {
     });
   }
 
+  // Catalogo de herramientas del bridge — estatico por sesion, candidato a cache
+  const catalogoHerramientas = [
+    'Herramientas disponibles via ModelRouter:',
+    '  GEMINI (free): analizar_archivo, analizar_repositorio, resumir_backlog, analizar_contenido, buscar_web',
+    '  HAIKU:  reparar_error, parsear_schema, responder_pregunta, explicar_concepto, generar_haiku',
+    '  SONNET: refactorizar_archivo, diagnosticar_error, auditar_calidad',
+    '  OPUS:   disenar_sistema, refactorizar_arquitectura, auditar_seguridad_critica',
+    'Jerarquia: Gemini (gratis) → Haiku → Sonnet → Opus (excepcional)',
+  ].join('\n');
+
+  bloques.push({
+    type: 'text',
+    text: catalogoHerramientas,
+    cache_control: { type: 'ephemeral' }, // PUNTO DE CACHE C
+  });
+
   // Bloque de instruccion de rol (sin cache — varia segun la herramienta activa)
   bloques.push({
     type: 'text',

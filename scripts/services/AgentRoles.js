@@ -78,18 +78,21 @@ function inferirSkills(nombreHerramienta) {
 // Las herramientas de lectura/resumen usan Gemini (tier 0) — su rol es CODER
 // porque no requieren razonamiento profundo, solo procesamiento de contenido.
 const HERRAMIENTA_A_ROL = {
-  // Tier Gemini (free) — procesamiento de contenido extenso
+  // Tier Gemini (free) — procesamiento de contenido extenso + busqueda web
   resumir_backlog:           ROLES.CODER,
   analizar_contenido:        ROLES.CODER,
   analizar_archivo:          ROLES.CODER,     // Gemini lee el archivo, no Sonnet
   analizar_repositorio:      ROLES.CODER,     // Gemini analiza el repo completo
+  buscar_web:                ROLES.CODER,     // Gemini hace busqueda gratis — era Sonnet antes
 
-  // Tier Haiku — transformaciones simples
+  // Tier Haiku — transformaciones simples + prosa corta conversacional
   reparar_error:             ROLES.CODER,
   parsear_schema:            ROLES.CODER,
+  responder_pregunta:        ROLES.CODER,    // conversacion corta — Haiku suficiente
+  explicar_concepto:         ROLES.CODER,    // explicacion tecnica sin diseño de sistema
+  generar_haiku:             ROLES.CODER,    // prosa corta de proposito general
 
-  // Tier Sonnet — analisis y busqueda
-  buscar_web:                ROLES.ARCHITECT,
+  // Tier Sonnet — analisis y refactorizacion (buscar_web migrado a Gemini tier 0)
   refactorizar_archivo:      ROLES.AUDITOR,
   diagnosticar_error:        ROLES.AUDITOR,
   auditar_calidad:           ROLES.AUDITOR,
