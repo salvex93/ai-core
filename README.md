@@ -4,9 +4,13 @@
 
 El sistema es framework-agnostic por diseño. No asume Node.js, Python, Go ni ningun otro lenguaje. Cada agente lee los manifiestos del repositorio anfitrion (`package.json`, `requirements.txt`, `go.mod`, etc.) al activarse y adapta sus recomendaciones al entorno real del proyecto.
 
-Desde v3.0.0, el nucleo incorpora:
+Desde v3.1.0, el nucleo incorpora:
 
 - **28 Skills especializados** (ver tabla Auto-Routing): se agrego `multimodal-engineer` (vision, PDFs, Citations API, embeddings multimodales) como skill numero 28. Todos los skills actualizados a mayo 2026.
+- **Stack Detector** (`.claude/bin/detect-stack.js`): detecta el stack tecnologico del proyecto anfitrion inspeccionando manifiestos (`package.json`, `pyproject.toml`, `go.mod`, `Dockerfile`, `Makefile`, etc.) sin leer su contenido. Inyecta permisos de Bash especificos al stack en el `settings.json` generado. Soporta Node, Python, Go, Rust, Java, PHP, Ruby, Docker, Terraform, Serverless, Kubernetes y monorepos.
+- **Auto-Setup de proyecto** (`norm-harness.js` v3.1): al ejecutarse en un proyecto nuevo, genera automaticamente `.claude/settings.json` con rutas absolutas correctas, permisos adaptados al stack detectado, y un `CLAUDE.md` minimal con secciones placeholder para comandos y estructura. Dos comandos para arrancar en cualquier proyecto.
+- **CONTEXT_MAP dual host/core**: el mapa indexa el proyecto anfitrion y el submodulo ai-core por separado. Incluye seccion `stack` con tecnologias detectadas. Claude navega el proyecto sin discovery por I/O.
+- **Path Drift Detection**: `health-check.js` detecta al inicio de sesion si `settings.json` apunta a rutas invalidas (p.ej. tras mover el proyecto) y autocorrige sin intervencion.
 - **Health-Check System v1.0** (`.claude/bin/health-check.js`, `health-report.js`, `health-sync.js`, `health-worker.js`): autodiagnostico y autocorreccion al inicio de cada sesion. Verifica integridad de skills, hooks, CONTEXT_MAP y variables de entorno.
 - **Guard Read** (`.claude/bin/guard-read.js`): bloquea lecturas directas en archivos > 200 lineas via hook `PreToolUse`. Fuerza `analizar_archivo` de Gemini y protege la cuota de Claude.
 - **Validate Map** (`.claude/bin/validate-map.js`): regenera `CONTEXT_MAP.json` automaticamente al inicio de sesion si hay drift >= 3 archivos.
@@ -25,121 +29,95 @@ Desde v3.0.0, el nucleo incorpora:
 
 ## Instalacion como Submodulo Git
 
-### Paso 1A — Incorporar ai-core como submodulo (recomendado para distribucion)
+Dos comandos para arrancar en cualquier proyecto. El harness se encarga del resto.
 
 ```bash
+# 1. Incorporar ai-core como submodulo
 cd /ruta/a/tu-proyecto
 git submodule add https://github.com/salvex93/ai-core .claude/ai-core
 git submodule update --init --recursive
+
+# 2. Instalar dependencias del nucleo
+cd .claude/ai-core && npm install && cd ../..
+
+# 3. Ejecutar el harness — genera settings.json, detecta stack, crea CLAUDE.md
+node .claude/ai-core/.claude/bin/norm-harness.js
 ```
 
-El agente detecta el `CLAUDE.md` del nucleo automaticamente al iniciarse en el repositorio anfitrion.
+El harness genera automaticamente:
+- `.claude/settings.json` — MCPs, hooks y permisos de Bash adaptados al stack del proyecto
+- `CLAUDE.md` en la raiz — con secciones placeholder para completar (comandos, estructura, .env)
+- `CONTEXT_MAP.json` — indice dual host + core para navegacion sin discovery
 
-Para mantener el nucleo actualizado:
-
-```bash
-git submodule update --remote .claude/ai-core
-git add .claude/ai-core
-git commit -m "chore: actualizar ai-core a la ultima version del nucleo"
-```
-
-### Paso 1B — Alternativa: Vincular ai-core via Symlinks (recomendado para desarrollo centralizado)
-
-Para proyectos que necesitan sincronizacion inmediata de cambios en `CLAUDE.md` y `.claude/skills/` sin esperar actualizaciones de submodulo, usa symlinks. Este metodo garantiza heredancia fisica de las Reglas Globales.
-
-**En Windows PowerShell (como Administrador):**
-
-```powershell
-Remove-Item './CLAUDE.md' -ErrorAction SilentlyContinue
-New-Item -ItemType SymbolicLink -Path './CLAUDE.md' -Target 'C:/ruta/a/ai-core/CLAUDE.md' -Force
-New-Item -ItemType SymbolicLink -Path './.claude/skills' -Target 'C:/ruta/a/ai-core/.claude/skills' -Force
-New-Item -ItemType SymbolicLink -Path './.claude/settings.json' -Target 'C:/ruta/a/ai-core/.claude/settings.json' -Force
-```
-
-**En Linux/Mac:**
-
-```bash
-rm -f ./CLAUDE.md
-ln -s /ruta/a/ai-core/CLAUDE.md ./CLAUDE.md
-rm -rf ./.claude/skills
-ln -s /ruta/a/ai-core/.claude/skills ./.claude/skills
-ln -s /ruta/a/ai-core/.claude/settings.json ./.claude/settings.json
-```
-
-**Cuando usar Symlinks vs Submodulos:**
-
-| Criterio | Symlinks | Submodulos |
-|---|---|---|
-| Equipos multiples trabajando con ai-core | Recomendado | Alternativa |
-| Desarrollo centralizado del nucleo | Recomendado | No recomendado |
-| Distribucion a terceros (GitHub) | No recomendado | Recomendado |
-| Frecuencia de cambio en CLAUDE.md | Alta (varias veces/semana) | Baja (varias veces/mes) |
-
-### Paso 2 — Instalar dependencias del nucleo
-
-```bash
-cd .claude/ai-core
-npm install
-cd ../..
-```
-
-Dependencias instaladas: `@anthropic-ai/sdk`, `@google/generative-ai`, `@modelcontextprotocol/sdk`.
-
-### Paso 3 — Configurar variables de entorno
-
-Agregar al `.env` del proyecto anfitrion:
-
-```bash
-# Gemini 2.5 Flash (free tier, 1500 req/dia, 1M tokens/req)
-# Obtener en: https://aistudio.google.com/app/apikey
-GEMINI_API_KEY=<tu-api-key>
-
-# Anthropic (fallback y Model Router)
-# Obtener en: https://console.anthropic.com
-ANTHROPIC_API_KEY=<tu-api-key>
-```
-
-Agregar `.env` al `.gitignore`:
-
-```bash
-echo ".env" >> .gitignore
-```
-
-### Paso 4 — Configurar los hooks de sesion
-
-Crear o editar `.claude/settings.json` en la raiz del proyecto anfitrion:
-
-```json
-{
-  "hooks": {
-    "Stop": [
-      {
-        "matcher": "",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "node .claude/ai-core/scripts/init-backlog.js"
-          },
-          {
-            "type": "command",
-            "command": "node .claude/ai-core/scripts/session-close.js"
-          }
-        ]
-      }
-    ]
-  }
-}
-```
-
-El evento `Stop` se dispara al finalizar cada respuesta. `init-backlog.js` detecta si `BACKLOG.md` ya existe y no lo sobreescribe — la ejecucion repetida es inocua.
-
-### Paso 5 — Iniciar Claude Code
+Para iniciar Claude Code:
 
 ```bash
 claude
 ```
 
-El agente hereda automaticamente las reglas globales del `CLAUDE.md` del nucleo. La primera accion autonoma es leer los manifiestos del proyecto para deducir el stack (Regla 3).
+### Actualizar el nucleo
+
+```bash
+git submodule update --remote .claude/ai-core
+git add .claude/ai-core
+git commit -m "chore: actualizar ai-core"
+node .claude/ai-core/.claude/bin/norm-harness.js  # regenera settings si cambia algo
+```
+
+### Stacks soportados por el detector automatico
+
+| Stack | Manifesto detectado | Permisos agregados |
+|---|---|---|
+| Node.js | `package.json` | `npx*`, `yarn*` |
+| Python | `pyproject.toml`, `requirements.txt`, `setup.py` | `python*`, `pip*`, `pytest*`, `uv*` |
+| Go | `go.mod` | `go*` |
+| Rust | `Cargo.toml` | `cargo*` |
+| Java | `pom.xml`, `build.gradle` | `mvn*`, `gradle*`, `java*` |
+| PHP | `composer.json` | `composer*`, `php*` |
+| Ruby | `Gemfile` | `bundle*`, `rails*`, `ruby*` |
+| Docker | `Dockerfile`, `docker-compose.yml` | `docker*`, `docker-compose*` |
+| Makefile | `Makefile` | `make*` |
+| Terraform | `.terraform/` | `terraform*` |
+| Serverless | `serverless.yml` | `serverless*`, `sls*` |
+| Kubernetes | `k8s/`, `helm/` | `kubectl*`, `helm*` |
+| Monorepo | `turbo.json`, `nx.json`, `pnpm-workspace.yaml` | `turbo*`, `nx*`, `pnpm*` |
+
+### Variables de entorno requeridas
+
+Agregar al `.env` del proyecto anfitrion:
+
+```bash
+# Gemini 2.5 Flash (free tier, 1500 req/dia, 1M tokens/req)
+GEMINI_API_KEY=<tu-api-key>
+
+# Anthropic (fallback y Model Router)
+ANTHROPIC_API_KEY=<tu-api-key>
+```
+
+```bash
+echo ".env" >> .gitignore
+```
+
+### Vinculacion por Symlinks (alternativa para desarrollo centralizado)
+
+Para proyectos que comparten el mismo ai-core local sin submodulo:
+
+**Linux/Mac:**
+```bash
+rm -f ./CLAUDE.md
+ln -s /ruta/a/ai-core/CLAUDE.md ./CLAUDE.md
+```
+
+**Windows PowerShell (Administrador):**
+```powershell
+New-Item -ItemType SymbolicLink -Path './CLAUDE.md' -Target 'C:/ruta/a/ai-core/CLAUDE.md' -Force
+```
+
+| Criterio | Symlinks | Submodulos |
+|---|---|---|
+| Desarrollo centralizado del nucleo | Recomendado | No recomendado |
+| Distribucion a terceros / CI | No recomendado | Recomendado |
+| Multiples proyectos en la misma maquina | Recomendado | Alternativa |
 
 ---
 
@@ -167,15 +145,16 @@ El agente hereda automaticamente las reglas globales del `CLAUDE.md` del nucleo.
 ├── .claude/
 │   ├── settings.json            Template hooks + config MCP server
 │   ├── bin/
-│   │   ├── health-check.js      Autodiagnostico y autocorreccion al inicio de sesion
+│   │   ├── health-check.js      Autodiagnostico, path drift detection y autocorreccion al inicio
 │   │   ├── health-report.js     Generador de reporte estructurado de estado del sistema
-│   │   ├── health-sync.js       Sincroniza estado de health entre sesiones
-│   │   ├── health-worker.js     Worker de correcciones automaticas del health-check
+│   │   ├── health-sync.js       Checks sincronos: deps, skills, MCPs
+│   │   ├── health-worker.js     Worker detached para checks HTTP asincronos
+│   │   ├── detect-stack.js      Infiere stack del anfitrion via manifiestos; sin leer archivos
 │   │   ├── validate-map.js      Valida y regenera CONTEXT_MAP.json si hay drift >= 3 archivos
 │   │   ├── guard-read.js        Hook PreToolUse: bloquea Read > 200 lineas, fuerza Gemini
-│   │   ├── norm-harness.js      Blindaje de entorno: detox + symlinks + purga de sesiones
+│   │   ├── norm-harness.js      Setup automatico: settings.json + permisos por stack + CLAUDE.md
 │   │   ├── norm-harness.ps1     Equivalente PowerShell (rutas dinamicas via $PSScriptRoot)
-│   │   ├── generate-map.js      Genera/actualiza CONTEXT_MAP.json
+│   │   ├── generate-map.js      Genera CONTEXT_MAP dual host/core con seccion stack
 │   │   ├── detox.js             Limpia archivos legacy que contaminan contexto
 │   │   └── benchmark-fernet.js  Testea cifrado Fernet (PII)
 │   └── skills/                  28 skills especializados (ver tabla Auto-Routing)

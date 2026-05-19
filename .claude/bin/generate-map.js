@@ -2,6 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const { execSync } = require('child_process');
 const { version } = require(path.resolve(__dirname, '../../package.json'));
+const { detectStack } = require('./detect-stack');
 
 // CORE_PATH = raiz del submodulo ai-core
 // HOST_PATH = raiz del proyecto anfitrion (donde se ejecuta el comando)
@@ -62,11 +63,13 @@ function generateContextMap() {
   }
 
   const branch = getBranch(isStandalone ? CORE_PATH : HOST_PATH);
+  const stack  = isStandalone ? null : detectStack(HOST_PATH);
 
   const contextMap = {
     version,
     last_updated: new Date().toISOString(),
     branch,
+    stack: stack ? { techs: stack.techs, labels: stack.labels } : null,
     host: {
       root: isStandalone ? 'ai-core/' : HOST_PATH,
       directories: isStandalone ? coreMap : hostMap,
