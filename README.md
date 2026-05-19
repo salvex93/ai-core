@@ -4,22 +4,22 @@
 
 El sistema es framework-agnostic por diseño. No asume Node.js, Python, Go ni ningun otro lenguaje. Cada agente lee los manifiestos del repositorio anfitrion (`package.json`, `requirements.txt`, `go.mod`, etc.) al activarse y adapta sus recomendaciones al entorno real del proyecto.
 
-Desde v2.8.0, el nucleo incorpora:
+Desde v3.0.0, el nucleo incorpora:
 
-- **Health-Check System v1.0** (`.claude/bin/health-check.js`, `health-report.js`, `health-sync.js`, `health-worker.js`): autodiagnostico y autocorreccion al inicio de cada sesion. Verifica integridad de skills, hooks, CONTEXT_MAP y variables de entorno. Genera reporte estructurado y aplica correcciones automaticas antes de que el agente tome el control.
-- **Guard Read** (`.claude/bin/guard-read.js`): bloquea lecturas directas en archivos > 200 lineas via hook `PreToolUse`. Fuerza el uso de `analizar_archivo` de Gemini y protege la cuota de Claude.
-- **Validate Map** (`.claude/bin/validate-map.js`): regenera `CONTEXT_MAP.json` automaticamente al inicio de sesion si hay drift >= 3 archivos respecto al indice.
-- **26 Skills especializados** (ver tabla Auto-Routing): se agregaron `gemini-2-5-specialist` y `web-scraping-specialist` a los 24 skills anteriores.
-- **Model Router v2.7** (`scripts/services/ModelRouter.js`): jerarquia de costo de 4 niveles — **Gemini free (tier 0) → Haiku → Sonnet → Opus**. Gemini tiene prioridad absoluta para lecturas, resumenes y analisis de repositorio. Opus queda reservado exclusivamente para diseno de sistemas nuevos y refactorizacion de arquitectura multi-modulo. Incluye estimacion de costo con descuento por cache hit.
-- **Intent Classifier** (`scripts/services/IntentClassifier.js`): arbol de decision que infiere herramienta y modelo desde el mensaje crudo del usuario. Distingue refactor simple (Sonnet) de refactor de arquitectura (Opus) para evitar escalado innecesario.
-- **Response Validator** (`scripts/services/ResponseValidator.js`): validacion deterministica (regex, sin LLM) del output antes de entregarlo. Detecta emojis, respuestas en ingles, frases prohibidas y acciones no solicitadas. Integrado al bridge — loguea violaciones en stderr sin bloquear.
-- **Style Profiler** (`scripts/services/StyleProfiler.js`): acumula rasgos de escritura del usuario en la sesion (longitud de oraciones, densidad tecnica, uso de abreviaciones) y genera un bloque de instruccion de tono que se inyecta dinamicamente en el system prompt.
-- **Context Index** (`scripts/services/ContextIndex.js`): resuelve rutas via `CONTEXT_MAP.json` antes de ir al disco. Elimina lecturas ciegas en el repo anfitrion.
-- **Agent Roles** (`scripts/services/AgentRoles.js`): asigna system prompt y modelo segun el rol inferido de la herramienta (Architect / Coder / Auditor). Architect ya no fuerza Opus por defecto — usa Sonnet y escala solo si la herramienta lo requiere.
-- **Error Repair Loop** (`scripts/services/ErrorRepairLoop.js`): ciclo automatico de deteccion, diagnostico y reparacion de errores en tres fases.
-- **Anthropic Bridge** (`scripts/anthropic-bridge.js`): fallback al API de Anthropic con Prompt Caching de tres puntos, ventana deslizante de historial, StyleProfiler integrado y recomendacion automatica de Gemini cuando el tier 0 aplica.
-- **LLM Routing Bridge** via Gemini 2.5 Flash: tier 0 gratuito para analisis de archivos > 200 lineas, logs extensos, resumenes de backlog y busqueda web. Umbral bajado de 500 a 200 lineas para maximizar el ahorro de cuota.
-- **Tokenomics v2.8**: `buscar_web` migrado a Gemini tier 0, Guard Read activo en PreToolUse, Health-Check System al inicio de sesion para garantizar integridad del entorno.
+- **28 Skills especializados** (ver tabla Auto-Routing): se agrego `multimodal-engineer` (vision, PDFs, Citations API, embeddings multimodales) como skill numero 28. Todos los skills actualizados a mayo 2026.
+- **Health-Check System v1.0** (`.claude/bin/health-check.js`, `health-report.js`, `health-sync.js`, `health-worker.js`): autodiagnostico y autocorreccion al inicio de cada sesion. Verifica integridad de skills, hooks, CONTEXT_MAP y variables de entorno.
+- **Guard Read** (`.claude/bin/guard-read.js`): bloquea lecturas directas en archivos > 200 lineas via hook `PreToolUse`. Fuerza `analizar_archivo` de Gemini y protege la cuota de Claude.
+- **Validate Map** (`.claude/bin/validate-map.js`): regenera `CONTEXT_MAP.json` automaticamente al inicio de sesion si hay drift >= 3 archivos.
+- **Model Router v2.7** (`scripts/services/ModelRouter.js`): jerarquia de costo de 4 niveles — **Gemini free (tier 0) → Haiku → Sonnet → Opus**. Gemini tiene prioridad absoluta para lecturas, resumenes y analisis de repositorio. Opus reservado para diseno de sistemas nuevos y refactorizacion de arquitectura multi-modulo.
+- **Intent Classifier** (`scripts/services/IntentClassifier.js`): arbol de decision que infiere herramienta y modelo desde el mensaje crudo del usuario.
+- **Response Validator** (`scripts/services/ResponseValidator.js`): validacion deterministica del output. Detecta emojis, respuestas en ingles, frases prohibidas y acciones no solicitadas.
+- **Style Profiler** (`scripts/services/StyleProfiler.js`): acumula rasgos de escritura del usuario y genera bloque de instruccion de tono inyectado dinamicamente en el system prompt.
+- **Context Index** (`scripts/services/ContextIndex.js`): resuelve rutas via `CONTEXT_MAP.json` antes de ir al disco.
+- **Agent Roles** (`scripts/services/AgentRoles.js`): asigna system prompt y modelo segun el rol inferido (Architect / Coder / Auditor).
+- **Error Repair Loop** (`scripts/services/ErrorRepairLoop.js`): ciclo automatico deteccion → diagnostico → reparacion de errores en tres fases.
+- **Anthropic Bridge** (`scripts/anthropic-bridge.js`): bridge principal con Prompt Caching de tres puntos, ventana deslizante de historial y recomendacion automatica de Gemini cuando el tier 0 aplica.
+- **LLM Routing Bridge** via Gemini 2.5 Flash: tier 0 gratuito para archivos > 200 lineas, logs extensos, resumenes de backlog y busqueda web.
+- **Tokenomics v3.0**: evals como gate de release obligatorio en sistemas LLM, Merge Queues activables en GitHub Actions, guardrails actualizados contra vectores de evasion con interleaved thinking.
 
 ---
 
@@ -143,7 +143,7 @@ El agente hereda automaticamente las reglas globales del `CLAUDE.md` del nucleo.
 
 ---
 
-## Arquitectura v2.8.0
+## Arquitectura v3.0.0
 
 ### Mapa de modulos
 
@@ -178,9 +178,9 @@ El agente hereda automaticamente las reglas globales del `CLAUDE.md` del nucleo.
 │   │   ├── generate-map.js      Genera/actualiza CONTEXT_MAP.json
 │   │   ├── detox.js             Limpia archivos legacy que contaminan contexto
 │   │   └── benchmark-fernet.js  Testea cifrado Fernet (PII)
-│   └── skills/                  26 skills especializados (ver tabla Auto-Routing)
-├── CLAUDE.md                    Autoridad unica: reglas, triada, 26 skills, enrutamiento
-├── package.json                 v2.8.0 — Node >= 18.0.0
+│   └── skills/                  28 skills especializados (ver tabla Auto-Routing)
+├── CLAUDE.md                    Autoridad unica: reglas, triada, 28 skills, enrutamiento
+├── package.json                 v3.0.0 — Node >= 18.0.0
 └── .env.example                 Plantilla de variables de entorno
 ```
 
@@ -598,7 +598,7 @@ Protocolo Regla 7:
 
 ### Auto-Routing (Regla 20)
 
-El agente mapea automaticamente el dominio tecnico de la solicitud contra 26 skills especializados. Confidence > 85% = activacion inmediata sin instruccion explicita.
+El agente mapea automaticamente el dominio tecnico de la solicitud contra 28 skills especializados. Confidence > 85% = activacion inmediata sin instruccion explicita.
 
 | Skill | Palabras clave de activacion | Modelo base |
 |---|---|---|
@@ -607,27 +607,29 @@ El agente mapea automaticamente el dominio tecnico de la solicitud contra 26 ski
 | `claude-agent-sdk` | agente, subagente, hook, SDK, autonomo, tool_use | Opus |
 | `managed-agents-specialist` | agente gestionado, tools Anthropic, loop de agente | Sonnet |
 | `workflow-orchestrator` | fan-out, fan-in, retry, checkpoint, orquestacion multi-agente | Sonnet |
-| `ai-integrations` | LLM, streaming, fallback, proveedor, costos, token | Sonnet |
-| `claude-api` | anthropic SDK, prompt caching, tool use, Batch API, Files API | Sonnet |
-| `prompt-engineer` | prompt, few-shot, system message, chain-of-thought, prefill, versionado | Sonnet |
-| `mcp-server-builder` | MCP, servidor, JSON Schema, stdio, SSE | Sonnet |
-| `llm-evals` | eval, benchmark, calidad LLM, golden dataset, metrica | Sonnet |
-| `llm-observability` | tracing, dashboard, costo LLM, latencia, Grafana | Sonnet |
-| `rag-specialist` | RAG, vector, embedding, retrieval, indexacion, Citations API | Sonnet |
+| `ai-integrations` | LLM, streaming, fallback, proveedor, costos, token, interleaved thinking, task budgets | Sonnet |
+| `claude-api` | anthropic SDK, prompt caching, tool use, Batch API, Files API, Citations API | Sonnet |
+| `prompt-engineer` | prompt, few-shot, system message, chain-of-thought, prefill, versionado, thinking_level | Sonnet |
+| `mcp-server-builder` | MCP, servidor, JSON Schema, stdio, SSE, OAuth MCP remoto | Sonnet |
+| `llm-evals` | eval, benchmark, calidad LLM, golden dataset, metrica, gate de release | Sonnet |
+| `llm-observability` | tracing, dashboard, costo LLM, latencia, Grafana, Langfuse | Sonnet |
+| `rag-specialist` | RAG, vector, embedding, retrieval, indexacion, Citations API, re-ranking | Sonnet |
 | `backend-architect` | API, schema, migracion, query, BD, ORM, Knex, SQL, tests unitarios backend, tests integracion | Sonnet |
-| `audio-voice-engineer` | voice, audio, streaming, speech, latencia, Gemini live | Sonnet |
-| `mobile-engineer` | Flutter, BLoC, Riverpod, Firebase, iOS, Android | Sonnet |
-| `release-manager` | release, branching, deploy, CI/CD, rollback, SemVer | Sonnet |
+| `audio-voice-engineer` | voice, audio, streaming, speech, latencia, Gemini live, TTS, STT | Sonnet |
+| `mobile-engineer` | Flutter, BLoC, Riverpod, Firebase, iOS, Android, flutter_riverpod, Impeller | Sonnet |
+| `release-manager` | release, branching, deploy, CI/CD, rollback, SemVer, Merge Queue | Sonnet |
 | `qa-engineer` | test, jest, pytest, vitest, cobertura, contract testing | Sonnet |
 | `security-auditor` | seguridad, CVE, OWASP, secreto, password, compliance | Sonnet |
 | `devops-infra` | Kubernetes, IaC, Terraform, Docker, networking | Sonnet |
 | `data-engineer` | pipeline, dbt, Medallion, airflow, dagster, linaje | Sonnet |
-| `ai-guardrails` | guardrail, filtro, input validation, jailbreak | Sonnet |
+| `ai-guardrails` | guardrail, filtro, input validation, jailbreak, prompt injection, PII, Model Armor | Sonnet |
 | `attack-surface-analyst` | superficie, exposicion, credencial, subdominio | Sonnet |
 | `aiops-engineer` | auditoria, skill, ai-core, Anthropic changelog | Sonnet |
 | `doc-builder` | propuesta, documento HTML, PDF, entregable, cliente | Sonnet |
 | `gemini-2-5-specialist` | Gemini 2.5 Pro/Flash, thinking budget, Flash-Lite, Live API, image gen, TTS nativo | Sonnet |
 | `web-scraping-specialist` | scraping, Playwright, Puppeteer, OCR, CAPTCHA, proxy, precio, marketplace | Sonnet |
+| `multimodal-engineer` | vision, imagen, PDF, factura, contrato, extraccion estructurada, Citations API, embeddings visuales, multimodal | Sonnet |
+| `agent-testing` | test de agente, mock MCP, infinite loop, tool call efficiency, promptfoo agente | Sonnet |
 
 Jerarquia de conflicto (Regla 21): `security-auditor > backend-architect > devops-infra > release-manager`.
 
@@ -695,7 +697,7 @@ El agente leera su propio codigo, propondra las mejoras y tras aprobacion ejecut
 
 ## Autoridad Unica: CLAUDE.md
 
-`README.md` = instalacion, arquitectura y uso. `CLAUDE.md` = sistema operativo completo (reglas, triada, 26 skills, tablas de enrutamiento, politicas de escalamiento).
+`README.md` = instalacion, arquitectura y uso. `CLAUDE.md` = sistema operativo completo (reglas, triada, 28 skills, tablas de enrutamiento, politicas de escalamiento).
 
 ---
 

@@ -5,6 +5,31 @@ Versionado semantico: MAJOR.MINOR.PATCH.
 
 ---
 
+## [3.0.0] — 2026-05-19
+
+### Agregado
+- **Skill `multimodal-engineer`** (nuevo — skill #28): especialista en vision, PDFs y extraccion estructurada con LLMs. Cubre analisis de imagenes con Claude Opus 4.7 (vision 3.75MP) y Gemini 2.5 Pro (1M tokens), extraccion estructurada con `tool_use`, Citations API con Files API, procesamiento de PDFs multi-pagina, embeddings multimodales con `voyage-multimodal-3`, y optimizacion de costo por token visual. Incluye tabla de seleccion de modelo por caso de uso y funcion de calculo de tokens por imagen para Claude (tiles) y Gemini (patches).
+- **Vectores de evasion modernos en `ai-guardrails`**: nueva seccion "Vectores de Evasion Modernos 2026" con contramedidas para interleaved thinking como canal opaco, Google Cloud Model Armor GA en GCP, y adaptive thinking de Opus 4.7 como superficie de ataque ampliada.
+- **Merge Queues en `release-manager`**: seccion dedicada a GitHub Actions Merge Queues (GA) con workflow completo para evitar merge races en equipos de mas de 3 desarrolladores integrando en paralelo.
+- **Evals como Gate de Release en `release-manager`**: nueva seccion con umbrales minimos por metrica (faithfulness >= 0.85, hallucination rate <= 5%, task success >= 90%), tabla de frameworks de medicion y workflow de GitHub Actions que bloquea el release si los umbrales no se cumplen.
+- **Firebase Vertex AI y Flutter 3.32 en `mobile-engineer`**: soporte para `firebase_vertexai` con ejemplo de integracion de Gemini en edge, actualizacion a Impeller como renderer por defecto, y migracion de `StateNotifierProvider` (deprecado) a `NotifierProvider`.
+
+### Cambiado
+- **`prompt-engineer`**: corregida referencia incorrecta a modelo inexistente `gemini-3.1-flash-live`. La seccion "Dynamic Thinking" ahora documenta correctamente `Gemini 2.5 Pro` con `thinking_config.thinking_budget`, SDK real (`google-genai`), costo de `thoughts_token_count` y criterios de seleccion de nivel.
+- **`doc-builder`**: agregada literal `[ALERTA_ARQUITECTONICA: REQUIERE_OPUSPLAN]` que faltaba en la "Directiva de Interrupcion". La version anterior solo tenia condiciones narrativas sin el token maquina requerido por el protocolo.
+- **`ai-guardrails`**: Model Armor actualizado de "preview en 2026" a "GA en GCP desde 2026-Q2".
+- **`CLAUDE.md`**: version bumpeada a 3.0.0, nueva entrada en tabla de seleccion de skills para `multimodal-engineer`, lista de 28 skills actualizada.
+- **`package.json`**: version bumpeada a 3.0.0.
+- **README**: actualizado a v3.0.0 con tabla de 28 skills, palabras clave de auto-routing expandidas, mapa de modulos corregido.
+
+### Corregido
+- `ai-guardrails` v1.0.4 → v1.1.0: last_updated sincronizado (estaba 33 dias desactualizado).
+- `mobile-engineer` v1.1.1 → v1.2.0: last_updated sincronizado.
+- `release-manager` v1.1.4 → v1.2.0: last_updated sincronizado.
+- `aiops-engineer` v1.6.0 → v1.7.0: last_updated sincronizado post-auditoria.
+
+---
+
 ## [2.8.0] — 2026-05-19
 
 ### Agregado

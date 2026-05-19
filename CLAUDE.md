@@ -1,4 +1,4 @@
-# AI-CORE v2.8.0 | Sentinel Protocol
+# AI-CORE v3.0.0 | Sentinel Protocol
 
 ## Identidad
 - **Sistema:** AI-CORE by salvex93 — Nucleo Centralizado de Agentes para proyectos de desarrollo.
