@@ -12,11 +12,45 @@ const fs   = require('fs');
 const path = require('path');
 const { spawn } = require('child_process');
 
-const ROOT        = path.resolve(__dirname, '../..');
-const REPORT_PATH = path.join(ROOT, '.claude', 'HEALTH_REPORT.md');
+const CORE_PATH   = path.resolve(__dirname, '../..');
+const HOST_PATH   = process.cwd();
+const ROOT        = CORE_PATH; // alias interno para compatibilidad
+const isStandalone = HOST_PATH === CORE_PATH;
+const REPORT_PATH = isStandalone
+  ? path.join(CORE_PATH, '.claude', 'HEALTH_REPORT.md')
+  : path.join(HOST_PATH, '.claude', 'HEALTH_REPORT.md');
 
 const { checkDependencies, checkSkills, checkMcpServers } = require('./health-sync');
 const { buildSyncReport, buildBanner }                    = require('./health-report');
+
+// -------------------------------------------------------------------
+// Check de path drift — autocorrige settings.json del anfitrion
+// -------------------------------------------------------------------
+
+function checkAndFixPathDrift() {
+  if (isStandalone) return { ok: true, fixed: false };
+
+  const hostSettings = path.join(HOST_PATH, '.claude', 'settings.json');
+  if (!fs.existsSync(hostSettings)) {
+    // No existe — lo crea el norm-harness; aqui solo reportamos
+    return { ok: false, fixed: false, reason: 'settings.json del anfitrion no existe — ejecuta norm-harness.js' };
+  }
+
+  try {
+    const s = JSON.parse(fs.readFileSync(hostSettings, 'utf8'));
+    const cwd = s?.mcpServers?.['gemini-bridge']?.cwd;
+    if (cwd === CORE_PATH) return { ok: true, fixed: false };
+
+    // Drift detectado — autocorregir via norm-harness
+    const { execSync } = require('child_process');
+    execSync(`node ${path.join(CORE_PATH, '.claude/bin/norm-harness.js')}`, {
+      cwd: HOST_PATH, stdio: 'pipe',
+    });
+    return { ok: true, fixed: true, from: cwd, to: CORE_PATH };
+  } catch (e) {
+    return { ok: false, fixed: false, reason: e.message.split('\n')[0] };
+  }
+}
 
 // -------------------------------------------------------------------
 // Gate de sesion — evita re-ejecutar en cada tool call
@@ -83,6 +117,14 @@ async function main() {
     ts:        new Date().toISOString(),
     sessionId: sessionId.slice(0, 8),
   };
+
+  // Autocorreccion de path drift antes de cualquier check
+  const drift = checkAndFixPathDrift();
+  if (drift.fixed) {
+    process.stderr.write(`[DRIFT] settings.json autocorregido: ${drift.from} → ${drift.to}\n`);
+  } else if (!drift.ok && drift.reason) {
+    process.stderr.write(`[DRIFT] ${drift.reason}\n`);
+  }
 
   // Checks síncronos en paralelo (< 3s si npm está OK)
   const [deps, skills, mcp] = await Promise.all([

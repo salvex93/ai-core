@@ -75,10 +75,116 @@ function purgeSessions() {
   }
 }
 
+function buildSettingsForHost(corePath) {
+  return {
+    mcpServers: {
+      "gemini-bridge": {
+        command: "node",
+        args: ["scripts/mcp-gemini.js"],
+        cwd: corePath,
+      },
+      "anthropic-router": {
+        command: "node",
+        args: ["scripts/mcp-anthropic.js"],
+        cwd: corePath,
+      },
+    },
+    skillListingBudgetFraction: 0.03,
+    permissions: {
+      allow: [
+        "Bash(git status)",
+        "Bash(git log*)",
+        "Bash(git diff*)",
+        "Bash(git push*)",
+        "Bash(git pull*)",
+        "Bash(git add*)",
+        "Bash(git commit*)",
+        "Bash(wc -l*)",
+        "Bash(grep*)",
+        "Bash(cat ~/.ssh/id_ed25519.pub)",
+        "Bash(ssh-keyscan*)",
+        "Bash(node*)",
+        "Bash(npm*)",
+        "mcp__gemini-bridge__analizar_archivo",
+        "mcp__gemini-bridge__analizar_contenido",
+        "mcp__gemini-bridge__analizar_repositorio",
+        "mcp__gemini-bridge__resumir_backlog",
+        "mcp__gemini-bridge__buscar_web",
+      ],
+    },
+    hooks: {
+      PreToolUse: [
+        {
+          matcher: "Bash",
+          hooks: [
+            {
+              type: "command",
+              command: `node ${path.join(corePath, ".claude/bin/health-check.js")} 2>&1 || true`,
+            },
+            {
+              type: "command",
+              command: `node ${path.join(corePath, ".claude/bin/validate-map.js")} 2>/dev/null || true`,
+            },
+          ],
+        },
+        {
+          matcher: "Read",
+          hooks: [
+            {
+              type: "command",
+              command: `node ${path.join(corePath, ".claude/bin/guard-read.js")} "$CLAUDE_TOOL_INPUT_file_path" 2>/dev/null || true`,
+            },
+          ],
+        },
+      ],
+      PostToolUse: [
+        {
+          matcher: "Write|Edit",
+          hooks: [
+            {
+              type: "command",
+              command: `node ${path.join(corePath, ".claude/bin/detox.js")} 2>/dev/null || true`,
+            },
+          ],
+        },
+      ],
+    },
+  };
+}
+
+function ensureHostSettings(corePath, hostProjectDir) {
+  // Solo actua si el harness se ejecuta desde un proyecto anfitrion (no desde ai-core mismo)
+  if (hostProjectDir === corePath) return;
+
+  const hostClaudeDir  = path.join(hostProjectDir, ".claude");
+  const hostSettingsPath = path.join(hostClaudeDir, "settings.json");
+
+  if (!fs.existsSync(hostClaudeDir)) fs.mkdirSync(hostClaudeDir, { recursive: true });
+
+  // Detectar path drift: si el settings existe pero apunta a rutas distintas al corePath real
+  let needsWrite = true;
+  if (fs.existsSync(hostSettingsPath)) {
+    try {
+      const existing = JSON.parse(fs.readFileSync(hostSettingsPath, "utf8"));
+      const existingCwd = existing?.mcpServers?.["gemini-bridge"]?.cwd;
+      needsWrite = existingCwd !== corePath;
+    } catch {
+      needsWrite = true;
+    }
+  }
+
+  if (needsWrite) {
+    const settings = buildSettingsForHost(corePath);
+    fs.writeFileSync(hostSettingsPath, JSON.stringify(settings, null, 2), "utf8");
+    console.log(`[+] settings.json del anfitrion generado/corregido en ${hostSettingsPath}`);
+  }
+}
+
 // Ejecución controlada
 try {
   sanitizeEnvironment();
   normalizeSymlinks();
+  ensureHostSettings(CORE_PATH, projectDir);
   // purgeSessions(); — deshabilitado: borra historial de sesiones sin confirmación
   console.log(`[SUCCESS] AI-CORE v${version} | Entorno Blindado por salvex93.`);
 } catch (err) {
