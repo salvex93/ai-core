@@ -14,6 +14,9 @@
 ## Proyecto
 - [Estado del ecosistema v2.6.4](../../../.claude/projects/-home-cyber-ai-core/memory/project_estado.md) — 20 skills conformes, MCP gemini-bridge activo, SSH configurado
 
+## Estado del Sistema
+- [Health Report](.claude/HEALTH_REPORT.md) — Generado al inicio de cada sesion. Leer si el banner muestra ISSUE(S).
+
 ## Referencia
-- [CONTEXT_MAP](.claude/CONTEXT_MAP.json) — indice primario de estructura, 69 lineas
-- [settings.json](.claude/settings.json) — MCP gemini-bridge + hook PreToolUse validate-map
+- [CONTEXT_MAP](.claude/CONTEXT_MAP.json) — indice primario de estructura
+- [settings.json](.claude/settings.json) — MCP gemini-bridge + hooks (health-check, validate-map, guard-read, detox)

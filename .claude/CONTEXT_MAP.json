@@ -1,6 +1,6 @@
 {
   "version": "2.7.0",
-  "last_updated": "2026-05-02T01:59:00.069Z",
+  "last_updated": "2026-05-19T05:43:38.037Z",
   "branch": "main",
   "map": {
     "root": "ai-core/",
@@ -10,6 +10,11 @@
         ".claude/MEMORY.md",
         ".claude/bin/detox.js",
         ".claude/bin/generate-map.js",
+        ".claude/bin/guard-read.js",
+        ".claude/bin/health-check.js",
+        ".claude/bin/health-report.js",
+        ".claude/bin/health-sync.js",
+        ".claude/bin/health-worker.js",
         ".claude/bin/norm-harness.js",
         ".claude/bin/norm-harness.ps1",
         ".claude/bin/validate-map.js",
@@ -22,8 +27,10 @@
         ".claude/skills/backend-architect/SKILL.md",
         ".claude/skills/claude-agent-sdk/SKILL.md",
         ".claude/skills/claude-api/SKILL.md",
+        ".claude/skills/cost-optimizer/SKILL.md",
         ".claude/skills/data-engineer/SKILL.md",
         ".claude/skills/devops-infra/SKILL.md",
+        ".claude/skills/doc-builder/SKILL.md",
         ".claude/skills/llm-evals/SKILL.md",
         ".claude/skills/llm-observability/SKILL.md",
         ".claude/skills/managed-agents-specialist/SKILL.md",
@@ -34,7 +41,8 @@
         ".claude/skills/rag-specialist/SKILL.md",
         ".claude/skills/release-manager/SKILL.md",
         ".claude/skills/security-auditor/SKILL.md",
-        ".claude/skills/tech-lead-frontend/SKILL.md"
+        ".claude/skills/tech-lead-frontend/SKILL.md",
+        ".claude/skills/workflow-orchestrator/SKILL.md"
       ],
       "docs/": [
         "docs/OPUSPLAN-files-api-bridge.md",
@@ -75,6 +83,6 @@
       "node_modules/",
       ".git/"
     ],
-    "total_files": 57
+    "total_files": 65
   }
 }
