@@ -166,7 +166,8 @@ El agente hereda automaticamente las reglas globales del `CLAUDE.md` del nucleo.
 │   │   ├── generate-map.js      Genera/actualiza CONTEXT_MAP.json
 │   │   ├── detox.js             Limpia archivos legacy que contaminan contexto
 │   │   └── benchmark-fernet.js  Testea cifrado Fernet (PII)
-│   └── skills/                  23 skills especializados (ver tabla Auto-Routing)
+│   │   └── guard-read.js        Bloquea Read en archivos > 200 lineas (fuerza Gemini)
+│   └── skills/                  24 skills especializados (ver tabla Auto-Routing)
 ├── CLAUDE.md                    Autoridad unica: 22 reglas, triada, skills, enrutamiento
 ├── package.json                 v2.7.0 — Node >= 18.0.0
 └── .env.example                 Plantilla de variables de entorno
@@ -586,11 +587,12 @@ Protocolo Regla 7:
 
 ### Auto-Routing (Regla 20)
 
-El agente mapea automaticamente el dominio tecnico de la solicitud contra 23 skills especializados. Confidence > 85% = activacion inmediata sin instruccion explicita.
+El agente mapea automaticamente el dominio tecnico de la solicitud contra 24 skills especializados. Confidence > 85% = activacion inmediata sin instruccion explicita.
 
 | Skill | Palabras clave de activacion | Modelo base |
 |---|---|---|
-| `tech-lead-frontend` | componente, estado, bundle, CSS, React, Vue, Angular, WCAG | Sonnet |
+| `tech-lead-frontend` | componente, estado, bundle, CSS, React, Vue, Angular, WCAG, ortografia UI, seguridad frontend, tests componentes | Sonnet |
+| `cost-optimizer` | token, costo, presupuesto, quema, modelo, batch, cache, presupuesto LLM | Sonnet |
 | `claude-agent-sdk` | agente, subagente, hook, SDK, autonomo, tool_use | Opus |
 | `managed-agents-specialist` | agente gestionado, tools Anthropic, loop de agente | Sonnet |
 | `workflow-orchestrator` | fan-out, fan-in, retry, checkpoint, orquestacion multi-agente | Sonnet |
@@ -601,7 +603,7 @@ El agente mapea automaticamente el dominio tecnico de la solicitud contra 23 ski
 | `llm-evals` | eval, benchmark, calidad LLM, golden dataset, metrica | Sonnet |
 | `llm-observability` | tracing, dashboard, costo LLM, latencia, Grafana | Sonnet |
 | `rag-specialist` | RAG, vector, embedding, retrieval, indexacion, Citations API | Sonnet |
-| `backend-architect` | API, schema, migracion, query, BD, ORM, Knex, SQL | Sonnet |
+| `backend-architect` | API, schema, migracion, query, BD, ORM, Knex, SQL, tests unitarios backend, tests integracion | Sonnet |
 | `audio-voice-engineer` | voice, audio, streaming, speech, latencia, Gemini live | Sonnet |
 | `mobile-engineer` | Flutter, BLoC, Riverpod, Firebase, iOS, Android | Sonnet |
 | `release-manager` | release, branching, deploy, CI/CD, rollback, SemVer | Sonnet |
