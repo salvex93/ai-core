@@ -4,8 +4,12 @@
 
 El sistema es framework-agnostic por diseño. No asume Node.js, Python, Go ni ningun otro lenguaje. Cada agente lee los manifiestos del repositorio anfitrion (`package.json`, `requirements.txt`, `go.mod`, etc.) al activarse y adapta sus recomendaciones al entorno real del proyecto.
 
-Desde v2.7.0, el nucleo incorpora:
+Desde v2.8.0, el nucleo incorpora:
 
+- **Health-Check System v1.0** (`.claude/bin/health-check.js`, `health-report.js`, `health-sync.js`, `health-worker.js`): autodiagnostico y autocorreccion al inicio de cada sesion. Verifica integridad de skills, hooks, CONTEXT_MAP y variables de entorno. Genera reporte estructurado y aplica correcciones automaticas antes de que el agente tome el control.
+- **Guard Read** (`.claude/bin/guard-read.js`): bloquea lecturas directas en archivos > 200 lineas via hook `PreToolUse`. Fuerza el uso de `analizar_archivo` de Gemini y protege la cuota de Claude.
+- **Validate Map** (`.claude/bin/validate-map.js`): regenera `CONTEXT_MAP.json` automaticamente al inicio de sesion si hay drift >= 3 archivos respecto al indice.
+- **26 Skills especializados** (ver tabla Auto-Routing): se agregaron `gemini-2-5-specialist` y `web-scraping-specialist` a los 24 skills anteriores.
 - **Model Router v2.7** (`scripts/services/ModelRouter.js`): jerarquia de costo de 4 niveles — **Gemini free (tier 0) → Haiku → Sonnet → Opus**. Gemini tiene prioridad absoluta para lecturas, resumenes y analisis de repositorio. Opus queda reservado exclusivamente para diseno de sistemas nuevos y refactorizacion de arquitectura multi-modulo. Incluye estimacion de costo con descuento por cache hit.
 - **Intent Classifier** (`scripts/services/IntentClassifier.js`): arbol de decision que infiere herramienta y modelo desde el mensaje crudo del usuario. Distingue refactor simple (Sonnet) de refactor de arquitectura (Opus) para evitar escalado innecesario.
 - **Response Validator** (`scripts/services/ResponseValidator.js`): validacion deterministica (regex, sin LLM) del output antes de entregarlo. Detecta emojis, respuestas en ingles, frases prohibidas y acciones no solicitadas. Integrado al bridge — loguea violaciones en stderr sin bloquear.
@@ -15,7 +19,7 @@ Desde v2.7.0, el nucleo incorpora:
 - **Error Repair Loop** (`scripts/services/ErrorRepairLoop.js`): ciclo automatico de deteccion, diagnostico y reparacion de errores en tres fases.
 - **Anthropic Bridge** (`scripts/anthropic-bridge.js`): fallback al API de Anthropic con Prompt Caching de tres puntos, ventana deslizante de historial, StyleProfiler integrado y recomendacion automatica de Gemini cuando el tier 0 aplica.
 - **LLM Routing Bridge** via Gemini 2.5 Flash: tier 0 gratuito para analisis de archivos > 200 lineas, logs extensos, resumenes de backlog y busqueda web. Umbral bajado de 500 a 200 lineas para maximizar el ahorro de cuota.
-- **Tokenomics v2.7**: Gemini como tier 0 antes que Haiku, Opus solo para arquitectura critica, ResponseValidator integrado al bridge, StyleProfiler activo en cada sesion.
+- **Tokenomics v2.8**: `buscar_web` migrado a Gemini tier 0, Guard Read activo en PreToolUse, Health-Check System al inicio de sesion para garantizar integridad del entorno.
 
 ---
 
@@ -139,7 +143,7 @@ El agente hereda automaticamente las reglas globales del `CLAUDE.md` del nucleo.
 
 ---
 
-## Arquitectura v2.7.0
+## Arquitectura v2.8.0
 
 ### Mapa de modulos
 
@@ -147,13 +151,15 @@ El agente hereda automaticamente las reglas globales del `CLAUDE.md` del nucleo.
 .claude/ai-core/
 ├── scripts/
 │   ├── services/
-│   │   ├── ModelRouter.js       Enrutamiento Haiku/Sonnet/Opus por herramienta y tokens
+│   │   ├── ModelRouter.js       Enrutamiento Gemini/Haiku/Sonnet/Opus por herramienta y tokens
 │   │   ├── AgentRoles.js        Perfiles Architect/Coder/Auditor con system prompts
+│   │   ├── IntentClassifier.js  Infiere herramienta y modelo desde el mensaje crudo del usuario
 │   │   ├── ContextIndex.js      Indice CONTEXT_MAP.json — resolucion de rutas sin I/O ciego
 │   │   └── ErrorRepairLoop.js   Ciclo deteccion→diagnostico→reparacion de errores
 │   ├── anthropic-bridge.js      Bridge Anthropic SDK con Prompt Caching y Model Router
 │   ├── mcp-gemini.js            Servidor MCP stdio — 5 herramientas de analisis via Gemini
 │   ├── gemini-bridge.js         CLI de respaldo para analisis Gemini sin MCP
+│   ├── context-monitor.js       Monitor de uso de contexto y alertas de compactacion
 │   ├── init-backlog.js          Crea BACKLOG.md en proyecto anfitrion si no existe
 │   ├── query-backlog.js         Filtra BACKLOG.md sin cargarlo en contexto
 │   ├── session-close.js         Persiste last_session.md al cerrar sesion
@@ -161,15 +167,20 @@ El agente hereda automaticamente las reglas globales del `CLAUDE.md` del nucleo.
 ├── .claude/
 │   ├── settings.json            Template hooks + config MCP server
 │   ├── bin/
+│   │   ├── health-check.js      Autodiagnostico y autocorreccion al inicio de sesion
+│   │   ├── health-report.js     Generador de reporte estructurado de estado del sistema
+│   │   ├── health-sync.js       Sincroniza estado de health entre sesiones
+│   │   ├── health-worker.js     Worker de correcciones automaticas del health-check
+│   │   ├── validate-map.js      Valida y regenera CONTEXT_MAP.json si hay drift >= 3 archivos
+│   │   ├── guard-read.js        Hook PreToolUse: bloquea Read > 200 lineas, fuerza Gemini
 │   │   ├── norm-harness.js      Blindaje de entorno: detox + symlinks + purga de sesiones
 │   │   ├── norm-harness.ps1     Equivalente PowerShell (rutas dinamicas via $PSScriptRoot)
 │   │   ├── generate-map.js      Genera/actualiza CONTEXT_MAP.json
 │   │   ├── detox.js             Limpia archivos legacy que contaminan contexto
 │   │   └── benchmark-fernet.js  Testea cifrado Fernet (PII)
-│   │   └── guard-read.js        Bloquea Read en archivos > 200 lineas (fuerza Gemini)
-│   └── skills/                  24 skills especializados (ver tabla Auto-Routing)
-├── CLAUDE.md                    Autoridad unica: 22 reglas, triada, skills, enrutamiento
-├── package.json                 v2.7.0 — Node >= 18.0.0
+│   └── skills/                  26 skills especializados (ver tabla Auto-Routing)
+├── CLAUDE.md                    Autoridad unica: reglas, triada, 26 skills, enrutamiento
+├── package.json                 v2.8.0 — Node >= 18.0.0
 └── .env.example                 Plantilla de variables de entorno
 ```
 
@@ -587,7 +598,7 @@ Protocolo Regla 7:
 
 ### Auto-Routing (Regla 20)
 
-El agente mapea automaticamente el dominio tecnico de la solicitud contra 24 skills especializados. Confidence > 85% = activacion inmediata sin instruccion explicita.
+El agente mapea automaticamente el dominio tecnico de la solicitud contra 26 skills especializados. Confidence > 85% = activacion inmediata sin instruccion explicita.
 
 | Skill | Palabras clave de activacion | Modelo base |
 |---|---|---|
@@ -615,6 +626,8 @@ El agente mapea automaticamente el dominio tecnico de la solicitud contra 24 ski
 | `attack-surface-analyst` | superficie, exposicion, credencial, subdominio | Sonnet |
 | `aiops-engineer` | auditoria, skill, ai-core, Anthropic changelog | Sonnet |
 | `doc-builder` | propuesta, documento HTML, PDF, entregable, cliente | Sonnet |
+| `gemini-2-5-specialist` | Gemini 2.5 Pro/Flash, thinking budget, Flash-Lite, Live API, image gen, TTS nativo | Sonnet |
+| `web-scraping-specialist` | scraping, Playwright, Puppeteer, OCR, CAPTCHA, proxy, precio, marketplace | Sonnet |
 
 Jerarquia de conflicto (Regla 21): `security-auditor > backend-architect > devops-infra > release-manager`.
 
@@ -682,7 +695,7 @@ El agente leera su propio codigo, propondra las mejoras y tras aprobacion ejecut
 
 ## Autoridad Unica: CLAUDE.md
 
-`README.md` = instalacion, arquitectura y uso. `CLAUDE.md` = sistema operativo completo (22 reglas, triada, 23 skills, tablas de enrutamiento, politicas de escalamiento).
+`README.md` = instalacion, arquitectura y uso. `CLAUDE.md` = sistema operativo completo (reglas, triada, 26 skills, tablas de enrutamiento, politicas de escalamiento).
 
 ---
 
