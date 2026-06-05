@@ -10,60 +10,116 @@
 
 ## Instalacion
 
+### Requisitos previos
+
+Antes de instalar, verificar que tienes:
+
+| Requisito | Version minima | Verificar |
+|---|---|---|
+| Node.js | >= 18.0.0 | `node --version` |
+| Claude Code CLI | cualquiera | `claude --version` |
+| Git | cualquiera | `git --version` |
+| gh CLI | cualquiera | `gh --version` |
+
+Instalar `gh` si no lo tienes: https://cli.github.com
+
 ### Como repositorio independiente (uso propio)
 
 ```bash
+# 1. Clonar
 git clone git@github.com:salvex93/ai-core.git
 cd ai-core
+
+# 2. Dependencias y configuracion local
 npm install
-npm run setup    # adapta settings.json a tu ruta local (cross-platform)
-npm test         # verifica 269 assertions — debe pasar 100%
-claude           # inicia Claude Code con el nucleo cargado
-```
+npm run setup    # adapta settings.json a tu ruta exacta (cross-platform)
 
-### Como submodulo Git (proyectos de equipo)
+# 3. Verificar que todo funciona
+npm test         # debe terminar: 269 pass, 0 fail
 
-```bash
-cd /ruta/a/tu-proyecto
-git submodule add https://github.com/salvex93/ai-core .claude/ai-core
-git submodule update --init --recursive
-cd .claude/ai-core && npm install && cd ../..
-node .claude/ai-core/.claude/bin/norm-harness.js  # genera settings.json y CLAUDE.md
+# 4. Autenticar gh CLI para el issue-tracker (una sola vez por maquina)
+gh auth login    # selecciona: GitHub.com → HTTPS → Login with a web browser
+gh auth status   # confirmar: "Logged in to github.com"
+
+# 5. Configurar variables de entorno
+cp .env.example .env
+# Editar .env — minimo obligatorio: GEMINI_API_KEY
+# Obtener gratis en: https://aistudio.google.com/app/apikey
+
+# 6. Iniciar
 claude
 ```
 
-### Actualizar a la ultima version
+### Como submodulo Git (en un proyecto existente)
+
+```bash
+# 1. Agregar ai-core como submodulo
+cd /ruta/a/tu-proyecto
+git submodule add https://github.com/salvex93/ai-core .claude/ai-core
+git submodule update --init --recursive
+
+# 2. Instalar dependencias del nucleo
+cd .claude/ai-core && npm install && cd ../..
+
+# 3. Normalizar el entorno (genera settings.json y CLAUDE.md con tus rutas locales)
+node .claude/ai-core/.claude/bin/norm-harness.js
+
+# 4. Autenticar gh CLI (si no lo hiciste ya)
+gh auth login
+gh auth status
+
+# 5. Variables de entorno (en el proyecto anfitrion)
+cp .claude/ai-core/.env.example .env
+# Editar .env con tus claves
+
+# 6. Iniciar
+claude
+```
+
+### Actualizar el arnes (repositorio independiente)
 
 ```bash
 npm run update
 ```
 
-Un solo comando que ejecuta: `git pull` → regenera `settings.json` con tus rutas locales → corre los 269 tests → valida los 32 skills → muestra que cambio. Funciona en Linux, macOS y Windows.
+Ejecuta en secuencia: `git pull` → regenera `settings.json` → corre 269 tests → valida 32 skills → reporta que cambio. Si algun test falla, el comando lo indica y no continua.
 
-### Activar proveedores adicionales (opcional)
-
-Copia `.env.example` a `.env` y agrega las claves de los proveedores que uses. El `ModelRegistry` detecta automaticamente cuales estan disponibles:
+### Actualizar el arnes (instalado como submodulo)
 
 ```bash
-cp .env.example .env
-# Editar .env y agregar las claves:
-# GEMINI_API_KEY    — gratuito, siempre primero
-# ANTHROPIC_API_KEY — Claude Haiku/Sonnet/Opus
-# OPENAI_API_KEY    — GPT-4o, o1, o3
-# DEEPSEEK_API_KEY  — DeepSeek-V3 / R1
-# KIMI_API_KEY      — Kimi K2 (256k contexto)
+# Desde la raiz del proyecto anfitrion:
+cd .claude/ai-core
+npm run update
+cd ../..
+
+# Volver a normalizar settings.json del anfitrion con las nuevas rutas
+node .claude/ai-core/.claude/bin/norm-harness.js
 ```
 
-### Autenticar gh CLI (para issue-tracker automatico)
+Si el proyecto anfitrion tiene su propio `settings.json` con rutas hardcodeadas de una version anterior, `norm-harness.js` las corrige automaticamente.
 
-El sistema de mejora continua abre issues en GitHub al cerrar cada sesion. Requiere `gh` autenticado una sola vez:
+### Activar proveedores adicionales de IA (opcional)
+
+El arnes funciona con Gemini (gratuito) y Anthropic desde el primer momento. Para agregar mas proveedores, editar `.env`:
 
 ```bash
-gh auth login
-gh auth status   # verificar
+GEMINI_API_KEY=    # OBLIGATORIO — gratuito en aistudio.google.com
+ANTHROPIC_API_KEY= # ya configurado por Claude Code
+OPENAI_API_KEY=    # opcional — GPT-4o, o1, o3
+DEEPSEEK_API_KEY=  # opcional — DeepSeek-V3 / R1
+KIMI_API_KEY=      # opcional — Kimi K2 (256k contexto)
 ```
 
-Sin este paso el sistema sigue funcionando — los eventos se acumulan en `.claude/EVENTS_QUEUE.json` y se envian en la proxima sesion donde `gh` este disponible.
+Agregar la clave activa el proveedor automaticamente. Sin la clave, el proveedor no se usa — no hay errores.
+
+### Verificar que el issue-tracker esta activo
+
+```bash
+gh auth status
+# Esperado: "Logged in to github.com as <tu-usuario>"
+```
+
+Si no esta autenticado, los eventos de mejora se acumulan localmente en `.claude/EVENTS_QUEUE.json` y se envian automaticamente en la proxima sesion donde `gh` este disponible. No se pierden.
 
 ---
 
