@@ -27,11 +27,13 @@
       "Bash(git commit*)",
       "Bash(wc -l*)",
       "Bash(grep*)",
+      "Bash(find*)",
       "Bash(cat ~/.ssh/id_ed25519.pub)",
       "Bash(ssh-keyscan*)",
       "Bash(for f in .claude/skills*)",
       "Bash(node*)",
       "Bash(npm*)",
+      "Bash(python3*)",
       "mcp__gemini-bridge__analizar_archivo",
       "mcp__gemini-bridge__analizar_contenido",
       "mcp__gemini-bridge__analizar_repositorio",
@@ -46,11 +48,11 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node /home/cyber/Proyectos/ai-core/.claude/bin/health-check.js 2>&1 || true"
+            "command": "node \"/home/cyber/Proyectos/ai-core/.claude/bin/health-check.js\" 2>&1 || true"
           },
           {
             "type": "command",
-            "command": "node /home/cyber/Proyectos/ai-core/.claude/bin/validate-map.js 2>/dev/null || true"
+            "command": "node \"/home/cyber/Proyectos/ai-core/.claude/bin/validate-map.js\" 2>/dev/null || true"
           }
         ]
       },
@@ -59,7 +61,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node /home/cyber/Proyectos/ai-core/.claude/bin/guard-read.js \"$CLAUDE_TOOL_INPUT_file_path\" 2>/dev/null || true"
+            "command": "node \"/home/cyber/Proyectos/ai-core/.claude/bin/guard-read.js\" \"$CLAUDE_TOOL_INPUT_file_path\" 2>/dev/null || true"
           }
         ]
       }
@@ -70,7 +72,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node /home/cyber/Proyectos/ai-core/.claude/bin/detox.js 2>/dev/null || true"
+            "command": "node \"/home/cyber/Proyectos/ai-core/.claude/bin/detox.js\" 2>/dev/null || true"
           },
           {
             "type": "command",

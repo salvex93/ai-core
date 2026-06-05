@@ -1,9 +1,9 @@
 ---
 name: web-scraping-specialist
-description: Especialista en extraccion de datos desde plataformas web y aplicaciones retail. Cubre scraping etico con Playwright y Puppeteer, OCR con Tesseract y Google Vision, bypass de CAPTCHA con 2captcha/CapSolver/anticaptcha, rotacion de proxies, fingerprinting de navegador, y pipelines de datos estructurados desde marketplaces (Amazon, MercadoLibre, Shopify) y ERPs SaaS. Activa al extraer datos de plataformas sin API oficial, construir monitores de precios, o implementar pipelines OCR para documentos de retail (facturas, guias de despacho, catalogos).
+description: Especialista en extraccion de datos desde plataformas web y aplicaciones retail. Herramientas 2026: Stagehand (IA-nativo), browser-use (Python/LLM-driven), Crawlee (Node.js profesional), Browserbase (headless cloud), Camoufox, curl-cffi. Estrategias por proveedor anti-bot: Cloudflare, Datadome, Imperva, PerimeterX. Session state pooling, storage state reutilizable, OCR con Google Vision y Tesseract, rotacion de proxies residenciales. Activa al extraer datos de plataformas sin API oficial, construir monitores de precios, implementar pipelines OCR, o disenar scrapers resilientes con evasion avanzada.
 origin: ai-core
-version: 1.0.0
-last_updated: 2026-05-19
+version: 2.0.0
+last_updated: 2026-06-04
 ---
 
 # Web Scraping Specialist — Extraccion de Datos desde Plataformas Web
@@ -60,39 +60,183 @@ Jerarquia de metodos (usar el mas simple que funcione):
 |---|---|---|---|
 | API oficial | El sitio la ofrece | requests/axios | Nula |
 | HTTP + parsing | Sitio renderizado en servidor (SSR) | httpx + BeautifulSoup / cheerio | Baja |
-| Browser headless | SPA (React/Vue/Angular), AJAX | Playwright / Puppeteer | Media |
-| Browser con stealth | Sitios con deteccion activa (Cloudflare, Akamai, Datadome) | Playwright-stealth / puppeteer-extra-plugin-stealth | Alta |
+| LLM-driven (IA-nativo) | Flujos complejos con navegacion semantica | Stagehand / browser-use | Media |
+| Browser headless | SPA (React/Vue/Angular), AJAX | Playwright / Crawlee | Media |
+| Browser con stealth | Sitios con deteccion activa (Cloudflare, Datadome, Imperva) | Camoufox / playwright-stealth | Alta |
+| Browser cloud | Entorno sin IP propia, alta escala | Browserbase | Alta |
 | API interna (reverse engineer) | El sitio hace llamadas XHR a una API JSON interna | httpx + analisis de Network tab | Media |
 
 Regla: revisar el Network tab del sitio antes de implementar browser headless. Muchos sitios que parecen requerir browser en realidad exponen una API JSON interna (XHR/Fetch) que es mas eficiente y menos detectable.
+
+## Herramientas 2026 — Punta de Lanza
+
+### Stagehand (IA-nativo, Node.js)
+
+Stagehand convierte instrucciones en lenguaje natural en acciones de browser. Ideal para flujos con navegacion semantica compleja o cuando el DOM cambia frecuentemente.
+
+```typescript
+import Stagehand from '@browserbasehq/stagehand';
+
+const stagehand = new Stagehand({ env: 'LOCAL' }); // o 'BROWSERBASE' para cloud
+await stagehand.init();
+
+const page = stagehand.page;
+await page.goto('https://sitio.com');
+
+// Extraccion semantica — no requiere conocer los selectores
+const productos = await stagehand.extract({
+  instruction: 'Extrae todos los productos con nombre, precio y disponibilidad',
+  schema: z.array(z.object({
+    nombre: z.string(),
+    precio: z.number(),
+    disponible: z.boolean()
+  }))
+});
+
+// Navegacion semantica — resiste cambios de DOM
+await stagehand.act({ action: 'Hacer clic en el boton de siguiente pagina' });
+```
+
+### browser-use (Python, LLM-driven)
+
+Framework Python que conecta un LLM directamente al browser para ejecutar tareas de alto nivel.
+
+```python
+from browser_use import Agent
+from langchain_anthropic import ChatAnthropic
+
+async def extraer_con_ia():
+    agent = Agent(
+        task="Ir a amazon.com, buscar 'auriculares bluetooth', "
+             "extraer los primeros 10 resultados con nombre y precio",
+        llm=ChatAnthropic(model='claude-haiku-4-5'),  # usar Haiku para reducir costo
+    )
+    result = await agent.run()
+    return result
+```
+
+### Crawlee (Node.js — crawling profesional con anti-ban integrado)
+
+```typescript
+import { PlaywrightCrawler, Dataset } from 'crawlee';
+
+const crawler = new PlaywrightCrawler({
+  maxRequestsPerCrawl: 100,
+  maxConcurrency: 5,
+  // Anti-ban integrado: delays aleatorios, rotacion de User-Agent, retry automatico
+  requestHandlerTimeoutSecs: 30,
+  async requestHandler({ request, page, enqueueLinks }) {
+    const title = await page.title();
+    const precios = await page.$$eval('.precio', els => els.map(e => e.textContent));
+    await Dataset.pushData({ url: request.url, title, precios });
+    await enqueueLinks({ globs: ['https://tienda.com/categoria/**'] });
+  },
+});
+
+await crawler.run(['https://tienda.com/']);
+```
+
+### Browserbase (headless cloud — sin IP propia)
+
+```typescript
+import { Browserbase } from '@browserbasehq/sdk';
+import { chromium } from 'playwright';
+
+const bb = new Browserbase({ apiKey: process.env.BROWSERBASE_API_KEY });
+const session = await bb.sessions.create({ projectId: process.env.BROWSERBASE_PROJECT_ID });
+
+const browser = await chromium.connectOverCDP(session.connectUrl);
+const page = await browser.newPage();
+await page.goto('https://sitio-con-cloudflare.com');
+// Browserbase gestiona la IP, los proxies y el fingerprint automaticamente
+```
+
+### Session State Pooling — reutilizar autenticacion
+
+```python
+# Guardar estado de sesion autenticada (evita re-login en cada corrida)
+async def guardar_sesion(page, ruta: str = 'session.json'):
+    await page.context.storage_state(path=ruta)
+
+async def cargar_sesion(playwright, ruta: str = 'session.json') -> Page:
+    import os
+    browser = await playwright.chromium.launch()
+    context_kwargs = {}
+    if os.path.exists(ruta):
+        context_kwargs['storage_state'] = ruta
+    context = await browser.new_context(**context_kwargs)
+    return await context.new_page()
+
+# Patron de pool: N sesiones paralelas con storage_state diferente por cuenta
+async def pool_sesiones(cuentas: list[dict]) -> list[Page]:
+    pages = []
+    async with async_playwright() as p:
+        for cuenta in cuentas:
+            page = await cargar_sesion(p, f'session_{cuenta["id"]}.json')
+            pages.append(page)
+    return pages
+```
+
+## Estrategias por Proveedor Anti-Bot
+
+| Proveedor | Señales que detecta | Estrategia recomendada |
+|---|---|---|
+| **Cloudflare** | TLS fingerprint, JS challenges, IP reputation, Canvas/WebGL | Camoufox (Firefox fingerprint) + proxy residencial o Browserbase |
+| **Datadome** | Comportamiento de mouse, timing de teclado, Canvas hash | Playwright-stealth + delays humanos + proxy ISP |
+| **Imperva/Incapsula** | IP reputation, cookie validation, JS fingerprint | curl-cffi para HTTP, Playwright-stealth para browser |
+| **PerimeterX/HUMAN** | Behavioral biometrics, device fingerprint | Stagehand con LLM guidance + proxy residencial rotativo |
+| **Akamai Bot Manager** | TLS fingerprint, device ID, behavioral analytics | curl-cffi (TLS replica Chrome) + Browserbase |
+
+### Deteccion de proveedor antes de implementar
+
+```python
+import httpx
+
+async def detectar_proteccion(url: str) -> str:
+    async with httpx.AsyncClient() as client:
+        r = await client.get(url)
+    headers = dict(r.headers)
+    
+    if 'cf-ray' in headers or 'cf-cache-status' in headers:
+        return 'cloudflare'
+    if '__ddg' in str(r.cookies) or 'datadome' in str(headers):
+        return 'datadome'
+    if 'x-iinfo' in headers or 'incap_ses' in str(r.cookies):
+        return 'imperva'
+    if '_px' in str(r.cookies):
+        return 'perimeterx'
+    if 'x-check-cacheable' in headers:
+        return 'akamai'
+    return 'desconocido'
+```
 
 ## Stack Gratuito Recomendado (2026)
 
 ### Python
 
 ```bash
-pip install playwright playwright-stealth httpx beautifulsoup4 lxml pytesseract pillow
-playwright install chromium  # instalar navegador
+pip install playwright playwright-stealth httpx beautifulsoup4 lxml pytesseract pillow browser-use crawlee
+playwright install chromium firefox  # instalar navegadores
 ```
 
 ### Node.js / TypeScript
 
 ```bash
-npm install playwright puppeteer puppeteer-extra puppeteer-extra-plugin-stealth cheerio axios
+npm install playwright crawlee puppeteer-extra puppeteer-extra-plugin-stealth cheerio @browserbasehq/stagehand
 ```
 
 ### Herramientas especializadas
 
 | Herramienta | Tipo | Gratuito | Uso |
 |---|---|---|---|
-| Playwright | Browser automation | Si (open source) | Scraping con JS, stealth mode |
-| Puppeteer | Browser automation | Si (open source) | Chrome headless, Google-maintained |
-| Scrapy | Spider framework | Si (open source) | Crawling masivo de multiples paginas |
-| BeautifulSoup4 | HTML parser | Si (open source) | Extraccion de contenido HTML estatico |
-| Tesseract OCR | OCR engine | Si (open source) | Extraccion de texto desde imagenes |
-| Camoufox | Browser stealth | Si (open source) | Firefox con fingerprint aleatorio — excelente contra Cloudflare |
-| curl-cffi | HTTP stealth | Si (open source) | Replica fingerprint TLS de Chrome/Firefox |
-| playwright-stealth | Plugin Playwright | Si (open source) | Parchea 20+ señales de deteccion de headless |
+| Stagehand | IA-nativo scraping | OSS + cloud | Flujos con navegacion semantica, extraccion sin selectores fragiles |
+| browser-use | LLM-driven scraping | OSS | Automatizacion compleja dirigida por LLM en Python |
+| Crawlee | Spider framework | OSS | Crawling masivo Node.js con anti-ban, retry y Dataset integrado |
+| Browserbase | Browser cloud | Pago (free tier) | Headless sin IP propia, Cloudflare/anti-bot gestionado |
+| Playwright | Browser automation | OSS | Base de Stagehand y Crawlee, control total de bajo nivel |
+| Camoufox | Browser stealth | OSS | Firefox con fingerprint aleatorio — superior contra Cloudflare |
+| curl-cffi | HTTP stealth | OSS | Replica fingerprint TLS de Chrome/Firefox — sin browser |
+| playwright-stealth | Plugin Playwright | OSS | Parchea 20+ señales headless, compatible con Chromium |
 
 ## Evasion de Deteccion Anti-Bot
 
@@ -520,6 +664,13 @@ class CatalogoRetailSpider(scrapy.Spider):
 ## Restricciones del Perfil
 
 Las Reglas Globales definidas en CLAUDE.md aplican sin excepcion. Adicionales:
+### Protocolo de Sesion (heredado de CLAUDE.md — no modificar aqui)
+- Modo Neanderthal (rol Coder activo): maximo 3 lineas de prosa, luego solo codigo o diff. Prohibido: "claro", "entendido", "perfecto", resumenes post-tarea.
+- Turnos >= 6: imprimir `[AVISO: contexto pesado — ejecuta /compact]` al inicio de la respuesta.
+- Turnos >= 15: imprimir `[CRITICO: contexto saturado — ejecuta /clear]` y detener la tarea hasta que el usuario ejecute el comando.
+- Prohibido usar emojis, iconos o adornos visuales en cualquier respuesta.
+- Prohibido responder en ingles salvo identificadores de codigo.
+- Prohibido leer archivos completos sin consultar CONTEXT_MAP primero; si el archivo supera 200 lineas, delegar a `analizar_archivo` del MCP gemini-bridge.
 - Prohibido implementar scraping de sitios que requieren autenticacion sin autorizacion explicita del propietario del sistema.
 - Prohibido disenar un scraper sin rate limiting — el scraping sin throttling puede ser considerado un ataque de denegacion de servicio.
 - Prohibido extraer, almacenar o procesar datos de usuarios finales sin base legal documentada (consentimiento, interes legitimo, contrato).

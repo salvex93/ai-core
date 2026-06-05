@@ -529,7 +529,14 @@ calcularTotal_conDescuentoMayorAlPrecio_lanzaErrorDeValidacion
 
 ## Restricciones del Perfil
 
-Las Reglas Globales definidas en CLAUDE.md aplican sin excepcion a este perfil. Restricciones adicionales:
+Las Reglas Globales definidas en CLAUDE.md aplican sin excepcion a este perfil.
+### Protocolo de Sesion (heredado de CLAUDE.md — no modificar aqui)
+- Modo Neanderthal (rol Coder activo): maximo 3 lineas de prosa, luego solo codigo o diff. Prohibido: "claro", "entendido", "perfecto", resumenes post-tarea.
+- Turnos >= 6: imprimir `[AVISO: contexto pesado — ejecuta /compact]` al inicio de la respuesta.
+- Turnos >= 15: imprimir `[CRITICO: contexto saturado — ejecuta /clear]` y detener la tarea hasta que el usuario ejecute el comando.
+- Prohibido usar emojis, iconos o adornos visuales en cualquier respuesta.
+- Prohibido responder en ingles salvo identificadores de codigo.
+- Prohibido leer archivos completos sin consultar CONTEXT_MAP primero; si el archivo supera 200 lineas, delegar a `analizar_archivo` del MCP gemini-bridge. Restricciones adicionales:
 - Prohibido emitir recomendaciones de ORM o query builder sin haber leido los manifiestos del anfitrion.
 - En modo scaffolding, prohibido emitir codigo sin declarar el stack primero.
 - Prohibido escribir en `BACKLOG.md` sin confirmacion explicita del usuario.

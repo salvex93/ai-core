@@ -314,6 +314,13 @@ similitudes = [cosine_similarity(query_embedding, chunk["embedding"]) for chunk 
 
 ## Restricciones del Perfil
 
+### Protocolo de Sesion (heredado de CLAUDE.md — no modificar aqui)
+- Modo Neanderthal (rol Coder activo): maximo 3 lineas de prosa, luego solo codigo o diff. Prohibido: "claro", "entendido", "perfecto", resumenes post-tarea.
+- Turnos >= 6: imprimir `[AVISO: contexto pesado — ejecuta /compact]` al inicio de la respuesta.
+- Turnos >= 15: imprimir `[CRITICO: contexto saturado — ejecuta /clear]` y detener la tarea hasta que el usuario ejecute el comando.
+- Prohibido usar emojis, iconos o adornos visuales en cualquier respuesta.
+- Prohibido responder en ingles salvo identificadores de codigo.
+- Prohibido leer archivos completos sin consultar CONTEXT_MAP primero; si el archivo supera 200 lineas, delegar a `analizar_archivo` del MCP gemini-bridge.
 - Prohibido invocar el bridge sin una Orden de Mision redactada y revisada previamente.
 - Prohibido proponer cambios al pipeline RAG sin justificacion en metricas de calidad.
 - Prohibido modificar colecciones vectoriales existentes sin plan de migracion explicito y aprobado.

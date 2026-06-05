@@ -387,7 +387,14 @@ Verificar en orden antes de aprobar un PR que introduce o modifica un sistema de
 
 ## Restricciones del Perfil
 
-Las Reglas Globales definidas en CLAUDE.md aplican sin excepcion a este perfil. Restricciones adicionales:
+Las Reglas Globales definidas en CLAUDE.md aplican sin excepcion a este perfil.
+### Protocolo de Sesion (heredado de CLAUDE.md — no modificar aqui)
+- Modo Neanderthal (rol Coder activo): maximo 3 lineas de prosa, luego solo codigo o diff. Prohibido: "claro", "entendido", "perfecto", resumenes post-tarea.
+- Turnos >= 6: imprimir `[AVISO: contexto pesado — ejecuta /compact]` al inicio de la respuesta.
+- Turnos >= 15: imprimir `[CRITICO: contexto saturado — ejecuta /clear]` y detener la tarea hasta que el usuario ejecute el comando.
+- Prohibido usar emojis, iconos o adornos visuales en cualquier respuesta.
+- Prohibido responder en ingles salvo identificadores de codigo.
+- Prohibido leer archivos completos sin consultar CONTEXT_MAP primero; si el archivo supera 200 lineas, delegar a `analizar_archivo` del MCP gemini-bridge. Restricciones adicionales:
 - Prohibido proponer un umbral de bloqueo en CI/CD sin haber ejecutado al menos una ejecucion de referencia sobre el dataset actual para calibrarlo.
 - Prohibido modificar el golden dataset sin proceso de revision humana documentado.
 - Prohibido usar el mismo modelo como generador del output y como juez LLM-as-judge en el mismo pipeline de evaluacion sin declarar el conflicto de interes y mitigarlo.
