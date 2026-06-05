@@ -1,69 +1,116 @@
-# AI-CORE: Nucleo Multi-Agente Universal
+# AI-CORE v3.3.0: Nucleo Multi-Agente Universal
 
-`ai-core` es un nucleo de configuracion y comportamiento para agentes IA que se incorpora a cualquier repositorio como submódulo Git. Inyecta reglas globales inmutables y perfiles de comportamiento tecnico especializados (skills) sin acoplar su logica al stack del proyecto anfitrion. La lista autoritativa de reglas y skills esta en `CLAUDE.md`.
+`ai-core` es un nucleo de configuracion y comportamiento para agentes IA distribuible como submodulo Git o repositorio independiente. Inyecta reglas globales inmutables, 32 skills especializados y una herramienta maestra de actualizacion en cualquier proyecto, sin acoplar su logica al stack del anfitrion.
 
-El sistema es framework-agnostic por diseño. No asume Node.js, Python, Go ni ningun otro lenguaje. Cada agente lee los manifiestos del repositorio anfitrion (`package.json`, `requirements.txt`, `go.mod`, etc.) al activarse y adapta sus recomendaciones al entorno real del proyecto.
-
-Desde v3.1.0, el nucleo incorpora:
-
-- **29 Skills especializados** (ver tabla Auto-Routing): se agrego `silent-failure-hunter` (deteccion de catch vacios, excepciones tragadas, errores convertidos a null y logs sin contexto en Node.js y Python) como skill numero 29. Todos los skills actualizados a junio 2026.
-- **Stack Detector** (`.claude/bin/detect-stack.js`): detecta el stack tecnologico del proyecto anfitrion inspeccionando manifiestos (`package.json`, `pyproject.toml`, `go.mod`, `Dockerfile`, `Makefile`, etc.) sin leer su contenido. Inyecta permisos de Bash especificos al stack en el `settings.json` generado. Soporta Node, Python, Go, Rust, Java, PHP, Ruby, Docker, Terraform, Serverless, Kubernetes y monorepos.
-- **Auto-Setup de proyecto** (`norm-harness.js` v3.1): al ejecutarse en un proyecto nuevo, genera automaticamente `.claude/settings.json` con rutas absolutas correctas, permisos adaptados al stack detectado, y un `CLAUDE.md` minimal con secciones placeholder para comandos y estructura. Dos comandos para arrancar en cualquier proyecto.
-- **CONTEXT_MAP dual host/core**: el mapa indexa el proyecto anfitrion y el submodulo ai-core por separado. Incluye seccion `stack` con tecnologias detectadas. Claude navega el proyecto sin discovery por I/O.
-- **Path Drift Detection**: `health-check.js` detecta al inicio de sesion si `settings.json` apunta a rutas invalidas (p.ej. tras mover el proyecto) y autocorrige sin intervencion.
-- **Health-Check System v1.0** (`.claude/bin/health-check.js`, `health-report.js`, `health-sync.js`, `health-worker.js`): autodiagnostico y autocorreccion al inicio de cada sesion. Verifica integridad de skills, hooks, CONTEXT_MAP y variables de entorno.
-- **Guard Read** (`.claude/bin/guard-read.js`): bloquea lecturas directas en archivos > 200 lineas via hook `PreToolUse`. Fuerza `analizar_archivo` de Gemini y protege la cuota de Claude.
-- **Validate Map** (`.claude/bin/validate-map.js`): regenera `CONTEXT_MAP.json` automaticamente al inicio de sesion si hay drift >= 3 archivos.
-- **Model Router v2.7** (`scripts/services/ModelRouter.js`): jerarquia de costo de 4 niveles — **Gemini free (tier 0) → Haiku → Sonnet → Opus**. Gemini tiene prioridad absoluta para lecturas, resumenes y analisis de repositorio. Opus reservado para diseno de sistemas nuevos y refactorizacion de arquitectura multi-modulo.
-- **Intent Classifier** (`scripts/services/IntentClassifier.js`): arbol de decision que infiere herramienta y modelo desde el mensaje crudo del usuario.
-- **Response Validator** (`scripts/services/ResponseValidator.js`): validacion deterministica del output. Detecta emojis, respuestas en ingles, frases prohibidas y acciones no solicitadas.
-- **Style Profiler** (`scripts/services/StyleProfiler.js`): acumula rasgos de escritura del usuario y genera bloque de instruccion de tono inyectado dinamicamente en el system prompt.
-- **Context Index** (`scripts/services/ContextIndex.js`): resuelve rutas via `CONTEXT_MAP.json` antes de ir al disco.
-- **Agent Roles** (`scripts/services/AgentRoles.js`): asigna system prompt y modelo segun el rol inferido (Architect / Coder / Auditor).
-- **Error Repair Loop** (`scripts/services/ErrorRepairLoop.js`): ciclo automatico deteccion → diagnostico → reparacion de errores en tres fases. Incorpora `LoopGuard` con tres stopping conditions (sin avance en 2 checkpoints, error identico repetido, presupuesto excedido) para loops autonomos de scrapers y agentes.
-- **Syntax Check Hook** (PostToolUse `Write|Edit`): ejecuta `node --check` sobre cada archivo `.js` editado. Emite `[syntax-ok]` o `[syntax-error]` inmediatamente — sin dependencias externas.
-- **Anthropic Bridge** (`scripts/anthropic-bridge.js`): bridge principal con Prompt Caching de tres puntos, ventana deslizante de historial y recomendacion automatica de Gemini cuando el tier 0 aplica.
-- **LLM Routing Bridge** via Gemini 2.5 Flash: tier 0 gratuito para archivos > 200 lineas, logs extensos, resumenes de backlog y busqueda web.
-- **Tokenomics v3.0**: evals como gate de release obligatorio en sistemas LLM, Merge Queues activables en GitHub Actions, guardrails actualizados contra vectores de evasion con interleaved thinking.
+**Una sola fuente de verdad:** `CLAUDE.md` define las reglas globales. Los 32 skills las referencian — no las copian. Si una regla cambia en `CLAUDE.md`, los 32 skills se actualizan automaticamente sin tocar ningun archivo.
 
 ---
 
-## Instalacion como Submodulo Git
+## Instalacion
 
-Dos comandos para arrancar en cualquier proyecto. El harness se encarga del resto.
+### Como repositorio independiente (uso propio)
 
 ```bash
-# 1. Incorporar ai-core como submodulo
+git clone git@github.com:salvex93/ai-core.git
+cd ai-core
+npm install
+npm run setup    # adapta settings.json a tu ruta local (cross-platform)
+npm test         # verifica 269 assertions — debe pasar 100%
+claude           # inicia Claude Code con el nucleo cargado
+```
+
+### Como submodulo Git (proyectos de equipo)
+
+```bash
 cd /ruta/a/tu-proyecto
 git submodule add https://github.com/salvex93/ai-core .claude/ai-core
 git submodule update --init --recursive
-
-# 2. Instalar dependencias del nucleo
 cd .claude/ai-core && npm install && cd ../..
-
-# 3. Ejecutar el harness — genera settings.json, detecta stack, crea CLAUDE.md
-node .claude/ai-core/.claude/bin/norm-harness.js
-```
-
-El harness genera automaticamente:
-- `.claude/settings.json` — MCPs, hooks y permisos de Bash adaptados al stack del proyecto
-- `CLAUDE.md` en la raiz — con secciones placeholder para completar (comandos, estructura, .env)
-- `CONTEXT_MAP.json` — indice dual host + core para navegacion sin discovery
-
-Para iniciar Claude Code:
-
-```bash
+node .claude/ai-core/.claude/bin/norm-harness.js  # genera settings.json y CLAUDE.md
 claude
 ```
 
-### Actualizar el nucleo
+### Actualizar a la ultima version
 
 ```bash
-git submodule update --remote .claude/ai-core
-git add .claude/ai-core
-git commit -m "chore: actualizar ai-core"
-node .claude/ai-core/.claude/bin/norm-harness.js  # regenera settings si cambia algo
+npm run update
 ```
+
+Un solo comando que ejecuta: `git pull` → regenera `settings.json` con tus rutas locales → corre los 269 tests → valida los 32 skills → muestra que cambio. Funciona en Linux, macOS y Windows.
+
+---
+
+## Comandos de referencia
+
+```bash
+npm install                               # instalar dependencias
+npm test                                  # 269 tests, Node nativo, sin deps externas
+npm run setup                             # regenerar settings.json con rutas locales
+npm run update                            # actualizacion one-command desde GitHub
+npm run validate-globals                  # auditar conformidad de los 32 skills
+npm run validate-globals -- --fix-drift   # corregir last_updated desincronizado
+npm run token-metrics                     # medir reduccion de consumo de tokens
+npm run dry-run                           # simular 5 turnos con calculo de costo
+npm run map                               # regenerar CONTEXT_MAP.json
+```
+
+---
+
+## Que incorpora v3.3.0
+
+### Herramienta maestra de gobernanza
+
+- **`validate-globals.js`**: auditor de conformidad. Verifica que los 32 skills tengan la referencia inmutable, las secciones obligatorias, frontmatter completo y sin emojis. Detecta y corrige drift de `last_updated` con `--fix-drift`. Exit code 1 si hay hallazgos criticos — bloquea CI.
+- **`update.js`**: actualizacion one-command cross-platform. Reporta version anterior vs nueva, que cambio y si hay breaking changes que requieran accion manual.
+- **GitHub Actions CI** (`.github/workflows/ci.yml`): corre `npm test` + `validate-globals` en Linux, macOS y Windows con Node 18/20/22 en cada push a `main` y en cada PR. Un PR que rompa la conformidad de un skill no puede mergear.
+- **Fuente unica de verdad**: los 32 skills referencian `CLAUDE.md` con jerarquia declarada `CLAUDE.md > skill`. Sin copias — sin drift.
+
+### 32 Skills especializados (Auto-Routing)
+
+| Contexto detectado | Skills activados |
+|---|---|
+| Diseño de sistema, arquitectura, nuevos modulos | `backend-architect`, `data-engineer` |
+| Integracion LLM, Claude API, prompts | `prompt-engineer`, `ai-integrations`, `claude-api` |
+| Infraestructura, Docker, CI/CD | `devops-infra`, `release-manager` |
+| Seguridad, auditoria, CVEs | `security-auditor`, `attack-surface-analyst` |
+| Fallos silenciosos, catch vacios, resilencia | `silent-failure-hunter` |
+| Agentes, MCP, flujos automatizados | `managed-agents-specialist`, `mcp-server-builder` |
+| Testing de agentes, loops, eficiencia | `agent-testing` |
+| Orquestacion multi-agente, fan-out/fan-in | `workflow-orchestrator` |
+| Gemini 2.5 directo, thinking budgets, Live API | `gemini-2-5-specialist` |
+| Scraping web, anti-bot (Cloudflare/Datadome/Imperva), Stagehand, Crawlee | `web-scraping-specialist` |
+| Vision, imagenes, PDFs, extraccion multimodal | `multimodal-engineer` |
+| Frontend, componentes, bundle, contrato API | `tech-lead-frontend` |
+| SEO tecnico, Core Web Vitals, Schema.org, sitemap | `seo-sem-specialist` |
+| SEM: Google Ads, Meta Ads, GA4, UTMs, ROAS | `seo-sem-specialist` |
+| Design system, brand identity, tokens, WCAG 2.2 | `ux-visual-designer` |
+| Motion design, Framer Motion, GSAP, handoff | `ux-visual-designer`, `tech-lead-frontend` |
+| Documentos HTML/PDF para clientes | `doc-builder` |
+| Calidad, tests, cobertura, contract testing | `qa-engineer` |
+| RAG, embeddings, recuperacion semantica | `rag-specialist` |
+| Costo excesivo de tokens, seleccion de modelo | `cost-optimizer` |
+| Evals, LLM-as-judge, metricas de outputs | `llm-evals`, `llm-observability` |
+| Proteccion LLM, prompt injection, PII | `ai-guardrails` |
+| Voice AI, streaming de audio, speech | `audio-voice-engineer` |
+| Agentes autonomos con SDK, OAuth MCP | `claude-agent-sdk` |
+| Flutter/Dart, mobile, BLoC/Riverpod | `mobile-engineer` |
+| BD en produccion: queries, migraciones, pooling | `database-ops` |
+
+### Motor de ahorro de tokens
+
+- **Guard Read** (`guard-read.js`): bloquea lectura directa de archivos > 200 lineas — fuerza delegacion a Gemini tier 0.
+- **Validate Map** (`validate-map.js`): regenera `CONTEXT_MAP.json` si hay drift >= 3 archivos — evita discovery por I/O ciego.
+- **Modo Neanderthal**: max 3 lineas de prosa cuando el rol es Coder — elimina relleno narrativo.
+- **Compact/Clear automatico**: aviso a turno 6, detencion a turno 15.
+- **`token-metrics.js`**: mide la reduccion real por sesion. Linea base sin optimizacion: ~15,000 tokens. Con el motor activo: ~8,000 tokens (reduccion ~47%).
+
+### Stack tecnico del motor
+
+- **Model Router**: jerarquia Gemini free (tier 0) → Haiku → Sonnet → Opus. Gemini prioridad absoluta para lecturas, resumenes y analisis.
+- **Anthropic Bridge** (`scripts/anthropic-bridge.js`): Prompt Caching de 3 puntos, ventana deslizante de historial.
+- **Health-Check System**: autodiagnostico al inicio de sesion. Detecta path drift y autocorrige.
+- **Error Repair Loop**: ciclo deteccion → diagnostico → reparacion con LoopGuard (3 stopping conditions).
+- **Syntax Check Hook**: `node --check` en cada `.js` editado — sin dependencias externas.
 
 ### Stacks soportados por el detector automatico
 
@@ -122,7 +169,7 @@ New-Item -ItemType SymbolicLink -Path './CLAUDE.md' -Target 'C:/ruta/a/ai-core/C
 
 ---
 
-## Arquitectura v3.0.0
+## Arquitectura v3.3.0
 
 ### Mapa de modulos
 
@@ -155,12 +202,21 @@ New-Item -ItemType SymbolicLink -Path './CLAUDE.md' -Target 'C:/ruta/a/ai-core/C
 │   │   ├── guard-read.js        Hook PreToolUse: bloquea Read > 200 lineas, fuerza Gemini
 │   │   ├── norm-harness.js      Setup automatico: settings.json + permisos por stack + CLAUDE.md
 │   │   ├── norm-harness.ps1     Equivalente PowerShell (rutas dinamicas via $PSScriptRoot)
+│   │   ├── setup-settings.js    Regenera settings.json con rutas locales (cross-platform)
+│   │   ├── validate-globals.js  Auditor de conformidad de skills vs CLAUDE.md
 │   │   ├── generate-map.js      Genera CONTEXT_MAP dual host/core con seccion stack
 │   │   ├── detox.js             Limpia archivos legacy que contaminan contexto
 │   │   └── benchmark-fernet.js  Testea cifrado Fernet (PII)
-│   └── skills/                  29 skills especializados (ver tabla Auto-Routing)
-├── CLAUDE.md                    Autoridad unica: reglas, triada, 28 skills, enrutamiento
-├── package.json                 v3.0.0 — Node >= 18.0.0
+│   └── skills/                  32 skills especializados (ver tabla Auto-Routing)
+├── scripts/
+│   └── update.js                Actualizacion one-command: pull + setup + test + validate
+├── tests/
+│   ├── harness.test.js          269 assertions sobre harness y conformidad de skills
+│   └── token-metrics.js         Mide reduccion de consumo de tokens por sesion
+├── .github/
+│   └── workflows/ci.yml         CI en Linux/Mac/Windows x Node 18/20/22
+├── CLAUDE.md                    Autoridad unica: reglas globales, 32 skills, enrutamiento
+├── package.json                 v3.3.0 — Node >= 18.0.0
 └── .env.example                 Plantilla de variables de entorno
 ```
 

@@ -20,3 +20,6 @@ scripts/premium/
 # Artefactos de sesion generados en runtime — no versionables
 .claude/HEALTH_REPORT.md
 .claude/TO_GEMINI.md
+.claude/TOKEN_METRICS.json
+.claude/models-cache.json
+.claude/CONTEXT_MAP.json
