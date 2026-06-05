@@ -20,6 +20,84 @@
 
 const { ROLES } = require('./AgentRoles');
 
+// --- Stopping Conditions (patron ECC loop-operator) ---
+
+/**
+ * Estado de un loop autonomo. Instanciar uno por sesion de loop.
+ * Detecta las tres condiciones de escalacion:
+ *   1. Sin avance en 2 checkpoints consecutivos
+ *   2. Error identico repetido >= 2 veces
+ *   3. Presupuesto de intentos excedido
+ */
+class LoopGuard {
+  /**
+   * @param {{ maxIntentos?: number }} opciones
+   */
+  constructor({ maxIntentos = 5 } = {}) {
+    this.maxIntentos      = maxIntentos;
+    this.intentos         = 0;
+    this.checkpoints      = [];           // registros de progreso por turno
+    this.historialErrores = [];           // mensajes de error vistos
+  }
+
+  /**
+   * Registra un checkpoint de progreso. Llama al final de cada iteracion del loop.
+   * @param {{ avance: boolean, error?: string }} estado
+   * @returns {{ escalar: boolean, razon?: string }}
+   */
+  registrarCheckpoint({ avance, error = null }) {
+    this.intentos++;
+    this.checkpoints.push({ avance, error, ts: Date.now() });
+
+    if (error) this.historialErrores.push(error);
+
+    const resultado = this._evaluar();
+    return resultado;
+  }
+
+  _evaluar() {
+    // Condicion 1: presupuesto excedido
+    if (this.intentos >= this.maxIntentos) {
+      return {
+        escalar: true,
+        razon: `PRESUPUESTO_EXCEDIDO: ${this.intentos}/${this.maxIntentos} intentos consumidos`,
+      };
+    }
+
+    // Condicion 2: sin avance en los ultimos 2 checkpoints consecutivos
+    if (this.checkpoints.length >= 2) {
+      const ultimos = this.checkpoints.slice(-2);
+      if (ultimos.every(c => !c.avance)) {
+        return {
+          escalar: true,
+          razon: 'SIN_AVANCE: 2 checkpoints consecutivos sin progreso detectado',
+        };
+      }
+    }
+
+    // Condicion 3: error identico repetido >= 2 veces
+    if (this.historialErrores.length >= 2) {
+      const ultimo = this.historialErrores.at(-1);
+      const repeticiones = this.historialErrores.filter(e => e === ultimo).length;
+      if (repeticiones >= 2) {
+        return {
+          escalar: true,
+          razon: `ERROR_REPETIDO: "${ultimo.slice(0, 120)}" — ${repeticiones} ocurrencias`,
+        };
+      }
+    }
+
+    return { escalar: false };
+  }
+
+  /** Reinicia el estado para reutilizar el guard en un nuevo loop. */
+  reset() {
+    this.intentos         = 0;
+    this.checkpoints      = [];
+    this.historialErrores = [];
+  }
+}
+
 // Severidad de errores por patron
 const PATRONES_SEVERIDAD = [
   { patron: /ENOENT|no such file/i,       severidad: 'ALTO',    categoria: 'sistema_de_archivos' },
@@ -211,4 +289,5 @@ module.exports = {
   buildPromptReparacion,
   capturarError,
   ejecutarCicloReparacion,
+  LoopGuard,
 };

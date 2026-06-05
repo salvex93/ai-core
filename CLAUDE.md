@@ -48,6 +48,7 @@ NO esperar a que el usuario declare skills. Seleccionar automaticamente segun la
 | Integracion con LLM, Claude API, prompts | `prompt-engineer`, `ai-integrations`, `claude-api` |
 | Infraestructura, deploy, Docker, CI/CD | `devops-infra`, `release-manager` |
 | Seguridad, auditoria, vulnerabilidades | `security-auditor`, `attack-surface-analyst` |
+| Fallos silenciosos, catch vacios, errores tragados, logs sin contexto, resilencia de scrapers | `silent-failure-hunter` |
 | Agentes, MCP, flujos automatizados | `managed-agents-specialist`, `mcp-server-builder` |
 | Testing de comportamiento de agentes, mock de herramientas, loops, eficiencia | `agent-testing` |
 | Orquestacion multi-agente, fan-out/fan-in, retry, checkpointing | `workflow-orchestrator` |
@@ -61,7 +62,7 @@ NO esperar a que el usuario declare skills. Seleccionar automaticamente segun la
 
 Los skills disponibles estan en `.claude/skills/`. Cada SKILL.md define el dominio y herramientas del rol.
 
-Skills disponibles: `agent-testing`, `ai-guardrails`, `ai-integrations`, `aiops-engineer`, `attack-surface-analyst`, `audio-voice-engineer`, `backend-architect`, `claude-agent-sdk`, `claude-api`, `cost-optimizer`, `data-engineer`, `devops-infra`, `doc-builder`, `gemini-2-5-specialist`, `llm-evals`, `llm-observability`, `managed-agents-specialist`, `mcp-server-builder`, `mobile-engineer`, `multimodal-engineer`, `prompt-engineer`, `qa-engineer`, `rag-specialist`, `release-manager`, `security-auditor`, `tech-lead-frontend`, `web-scraping-specialist`, `workflow-orchestrator`.
+Skills disponibles: `agent-testing`, `ai-guardrails`, `ai-integrations`, `aiops-engineer`, `attack-surface-analyst`, `audio-voice-engineer`, `backend-architect`, `claude-agent-sdk`, `claude-api`, `cost-optimizer`, `data-engineer`, `devops-infra`, `doc-builder`, `gemini-2-5-specialist`, `llm-evals`, `llm-observability`, `managed-agents-specialist`, `mcp-server-builder`, `mobile-engineer`, `multimodal-engineer`, `prompt-engineer`, `qa-engineer`, `rag-specialist`, `release-manager`, `security-auditor`, `silent-failure-hunter`, `tech-lead-frontend`, `web-scraping-specialist`, `workflow-orchestrator`.
 
 ## Visibilidad y Telemetría
 Imprimir una sola línea al inicio de la **primera respuesta de cada sesión**:

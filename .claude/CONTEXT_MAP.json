@@ -1,6 +1,6 @@
 {
-  "version": "2.8.0",
-  "last_updated": "2026-05-19T06:27:25.874Z",
+  "version": "3.0.0",
+  "last_updated": "2026-05-19T06:46:27.340Z",
   "branch": "main",
   "map": {
     "root": "ai-core/",
@@ -19,6 +19,7 @@
         ".claude/bin/norm-harness.ps1",
         ".claude/bin/validate-map.js",
         ".claude/settings.json",
+        ".claude/skills/agent-testing/SKILL.md",
         ".claude/skills/ai-guardrails/SKILL.md",
         ".claude/skills/ai-integrations/SKILL.md",
         ".claude/skills/aiops-engineer/SKILL.md",
@@ -37,11 +38,13 @@
         ".claude/skills/managed-agents-specialist/SKILL.md",
         ".claude/skills/mcp-server-builder/SKILL.md",
         ".claude/skills/mobile-engineer/SKILL.md",
+        ".claude/skills/multimodal-engineer/SKILL.md",
         ".claude/skills/prompt-engineer/SKILL.md",
         ".claude/skills/qa-engineer/SKILL.md",
         ".claude/skills/rag-specialist/SKILL.md",
         ".claude/skills/release-manager/SKILL.md",
         ".claude/skills/security-auditor/SKILL.md",
+        ".claude/skills/silent-failure-hunter/SKILL.md",
         ".claude/skills/tech-lead-frontend/SKILL.md",
         ".claude/skills/web-scraping-specialist/SKILL.md",
         ".claude/skills/workflow-orchestrator/SKILL.md"
@@ -87,6 +90,6 @@
       "node_modules/",
       ".git/"
     ],
-    "total_files": 69
+    "total_files": 72
   }
 }
