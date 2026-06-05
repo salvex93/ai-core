@@ -44,13 +44,23 @@
     ]
   },
   "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"/home/cyber/Proyectos/ai-core/.claude/bin/process-guard.js\" capture node \"/home/cyber/Proyectos/ai-core/.claude/bin/issue-reporter.js\" 2>/dev/null || true"
+          }
+        ]
+      }
+    ],
     "PostToolUseFailure": [
       {
         "matcher": "mcp__gemini-bridge__*",
         "hooks": [
           {
             "type": "command",
-            "command": "echo \"[MCP-FAIL] gemini-bridge fallo — usar tier Claude segun jerarquia de costo\" >&2 && node \"/home/cyber/Proyectos/ai-core/.claude/bin/capture-event.js\" --type mcp_failure --tool gemini-bridge 2>/dev/null || true"
+            "command": "echo \"[MCP-FAIL] gemini-bridge fallo — usar tier Claude segun jerarquia de costo\" >&2 && node \"/home/cyber/Proyectos/ai-core/.claude/bin/process-guard.js\" capture node \"/home/cyber/Proyectos/ai-core/.claude/bin/capture-event.js\" --type mcp_failure --tool gemini-bridge 2>/dev/null || true"
           }
         ]
       },
@@ -59,7 +69,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node \"/home/cyber/Proyectos/ai-core/.claude/bin/capture-event.js\" --type mcp_failure --tool anthropic-router 2>/dev/null || true"
+            "command": "node \"/home/cyber/Proyectos/ai-core/.claude/bin/process-guard.js\" capture node \"/home/cyber/Proyectos/ai-core/.claude/bin/capture-event.js\" --type mcp_failure --tool anthropic-router 2>/dev/null || true"
           }
         ]
       },
@@ -68,17 +78,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node \"/home/cyber/Proyectos/ai-core/.claude/bin/capture-event.js\" --type hook_failure --tool bash 2>/dev/null || true"
-          }
-        ]
-      }
-    ],
-    "Stop": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "node \"/home/cyber/Proyectos/ai-core/.claude/bin/issue-reporter.js\" 2>/dev/null || true"
+            "command": "node \"/home/cyber/Proyectos/ai-core/.claude/bin/process-guard.js\" capture node \"/home/cyber/Proyectos/ai-core/.claude/bin/capture-event.js\" --type hook_failure --tool bash 2>/dev/null || true"
           }
         ]
       }
@@ -89,11 +89,11 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node \"/home/cyber/Proyectos/ai-core/.claude/bin/health-check.js\" 2>&1 || true"
+            "command": "node \"/home/cyber/Proyectos/ai-core/.claude/bin/process-guard.js\" health node \"/home/cyber/Proyectos/ai-core/.claude/bin/health-check.js\" 2>&1 || true"
           },
           {
             "type": "command",
-            "command": "node \"/home/cyber/Proyectos/ai-core/.claude/bin/validate-map.js\" 2>/dev/null || true"
+            "command": "node \"/home/cyber/Proyectos/ai-core/.claude/bin/process-guard.js\" map node \"/home/cyber/Proyectos/ai-core/.claude/bin/validate-map.js\" 2>/dev/null || true"
           }
         ]
       },
@@ -113,7 +113,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node \"/home/cyber/Proyectos/ai-core/.claude/bin/detox.js\" 2>/dev/null || true"
+            "command": "node \"/home/cyber/Proyectos/ai-core/.claude/bin/process-guard.js\" lint node \"/home/cyber/Proyectos/ai-core/.claude/bin/detox.js\" 2>/dev/null || true"
           },
           {
             "type": "command",
@@ -121,16 +121,11 @@
           },
           {
             "type": "command",
-            "command": "node \"/home/cyber/Proyectos/ai-core/.claude/bin/diff-map-trigger.js\" 2>/dev/null || true"
-          }
-        ]
-      },
-      {
-        "matcher": "Bash",
-        "hooks": [
+            "command": "node \"/home/cyber/Proyectos/ai-core/.claude/bin/process-guard.js\" lint node \"/home/cyber/Proyectos/ai-core/.claude/bin/standards-guard.js\" \"$CLAUDE_TOOL_INPUT_file_path\" 2>/dev/null || true"
+          },
           {
             "type": "command",
-            "command": "node \"/home/cyber/Proyectos/ai-core/.claude/bin/diff-map-trigger.js\" 2>/dev/null || true"
+            "command": "node \"/home/cyber/Proyectos/ai-core/.claude/bin/process-guard.js\" map node \"/home/cyber/Proyectos/ai-core/.claude/bin/diff-map-trigger.js\" 2>/dev/null || true"
           }
         ]
       }

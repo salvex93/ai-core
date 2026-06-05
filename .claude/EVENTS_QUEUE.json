@@ -1,1 +1,42 @@
-[]
+[
+  {
+    "id": "1780634495896-upoyv",
+    "ts": "2026-06-05T04:41:35.896Z",
+    "session": "5ab09b3f-4ad",
+    "type": "harness_error",
+    "tool": "standards-guard",
+    "error": "emoji-prohibido",
+    "context": "../../../../tmp/test_standards.js:1 — Emoji pictografico detectado — prohibido por CLAUDE.md",
+    "reported": false
+  },
+  {
+    "id": "1780634519507-4ealo",
+    "ts": "2026-06-05T04:41:59.507Z",
+    "session": "5ab09b3f-4ad",
+    "type": "harness_error",
+    "tool": "standards-guard",
+    "error": "co-authored-by",
+    "context": "../../../../tmp/COMMIT_EDITMSG:1 — Co-Authored-By detectado — el commit no debe atribuirse a herramientas de IA",
+    "reported": false
+  },
+  {
+    "id": "1780634519584-muk3c",
+    "ts": "2026-06-05T04:41:59.584Z",
+    "session": "5ab09b3f-4ad",
+    "type": "harness_error",
+    "tool": "standards-guard",
+    "error": "commit-co-authored",
+    "context": "../../../../tmp/COMMIT_EDITMSG:1 — Mensaje de commit incluye Co-Authored-By — eliminar antes de commitear",
+    "reported": false
+  },
+  {
+    "id": "1780634519647-qrr9y",
+    "ts": "2026-06-05T04:41:59.647Z",
+    "session": "5ab09b3f-4ad",
+    "type": "harness_error",
+    "tool": "standards-guard",
+    "error": "commit-menciona-ia",
+    "context": "../../../../tmp/COMMIT_EDITMSG:1 — Mensaje de commit menciona herramienta de IA — el commit debe parecer escrito por el autor",
+    "reported": false
+  }
+]
