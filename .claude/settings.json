@@ -34,6 +34,8 @@
       "Bash(node*)",
       "Bash(npm*)",
       "Bash(python3*)",
+      "Bash(gh issue create*)",
+      "Bash(gh auth status*)",
       "mcp__gemini-bridge__analizar_archivo",
       "mcp__gemini-bridge__analizar_contenido",
       "mcp__gemini-bridge__analizar_repositorio",
@@ -48,7 +50,35 @@
         "hooks": [
           {
             "type": "command",
-            "command": "echo \"[MCP-FAIL] gemini-bridge fallo — usar tier Claude segun jerarquia de costo\" >&2"
+            "command": "echo \"[MCP-FAIL] gemini-bridge fallo — usar tier Claude segun jerarquia de costo\" >&2 && node \"/home/cyber/Proyectos/ai-core/.claude/bin/capture-event.js\" --type mcp_failure --tool gemini-bridge 2>/dev/null || true"
+          }
+        ]
+      },
+      {
+        "matcher": "mcp__anthropic-router__*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"/home/cyber/Proyectos/ai-core/.claude/bin/capture-event.js\" --type mcp_failure --tool anthropic-router 2>/dev/null || true"
+          }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"/home/cyber/Proyectos/ai-core/.claude/bin/capture-event.js\" --type hook_failure --tool bash 2>/dev/null || true"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"/home/cyber/Proyectos/ai-core/.claude/bin/issue-reporter.js\" 2>/dev/null || true"
           }
         ]
       }
