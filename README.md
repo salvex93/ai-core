@@ -729,7 +729,7 @@ Las reglas globales son inmutables. Aplican a todos los perfiles sin excepcion. 
 | 19 | Disciplina de Sesion | Una sesion = una tarea. Leer memoria antes que archivos. |
 | 20 | Dispatcher Unificado | Mapeo automatico de dominio a skill especializado (confidence > 85%). |
 | 21 | Subordinacion de Skills | Todos los skills subordinados a R18 (Brevedad) y R4 (Minimo Cambio). |
-| 22 | Sensor de Eficiencia | `wc -l` antes de Read. Si > 300 lineas: invocar `analizar_archivo`. Tareas simples: forzar Haiku. |
+| 22 | Sensor de Eficiencia | Conteo nativo Node.js antes de Read (cross-platform). Si > 200 lineas: invocar `analizar_archivo`. Tareas simples: forzar Haiku. |
 
 ---
 
