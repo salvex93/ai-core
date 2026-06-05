@@ -1,22 +1,37 @@
 {
-  "version": "3.0.0",
-  "last_updated": "2026-05-19T15:24:40.836Z",
+  "version": "3.3.0",
+  "last_updated": "2026-06-05T05:21:20.762Z",
   "branch": "main",
-  "map": {
+  "stack": null,
+  "host": {
     "root": "ai-core/",
     "directories": {
       ".claude/": [
         ".claude/CONTEXT_MAP.json",
         ".claude/MEMORY.md",
+        ".claude/agents/aiops-auditor.md",
+        ".claude/agents/code-reviewer.md",
+        ".claude/agents/issue-tracker.md",
+        ".claude/agents/map-updater.md",
+        ".claude/agents/security-scanner.md",
+        ".claude/bin/capture-event.js",
+        ".claude/bin/detect-stack.js",
         ".claude/bin/detox.js",
+        ".claude/bin/diff-map-trigger.js",
         ".claude/bin/generate-map.js",
+        ".claude/bin/git-queue-advisor.js",
         ".claude/bin/guard-read.js",
         ".claude/bin/health-check.js",
         ".claude/bin/health-report.js",
         ".claude/bin/health-sync.js",
         ".claude/bin/health-worker.js",
+        ".claude/bin/issue-reporter.js",
         ".claude/bin/norm-harness.js",
         ".claude/bin/norm-harness.ps1",
+        ".claude/bin/process-guard.js",
+        ".claude/bin/setup-settings.js",
+        ".claude/bin/standards-guard.js",
+        ".claude/bin/validate-globals.js",
         ".claude/bin/validate-map.js",
         ".claude/settings.json",
         ".claude/skills/agent-testing/SKILL.md",
@@ -30,6 +45,7 @@
         ".claude/skills/claude-api/SKILL.md",
         ".claude/skills/cost-optimizer/SKILL.md",
         ".claude/skills/data-engineer/SKILL.md",
+        ".claude/skills/database-ops/SKILL.md",
         ".claude/skills/devops-infra/SKILL.md",
         ".claude/skills/doc-builder/SKILL.md",
         ".claude/skills/gemini-2-5-specialist/SKILL.md",
@@ -44,9 +60,15 @@
         ".claude/skills/rag-specialist/SKILL.md",
         ".claude/skills/release-manager/SKILL.md",
         ".claude/skills/security-auditor/SKILL.md",
+        ".claude/skills/seo-sem-specialist/SKILL.md",
+        ".claude/skills/silent-failure-hunter/SKILL.md",
         ".claude/skills/tech-lead-frontend/SKILL.md",
+        ".claude/skills/ux-visual-designer/SKILL.md",
         ".claude/skills/web-scraping-specialist/SKILL.md",
         ".claude/skills/workflow-orchestrator/SKILL.md"
+      ],
+      ".github/": [
+        ".github/workflows/ci.yml"
       ],
       "docs/": [
         "docs/OPUSPLAN-files-api-bridge.md",
@@ -64,12 +86,18 @@
         "scripts/services/ContextIndex.js",
         "scripts/services/ErrorRepairLoop.js",
         "scripts/services/IntentClassifier.js",
+        "scripts/services/ModelRegistry.js",
         "scripts/services/ModelRouter.js",
         "scripts/services/RateLimiter.js",
         "scripts/services/ResponseValidator.js",
         "scripts/services/RootGuard.js",
         "scripts/services/StyleProfiler.js",
-        "scripts/session-close.js"
+        "scripts/session-close.js",
+        "scripts/update.js"
+      ],
+      "tests/": [
+        "tests/harness.test.js",
+        "tests/token-metrics.js"
       ]
     },
     "root_files": [
@@ -89,6 +117,7 @@
       "node_modules/",
       ".git/"
     ],
-    "total_files": 71
-  }
+    "total_files": 94
+  },
+  "core": null
 }
