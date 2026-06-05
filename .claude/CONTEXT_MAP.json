@@ -1,13 +1,15 @@
 {
-  "version": "3.0.0",
-  "last_updated": "2026-05-19T06:46:27.340Z",
-  "branch": "main",
-  "map": {
+  "version": "3.1.0",
+  "last_updated": "2026-06-05T02:28:09.696Z",
+  "branch": "",
+  "stack": null,
+  "host": {
     "root": "ai-core/",
     "directories": {
       ".claude/": [
         ".claude/CONTEXT_MAP.json",
         ".claude/MEMORY.md",
+        ".claude/bin/detect-stack.js",
         ".claude/bin/detox.js",
         ".claude/bin/generate-map.js",
         ".claude/bin/guard-read.js",
@@ -82,6 +84,8 @@
       "DOCS_MAESTRA.md",
       "LICENSE",
       "README.md",
+      "README.md",
+      "README.md",
       "package-lock.json",
       "package.json",
       "sonar-project.properties"
@@ -90,6 +94,7 @@
       "node_modules/",
       ".git/"
     ],
-    "total_files": 72
-  }
+    "total_files": 75
+  },
+  "core": null
 }

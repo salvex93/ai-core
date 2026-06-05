@@ -6,7 +6,7 @@ El sistema es framework-agnostic por diseño. No asume Node.js, Python, Go ni ni
 
 Desde v3.1.0, el nucleo incorpora:
 
-- **28 Skills especializados** (ver tabla Auto-Routing): se agrego `multimodal-engineer` (vision, PDFs, Citations API, embeddings multimodales) como skill numero 28. Todos los skills actualizados a mayo 2026.
+- **29 Skills especializados** (ver tabla Auto-Routing): se agrego `silent-failure-hunter` (deteccion de catch vacios, excepciones tragadas, errores convertidos a null y logs sin contexto en Node.js y Python) como skill numero 29. Todos los skills actualizados a junio 2026.
 - **Stack Detector** (`.claude/bin/detect-stack.js`): detecta el stack tecnologico del proyecto anfitrion inspeccionando manifiestos (`package.json`, `pyproject.toml`, `go.mod`, `Dockerfile`, `Makefile`, etc.) sin leer su contenido. Inyecta permisos de Bash especificos al stack en el `settings.json` generado. Soporta Node, Python, Go, Rust, Java, PHP, Ruby, Docker, Terraform, Serverless, Kubernetes y monorepos.
 - **Auto-Setup de proyecto** (`norm-harness.js` v3.1): al ejecutarse en un proyecto nuevo, genera automaticamente `.claude/settings.json` con rutas absolutas correctas, permisos adaptados al stack detectado, y un `CLAUDE.md` minimal con secciones placeholder para comandos y estructura. Dos comandos para arrancar en cualquier proyecto.
 - **CONTEXT_MAP dual host/core**: el mapa indexa el proyecto anfitrion y el submodulo ai-core por separado. Incluye seccion `stack` con tecnologias detectadas. Claude navega el proyecto sin discovery por I/O.
@@ -20,7 +20,8 @@ Desde v3.1.0, el nucleo incorpora:
 - **Style Profiler** (`scripts/services/StyleProfiler.js`): acumula rasgos de escritura del usuario y genera bloque de instruccion de tono inyectado dinamicamente en el system prompt.
 - **Context Index** (`scripts/services/ContextIndex.js`): resuelve rutas via `CONTEXT_MAP.json` antes de ir al disco.
 - **Agent Roles** (`scripts/services/AgentRoles.js`): asigna system prompt y modelo segun el rol inferido (Architect / Coder / Auditor).
-- **Error Repair Loop** (`scripts/services/ErrorRepairLoop.js`): ciclo automatico deteccion → diagnostico → reparacion de errores en tres fases.
+- **Error Repair Loop** (`scripts/services/ErrorRepairLoop.js`): ciclo automatico deteccion → diagnostico → reparacion de errores en tres fases. Incorpora `LoopGuard` con tres stopping conditions (sin avance en 2 checkpoints, error identico repetido, presupuesto excedido) para loops autonomos de scrapers y agentes.
+- **Syntax Check Hook** (PostToolUse `Write|Edit`): ejecuta `node --check` sobre cada archivo `.js` editado. Emite `[syntax-ok]` o `[syntax-error]` inmediatamente — sin dependencias externas.
 - **Anthropic Bridge** (`scripts/anthropic-bridge.js`): bridge principal con Prompt Caching de tres puntos, ventana deslizante de historial y recomendacion automatica de Gemini cuando el tier 0 aplica.
 - **LLM Routing Bridge** via Gemini 2.5 Flash: tier 0 gratuito para archivos > 200 lineas, logs extensos, resumenes de backlog y busqueda web.
 - **Tokenomics v3.0**: evals como gate de release obligatorio en sistemas LLM, Merge Queues activables en GitHub Actions, guardrails actualizados contra vectores de evasion con interleaved thinking.
@@ -157,7 +158,7 @@ New-Item -ItemType SymbolicLink -Path './CLAUDE.md' -Target 'C:/ruta/a/ai-core/C
 │   │   ├── generate-map.js      Genera CONTEXT_MAP dual host/core con seccion stack
 │   │   ├── detox.js             Limpia archivos legacy que contaminan contexto
 │   │   └── benchmark-fernet.js  Testea cifrado Fernet (PII)
-│   └── skills/                  28 skills especializados (ver tabla Auto-Routing)
+│   └── skills/                  29 skills especializados (ver tabla Auto-Routing)
 ├── CLAUDE.md                    Autoridad unica: reglas, triada, 28 skills, enrutamiento
 ├── package.json                 v3.0.0 — Node >= 18.0.0
 └── .env.example                 Plantilla de variables de entorno
@@ -188,11 +189,14 @@ anthropic-bridge.js  (fallback + bridge primario)
     ├── buildSystemBlocks()            → 3 puntos de cache ephemeral
     └── client.messages.create()      → API Anthropic
 
-ErrorRepairLoop.js  (middleware de reparacion)
+ErrorRepairLoop.js  (middleware de reparacion + LoopGuard)
     ├── clasificarError()              → severidad + categoria
     ├── buildPromptDiagnostico()       → prompt para AUDITOR (Sonnet)
     ├── buildPromptReparacion()        → prompt para ARCHITECT (Opus)
-    └── ejecutarCicloReparacion()      → completar() x2 (diagnostico + reparacion)
+    ├── ejecutarCicloReparacion()      → completar() x2 (diagnostico + reparacion)
+    └── LoopGuard                      → stopping conditions para loops autonomos
+          ├── registrarCheckpoint()    → evalua avance + error por iteracion
+          └── _evaluar()              → PRESUPUESTO_EXCEDIDO | SIN_AVANCE | ERROR_REPETIDO
 
 ModelRouter.js  (nodo hoja — sin dependencias internas)
     └── route(herramienta, tokens)     → { modelo, tier, razon }
@@ -345,6 +349,33 @@ console.log('Reparacion propuesta:', resultado.reparacion);
 
 console.log('Modelos usados:', resultado.modelo_usado);
 // { diagnostico: 'claude-sonnet-4-6', reparacion: 'claude-opus-4-7' }
+```
+
+**Uso de LoopGuard en scrapers autonomos:**
+
+```js
+const { LoopGuard } = require('.claude/ai-core/scripts/services/ErrorRepairLoop');
+
+const guard = new LoopGuard({ maxIntentos: 5 });
+
+while (true) {
+  let avance = false;
+  let errorMsg = null;
+
+  try {
+    await ejecutarIteracion();
+    avance = true;
+  } catch (err) {
+    errorMsg = err.message;
+  }
+
+  const { escalar, razon } = guard.registrarCheckpoint({ avance, error: errorMsg });
+
+  if (escalar) {
+    logger.error({ nivel: 'CRITICO', razon, contexto: 'loop-scraper' });
+    break; // escalar a operador o ErrorRepairLoop
+  }
+}
 ```
 
 **Clasificacion automatica de errores:**
@@ -577,7 +608,7 @@ Protocolo Regla 7:
 
 ### Auto-Routing (Regla 20)
 
-El agente mapea automaticamente el dominio tecnico de la solicitud contra 28 skills especializados. Confidence > 85% = activacion inmediata sin instruccion explicita.
+El agente mapea automaticamente el dominio tecnico de la solicitud contra 29 skills especializados. Confidence > 85% = activacion inmediata sin instruccion explicita.
 
 | Skill | Palabras clave de activacion | Modelo base |
 |---|---|---|
@@ -609,6 +640,7 @@ El agente mapea automaticamente el dominio tecnico de la solicitud contra 28 ski
 | `web-scraping-specialist` | scraping, Playwright, Puppeteer, OCR, CAPTCHA, proxy, precio, marketplace | Sonnet |
 | `multimodal-engineer` | vision, imagen, PDF, factura, contrato, extraccion estructurada, Citations API, embeddings visuales, multimodal | Sonnet |
 | `agent-testing` | test de agente, mock MCP, infinite loop, tool call efficiency, promptfoo agente | Sonnet |
+| `silent-failure-hunter` | catch vacio, excepcion tragada, error silencioso, log sin contexto, resilencia scraper, fallo sin traza | Sonnet |
 
 Jerarquia de conflicto (Regla 21): `security-auditor > backend-architect > devops-infra > release-manager`.
 
@@ -676,7 +708,7 @@ El agente leera su propio codigo, propondra las mejoras y tras aprobacion ejecut
 
 ## Autoridad Unica: CLAUDE.md
 
-`README.md` = instalacion, arquitectura y uso. `CLAUDE.md` = sistema operativo completo (reglas, triada, 28 skills, tablas de enrutamiento, politicas de escalamiento).
+`README.md` = instalacion, arquitectura y uso. `CLAUDE.md` = sistema operativo completo (reglas, triada, 29 skills, tablas de enrutamiento, politicas de escalamiento).
 
 ---
 
