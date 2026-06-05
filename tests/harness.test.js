@@ -178,23 +178,27 @@ describe('skills — conformidad estructural', () => {
       );
     });
 
-    test(`${skill}: tiene Protocolo de Sesion con Modo Neanderthal`, () => {
+    test(`${skill}: tiene referencia inmutable a CLAUDE.md (no copia)`, () => {
       const content = fs.readFileSync(skillFile, 'utf8');
+      // El nuevo modelo: referencia en lugar de copia
       assert.ok(
-        content.includes('Protocolo de Sesion (heredado de CLAUDE.md'),
-        `${skill} debe tener el bloque "Protocolo de Sesion"`
+        content.includes('Reglas de sesion activas: CLAUDE.md > este skill.'),
+        `${skill} debe tener la referencia inmutable "Reglas de sesion activas: CLAUDE.md > este skill."`
       );
+      // No debe tener la copia del bloque (eso seria una regresion al modelo anterior)
       assert.ok(
-        content.includes('Modo Neanderthal'),
-        `${skill} debe mencionar "Modo Neanderthal" en su Protocolo de Sesion`
+        !content.includes('Protocolo de Sesion (heredado de CLAUDE.md'),
+        `${skill} NO debe copiar el bloque PROTOCOLO DE SESION — debe referenciar`
       );
     });
 
-    test(`${skill}: tiene referencia a compact/clear`, () => {
-      const content = fs.readFileSync(skillFile, 'utf8');
+    test(`${skill}: CLAUDE.md define compact/clear (fuente unica)`, () => {
+      // Las reglas de compact/clear viven en CLAUDE.md, no se replican en cada skill.
+      // Este test verifica que CLAUDE.md las tiene (se corre una vez, no por skill).
+      const claudeContent = fs.readFileSync(path.join(REPO, 'CLAUDE.md'), 'utf8');
       assert.ok(
-        content.includes('/compact') && content.includes('/clear'),
-        `${skill} debe mencionar /compact y /clear en el Protocolo de Sesion`
+        claudeContent.includes('/compact') && claudeContent.includes('/clear'),
+        'CLAUDE.md debe definir las reglas de /compact y /clear'
       );
     });
 
@@ -205,13 +209,13 @@ describe('skills — conformidad estructural', () => {
       assert.ok(content.match(/^version:/m), `${skill} debe tener "version:" en frontmatter`);
     });
 
-    test(`${skill}: sin emojis en el contenido`, () => {
+    test(`${skill}: sin emojis pictograficos en el contenido`, () => {
       const content = fs.readFileSync(skillFile, 'utf8');
-      // Detectar emojis Unicode comunes
-      const emojiPattern = /[\u{1F300}-\u{1FAFF}]|[\u{2600}-\u{27BF}]/u;
+      // Solo pictogramas reales — excluye digitos y ASCII que Unicode clasifica como Emoji
+      const emojiPattern = /[\u{1F300}-\u{1F9FF}]|[\u{2600}-\u{27BF}]|[\u{1FA00}-\u{1FAFF}]/u;
       assert.ok(
         !emojiPattern.test(content),
-        `${skill} no debe contener emojis`
+        `${skill} no debe contener emojis pictograficos`
       );
     });
   }

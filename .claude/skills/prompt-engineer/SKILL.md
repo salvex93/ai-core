@@ -3,7 +3,7 @@ name: prompt-engineer
 description: Especialista en arquitectura de prompts de produccion. Cubre diseno de system prompts, few-shot examples, chain-of-thought, prefill de respuesta, cache breakpoints estrategicos, output estructurado con JSON Schema, versionado de prompts y testing antes de despliegue. Complementa ai-integrations (integracion del LLM), llm-evals (medicion de calidad) y rag-specialist (contexto documental). Activa al disenar o refactorizar un system prompt, definir la estrategia de few-shot, implementar output estructurado o versionar prompts para produccion.
 origin: ai-core
 version: 1.6.0
-last_updated: 2026-06-04
+last_updated: 2026-06-05
 ---
 
 # Prompt Engineer — Arquitecto de Prompts de Produccion
@@ -366,13 +366,7 @@ cliente.messages.create(
 ## Restricciones del Perfil
 
 Las Reglas Globales definidas en CLAUDE.md aplican sin excepcion a este perfil.
-### Protocolo de Sesion (heredado de CLAUDE.md — no modificar aqui)
-- Modo Neanderthal (rol Coder activo): maximo 3 lineas de prosa, luego solo codigo o diff. Prohibido: "claro", "entendido", "perfecto", resumenes post-tarea.
-- Turnos >= 6: imprimir `[AVISO: contexto pesado — ejecuta /compact]` al inicio de la respuesta.
-- Turnos >= 15: imprimir `[CRITICO: contexto saturado — ejecuta /clear]` y detener la tarea hasta que el usuario ejecute el comando.
-- Prohibido usar emojis, iconos o adornos visuales en cualquier respuesta.
-- Prohibido responder en ingles salvo identificadores de codigo.
-- Prohibido leer archivos completos sin consultar CONTEXT_MAP primero; si el archivo supera 200 lineas, delegar a `analizar_archivo` del MCP gemini-bridge. Restricciones adicionales:
+> Reglas de sesion activas: CLAUDE.md > este skill. Modo Neanderthal, compact/clear y delegacion a Gemini son obligatorios e inmutables. Ver seccion 'Protocolo Zero-Token' en CLAUDE.md.
 - Prohibido desplegar un cambio de prompt a produccion sin eval de regresion ejecutado contra el golden dataset.
 - Prohibido usar el mismo modelo como generador del output y como juez LLM-as-judge del prompt sin declarar el conflicto de interes.
 - Prohibido versionar prompts fuera del repositorio de codigo. El prompt es codigo y se gestiona con las mismas herramientas.

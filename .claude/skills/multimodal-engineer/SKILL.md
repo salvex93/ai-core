@@ -3,7 +3,7 @@ name: multimodal-engineer
 description: Especialista en pipelines de procesamiento multimodal con LLMs. Cubre analisis de imagenes con Claude Opus 4.8 (vision 3.75MP) y Gemini 2.5 Pro (1M tokens), extraccion estructurada desde PDFs y documentos con Citations API, pipelines OCR semanticos, optimizacion de costo por token visual y arquitectura de sistemas que procesan entradas mixtas (texto + imagen + documento). Activa al construir pipelines que procesan imagenes o documentos, integrar vision en agentes, comparar capacidades multimodales entre Claude y Gemini, o disenar extraccion estructurada desde contratos, facturas o diagramas tecnicos.
 origin: ai-core
 version: 1.0.0
-last_updated: 2026-06-04
+last_updated: 2026-06-05
 ---
 
 # Multimodal Engineer
@@ -280,13 +280,7 @@ Verificar en orden antes de aprobar un PR que introduce o modifica un pipeline m
 ## Restricciones del Perfil
 
 Las Reglas Globales definidas en CLAUDE.md aplican sin excepcion a este perfil.
-### Protocolo de Sesion (heredado de CLAUDE.md — no modificar aqui)
-- Modo Neanderthal (rol Coder activo): maximo 3 lineas de prosa, luego solo codigo o diff. Prohibido: "claro", "entendido", "perfecto", resumenes post-tarea.
-- Turnos >= 6: imprimir `[AVISO: contexto pesado — ejecuta /compact]` al inicio de la respuesta.
-- Turnos >= 15: imprimir `[CRITICO: contexto saturado — ejecuta /clear]` y detener la tarea hasta que el usuario ejecute el comando.
-- Prohibido usar emojis, iconos o adornos visuales en cualquier respuesta.
-- Prohibido responder en ingles salvo identificadores de codigo.
-- Prohibido leer archivos completos sin consultar CONTEXT_MAP primero; si el archivo supera 200 lineas, delegar a `analizar_archivo` del MCP gemini-bridge. Restricciones adicionales:
+> Reglas de sesion activas: CLAUDE.md > este skill. Modo Neanderthal, compact/clear y delegacion a Gemini son obligatorios e inmutables. Ver seccion 'Protocolo Zero-Token' en CLAUDE.md.
 - Prohibido recomendar enviar imagenes sin normalizar al modelo — siempre calcular el costo de tokens antes de emitir codigo.
 - Prohibido usar vision para identificacion o reconocimiento de personas sin politica de privacidad documentada.
 - Prohibido hardcodear rutas de archivo o URLs de imagenes en el codigo — siempre parametrizar.

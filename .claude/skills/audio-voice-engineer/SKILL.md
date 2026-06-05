@@ -3,7 +3,7 @@ name: audio-voice-engineer
 description: Especialista en Voice AI y sistemas de audio real-time. Cubre streaming de audio, conversational interfaces nativas, Gemini 2.5 Flash Live API, APIs de speech-to-text/text-to-speech, latencia submilisegundo, y orquestacion de voice workflows. Activa al disenar interfaces de voz, implementar streaming de audio en produccion, o integrar modelos speech de Gemini.
 origin: ai-core
 version: 1.2.0
-last_updated: 2026-05-19
+last_updated: 2026-06-05
 ---
 
 # Audio Voice Engineer — Sistemas de Audio Real-Time
@@ -213,13 +213,7 @@ Affective Dialog no requiere configuracion adicional — es capacidad nativa de 
 ## Restricciones del Perfil
 
 Las Reglas Globales definidas en CLAUDE.md aplican sin excepcion. Adicionales:
-### Protocolo de Sesion (heredado de CLAUDE.md — no modificar aqui)
-- Modo Neanderthal (rol Coder activo): maximo 3 lineas de prosa, luego solo codigo o diff. Prohibido: "claro", "entendido", "perfecto", resumenes post-tarea.
-- Turnos >= 6: imprimir `[AVISO: contexto pesado — ejecuta /compact]` al inicio de la respuesta.
-- Turnos >= 15: imprimir `[CRITICO: contexto saturado — ejecuta /clear]` y detener la tarea hasta que el usuario ejecute el comando.
-- Prohibido usar emojis, iconos o adornos visuales en cualquier respuesta.
-- Prohibido responder en ingles salvo identificadores de codigo.
-- Prohibido leer archivos completos sin consultar CONTEXT_MAP primero; si el archivo supera 200 lineas, delegar a `analizar_archivo` del MCP gemini-bridge.
+> Reglas de sesion activas: CLAUDE.md > este skill. Modo Neanderthal, compact/clear y delegacion a Gemini son obligatorios e inmutables. Ver seccion 'Protocolo Zero-Token' en CLAUDE.md.
 - Prohibido disenar un voice system sin especificar latencia objetivo y plan de medicion.
 - Prohibido cambiar codec en produccion sin plan de migracion de clientes existentes.
 - Prohibido recomendar `gemini-2.0-flash-live-001` — modelo deprecado, usar `gemini-2.5-flash` con Live API.

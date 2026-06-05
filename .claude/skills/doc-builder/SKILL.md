@@ -3,7 +3,7 @@ name: doc-builder
 description: Generador de documentacion profesional en HTML + PDF. Produce propuestas comerciales, documentos de requerimientos y entregables para clientes siguiendo el sistema visual Evolve (navy/azul, Segoe UI, paginacion controlada). Activa cuando se pide crear o modificar cualquier documento HTML/PDF destinado a un cliente o uso interno formal.
 origin: ai-core
 version: 1.0.0
-last_updated: 2026-06-04
+last_updated: 2026-06-05
 ---
 
 # Doc Builder — Generador de Documentacion Profesional
@@ -253,13 +253,7 @@ Ante cualquiera de estas condiciones, insertar la directiva y detener toda gener
 
 ## Restricciones del Perfil
 
-### Protocolo de Sesion (heredado de CLAUDE.md — no modificar aqui)
-- Modo Neanderthal (rol Coder activo): maximo 3 lineas de prosa, luego solo codigo o diff. Prohibido: "claro", "entendido", "perfecto", resumenes post-tarea.
-- Turnos >= 6: imprimir `[AVISO: contexto pesado — ejecuta /compact]` al inicio de la respuesta.
-- Turnos >= 15: imprimir `[CRITICO: contexto saturado — ejecuta /clear]` y detener la tarea hasta que el usuario ejecute el comando.
-- Prohibido usar emojis, iconos o adornos visuales en cualquier respuesta.
-- Prohibido responder en ingles salvo identificadores de codigo.
-- Prohibido leer archivos completos sin consultar CONTEXT_MAP primero; si el archivo supera 200 lineas, delegar a `analizar_archivo` del MCP gemini-bridge.
+> Reglas de sesion activas: CLAUDE.md > este skill. Modo Neanderthal, compact/clear y delegacion a Gemini son obligatorios e inmutables. Ver seccion 'Protocolo Zero-Token' en CLAUDE.md.
 - Prohibido crear documentos con informacion inventada o asumida que no provenga del brief del cliente.
 - Prohibido modificar `exportar_pdf.js` sin instruccion explicita — es infraestructura compartida.
 - Prohibido omitir la exportacion a PDF al finalizar cualquier tarea de creacion o modificacion de documento.

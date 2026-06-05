@@ -5,6 +5,71 @@ Versionado semantico: MAJOR.MINOR.PATCH.
 
 ---
 
+## [3.3.0] — 2026-06-05
+
+### Agregado
+
+- **`validate-globals.js`** (nuevo script en `.claude/bin/`): auditor de conformidad que verifica que los 32 skills no copien reglas de `CLAUDE.md`, tengan la referencia inmutable, las secciones obligatorias y el frontmatter completo. Detecta drift de `last_updated` y lo corrige con `--fix-drift`. Exit code 1 si hay hallazgos criticos o altos — bloquea CI.
+- **`update.js`** (nuevo script en `scripts/`): actualizacion one-command. Ejecuta `git pull` → `setup-settings.js` → `npm test` → `validate-globals.js` y reporta que cambio entre versiones. Si hay breaking changes, avisa antes de continuar.
+- **GitHub Actions CI** (`.github/workflows/ci.yml`): pipeline que corre `npm test` + `validate-globals` en Linux, macOS y Windows con Node 18/20/22 en cada push a `main` y en cada PR. Un PR que rompa la conformidad de un skill no puede mergear.
+- **Seccion MIGRACION** en cada entrada de version del CHANGELOG: indica exactamente que debe ejecutar el usuario para actualizar.
+
+### Cambiado
+
+- **32 skills**: el bloque `PROTOCOLO DE SESION` copiado fue reemplazado por una referencia inmutable de una linea: `> Reglas de sesion activas: CLAUDE.md > este skill.` Ahora hay una sola fuente de verdad. Si `CLAUDE.md` cambia, los skills no necesitan actualizarse.
+- **Jerarquia declarada**: cada skill tiene la declaracion explicita `CLAUDE.md > este skill` — el modelo sabe que en caso de tension entre el skill activo y las reglas globales, `CLAUDE.md` gana siempre.
+- **`package.json`**: version bumpeada a 3.3.0. Nuevos scripts: `validate-globals`, `update`.
+- **`CLAUDE.md`**: version bumpeada a 3.3.0. Comandos de referencia actualizados.
+
+### Corregido
+
+- Formato de `Restricciones del Perfil` en todos los skills: el bug de inyeccion anterior habia pegado "Restricciones adicionales:" al final de una linea de codigo en lugar de como seccion separada.
+- `last_updated` actualizado en los 32 skills a 2026-06-05 via `validate-globals --fix-drift`.
+
+### MIGRACION
+
+**Tiempo estimado: 30 segundos.**
+
+Para usuarios que ya tienen el ai-core clonado:
+
+```bash
+npm run update
+```
+
+Eso es todo. El script hace `git pull`, regenera `settings.json` con tus rutas locales, corre los tests y valida los skills. No hay accion manual requerida.
+
+Para usuarios que clonan por primera vez:
+
+```bash
+git clone git@github.com:salvex93/ai-core.git
+cd ai-core
+npm install
+npm run setup    # adapta settings.json a tu ruta local
+npm test         # verifica que todo esta en orden
+```
+
+---
+
+## [3.2.0] — 2026-06-04
+
+### Agregado
+
+- **32 skills** (antes 30): nuevos `ux-visual-designer` y `seo-sem-specialist`.
+- **`tech-lead-frontend` v3.0.0**: SEO tecnico (Open Graph, Schema.org, Lighthouse CI gate), SEM, motion design con GSAP/Framer Motion, design tokens con tipografia variable.
+- **`web-scraping-specialist` v2.0.0**: Stagehand, browser-use, Crawlee, Browserbase, estrategias especificas por proveedor anti-bot (Cloudflare, Datadome, Imperva, PerimeterX).
+- **Bloque `PROTOCOLO DE SESION`** inyectado en los 32 skills (Modo Neanderthal + compact/clear).
+- **`setup-settings.js`**: portabilidad cross-platform (Linux/Mac/Windows).
+- **`tests/harness.test.js`**: 269 assertions con Node nativo, sin dependencias externas.
+- **`tests/token-metrics.js`**: mide reduccion de consumo de tokens por sesion.
+
+### MIGRACION
+
+```bash
+npm run update
+```
+
+---
+
 ## [3.0.0] — 2026-05-19
 
 ### Agregado

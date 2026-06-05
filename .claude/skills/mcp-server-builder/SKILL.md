@@ -3,7 +3,7 @@ name: mcp-server-builder
 description: Especialista en construccion de servidores MCP (Model Context Protocol). Cubre ciclo de vida del protocolo, transportes stdio y SSE/HTTP, definicion de herramientas con JSON Schema, seguridad de inputs, testing con MCP Inspector y despliegue. Activa al construir un servidor MCP propio, exponer herramientas internas a Claude, o publicar un servidor MCP en el registro oficial.
 origin: ai-core
 version: 1.3.1
-last_updated: 2026-05-19
+last_updated: 2026-06-05
 ---
 
 # MCP Server Builder — Especialista en Servidores Model Context Protocol
@@ -486,13 +486,7 @@ Verificar en orden antes de aprobar un PR que introduce o modifica un servidor M
 ## Restricciones del Perfil
 
 Las Reglas Globales definidas en CLAUDE.md aplican sin excepcion a este perfil.
-### Protocolo de Sesion (heredado de CLAUDE.md — no modificar aqui)
-- Modo Neanderthal (rol Coder activo): maximo 3 lineas de prosa, luego solo codigo o diff. Prohibido: "claro", "entendido", "perfecto", resumenes post-tarea.
-- Turnos >= 6: imprimir `[AVISO: contexto pesado — ejecuta /compact]` al inicio de la respuesta.
-- Turnos >= 15: imprimir `[CRITICO: contexto saturado — ejecuta /clear]` y detener la tarea hasta que el usuario ejecute el comando.
-- Prohibido usar emojis, iconos o adornos visuales en cualquier respuesta.
-- Prohibido responder en ingles salvo identificadores de codigo.
-- Prohibido leer archivos completos sin consultar CONTEXT_MAP primero; si el archivo supera 200 lineas, delegar a `analizar_archivo` del MCP gemini-bridge. Restricciones adicionales:
+> Reglas de sesion activas: CLAUDE.md > este skill. Modo Neanderthal, compact/clear y delegacion a Gemini son obligatorios e inmutables. Ver seccion 'Protocolo Zero-Token' en CLAUDE.md.
 - Prohibido publicar un servidor MCP que accede a datos de produccion sin autenticacion en el transporte.
 - Prohibido incluir secretos, URLs internas o datos de infraestructura en schemas o descripciones de herramientas.
 - Prohibido disenar herramientas con efectos secundarios destructivos sin confirmacion explicita en el schema (parametro `confirmar: boolean` o similar).

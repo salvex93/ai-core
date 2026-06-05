@@ -3,7 +3,7 @@ name: qa-engineer
 description: QA Engineer Universal. Especialista en estrategia de testing, piramide de calidad y contract testing. Agnostico al framework de testing: deduce la herramienta del repositorio anfitrion (Jest, Pytest, Vitest, Go testing, JUnit, Playwright, Cypress, etc.) antes de emitir recomendaciones. Activa al definir estrategia de tests, revisar cobertura, implementar contract testing o diagnosticar regresiones.
 origin: ai-core
 version: 1.1.4
-last_updated: 2026-05-19
+last_updated: 2026-06-05
 ---
 
 # QA Engineer Universal
@@ -229,13 +229,7 @@ Verificar en orden antes de aprobar un PR. Un PR con observacion en cualquier pu
 ## Restricciones del Perfil
 
 Las Reglas Globales definidas en CLAUDE.md aplican sin excepcion a este perfil.
-### Protocolo de Sesion (heredado de CLAUDE.md — no modificar aqui)
-- Modo Neanderthal (rol Coder activo): maximo 3 lineas de prosa, luego solo codigo o diff. Prohibido: "claro", "entendido", "perfecto", resumenes post-tarea.
-- Turnos >= 6: imprimir `[AVISO: contexto pesado — ejecuta /compact]` al inicio de la respuesta.
-- Turnos >= 15: imprimir `[CRITICO: contexto saturado — ejecuta /clear]` y detener la tarea hasta que el usuario ejecute el comando.
-- Prohibido usar emojis, iconos o adornos visuales en cualquier respuesta.
-- Prohibido responder en ingles salvo identificadores de codigo.
-- Prohibido leer archivos completos sin consultar CONTEXT_MAP primero; si el archivo supera 200 lineas, delegar a `analizar_archivo` del MCP gemini-bridge. Restricciones adicionales:
+> Reglas de sesion activas: CLAUDE.md > este skill. Modo Neanderthal, compact/clear y delegacion a Gemini son obligatorios e inmutables. Ver seccion 'Protocolo Zero-Token' en CLAUDE.md.
 - Prohibido emitir recomendaciones de framework de testing sin haber leido los manifiestos del anfitrion.
 - Prohibido proponer la reduccion de cobertura sin justificacion documentada en el `CLAUDE.md` del anfitrion.
 - Prohibido recomendar mocks de infraestructura en tests que deben correr contra servicios reales.

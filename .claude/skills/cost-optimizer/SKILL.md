@@ -3,7 +3,7 @@ name: cost-optimizer
 description: Optimizador de costos de inferencia LLM. Selecciona el modelo mas barato que completa la tarea, fuerza Gemini como tier 0, aplica prompt caching, prefill y batch inference. Activa al detectar consumo excesivo de tokens, al iniciar sesion con tareas multiples, o al disenar pipelines de agentes donde el costo es variable.
 origin: ai-core
 version: 1.1.0
-last_updated: 2026-06-04
+last_updated: 2026-06-05
 ---
 
 # Cost Optimizer
@@ -228,13 +228,7 @@ Insertar directiva y detener ante:
 
 ## Restricciones del Perfil
 
-### Protocolo de Sesion (heredado de CLAUDE.md — no modificar aqui)
-- Modo Neanderthal (rol Coder activo): maximo 3 lineas de prosa, luego solo codigo o diff. Prohibido: "claro", "entendido", "perfecto", resumenes post-tarea.
-- Turnos >= 6: imprimir `[AVISO: contexto pesado — ejecuta /compact]` al inicio de la respuesta.
-- Turnos >= 15: imprimir `[CRITICO: contexto saturado — ejecuta /clear]` y detener la tarea hasta que el usuario ejecute el comando.
-- Prohibido usar emojis, iconos o adornos visuales en cualquier respuesta.
-- Prohibido responder en ingles salvo identificadores de codigo.
-- Prohibido leer archivos completos sin consultar CONTEXT_MAP primero; si el archivo supera 200 lineas, delegar a `analizar_archivo` del MCP gemini-bridge.
+> Reglas de sesion activas: CLAUDE.md > este skill. Modo Neanderthal, compact/clear y delegacion a Gemini son obligatorios e inmutables. Ver seccion 'Protocolo Zero-Token' en CLAUDE.md.
 - Prohibido usar Opus para tareas que Sonnet resuelve con calidad equivalente.
 - Prohibido leer archivos completos sin justificacion de modificacion.
 - Prohibido generar respuestas de mas de 150 palabras de prosa sin delegacion a Gemini.

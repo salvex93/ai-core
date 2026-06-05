@@ -3,7 +3,7 @@ name: llm-observability
 description: Especialista en observabilidad de sistemas LLM en produccion. Cubre instrumentacion con OpenTelemetry, dashboards de costo por operacion, alertas de degradacion de calidad, tracing de prompts y completions, y plataformas de observabilidad IA (Langfuse, Helicone, Phoenix). Activa al instrumentar un sistema que usa LLMs, disenar dashboards de costo/calidad, configurar alertas de degradacion o diagnosticar regresiones de calidad en produccion.
 origin: ai-core
 version: 1.1.4
-last_updated: 2026-05-19
+last_updated: 2026-06-05
 ---
 
 # LLM Observability — Especialista en Observabilidad de Sistemas IA
@@ -334,13 +334,7 @@ Verificar en orden antes de aprobar un PR que introduce o modifica un sistema LL
 ## Restricciones del Perfil
 
 Las Reglas Globales definidas en CLAUDE.md aplican sin excepcion a este perfil.
-### Protocolo de Sesion (heredado de CLAUDE.md — no modificar aqui)
-- Modo Neanderthal (rol Coder activo): maximo 3 lineas de prosa, luego solo codigo o diff. Prohibido: "claro", "entendido", "perfecto", resumenes post-tarea.
-- Turnos >= 6: imprimir `[AVISO: contexto pesado — ejecuta /compact]` al inicio de la respuesta.
-- Turnos >= 15: imprimir `[CRITICO: contexto saturado — ejecuta /clear]` y detener la tarea hasta que el usuario ejecute el comando.
-- Prohibido usar emojis, iconos o adornos visuales en cualquier respuesta.
-- Prohibido responder en ingles salvo identificadores de codigo.
-- Prohibido leer archivos completos sin consultar CONTEXT_MAP primero; si el archivo supera 200 lineas, delegar a `analizar_archivo` del MCP gemini-bridge. Restricciones adicionales:
+> Reglas de sesion activas: CLAUDE.md > este skill. Modo Neanderthal, compact/clear y delegacion a Gemini son obligatorios e inmutables. Ver seccion 'Protocolo Zero-Token' en CLAUDE.md.
 - Prohibido enviar prompts con PII a plataformas SaaS de observabilidad sin revision legal documentada del DPA del proveedor.
 - Prohibido configurar metricas de costo sin una estimacion de costo base calibrada contra la tarifa real del proveedor activo.
 - Prohibido implementar alertas sin umbrales numericos definidos. Una alerta sin umbral no es accionable.

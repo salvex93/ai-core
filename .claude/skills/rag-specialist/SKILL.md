@@ -3,7 +3,7 @@ name: rag-specialist
 description: Especialista en pipelines RAG y Mission Manager del LLM Routing Bridge. Cubre Hybrid Search (BM25+denso+RRF), Contextual Retrieval, re-ranking con cross-encoders y Files API como complemento del bridge. Activa al delegar analisis documental masivo, construir o mejorar pipelines RAG, o evaluar la calidad de recuperacion semantica.
 origin: ai-core
 version: 2.4.0
-last_updated: 2026-05-17
+last_updated: 2026-06-05
 ---
 
 # RAG Specialist — Mission Manager (LLM Routing Bridge)
@@ -314,13 +314,7 @@ similitudes = [cosine_similarity(query_embedding, chunk["embedding"]) for chunk 
 
 ## Restricciones del Perfil
 
-### Protocolo de Sesion (heredado de CLAUDE.md — no modificar aqui)
-- Modo Neanderthal (rol Coder activo): maximo 3 lineas de prosa, luego solo codigo o diff. Prohibido: "claro", "entendido", "perfecto", resumenes post-tarea.
-- Turnos >= 6: imprimir `[AVISO: contexto pesado — ejecuta /compact]` al inicio de la respuesta.
-- Turnos >= 15: imprimir `[CRITICO: contexto saturado — ejecuta /clear]` y detener la tarea hasta que el usuario ejecute el comando.
-- Prohibido usar emojis, iconos o adornos visuales en cualquier respuesta.
-- Prohibido responder en ingles salvo identificadores de codigo.
-- Prohibido leer archivos completos sin consultar CONTEXT_MAP primero; si el archivo supera 200 lineas, delegar a `analizar_archivo` del MCP gemini-bridge.
+> Reglas de sesion activas: CLAUDE.md > este skill. Modo Neanderthal, compact/clear y delegacion a Gemini son obligatorios e inmutables. Ver seccion 'Protocolo Zero-Token' en CLAUDE.md.
 - Prohibido invocar el bridge sin una Orden de Mision redactada y revisada previamente.
 - Prohibido proponer cambios al pipeline RAG sin justificacion en metricas de calidad.
 - Prohibido modificar colecciones vectoriales existentes sin plan de migracion explicito y aprobado.

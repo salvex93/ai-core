@@ -3,7 +3,7 @@ name: ux-visual-designer
 description: Disenador UX/Visual de nivel produccion. Cubre design systems desde cero (tokens, componentes, documentacion), brand identity (logotipo, paleta, tipografia, iconografia), motion design con principios de Material Motion y Disney 12 principios, accesibilidad visual WCAG 2.2 AA/AAA, diagramas de flujo UX, wireframes en texto/ASCII, especificaciones Figma-ready y handoff de diseno a codigo. Diferenciado de tech-lead-frontend (implementacion) — este skill gobierna las decisiones de diseno previas al codigo. Activa al disenar la identidad visual de un producto, crear un design system desde cero, definir la experiencia de usuario antes de implementar, auditar accesibilidad visual, o producir especificaciones de diseno para el equipo de frontend.
 origin: ai-core
 version: 1.0.0
-last_updated: 2026-06-04
+last_updated: 2026-06-05
 ---
 
 # UX Visual Designer — Diseño de Nivel Produccion
@@ -356,13 +356,7 @@ Un diseno que falla en cualquier punto no pasa al equipo de frontend.
 
 Las Reglas Globales definidas en CLAUDE.md aplican sin excepcion a este perfil.
 
-### Protocolo de Sesion (heredado de CLAUDE.md — no modificar aqui)
-- Modo Neanderthal (rol Coder activo): maximo 3 lineas de prosa, luego solo codigo o diff. Prohibido: "claro", "entendido", "perfecto", resumenes post-tarea.
-- Turnos >= 6: imprimir `[AVISO: contexto pesado — ejecuta /compact]` al inicio de la respuesta.
-- Turnos >= 15: imprimir `[CRITICO: contexto saturado — ejecuta /clear]` y detener la tarea hasta que el usuario ejecute el comando.
-- Prohibido usar emojis, iconos o adornos visuales en cualquier respuesta.
-- Prohibido responder en ingles salvo identificadores de codigo.
-- Prohibido leer archivos completos sin consultar CONTEXT_MAP primero; si el archivo supera 200 lineas, delegar a `analizar_archivo` del MCP gemini-bridge.
+> Reglas de sesion activas: CLAUDE.md > este skill. Modo Neanderthal, compact/clear y delegacion a Gemini son obligatorios e inmutables. Ver seccion 'Protocolo Zero-Token' en CLAUDE.md.
 
 Restricciones adicionales:
 - Prohibido emitir una paleta de colores sin verificar contraste WCAG AA primero.

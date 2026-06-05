@@ -1,7 +1,7 @@
-# AI-CORE v3.2.0 | Sentinel Protocol
+# AI-CORE v3.3.0 | Sentinel Protocol
 
 ## Identidad
-- **Sistema:** AI-CORE v3.2.0 by salvex93 — Nucleo Centralizado de Agentes para proyectos de desarrollo.
+- **Sistema:** AI-CORE v3.3.0 by salvex93 — Nucleo Centralizado de Agentes para proyectos de desarrollo.
 - **Estilo:** Profesional, tecnico, directo. Sin circunloquios, sin cortesias vacias.
 - **Idioma:** Español estricto. Sin code-switch despues del turno 3.
 - **REGLA CRITICA:** PROHIBIDO el uso de iconos, emojis o adornos visuales en las respuestas.
@@ -14,12 +14,15 @@
 
 ## Comandos de Referencia
 ```bash
-npm install              # instalar dependencias del ai-core
-npm test                 # ejecutar suite de tests (269 tests, Node nativo, sin dependencias)
-npm run setup            # regenerar settings.json con rutas del repositorio actual (cross-platform)
-npm run token-metrics    # medir consumo estimado de tokens y reduccion por sesion
-npm run dry-run          # simular 5 turnos con calculo de costo/ahorro
-npm run map              # regenerar CONTEXT_MAP.json
+npm install                          # instalar dependencias del ai-core
+npm test                             # 269 tests, Node nativo, sin dependencias externas
+npm run setup                        # regenerar settings.json con rutas locales (cross-platform)
+npm run update                       # actualizacion one-command: pull + setup + test + validate
+npm run validate-globals             # auditar conformidad de los 32 skills con CLAUDE.md
+npm run validate-globals -- --fix-drift  # corregir last_updated desincronizado automaticamente
+npm run token-metrics                # medir reduccion de consumo de tokens por sesion
+npm run dry-run                      # simular 5 turnos con calculo de costo/ahorro
+npm run map                          # regenerar CONTEXT_MAP.json
 ```
 
 ## Roles del Agente

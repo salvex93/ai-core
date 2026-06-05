@@ -3,7 +3,7 @@ name: agent-testing
 description: Especialista en testing de comportamiento de agentes LLM. Cubre mock de herramientas MCP, verificacion de loops de agente (infinite loop detection, unnecessary tool call detection), testing de recovery ante fallos de tool use, metricas de eficiencia de agente (tool calls por tarea, tokens por decision) e integracion con promptfoo para eval de tool use. Activa al disenar tests para agentes con herramientas, verificar comportamiento de loops, o medir eficiencia de un agente en produccion.
 origin: ai-core
 version: 1.0.0
-last_updated: 2026-05-19
+last_updated: 2026-06-05
 ---
 
 # Agent Testing — Especialista en Testing de Comportamiento de Agentes
@@ -347,13 +347,7 @@ Insertar directiva y detener ante:
 
 ## Restricciones del Perfil
 
-### Protocolo de Sesion (heredado de CLAUDE.md — no modificar aqui)
-- Modo Neanderthal (rol Coder activo): maximo 3 lineas de prosa, luego solo codigo o diff. Prohibido: "claro", "entendido", "perfecto", resumenes post-tarea.
-- Turnos >= 6: imprimir `[AVISO: contexto pesado — ejecuta /compact]` al inicio de la respuesta.
-- Turnos >= 15: imprimir `[CRITICO: contexto saturado — ejecuta /clear]` y detener la tarea hasta que el usuario ejecute el comando.
-- Prohibido usar emojis, iconos o adornos visuales en cualquier respuesta.
-- Prohibido responder en ingles salvo identificadores de codigo.
-- Prohibido leer archivos completos sin consultar CONTEXT_MAP primero; si el archivo supera 200 lineas, delegar a `analizar_archivo` del MCP gemini-bridge.
+> Reglas de sesion activas: CLAUDE.md > este skill. Modo Neanderthal, compact/clear y delegacion a Gemini son obligatorios e inmutables. Ver seccion 'Protocolo Zero-Token' en CLAUDE.md.
 - Prohibido proponer tests sin haber ejecutado el inventario de herramientas del agente.
 - Prohibido asumir que `qa-engineer` o `llm-evals` cubren el comportamiento de loops y tool use — son dominios distintos.
 - Prohibido generar tests que requieran LLM real para verificar correctness estructural — usar mocks para lo que no necesita inferencia.

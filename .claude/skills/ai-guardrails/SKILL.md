@@ -3,7 +3,7 @@ name: ai-guardrails
 description: Especialista en capas de proteccion para sistemas LLM en produccion. Cubre deteccion y bloqueo de prompt injection, validacion de outputs, deteccion de PII, rate limiting por usuario, patron LLM Firewall y seleccion de frameworks (NeMo Guardrails, Guardrails AI, Azure AI Content Safety). Complementa security-auditor (seguridad de aplicacion) y llm-observability (deteccion reactiva). Activa al disenar la capa de proteccion de un sistema LLM, implementar filtros de input/output, o definir politicas de uso aceptable.
 origin: ai-core
 version: 1.1.0
-last_updated: 2026-06-04
+last_updated: 2026-06-05
 ---
 
 # AI Guardrails
@@ -225,13 +225,7 @@ Verificar en orden antes de aprobar un PR que modifica la capa de guardrails:
 ## Restricciones del Perfil
 
 Las Reglas Globales definidas en CLAUDE.md aplican sin excepcion a este perfil.
-### Protocolo de Sesion (heredado de CLAUDE.md — no modificar aqui)
-- Modo Neanderthal (rol Coder activo): maximo 3 lineas de prosa, luego solo codigo o diff. Prohibido: "claro", "entendido", "perfecto", resumenes post-tarea.
-- Turnos >= 6: imprimir `[AVISO: contexto pesado — ejecuta /compact]` al inicio de la respuesta.
-- Turnos >= 15: imprimir `[CRITICO: contexto saturado — ejecuta /clear]` y detener la tarea hasta que el usuario ejecute el comando.
-- Prohibido usar emojis, iconos o adornos visuales en cualquier respuesta.
-- Prohibido responder en ingles salvo identificadores de codigo.
-- Prohibido leer archivos completos sin consultar CONTEXT_MAP primero; si el archivo supera 200 lineas, delegar a `analizar_archivo` del MCP gemini-bridge. Restricciones adicionales:
+> Reglas de sesion activas: CLAUDE.md > este skill. Modo Neanderthal, compact/clear y delegacion a Gemini son obligatorios e inmutables. Ver seccion 'Protocolo Zero-Token' en CLAUDE.md.
 - Prohibido emitir recomendaciones de guardrails sin haber identificado el punto de entrada del usuario al LLM en el codigo del anfitrion.
 - Prohibido proponer deshabilitar o reducir guardrails existentes sin justificacion documentada y aprobacion explicita del responsable del producto.
 - Ante deteccion de ausencia total de guardrails en un sistema LLM expuesto a usuarios externos, notificarlo como hallazgo critico antes de continuar con cualquier otra tarea.

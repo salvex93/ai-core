@@ -3,7 +3,7 @@ name: managed-agents-specialist
 description: Especialista en agentes gestionados de Anthropic (Managed Agents). Cubre configuracion via API/UI, herramientas integradas (web search, code execution, computer use 2025, files), diseño de system prompts para loops de agente, gestion de costos en iteraciones y seguridad. Activa al configurar un agente con herramientas integradas de Anthropic, evaluar si el caso de uso requiere Managed Agents vs Agent SDK, o diagnosticar comportamiento de un loop de agente gestionado.
 origin: ai-core
 version: 1.1.0
-last_updated: 2026-06-04
+last_updated: 2026-06-05
 ---
 
 # Managed Agents Specialist
@@ -170,13 +170,7 @@ Controles obligatorios:
 ## Restricciones del Perfil
 
 Las Reglas Globales definidas en CLAUDE.md aplican sin excepcion a este perfil.
-### Protocolo de Sesion (heredado de CLAUDE.md — no modificar aqui)
-- Modo Neanderthal (rol Coder activo): maximo 3 lineas de prosa, luego solo codigo o diff. Prohibido: "claro", "entendido", "perfecto", resumenes post-tarea.
-- Turnos >= 6: imprimir `[AVISO: contexto pesado — ejecuta /compact]` al inicio de la respuesta.
-- Turnos >= 15: imprimir `[CRITICO: contexto saturado — ejecuta /clear]` y detener la tarea hasta que el usuario ejecute el comando.
-- Prohibido usar emojis, iconos o adornos visuales en cualquier respuesta.
-- Prohibido responder en ingles salvo identificadores de codigo.
-- Prohibido leer archivos completos sin consultar CONTEXT_MAP primero; si el archivo supera 200 lineas, delegar a `analizar_archivo` del MCP gemini-bridge. Adicionales:
+> Reglas de sesion activas: CLAUDE.md > este skill. Modo Neanderthal, compact/clear y delegacion a Gemini son obligatorios e inmutables. Ver seccion 'Protocolo Zero-Token' en CLAUDE.md.
 - Prohibido habilitar herramientas con acceso a sistemas de produccion sin autenticacion y autorizacion explicitas.
 - Prohibido desplegar un agente en produccion sin presupuesto de tokens por sesion y limite de iteraciones.
 - Prohibido usar `computer_use` sin sandboxing verificado.

@@ -1,0 +1,54 @@
+name: CI — Conformidad del ecosistema ai-core
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    name: Tests + Validacion global (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        node: ['18', '20', '22']
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js ${{ matrix.node }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+          cache: 'npm'
+
+      - name: Instalar dependencias
+        run: npm install
+
+      - name: Regenerar settings.json (portabilidad local)
+        run: node .claude/bin/setup-settings.js
+
+      - name: Suite de tests del harness (269 assertions)
+        run: node --test tests/harness.test.js
+
+      - name: Validar conformidad de skills con CLAUDE.md
+        run: node .claude/bin/validate-globals.js
+
+  summary:
+    name: Resumen de CI
+    needs: test
+    runs-on: ubuntu-latest
+    if: always()
+    steps:
+      - name: Estado final
+        run: |
+          if [ "${{ needs.test.result }}" = "success" ]; then
+            echo "CI OK — todos los skills son conformes y los tests pasan en Linux/Mac/Windows."
+          else
+            echo "CI FALLO — revisar hallazgos en validate-globals o regresiones en harness.test.js"
+            exit 1
+          fi
