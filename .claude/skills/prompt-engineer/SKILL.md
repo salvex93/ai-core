@@ -3,7 +3,7 @@ name: prompt-engineer
 description: Especialista en arquitectura de prompts de produccion. Cubre diseno de system prompts, few-shot examples, chain-of-thought, prefill de respuesta, cache breakpoints estrategicos, output estructurado con JSON Schema, versionado de prompts y testing antes de despliegue. Complementa ai-integrations (integracion del LLM), llm-evals (medicion de calidad) y rag-specialist (contexto documental). Activa al disenar o refactorizar un system prompt, definir la estrategia de few-shot, implementar output estructurado o versionar prompts para produccion.
 origin: ai-core
 version: 1.6.0
-last_updated: 2026-05-17
+last_updated: 2026-05-19
 ---
 
 # Prompt Engineer — Arquitecto de Prompts de Produccion
@@ -44,7 +44,7 @@ Ante cualquiera de estas condiciones, insertar la directiva y detener. No emitir
 - La tarea cambia el modelo LLM asociado al prompt sin comparar los outputs del nuevo modelo contra el golden dataset del sistema.
 - La tarea introduce instrucciones en el system prompt que contradicen reglas de seguridad o compliance documentadas del proyecto anfitrion.
 - El system prompt propuesto supera 4000 tokens sin justificacion documentada de por que no puede reducirse.
-- La tarea usa Opus 4.7 con `effort: "xhigh"` o `task_budgets` en flujo de alto volumen (>100 req/min) sin justificacion de ROI de razonamiento adaptativo.
+- La tarea usa Opus 4.8 con `effort: "xhigh"` o `task_budgets` en flujo de alto volumen (>100 req/min) sin justificacion de ROI de razonamiento adaptativo.
 
 ```
 [ALERTA_ARQUITECTONICA: REQUIERE_OPUSPLAN]
@@ -98,7 +98,7 @@ Antes de emitir tu respuesta final, razona paso a paso:
 Emite primero el razonamiento dentro de <thinking>...</thinking> y luego el output final en el formato especificado.
 ```
 
-En modelos con soporte nativo de extended thinking (claude-opus-4-6, claude-sonnet-4-6, claude-opus-4-7), el CoT explicito en el prompt puede omitirse si se activa el thinking via API. En ese caso, el bloque `<thinking>` lo genera el modelo internamente sin consumir tokens del output visible. En `claude-opus-4-7`, usar `thinking: { type: "auto" }` permite que el modelo asigne presupuesto de razonamiento de forma adaptativa por paso, sin requerir un budget fijo.
+En modelos con soporte nativo de extended thinking (claude-opus-4-6, claude-sonnet-4-6, claude-opus-4-8), el CoT explicito en el prompt puede omitirse si se activa el thinking via API. En ese caso, el bloque `<thinking>` lo genera el modelo internamente sin consumir tokens del output visible. En `claude-opus-4-8`, usar `thinking: { type: "auto" }` permite que el modelo asigne presupuesto de razonamiento de forma adaptativa por paso, sin requerir un budget fijo.
 
 ### Output estructurado con JSON Schema
 
@@ -306,15 +306,15 @@ config_enabled  = {"thinking_config": {"thinking_budget": 8000}}  # hasta 8k tok
 - Con `budget: -1`, el costo puede ser impredecible en produccion — establecer un techo explicito si el presupuesto de inferencia es fijo.
 - Para integracion via bridge MCP del ai-core, delegar al skill `gemini-2-5-specialist`. Este bloque aplica a integracion directa via SDK.
 
-## Effort Levels (Opus 4.7 Adaptive Reasoning)
+## Effort Levels (Opus 4.8 Adaptive Reasoning)
 
-Opus 4.7 introduce `effort` para controlar la intensidad del razonamiento por tarea dentro de un presupuesto global. Tres niveles: `low`, `high`, `xhigh`.
+Opus 4.8 introduce `effort` para controlar la intensidad del razonamiento por tarea dentro de un presupuesto global. Tres niveles: `low`, `high`, `xhigh`.
 
 ### Configuracion
 
 ```python
 respuesta = cliente.messages.create(
-    model="claude-opus-4-7",
+    model="claude-opus-4-8",
     effort="high",  # o "low", "xhigh"
     task_budgets={
         "total_budget": 8000,          # Presupuesto global para toda la sesion
@@ -344,7 +344,7 @@ Usar ambos juntos en agentes multi-paso donde la complejidad es variable:
 ```python
 # Agente que puede tener pasos simples y pasos complejos
 cliente.messages.create(
-    model="claude-opus-4-7",
+    model="claude-opus-4-8",
     effort="high",  # Razonamiento balanceado por defecto
     task_budgets={
         "total_budget": 10000,         # Presupuesto global para toda la sesion del agente

@@ -152,7 +152,7 @@ MODELO_POR_COMPLEJIDAD = {
     "lectura_masiva":    "gemini-2.5-flash",          # Gemini free — archivos grandes
     "clasificacion":     "claude-haiku-4-5-20251001",  # Haiku — transformacion simple
     "razonamiento":      "claude-sonnet-4-6",           # Sonnet — analisis y diagnostico
-    "arquitectura":      "claude-opus-4-7",             # Opus — diseno de sistema nuevo
+    "arquitectura":      "claude-opus-4-8",             # Opus — diseno de sistema nuevo
 }
 
 async def paso_pipeline(tipo: str, contenido: str) -> str:

@@ -82,7 +82,7 @@ El beta `computer-use-2025-01-24` introduce mejoras sobre la version original:
 
 ```python
 response = client.messages.create(
-    model="claude-opus-4-7",  # computer use requiere Opus 4.7 — Sonnet 4 y Opus 4 originales deprecados 2026-06-15
+    model="claude-opus-4-8",  # computer use requiere Opus 4.8 — Sonnet 4 y Opus 4 originales deprecados 2026-06-15
     max_tokens=4096,
     tools=[{"type": "computer_20250124", "name": "computer", "display_width_px": 1280, "display_height_px": 800}],
     messages=[{"role": "user", "content": "Abre el navegador y navega a example.com"}],

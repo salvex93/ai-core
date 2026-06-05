@@ -59,10 +59,17 @@ NO esperar a que el usuario declare skills. Seleccionar automaticamente segun la
 | Documentos HTML/PDF para clientes, propuestas, requerimientos, entregables formales | `doc-builder` |
 | Calidad, tests, cobertura | `qa-engineer` |
 | RAG, embeddings, recuperacion de contexto | `rag-specialist` |
+| Costo excesivo de tokens, pipelines con costo variable, seleccion de modelo | `cost-optimizer` |
+| Evals, regresiones de calidad, LLM-as-judge, metricas de outputs | `llm-evals`, `llm-observability` |
+| Proteccion LLM, prompt injection, validacion de outputs, PII, rate limiting | `ai-guardrails` |
+| Voice AI, streaming de audio, speech-to-text, text-to-speech, Live API | `audio-voice-engineer` |
+| Agentes autonomos con SDK, subagentes, OAuth MCP, hooks de ciclo de vida | `claude-agent-sdk` |
+| Aplicaciones Flutter/Dart, mobile multiplataforma, BLoC/Riverpod | `mobile-engineer` |
+| Operaciones de BD en produccion: queries lentas, migraciones, pooling, vacuum, backup | `database-ops` |
 
 Los skills disponibles estan en `.claude/skills/`. Cada SKILL.md define el dominio y herramientas del rol.
 
-Skills disponibles: `agent-testing`, `ai-guardrails`, `ai-integrations`, `aiops-engineer`, `attack-surface-analyst`, `audio-voice-engineer`, `backend-architect`, `claude-agent-sdk`, `claude-api`, `cost-optimizer`, `data-engineer`, `devops-infra`, `doc-builder`, `gemini-2-5-specialist`, `llm-evals`, `llm-observability`, `managed-agents-specialist`, `mcp-server-builder`, `mobile-engineer`, `multimodal-engineer`, `prompt-engineer`, `qa-engineer`, `rag-specialist`, `release-manager`, `security-auditor`, `silent-failure-hunter`, `tech-lead-frontend`, `web-scraping-specialist`, `workflow-orchestrator`.
+Skills disponibles: `agent-testing`, `ai-guardrails`, `ai-integrations`, `aiops-engineer`, `attack-surface-analyst`, `audio-voice-engineer`, `backend-architect`, `claude-agent-sdk`, `claude-api`, `cost-optimizer`, `data-engineer`, `database-ops`, `devops-infra`, `doc-builder`, `gemini-2-5-specialist`, `llm-evals`, `llm-observability`, `managed-agents-specialist`, `mcp-server-builder`, `mobile-engineer`, `multimodal-engineer`, `prompt-engineer`, `qa-engineer`, `rag-specialist`, `release-manager`, `security-auditor`, `silent-failure-hunter`, `tech-lead-frontend`, `web-scraping-specialist`, `workflow-orchestrator`.
 
 ## Visibilidad y Telemetría
 Imprimir una sola línea al inicio de la **primera respuesta de cada sesión**:

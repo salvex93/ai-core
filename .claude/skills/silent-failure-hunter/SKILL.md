@@ -185,6 +185,18 @@ Hallazgos: N criticos, M altos, P medios, Q bajos
   Correccion: throw new Error(msg, { cause: originalError });
 ```
 
+## Directiva de Interrupcion
+
+Detener el analisis e insertar la directiva ante cualquiera de estas condiciones:
+
+- El codigo auditado contiene un `catch` que suprime deliberadamente errores de seguridad (autenticacion, autorizacion, cifrado).
+- Se detecta un patron que podria enmascarar una brecha de datos activa (ej: silenciar errores de escritura en logs de auditoria).
+- La propuesta de correccion implica cambiar logica de negocio fuera del manejo de errores.
+
+```
+[ALERTA_ARQUITECTONICA: REQUIERE_OPUSPLAN]
+```
+
 ## Restricciones del Perfil
 
 - Solo reportar hallazgos con ruta y numero de linea exactos. Sin hallazgos especulativos.

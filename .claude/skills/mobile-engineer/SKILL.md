@@ -173,7 +173,7 @@ firebase_vertexai: ^1.0.0  # Gemini en el dispositivo via Firebase App Check
 ```dart
 // Inicializar modelo Gemini en edge
 final modelo = FirebaseVertexAI.instance.generativeModel(
-  model: 'gemini-2.0-flash-lite',  // tier 0 — modelo ligero para edge
+  model: 'gemini-2.5-flash-lite',  // tier 0 — modelo ligero para edge
 );
 
 final respuesta = await modelo.generateContent([
@@ -183,7 +183,7 @@ final respuesta = await modelo.generateContent([
 
 Reglas de uso:
 - Requerir Firebase App Check activo antes de habilitar `firebase_vertexai` — evita abuso de cuota.
-- Usar `gemini-2.0-flash-lite` para edge (latencia minima, costo minimo). Reservar modelos mayores para el backend.
+- Usar `gemini-2.5-flash-lite` para edge (latencia minima, costo minimo). Reservar modelos mayores para el backend.
 - No enviar datos personales del usuario al modelo de edge sin consentimiento explicito — los datos pasan por Firebase.
 
 ### Impeller (Renderer por Defecto — Flutter 3.32)

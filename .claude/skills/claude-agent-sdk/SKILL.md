@@ -216,15 +216,15 @@ No activar en flujos deterministas simples — el overhead de tokens no se justi
 
 Reglas: incluir bloques `thinking` del turno anterior en el historial del siguiente. Loguear tokens thinking separado. Requiere `claude-sonnet-4-6` o superior.
 
-## Adaptive Thinking — Opus 4.7
+## Adaptive Thinking — Opus 4.8
 
-`claude-opus-4-7` introduce pensamiento adaptativo: el modelo asigna presupuesto de razonamiento de forma variable por paso, proporcional a la complejidad local de cada decision. Es la opcion optima para agentes con pasos de complejidad heterogenea.
+`claude-opus-4-8` introduce pensamiento adaptativo: el modelo asigna presupuesto de razonamiento de forma variable por paso, proporcional a la complejidad local de cada decision. Es la opcion optima para agentes con pasos de complejidad heterogenea.
 
 Activar con `thinking: { type: "auto" }` en lugar de budget fijo:
 
 ```typescript
 const respuesta = await cliente.messages.create({
-  model: 'claude-opus-4-7',
+  model: 'claude-opus-4-8',
   thinking: { type: 'auto' },   // el modelo decide el budget por paso
   max_tokens: 16000,
   messages: historial,
@@ -232,7 +232,7 @@ const respuesta = await cliente.messages.create({
 ```
 
 Cuando usar cada modo:
-- `{ type: "auto" }` (Opus 4.7): pasos de complejidad variable — ahorra en pasos simples sin degradar calidad en pasos complejos.
+- `{ type: "auto" }` (Opus 4.8): pasos de complejidad variable — ahorra en pasos simples sin degradar calidad en pasos complejos.
 - `{ type: "enabled", budget_tokens: N }` (Opus/Sonnet 4.6): costo predecible por llamada o complejidad uniforme entre pasos.
 
 Loguear `thinking_tokens` separado de `output_tokens` en ambos modos. La diferencia entre llamadas revela que porcion del costo es razonamiento adaptativo.

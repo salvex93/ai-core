@@ -1,6 +1,6 @@
 ---
 name: multimodal-engineer
-description: Especialista en pipelines de procesamiento multimodal con LLMs. Cubre analisis de imagenes con Claude Opus 4.7 (vision 3.75MP) y Gemini 2.5 Pro (1M tokens), extraccion estructurada desde PDFs y documentos con Citations API, pipelines OCR semanticos, optimizacion de costo por token visual y arquitectura de sistemas que procesan entradas mixtas (texto + imagen + documento). Activa al construir pipelines que procesan imagenes o documentos, integrar vision en agentes, comparar capacidades multimodales entre Claude y Gemini, o disenar extraccion estructurada desde contratos, facturas o diagramas tecnicos.
+description: Especialista en pipelines de procesamiento multimodal con LLMs. Cubre analisis de imagenes con Claude Opus 4.8 (vision 3.75MP) y Gemini 2.5 Pro (1M tokens), extraccion estructurada desde PDFs y documentos con Citations API, pipelines OCR semanticos, optimizacion de costo por token visual y arquitectura de sistemas que procesan entradas mixtas (texto + imagen + documento). Activa al construir pipelines que procesan imagenes o documentos, integrar vision en agentes, comparar capacidades multimodales entre Claude y Gemini, o disenar extraccion estructurada desde contratos, facturas o diagramas tecnicos.
 origin: ai-core
 version: 1.0.0
 last_updated: 2026-05-19
@@ -17,7 +17,7 @@ Complementos: `rag-specialist` (embeddings de contenido visual para busqueda sem
 - Al construir un pipeline que analiza imagenes, PDFs, capturas de pantalla o diagramas con un LLM.
 - Al integrar vision en un agente para percepcion del entorno (computer use, analisis de UI, inspeccion de dashboards).
 - Al disenar extraccion estructurada de documentos: contratos, facturas, formularios, tablas en PDF.
-- Al comparar capacidades multimodales entre Claude Opus 4.7 y Gemini 2.5 Pro para un caso de uso especifico.
+- Al comparar capacidades multimodales entre Claude Opus 4.8 y Gemini 2.5 Pro para un caso de uso especifico.
 - Al optimizar el costo de un pipeline que procesa muchas imagenes (estrategia de resolucion, compresion, caching).
 - Al construir un sistema de Citations API para respuestas con referencias a fuentes documentales.
 - Al integrar embeddings multimodales para busqueda semantica sobre colecciones de imagenes o documentos.
@@ -44,11 +44,11 @@ Deducir:
 | Caso de uso | Modelo recomendado | Justificacion |
 |---|---|---|
 | Analisis de documentos largos (> 50 paginas) | Gemini 2.5 Pro (1M tokens) | Contexto extendido sin fragmentacion |
-| Extraccion estructurada con citations | Claude Opus 4.7 + Citations API | Citations API nativa; referencias exactas a fragmentos |
-| Vision en agente (computer use, UI) | Claude Opus 4.7 | Computer use 2025 con `computer-use-2025-01-24` |
+| Extraccion estructurada con citations | Claude Opus 4.8 + Citations API | Citations API nativa; referencias exactas a fragmentos |
+| Vision en agente (computer use, UI) | Claude Opus 4.8 | Computer use 2025 con `computer-use-2025-01-24` |
 | Clasificacion masiva de imagenes (> 10k/dia) | Gemini 2.5 Flash-Lite (tier 0) | Costo minimo; adecuado para clasificacion sin razonamiento profundo |
 | Analisis de diagramas tecnicos o planos | Gemini 2.5 Pro (1M, resolucion alta) | Superior en comprension espacial y diagramas complejos |
-| Extraccion de tablas de facturas/contratos | Claude Opus 4.7 o Gemini 2.5 Flash | Ambos comparables; Claude con tool_use para schema forzado |
+| Extraccion de tablas de facturas/contratos | Claude Opus 4.8 o Gemini 2.5 Flash | Ambos comparables; Claude con tool_use para schema forzado |
 | Embeddings multimodales para busqueda | Gemini text-embedding-004 o voyage-multimodal-3 | Unico tier con embeddings nativos imagen+texto |
 
 ### Jerarquia de costo para procesamiento visual
@@ -58,7 +58,7 @@ Gemini 2.5 Flash-Lite (tier 0, gratis) → clasificacion simple, sin razonamient
 Gemini 2.5 Flash (tier 0B)             → analisis general, balance inteligencia/costo
 Claude Haiku 4.5                        → extraccion estructurada de bajo volumen
 Claude Sonnet 4.6                       → analisis de calidad media con schema
-Claude Opus 4.7 / Gemini 2.5 Pro       → documentos complejos, citations, razonamiento profundo
+Claude Opus 4.8 / Gemini 2.5 Pro       → documentos complejos, citations, razonamiento profundo
 ```
 
 ## Costo de Tokens por Imagen
@@ -109,7 +109,7 @@ def extraer_factura(ruta_imagen: str) -> dict:
     imagen_b64 = base64.standard_b64encode(Path(ruta_imagen).read_bytes()).decode()
 
     respuesta = cliente.messages.create(
-        model="claude-opus-4-7",
+        model="claude-opus-4-8",
         max_tokens=1024,
         tools=[{
             "name": "registrar_factura",
@@ -173,7 +173,7 @@ def analizar_contrato_con_citas(ruta_pdf: str, pregunta: str) -> dict:
         )
 
     respuesta = cliente.beta.messages.create(
-        model="claude-opus-4-7",
+        model="claude-opus-4-8",
         max_tokens=2048,
         messages=[{
             "role": "user",

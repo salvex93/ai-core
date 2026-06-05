@@ -13,7 +13,7 @@ last_updated: 2026-05-19
 - Codigo importa `anthropic` o `@anthropic-ai/sdk`.
 - El usuario pregunta sobre prompt caching, cache hit rate, o costos de inferencia.
 - Implementacion de tool use, streaming, extended thinking o Batch API.
-- Migracion de modelo: Haiku 4.5 → Sonnet 4.6 → Opus 4.7, o reemplazo de modelos retirados.
+- Migracion de modelo: Haiku 4.5 → Sonnet 4.6 → Opus 4.8, o reemplazo de modelos retirados.
 - Disenar system prompts con cache para reducir costo en sesiones largas.
 - Uso de Citations API para documentos estructurados o Files API para contexto persistente.
 
@@ -31,7 +31,7 @@ grep -r "cache_control\|anthropic\|claude-" src/ --include="*.ts" --include="*.p
 
 | Modelo | ID exacto | Uso recomendado |
 |---|---|---|
-| Opus 4.7 | `claude-opus-4-7` | Razonamiento complejo, agentes autonomos, arquitectura |
+| Opus 4.8 | `claude-opus-4-8` | Razonamiento complejo, agentes autonomos, arquitectura |
 | Sonnet 4.6 | `claude-sonnet-4-6` | Produccion general, balance costo/calidad |
 | Haiku 4.5 | `claude-haiku-4-5-20251001` | Tareas simples, maximo ahorro de tokens |
 
@@ -81,11 +81,11 @@ Regla: el contenido antes del breakpoint se cachea; el de despues, no. Colocar e
 
 ## Extended Thinking — Patron con Streaming
 
-Para razonamiento profundo en Opus 4.7. Usar streaming para no bloquear el proceso:
+Para razonamiento profundo en Opus 4.8. Usar streaming para no bloquear el proceso:
 
 ```python
 with client.messages.stream(
-    model="claude-opus-4-7",
+    model="claude-opus-4-8",
     max_tokens=16000,
     thinking={"type": "enabled", "budget_tokens": 10000},
     messages=[{"role": "user", "content": pregunta_compleja}]
@@ -238,12 +238,12 @@ Caso de uso en ai-core: invocar Claude desde hooks de CI/CD sin levantar un proc
 
 ## Adaptive Thinking — Calibracion Automatica de Razonamiento
 
-Disponible en `claude-opus-4-7`. El modelo asigna presupuesto de razonamiento por paso segun la complejidad local, sin requerir `budget_tokens` fijo.
+Disponible en `claude-opus-4-8`. El modelo asigna presupuesto de razonamiento por paso segun la complejidad local, sin requerir `budget_tokens` fijo.
 
 ```python
 # Thinking adaptativo — el modelo decide cuanto razonar por llamada
 response = client.messages.create(
-    model="claude-opus-4-7",
+    model="claude-opus-4-8",
     max_tokens=16000,
     thinking={"type": "auto"},   # adaptativo vs {"type": "enabled", "budget_tokens": N}
     messages=[{"role": "user", "content": pregunta}]
@@ -277,7 +277,7 @@ Regla: si el pipeline supera 20 iteraciones, implementar compaction manual como 
 
 ## Batch API — Limite 300k tokens (actualizado)
 
-Limite actualizado en 2026: `max_tokens` de hasta 300.000 en Message Batches API para Opus 4.7 y Sonnet 4.6. Aplica para procesamiento masivo de documentos largos.
+Limite actualizado en 2026: `max_tokens` de hasta 300.000 en Message Batches API para Opus 4.8 y Sonnet 4.6. Aplica para procesamiento masivo de documentos largos.
 
 ```python
 batch = client.messages.batches.create(

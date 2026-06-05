@@ -48,7 +48,7 @@ Tier 2 — Sonnet 4.6 (EQUILIBRIO)
   Revision de seguridad
   Generacion de tests
 
-Tier 3 — Opus 4.7 (SOLO SI ES NECESARIO)
+Tier 3 — Opus 4.8 (SOLO SI ES NECESARIO)
   Diseño de sistemas nuevos multim-modulo
   Refactorizacion de arquitectura completa
   Planificacion de workflows complejos con dependencias

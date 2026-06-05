@@ -282,7 +282,7 @@ Para proyectos que incluyen componentes de IA (prompts, modelos, configuracion d
 
 El gate `evals:llm` aplica si el release incluye cualquiera de:
 - Cambios en system prompts o few-shot examples.
-- Migracion entre versiones de modelo (ej: Sonnet 4.5 → Sonnet 4.6, Opus 4.6 → Opus 4.7).
+- Migracion entre versiones de modelo (ej: Sonnet 4.5 → Sonnet 4.6, Opus 4.6 → Opus 4.8).
 - Cambios en parametros de inferencia (temperature, max_tokens, thinking budget).
 - Cambios en el pipeline RAG (chunking, embeddings, re-ranker).
 - Cambios en la configuracion de guardrails que afecten la tasa de bloqueo.

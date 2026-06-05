@@ -203,9 +203,9 @@ Para sistemas desplegados en GCP, Model Armor es ahora la opcion de produccion r
 
 Criterio de adopcion: si el proyecto ya corre en GCP y tiene requisitos de compliance auditables por terceros, Model Armor reemplaza la implementacion propia del Input Guard. Si el proyecto es multi-cloud o on-premise, mantener implementacion propia con Presidio + clasificador custom.
 
-### Adaptive Thinking (Opus 4.7) — superficie de ataque ampliada
+### Adaptive Thinking (Opus 4.8) — superficie de ataque ampliada
 
-`task_budgets` de Opus 4.7 permite al modelo asignar razonamiento adaptativo por paso. El presupuesto no esta acotado por defecto en la API. Guardrail obligatorio para sistemas con Opus 4.7:
+`task_budgets` de Opus 4.8 permite al modelo asignar razonamiento adaptativo por paso. El presupuesto no esta acotado por defecto en la API. Guardrail obligatorio para sistemas con Opus 4.8:
 
 - Definir `max_tokens` global y `budget_tokens` maximo por paso para acotar el costo de un ataque de tokens.
 - El rate limiting debe incluir `thinking_tokens` en el calculo del presupuesto por usuario — un atacante puede forzar razonamiento extensivo con inputs de complejidad artificial.
