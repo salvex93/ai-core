@@ -1,8 +1,10 @@
-# AI-CORE v3.3.0: Nucleo Multi-Agente Universal
+# AI-CORE v3.8.0: Nucleo Multi-Agente Universal
 
-`ai-core` es un nucleo de configuracion y comportamiento para agentes IA distribuible como submodulo Git o repositorio independiente. Inyecta reglas globales inmutables, 32 skills especializados y una herramienta maestra de actualizacion en cualquier proyecto, sin acoplar su logica al stack del anfitrion.
+`ai-core` es un nucleo de configuracion y comportamiento para agentes IA distribuible como submodulo Git o repositorio independiente. Inyecta reglas globales inmutables, 32 skills especializados, 5 agentes autonomos y un sistema de mejora continua por uso — todo sin acoplar su logica al stack del anfitrion.
 
 **Una sola fuente de verdad:** `CLAUDE.md` define las reglas globales. Los 32 skills las referencian — no las copian. Si una regla cambia en `CLAUDE.md`, los 32 skills se actualizan automaticamente sin tocar ningun archivo.
+
+**Agnóstico al proveedor:** funciona con Claude, Gemini, OpenAI, DeepSeek y Kimi via `ModelRegistry`. Agregar un proveedor nuevo = agregar su API key en `.env`. Sin reescribir skills ni agentes.
 
 ---
 
@@ -38,6 +40,31 @@ npm run update
 
 Un solo comando que ejecuta: `git pull` → regenera `settings.json` con tus rutas locales → corre los 269 tests → valida los 32 skills → muestra que cambio. Funciona en Linux, macOS y Windows.
 
+### Activar proveedores adicionales (opcional)
+
+Copia `.env.example` a `.env` y agrega las claves de los proveedores que uses. El `ModelRegistry` detecta automaticamente cuales estan disponibles:
+
+```bash
+cp .env.example .env
+# Editar .env y agregar las claves:
+# GEMINI_API_KEY    — gratuito, siempre primero
+# ANTHROPIC_API_KEY — Claude Haiku/Sonnet/Opus
+# OPENAI_API_KEY    — GPT-4o, o1, o3
+# DEEPSEEK_API_KEY  — DeepSeek-V3 / R1
+# KIMI_API_KEY      — Kimi K2 (256k contexto)
+```
+
+### Autenticar gh CLI (para issue-tracker automatico)
+
+El sistema de mejora continua abre issues en GitHub al cerrar cada sesion. Requiere `gh` autenticado una sola vez:
+
+```bash
+gh auth login
+gh auth status   # verificar
+```
+
+Sin este paso el sistema sigue funcionando — los eventos se acumulan en `.claude/EVENTS_QUEUE.json` y se envian en la proxima sesion donde `gh` este disponible.
+
 ---
 
 ## Comandos de referencia
@@ -56,7 +83,65 @@ npm run map                               # regenerar CONTEXT_MAP.json
 
 ---
 
-## Que incorpora v3.3.0
+## Que incorpora v3.8.0
+
+### Arquitectura Skills vs Agents
+
+La distincion que separa ai-core de otros arneses: dos capas distintas de comportamiento.
+
+| Capa | Directorio | Que hace | Cuando se activa |
+|---|---|---|---|
+| Skills | `.claude/skills/` (32) | Perfil de comportamiento — como piensa Claude en un dominio | Claude lo adopta como rol dentro de la conversacion |
+| Agents | `.claude/agents/` (5) | Loop autonomo — ejecuta una tarea completa sin intervencion | Claude Code lo lanza como subagente con contexto cero |
+
+**Criterio para crear un agente** (los tres deben cumplirse): autonomia real (sin interaccion por turno), salida estructurada verificable, y tarea recurrente. Si no cumple los tres es un skill.
+
+**Agentes disponibles:**
+
+| Agente | Funcion |
+|---|---|
+| `code-reviewer` | Revisa diff completo contra main, clasifica hallazgos, produce veredicto APROBADO/BLOQUEADO |
+| `security-scanner` | Escanea credenciales expuestas, CVEs, secrets en git, permisos excesivos |
+| `aiops-auditor` | Audita conformidad de skills, detecta agentes faltantes, drift de SDK |
+| `map-updater` | Regenera CONTEXT_MAP ante drift estructural del repo |
+| `issue-tracker` | Captura errores y gaps, los envía como issues a GitHub al cerrar sesion |
+
+### Sistema de Gobierno y Mejora Continua
+
+**`process-guard.js`** — semaforo de procesos: maximo 4 scripts del harness en paralelo, timeout de 8s por proceso, descarte silencioso si la carga supera el umbral. Elimina la saturacion de memoria en sesiones largas.
+
+**`standards-guard.js`** — vigilante de estandares en tiempo real: detecta en cada archivo que Claude escribe — emojis en codigo, `Co-Authored-By`, archivos > 300 lineas, funciones > 20 lineas, secrets hardcodeados, commits que mencionan IA. Toda violacion se encola automaticamente.
+
+**`git-queue-advisor.js`** — asesor de push/pull: antes de cada `git push` muestra los eventos pendientes en queue; despues de cada `git pull` avisa si hay trabajo de harness pendiente. Nunca bloquea — solo informa.
+
+**`capture-event.js` + `issue-reporter.js`** — ciclo de mejora continua:
+
+```
+Error durante uso → capture-event.js → EVENTS_QUEUE.json
+git push (aviso) → decides si actuar antes
+Cierre de sesion → issue-reporter.js → github.com/salvex93/ai-core
+Tu revisas el issue → decides si implementar la correccion
+```
+
+### ModelRegistry — Abstraccion multi-proveedor
+
+`scripts/services/ModelRegistry.js` expone `chat(provider, messages, options)` con adapter pattern:
+
+```js
+const { chat, listProviders } = require('./scripts/services/ModelRegistry');
+
+// Verificar proveedores disponibles segun .env
+listProviders().forEach(p => console.log(p.provider, p.available ? 'OK' : 'sin key'));
+
+// Usar el proveedor correcto para cada tarea
+await chat('gemini',    messages);  // gratis — lecturas, resumenes
+await chat('anthropic', messages);  // Claude Haiku/Sonnet/Opus
+await chat('openai',    messages);  // GPT-4o, o1
+await chat('deepseek',  messages);  // DeepSeek-V3 / R1
+await chat('kimi',      messages);  // Kimi K2 — 256k contexto
+```
+
+Agregar un proveedor futuro = agregar su config en `PROVIDER_CONFIGS` + su API key en `.env`. Sin tocar CLAUDE.md ni los skills.
 
 ### Herramienta maestra de gobernanza
 
@@ -751,14 +836,114 @@ El agente leera su propio codigo, propondra las mejoras y tras aprobacion ejecut
 
 ---
 
-## Como Contribuir: Crear un Nuevo Skill
+## Como Contribuir
+
+### Crear un nuevo skill
 
 1. Crear carpeta `.claude/skills/{nombre-en-kebab-case}/`.
-2. Crear `SKILL.md` con frontmatter YAML: `name`, `description`, `version`, `last_updated`, `origin: ai-core`.
-3. Incluir obligatoriamente: "Cuando Activar Este Perfil", "Primera Accion al Activar", "Directiva de Interrupcion", "Restricciones del Perfil".
-4. No sobreescribir ninguna Regla Global.
+2. Crear `SKILL.md` con frontmatter YAML obligatorio: `name`, `description`, `version`, `last_updated`, `origin: ai-core`.
+3. Incluir secciones obligatorias: "Cuando Activar Este Perfil", "Primera Accion al Activar", "Directiva de Interrupcion", "Restricciones del Perfil" (con la referencia inmutable a CLAUDE.md).
+4. Evaluar si el skill cumple los tres criterios de agente — si es asi, crear tambien el `AGENT.md` correspondiente.
 5. Actualizar `CLAUDE.md`, seccion "Skills Disponibles".
-6. `git add . && git commit && git push` (Regla 15).
+6. Ejecutar `npm run validate-globals` — debe terminar con 0 criticos y 0 altos.
+7. Commitear y hacer push.
+
+### Crear un nuevo agente
+
+Un agente va en `.claude/agents/{nombre}.md` y debe cumplir los tres criterios:
+- Autonomia real: ejecuta de principio a fin sin interaccion por turno
+- Salida estructurada: produce reporte o artefacto verificable
+- Tarea recurrente: se lanzara multiples veces en el ciclo del proyecto
+
+Frontmatter obligatorio del AGENT.md:
+```yaml
+---
+name: nombre-del-agente
+description: descripcion concisa para auto-discovery
+origin: ai-core
+version: 1.0.0
+last_updated: YYYY-MM-DD
+provider: any
+loop: true|false
+---
+```
+
+### Agregar un proveedor de IA
+
+1. Agregar la configuracion en `PROVIDER_CONFIGS` de `scripts/services/ModelRegistry.js`.
+2. Implementar el adapter si el proveedor no es OpenAI-compatible (usa `chatOpenAICompat` si lo es).
+3. Documentar la variable de entorno en `.env.example`.
+4. Agregar la variable a la tabla de proveedores en `CLAUDE.md` seccion "ModelRegistry".
+
+### Reportar un problema
+
+El sistema de issue-tracker captura errores automaticamente y los envia a GitHub al cerrar sesion. Para reportar manualmente un gap de skill o comportamiento inesperado:
+
+```bash
+node .claude/bin/capture-event.js \
+  --type skill_gap \
+  --tool "<skill-mas-cercano>" \
+  --error "<descripcion del gap>" \
+  --context "<lo que el usuario pidio y no fue cubierto>"
+```
+
+---
+
+## Como Mantenerse en la Punta de Lanza
+
+El ecosistema de arneses agenticos se mueve rapido. Este protocolo te mantiene al dia sin perderte en el ruido.
+
+### Fuentes de señal (no ruido)
+
+| Fuente | Que monitorear | Frecuencia |
+|---|---|---|
+| [Anthropic Changelog](https://www.anthropic.com/changelog) | Nuevos modelos, nuevas capacidades de hooks, cambios en MCP | Semanal |
+| [Claude Code Docs](https://docs.anthropic.com/en/docs/claude-code) | Nuevos hooks disponibles, cambios en settings.json, nuevas variables de entorno | Semanal |
+| [MCP Spec](https://modelcontextprotocol.io/changelog) | Nuevos transportes, cambios de protocolo, nuevas herramientas registradas | Mensual |
+| [npm: @anthropic-ai/sdk](https://www.npmjs.com/package/@anthropic-ai/sdk) | Nuevas versiones, breaking changes | Por release |
+| [npm: @google/generative-ai](https://www.npmjs.com/package/@google/generative-ai) | Nuevas versiones de Gemini, cambios de API | Por release |
+| [Gemini API Rate Limits](https://ai.google.dev/gemini-api/docs/rate-limits) | Cambios en cuota del free tier | Trimestral |
+
+### Protocolo de actualizacion del arnes
+
+Cuando detectes una nueva capacidad en las fuentes anteriores:
+
+1. Verificar que existe en la version instalada del SDK: `npm outdated`
+2. Si hay version nueva: `npm run update` (actualiza, testea y valida en un comando)
+3. Evaluar impacto: si afecta hooks o settings.json — revisar `CLAUDE.md` seccion "Gobierno de Agentes"
+4. Si requiere un nuevo skill o agente: seguir el protocolo de "Como Contribuir" mas abajo
+5. Documentar en `CHANGELOG.md` con la version del SDK que habilita la capacidad
+
+El agente `aiops-auditor` detecta automaticamente drift de SDK y skills faltantes. Ejecutalo cuando sospeches degradacion:
+
+```
+# En Claude Code:
+Lanza el agente aiops-auditor — audita el estado del harness
+```
+
+### Arneses y proyectos de referencia (ecosistema 2026)
+
+Proyectos que vale la pena monitorear — no para copiar, sino para evaluar patrones:
+
+| Proyecto | Que aporta | URL |
+|---|---|---|
+| ECC (Everything Claude Code) | Setup completo de referencia, ganador hackathon Anthropic | github.com/affaan-m/ECC |
+| MCP Registry | Catalogo oficial de servidores MCP publicados | modelcontextprotocol.io/registry |
+| Claude Code Hooks Docs | Documentacion oficial de todos los hooks disponibles | docs.anthropic.com/claude-code/hooks |
+| OpenCode | CLI de IA open-source compatible con skills de Claude Code | github.com/sst/opencode |
+
+**Criterio de adopcion:** antes de incorporar algo de estos proyectos al arnes, verificar que pasa el triple filtro: (1) cumple los tres criterios de agente o es claramente un skill, (2) no duplica funcionalidad existente, (3) pasa `npm run validate-globals` sin hallazgos.
+
+### Variables de entorno — referencia rapida
+
+```bash
+GEMINI_API_KEY     # Gemini 2.5 Flash — gratuito, tier 0 siempre primero
+ANTHROPIC_API_KEY  # Claude Haiku/Sonnet/Opus
+OPENAI_API_KEY     # GPT-4o, o1, o3 — opcional
+DEEPSEEK_API_KEY   # DeepSeek-V3 / R1 — opcional
+KIMI_API_KEY       # Kimi K2 (256k contexto) — opcional
+DOCS_PATH          # Ruta a documentacion interna para RAG local
+```
 
 ---
 

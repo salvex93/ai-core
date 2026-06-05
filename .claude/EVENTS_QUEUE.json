@@ -1,1 +1,12 @@
-[]
+[
+  {
+    "id": "1780635122273-ea7r4",
+    "ts": "2026-06-05T04:52:02.273Z",
+    "session": "5ab09b3f-4ad",
+    "type": "hook_failure",
+    "tool": "bash",
+    "error": "sin detalle",
+    "context": "",
+    "reported": false
+  }
+]
