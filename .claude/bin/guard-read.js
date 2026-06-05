@@ -7,7 +7,7 @@
  * Uso: node guard-read.js <file_path>
  */
 
-const { execSync } = require('child_process');
+const fs = require('fs');
 const path = require('path');
 
 const MAX_LINES = 200;
@@ -21,10 +21,16 @@ const ext = path.extname(filePath).toLowerCase();
 if (!TEXT_EXTS.includes(ext)) process.exit(0);
 
 try {
-  const result = execSync(`wc -l "${filePath}" 2>/dev/null`, { encoding: 'utf8' }).trim();
-  const lineCount = parseInt(result.split(' ')[0], 10);
+  const content = fs.readFileSync(filePath, 'utf8');
+  // Contar newlines de forma cross-platform (no depende de wc -l)
+  let lineCount = 0;
+  for (let i = 0; i < content.length; i++) {
+    if (content[i] === '\n') lineCount++;
+  }
+  // Ajustar: si el archivo no termina en newline, la última línea no tiene \n
+  if (content.length > 0 && content[content.length - 1] !== '\n') lineCount++;
 
-  if (!isNaN(lineCount) && lineCount > MAX_LINES) {
+  if (lineCount > MAX_LINES) {
     process.stderr.write(
       `[GUARD-READ] BLOQUEADO: ${filePath} tiene ${lineCount} lineas (limite: ${MAX_LINES}).\n` +
       `Usa mcp__gemini-bridge__analizar_archivo en su lugar para no quemar tokens de Claude.\n`
@@ -33,7 +39,7 @@ try {
     process.exit(2);
   }
 } catch {
-  // Si no se puede medir, dejar pasar
+  // Si no se puede leer el archivo, dejar pasar
   process.exit(0);
 }
 
