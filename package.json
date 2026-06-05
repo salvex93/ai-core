@@ -18,8 +18,8 @@
     "update": "node scripts/update.js"
   },
   "dependencies": {
-    "@anthropic-ai/sdk": "^0.90.0",
-    "@google/generative-ai": "^0.21.0",
+    "@anthropic-ai/sdk": "0.100.1",
+    "@google/generative-ai": "0.24.1",
     "@modelcontextprotocol/sdk": "^1.29.0"
   },
   "engines": {

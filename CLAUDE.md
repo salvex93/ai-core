@@ -90,7 +90,7 @@ Reglas adicionales (solo cuando aplique):
 No repetir la línea de telemetría en cada turno — solo en el primero de la sesión.
 
 ## Protocolo de Súper Optimización (Gestión de Cuota)
-1. **Mapeo de Grafo:** USA `.claude/CONTEXT_MAP.json` como indice primario. Al inicio de sesion, el hook `PreToolUse` ejecuta `.claude/bin/validate-map.js`, que genera el mapa automaticamente si no existe o lo regenera si hay drift >= 3 archivos respecto a `git ls-files`. PROHIBIDO usar `git ls-files`, `find` o `ls` para explorar estructura. Solo lee un archivo si vas a modificarlo.
+1. **Mapeo de Grafo:** USA `.claude/CONTEXT_MAP.json` como indice primario. Al inicio de sesion, el hook `PreToolUse` ejecuta `.claude/bin/validate-map.js` (drift por conteo) y el hook `PostToolUse` ejecuta `.claude/bin/diff-map-trigger.js` (drift estructural por `git status`). PROHIBIDO usar `git ls-files`, `find` o `ls` para explorar estructura. Solo lee un archivo si vas a modificarlo.
 2. **Gemini Bridge:** Si el usuario solicita analizar un error complejo, explicar conceptos de arquitectura o revisar logs extensos, DETÉN la respuesta. Genera un archivo `.claude/TO_GEMINI.md` con el contexto técnico necesario y solicita al usuario que lo procese en Gemini Free para ahorrar cuota.
 3. **Anti-Detox:** Verifica que la raíz del proyecto esté limpia de archivos `.md` correspondientes a reportes legacy (v2.4/v2.5) para evitar el envenenamiento del contexto de memoria.
 4. **Gestion de Contexto (compress/clear):**
@@ -173,6 +173,56 @@ Reglas de hierro para maximizar autonomia dentro del limite de 2 horas de Claude
 `claro`, `por supuesto`, `entendido`, `perfecto`, `excelente`, `de acuerdo`, `sin problema`,
 `como puedes ver`, `en resumen`, `en conclusion`, `espero que esto ayude`, `no dudes en preguntar`.
 
+## Gobierno de Agentes y Subagentes (Estandar AAA)
+
+### Ciclo de vida y hooks disponibles (Anthropic 2026)
+
+| Hook | Momento | Uso obligatorio en ai-core |
+|---|---|---|
+| `PreToolUse` | Antes de ejecutar cualquier herramienta | Guard-read, validate-map, health-check |
+| `PostToolUse` | Despues de herramienta exitosa | Detox, syntax-check, diff-map-trigger |
+| `PostToolUseFailure` | Despues de herramienta fallida | Registrar fallo, escalar si es MCP critico |
+| `UserPromptSubmit` | Al recibir mensaje del usuario | Clasificar intencion, seleccionar rol |
+| `SubagentStop` | Cuando un subagente termina | Validar output antes de integrar al padre |
+
+### Reglas de gobierno para subagentes
+
+1. **Contexto cero:** Todo subagente arranca sin contexto del padre. El prompt debe ser 100% autocontenido — incluir rutas, nombres de archivos, proposito y formato de output esperado.
+2. **Permisos no heredados:** Los subagentes no heredan permisos del padre. Cada subagente que necesite herramientas debe tener su scope declarado en el prompt o en `PreToolUse`.
+3. **Prevencion de loops infinitos:** PROHIBIDO que un subagente lance otro subagente del mismo tipo sin condicion de parada explicita. Verificar indicador de subagente antes de hacer spawn.
+4. **Output truncado:** El output de un subagente que regresa al padre DEBE pasar por `truncarOutputGemini()` (limite 6.000 chars). Un output largo en el historial = tokens pagados en cada turno.
+5. **Paralelo controlado:** Maximo 3 subagentes paralelos por sesion. Mas de 3 = riesgo de agotar cuota Gemini (15 RPM free tier).
+6. **Human-in-the-loop obligatorio** para operaciones destructivas: delete, overwrite sin backup, push a main, bulk modifications. El subagente propone, el humano confirma.
+
+### Protocolo de validacion de nuevas capacidades Anthropic/Gemini
+
+Cuando se detecte una nueva capacidad (via `aiops-engineer` o documentacion):
+
+1. Verificar disponibilidad real: la capacidad debe existir en la version instalada del SDK (no en beta privada o roadmap).
+2. Evaluar impacto: si afecta hooks, skills o el flujo de sesion → requiere confirmacion antes de incorporar.
+3. Actualizar en orden: `package.json` → `settings.json` → `CLAUDE.md` → skills afectados → tests.
+4. Ejecutar `npm test` y `npm run validate-globals` antes de commitear.
+5. Documentar en CHANGELOG.md con la version del SDK que habilita la capacidad.
+
+### Limites operativos Gemini free tier (2026)
+
+| Modelo | RPM | RPD | Tokens/min |
+|---|---|---|---|
+| gemini-2.5-flash | 15 | 1500 | 250.000 |
+| gemini-2.5-pro | 5 | 50 | 250.000 |
+
+- Si se supera RPM: esperar 60s antes de reintentar. NUNCA hacer retry agresivo.
+- Si se supera RPD: cambiar a tier Claude segun jerarquia de costo.
+- Las sesiones largas (> 10 turnos con Gemini) consumen el RPD rapidamente. Despues del turno 8, consolidar requests a Gemini en lugar de hacer llamadas individuales.
+
+### Patron de Mapeo de Contexto (CONTEXT_MAP)
+
+El mapa se actualiza automaticamente ante:
+- **Drift de conteo:** si `git ls-files` difiere en >= 3 archivos vs el mapa (via `validate-map.js` en PreToolUse).
+- **Cambio estructural:** si `git status --porcelain` reporta archivos nuevos (`??`), stagiados (`A `) o eliminados (`D `) (via `diff-map-trigger.js` en PostToolUse).
+
+PROHIBIDO: consultar estructura del proyecto via `find`, `ls` o `git ls-files` directamente. Siempre usar el mapa como fuente de verdad.
+
 ## Instalacion en Proyecto Anfitrion
 Cuando ai-core se instala como submodulo en otro proyecto, el CLAUDE.md del anfitrion debe contener:
 ```
@@ -232,7 +282,7 @@ Sin ese symlink, Claude Code no carga las reglas de ai-core.
 - Antes de stagear: ejecutar `git status --short | grep -v node_modules` para confirmar que solo se incluyen archivos del proyecto
 - Si `node_modules/` aparece en `git status`, ejecutar `git reset HEAD node_modules/` antes de cualquier commit
 - `node_modules/` NUNCA va al repositorio — es reconstruible con `npm install` y su inclusion infla el historial con cientos de archivos irrelevantes
-- Archivos prohibidos en commits: `node_modules/`, `.env*`, `.claude/HEALTH_REPORT.md`, `.claude/TO_GEMINI.md`, `scripts/premium/`
+- Archivos prohibidos en commits: `node_modules/`, `.env*`, `.claude/HEALTH_REPORT.md`, `.claude/TO_GEMINI.md`
 
 ## Stack Técnico
 Node.js, Knex, PostgreSQL. Principios SOLID. Cifrado Fernet (AES-128) para PII.
