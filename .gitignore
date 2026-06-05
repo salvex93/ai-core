@@ -23,3 +23,5 @@ scripts/premium/
 .claude/TOKEN_METRICS.json
 .claude/models-cache.json
 .claude/CONTEXT_MAP.json
+.claude/EVENTS_QUEUE.json
+.claude/_issue_tmp_*.md
