@@ -5,6 +5,36 @@ Versionado semantico: MAJOR.MINOR.PATCH.
 
 ---
 
+## [3.8.0] — 2026-06-04
+
+### Agregado
+
+- **`web-scraping-specialist`**: patron Power BI iframe anidado con Azure Static Apps — soporte para extraccion desde iframes con autenticacion Azure AD embebida.
+- **`norm-harness.ps1`**: equivalente PowerShell de `norm-harness.js` con rutas dinamicas via `$PSScriptRoot` para instalacion en Windows sin edicion manual.
+- **`diff-map-trigger.js`** y **`validate-map.js`**: hooks PostToolUse y PreToolUse para deteccion automatica de drift estructural en CONTEXT_MAP sin consultar `git ls-files` ni `find`.
+- **Instalacion cross-platform**: README expandido con instrucciones completas para macOS, Linux y Windows (Administrador).
+- **`token-metrics.js`** y **`dry-run-cost-sim.js`**: medicion de reduccion de consumo de tokens y simulacion de costo sin llamadas reales.
+- **`CONTEXT_MAP.json`**: indice dual host/core con seccion de stack, regenerado automaticamente via hooks.
+
+### Cambiado
+
+- **`CLAUDE.md`**: version bumpeada a v3.8.0. Protocolo Zero-Token, Modo Neanderthal, Gobierno de Agentes (estandar AAA), Patron CONTEXT_MAP y Limites Gemini free tier 2026 documentados.
+- **32 skills**: `last_updated` sincronizado. Skills nuevos: `ux-visual-designer`, `seo-sem-specialist`.
+- **`package.json`**: version bumpeada a 3.8.0.
+- **README.md**: seccion de arquitectura y arbol de modulos actualizados a v3.8.0.
+- **`.gitignore`**: excluidos artefactos de sesion local (`.claude/HEALTH_REPORT.md`, `TO_GEMINI.md`, `last_session.md`).
+
+### MIGRACION
+
+```bash
+# En cada proyecto anfitrion que use ai-core como submodulo:
+cd .claude/ai-core && git pull origin main
+node .claude/ai-core/.claude/bin/norm-harness.js
+npm run validate-globals
+```
+
+---
+
 ## [3.3.0] — 2026-06-05
 
 ### Agregado

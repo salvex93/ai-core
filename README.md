@@ -310,7 +310,7 @@ New-Item -ItemType SymbolicLink -Path './CLAUDE.md' -Target 'C:/ruta/a/ai-core/C
 
 ---
 
-## Arquitectura v3.3.0
+## Arquitectura v3.8.0
 
 ### Mapa de modulos
 
@@ -357,7 +357,7 @@ New-Item -ItemType SymbolicLink -Path './CLAUDE.md' -Target 'C:/ruta/a/ai-core/C
 ├── .github/
 │   └── workflows/ci.yml         CI en Linux/Mac/Windows x Node 18/20/22
 ├── CLAUDE.md                    Autoridad unica: reglas globales, 32 skills, enrutamiento
-├── package.json                 v3.3.0 — Node >= 18.0.0
+├── package.json                 v3.8.0 — Node >= 18.0.0
 └── .env.example                 Plantilla de variables de entorno
 ```
 
