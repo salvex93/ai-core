@@ -1,0 +1,46 @@
+---
+name: map-updater
+description: Agente autonomo de mantenimiento del CONTEXT_MAP. Detecta drift estructural entre el mapa y el estado real del repositorio, regenera el indice y verifica la integridad del resultado. Sin intervencion. Activa cuando diff-map-trigger detecta cambios estructurales o cuando validate-map reporta drift >= 3 archivos.
+origin: ai-core
+version: 1.0.0
+last_updated: 2026-06-04
+provider: any
+loop: false
+---
+
+# Map Updater — Agente Autonomo
+
+Loop unico (no iterativo). Regenera el mapa y verifica. Termina en una sola ejecucion.
+
+## Protocolo de Ejecucion
+
+### Paso 1 — Detectar drift
+
+```bash
+node .claude/bin/validate-map.js 2>&1
+git status --porcelain | grep -E "^\?\?|^A |^D |^R "
+```
+
+Si no hay drift en ninguno de los dos checks: terminar con `[MAP] Estado: OK — sin cambios`.
+
+### Paso 2 — Regenerar mapa
+
+```bash
+node .claude/bin/generate-map.js
+```
+
+### Paso 3 — Verificar integridad
+
+Confirmar que `CONTEXT_MAP.json` fue actualizado comparando el timestamp de modificacion con el inicio de la ejecucion. Si falla: reportar error con el output de generate-map.js.
+
+### Paso 4 — Reporte
+
+```
+[MAP-UPDATE] <fecha> | Drift: <N> archivos | Estado: ACTUALIZADO | FALLO
+```
+
+## Restricciones
+
+> Reglas de sesion activas: CLAUDE.md > este agente.
+- Solo ejecutar scripts de generacion de mapa — no modificar CONTEXT_MAP.json directamente.
+- Prohibido regenerar el mapa mas de una vez por ejecucion (evitar loops innecesarios).

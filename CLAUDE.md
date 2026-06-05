@@ -173,6 +173,58 @@ Reglas de hierro para maximizar autonomia dentro del limite de 2 horas de Claude
 `claro`, `por supuesto`, `entendido`, `perfecto`, `excelente`, `de acuerdo`, `sin problema`,
 `como puedes ver`, `en resumen`, `en conclusion`, `espero que esto ayude`, `no dudes en preguntar`.
 
+## Arquitectura Skills vs Agents
+
+### Distincion fundamental
+
+| Dimension | `.claude/skills/` | `.claude/agents/` |
+|---|---|---|
+| Que es | Perfil de comportamiento — define COMO piensa Claude en un dominio | Agente autonomo — ejecuta una tarea completa de principio a fin sin supervision por turno |
+| Quién lo activa | Claude lo adopta como rol dentro de la conversacion | Claude Code lo lanza como subagente (Agent tool) con contexto cero |
+| Duracion | Dura toda la sesion o hasta cambio de rol | Vive solo mientras ejecuta su tarea, luego termina |
+| Interaccion | Conversacional — el humano guia cada paso | Loop cerrado — el agente ejecuta sin pedir confirmacion (salvo directiva de interrupcion) |
+
+### Cuando crear un agente nuevo (criterio obligatorio)
+
+Crear un AGENT.md en `.claude/agents/` si Y SOLO SI la tarea cumple los tres criterios:
+1. **Autonomia real:** puede ejecutarse de principio a fin sin interaccion por turno.
+2. **Salida estructurada:** produce un reporte o artefacto verificable, no una conversacion.
+3. **Recurrente:** se lanzara multiples veces en el ciclo de vida del proyecto.
+
+Si no cumple los tres → es un skill, no un agente.
+
+### Protocolo al agregar un skill nuevo
+
+Al crear un nuevo skill en `.claude/skills/`:
+1. Evaluar si el skill cumple los tres criterios de agente.
+2. Si los cumple: crear tambien el AGENT.md correspondiente en `.claude/agents/`.
+3. Ejecutar `npm run validate-globals` para verificar conformidad del skill nuevo.
+4. El agente aiops-auditor detectara automaticamente la brecha si se omite este paso.
+
+### Portabilidad multi-harness
+
+Los archivos `.md` en `skills/` y `agents/` son el activo portable. Funcionan en:
+- Claude Code: nativo (skills via sistema de skills, agents via Agent tool)
+- Cursor: via `.cursor/rules/` o `.claude/skills/` (auto-discovery)
+- Cline / OpenCode: via system prompt o config de reglas
+- Cualquier CLI que soporte archivos de instrucciones Markdown
+
+Los scripts en `.claude/bin/` y `scripts/` son la infraestructura de ejecucion — especifica de Node.js pero no de Claude Code. Si cambia el harness, los scripts siguen siendo validos como CLI independiente.
+
+### ModelRegistry — Abstraccion multi-proveedor
+
+`scripts/services/ModelRegistry.js` expone una interfaz unica `chat(provider, messages, options)` compatible con:
+
+| Proveedor | Variable de entorno | Tier |
+|---|---|---|
+| `gemini` | `GEMINI_API_KEY` | Gratuito (siempre primero) |
+| `anthropic` | `ANTHROPIC_API_KEY` | Pagado |
+| `openai` | `OPENAI_API_KEY` | Pagado |
+| `deepseek` | `DEEPSEEK_API_KEY` | Pagado |
+| `kimi` | `KIMI_API_KEY` | Pagado |
+
+Agregar un proveedor nuevo = agregar su API key en `.env` + un adapter en `ModelRegistry.js`. Sin modificar skills, agentes ni CLAUDE.md.
+
 ## Gobierno de Agentes y Subagentes (Estandar AAA)
 
 ### Ciclo de vida y hooks disponibles (Anthropic 2026)
