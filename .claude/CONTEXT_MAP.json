@@ -1,12 +1,13 @@
 {
   "version": "3.9.0",
-  "last_updated": "2026-06-10T22:34:37.435Z",
+  "last_updated": "2026-06-10T22:53:01.248Z",
   "branch": "main",
   "stack": null,
   "host": {
     "root": "ai-core/",
     "directories": {
       ".claude/": [
+        ".claude/AIOPS_SCORE_HISTORY.json",
         ".claude/CONTEXT_MAP.json",
         ".claude/MEMORY.md",
         ".claude/agents/aiops-auditor.md",
@@ -80,11 +81,11 @@
       ],
       "scripts/": [
         "scripts/anthropic-bridge.js",
-        "scripts/context-monitor.js",
         "scripts/dry-run-cost-sim.js",
         "scripts/init-backlog.js",
         "scripts/mcp-anthropic.js",
         "scripts/mcp-gemini.js",
+        "scripts/migrator.js",
         "scripts/query-backlog.js",
         "scripts/services/AgentRoles.js",
         "scripts/services/ContextIndex.js",
@@ -96,7 +97,6 @@
         "scripts/services/ResponseValidator.js",
         "scripts/services/RootGuard.js",
         "scripts/services/StyleProfiler.js",
-        "scripts/session-close.js",
         "scripts/update.js"
       ],
       "tests/": [
@@ -110,6 +110,7 @@
       "CHANGELOG.md",
       "CLAUDE.md",
       "CONTRIBUTING.md",
+      "DEPRECATIONS.json",
       "DOCS_MAESTRA.md",
       "LICENSE",
       "README.md",
@@ -121,7 +122,7 @@
       "node_modules/",
       ".git/"
     ],
-    "total_files": 98
+    "total_files": 99
   },
   "core": null
 }
