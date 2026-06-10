@@ -1,4 +1,4 @@
-# AI-CORE v3.8.0: Nucleo Multi-Agente Universal
+# AI-CORE v3.9.0: Nucleo Multi-Agente Universal
 
 `ai-core` es un nucleo de configuracion y comportamiento para agentes IA distribuible como submodulo Git o repositorio independiente. Inyecta reglas globales inmutables, 32 skills especializados, 5 agentes autonomos y un sistema de mejora continua por uso — todo sin acoplar su logica al stack del anfitrion.
 
@@ -35,7 +35,7 @@ npm install
 npm run setup    # adapta settings.json a tu ruta exacta (cross-platform)
 
 # 3. Verificar que todo funciona
-npm test         # debe terminar: 269 pass, 0 fail
+npm test         # debe terminar: 286 pass, 0 fail
 
 # 4. Autenticar gh CLI para el issue-tracker (una sola vez por maquina)
 gh auth login    # selecciona: GitHub.com → HTTPS → Login with a web browser
@@ -82,7 +82,7 @@ claude
 npm run update
 ```
 
-Ejecuta en secuencia: `git pull` → regenera `settings.json` → corre 269 tests → valida 32 skills → reporta que cambio. Si algun test falla, el comando lo indica y no continua.
+Ejecuta en secuencia: `git pull` → regenera `settings.json` → corre 286 tests → aplica migraciones de version → valida 32 skills → reporta que cambio. Si algun test falla, el comando lo indica y no continua.
 
 ### Actualizar el arnes (instalado como submodulo)
 
@@ -127,7 +127,7 @@ Si no esta autenticado, los eventos de mejora se acumulan localmente en `.claude
 
 ```bash
 npm install                               # instalar dependencias
-npm test                                  # 269 tests, Node nativo, sin deps externas
+npm test                                  # 286 tests, Node nativo, sin deps externas
 npm run setup                             # regenerar settings.json con rutas locales
 npm run update                            # actualizacion one-command desde GitHub
 npm run validate-globals                  # auditar conformidad de los 32 skills
@@ -135,11 +135,31 @@ npm run validate-globals -- --fix-drift   # corregir last_updated desincronizado
 npm run token-metrics                     # medir reduccion de consumo de tokens
 npm run dry-run                           # simular 5 turnos con calculo de costo
 npm run map                               # regenerar CONTEXT_MAP.json
+npm run score                             # scoring 0-10 por 6 dimensiones del arnes
+npm run score-report                      # historial completo de scores con delta
+npm run migrate                           # aplicar migraciones de version manualmente
+npm run migrate-dry                       # simular migraciones sin aplicar cambios
 ```
 
 ---
 
-## Que incorpora v3.8.0
+## Que incorpora v3.9.0
+
+### Novedades v3.9.0
+
+**32 skills con patron senior completo** — Todos los skills tienen ahora "Cuando NO Activar Este Perfil" (4-5 casos de no uso por skill), restricciones formuladas como imperativos positivos (no como PROHIBIDO) y checklists de PR donde corresponde. La investigacion indica que las reglas formuladas en negativo se violan ~50% mas que las formuladas en positivo.
+
+**Sistema de migracion automatica** — Al ejecutar `npm run update`, si la version cambia se aplican automaticamente las migraciones declaradas en `DEPRECATIONS.json`: eliminacion de archivos deprecados, renombrados y advertencias. Sin intervencion manual. Se puede simular con `npm run migrate-dry`.
+
+**aiops-score.js** — Scoring numerico del arnes (0-10) por 6 dimensiones: routing, hooks, skills, drift, seguridad, agentes. Se ejecuta automaticamente al cerrar cada sesion (hook Stop) y persiste historial con delta. `npm run score` en cualquier momento.
+
+**286 tests** — Cobertura de comportamiento para los 4 scripts de seguridad y telemetria: `security-check.js`, `secrets-guard.js`, `session-summary.js`, `aiops-score.js`.
+
+**Optimizacion de tokens en CLAUDE.md** — Eliminados elementos redundantes (~279 tokens/turno menos = ~2.790 tokens menos por sesion de 10 turnos). El bloque ANCLA con las 10 reglas criticas queda al final del system prompt para explotar el sesgo de recencia.
+
+**Codigo muerto eliminado** — `scripts/context-monitor.js` y `scripts/session-close.js` eliminados. Sus funciones estan cubiertas por el bloque ANCLA y `session-summary.js` respectivamente.
+
+---
 
 ### Arquitectura Skills vs Agents
 
@@ -310,7 +330,7 @@ New-Item -ItemType SymbolicLink -Path './CLAUDE.md' -Target 'C:/ruta/a/ai-core/C
 
 ---
 
-## Arquitectura v3.8.0
+## Arquitectura v3.9.0
 
 ### Mapa de modulos
 
@@ -328,7 +348,8 @@ New-Item -ItemType SymbolicLink -Path './CLAUDE.md' -Target 'C:/ruta/a/ai-core/C
 │   ├── gemini-bridge.js         CLI de respaldo para analisis Gemini sin MCP
 │   ├── init-backlog.js          Crea BACKLOG.md en proyecto anfitrion si no existe
 │   ├── query-backlog.js         Filtra BACKLOG.md sin cargarlo en contexto
-│   └── dry-run-cost-sim.js      Simulador de costo sin llamadas reales
+│   ├── dry-run-cost-sim.js      Simulador de costo sin llamadas reales
+│   └── migrator.js              Aplica migraciones de version desde DEPRECATIONS.json
 ├── .claude/
 │   ├── settings.json            Template hooks + config MCP server
 │   ├── bin/
@@ -345,17 +366,23 @@ New-Item -ItemType SymbolicLink -Path './CLAUDE.md' -Target 'C:/ruta/a/ai-core/C
 │   │   ├── validate-globals.js  Auditor de conformidad de skills vs CLAUDE.md
 │   │   ├── generate-map.js      Genera CONTEXT_MAP dual host/core con seccion stack
 │   │   ├── detox.js             Limpia archivos legacy que contaminan contexto
+│   │   ├── security-check.js    PostToolUse: escanea secretos/eval/catch-vacio tras cada escritura
+│   │   ├── secrets-guard.js     UserPromptSubmit: detecta credenciales en el prompt del usuario
+│   │   ├── session-summary.js   Stop: imprime resumen de sesion (commit, archivos, cola)
+│   │   ├── aiops-score.js       Stop: scoring 0-10 por 6 dimensiones con historial y delta
+│   │   ├── process-guard.js     Semaforo: max 4 scripts paralelos, timeout 8s por proceso
 │   │   └── benchmark-fernet.js  Testea cifrado Fernet (PII)
 │   └── skills/                  32 skills especializados (ver tabla Auto-Routing)
 ├── scripts/
 │   └── update.js                Actualizacion one-command: pull + setup + test + validate
 ├── tests/
-│   ├── harness.test.js          269 assertions sobre harness y conformidad de skills
+│   ├── harness.test.js          286 assertions sobre harness y conformidad de skills
 │   └── token-metrics.js         Mide reduccion de consumo de tokens por sesion
 ├── .github/
 │   └── workflows/ci.yml         CI en Linux/Mac/Windows x Node 18/20/22
 ├── CLAUDE.md                    Autoridad unica: reglas globales, 32 skills, enrutamiento
-├── package.json                 v3.8.0 — Node >= 18.0.0
+├── DEPRECATIONS.json            Contrato de migracion por version: que se elimina y por que
+├── package.json                 v3.9.0 — Node >= 18.0.0
 └── .env.example                 Plantilla de variables de entorno
 ```
 
