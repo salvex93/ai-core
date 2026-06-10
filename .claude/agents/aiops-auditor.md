@@ -12,6 +12,26 @@ loop: true
 
 Loop cerrado. Audita el estado del harness y termina con reporte de accion. No requiere interaccion.
 
+## Precondiciones de Lanzamiento
+
+Verificar antes de ejecutar cualquier paso. Si alguna falla: reportar y detener.
+
+```bash
+# 1. Quality gates activos
+node .claude/bin/validate-globals.js 2>/dev/null | grep -q "pass" && echo "OK: tests" || echo "FALLO: tests no pasan"
+
+# 2. CONTEXT_MAP existe y es parseable
+node -e "JSON.parse(require('fs').readFileSync('.claude/CONTEXT_MAP.json','utf8')); console.log('OK: CONTEXT_MAP')" 2>/dev/null || echo "FALLO: CONTEXT_MAP invalido"
+
+# 3. No hay otro proceso aiops-auditor corriendo
+pgrep -f "aiops-auditor" | grep -v $$ | head -1 && echo "FALLO: instancia duplicada detectada" || echo "OK: sin duplicados"
+
+# 4. Rama activa identificable
+git branch --show-current 2>/dev/null && echo "OK: rama git" || echo "FALLO: no es un repositorio git"
+```
+
+Si cualquier precondicion falla: emitir `[PRECONDICION-FALLO: <descripcion>]` y terminar sin ejecutar el protocolo.
+
 ## Protocolo de Ejecucion
 
 ### Paso 1 — Conformidad de skills y agentes

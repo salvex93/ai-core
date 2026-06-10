@@ -63,6 +63,10 @@
         "hooks": [
           {
             "type": "command",
+            "command": "node \"/home/cyber/Proyectos/ai-core/.claude/bin/session-summary.js\" 2>/dev/null || true"
+          },
+          {
+            "type": "command",
             "command": "node \"/home/cyber/Proyectos/ai-core/.claude/bin/process-guard.js\" capture node \"/home/cyber/Proyectos/ai-core/.claude/bin/issue-reporter.js\" 2>/dev/null || true"
           }
         ]

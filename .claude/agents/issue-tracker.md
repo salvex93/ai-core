@@ -35,6 +35,22 @@ USO DEL HARNESS
 | `pattern` | Misma tarea > 2 veces en sesion | usuario repite misma busqueda manualmente |
 | `harness_error` | Error inesperado en el nucleo | JSON malformado en CONTEXT_MAP |
 
+## Precondiciones de Lanzamiento
+
+```bash
+# 1. Cola de eventos existe (sino no hay nada que procesar)
+test -f ".claude/EVENTS_QUEUE.json" && echo "OK: cola existe" || echo "INFO: sin cola — sesion limpia"
+
+# 2. gh CLI disponible
+command -v gh >/dev/null 2>&1 && echo "OK: gh disponible" || echo "ADVERTENCIA: gh no instalado — eventos quedaran en cola"
+
+# 3. No hay issues duplicados en la ultima hora (rate-limit de apertura)
+gh issue list --repo salvex93/ai-core --state open --limit 5 2>/dev/null | head -5
+```
+
+Si la cola no existe: terminar con `[ISSUE-TRACKER] Sin cola — sesion limpia.`
+Si gh no disponible: loggear y terminar sin error — los eventos esperan en cola para la proxima sesion con gh autenticado.
+
 ## Protocolo de Ejecucion (al final de sesion)
 
 ### Paso 1 — Verificar cola

@@ -12,6 +12,24 @@ loop: true
 
 Agente de loop cerrado. Ejecuta revision completa del diff y termina con un reporte. No requiere interaccion durante la ejecucion.
 
+## Precondiciones de Lanzamiento
+
+```bash
+# 1. Hay diff real contra main (no revisar rama limpia)
+git diff main...HEAD --stat 2>/dev/null | tail -1
+# Si output es vacio: terminar con "[CODE-REVIEW] Sin cambios respecto a main."
+
+# 2. Rama no es main directamente
+RAMA=$(git branch --show-current 2>/dev/null)
+[ "$RAMA" = "main" ] && echo "ADVERTENCIA: revisando sobre main directamente" || echo "OK: rama $RAMA"
+
+# 3. Tests pasan en el estado actual
+npm test 2>/dev/null | grep -E "pass|fail" | tail -3
+# Si hay fallos: incluirlos como hallazgos CRITICOS en el reporte
+```
+
+Si no hay diff: terminar inmediatamente con `[CODE-REVIEW] Sin cambios — nada que revisar.`
+
 ## Protocolo de Ejecucion
 
 ### Paso 1 — Obtener diff

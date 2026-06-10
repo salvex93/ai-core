@@ -12,6 +12,24 @@ loop: true
 
 Loop cerrado. Escanea, clasifica y reporta. No requiere interaccion durante la ejecucion.
 
+## Precondiciones de Lanzamiento
+
+```bash
+# 1. Ejecutar desde raiz del repositorio
+test -f "package.json" && echo "OK: raiz del repo" || echo "FALLO: no es la raiz del proyecto"
+
+# 2. .gitignore existe y excluye .env
+grep -q "\.env" .gitignore 2>/dev/null && echo "OK: .env en gitignore" || echo "ADVERTENCIA: .env no esta en .gitignore"
+
+# 3. node_modules excluido del scan
+test -d "node_modules" && echo "OK: node_modules existe (se excluira del scan)" || echo "INFO: sin node_modules"
+
+# 4. Sin archivos sensibles ya trackeados
+git ls-files | grep -E "\.env$|\.key$|\.pem$" | head -3
+```
+
+Si se detectan archivos sensibles en git (paso 4): emitir `[PRECONDICION-CRITICA: archivo sensible trackeado]` y detener — no continuar hasta que el operador confirme.
+
 ## Protocolo de Ejecucion
 
 ### Paso 1 — Credenciales y secrets

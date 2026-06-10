@@ -12,6 +12,21 @@ loop: false
 
 Loop unico (no iterativo). Regenera el mapa y verifica. Termina en una sola ejecucion.
 
+## Precondiciones de Lanzamiento
+
+```bash
+# 1. generate-map.js existe y es ejecutable
+test -f ".claude/bin/generate-map.js" && echo "OK: generate-map.js" || echo "FALLO: script no encontrado"
+
+# 2. No hay regeneracion en curso (evitar doble ejecucion)
+pgrep -f "generate-map.js" | grep -v $$ | head -1 && echo "FALLO: regeneracion ya en curso" || echo "OK: sin proceso duplicado"
+
+# 3. Rama conocida
+git status --short | head -1
+```
+
+Si generate-map.js no existe: `[PRECONDICION-FALLO: script de mapa no encontrado]` y terminar.
+
 ## Protocolo de Ejecucion
 
 ### Paso 1 — Detectar drift
