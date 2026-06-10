@@ -67,7 +67,20 @@ node .claude/bin/validate-map.js 2>&1 | head -5
 
 Si reporta drift >= 3 archivos y el mapa no se regenero automaticamente → hallazgo alto.
 
-### Paso 5 — Reporte
+### Paso 5 — Scoring y delta
+
+```bash
+node .claude/bin/aiops-score.js
+```
+
+El scorer calcula 6 dimensiones (routing, hooks, skills, drift, seguridad, agentes) con score 0-10 cada una y muestra el delta vs la ejecucion anterior. Persiste el historial en `.claude/AIOPS_SCORE_HISTORY.json`.
+
+Interpretar el output:
+- Dimension con delta negativo → incluir en ACCIONES_REQUERIDAS con prioridad alta
+- Dimension en 0-5 → hallazgo critico independientemente del delta
+- Total < 7 → `ESTADO: CRITICO`; 7-8 → `ESTADO: ADVERTENCIAS`; 9-10 → `ESTADO: OK`
+
+### Paso 6 — Reporte consolidado
 
 ```
 [AIOPS-AUDIT] <fecha> | ai-core v<version>
@@ -76,6 +89,7 @@ SKILLS: <N>/32 conformes
 AGENTES: <N> presentes | <N> faltantes
 SDK-DRIFT: <paquetes desactualizados o "ninguno">
 MAPA: OK | DRIFT(<N> archivos)
+SCORE: <total>/10 (<delta> vs anterior)
 
 ACCIONES_REQUERIDAS:
 - [ ] <accion concreta con archivo y linea si aplica>
