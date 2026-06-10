@@ -2,8 +2,8 @@
 name: ux-visual-designer
 description: Disenador UX/Visual de nivel produccion. Cubre design systems desde cero (tokens, componentes, documentacion), brand identity (logotipo, paleta, tipografia, iconografia), motion design con principios de Material Motion y Disney 12 principios, accesibilidad visual WCAG 2.2 AA/AAA, diagramas de flujo UX, wireframes en texto/ASCII, especificaciones Figma-ready y handoff de diseno a codigo. Diferenciado de tech-lead-frontend (implementacion) — este skill gobierna las decisiones de diseno previas al codigo. Activa al disenar la identidad visual de un producto, crear un design system desde cero, definir la experiencia de usuario antes de implementar, auditar accesibilidad visual, o producir especificaciones de diseno para el equipo de frontend.
 origin: ai-core
-version: 1.0.0
-last_updated: 2026-06-05
+version: 1.1.0
+last_updated: 2026-06-10
 ---
 
 # UX Visual Designer — Diseño de Nivel Produccion
@@ -11,6 +11,28 @@ last_updated: 2026-06-05
 Gobierna las decisiones de diseño visual, experiencia de usuario y sistema de diseño antes de que el código exista. Su output son especificaciones accionables, tokens de diseño y principios de identidad que el skill `tech-lead-frontend` implementa. No es un skill de implementacion — es el skill de decisiones de diseño.
 
 Complementos: `tech-lead-frontend` (implementacion de los tokens y componentes), `seo-sem-specialist` (diseño orientado a conversion y landing pages), `doc-builder` (documentacion de design system para clientes).
+
+## Declaracion de Identidad Visual Obligatoria (Anti-Plantilla)
+
+Antes de producir cualquier decision de diseno, token o especificacion, declarar en una sola linea:
+
+```
+IDENTIDAD: [direccion-estetica] | TIPOGRAFIA: [fuente-no-prohibida] | PALETTE: [3 hex] | MOTION: [filosofia]
+```
+
+Ejemplo: `IDENTIDAD: editorial-minimal | TIPOGRAFIA: Instrument Serif + DM Sans | PALETTE: #0A0A0A #F5F0E8 #C4491A | MOTION: easing-out lento, sin decoracion`
+
+**Fuentes prohibidas por sobreuso (generan slop visual):** Inter, Roboto, Arial, Space Grotesk, Montserrat, Poppins en weight regular sin contexto editorial.
+
+**Directions esteticas validas (elegir una y comprometerse):**
+- `editorial-minimal` — tipografia grande, espacio negativo abundante, una sola fuente serif
+- `brutalista-funcional` — contraste extremo, tipografia monospace, bordes sin radio, colores raw
+- `maximalista-expresivo` — capas, texturas, colores saturados, jerarquia visual por densidad
+- `retro-futurista` — gradientes de neones sobre oscuro, fuentes condensadas, grid asimetrico
+- `organico-tactil` — paleta tierra, radios grandes, sombras suaves, fuentes humanistas
+- `data-denso` — tablas con precision, tipografia variable, color como dato no decoracion
+
+**Nunca defaultear a:** cards con sombra sutil + Inter + gradiente violeta/azul + border-radius 8px. Ese patron es el fingerprint de slop 2026.
 
 ## Cuando Activar Este Perfil
 
@@ -351,6 +373,26 @@ Un diseno que falla en cualquier punto no pasa al equipo de frontend.
 - [ ] Especificacion de handoff incluye todos los estados de cada componente interactivo.
 - [ ] Motion design documentado con duracion, easing y condicion de reduccion de movimiento.
 - [ ] Jerarquia tipografica verificada: una sola H1 por vista, no saltar niveles.
+
+## Motion Vocabulary (Anti-Generic)
+
+Especificar siempre con este vocabulario — no con descriptores vagos como "suave" o "rapido":
+
+| Intencion | Easing recomendado | Duracion | Libreria |
+|---|---|---|---|
+| Entrada de elemento principal | `cubic-bezier(0.16,1,0.3,1)` (spring out) | 600-800ms | Framer Motion / GSAP |
+| Feedback de click / tap | `cubic-bezier(0.34,1.56,0.64,1)` (overshoot) | 150-200ms | CSS / Tailwind Motion |
+| Salida / dismiss | `cubic-bezier(0.7,0,1,1)` (ease-in acelerado) | 200-300ms | cualquiera |
+| Transicion de pagina | `cubic-bezier(0.83,0,0.17,1)` | 400ms | Framer Motion |
+| Animacion de datos / SVG | GSAP con `stagger: 0.05` | depende del dataset | GSAP |
+
+**Principios Disney aplicados al web (vocabulario de prompt obligatorio):**
+- `anticipacion` — el elemento se prepara antes de moverse (escala 0.95 antes de expand)
+- `follow-through` — partes secundarias continuan moviendose despues del elemento principal
+- `stagger` — elementos en lista no animan todos a la vez sino con offset calculado
+- `squash-stretch` — feedback de interaccion tiene deformacion sutil (scale X/Y asimetrico)
+
+Libreria por caso de uso: Tailwind Motion (5KB) para interacciones simples; Framer Motion (React, scroll complejo); GSAP (SVG, data-viz, ilustracion animada). El LLM recibe esta decision como input — no la toma sin contexto.
 
 ## Restricciones del Perfil
 

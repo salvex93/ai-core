@@ -40,13 +40,17 @@ const SENALES_ARCHITECT = [
 
 const SENALES_CODER = [
   /escribe.*codigo|genera.*codigo|crea.*funcion|implementa.*funcion/i,
+  /crea.*componente|crea.*archivo|crea.*clase|crea.*modulo|genera.*componente/i,
   /parsea|resume|extrae|convierte|transforma/i,
-  /comando|shell|bash|script|npm run|node /i,
+  /comando|shell|bash|script|npm\b|node\b/i,   // npm test, npm install, node script, etc.
   /arregla|fix|corrige|parchea|patch/i,
   /agrega.*linea|modifica.*linea|cambia.*en.*archivo/i,
-  /refactoriza\b|refactor\b/i,   // refactor simple → Coder (Gemini/Haiku/Sonnet segun volumen)
-  /que es|como funciona|explica.*brevemente|en que consiste/i,  // preguntas cortas → Haiku
-  /responde|dime|cual.*es|cuanto.*cuesta/i,                     // prosa conversacional corta
+  /refactoriza\b|refactor\b/i,
+  /que es|como funciona|explica.*brevemente|en que consiste/i,
+  /responde|dime|cual.*es|cuanto.*cuesta/i,
+  /arranca.*esto|ejecuta|corre\b|lanza\b|aplica\b/i,           // "arrancamos con esto", "ejecutalo"
+  /si por favor|hazlo|perfecto.*ahora|listo.*con/i,             // confirmaciones de tarea Coder
+  /mejora\b|actualiza\b|potencia\b|optimiza\b|sube.*version/i, // "mejora los skills", "optimiza"
 ];
 
 // Herramienta MCP recomendada por combinacion de rol + tipo de tarea
@@ -165,7 +169,8 @@ function clasificar(mensajeUsuario) {
     };
   }
 
-  if (puntosArchitect >= puntosCoder && puntosArchitect > 0) {
+  // Empate Architect/Coder: Coder gana si la confianza es baja (preguntas cortas conversacionales)
+  if (puntosArchitect > puntosCoder && puntosArchitect > 0) {
     const subtipo    = inferirSubtipoArchitect(texto);
     const herramienta = HERRAMIENTA_POR_INTENT[`${ROLES.ARCHITECT}_${subtipo}`];
     return {

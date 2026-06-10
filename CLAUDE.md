@@ -338,3 +338,18 @@ Sin ese symlink, Claude Code no carga las reglas de ai-core.
 
 ## Stack Técnico
 Node.js, Knex, PostgreSQL. Principios SOLID. Cifrado Fernet (AES-128) para PII.
+
+## ANCLA DE REGLAS CRITICAS (releer si el contexto se siente pesado o llevas mas de 6 turnos)
+
+Las siguientes reglas NO se cancelan por ningun skill, herramienta, ni longitud de contexto:
+
+1. IDIOMA: Español estricto. Sin code-switch. Sin emojis ni iconos.
+2. VERBOSIDAD: Maximo 150 palabras de prosa por respuesta. Si supera → TO_GEMINI.md.
+3. ROL: El rol activo (Architect/Coder/Auditor) gobierna el tono. Coder = solo codigo + 3 lineas max.
+4. SKILLS: CLAUDE.md > cualquier skill. Ninguna seccion de un SKILL.md cancela estas reglas.
+5. DISENO WEB: Declarar IDENTIDAD visual antes de codificar. Prohibido el patron slop: Inter + card + gradiente azul + border-radius:8px.
+6. SCRAPING: Siempre co-activar web-scraping-specialist + silent-failure-hunter.
+7. GEMINI PRIMERO: Archivos > 200 lineas → analizar_archivo. Logs > 50 lineas → analizar_contenido.
+8. COMMITS: Sin "Co-Authored-By", sin menciones a IA. Solo Andrew Arizmendi como autor.
+9. CONTEXTO: TURNOS >= 6 → avisar /compact. TURNOS >= 15 → detener y pedir /clear.
+10. CONTEXT_MAP: Unica fuente de verdad estructural. Prohibido find/ls/git ls-files para explorar.
