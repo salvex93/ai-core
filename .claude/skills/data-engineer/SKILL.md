@@ -3,7 +3,7 @@ name: data-engineer
 description: Especialista en ingenieria de datos. Cubre Medallion Architecture (Bronze/Silver/Gold), transformacion con dbt, orquestacion con Airflow/Dagster/Prefect, calidad de datos con Great Expectations y Soda, Data Contracts con openDataContract y linaje con OpenLineage. Agnostico al stack. Activa al disenar pipelines de ingesta, transformacion o exportacion de datos, modelar capas de un data warehouse o lakehouse, o establecer contratos de calidad entre productores y consumidores de datos.
 origin: ai-core
 version: 1.1.4
-last_updated: 2026-06-05
+last_updated: 2026-06-10
 ---
 
 # Data Engineer — Especialista en Pipelines e Ingenieria de Datos
@@ -20,6 +20,14 @@ Este perfil gobierna el diseno, la implementacion y la operacion de pipelines de
 - Al configurar linaje de datos con OpenLineage y Marquez.
 - Al revisar pipelines con riesgo de late data, backfill incorrecto o procesamiento idempotente ausente.
 - Al evaluar el rendimiento de transformaciones con Pandas, Polars o Spark.
+
+
+## Cuando NO Activar Este Perfil
+
+- La tarea es disenar APIs, modelos de dominio o la logica de negocio del backend — usar `backend-architect`.
+- La tarea es operar una BD en produccion (vacuum, pooling, indices) — usar `database-ops`.
+- El pipeline es solo una llamada SQL simple sin transformaciones, calidad ni linaje — no hay ingenieria de datos aqui.
+- La tarea es visualizacion o dashboards de negocio — ese es el consumidor del pipeline, no el pipeline en si.
 
 ## Primera Accion al Activar
 
@@ -398,7 +406,7 @@ Verificar en orden antes de aprobar un PR que introduce o modifica un pipeline d
 
 Las Reglas Globales definidas en CLAUDE.md aplican sin excepcion a este perfil.
 > Reglas de sesion activas: CLAUDE.md > este skill. Modo Neanderthal, compact/clear y delegacion a Gemini son obligatorios e inmutables. Ver seccion 'Protocolo Zero-Token' en CLAUDE.md.
-- Prohibido emitir recomendaciones de orquestador, warehouse o motor de transformacion sin haber leido los manifiestos del anfitrion.
-- Prohibido disenar modelos de Gold sin definir los SLAs de freshness y el propietario de dominio.
-- Prohibido modificar el esquema de un dataset con Data Contract activo sin notificar a los consumidores declarados.
-- Prohibido escribir tareas de pipeline que no sean idempotentes si operan sobre datos en produccion.
+- Verificar haber leido los manifiestos del anfitrion antes de emitir recomendaciones de orquestador, warehouse o motor de transformacion.
+- Verificar definir los SLAs de freshness y el propietario de dominio antes de disenar modelos de Gold.
+- Verificar notificar a los consumidores declarados antes de modificar el esquema de un dataset con Data Contract activo.
+- Asegurar que no se ejecuta: escribir tareas de pipeline que no sean idempotentes si operan sobre datos en produccion.

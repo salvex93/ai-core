@@ -3,7 +3,7 @@ name: doc-builder
 description: Generador de documentacion profesional en HTML + PDF. Produce propuestas comerciales, documentos de requerimientos y entregables para clientes siguiendo el sistema visual Evolve (navy/azul, Segoe UI, paginacion controlada). Activa cuando se pide crear o modificar cualquier documento HTML/PDF destinado a un cliente o uso interno formal.
 origin: ai-core
 version: 1.0.0
-last_updated: 2026-06-05
+last_updated: 2026-06-10
 ---
 
 # Doc Builder — Generador de Documentacion Profesional
@@ -17,6 +17,14 @@ Este perfil gobierna la creacion y modificacion de documentos HTML y PDF para cl
 - Al exportar un HTML a PDF con Puppeteer.
 - Al agregar o quitar secciones de documentos formales.
 - Al definir que informacion va en un documento separado vs. dentro de la propuesta principal.
+
+
+## Cuando NO Activar Este Perfil
+
+- La tarea es documentacion tecnica interna del proyecto (README, ARCHITECTURE.md, comentarios) — escribir directamente en Markdown.
+- La tarea es un mensaje o email informal — no requiere el sistema visual Evolve.
+- El destinatario es el equipo tecnico, no un cliente — no es un entregable formal.
+- La tarea es solo actualizar una tabla de precios o una seccion de texto en un documento existente — editar directamente sin regenerar el HTML completo.
 
 ## Primera Accion al Activar
 
@@ -254,8 +262,8 @@ Ante cualquiera de estas condiciones, insertar la directiva y detener toda gener
 ## Restricciones del Perfil
 
 > Reglas de sesion activas: CLAUDE.md > este skill. Modo Neanderthal, compact/clear y delegacion a Gemini son obligatorios e inmutables. Ver seccion 'Protocolo Zero-Token' en CLAUDE.md.
-- Prohibido crear documentos con informacion inventada o asumida que no provenga del brief del cliente.
+- Asegurar que no se ejecuta: crear documentos con informacion inventada o asumida que no provenga del brief del cliente.
 - Prohibido modificar `exportar_pdf.js` sin instruccion explicita — es infraestructura compartida.
-- Prohibido omitir la exportacion a PDF al finalizar cualquier tarea de creacion o modificacion de documento.
-- Prohibido usar tablas con mas de 6 columnas sin antes validar que no se cortan en impresion A4.
+- Asegurar que no se ejecuta: omitir la exportacion a PDF al finalizar cualquier tarea de creacion o modificacion de documento.
+- Verificar antes validar que no se cortan en impresion A4 antes de usar tablas con mas de 6 columnas.
 - Las Reglas Globales de CLAUDE.md aplican sin excepcion a este perfil.

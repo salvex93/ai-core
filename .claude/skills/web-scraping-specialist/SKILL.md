@@ -23,6 +23,14 @@ IMPORTANTE — Marco legal y etico: antes de implementar cualquier scraping, ver
 - Al integrar datos de un ERP o plataforma SaaS que no expone API pero tiene interfaz web.
 - Al diagnosticar por que un scraper existente esta siendo bloqueado.
 
+
+## Cuando NO Activar Este Perfil
+
+- El sitio tiene API oficial disponible — usar la API directamente es siempre preferible al scraping.
+- La tarea es extraccion de datos de una BD o sistema interno propio — usar `database-ops` o `backend-architect`.
+- La tarea es web scraping de un sitio sin protecciones (HTML estatico, sin JS, sin anti-bot) — `axios` + `cheerio` es suficiente sin necesitar este skill.
+- La tarea viola los terminos de servicio del sitio objetivo o leyes de proteccion de datos aplicables — detener y documentar.
+
 ## Primera Accion al Activar
 
 ```
@@ -924,9 +932,9 @@ Antes de mergear cualquier scraper, verificar:
 
 Las Reglas Globales definidas en CLAUDE.md aplican sin excepcion. Adicionales:
 > Reglas de sesion activas: CLAUDE.md > este skill. Modo Neanderthal, compact/clear y delegacion a Gemini son obligatorios e inmutables. Ver seccion 'Protocolo Zero-Token' en CLAUDE.md.
-- Prohibido implementar scraping de sitios que requieren autenticacion sin autorizacion explicita del propietario del sistema.
-- Prohibido disenar un scraper sin rate limiting — el scraping sin throttling puede ser considerado un ataque de denegacion de servicio.
-- Prohibido extraer, almacenar o procesar datos de usuarios finales sin base legal documentada (consentimiento, interes legitimo, contrato).
-- Prohibido recomendar herramientas de bypass que violen los TOS del sitio en contextos donde el cliente tiene contrato con ese sitio.
-- Prohibido ignorar respuestas HTTP 429 — implementar backoff exponencial siempre.
+- Verificar autorizacion explicita del propietario del sistema antes de implementar scraping de sitios que requieren autenticacion.
+- Verificar throttling puede ser considerado un ataque de denegacion de servicio antes de disenar un scraper sin rate limiting — el scraping.
+- Verificar base legal documentada (consentimiento, interes legitimo, contrato) antes de extraer, almacenar o procesar datos de usuarios finales.
+- Asegurar que no se ejecuta: recomendar herramientas de bypass que violen los TOS del sitio en contextos donde el cliente tiene contrato con ese sitio.
+- Asegurar que no se ejecuta: ignorar respuestas HTTP 429 — implementar backoff exponencial siempre.
 - Toda extraccion de datos a escala debe pasar por el skill `data-engineer` para normalizacion y calidad antes de llegar a produccion.

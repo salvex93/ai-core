@@ -326,10 +326,8 @@ New-Item -ItemType SymbolicLink -Path './CLAUDE.md' -Target 'C:/ruta/a/ai-core/C
 │   ├── anthropic-bridge.js      Bridge Anthropic SDK con Prompt Caching y Model Router
 │   ├── mcp-gemini.js            Servidor MCP stdio — 5 herramientas de analisis via Gemini
 │   ├── gemini-bridge.js         CLI de respaldo para analisis Gemini sin MCP
-│   ├── context-monitor.js       Monitor de uso de contexto y alertas de compactacion
 │   ├── init-backlog.js          Crea BACKLOG.md en proyecto anfitrion si no existe
 │   ├── query-backlog.js         Filtra BACKLOG.md sin cargarlo en contexto
-│   ├── session-close.js         Persiste last_session.md al cerrar sesion
 │   └── dry-run-cost-sim.js      Simulador de costo sin llamadas reales
 ├── .claude/
 │   ├── settings.json            Template hooks + config MCP server

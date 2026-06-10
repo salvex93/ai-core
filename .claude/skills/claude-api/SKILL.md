@@ -3,7 +3,7 @@ name: claude-api
 description: Especialista en Claude API y Anthropic SDK (Python/TypeScript). Cubre prompt caching, extended thinking, tool use, streaming, Batch API, Files API, Citations API, modelos Opus/Sonnet/Haiku, migracion entre versiones de modelo y optimizacion de costo por token. Activa al escribir codigo que importa anthropic/@anthropic-ai/sdk, disenar pipelines con cache de prompts, implementar tool use nativo, o migrar entre versiones de Claude.
 origin: ai-core
 version: 1.1.0
-last_updated: 2026-06-05
+last_updated: 2026-06-10
 ---
 
 # Claude API Specialist
@@ -16,6 +16,14 @@ last_updated: 2026-06-05
 - Migracion de modelo: Haiku 4.5 → Sonnet 4.6 → Opus 4.8, o reemplazo de modelos retirados.
 - Disenar system prompts con cache para reducir costo en sesiones largas.
 - Uso de Citations API para documentos estructurados o Files API para contexto persistente.
+
+
+## Cuando NO Activar Este Perfil
+
+- El codigo usa OpenAI, Gemini u otro proveedor — este skill es especifico de Anthropic SDK.
+- La tarea es diseno del prompt, no la implementacion de la llamada — usar `prompt-engineer`.
+- La tarea es integrar el LLM como feature completa de producto (endpoint, streaming, fallback) — usar `ai-integrations`.
+- La tarea es construir un agente con herramientas — usar `claude-agent-sdk`.
 
 ## Primera Accion al Activar
 
@@ -306,8 +314,8 @@ Activar ante:
 ## Restricciones del Perfil
 
 > Reglas de sesion activas: CLAUDE.md > este skill. Modo Neanderthal, compact/clear y delegacion a Gemini son obligatorios e inmutables. Ver seccion 'Protocolo Zero-Token' en CLAUDE.md.
-- Prohibido responder en ingles (Regla 1 de CLAUDE.md).
-- Prohibido usar emojis o adornos visuales (Regla 2 de CLAUDE.md).
+- Responder exclusivamente en espanol (Regla 1 de CLAUDE.md).
+- Mantener ausencia de emojis y adornos visuales (Regla 2 de CLAUDE.md).
 - Prohibido leer archivos completos sin consultar CONTEXT_MAP primero (Regla 3 de CLAUDE.md).
 - Prohibido agregar logica no solicitada (Regla 4 de CLAUDE.md).
 - Solo mostrar diffs o bloques minimos — nunca repetir codigo que el usuario ya tiene.

@@ -3,7 +3,7 @@ name: database-ops
 description: Especialista en operaciones de base de datos en produccion. Cubre migraciones zero-downtime, analisis de query plans, particionamiento, vacuuming PostgreSQL, connection pooling con PgBouncer, backup/restore, y observabilidad de queries lentas. Diferenciado de backend-architect (diseño de esquemas) y data-engineer (pipelines ETL). Activa al diagnosticar degradacion de performance en BD, planificar migraciones en produccion, configurar pooling o definir estrategias de backup.
 origin: ai-core
 version: 1.0.0
-last_updated: 2026-06-05
+last_updated: 2026-06-10
 ---
 
 # Database Ops — Especialista en Operaciones de BD en Produccion
@@ -18,6 +18,14 @@ Responsabilidad unica: mantener bases de datos en produccion saludables, perform
 - Al definir estrategia de backup, punto de recuperacion (RPO) y tiempo de recuperacion (RTO).
 - Al auditar el uso de indices, bloat de tablas o configuracion de autovacuum.
 - Al escalar PostgreSQL: particionamiento, replicacion, sharding logico con Citus.
+
+
+## Cuando NO Activar Este Perfil
+
+- La tarea es disenar el esquema de la base de datos o las migraciones iniciales — usar `backend-architect`.
+- La tarea es construir pipelines ETL o transformaciones de datos — usar `data-engineer`.
+- La base de datos es nueva y esta en desarrollo local — las tecnicas de produccion (vacuum, pooling, particionamiento) no aplican todavia.
+- La tarea es elegir entre PostgreSQL vs MongoDB vs Redis — esa decision es de `backend-architect`.
 
 ## Primera Accion al Activar
 
@@ -251,7 +259,7 @@ Detener el analisis e insertar la directiva ante cualquiera de estas condiciones
 
 > Reglas de sesion activas: CLAUDE.md > este skill. Modo Neanderthal, compact/clear y delegacion a Gemini son obligatorios e inmutables. Ver seccion 'Protocolo Zero-Token' en CLAUDE.md.
 - Toda recomendacion de migracion en produccion debe incluir el paso de rollback correspondiente.
-- Prohibido sugerir `DROP INDEX` sin verificar primero que el indice no es FK o constraint.
-- Prohibido sugerir `VACUUM FULL` en tablas con trafico activo — genera lock exclusivo.
+- Verificar verificar primero que el indice no es FK o constraint antes de sugerir `DROP INDEX`.
+- Asegurar que no se ejecuta: sugerir `VACUUM FULL` en tablas con trafico activo — genera lock exclusivo.
 - No cruzar responsabilidades con `backend-architect` (diseño de dominio) ni `data-engineer` (ETL/dbt).
 - Las Reglas Globales del CLAUDE.md aplican sin excepcion.

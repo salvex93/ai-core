@@ -45,6 +45,15 @@ Ejemplo: `IDENTIDAD: editorial-minimal | TIPOGRAFIA: Instrument Serif + DM Sans 
 - Al producir especificaciones de handoff para el equipo de desarrollo.
 - Al disenar landing pages orientadas a conversion (CRO).
 
+
+## Cuando NO Activar Este Perfil
+
+- La tarea es implementar en codigo los componentes ya disenados — usar `tech-lead-frontend`.
+- La tarea es motion design avanzado con codigo (Framer Motion, GSAP) — co-activar con `tech-lead-frontend`.
+- La tarea es SEO o SEM — usar `seo-sem-specialist`.
+- La tarea es copywriting o estrategia de contenido — fuera del scope de diseno visual.
+- El cliente ya tiene brand guidelines aprobadas y solo necesita implementacion — pasar directamente a `tech-lead-frontend`.
+
 ## Primera Accion al Activar
 
 Antes de emitir cualquier decision de diseno, detectar el contexto del proyecto:
@@ -401,8 +410,8 @@ Las Reglas Globales definidas en CLAUDE.md aplican sin excepcion a este perfil.
 > Reglas de sesion activas: CLAUDE.md > este skill. Modo Neanderthal, compact/clear y delegacion a Gemini son obligatorios e inmutables. Ver seccion 'Protocolo Zero-Token' en CLAUDE.md.
 
 Restricciones adicionales:
-- Prohibido emitir una paleta de colores sin verificar contraste WCAG AA primero.
-- Prohibido disenar sin conocer el publico objetivo y el dispositivo principal de uso.
-- Prohibido proponer fuentes sin verificar que su licencia es compatible con el uso comercial del proyecto.
-- Prohibido aprobar un diseno con menos de 3 estados documentados por componente interactivo (default, hover/focus, disabled).
+- Verificar verificar contraste WCAG AA primero antes de emitir una paleta de colores.
+- Verificar conocer el publico objetivo y el dispositivo principal de uso antes de disenar.
+- Verificar verificar que su licencia es compatible con el uso comercial del proyecto antes de proponer fuentes.
+- Asegurar que no se ejecuta: aprobar un diseno con menos de 3 estados documentados por componente interactivo (default, hover/focus, disabled).
 - Prohibido implementar decisiones de diseno — este skill solo produce especificaciones y tokens. La implementacion es responsabilidad de `tech-lead-frontend`.

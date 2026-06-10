@@ -3,7 +3,7 @@ name: ai-integrations
 description: Especialista en integracion de LLMs en aplicaciones de produccion. Cubre diseno de features de IA, gestion de costos por token, prompt versioning, streaming, fallback entre proveedores y evaluacion de outputs. Agnostico al proveedor. Activa al integrar Claude, Gemini u otro LLM en un proyecto anfitrion, disenar endpoints de IA o gestionar costos de inferencia.
 origin: ai-core
 version: 2.3.0
-last_updated: 2026-06-05
+last_updated: 2026-06-10
 ---
 
 # AI Integrations — Especialista en Features de IA en Produccion
@@ -19,6 +19,15 @@ Governa la implementacion de features de IA en proyectos anfitriones. Dominio: a
 - Al definir estrategia de fallback entre proveedores.
 - Al evaluar calidad de outputs con metricas automatizadas o humanas.
 - Al revisar un PR que integra un LLM (manejo de errores, timeouts, rate limits, costos).
+
+
+## Cuando NO Activar Este Perfil
+
+- La tarea es escribir o refactorizar el prompt del LLM — usar `prompt-engineer`.
+- La tarea es medir si los outputs del LLM son correctos — usar `llm-evals`.
+- La tarea es usar directamente el SDK de Anthropic con caching, tool use o streaming avanzado — usar `claude-api`.
+- La tarea es construir un agente con herramientas — usar `claude-agent-sdk` o `managed-agents-specialist`.
+- El proyecto no tiene LLM — no hay nada que integrar aqui.
 
 ## Primera Accion al Activar
 
@@ -298,7 +307,7 @@ Registrar en cada respuesta: `thinking_tokens_used`, `budget_remaining`, `step_c
 ## Restricciones del Perfil
 
 > Reglas de sesion activas: CLAUDE.md > este skill. Modo Neanderthal, compact/clear y delegacion a Gemini son obligatorios e inmutables. Ver seccion 'Protocolo Zero-Token' en CLAUDE.md.
-- Prohibido llamar SDK del proveedor desde capa de negocio sin LLM Gateway intermedio.
-- Prohibido incluir archivos > 500 lineas en prompts sin pasar primero por Gemini Bridge.
-- Prohibido desplegar cambios de prompt sin ejecutar el conjunto de evaluacion documentado.
-- Prohibido omitir logging de tokens en cualquier llamada LLM en produccion.
+- Verificar LLM Gateway intermedio antes de llamar SDK del proveedor desde capa de negocio.
+- Verificar pasar primero por Gemini Bridge antes de incluir archivos > 500 lineas en prompts.
+- Verificar ejecutar el conjunto de evaluacion documentado antes de desplegar cambios de prompt.
+- Asegurar que no se ejecuta: omitir logging de tokens en cualquier llamada LLM en produccion.

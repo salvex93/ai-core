@@ -3,7 +3,7 @@ name: ai-guardrails
 description: Especialista en capas de proteccion para sistemas LLM en produccion. Cubre deteccion y bloqueo de prompt injection, validacion de outputs, deteccion de PII, rate limiting por usuario, patron LLM Firewall y seleccion de frameworks (NeMo Guardrails, Guardrails AI, Azure AI Content Safety). Complementa security-auditor (seguridad de aplicacion) y llm-observability (deteccion reactiva). Activa al disenar la capa de proteccion de un sistema LLM, implementar filtros de input/output, o definir politicas de uso aceptable.
 origin: ai-core
 version: 1.1.0
-last_updated: 2026-06-05
+last_updated: 2026-06-10
 ---
 
 # AI Guardrails
@@ -19,6 +19,15 @@ Este perfil gobierna la capa de proteccion activa de sistemas LLM en produccion.
 - Al implementar deteccion de PII en inputs de usuario o en outputs del modelo.
 - Al definir rate limiting especifico para endpoints de inference LLM.
 - Al integrar guardrails con el sistema de observabilidad LLM del proyecto.
+
+
+## Cuando NO Activar Este Perfil
+
+- La tarea es auditar seguridad de la aplicacion (SQLi, XSS, dependencias CVE) — usar `security-auditor`.
+- La tarea es instrumentar logs y dashboards del sistema LLM — usar `llm-observability`.
+- La tarea es medir la calidad de los outputs del LLM (faithfulness, alucinaciones) — usar `llm-evals`.
+- El sistema no tiene usuarios externos — los guardrails son para endpoints expuestos al publico.
+- La tarea es rate limiting general de la API (sin relacion al LLM) — usar `devops-infra` o `backend-architect`.
 
 ## Primera Accion al Activar
 
@@ -226,6 +235,6 @@ Verificar en orden antes de aprobar un PR que modifica la capa de guardrails:
 
 Las Reglas Globales definidas en CLAUDE.md aplican sin excepcion a este perfil.
 > Reglas de sesion activas: CLAUDE.md > este skill. Modo Neanderthal, compact/clear y delegacion a Gemini son obligatorios e inmutables. Ver seccion 'Protocolo Zero-Token' en CLAUDE.md.
-- Prohibido emitir recomendaciones de guardrails sin haber identificado el punto de entrada del usuario al LLM en el codigo del anfitrion.
-- Prohibido proponer deshabilitar o reducir guardrails existentes sin justificacion documentada y aprobacion explicita del responsable del producto.
+- Verificar haber identificado el punto de entrada del usuario al LLM en el codigo del anfitrion antes de emitir recomendaciones de guardrails.
+- Verificar justificacion documentada y aprobacion explicita del responsable del producto antes de proponer deshabilitar o reducir guardrails existentes.
 - Ante deteccion de ausencia total de guardrails en un sistema LLM expuesto a usuarios externos, notificarlo como hallazgo critico antes de continuar con cualquier otra tarea.

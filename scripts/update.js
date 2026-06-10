@@ -78,7 +78,7 @@ console.log(`\n[AI-CORE UPDATER] Version actual: ${versionAntes}`);
 console.log('[AI-CORE UPDATER] Iniciando actualizacion...\n');
 
 // PASO 1: git pull
-step('1/4 — Sincronizando con origin/main');
+step('1/5 — Sincronizando con origin/main');
 const pull = run('git', ['pull', 'origin', 'main'], { silent: false });
 if (pull.status !== 0) {
   fail('git pull fallo. Verifica tu conexion y que no haya cambios locales sin commitear.');
@@ -94,7 +94,7 @@ if (versionDespues !== versionAntes) {
 }
 
 // PASO 2: setup-settings.js (rutas locales)
-step('2/4 — Regenerando settings.json con rutas locales');
+step('2/5 — Regenerando settings.json con rutas locales');
 const setup = run('node', ['.claude/bin/setup-settings.js'], { silent: false });
 if (setup.status !== 0) {
   fail('setup-settings.js fallo. Verifica que Node >= 18 esta instalado.');
@@ -103,7 +103,7 @@ if (setup.status !== 0) {
 ok('settings.json regenerado.');
 
 // PASO 3: npm test
-step('3/4 — Ejecutando suite de tests (269 assertions)');
+step('3/5 — Ejecutando suite de tests (269 assertions)');
 const test = run('node', ['--test', 'tests/harness.test.js'], { silent: true });
 if (test.status !== 0) {
   fail('La suite de tests fallo. La actualizacion introdujo una regresion.\n');
@@ -114,8 +114,22 @@ if (test.status !== 0) {
 }
 ok('269/269 tests pasaron.');
 
-// PASO 4: validate-globals
-step('4/4 — Validando conformidad de skills con CLAUDE.md');
+// PASO 4: migrador de deprecaciones
+step('4/5 — Aplicando migraciones de version (eliminar deprecados)');
+if (versionDespues !== versionAntes) {
+  const migrate = run('node', ['scripts/migrator.js', '--from', versionAntes], { silent: true });
+  const migrateOut = (migrate.stdout || '') + (migrate.stderr || '');
+  console.log(migrateOut);
+  if (migrate.status !== 0) {
+    fail('migrator.js reporto errores. Revision requerida.');
+    process.exit(1);
+  }
+} else {
+  info('Sin cambio de version — migrador omitido.');
+}
+
+// PASO 5: validate-globals
+step('5/5 — Validando conformidad de skills con CLAUDE.md');
 const validate = run('node', ['.claude/bin/validate-globals.js', '--fix-drift'], { silent: true });
 const validateOut = (validate.stdout || '') + (validate.stderr || '');
 console.log(validateOut.split('\n').slice(0, 10).join('\n')); // primeras 10 lineas

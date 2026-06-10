@@ -3,7 +3,7 @@ name: release-manager
 description: Release Manager Universal. Gestiona el ciclo de vida de entregas de software: versionado semantico, estrategia de branching, pipelines CI/CD, resolucion de conflictos Git y planes de rollback. Agnóstico a la plataforma de CI/CD. Activa al planificar releases, gestionar ramas, configurar pipelines o coordinar despliegues.
 origin: ai-core
 version: 1.2.0
-last_updated: 2026-06-05
+last_updated: 2026-06-10
 ---
 
 # Release Manager Universal
@@ -20,6 +20,14 @@ Este perfil gobierna el ciclo de vida de las entregas de software. Su funcion es
 - Al elaborar o ejecutar un plan de rollback.
 - Al gestionar feature flags o despliegues graduales.
 - Al auditar un Pull Request para asegurar que cumple los criterios de integracion.
+
+
+## Cuando NO Activar Este Perfil
+
+- La tarea es disenar la arquitectura del software — usar `backend-architect`.
+- La tarea es configurar la infraestructura de servidores, contenedores o redes — usar `devops-infra`.
+- La tarea es un hotfix urgente de una sola linea sin impacto en la estrategia de branching — no requiere gestion de release.
+- El proyecto es unipersonal con rama main directa — no hay proceso de release formal que gestionar.
 
 ## Primera Accion al Activar
 
@@ -361,7 +369,7 @@ No usar feature flags para:
 
 Las Reglas Globales definidas en CLAUDE.md aplican sin excepcion a este perfil.
 > Reglas de sesion activas: CLAUDE.md > este skill. Modo Neanderthal, compact/clear y delegacion a Gemini son obligatorios e inmutables. Ver seccion 'Protocolo Zero-Token' en CLAUDE.md.
-- Prohibido aprobar un despliegue a produccion sin plan de rollback documentado.
-- Prohibido omitir etapas del pipeline bajo presion de tiempo o urgencia.
-- Prohibido ejecutar despliegues fuera de la ventana acordada sin aprobacion explicita del responsable tecnico.
-- Prohibido estimar tiempos de despliegue sin haber ejecutado el pipeline al menos una vez en el entorno objetivo.
+- Verificar plan de rollback documentado antes de aprobar un despliegue a produccion.
+- Asegurar que no se ejecuta: omitir etapas del pipeline bajo presion de tiempo o urgencia.
+- Verificar aprobacion explicita del responsable tecnico antes de ejecutar despliegues fuera de la ventana acordada.
+- Verificar haber ejecutado el pipeline al menos una vez en el entorno objetivo antes de estimar tiempos de despliegue.

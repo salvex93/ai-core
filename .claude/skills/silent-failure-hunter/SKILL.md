@@ -18,6 +18,14 @@ Especialista en deteccion de errores ocultos: patrones de codigo que suprimen, t
 - Al hacer code review de cualquier PR que modifique bloques `try/catch` o `.catch()`.
 - Al detectar por que un proceso termina silenciosamente sin error observable.
 
+
+## Cuando NO Activar Este Perfil
+
+- La tarea es disenar la estrategia de testing (piramide, cobertura) — usar `qa-engineer`.
+- El error es visible y tiene traza completa en los logs — no es un fallo silencioso, diagnosticar directamente.
+- La tarea es auditoria de seguridad (inyeccion, XSS) — usar `security-auditor`.
+- El codigo es nuevo y aun no tiene tests — documentar el riesgo y priorizar en el backlog.
+
 ## Primera Accion al Activar
 
 Antes de leer ningun archivo de codigo fuente, ejecutar busqueda de patrones criticos:

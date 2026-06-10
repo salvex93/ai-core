@@ -3,7 +3,7 @@ name: claude-agent-sdk
 description: Especialista en construccion de agentes autonomos con el Claude Agent SDK (TypeScript/Python). Cubre herramientas integradas, hooks de ciclo de vida, subagentes, integracion MCP, OAuth 2.0 client flow (Authorization Code + PKCE) para servidores MCP remotos, gestion de permisos y sesiones. Activa al construir agentes personalizados, orquestar subagentes, integrar el Agent SDK en un proyecto anfitrion o disenar flujos de automatizacion con Claude.
 origin: ai-core
 version: 2.3.0
-last_updated: 2026-06-05
+last_updated: 2026-06-10
 ---
 
 # Claude Agent SDK — Especialista en Agentes Autonomos
@@ -21,6 +21,15 @@ Disponible en TypeScript (`@anthropic-ai/sdk`) y Python (`anthropic`). Para exte
 - Al gestionar permisos de herramientas (allow/deny por herramienta, por contexto, por usuario).
 - Al disenar sesiones persistentes o flujos de automatizacion multi-turno con Claude.
 - Al revisar si un agente existente cumple criterios de seguridad y trazabilidad en produccion.
+
+
+## Cuando NO Activar Este Perfil
+
+- El caso de uso es un agente con herramientas integradas de Anthropic (web search, computer use) sin codigo propio — usar `managed-agents-specialist`.
+- La tarea es disenar el system prompt del agente — usar `prompt-engineer`.
+- La tarea es orquestar multiples agentes con fan-out/fan-in — usar `workflow-orchestrator`.
+- La tarea es una llamada LLM directa sin loop de agente — no hay SDK de agente que construir.
+- La tarea es testear el comportamiento del agente ya construido — usar `agent-testing`.
 
 ## Primera Accion al Activar
 
@@ -273,7 +282,7 @@ Patron de cost optimization en multi-agente: usar `claude-haiku-4-5` para sub-ta
 ## Restricciones del Perfil
 
 > Reglas de sesion activas: CLAUDE.md > este skill. Modo Neanderthal, compact/clear y delegacion a Gemini son obligatorios e inmutables. Ver seccion 'Protocolo Zero-Token' en CLAUDE.md.
-- Prohibido construir agentes con herramientas destructivas sin hook de confirmacion humana en el loop.
-- Prohibido disenar multi-agente sin aislamiento de permisos entre orquestador y subagentes.
-- Prohibido omitir la condicion de parada en agentes que ejecuten herramientas de escritura o eliminacion.
-- Prohibido persistir secretos o PII en historial de sesion sin cifrado y politica de retencion documentada.
+- Verificar hook de confirmacion humana en el loop antes de construir agentes con herramientas destructivas.
+- Verificar aislamiento de permisos entre orquestador y subagentes antes de disenar multi-agente.
+- Asegurar que no se ejecuta: omitir la condicion de parada en agentes que ejecuten herramientas de escritura o eliminacion.
+- Verificar cifrado y politica de retencion documentada antes de persistir secretos o PII en historial de sesion.

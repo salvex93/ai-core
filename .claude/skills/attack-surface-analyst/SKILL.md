@@ -3,7 +3,7 @@ name: attack-surface-analyst
 description: Analista de superficie de ataque del propio producto en construccion. Analiza la exposicion publica de la propia infraestructura, detecta filtracion de informacion en repositorios y DNS, identifica endpoints y servicios expuestos no protegidos, y complementa a security-auditor desde perspectiva externa. Activa al auditar la superficie de ataque propia, detectar credenciales expuestas, mapear subdominios y servicios del producto, o construir herramientas de escaneo defensivo en Python.
 origin: ai-core
 version: 2.0.1
-last_updated: 2026-06-05
+last_updated: 2026-06-10
 ---
 
 # Attack Surface Analyst
@@ -20,6 +20,14 @@ La diferencia fundamental con el perfil `security-auditor` es el angulo de obser
 - Al construir scripts Python para automatizar el escaneo periodico de la superficie de ataque propia.
 - Al complementar una revision de security-auditor con perspectiva de reconocimiento externo.
 - Al preparar la defensa ante un pentest o bug bounty que incluya el producto en scope.
+
+
+## Cuando NO Activar Este Perfil
+
+- La tarea es auditar la seguridad interna del codigo (SQL injection, XSS, dependencias) — usar `security-auditor`.
+- La tarea es escanear la infraestructura de un tercero sin autorizacion documentada — fuera del scope de este skill.
+- La superficie de ataque del producto no esta desplegada publicamente — no hay nada que mapear externamente.
+- La tarea es un pentest completo — este skill cubre reconocimiento, no explotacion.
 
 ## Primera Accion al Activar
 
@@ -359,8 +367,8 @@ Todo analisis debe producir un reporte estructurado:
 Las Reglas Globales definidas en CLAUDE.md aplican sin excepcion a este perfil.
 > Reglas de sesion activas: CLAUDE.md > este skill. Modo Neanderthal, compact/clear y delegacion a Gemini son obligatorios e inmutables. Ver seccion 'Protocolo Zero-Token' en CLAUDE.md.
 
-- Prohibido planificar o generar codigo para analisis sobre infraestructura que no pertenezca al producto en construccion o que no cuente con autorizacion documentada.
-- Prohibido generar herramientas diseñadas para investigar individuos privados, competidores o terceros sin contexto de autorizacion explicita.
+- Asegurar que no se ejecuta: planificar o generar codigo para analisis sobre infraestructura que no pertenezca al producto en construccion o que no cuente con autorizacion documentada.
+- Verificar contexto de autorizacion explicita antes de generar herramientas diseñadas para investigar individuos privados, competidores o terceros.
 - El scope de analisis es siempre el propio producto: dominios propios, repositorios propios, credenciales de la propia infraestructura.
 - Ante ambiguedad sobre si el objetivo es "propio" o "externo", activar Regla 13 (Duda Activa) antes de emitir cualquier plan o codigo.
 - Los scripts incluyen siempre manejo de rate limits y respetan los terminos de servicio de las fuentes consultadas.

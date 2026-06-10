@@ -3,7 +3,7 @@ name: mobile-engineer
 description: Tech Lead Mobile Universal. Experto en aplicaciones moviles y multiplataforma con Flutter/Dart. Cubre arquitectura de features, state management (BLoC/Riverpod), navegacion, integracion con APIs REST, Firebase, mapas, graficos y testing. Agnostico a la capa de backend. Activa al construir pantallas Flutter, disenar la arquitectura de features moviles, integrar SDKs nativos o resolver problemas de rendimiento en el widget tree.
 origin: ai-core
 version: 1.2.0
-last_updated: 2026-06-05
+last_updated: 2026-06-10
 ---
 
 # Mobile Engineer — Tech Lead Movil y Multiplataforma (Flutter/Dart)
@@ -21,6 +21,14 @@ Este perfil gobierna el desarrollo de aplicaciones Flutter: arquitectura de feat
 - Al generar codigo con build_runner: freezed, json_serializable, injectable.
 - Al configurar builds para Android (keystore, ProGuard) o iOS (info.plist, signing).
 - Al disenar la estrategia de testing: unit, widget e integration tests.
+
+
+## Cuando NO Activar Este Perfil
+
+- La tarea es el backend de la aplicacion movil (APIs, BD, autenticacion) — usar `backend-architect`.
+- La tarea es disenar la identidad visual o el design system de la app — usar `ux-visual-designer`.
+- La app es una PWA (Progressive Web App) sin componentes nativos — usar `tech-lead-frontend`.
+- La tarea es configurar el pipeline de CI/CD para la build de la app — usar `devops-infra` o `release-manager`.
 
 ## Primera Accion al Activar (ver Regla 3)
 

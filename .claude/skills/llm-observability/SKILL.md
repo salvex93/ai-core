@@ -3,7 +3,7 @@ name: llm-observability
 description: Especialista en observabilidad de sistemas LLM en produccion. Cubre instrumentacion con OpenTelemetry, dashboards de costo por operacion, alertas de degradacion de calidad, tracing de prompts y completions, y plataformas de observabilidad IA (Langfuse, Helicone, Phoenix). Activa al instrumentar un sistema que usa LLMs, disenar dashboards de costo/calidad, configurar alertas de degradacion o diagnosticar regresiones de calidad en produccion.
 origin: ai-core
 version: 1.1.4
-last_updated: 2026-06-05
+last_updated: 2026-06-10
 ---
 
 # LLM Observability — Especialista en Observabilidad de Sistemas IA
@@ -20,6 +20,14 @@ Complementa al skill `ai-integrations` (integracion del LLM como feature) y al s
 - Al seleccionar una plataforma de observabilidad IA (Langfuse, Helicone, Phoenix by Arize, Weights and Biases Weave).
 - Al diagnosticar una regresion de calidad detectada en produccion: trazar la cadena prompt -> completion -> resultado de negocio.
 - Al revisar si un PR que integra un LLM incluye instrumentacion suficiente para operar en produccion.
+
+
+## Cuando NO Activar Este Perfil
+
+- La tarea es deteccion y bloqueo de comportamiento malicioso en el LLM — usar `ai-guardrails`.
+- La tarea es medir la calidad semantica de los outputs (faithfulness, alucinaciones) — usar `llm-evals`.
+- La tarea es configurar observabilidad de infraestructura general (CPU, memoria, latencia HTTP) — usar `devops-infra`.
+- El sistema LLM esta en desarrollo local sin trafico real — la observabilidad de produccion no es necesaria todavia.
 
 ## Primera Accion al Activar
 
@@ -335,7 +343,7 @@ Verificar en orden antes de aprobar un PR que introduce o modifica un sistema LL
 
 Las Reglas Globales definidas en CLAUDE.md aplican sin excepcion a este perfil.
 > Reglas de sesion activas: CLAUDE.md > este skill. Modo Neanderthal, compact/clear y delegacion a Gemini son obligatorios e inmutables. Ver seccion 'Protocolo Zero-Token' en CLAUDE.md.
-- Prohibido enviar prompts con PII a plataformas SaaS de observabilidad sin revision legal documentada del DPA del proveedor.
-- Prohibido configurar metricas de costo sin una estimacion de costo base calibrada contra la tarifa real del proveedor activo.
+- Verificar revision legal documentada del DPA del proveedor antes de enviar prompts con PII a plataformas SaaS de observabilidad.
+- Verificar una estimacion de costo base calibrada contra la tarifa real del proveedor activo antes de configurar metricas de costo.
 - Prohibido implementar alertas sin umbrales numericos definidos. Una alerta sin umbral no es accionable.
-- Prohibido reemplazar la plataforma de observabilidad activa sin estrategia de correlacion del historial de metricas anteriores.
+- Verificar estrategia de correlacion del historial de metricas anteriores antes de reemplazar la plataforma de observabilidad activa.

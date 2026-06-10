@@ -1,0 +1,20 @@
+{
+  "3.9.0": {
+    "remove": [
+      {
+        "path": "scripts/context-monitor.js",
+        "reason": "Reemplazado por bloque ANCLA en CLAUDE.md + avisos de telemetria de contexto integrados en el system prompt. Ya no se ejecuta desde ningun hook."
+      },
+      {
+        "path": "scripts/session-close.js",
+        "reason": "Reemplazado por .claude/bin/session-summary.js (hook Stop) y el sistema de memoria persistente en .claude/projects/. session-close.js persistia en BACKLOG.md que ya no es la fuente de verdad."
+      }
+    ],
+    "warn": [
+      {
+        "path": "BACKLOG.md",
+        "reason": "El BACKLOG.md del anfitrion fue la fuente de estado de sesion hasta v3.8. Desde v3.9 el estado se gestiona via memory/ y EVENTS_QUEUE.json. Puedes eliminar BACKLOG.md si no lo usas para otro fin."
+      }
+    ]
+  }
+}

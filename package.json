@@ -17,6 +17,8 @@
     "validate-globals": "node .claude/bin/validate-globals.js",
     "score": "node .claude/bin/aiops-score.js",
     "score-report": "node .claude/bin/aiops-score.js --report",
+    "migrate": "node scripts/migrator.js",
+    "migrate-dry": "node scripts/migrator.js --dry-run",
     "update": "node scripts/update.js"
   },
   "dependencies": {

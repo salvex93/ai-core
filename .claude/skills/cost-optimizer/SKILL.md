@@ -236,7 +236,7 @@ Insertar directiva y detener ante:
 ## Restricciones del Perfil
 
 > Reglas de sesion activas: CLAUDE.md > este skill. Modo Neanderthal, compact/clear y delegacion a Gemini son obligatorios e inmutables. Ver seccion 'Protocolo Zero-Token' en CLAUDE.md.
-- Prohibido usar Opus para tareas que Sonnet resuelve con calidad equivalente.
-- Prohibido leer archivos completos sin justificacion de modificacion.
-- Prohibido generar respuestas de mas de 150 palabras de prosa sin delegacion a Gemini.
-- Prohibido repetir codigo que el usuario ya tiene en contexto.
+- Asegurar que no se ejecuta: usar Opus para tareas que Sonnet resuelve con calidad equivalente.
+- Verificar justificacion de modificacion antes de leer archivos completos.
+- Verificar delegacion a Gemini antes de generar respuestas de mas de 150 palabras de prosa.
+- Asegurar que no se ejecuta: repetir codigo que el usuario ya tiene en contexto.

@@ -3,7 +3,7 @@ name: mcp-server-builder
 description: Especialista en construccion de servidores MCP (Model Context Protocol). Cubre ciclo de vida del protocolo, transportes stdio y SSE/HTTP, definicion de herramientas con JSON Schema, seguridad de inputs, testing con MCP Inspector y despliegue. Activa al construir un servidor MCP propio, exponer herramientas internas a Claude, o publicar un servidor MCP en el registro oficial.
 origin: ai-core
 version: 1.3.1
-last_updated: 2026-06-05
+last_updated: 2026-06-10
 ---
 
 # MCP Server Builder — Especialista en Servidores Model Context Protocol
@@ -23,6 +23,14 @@ Disponible en TypeScript (`@modelcontextprotocol/sdk`) y Python (`mcp`).
 - Al publicar un servidor MCP en el registro de Anthropic o como paquete npm/PyPI.
 - Al diagnosticar errores de comunicacion entre un cliente MCP y el servidor.
 - Al revisar la seguridad de un servidor MCP existente.
+
+
+## Cuando NO Activar Este Perfil
+
+- La tarea es usar herramientas MCP ya existentes, no construir el servidor — usar el skill del dominio correspondiente.
+- La tarea es construir un agente que consume herramientas MCP — usar `claude-agent-sdk`.
+- Las herramientas necesarias ya estan disponibles via bridge MCP del ai-core — no es necesario un servidor nuevo.
+- La tarea es una API REST para consumo HTTP generico, no especificamente para LLMs via MCP — usar `backend-architect`.
 
 ## Primera Accion al Activar
 
@@ -487,7 +495,7 @@ Verificar en orden antes de aprobar un PR que introduce o modifica un servidor M
 
 Las Reglas Globales definidas en CLAUDE.md aplican sin excepcion a este perfil.
 > Reglas de sesion activas: CLAUDE.md > este skill. Modo Neanderthal, compact/clear y delegacion a Gemini son obligatorios e inmutables. Ver seccion 'Protocolo Zero-Token' en CLAUDE.md.
-- Prohibido publicar un servidor MCP que accede a datos de produccion sin autenticacion en el transporte.
-- Prohibido incluir secretos, URLs internas o datos de infraestructura en schemas o descripciones de herramientas.
-- Prohibido disenar herramientas con efectos secundarios destructivos sin confirmacion explicita en el schema (parametro `confirmar: boolean` o similar).
+- Verificar autenticacion en el transporte antes de publicar un servidor MCP que accede a datos de produccion.
+- Asegurar que no se ejecuta: incluir secretos, URLs internas o datos de infraestructura en schemas o descripciones de herramientas.
+- Verificar confirmacion explicita en el schema (parametro `confirmar: boolean` o similar) antes de disenar herramientas con efectos secundarios destructivos.
 - Prohibido usar el transporte SSE legacy (`SSEServerTransport`) en nuevos servidores. Usar exclusivamente `StreamableHTTPServerTransport` para servidores remotos (especificacion MCP 2025-03-26).

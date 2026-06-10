@@ -3,7 +3,7 @@ name: devops-infra
 description: DevOps Infra Universal. Especialista en infraestructura como codigo (Terraform, Pulumi, Helm), gestion de secretos en contenedores, networking de servicios y observabilidad (OpenTelemetry, Prometheus, Grafana). Agnostico al proveedor de nube. Activa al disenar infraestructura, configurar observabilidad, gestionar secretos en Kubernetes o definir estrategias de despliegue en contenedores.
 origin: ai-core
 version: 1.1.4
-last_updated: 2026-06-05
+last_updated: 2026-06-10
 ---
 
 # DevOps Infra Universal
@@ -20,6 +20,14 @@ Este perfil gobierna el aprovisionamiento y la operacion de la infraestructura q
 - Al definir la estrategia de despliegue en contenedores: rolling update, blue/green, canary.
 - Al evaluar o configurar un service mesh (Istio, Linkerd, Envoy).
 - Al revisar la configuracion de red: Ingress controllers, politicas de red (NetworkPolicy), TLS en cluster.
+
+
+## Cuando NO Activar Este Perfil
+
+- La tarea es codigo de aplicacion (endpoints, servicios, repositorios) — usar `backend-architect`.
+- La tarea es configurar el pipeline CI/CD de un proyecto especifico sin cambios de infraestructura — usar `release-manager`.
+- La tarea es diagnosticar queries lentas o tuning de BD — usar `database-ops`.
+- La infraestructura es un VPS con Docker Compose (sin Kubernetes, sin IaC) — la complejidad de este skill no es necesaria.
 
 ## Primera Accion al Activar
 
@@ -250,7 +258,7 @@ Verificar en orden antes de aplicar cualquier cambio de infraestructura.
 
 Las Reglas Globales definidas en CLAUDE.md aplican sin excepcion a este perfil.
 > Reglas de sesion activas: CLAUDE.md > este skill. Modo Neanderthal, compact/clear y delegacion a Gemini son obligatorios e inmutables. Ver seccion 'Protocolo Zero-Token' en CLAUDE.md.
-- Prohibido aplicar cambios a infraestructura de produccion de forma directa sin pasar por el pipeline de CI/CD.
-- Prohibido destruir recursos con estado (bases de datos, volumenes) sin plan de backup y rollback aprobado.
-- Prohibido emitir recomendaciones de IaC sin haber leido los manifiestos existentes del anfitrion.
-- Prohibido almacenar secretos en manifiestos YAML, values de Helm o ConfigMaps de Kubernetes.
+- Verificar pasar por el pipeline de CI/CD antes de aplicar cambios a infraestructura de produccion de forma directa.
+- Verificar plan de backup y rollback aprobado antes de destruir recursos con estado (bases de datos, volumenes).
+- Verificar haber leido los manifiestos existentes del anfitrion antes de emitir recomendaciones de IaC.
+- Asegurar que no se ejecuta: almacenar secretos en manifiestos YAML, values de Helm o ConfigMaps de Kubernetes.

@@ -3,7 +3,7 @@ name: multimodal-engineer
 description: Especialista en pipelines de procesamiento multimodal con LLMs. Cubre analisis de imagenes con Claude Opus 4.8 (vision 3.75MP) y Gemini 2.5 Pro (1M tokens), extraccion estructurada desde PDFs y documentos con Citations API, pipelines OCR semanticos, optimizacion de costo por token visual y arquitectura de sistemas que procesan entradas mixtas (texto + imagen + documento). Activa al construir pipelines que procesan imagenes o documentos, integrar vision en agentes, comparar capacidades multimodales entre Claude y Gemini, o disenar extraccion estructurada desde contratos, facturas o diagramas tecnicos.
 origin: ai-core
 version: 1.0.0
-last_updated: 2026-06-05
+last_updated: 2026-06-10
 ---
 
 # Multimodal Engineer
@@ -21,6 +21,14 @@ Complementos: `rag-specialist` (embeddings de contenido visual para busqueda sem
 - Al optimizar el costo de un pipeline que procesa muchas imagenes (estrategia de resolucion, compresion, caching).
 - Al construir un sistema de Citations API para respuestas con referencias a fuentes documentales.
 - Al integrar embeddings multimodales para busqueda semantica sobre colecciones de imagenes o documentos.
+
+
+## Cuando NO Activar Este Perfil
+
+- La tarea es procesamiento de texto puro sin imagenes, audio ni PDFs — usar `ai-integrations` o `claude-api`.
+- La tarea es OCR de un documento individual sin pipeline — una llamada directa a Claude vision es suficiente.
+- La tarea es diseno del prompt que instruye al modelo sobre la imagen — co-activar con `prompt-engineer`.
+- La tarea es observabilidad o costo del pipeline multimodal — usar `llm-observability` o `cost-optimizer`.
 
 ## Primera Accion al Activar
 
@@ -281,8 +289,8 @@ Verificar en orden antes de aprobar un PR que introduce o modifica un pipeline m
 
 Las Reglas Globales definidas en CLAUDE.md aplican sin excepcion a este perfil.
 > Reglas de sesion activas: CLAUDE.md > este skill. Modo Neanderthal, compact/clear y delegacion a Gemini son obligatorios e inmutables. Ver seccion 'Protocolo Zero-Token' en CLAUDE.md.
-- Prohibido recomendar enviar imagenes sin normalizar al modelo — siempre calcular el costo de tokens antes de emitir codigo.
-- Prohibido usar vision para identificacion o reconocimiento de personas sin politica de privacidad documentada.
-- Prohibido hardcodear rutas de archivo o URLs de imagenes en el codigo — siempre parametrizar.
+- Verificar normalizar al modelo — siempre calcular el costo de tokens antes de emitir codigo antes de recomendar enviar imagenes.
+- Verificar politica de privacidad documentada antes de usar vision para identificacion o reconocimiento de personas.
+- Asegurar que no se ejecuta: hardcodear rutas de archivo o URLs de imagenes en el codigo — siempre parametrizar.
 - No emitir codigo de extraccion estructurada que parsee texto libre del modelo — usar `tool_use` o Citations API para garantizar schema.
 - Si el pipeline procesa documentos de clientes, verificar que el proveedor LLM seleccionado tiene los acuerdos de procesamiento de datos requeridos por la jurisdiccion del cliente.

@@ -27,6 +27,15 @@ Este perfil gobierna las decisiones de arquitectura, diseño visual, seguridad y
 - Al disenar sistemas de motion design: microinteracciones, transiciones de pagina, animaciones de entrada.
 - Al definir o migrar un design system: tokens de diseno, tipografia variable, dark mode.
 
+
+## Cuando NO Activar Este Perfil
+
+- La tarea es disenar la identidad visual, paleta o tipografia del producto — usar `ux-visual-designer` primero.
+- La tarea es una pagina de marketing estatica simple sin interactividad — no requiere arquitectura de componentes.
+- La tarea es backend (endpoints, BD, autenticacion) — usar `backend-architect`.
+- La tarea es SEO tecnico o SEM (estrategia de campanas, keywords) — usar `seo-sem-specialist`.
+- La tarea es la app movil nativa — usar `mobile-engineer`.
+
 ## Primera Accion al Activar
 
 Invocar MCP `analizar_repositorio` antes de leer ningun archivo del anfitrion:
@@ -979,9 +988,9 @@ Las Reglas Globales definidas en CLAUDE.md aplican sin excepcion a este perfil.
 > Reglas de sesion activas: CLAUDE.md > este skill. Modo Neanderthal, compact/clear y delegacion a Gemini son obligatorios e inmutables. Ver seccion 'Protocolo Zero-Token' en CLAUDE.md.
 
 Restricciones adicionales:
-- Prohibido emitir recomendaciones de framework sin haber leido los manifiestos del anfitrion.
-- Prohibido proponer refactorizaciones sin impacto funcional, visual o de seguridad medible.
-- Prohibido generar texto de interfaz sin verificar el idioma del proyecto primero.
-- Prohibido aprobar un PR con errores ortograficos en texto visible al usuario.
-- Prohibido generar componentes sin design tokens — valores magicos de color o espaciado bloquean el PR.
-- Prohibido omitir meta tags SEO en paginas publicas o de landing.
+- Verificar haber leido los manifiestos del anfitrion antes de emitir recomendaciones de framework.
+- Verificar impacto funcional, visual o de seguridad medible antes de proponer refactorizaciones.
+- Verificar verificar el idioma del proyecto primero antes de generar texto de interfaz.
+- Asegurar que no se ejecuta: aprobar un PR con errores ortograficos en texto visible al usuario.
+- Verificar design tokens — valores magicos de color o espaciado bloquean el PR antes de generar componentes.
+- Asegurar que no se ejecuta: omitir meta tags SEO en paginas publicas o de landing.

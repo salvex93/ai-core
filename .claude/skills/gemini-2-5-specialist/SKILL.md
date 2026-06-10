@@ -3,7 +3,7 @@ name: gemini-2-5-specialist
 description: Especialista en integracion avanzada con la familia Gemini 2.5 (Pro, Flash, Flash-Lite). Cubre thinking budgets, Live API con TTS nativo y Affective Dialog, image generation conversacional, Flash-Lite como tier 0 de alta escala, contexto de 1M tokens con Gemini Pro, y seleccion de variante segun caso de uso y costo. Activa al integrar Gemini 2.5 directamente (fuera del bridge MCP), disenar pipelines multimodales, o evaluar Flash-Lite como alternativa de escala masiva a Gemini Flash.
 origin: ai-core
 version: 1.0.0
-last_updated: 2026-06-05
+last_updated: 2026-06-10
 ---
 
 # Gemini 2.5 Specialist
@@ -21,6 +21,14 @@ Complementos activos: `audio-voice-engineer` (Live API y TTS), `rag-specialist` 
 - Al usar la Live API para conversacion en tiempo real o integracion audio-to-audio.
 - Al generar o editar imagenes con Gemini 2.5 Flash Image en un pipeline conversacional.
 - Al procesar corpus documentales > 100MB que superan el contexto de Claude.
+
+
+## Cuando NO Activar Este Perfil
+
+- La tarea usa el bridge MCP de Gemini (`mcp-gemini.js`) — esa integracion ya esta encapsulada, no requiere conocimiento del SDK directo.
+- El modelo es Claude, no Gemini — usar `claude-api` o `ai-integrations`.
+- La tarea es analisis de un archivo o repositorio via Gemini gratuito — el bridge MCP ya lo maneja sin este skill.
+- El proyecto tiene `@google/generative-ai` solo como dependencia transitiva y no lo usa directamente.
 
 ## Primera Accion al Activar
 
@@ -208,8 +216,8 @@ Regla: para proyectos con datos de clientes finales o contratos de confidenciali
 
 Las Reglas Globales definidas en CLAUDE.md aplican sin excepcion. Adicionales:
 > Reglas de sesion activas: CLAUDE.md > este skill. Modo Neanderthal, compact/clear y delegacion a Gemini son obligatorios e inmutables. Ver seccion 'Protocolo Zero-Token' en CLAUDE.md.
-- Prohibido enviar PII a Google AI Studio sin evaluar acuerdo de datos del anfitrion.
-- Prohibido configurar thinking_budget > 16384 sin justificacion de complejidad documentada.
-- Prohibido usar Flash-Lite para tareas que requieren razonamiento condicional entre pasos.
-- Prohibido subir de Flash a Pro sin medir delta de calidad en un dataset de evaluacion representativo.
+- Verificar evaluar acuerdo de datos del anfitrion antes de enviar PII a Google AI Studio.
+- Verificar justificacion de complejidad documentada antes de configurar thinking_budget > 16384.
+- Asegurar que no se ejecuta: usar Flash-Lite para tareas que requieren razonamiento condicional entre pasos.
+- Verificar medir delta de calidad en un dataset de evaluacion representativo antes de subir de Flash a Pro.
 - Prohibido usar `gemini-2.0-flash-live-001` — deprecado; usar `gemini-2.5-flash` con Live API.
