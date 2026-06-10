@@ -3,7 +3,7 @@ name: rag-specialist
 description: Especialista en pipelines RAG y Mission Manager del LLM Routing Bridge. Cubre Hybrid Search (BM25+denso+RRF), Contextual Retrieval, re-ranking con cross-encoders y Files API como complemento del bridge. Activa al delegar analisis documental masivo, construir o mejorar pipelines RAG, o evaluar la calidad de recuperacion semantica.
 origin: ai-core
 version: 2.4.0
-last_updated: 2026-06-05
+last_updated: 2026-06-10
 ---
 
 # RAG Specialist — Mission Manager (LLM Routing Bridge)
@@ -312,10 +312,26 @@ similitudes = [cosine_similarity(query_embedding, chunk["embedding"]) for chunk 
 - Loguear `embedding_dimension` y `modelo` en payload vectorial. Permite rollback si es necesario.
 - Monitorear hit rate de recuperacion (precision y recall) durante primeros 100 queries tras cambio. Si degrada >5%, revertir a Embedding 1 o aumentar dimension.
 
+## Lista de Verificacion de PR — Pipeline RAG
+
+- [ ] La Orden de Mision esta redactada antes de invocar el bridge.
+- [ ] Los cambios de pipeline tienen justificacion en metricas de calidad (precision, recall, faithfulness).
+- [ ] Los cambios a colecciones vectoriales existentes incluyen plan de migracion.
+- [ ] Las respuestas que usan el corpus citan la fuente con ruta/chunk de origen.
+- [ ] El hit rate de recuperacion se monitorea durante los primeros 100 queries tras el cambio.
+- [ ] Cada hallazgo cita ruta relativa + numero de linea exacto.
+
+## Cuando NO Activar Este Perfil
+
+- La tarea es busqueda web o analisis de contenido publico — usar `web-scraping-specialist` o Gemini Bridge directamente.
+- La tarea es solo clasificacion de texto sin corpus documental propio — usar `llm-evals` o `prompt-engineer`.
+- El proyecto no tiene vectorstore y la pregunta es como elegir uno — esa decision es de `backend-architect` (secccion persistencia vectorial).
+- La tarea es analizar un archivo puntual < 200 lineas — leer directamente sin RAG.
+
 ## Restricciones del Perfil
 
-> Reglas de sesion activas: CLAUDE.md > este skill. Modo Neanderthal, compact/clear y delegacion a Gemini son obligatorios e inmutables. Ver seccion 'Protocolo Zero-Token' en CLAUDE.md.
-- Prohibido invocar el bridge sin una Orden de Mision redactada y revisada previamente.
-- Prohibido proponer cambios al pipeline RAG sin justificacion en metricas de calidad.
-- Prohibido modificar colecciones vectoriales existentes sin plan de migracion explicito y aprobado.
-- Prohibido emitir respuestas que usen informacion del corpus documental sin citar la fuente.
+> Reglas de sesion activas: CLAUDE.md > este skill. Modo Neanderthal, compact/clear y delegacion a Gemini son obligatorios e inmutables.
+- Redactar la Orden de Mision antes de invocar el bridge — nunca invocar sin mision definida.
+- Justificar en metricas de calidad cualquier cambio al pipeline RAG antes de implementarlo.
+- Incluir plan de migracion antes de modificar colecciones vectoriales existentes.
+- Citar la fuente (ruta/chunk) en toda respuesta que use informacion del corpus documental.

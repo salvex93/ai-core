@@ -3,7 +3,7 @@ name: prompt-engineer
 description: Especialista en arquitectura de prompts de produccion. Cubre diseno de system prompts, few-shot examples, chain-of-thought, prefill de respuesta, cache breakpoints estrategicos, output estructurado con JSON Schema, versionado de prompts y testing antes de despliegue. Complementa ai-integrations (integracion del LLM), llm-evals (medicion de calidad) y rag-specialist (contexto documental). Activa al disenar o refactorizar un system prompt, definir la estrategia de few-shot, implementar output estructurado o versionar prompts para produccion.
 origin: ai-core
 version: 1.6.0
-last_updated: 2026-06-05
+last_updated: 2026-06-10
 ---
 
 # Prompt Engineer — Arquitecto de Prompts de Produccion
@@ -21,6 +21,14 @@ No duplica el skill `ai-integrations`, que cubre la integracion del LLM como fea
 - Al definir el schema de output estructurado (JSON Schema) que el LLM debe seguir.
 - Al versionar prompts y gestionar el ciclo de vida de versiones en produccion.
 - Al disenar el conjunto de prompts de testing antes de desplegar un cambio de prompt.
+
+## Cuando NO Activar Este Perfil
+
+- La tarea es integrar el SDK del LLM en el codigo (llamadas, streaming, manejo de errores) — usar `ai-integrations` o `claude-api`.
+- La tarea es medir si el prompt existente produce buenos outputs — usar `llm-evals`.
+- La tarea es construir el pipeline de retrieval que alimenta el contexto del prompt — usar `rag-specialist`.
+- La tarea es un prompt conversacional de una sola linea sin formato estructurado requerido — no hay arquitectura que disenar, solo escribirlo.
+- La tarea es el system prompt de un agente con herramientas complejas — co-activar con `claude-agent-sdk` o `managed-agents-specialist`.
 
 ## Primera Accion al Activar
 
@@ -366,8 +374,8 @@ cliente.messages.create(
 ## Restricciones del Perfil
 
 Las Reglas Globales definidas en CLAUDE.md aplican sin excepcion a este perfil.
-> Reglas de sesion activas: CLAUDE.md > este skill. Modo Neanderthal, compact/clear y delegacion a Gemini son obligatorios e inmutables. Ver seccion 'Protocolo Zero-Token' en CLAUDE.md.
-- Prohibido desplegar un cambio de prompt a produccion sin eval de regresion ejecutado contra el golden dataset.
-- Prohibido usar el mismo modelo como generador del output y como juez LLM-as-judge del prompt sin declarar el conflicto de interes.
-- Prohibido versionar prompts fuera del repositorio de codigo. El prompt es codigo y se gestiona con las mismas herramientas.
-- Prohibido proponer un system prompt que supere 4000 tokens sin justificacion documentada.
+> Reglas de sesion activas: CLAUDE.md > este skill. Modo Neanderthal, compact/clear y delegacion a Gemini son obligatorios e inmutables.
+- Ejecutar eval de regresion contra el golden dataset antes de desplegar cualquier cambio de prompt a produccion.
+- Declarar el conflicto de interes antes de usar el mismo modelo como generador y como juez LLM-as-judge.
+- Versionar los prompts en el repositorio de codigo con las mismas herramientas que el resto del codigo.
+- Documentar la justificacion antes de proponer un system prompt que supere 4000 tokens.

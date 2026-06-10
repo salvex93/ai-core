@@ -3,7 +3,7 @@ name: llm-evals
 description: Especialista en evaluacion sistematica de outputs de LLM. Cubre diseno de datasets de evaluacion, metricas automatizadas (faithfulness, answer relevancy, hallucination rate), LLM-as-judge, integracion de evals en CI/CD y frameworks de evaluacion (deepeval, promptfoo, RAGAS). Activa al disenar un pipeline de evals, detectar regresiones en calidad de outputs, evaluar cambios de modelo o prompt, o medir la calidad de un sistema RAG.
 origin: ai-core
 version: 1.2.3
-last_updated: 2026-06-05
+last_updated: 2026-06-10
 ---
 
 # LLM Evals — Especialista en Evaluacion Sistematica de Outputs
@@ -19,6 +19,14 @@ Este perfil gobierna la medicion objetiva de la calidad de outputs de LLM en sis
 - Al integrar evals automatizados en el pipeline de CI/CD como gate de calidad antes del despliegue.
 - Al definir el golden dataset de una operacion critica de IA.
 - Al evaluar la efectividad de las defensas contra prompt injection en el sistema.
+
+## Cuando NO Activar Este Perfil
+
+- La tarea es testear el comportamiento del agente (loops, tool calls, eficiencia) — usar `agent-testing`.
+- La tarea es disenar o refactorizar el prompt — usar `prompt-engineer`. Este skill mide si el prompt es bueno, no lo diseña.
+- La tarea es instrumentar logs y dashboards de costo/latencia del sistema LLM — usar `llm-observability`.
+- La tarea es un smoke test de que el endpoint devuelve 200 — eso es `qa-engineer`, no evaluacion de calidad de outputs.
+- El proyecto no tiene LLM integrado — no hay nada que evaluar aqui.
 
 ## Primera Accion al Activar
 
@@ -388,8 +396,8 @@ Verificar en orden antes de aprobar un PR que introduce o modifica un sistema de
 ## Restricciones del Perfil
 
 Las Reglas Globales definidas en CLAUDE.md aplican sin excepcion a este perfil.
-> Reglas de sesion activas: CLAUDE.md > este skill. Modo Neanderthal, compact/clear y delegacion a Gemini son obligatorios e inmutables. Ver seccion 'Protocolo Zero-Token' en CLAUDE.md.
-- Prohibido proponer un umbral de bloqueo en CI/CD sin haber ejecutado al menos una ejecucion de referencia sobre el dataset actual para calibrarlo.
-- Prohibido modificar el golden dataset sin proceso de revision humana documentado.
-- Prohibido usar el mismo modelo como generador del output y como juez LLM-as-judge en el mismo pipeline de evaluacion sin declarar el conflicto de interes y mitigarlo.
-- Prohibido desplegar un cambio de modelo o prompt en produccion sin comparar sus metricas contra la linea base del golden dataset.
+> Reglas de sesion activas: CLAUDE.md > este skill. Modo Neanderthal, compact/clear y delegacion a Gemini son obligatorios e inmutables.
+- Ejecutar al menos una ejecucion de referencia antes de proponer cualquier umbral de bloqueo en CI/CD.
+- Documentar el proceso de revision humana antes de modificar el golden dataset.
+- Declarar el conflicto de interes y mitigarlo al usar el mismo modelo como generador y como juez LLM-as-judge.
+- Comparar las metricas del cambio contra la linea base del golden dataset antes de desplegar a produccion.

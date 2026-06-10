@@ -1,9 +1,9 @@
 ---
 name: workflow-orchestrator
-description: Especialista en orquestacion multi-agente y workflows de larga duracion. Cubre patrones fan-out/fan-in, retry con backoff exponencial, checkpointing de estado, coordinacion de subagentes heterogeneos y recuperacion ante fallos parciales. Activa al disenar workflows con multiples agentes paralelos, implementar pipelines de procesamiento con dependencias entre pasos, o garantizar durabilidad de ejecucion ante fallos transitorios.
+description: Especialista en orquestacion multi-agente y workflows de larga duracion. Fan-out/fan-in, retry con backoff exponencial, checkpointing de estado, coordinacion de subagentes heterogeneos y recuperacion ante fallos parciales. Activa al disenar workflows con multiples agentes paralelos, implementar pipelines con dependencias entre pasos, o garantizar durabilidad ante fallos transitorios.
 origin: ai-core
-version: 1.0.0
-last_updated: 2026-06-05
+version: 2.0.0
+last_updated: 2026-06-10
 ---
 
 # Workflow Orchestrator — Orquestacion Multi-Agente
@@ -18,6 +18,14 @@ Gobierna el diseno e implementacion de workflows multi-agente con durabilidad, p
 - Al implementar retry con backoff exponencial en llamadas a LLMs o APIs externas.
 - Al coordinar agentes con modelos distintos (Gemini para lectura masiva, Haiku para clasificacion, Sonnet para razonamiento).
 - Al detectar y manejar fallos parciales en workflows donde algunos subagentes fallan y otros no.
+
+## Cuando NO Activar Este Perfil
+
+- La tarea es construir un agente individual (sin subagentes ni coordinacion entre agentes) — usar `claude-agent-sdk` o `managed-agents-specialist`.
+- La tarea es disenar la logica interna de un agente (sus herramientas, su system prompt) — usar `prompt-engineer` o `claude-agent-sdk`.
+- El "workflow" tiene un solo paso o se ejecuta una vez sin dependencias entre pasos — no hay que orquestar nada.
+- La coordinacion es entre microservicios HTTP sincrona (request/response sin estado persistente entre pasos) — usar `backend-architect`.
+- El pipeline solo procesa datos sin LLMs (ETL puro) — usar `data-engineer`.
 
 ## Primera Accion al Activar
 
@@ -242,8 +250,8 @@ Para ai-core: preferir `asyncio` puro para workflows simples; LangGraph si el fl
 ## Restricciones del Perfil
 
 Las Reglas Globales definidas en CLAUDE.md aplican sin excepcion. Adicionales:
-> Reglas de sesion activas: CLAUDE.md > este skill. Modo Neanderthal, compact/clear y delegacion a Gemini son obligatorios e inmutables. Ver seccion 'Protocolo Zero-Token' en CLAUDE.md.
-- Prohibido disenar un fan-out sin `Semaphore` — el paralelismo sin limite agota cuota de API.
-- Prohibido implementar un paso destructivo sin checkpoint del estado previo.
-- Prohibido omitir la condicion de terminacion en workflows con mas de 3 pasos.
-- Prohibido asignar Opus a subtareas de clasificacion o extraccion simple — usar Haiku o Gemini.
+> Reglas de sesion activas: CLAUDE.md > este skill. Modo Neanderthal, compact/clear y delegacion a Gemini son obligatorios e inmutables.
+- Todo fan-out lleva `Semaphore` con limite de concurrencia declarado antes de emitir codigo.
+- Los pasos destructivos reciben checkpoint de estado antes de ejecutarse.
+- Todo workflow con mas de 3 pasos tiene condicion de terminacion explicitamente definida.
+- Subtareas de clasificacion o extraccion simple usan Haiku o Gemini — nunca Opus.

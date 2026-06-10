@@ -3,6 +3,24 @@
 Registro de cambios por version. Formato basado en [Keep a Changelog](https://keepachangelog.com/es/1.0.0/).
 Versionado semantico: MAJOR.MINOR.PATCH.
 
+## [3.9.0] — 2026-06-10
+
+### Skills — Upgrade Senior (nivel basico → nivel produccion)
+
+**Patron aplicado en 10+ skills:** Seccion `Cuando NO Activar Este Perfil` + conversion de reglas PROHIBIDO a imperativo positivo + checklists de PR donde faltaban.
+
+- `qa-engineer` v2.0.0 — seccion "Cuando NO activar" (5 casos), checklist de PR (6 items), restricciones en positivo.
+- `workflow-orchestrator` v2.0.0 — seccion "Cuando NO activar" (5 casos), restricciones en positivo.
+- `backend-architect` — seccion "Cuando NO activar" (5 casos), restricciones en positivo.
+- `prompt-engineer` — seccion "Cuando NO activar" (5 casos), restricciones en positivo.
+- `agent-testing` — seccion "Cuando NO activar" (5 casos), restricciones en positivo, eliminadas reglas redundantes con CLAUDE.md.
+- `llm-evals` — seccion "Cuando NO activar" (5 casos), restricciones en positivo.
+- `managed-agents-specialist` — seccion "Cuando NO activar" (5 casos), restricciones en positivo.
+- `cost-optimizer` — seccion "Cuando NO activar" (4 casos).
+- `rag-specialist` v2.4.0 — seccion "Cuando NO activar" (4 casos), checklist de PR (6 items), restricciones en positivo.
+
+**Fundamento:** Investigacion 2026 (650 trials) indica que reglas PROHIBIDO se violan con mayor frecuencia que imperativos positivos. La seccion "Cuando NO activar" previene activacion de skill erroneo — principal causa de respuestas de baja calidad en proyectos reales.
+
 ---
 
 ## [3.8.0] — 2026-06-04

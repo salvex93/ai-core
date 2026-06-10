@@ -3,7 +3,7 @@ name: managed-agents-specialist
 description: Especialista en agentes gestionados de Anthropic (Managed Agents). Cubre configuracion via API/UI, herramientas integradas (web search, code execution, computer use 2025, files), diseño de system prompts para loops de agente, gestion de costos en iteraciones y seguridad. Activa al configurar un agente con herramientas integradas de Anthropic, evaluar si el caso de uso requiere Managed Agents vs Agent SDK, o diagnosticar comportamiento de un loop de agente gestionado.
 origin: ai-core
 version: 1.1.0
-last_updated: 2026-06-05
+last_updated: 2026-06-10
 ---
 
 # Managed Agents Specialist
@@ -20,6 +20,14 @@ Complementos: `claude-agent-sdk` (orquestacion propia con codigo), `mcp-server-b
 - Al auditar costos de un agente con herramientas (cada iteracion del loop multiplica el costo base).
 - Al diagnosticar comportamiento inesperado en loops de agente: iteraciones excesivas, uso incorrecto de herramientas o injection desde contenido externo.
 - Al definir controles de seguridad para agentes con acceso a herramientas con efectos reales.
+
+## Cuando NO Activar Este Perfil
+
+- El agente necesita herramientas propias del proyecto (no herramientas integradas de Anthropic) — usar `claude-agent-sdk` + `mcp-server-builder`.
+- La tarea es orquestar multiples agentes con fan-out/fan-in o checkpointing — usar `workflow-orchestrator`.
+- El caso de uso no necesita un loop de agente — una llamada LLM directa es mas barata y suficiente.
+- La tarea es evaluar o mejorar el sistema prompt de un agente existente — usar `prompt-engineer`.
+- La tarea involucra testear el comportamiento del loop del agente — usar `agent-testing`.
 
 ## Primera Accion al Activar
 
@@ -170,8 +178,8 @@ Controles obligatorios:
 ## Restricciones del Perfil
 
 Las Reglas Globales definidas en CLAUDE.md aplican sin excepcion a este perfil.
-> Reglas de sesion activas: CLAUDE.md > este skill. Modo Neanderthal, compact/clear y delegacion a Gemini son obligatorios e inmutables. Ver seccion 'Protocolo Zero-Token' en CLAUDE.md.
-- Prohibido habilitar herramientas con acceso a sistemas de produccion sin autenticacion y autorizacion explicitas.
-- Prohibido desplegar un agente en produccion sin presupuesto de tokens por sesion y limite de iteraciones.
-- Prohibido usar `computer_use` sin sandboxing verificado.
-- Prohibido procesar datos de usuarios finales sin documentar la politica de retencion y borrado.
+> Reglas de sesion activas: CLAUDE.md > este skill. Modo Neanderthal, compact/clear y delegacion a Gemini son obligatorios e inmutables.
+- Verificar autenticacion y autorizacion explicitas antes de habilitar herramientas con acceso a sistemas de produccion.
+- Definir presupuesto de tokens por sesion y limite de iteraciones antes de desplegar un agente en produccion.
+- Verificar sandboxing antes de usar `computer_use`.
+- Documentar la politica de retencion y borrado antes de procesar datos de usuarios finales.

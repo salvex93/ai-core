@@ -3,7 +3,7 @@ name: agent-testing
 description: Especialista en testing de comportamiento de agentes LLM. Cubre mock de herramientas MCP, verificacion de loops de agente (infinite loop detection, unnecessary tool call detection), testing de recovery ante fallos de tool use, metricas de eficiencia de agente (tool calls por tarea, tokens por decision) e integracion con promptfoo para eval de tool use. Activa al disenar tests para agentes con herramientas, verificar comportamiento de loops, o medir eficiencia de un agente en produccion.
 origin: ai-core
 version: 1.0.0
-last_updated: 2026-06-05
+last_updated: 2026-06-10
 ---
 
 # Agent Testing — Especialista en Testing de Comportamiento de Agentes
@@ -18,6 +18,14 @@ Este perfil cubre el testing de agentes LLM con herramientas: verificar que el a
 - Al medir la eficiencia de un agente: cuantas tool calls por tarea, cuantos tokens por decision.
 - Al disenar la estrategia de testing para un sistema con subagentes o workflows orquestados.
 - Al integrar tests de comportamiento de agente en un pipeline CI/CD.
+
+## Cuando NO Activar Este Perfil
+
+- La tarea es testing de codigo de la aplicacion (funciones, servicios, endpoints) sin agentes — usar `qa-engineer`.
+- La tarea es medir la calidad semantica de los outputs del agente (faithfulness, alucinaciones) — usar `llm-evals`.
+- La tarea es diagnosticar la arquitectura del agente, no su comportamiento en tests — usar `claude-agent-sdk` o `managed-agents-specialist`.
+- El sistema no tiene herramientas (tool use, MCP, function calling) — no hay comportamiento de agente que testear con este skill.
+- La tarea es definir el system prompt del agente, no testearlo — usar `prompt-engineer`.
 
 ## Primera Accion al Activar
 
@@ -347,9 +355,7 @@ Insertar directiva y detener ante:
 
 ## Restricciones del Perfil
 
-> Reglas de sesion activas: CLAUDE.md > este skill. Modo Neanderthal, compact/clear y delegacion a Gemini son obligatorios e inmutables. Ver seccion 'Protocolo Zero-Token' en CLAUDE.md.
-- Prohibido proponer tests sin haber ejecutado el inventario de herramientas del agente.
-- Prohibido asumir que `qa-engineer` o `llm-evals` cubren el comportamiento de loops y tool use — son dominios distintos.
-- Prohibido generar tests que requieran LLM real para verificar correctness estructural — usar mocks para lo que no necesita inferencia.
-- Prohibido usar emojis, iconos ni adornos visuales en respuestas o codigo generado.
-- Prohibido responder en ingles.
+> Reglas de sesion activas: CLAUDE.md > este skill. Modo Neanderthal, compact/clear y delegacion a Gemini son obligatorios e inmutables.
+- Ejecutar el inventario de herramientas del agente antes de proponer cualquier test.
+- Distinguir activamente entre dominio de este skill (loops, tool use) y el de `qa-engineer` (codigo) y `llm-evals` (calidad semantica).
+- Usar mocks para tests de correctness estructural — los LLMs reales se reservan para evals de calidad semantica.

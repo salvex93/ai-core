@@ -3,7 +3,7 @@ name: cost-optimizer
 description: Optimizador de costos de inferencia LLM. Selecciona el modelo mas barato que completa la tarea, fuerza Gemini como tier 0, aplica prompt caching, prefill y batch inference. Activa al detectar consumo excesivo de tokens, al iniciar sesion con tareas multiples, o al disenar pipelines de agentes donde el costo es variable.
 origin: ai-core
 version: 1.1.0
-last_updated: 2026-06-05
+last_updated: 2026-06-10
 ---
 
 # Cost Optimizer
@@ -18,6 +18,13 @@ Este perfil gobierna la seleccion de modelo, la estrategia de caching y la reduc
 - Al revisar por que el costo de una sesion supero el presupuesto esperado.
 - Al evaluar si agregar prompt caching a un sistema existente.
 - Al comparar el costo de resolver una tarea con distintos modelos.
+
+## Cuando NO Activar Este Perfil
+
+- La tarea es una peticion unica y simple — la optimizacion de costo es irrelevante para una sola llamada.
+- El proyecto esta en fase de prototipo y la prioridad es velocidad de entrega, no costo — documentar la deuda y revisitar antes de produccion.
+- La tarea es reducir el costo de la infraestructura (servidores, BD, CDN) — ese es dominio de `devops-infra`.
+- El sistema ya usa Gemini tier 0 para todas las tareas elegibles y tiene caching activo — no hay mas palancas disponibles sin degradar calidad.
 
 ## Jerarquia de Modelos (releer antes de cada llamada LLM)
 
