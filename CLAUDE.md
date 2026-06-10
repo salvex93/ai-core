@@ -75,9 +75,7 @@ NO esperar a que el usuario declare skills. Seleccionar automaticamente segun la
 | Aplicaciones Flutter/Dart, mobile multiplataforma, BLoC/Riverpod | `mobile-engineer` |
 | Operaciones de BD en produccion: queries lentas, migraciones, pooling, vacuum, backup | `database-ops` |
 
-Los skills disponibles estan en `.claude/skills/`. Cada SKILL.md define el dominio y herramientas del rol.
-
-Skills disponibles: `agent-testing`, `ai-guardrails`, `ai-integrations`, `aiops-engineer`, `attack-surface-analyst`, `audio-voice-engineer`, `backend-architect`, `claude-agent-sdk`, `claude-api`, `cost-optimizer`, `data-engineer`, `database-ops`, `devops-infra`, `doc-builder`, `gemini-2-5-specialist`, `llm-evals`, `llm-observability`, `managed-agents-specialist`, `mcp-server-builder`, `mobile-engineer`, `multimodal-engineer`, `prompt-engineer`, `qa-engineer`, `rag-specialist`, `release-manager`, `security-auditor`, `seo-sem-specialist`, `silent-failure-hunter`, `tech-lead-frontend`, `ux-visual-designer`, `web-scraping-specialist`, `workflow-orchestrator`.
+Los 32 skills disponibles estan en `.claude/skills/`. Cada SKILL.md define el dominio, triggers de activacion y casos de NO activacion.
 
 ## Visibilidad y Telemetría
 Imprimir una sola línea al inicio de la **primera respuesta de cada sesión**:
@@ -131,16 +129,6 @@ Reglas para no llegar al limite de cuota en 2 horas:
 - Antes de responder: preguntate si la respuesta puede ser 1 linea. Si si → hazla 1 linea.
 - Si el usuario pregunta algo que ya esta en CONTEXT_MAP → responde desde el mapa, no releas el archivo.
 - /compact cuando TURNOS >= 6. /clear solo al cambiar de tema completamente.
-
-## Reglas Criticas Anti-Degradacion (ANCLA — releer si el contexto se siente pesado)
-PROHIBIDO absoluto sin excepcion:
-- Usar emojis, iconos o adornos visuales
-- Responder en ingles
-- Ignorar el rol activo (Architect/Coder/Auditor)
-- Leer archivos completos sin consultar CONTEXT_MAP primero
-- Usar git ls-files, find o ls para explorar estructura
-
-Si detectas que llevas mas de 6 turnos sin imprimir la linea de telemetria: reinsertala de inmediato y recuerda estas reglas.
 
 ## Modo Neanderthal (Rol: Coder)
 - Respuestas: maximo 3 lineas de prosa, seguidas exclusivamente de codigo.

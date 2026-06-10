@@ -250,3 +250,143 @@ describe('CLAUDE.md — integridad', () => {
     );
   });
 });
+
+// ─── security-check.js ───────────────────────────────────────────────────────
+
+describe('security-check.js', () => {
+  const SCRIPT = path.join(BIN, 'security-check.js');
+
+  test('sale con 0 si no se pasa argumento', () => {
+    const r = runScript(SCRIPT, []);
+    assert.equal(r.status, 0);
+  });
+
+  test('sale con 0 en archivo sin hallazgos', () => {
+    const f = path.join(os.tmpdir(), `sec-clean-${Date.now()}.js`);
+    fs.writeFileSync(f, 'const x = 1;\nmodule.exports = x;\n');
+    const r = runScript(SCRIPT, [f]);
+    fs.unlinkSync(f);
+    assert.equal(r.status, 0);
+    assert.equal(r.stdout, '');
+  });
+
+  test('detecta credencial hardcodeada (sk-...)', () => {
+    const f = path.join(os.tmpdir(), `sec-cred-${Date.now()}.js`);
+    fs.writeFileSync(f, 'const key = "sk-abcdefghijklmnopqrstuvwxyz123456";\n');
+    const r = runScript(SCRIPT, [f]);
+    fs.unlinkSync(f);
+    assert.ok(r.stdout.includes('[security-check]'), 'debe emitir hallazgo de seguridad');
+    assert.ok(r.stdout.includes('SECRETO'), 'debe clasificar como SECRETO');
+  });
+
+  test('detecta eval() en codigo JS', () => {
+    const f = path.join(os.tmpdir(), `sec-eval-${Date.now()}.js`);
+    fs.writeFileSync(f, 'function run(code) { return eval(code); }\n');
+    const r = runScript(SCRIPT, [f]);
+    fs.unlinkSync(f);
+    assert.ok(r.stdout.includes('[SEGURIDAD]'), 'debe detectar eval() como SEGURIDAD');
+  });
+
+  test('detecta catch vacio en JS', () => {
+    const f = path.join(os.tmpdir(), `sec-catch-${Date.now()}.js`);
+    fs.writeFileSync(f, 'try { doSomething(); } catch (e) {}\n');
+    const r = runScript(SCRIPT, [f]);
+    fs.unlinkSync(f);
+    assert.ok(r.stdout.includes('[FALLO-SILENCIOSO]'), 'debe detectar catch vacio como FALLO-SILENCIOSO');
+  });
+
+  test('ignora extensiones no vigiladas (.md)', () => {
+    const f = path.join(os.tmpdir(), `sec-md-${Date.now()}.md`);
+    fs.writeFileSync(f, 'eval("bad") sk-secret\n');
+    const r = runScript(SCRIPT, [f]);
+    fs.unlinkSync(f);
+    assert.equal(r.status, 0);
+    assert.equal(r.stdout, '');
+  });
+});
+
+// ─── secrets-guard.js ────────────────────────────────────────────────────────
+
+describe('secrets-guard.js', () => {
+  const SCRIPT = path.join(BIN, 'secrets-guard.js');
+
+  test('sale con 0 si CLAUDE_USER_PROMPT esta vacio', () => {
+    const r = runScript(SCRIPT, [], { CLAUDE_USER_PROMPT: '' });
+    assert.equal(r.status, 0);
+  });
+
+  test('sale con 0 para prompt normal sin credenciales', () => {
+    const r = runScript(SCRIPT, [], { CLAUDE_USER_PROMPT: 'refactoriza la funcion de paginacion' });
+    assert.equal(r.status, 0);
+  });
+
+  test('detecta OpenAI API key en el prompt', () => {
+    const r = runScript(SCRIPT, [], {
+      CLAUDE_USER_PROMPT: 'usa esta key: sk-abcdefghijklmnopqrstuvwxyz123456 para el test',
+    });
+    assert.ok(r.stdout.includes('[secrets-guard]'), 'debe advertir sobre la key detectada');
+    assert.equal(r.status, 0, 'debe advertir sin bloquear (exit 0)');
+  });
+
+  test('detecta GitHub PAT en el prompt', () => {
+    const r = runScript(SCRIPT, [], {
+      CLAUDE_USER_PROMPT: 'token: ghp_ABCDEFGHIJKLMNOPQRSTUVWXYZ123456789A',
+    });
+    assert.ok(r.stdout.includes('[secrets-guard]'), 'debe detectar GitHub PAT');
+  });
+});
+
+// ─── session-summary.js ──────────────────────────────────────────────────────
+
+describe('session-summary.js', () => {
+  const SCRIPT = path.join(BIN, 'session-summary.js');
+
+  test('sale con 0 y sin output si no hay actividad', () => {
+    // Sin cambios git y sin EVENTS_QUEUE, el script debe ser silencioso
+    const r = runScript(SCRIPT, [], { SUPPRESS_GIT: '1' });
+    assert.equal(r.status, 0);
+  });
+
+  test('el script existe y es ejecutable por Node', () => {
+    assert.ok(fs.existsSync(SCRIPT), 'session-summary.js debe existir en .claude/bin/');
+    const r = runScript(SCRIPT, []);
+    assert.notEqual(r.status, null, 'debe terminar con codigo de salida definido');
+  });
+});
+
+// ─── aiops-score.js ──────────────────────────────────────────────────────────
+
+describe('aiops-score.js', () => {
+  const SCRIPT = path.join(BIN, 'aiops-score.js');
+
+  test('el script existe', () => {
+    assert.ok(fs.existsSync(SCRIPT), 'aiops-score.js debe existir en .claude/bin/');
+  });
+
+  test('sale con 0 y produce output de score', () => {
+    const r = runScript(SCRIPT, []);
+    assert.equal(r.status, 0, 'debe terminar sin error');
+    assert.ok(r.stdout.includes('[AIOPS-SCORE]'), 'debe incluir linea de score');
+  });
+
+  test('--report sale con 0 y muestra ultimo score', () => {
+    const r = runScript(SCRIPT, ['--report']);
+    assert.equal(r.status, 0, '--report debe terminar sin error');
+  });
+
+  test('el score total esta entre 0 y 10', () => {
+    const r = runScript(SCRIPT, []);
+    const match = r.stdout.match(/Total:\s*(\d+)\/10/);
+    assert.ok(match, 'debe incluir Total: N/10 en el output');
+    const score = parseInt(match[1], 10);
+    assert.ok(score >= 0 && score <= 10, `score ${score} debe estar entre 0 y 10`);
+  });
+
+  test('produce score en las 6 dimensiones esperadas', () => {
+    const r = runScript(SCRIPT, []);
+    const dimensiones = ['routing', 'hooks', 'skills', 'drift', 'seguridad', 'agentes'];
+    for (const dim of dimensiones) {
+      assert.ok(r.stdout.includes(dim), `debe incluir dimension '${dim}'`);
+    }
+  });
+});
