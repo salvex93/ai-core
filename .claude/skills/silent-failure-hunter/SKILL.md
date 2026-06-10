@@ -2,8 +2,8 @@
 name: silent-failure-hunter
 description: Detecta fallos silenciosos en codigo Node.js y Python — catch vacios, excepciones tragadas, errores convertidos a null, logs sin contexto y propagacion rota. Activa al auditar manejo de errores, diagnosticar comportamiento inesperado sin trazas, o revisar resilencia de scrapers y agentes autonomos.
 origin: ai-core
-version: 1.0.0
-last_updated: 2026-06-05
+version: 1.1.0
+last_updated: 2026-06-10
 ---
 
 # Silent Failure Hunter
@@ -166,6 +166,45 @@ Prioridad de revision:
 1. Bloques `_con_retry` en scrapers — verificar que el error final se propaga y registra.
 2. `ErrorRepairLoop.js` — verificar que `ejecutarCicloReparacion` no traga el error si el bridge falla.
 3. Callbacks de MCP en `mcp-gemini.js` y `mcp-anthropic.js` — verificar que errores de herramientas llegan al caller.
+
+## Patrones Especificos para Scrapers (co-activo con `web-scraping-specialist`)
+
+Cuando se activa junto a `web-scraping-specialist`, agregar estos patrones al analisis:
+
+### HTTP 200 con dato vacio (fallo mas frecuente en scrapers)
+
+```bash
+# Detectar retornos de null/vacio sin assert posterior
+grep -rn "return null\|return \[\]\|return {}" --include="*.js" --include="*.py" .
+grep -rn "\.length === 0\|len(.*) == 0" --include="*.js" --include="*.py" .
+```
+
+Si el patron aparece sin un `logger.warn` o `throw` en las 3 lineas siguientes → **CRITICO**.
+
+### Schema drift silencioso (selectores CSS/XPath rotos)
+
+Selector que ya no matchea retorna `null` en Playwright/Puppeteer sin excepcion:
+
+```js
+// CRITICO: selector roto retorna null, codigo lo usa sin verificar
+const precio = await page.$eval('.precio', el => el.textContent);
+// precio puede ser null si el selector cambio — sin validacion = fallo silencioso
+
+// CORRECTO
+const precioEl = await page.$('.precio');
+if (!precioEl) throw new Error('Selector .precio no encontrado — posible schema drift');
+const precio = await precioEl.evaluate(el => el.textContent?.trim());
+if (!precio) throw new Error('Precio extraido vacio — posible bloqueo o cambio de DOM');
+```
+
+### Plausibilidad semantica (bloqueo disfrazado de dato valido)
+
+```bash
+# Detectar almacenamiento sin assert de plausibilidad
+grep -rn "precio.*=.*0\b\|price.*=.*0\b" --include="*.js" --include="*.py" .
+```
+
+Si un precio=0 se persiste sin un assert o log previo → **ALTO**.
 
 ## Output Esperado
 

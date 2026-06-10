@@ -57,7 +57,7 @@ NO esperar a que el usuario declare skills. Seleccionar automaticamente segun la
 | Testing de comportamiento de agentes, mock de herramientas, loops, eficiencia | `agent-testing` |
 | Orquestacion multi-agente, fan-out/fan-in, retry, checkpointing | `workflow-orchestrator` |
 | Gemini 2.5 directo: thinking budgets, Flash-Lite, Live API, image gen | `gemini-2-5-specialist` |
-| Scraping web, monitores de precios, OCR retail, bypass CAPTCHA, proxies | `web-scraping-specialist` |
+| Scraping web, monitores de precios, OCR retail, bypass CAPTCHA, proxies | `web-scraping-specialist` + `silent-failure-hunter` |
 | Vision, imagenes, PDFs, extraccion estructurada, multimodal Claude/Gemini | `multimodal-engineer` |
 | Frontend, dashboard, UI, componentes, bundle, contrato API | `tech-lead-frontend` |
 | SEO tecnico, Core Web Vitals, Schema.org, sitemap, auditoria de posicionamiento | `seo-sem-specialist` |

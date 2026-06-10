@@ -2,8 +2,8 @@
 name: web-scraping-specialist
 description: Especialista en extraccion de datos desde plataformas web y aplicaciones retail. Herramientas 2026: Stagehand (IA-nativo), browser-use (Python/LLM-driven), Crawlee (Node.js profesional), Browserbase (headless cloud), Camoufox, curl-cffi. Estrategias por proveedor anti-bot: Cloudflare, Datadome, Imperva, PerimeterX. Session state pooling, storage state reutilizable, OCR con Google Vision y Tesseract, rotacion de proxies residenciales. Activa al extraer datos de plataformas sin API oficial, construir monitores de precios, implementar pipelines OCR, o disenar scrapers resilientes con evasion avanzada.
 origin: ai-core
-version: 2.0.0
-last_updated: 2026-06-05
+version: 2.1.0
+last_updated: 2026-06-10
 ---
 
 # Web Scraping Specialist — Extraccion de Datos desde Plataformas Web
@@ -62,11 +62,29 @@ Jerarquia de metodos (usar el mas simple que funcione):
 | HTTP + parsing | Sitio renderizado en servidor (SSR) | httpx + BeautifulSoup / cheerio | Baja |
 | LLM-driven (IA-nativo) | Flujos complejos con navegacion semantica | Stagehand / browser-use | Media |
 | Browser headless | SPA (React/Vue/Angular), AJAX | Playwright / Crawlee | Media |
-| Browser con stealth | Sitios con deteccion activa (Cloudflare, Datadome, Imperva) | Camoufox / playwright-stealth | Alta |
+| Browser con stealth DataDome/Akamai | Sitios con DataDome v3 o Akamai Bot Manager | **Camoufox** (Firefox anti-detection nativo) | Alta |
+| Browser con stealth Cloudflare | Sitios con Cloudflare Turnstile v2 / JS Challenge | **Patchright** (Playwright parcheado) | Alta |
 | Browser cloud | Entorno sin IP propia, alta escala | Browserbase | Alta |
 | API interna (reverse engineer) | El sitio hace llamadas XHR a una API JSON interna | httpx + analisis de Network tab | Media |
 
 Regla: revisar el Network tab del sitio antes de implementar browser headless. Muchos sitios que parecen requerir browser en realidad exponen una API JSON interna (XHR/Fetch) que es mas eficiente y menos detectable.
+
+### Las 4 Capas de Deteccion Anti-Bot 2026
+
+Fallar en UNA SOLA capa = flaggeado, sin importar cuantas otras se pasen. Diagnosticar en este orden:
+
+| Capa | Que verifica el anti-bot | Herramienta de mitigacion |
+|---|---|---|
+| 1. TLS fingerprint | Firma de la libreria TLS (JA3/JA4 hash) | curl-cffi, Camoufox, Patchright |
+| 2. HTTP/2 frame order | Orden de frames SETTINGS/HEADERS en H2 | curl-cffi (impersona Chrome/Firefox nativo) |
+| 3. JavaScript fingerprint | navigator, canvas, WebGL, fonts, AudioContext | Camoufox (parchea Firefox), Patchright |
+| 4. Comportamiento | Timing de clicks, scroll, movimiento de mouse, cadencia de requests | Delays aleatorios, simulacion de interaccion humana |
+
+**Jerarquia de herramienta por proveedor anti-bot:**
+- DataDome v3 / Akamai → **Camoufox** (primera opcion)
+- Cloudflare Turnstile v2 → **Patchright**
+- Imperva Neuro / PerimeterX → **Browserbase** (IP residencial + stealth)
+- Sin anti-bot o bajo → **Crawlee** + Playwright estandar
 
 ## Herramientas 2026 — Punta de Lanza
 
@@ -796,6 +814,111 @@ El portal resetea el combobox de Dimensiones al cambiar las Metricas. Orden obli
 4. Seleccionar Dimensiones (combobox) — DESPUES de metricas
 5. Aplicar Filtros (boton amarillo)
 6. Segunda pasada de fechas + Aplicar Filtros nuevamente
+
+## Resiliencia y Deteccion de Fallos Silenciosos
+
+Co-activa con `silent-failure-hunter` siempre que se construya o revise un scraper.
+
+El fallo silencioso mas peligroso en scrapers: el servidor retorna HTTP 200, no se lanza excepcion, pero el dato extraido es `null`, `[]` o `""`. El pipeline downstream consume datos corruptos sin saberlo.
+
+### Patron 1 — Validacion de schema post-extraccion (obligatorio)
+
+Usar Zod (Node.js) o Pydantic (Python) para validar el dato extraido antes de persistirlo:
+
+```typescript
+import { z } from 'zod';
+
+const ProductoSchema = z.object({
+  nombre: z.string().min(1),
+  precio: z.number().positive(),
+  disponible: z.boolean()
+});
+
+// Despues de extraer — NUNCA persistir sin validar
+const resultado = ProductoSchema.safeParse(datosExtraidos);
+if (!resultado.success) {
+  logger.error({ nivel: 'error', herramienta: 'scraper', error: resultado.error.flatten(), url });
+  throw new Error(`Schema invalido en ${url}`, { cause: resultado.error });
+}
+```
+
+```python
+from pydantic import BaseModel, validator
+
+class Producto(BaseModel):
+    nombre: str
+    precio: float
+    disponible: bool
+
+    @validator('precio')
+    def precio_positivo(cls, v):
+        if v <= 0:
+            raise ValueError('precio debe ser positivo')
+        return v
+
+# Post-extraccion
+try:
+    producto = Producto(**datos_extraidos)
+except ValidationError as e:
+    logger.error({'herramienta': 'scraper', 'error': e.errors(), 'url': url})
+    raise
+```
+
+### Patron 2 — Assertion de plausibilidad semantica (obligatorio)
+
+Un bloqueo disfrazado de datos validos es mas peligroso que un error explicito:
+
+```typescript
+function validarPlausibilidad(datos: Producto[], url: string): void {
+  // Precio cero en un marketplace = bloqueo, no dato real
+  if (datos.some(p => p.precio === 0)) {
+    logger.warn({ nivel: 'warn', tipo: 'SUSPECTED_BLOCK', url, razon: 'precio=0 detectado' });
+    throw new Error(`SUSPECTED_BLOCK: precio=0 en ${url}`);
+  }
+  // Lista vacia en horario de operacion = selectores rotos o bloqueo
+  if (datos.length === 0) {
+    logger.warn({ nivel: 'warn', tipo: 'SUSPECTED_BLOCK', url, razon: 'lista vacia' });
+    throw new Error(`SUSPECTED_BLOCK: lista vacia en ${url}`);
+  }
+}
+```
+
+### Patron 3 — Circuit breaker por dominio (obligatorio en pipelines de produccion)
+
+```typescript
+const erroresPorDominio: Map<string, number> = new Map();
+const UMBRAL_CIRCUIT_BREAKER = 5;
+
+async function fetchConCircuitBreaker(url: string): Promise<string> {
+  const dominio = new URL(url).hostname;
+  const errores = erroresPorDominio.get(dominio) ?? 0;
+
+  if (errores >= UMBRAL_CIRCUIT_BREAKER) {
+    logger.error({ nivel: 'error', tipo: 'CIRCUIT_OPEN', dominio });
+    throw new Error(`Circuit breaker abierto para ${dominio} — demasiados fallos consecutivos`);
+  }
+
+  try {
+    const resultado = await fetchPagina(url);
+    erroresPorDominio.set(dominio, 0); // reset en exito
+    return resultado;
+  } catch (error) {
+    erroresPorDominio.set(dominio, errores + 1);
+    logger.error({ nivel: 'error', dominio, intentos: errores + 1, error: error.message });
+    throw error; // SIEMPRE propagar — nunca silenciar
+  }
+}
+```
+
+### Checklist de revision de fallos silenciosos para scrapers
+
+Antes de mergear cualquier scraper, verificar:
+- [ ] Todo `catch` tiene logging estructurado con `url`, `herramienta` y `error.message`
+- [ ] Ningun `catch` retorna `null`, `[]` o `{}` sin loggear primero como WARNING
+- [ ] Datos extraidos pasan validacion de schema (Zod/Pydantic) antes de persistirse
+- [ ] Lista vacia o precio=0 lanza `SUSPECTED_BLOCK`, no se persiste silenciosamente
+- [ ] Circuit breaker activo para dominios con reintentos en produccion
+- [ ] `throw error` o `throw new Error(msg, { cause: error })` en todos los catch que no son terminales
 
 ## Restricciones del Perfil
 

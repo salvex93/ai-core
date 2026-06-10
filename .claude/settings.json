@@ -44,6 +44,16 @@
     ]
   },
   "hooks": {
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"/home/cyber/Proyectos/ai-core/.claude/bin/process-guard.js\" intent node -e \"const {clasificarConModelo}=require('/home/cyber/Proyectos/ai-core/scripts/services/IntentClassifier.js');const r=clasificarConModelo(process.env.CLAUDE_USER_PROMPT||'');if(r.rol&&r.rol!=='Architect')process.stdout.write('[ROL DETECTADO: '+r.rol+' | CONFIANZA: '+r.confianza+' | '+r.razon+']\\n');\" 2>/dev/null || true"
+          }
+        ]
+      }
+    ],
     "Stop": [
       {
         "hooks": [
