@@ -3,6 +3,23 @@
 Registro de cambios por version. Formato basado en [Keep a Changelog](https://keepachangelog.com/es/1.0.0/).
 Versionado semantico: MAJOR.MINOR.PATCH.
 
+## [3.9.1] — 2026-06-12
+
+### Corregido
+
+- **`validate-globals.js`**: parser reemplazado para leer la tabla markdown de seleccion de skills en CLAUDE.md en lugar del patron de lista lineal legacy. Elimina 32 falsos positivos de severidad media reportados en cada ejecucion desde v3.9.0.
+- **`@anthropic-ai/sdk`**: actualizado de 0.100.1 a 0.104.1.
+- **`ModelRegistry.js`**: comentario de catalogo de modelos actualizado (Haiku 4.5 / Sonnet 4.6 / Opus 4.8 / Fable 5) para orientar seleccion por tier de costo.
+
+### Auditoria de Portabilidad
+
+La garantia de que el arnes funciona en cualquier maquina tras `git clone` se apoya en dos mecanismos:
+
+1. **`npm run setup`** — regenera `settings.json` con las rutas absolutas del sistema actual. Lo ejecuta automaticamente `npm run update`. Sin este paso, los hooks de Claude Code apuntan a la ruta del owner original y fallan silenciosamente.
+2. **`.env.example`** — plantilla completa con todas las API keys necesarias (GEMINI_API_KEY, ANTHROPIC_API_KEY y opcionales). El usuario copia a `.env` y completa solo las claves que use.
+
+Riesgo residual documentado: `settings.json` se commitea con rutas absolutas del owner. Si un colaborador clona y NO ejecuta `npm run setup`, los hooks apuntan a `/home/cyber/Proyectos/ai-core/` y no a su ruta local. El arnes corre pero todos los hooks fallan silenciosamente (los scripts tienen `|| true` como guardia). Solucion: ejecutar `npm run setup` siempre tras clonar.
+
 ## [3.9.0] — 2026-06-10
 
 ### Skills — Upgrade Senior (nivel basico → nivel produccion)
