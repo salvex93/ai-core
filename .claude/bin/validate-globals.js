@@ -65,11 +65,27 @@ const VIOLACIONES = [
 // ─── Leer CLAUDE.md y extraer lista de skills declarados ─────────────────────
 function getSkillsDeclaradosEnClaudeMd() {
   const content = fs.readFileSync(CLAUDE, 'utf8');
-  const match   = content.match(/Skills disponibles: (.+)\./);
-  if (!match) return new Set();
-  return new Set(
-    match[1].split(',').map(s => s.trim().replace(/`/g, ''))
+
+  // Formato legacy: "Skills disponibles: a, b, c."
+  const matchLegacy = content.match(/Skills disponibles: (.+)\./);
+  if (matchLegacy) {
+    return new Set(matchLegacy[1].split(',').map(s => s.trim().replace(/`/g, '')));
+  }
+
+  // Formato tabla: columna de skills en tabla markdown de seleccion automatica
+  // Ejemplo: | backend-architect`, `data-engineer |
+  const skillsEnTabla = new Set();
+  const reTabla = /`([a-z][a-z0-9-]+)`/g;
+  let m;
+  while ((m = reTabla.exec(content)) !== null) {
+    skillsEnTabla.add(m[1]);
+  }
+
+  // Validar contra skills reales en disco para descartar falsos positivos
+  const skillsEnDisco = fs.readdirSync(SKILLS).filter(d =>
+    fs.existsSync(path.join(SKILLS, d, 'SKILL.md'))
   );
+  return new Set(skillsEnDisco.filter(s => skillsEnTabla.has(s)));
 }
 
 // ─── Auditar un skill ─────────────────────────────────────────────────────────

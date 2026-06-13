@@ -7,7 +7,7 @@
  * Agregar un proveedor nuevo = agregar un adapter. Sin modificar la logica de routing.
  *
  * Proveedores soportados:
- *   anthropic  — Claude Haiku/Sonnet/Opus via @anthropic-ai/sdk
+ *   anthropic  — Claude Haiku 4.5 / Sonnet 4.6 / Opus 4.8 / Fable 5 via @anthropic-ai/sdk
  *   gemini     — Gemini Flash/Pro via @google/generative-ai
  *   openai     — GPT-4o, o1, o3 via openai-compatible HTTP
  *   deepseek   — DeepSeek-V3/R1 via openai-compatible HTTP (api.deepseek.com)
@@ -50,6 +50,7 @@ async function chatAnthropic(messages, options = {}) {
   const { Anthropic } = require('@anthropic-ai/sdk');
   const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
+  // Modelos disponibles: claude-haiku-4-5-20251001 | claude-sonnet-4-6 | claude-opus-4-8 | claude-fable-5
   const model  = options.model || 'claude-haiku-4-5-20251001';
   const maxOut = options.max_tokens || 1024;
   const system = options.system || '';
