@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
  * validate-globals.js
- * Audita que los 32 skills sean conformes con las reglas globales de CLAUDE.md.
+ * Audita que los 34 skills sean conformes con las reglas globales de CLAUDE.md.
  *
  * Verifica:
  *   1. Que ningun skill copia el bloque PROTOCOLO DE SESION (debe referenciar, no copiar).

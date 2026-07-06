@@ -27,11 +27,11 @@
     "agent-report-full": "node .claude/bin/agent-metrics.js report --full"
   },
   "dependencies": {
-    "@anthropic-ai/sdk": "^0.104.1",
+    "@anthropic-ai/sdk": "^0.110.0",
     "@google/generative-ai": "0.24.1",
     "@modelcontextprotocol/sdk": "^1.29.0"
   },
   "engines": {
-    "node": ">=18.0.0"
+    "node": ">=20.0.0"
   }
 }

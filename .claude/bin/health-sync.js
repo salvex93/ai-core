@@ -74,12 +74,11 @@ function checkSkills(root) {
     fs.existsSync(path.join(skillsDir, d, 'SKILL.md'))
   );
 
-  // Skills declarados en CLAUDE.md — línea "Skills disponibles: `a`, `b`, ..."
+  // Skills declarados en CLAUDE.md — extraer backtick-names de la tabla de auto-routing
+  // Formato actual: columna de tabla con "`nombre-skill`" en filas | ... | `skill` |
   const claudeMd   = fs.readFileSync(claudeMdPath, 'utf8');
-  const lineMatch  = claudeMd.match(/^Skills disponibles:(.+)$/m);
-  const inClaudeMd = lineMatch
-    ? [...lineMatch[1].matchAll(/`([^`]+)`/g)].map(m => m[1])
-    : [];
+  const mentioned  = new Set([...claudeMd.matchAll(/`([a-z][a-z0-9-]+)`/g)].map(m => m[1]));
+  const inClaudeMd = inDisk.filter(s => mentioned.has(s));
 
   const diskSet   = new Set(inDisk);
   const claudeSet = new Set(inClaudeMd);

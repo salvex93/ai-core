@@ -186,8 +186,8 @@ function scoreSeguridad() {
   const detalles = [];
 
   const BIN_DIR = path.join(CORE, '.claude', 'bin');
-  // excluir el propio scorer y scripts que contienen regex como datos (security-check)
-  const EXCLUIR = ['aiops-score.js', 'security-check.js'];
+  // excluir el propio scorer y scripts que contienen regex como datos (security-check, subagent-review)
+  const EXCLUIR = ['aiops-score.js', 'security-check.js', 'subagent-review.js'];
   const scripts = fs.readdirSync(BIN_DIR).filter(f => f.endsWith('.js') && !EXCLUIR.includes(f));
 
   const CRITICOS = [

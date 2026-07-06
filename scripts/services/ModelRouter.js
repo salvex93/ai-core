@@ -9,12 +9,12 @@
  *   DIP: los consumidores dependen de la interfaz route(), no del modelo concreto.
  */
 
-// Catalogo de modelos disponibles (mayo 2026)
+// Catalogo de modelos disponibles (julio 2026)
 const MODELOS = Object.freeze({
   GEMINI: 'gemini-2.5-flash',           // gratis (cuota diaria) — lectura de archivos grandes, logs
   HAIKU:  'claude-haiku-4-5-20251001',  // $0.80/$4 por MTok — parseo simple, transformaciones
   SONNET: 'claude-sonnet-4-6',          // $3/$15 por MTok  — refactorizacion, analisis, busqueda
-  OPUS:   'claude-opus-4-7',            // $15/$75 por MTok — arquitectura critica, diseno de sistema
+  OPUS:   'claude-opus-4-8',            // $15/$75 por MTok — arquitectura critica, diseno de sistema
 });
 
 // Costos en USD por 1M tokens (input / output)
