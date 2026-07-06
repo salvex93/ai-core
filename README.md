@@ -2,7 +2,7 @@
 
 `ai-core` es un nucleo de configuracion y comportamiento para agentes IA distribuible como submodulo Git o repositorio independiente. Inyecta reglas globales inmutables, 34 skills especializados, 5 agentes autonomos y un sistema de mejora continua por uso — todo sin acoplar su logica al stack del anfitrion.
 
-**Una sola fuente de verdad:** `CLAUDE.md` define las reglas globales. Los 32 skills las referencian — no las copian. Si una regla cambia en `CLAUDE.md`, los 32 skills se actualizan automaticamente sin tocar ningun archivo.
+**Una sola fuente de verdad:** `CLAUDE.md` define las reglas globales. Los 34 skills la referencian — no la copian. Si una regla cambia en `CLAUDE.md`, los 34 skills se actualizan automaticamente sin tocar ningun archivo.
 
 **Agnóstico al proveedor:** funciona con Claude, Gemini, OpenAI, DeepSeek y Kimi via `ModelRegistry`. Agregar un proveedor nuevo = agregar su API key en `.env`. Sin reescribir skills ni agentes.
 
@@ -82,7 +82,7 @@ claude
 npm run update
 ```
 
-Ejecuta en secuencia: `git pull` → regenera `settings.json` → corre 286 tests → aplica migraciones de version → valida 32 skills → reporta que cambio. Si algun test falla, el comando lo indica y no continua.
+Ejecuta en secuencia: `git pull` → regenera `settings.json` → corre 342 tests → aplica migraciones de version → valida 34 skills → reporta que cambio. Si algun test falla, el comando lo indica y no continua.
 
 ### Actualizar el arnes (instalado como submodulo)
 
@@ -127,7 +127,7 @@ Si no esta autenticado, los eventos de mejora se acumulan localmente en `.claude
 
 ```bash
 npm install                               # instalar dependencias
-npm test                                  # 286 tests, Node nativo, sin deps externas
+npm test                                  # 342 tests, Node nativo, sin deps externas
 npm run setup                             # regenerar settings.json con rutas locales
 npm run update                            # actualizacion one-command desde GitHub
 npm run validate-globals                  # auditar conformidad de los 34 skills
@@ -170,7 +170,7 @@ npm run agent-report-full                 # historial de metricas de todas las s
 
 ### Novedades v3.9.0
 
-**32 skills con patron senior completo** — Todos los skills tienen "Cuando NO Activar Este Perfil" (4-5 casos por skill), restricciones en imperativo positivo y checklists de PR.
+**34 skills con patron senior completo** — Todos los skills tienen "Cuando NO Activar Este Perfil" (4-5 casos por skill), restricciones en imperativo positivo y checklists de PR.
 
 **Sistema de migracion automatica** — `DEPRECATIONS.json` + `migrator.js` integrado en `update.js`. Simular con `npm run migrate-dry`.
 
@@ -240,10 +240,10 @@ Agregar un proveedor futuro = agregar su config en `PROVIDER_CONFIGS` + su API k
 
 ### Herramienta maestra de gobernanza
 
-- **`validate-globals.js`**: auditor de conformidad. Verifica que los 32 skills tengan la referencia inmutable, las secciones obligatorias, frontmatter completo y sin emojis. Detecta y corrige drift de `last_updated` con `--fix-drift`. Exit code 1 si hay hallazgos criticos — bloquea CI.
+- **`validate-globals.js`**: auditor de conformidad. Verifica que los 34 skills tengan la referencia inmutable, las secciones obligatorias, frontmatter completo y sin emojis. Detecta y corrige drift de `last_updated` con `--fix-drift`. Exit code 1 si hay hallazgos criticos — bloquea CI.
 - **`update.js`**: actualizacion one-command cross-platform. Reporta version anterior vs nueva, que cambio y si hay breaking changes que requieran accion manual.
-- **GitHub Actions CI** (`.github/workflows/ci.yml`): corre `npm test` + `validate-globals` en Linux, macOS y Windows con Node 18/20/22 en cada push a `main` y en cada PR. Un PR que rompa la conformidad de un skill no puede mergear.
-- **Fuente unica de verdad**: los 32 skills referencian `CLAUDE.md` con jerarquia declarada `CLAUDE.md > skill`. Sin copias — sin drift.
+- **GitHub Actions CI** (`.github/workflows/ci.yml`): corre `npm test` + `validate-globals` en Linux, macOS y Windows con Node 20/22 en cada push a `main` y en cada PR. Un PR que rompa la conformidad de un skill no puede mergear.
+- **Fuente unica de verdad**: los 34 skills referencian `CLAUDE.md` con jerarquia declarada `CLAUDE.md > skill`. Sin copias — sin drift.
 
 ### 32 Skills especializados (Auto-Routing)
 
@@ -391,17 +391,17 @@ New-Item -ItemType SymbolicLink -Path './CLAUDE.md' -Target 'C:/ruta/a/ai-core/C
 │   │   ├── aiops-score.js       Stop: scoring 0-10 por 6 dimensiones con historial y delta
 │   │   ├── process-guard.js     Semaforo: max 4 scripts paralelos, timeout 8s por proceso
 │   │   └── benchmark-fernet.js  Testea cifrado Fernet (PII)
-│   └── skills/                  32 skills especializados (ver tabla Auto-Routing)
+│   └── skills/                  34 skills especializados (ver tabla Auto-Routing)
 ├── scripts/
 │   └── update.js                Actualizacion one-command: pull + setup + test + validate
 ├── tests/
-│   ├── harness.test.js          286 assertions sobre harness y conformidad de skills
+│   ├── harness.test.js          342 assertions sobre harness y conformidad de skills
 │   └── token-metrics.js         Mide reduccion de consumo de tokens por sesion
 ├── .github/
-│   └── workflows/ci.yml         CI en Linux/Mac/Windows x Node 18/20/22
-├── CLAUDE.md                    Autoridad unica: reglas globales, 32 skills, enrutamiento
+│   └── workflows/ci.yml         CI en Linux/Mac/Windows x Node 20/22
+├── CLAUDE.md                    Autoridad unica: reglas globales, 34 skills, enrutamiento
 ├── DEPRECATIONS.json            Contrato de migracion por version: que se elimina y por que
-├── package.json                 v3.9.0 — Node >= 18.0.0
+├── package.json                 v3.10.0 — Node >= 20.0.0
 └── .env.example                 Plantilla de variables de entorno
 ```
 

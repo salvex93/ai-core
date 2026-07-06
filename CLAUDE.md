@@ -15,10 +15,10 @@
 ## Comandos de Referencia
 ```bash
 npm install                          # instalar dependencias del ai-core
-npm test                             # 269 tests, Node nativo, sin dependencias externas
+npm test                             # 342 tests, Node nativo, sin dependencias externas
 npm run setup                        # regenerar settings.json con rutas locales (cross-platform)
 npm run update                       # actualizacion one-command: pull + setup + test + validate
-npm run validate-globals             # auditar conformidad de los 32 skills con CLAUDE.md
+npm run validate-globals             # auditar conformidad de los 34 skills con CLAUDE.md
 npm run validate-globals -- --fix-drift  # corregir last_updated desincronizado automaticamente
 npm run token-metrics                # medir reduccion de consumo de tokens por sesion
 npm run dry-run                      # simular 5 turnos con calculo de costo/ahorro

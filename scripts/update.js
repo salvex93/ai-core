@@ -103,7 +103,7 @@ if (setup.status !== 0) {
 ok('settings.json regenerado.');
 
 // PASO 3: npm test
-step('3/5 — Ejecutando suite de tests (286 assertions)');
+step('3/5 — Ejecutando suite de tests (342 assertions)');
 const test = run('node', ['--test', 'tests/harness.test.js'], { silent: true });
 if (test.status !== 0) {
   fail('La suite de tests fallo. La actualizacion introdujo una regresion.\n');
@@ -112,7 +112,7 @@ if (test.status !== 0) {
   fail('Accion requerida: reportar el fallo en https://github.com/salvex93/ai-core/issues');
   process.exit(1);
 }
-ok('286/286 tests pasaron.');
+ok('342/342 tests pasaron.');
 
 // PASO 4: migrador de deprecaciones
 step('4/5 — Aplicando migraciones de version (eliminar deprecados)');
@@ -138,7 +138,7 @@ if (validate.status !== 0) {
   console.error(validateOut);
   process.exit(1);
 }
-ok('32/32 skills conformes con CLAUDE.md — validate-globals OK.');
+ok('34/34 skills conformes con CLAUDE.md — validate-globals OK.');
 
 // ─── Resumen final ────────────────────────────────────────────────────────────
 console.log(`\n${'═'.repeat(60)}`);

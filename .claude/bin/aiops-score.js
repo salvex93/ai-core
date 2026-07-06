@@ -111,7 +111,7 @@ function scoreHooks() {
 }
 
 // ── 3. SKILLS (0-10) ─────────────────────────────────────────────────────
-// 32 skills esperados, cada uno con las secciones obligatorias
+// 34 skills esperados, cada uno con las secciones obligatorias
 function scoreSkills() {
   let score = 0;
   const detalles = [];
@@ -123,7 +123,7 @@ function scoreSkills() {
   );
 
   const total    = dirs.length;
-  const esperado = 32;
+  const esperado = 34;
   const SECCIONES = ['Primera Accion al Activar', 'Directiva de Interrupcion', 'Restricciones del Perfil'];
 
   let conformes = 0;
@@ -136,7 +136,7 @@ function scoreSkills() {
     else detalles.push(`${d}: secciones faltantes`);
   });
 
-  // 32 skills presentes → +4; conformidad → hasta +6
+  // 34 skills presentes → +4; conformidad → hasta +6
   if (total >= esperado) score += 4;
   else { score += 2; detalles.push(`Solo ${total}/${esperado} skills`); }
 
