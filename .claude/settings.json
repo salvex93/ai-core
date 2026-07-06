@@ -80,6 +80,16 @@
         ]
       }
     ],
+    "SubagentStop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"/home/cyber/Proyectos/ai-core/.claude/bin/subagent-review.js\" 2>/dev/null || true"
+          }
+        ]
+      }
+    ],
     "PostToolUseFailure": [
       {
         "matcher": "mcp__gemini-bridge__*",
@@ -147,16 +157,6 @@
           {
             "type": "command",
             "command": "node \"/home/cyber/Proyectos/ai-core/.claude/bin/ponytail-check.js\" 2>/dev/null || true"
-          }
-        ]
-      }
-    ],
-    "SubagentStop": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "node \"/home/cyber/Proyectos/ai-core/.claude/bin/subagent-review.js\" 2>/dev/null || true"
           }
         ]
       }
