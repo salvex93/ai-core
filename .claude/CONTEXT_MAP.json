@@ -1,6 +1,6 @@
 {
-  "version": "3.9.1",
-  "last_updated": "2026-07-06T16:55:30.799Z",
+  "version": "3.10.0",
+  "last_updated": "2026-07-06T16:57:05.557Z",
   "branch": "main",
   "stack": null,
   "host": {
@@ -10,11 +10,13 @@
         ".claude/AIOPS_SCORE_HISTORY.json",
         ".claude/CONTEXT_MAP.json",
         ".claude/MEMORY.md",
+        ".claude/ROADMAP_AAA.md",
         ".claude/agents/aiops-auditor.md",
         ".claude/agents/code-reviewer.md",
         ".claude/agents/issue-tracker.md",
         ".claude/agents/map-updater.md",
         ".claude/agents/security-scanner.md",
+        ".claude/bin/agent-metrics.js",
         ".claude/bin/aiops-score.js",
         ".claude/bin/capture-event.js",
         ".claude/bin/detect-stack.js",
@@ -28,14 +30,17 @@
         ".claude/bin/health-sync.js",
         ".claude/bin/health-worker.js",
         ".claude/bin/issue-reporter.js",
+        ".claude/bin/memory-index.js",
         ".claude/bin/norm-harness.js",
         ".claude/bin/norm-harness.ps1",
+        ".claude/bin/ponytail-check.js",
         ".claude/bin/process-guard.js",
         ".claude/bin/secrets-guard.js",
         ".claude/bin/security-check.js",
         ".claude/bin/session-summary.js",
         ".claude/bin/setup-settings.js",
         ".claude/bin/standards-guard.js",
+        ".claude/bin/subagent-review.js",
         ".claude/bin/validate-globals.js",
         ".claude/bin/validate-map.js",
         ".claude/settings.json",
@@ -51,6 +56,7 @@
         ".claude/skills/cost-optimizer/SKILL.md",
         ".claude/skills/data-engineer/SKILL.md",
         ".claude/skills/database-ops/SKILL.md",
+        ".claude/skills/dev-loop/SKILL.md",
         ".claude/skills/devops-infra/SKILL.md",
         ".claude/skills/doc-builder/SKILL.md",
         ".claude/skills/gemini-2-5-specialist/SKILL.md",
@@ -58,6 +64,7 @@
         ".claude/skills/llm-observability/SKILL.md",
         ".claude/skills/managed-agents-specialist/SKILL.md",
         ".claude/skills/mcp-server-builder/SKILL.md",
+        ".claude/skills/memory-manager/SKILL.md",
         ".claude/skills/mobile-engineer/SKILL.md",
         ".claude/skills/multimodal-engineer/SKILL.md",
         ".claude/skills/prompt-engineer/SKILL.md",
@@ -111,7 +118,6 @@
       "CLAUDE.md",
       "CONTRIBUTING.md",
       "DEPRECATIONS.json",
-      "DOCS_MAESTRA.md",
       "LICENSE",
       "README.md",
       "package-lock.json",
@@ -122,7 +128,7 @@
       "node_modules/",
       ".git/"
     ],
-    "total_files": 99
+    "total_files": 105
   },
   "core": null
 }
