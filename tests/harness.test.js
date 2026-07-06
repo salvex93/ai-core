@@ -390,3 +390,366 @@ describe('aiops-score.js', () => {
     }
   });
 });
+
+describe('ponytail-check.js', () => {
+  const SCRIPT = path.join(BIN, 'ponytail-check.js');
+
+  test('el script existe y es ejecutable', () => {
+    assert.ok(fs.existsSync(SCRIPT), 'ponytail-check.js debe existir en .claude/bin/');
+  });
+
+  test('sin input: termina sin error y sin output', () => {
+    const r = runScript(SCRIPT, [], {
+      CLAUDE_TOOL_INPUT_file_path: '',
+      CLAUDE_TOOL_INPUT_content: '',
+    });
+    assert.equal(r.status, 0, 'debe terminar con exit 0');
+    assert.equal(r.stdout.trim(), '', 'no debe emitir output sin input');
+  });
+
+  test('detecta reimplementacion de stdlib: capitalize', () => {
+    const r = runScript(SCRIPT, [], {
+      CLAUDE_TOOL_INPUT_file_path: 'src/utils.js',
+      CLAUDE_TOOL_INPUT_content: 'function capitalizeFirst(s) { return s[0].toUpperCase()+s.slice(1); }',
+    });
+    assert.equal(r.status, 0);
+    assert.ok(r.stdout.includes('PONYTAIL'), 'debe emitir advertencia PONYTAIL');
+    assert.ok(r.stdout.includes('capitalize'), 'debe mencionar capitalize');
+  });
+
+  test('detecta reimplementacion de stdlib: unique/dedupe', () => {
+    const r = runScript(SCRIPT, [], {
+      CLAUDE_TOOL_INPUT_file_path: 'src/utils.js',
+      CLAUDE_TOOL_INPUT_content: 'function unique(arr) { return [...new Set(arr)]; }',
+    });
+    assert.equal(r.status, 0);
+    assert.ok(r.stdout.includes('unique'), 'debe mencionar unique');
+  });
+
+  test('detecta reimplementacion de stdlib: deepClone', () => {
+    const r = runScript(SCRIPT, [], {
+      CLAUDE_TOOL_INPUT_file_path: 'src/utils.js',
+      CLAUDE_TOOL_INPUT_content: 'function deepClone(obj) { return JSON.parse(JSON.stringify(obj)); }',
+    });
+    assert.equal(r.status, 0);
+    assert.ok(r.stdout.includes('structuredClone'), 'debe sugerir structuredClone');
+  });
+
+  test('detecta comentario YAGNI / future', () => {
+    const r = runScript(SCRIPT, [], {
+      CLAUDE_TOOL_INPUT_file_path: 'src/service.js',
+      CLAUDE_TOOL_INPUT_content: '// TODO: future extensible plugin system\nconst x = 1;',
+    });
+    assert.equal(r.status, 0);
+    assert.ok(r.stdout.includes('YAGNI'), 'debe detectar comentario YAGNI');
+  });
+
+  test('detecta funcion con mas de 3 parametros', () => {
+    const r = runScript(SCRIPT, [], {
+      CLAUDE_TOOL_INPUT_file_path: 'src/api.js',
+      CLAUDE_TOOL_INPUT_content: 'function fetchData(url, method, headers, body, timeout) { }',
+    });
+    assert.equal(r.status, 0);
+    assert.ok(r.stdout.includes('Parametros'), 'debe advertir sobre exceso de parametros');
+  });
+
+  test('no emite advertencias en codigo limpio y minimal', () => {
+    const r = runScript(SCRIPT, [], {
+      CLAUDE_TOOL_INPUT_file_path: 'src/clean.js',
+      CLAUDE_TOOL_INPUT_content: [
+        "'use strict';",
+        'const BASE = 8;',
+        'function espacio(n) { return n * BASE; }',
+        'module.exports = { espacio };',
+      ].join('\n'),
+    });
+    assert.equal(r.status, 0);
+    assert.equal(r.stdout.trim(), '', 'codigo limpio no debe generar advertencias');
+  });
+
+  test('no evalua archivos de tests (exempt)', () => {
+    const r = runScript(SCRIPT, [], {
+      CLAUDE_TOOL_INPUT_file_path: 'tests/utils.test.js',
+      CLAUDE_TOOL_INPUT_content: 'function deepClone(o) { return JSON.parse(JSON.stringify(o)); }',
+    });
+    assert.equal(r.status, 0);
+    assert.equal(r.stdout.trim(), '', 'archivos .test.js estan exentos de ponytail');
+  });
+
+  test('ponytail-check esta registrado en PreToolUse de settings.json', () => {
+    const settings = JSON.parse(fs.readFileSync(SETTINGS, 'utf8'));
+    const preToolUse = settings.hooks?.PreToolUse || [];
+    const writeEditHook = preToolUse.find(h => h.matcher === 'Write|Edit');
+    assert.ok(writeEditHook, 'debe existir matcher Write|Edit en PreToolUse');
+    const commands = (writeEditHook.hooks || []).map(h => h.command || '');
+    const registered = commands.some(c => c.includes('ponytail-check.js'));
+    assert.ok(registered, 'ponytail-check.js debe estar registrado en el hook Write|Edit');
+  });
+});
+
+describe('dev-loop skill', () => {
+  const SKILL_PATH = path.join(SKILLS, 'dev-loop', 'SKILL.md');
+
+  test('el archivo SKILL.md existe', () => {
+    assert.ok(fs.existsSync(SKILL_PATH), 'dev-loop/SKILL.md debe existir en .claude/skills/');
+  });
+
+  test('el frontmatter tiene name, version, origin y last_updated', () => {
+    const content = fs.readFileSync(SKILL_PATH, 'utf8');
+    assert.ok(content.includes('name: dev-loop'),        'debe tener name: dev-loop');
+    assert.ok(/version:\s*\d+\.\d+\.\d+/.test(content), 'debe tener version semantica');
+    assert.ok(content.includes('origin: ai-core'),       'debe tener origin: ai-core');
+    assert.ok(/last_updated:\s*\d{4}-\d{2}-\d{2}/.test(content), 'debe tener last_updated');
+  });
+
+  test('contiene las 5 fases obligatorias', () => {
+    const content = fs.readFileSync(SKILL_PATH, 'utf8');
+    const fases = ['SPEC', 'DESIGN', 'PLAN', 'BUILD', 'REVIEW'];
+    for (const fase of fases) {
+      assert.ok(content.includes(`Fase.*${fase}`) || content.includes(`— ${fase}`),
+        `debe contener la fase ${fase}`);
+    }
+  });
+
+  test('contiene secciones Cuando Activar y Cuando NO Activar', () => {
+    const content = fs.readFileSync(SKILL_PATH, 'utf8');
+    assert.ok(content.includes('Cuando Activar Este Perfil'),    'debe tener seccion Cuando Activar');
+    assert.ok(content.includes('Cuando NO Activar Este Perfil'), 'debe tener seccion Cuando NO Activar');
+  });
+
+  test('contiene referencia inmutable a CLAUDE.md', () => {
+    const content = fs.readFileSync(SKILL_PATH, 'utf8');
+    assert.ok(content.includes('CLAUDE.md > este skill'), 'debe tener referencia inmutable a CLAUDE.md');
+  });
+
+  test('contiene Directiva de Interrupcion con ALERTA_ARQUITECTONICA', () => {
+    const content = fs.readFileSync(SKILL_PATH, 'utf8');
+    assert.ok(content.includes('ALERTA_ARQUITECTONICA'), 'debe tener directiva de interrupcion');
+  });
+
+  test('define formato de artefacto para cada fase', () => {
+    const content = fs.readFileSync(SKILL_PATH, 'utf8');
+    assert.ok(content.includes('SPEC:'),   'debe definir formato de artefacto SPEC');
+    assert.ok(content.includes('DESIGN:'), 'debe definir formato de artefacto DESIGN');
+    assert.ok(content.includes('PLAN:'),   'debe definir formato de artefacto PLAN');
+    assert.ok(content.includes('REVIEW:'), 'debe definir formato de artefacto REVIEW');
+  });
+
+  test('define telemetria de ciclo por fase', () => {
+    const content = fs.readFileSync(SKILL_PATH, 'utf8');
+    assert.ok(content.includes('[DEV-LOOP'), 'debe definir telemetria de ciclo con prefijo DEV-LOOP');
+  });
+
+  test('no contiene emojis pictograficos', () => {
+    const content = fs.readFileSync(SKILL_PATH, 'utf8');
+    const EMOJI = /[\u{1F300}-\u{1F9FF}]|[\u{2600}-\u{27BF}]|[\u{1FA00}-\u{1FAFF}]/u;
+    assert.ok(!EMOJI.test(content), 'el skill no debe contener emojis');
+  });
+});
+
+describe('memory-index.js (vault BM25)', () => {
+  const SCRIPT     = path.join(BIN, 'memory-index.js');
+  const VAULT      = path.join(REPO, '.claude', 'memory-vault');
+  const RAW        = path.join(VAULT, '.raw');
+  const WIKI       = path.join(VAULT, '.wiki');
+  const INDEX_FILE = path.join(VAULT, 'index.json');
+
+  const TEST_FILE = path.join(RAW, '_test-bm25.md');
+  const TEST_CONTENT = [
+    '---',
+    'tipo: decision',
+    'fecha: 2026-07-06',
+    'proyecto: ai-core',
+    'tags: [bm25, memoria, vault]',
+    '---',
+    '',
+    '# BM25 vault test',
+    '',
+    'Motor de busqueda semantica sin dependencias externas.',
+    'Recuperacion de contexto entre sesiones con indice invertido.',
+  ].join('\n');
+
+  before(() => {
+    fs.mkdirSync(RAW,  { recursive: true });
+    fs.mkdirSync(WIKI, { recursive: true });
+    fs.writeFileSync(TEST_FILE, TEST_CONTENT, 'utf8');
+  });
+
+  after(() => {
+    if (fs.existsSync(TEST_FILE))  fs.unlinkSync(TEST_FILE);
+    const wikiFile = path.join(WIKI, '_test-bm25.md');
+    if (fs.existsSync(wikiFile))   fs.unlinkSync(wikiFile);
+    if (fs.existsSync(INDEX_FILE)) fs.unlinkSync(INDEX_FILE);
+  });
+
+  test('el script existe', () => {
+    assert.ok(fs.existsSync(SCRIPT), 'memory-index.js debe existir en .claude/bin/');
+  });
+
+  test('cmd index: crea index.json y .wiki/ a partir de .raw/', () => {
+    const r = runScript(SCRIPT, ['index']);
+    assert.equal(r.status, 0, 'debe terminar con exit 0');
+    assert.ok(fs.existsSync(INDEX_FILE), 'debe crear index.json');
+    const idx = JSON.parse(fs.readFileSync(INDEX_FILE, 'utf8'));
+    assert.ok(idx.N > 0, 'el indice debe tener al menos 1 fragmento');
+    assert.ok(idx.builtAt, 'debe registrar builtAt en el indice');
+  });
+
+  test('cmd query: retorna resultados relevantes con score BM25', () => {
+    const r = runScript(SCRIPT, ['query', 'vault memoria semantica']);
+    assert.equal(r.status, 0);
+    assert.ok(r.stdout.includes('score:'), 'debe mostrar scores BM25');
+    assert.ok(r.stdout.includes('[memory]'), 'debe incluir prefijo [memory]');
+  });
+
+  test('cmd query: sin resultados para termino inexistente', () => {
+    const r = runScript(SCRIPT, ['query', 'xyzzy123nonexistent']);
+    assert.equal(r.status, 0);
+    assert.ok(
+      r.stdout.includes('sin resultados') || r.stdout.includes('score:'),
+      'debe manejar query sin hits'
+    );
+  });
+
+  test('cmd status: reporta estado del vault', () => {
+    const r = runScript(SCRIPT, ['status']);
+    assert.equal(r.status, 0);
+    assert.ok(r.stdout.includes('.raw/'),  'debe reportar .raw/');
+    assert.ok(r.stdout.includes('.wiki/'), 'debe reportar .wiki/');
+    assert.ok(r.stdout.includes('indice'), 'debe reportar estado del indice');
+  });
+
+  test('index.json tiene estructura BM25 valida', () => {
+    const idx = JSON.parse(fs.readFileSync(INDEX_FILE, 'utf8'));
+    assert.ok(typeof idx.N       === 'number', 'debe tener N (total de fragmentos)');
+    assert.ok(typeof idx.avgLen  === 'number', 'debe tener avgLen');
+    assert.ok(typeof idx.df      === 'object', 'debe tener df (document frequency)');
+    assert.ok(typeof idx.inv     === 'object', 'debe tener inv (indice invertido)');
+    assert.ok(typeof idx.frags   === 'object', 'debe tener frags (fragmentos)');
+  });
+
+  test('memory-index registrado en Stop hook de settings.json', () => {
+    const settings = JSON.parse(fs.readFileSync(SETTINGS, 'utf8'));
+    const stopHooks = settings.hooks?.Stop?.[0]?.hooks || [];
+    const cmds = stopHooks.map(h => h.command || '');
+    assert.ok(
+      cmds.some(c => c.includes('memory-index.js')),
+      'memory-index.js debe estar registrado en el hook Stop'
+    );
+  });
+
+  test('memory-manager skill existe y tiene secciones obligatorias', () => {
+    const skillPath = path.join(SKILLS, 'memory-manager', 'SKILL.md');
+    assert.ok(fs.existsSync(skillPath), 'memory-manager/SKILL.md debe existir');
+    const content = fs.readFileSync(skillPath, 'utf8');
+    assert.ok(content.includes('Cuando Activar Este Perfil'),    'debe tener Cuando Activar');
+    assert.ok(content.includes('Cuando NO Activar Este Perfil'), 'debe tener Cuando NO Activar');
+    assert.ok(content.includes('CLAUDE.md > este skill'),        'debe tener referencia inmutable');
+    assert.ok(content.includes('ALERTA_ARQUITECTONICA'),         'debe tener directiva de interrupcion');
+  });
+});
+
+describe('agent-metrics.js (observabilidad)', () => {
+  const SCRIPT  = path.join(BIN, 'agent-metrics.js');
+  const METRICS = path.join(REPO, '.claude', 'AGENT_METRICS.json');
+
+  after(() => {
+    if (fs.existsSync(METRICS)) fs.unlinkSync(METRICS);
+  });
+
+  test('el script existe', () => {
+    assert.ok(fs.existsSync(SCRIPT), 'agent-metrics.js debe existir en .claude/bin/');
+  });
+
+  test('record: crea AGENT_METRICS.json con la entrada correcta', () => {
+    const r = runScript(SCRIPT, ['record', '--tool', 'Bash', '--status', 'ok', '--ms', '100']);
+    assert.equal(r.status, 0, 'debe terminar con exit 0');
+    assert.ok(fs.existsSync(METRICS), 'debe crear AGENT_METRICS.json');
+    const data = JSON.parse(fs.readFileSync(METRICS, 'utf8'));
+    assert.ok(data.sessions.length > 0, 'debe tener al menos una sesion');
+    const session = data.sessions[data.sessions.length - 1];
+    assert.ok(session.calls.length > 0, 'debe tener al menos un call');
+    assert.equal(session.calls[0].tool, 'Bash');
+    assert.equal(session.calls[0].status, 'ok');
+  });
+
+  test('record: acumula calls en la misma sesion', () => {
+    runScript(SCRIPT, ['record', '--tool', 'Write', '--status', 'ok', '--ms', '50']);
+    const data    = JSON.parse(fs.readFileSync(METRICS, 'utf8'));
+    const session = data.sessions[data.sessions.length - 1];
+    assert.ok(session.calls.length >= 2, 'debe acumular calls en la misma sesion');
+  });
+
+  test('record: contabiliza tokens estimados por herramienta', () => {
+    const data    = JSON.parse(fs.readFileSync(METRICS, 'utf8'));
+    const session = data.sessions[data.sessions.length - 1];
+    assert.ok(session.totals.tokens > 0, 'debe acumular tokens estimados');
+  });
+
+  test('report: emite resumen de sesion con metricas clave', () => {
+    const r = runScript(SCRIPT, ['report']);
+    assert.equal(r.status, 0);
+    assert.ok(r.stdout.includes('[metrics]'),   'debe incluir prefijo [metrics]');
+    assert.ok(r.stdout.includes('tool calls'),  'debe reportar total de tool calls');
+    assert.ok(r.stdout.includes('fiabilidad'),  'debe reportar fiabilidad');
+    assert.ok(r.stdout.includes('tokens est.'), 'debe reportar tokens estimados');
+  });
+
+  test('report --full: incluye todas las sesiones', () => {
+    const r = runScript(SCRIPT, ['report', '--full']);
+    assert.equal(r.status, 0);
+    assert.ok(r.stdout.includes('[metrics]'), 'debe incluir datos de sesiones');
+  });
+
+  test('agent-metrics registrado en PostToolUse de settings.json', () => {
+    const settings  = JSON.parse(fs.readFileSync(SETTINGS, 'utf8'));
+    const postHooks = settings.hooks?.PostToolUse || [];
+    const metricsHook = postHooks.find(h =>
+      (h.hooks || []).some(c => (c.command || '').includes('agent-metrics.js'))
+    );
+    assert.ok(metricsHook, 'agent-metrics.js debe estar registrado en PostToolUse');
+  });
+});
+
+describe('subagent-review.js (adverse)', () => {
+  const SCRIPT = path.join(BIN, 'subagent-review.js');
+
+  test('el script existe', () => {
+    assert.ok(fs.existsSync(SCRIPT), 'subagent-review.js debe existir en .claude/bin/');
+  });
+
+  test('output trivial (< 30 lineas): exit 0 sin output', () => {
+    const shortOutput = Array(5).fill('linea de codigo').join('\n');
+    const r = runScript(SCRIPT, [], { CLAUDE_SUBAGENT_OUTPUT: shortOutput, CLAUDE_SUBAGENT_TYPE: 'test' });
+    assert.equal(r.status, 0, 'output trivial debe pasar sin revision');
+  });
+
+  test('detecta catch vacio (CRITICO) y retorna exit 1', () => {
+    const badOutput = Array(35).fill('catch() {}').join('\n');
+    const r = runScript(SCRIPT, [], { CLAUDE_SUBAGENT_OUTPUT: badOutput, CLAUDE_SUBAGENT_TYPE: 'test' });
+    assert.equal(r.status, 1, 'debe retornar exit 1 cuando hay hallazgos CRITICOS');
+    assert.ok(r.stdout.includes('CRITICO'), 'debe reportar hallazgo CRITICO');
+    assert.ok(r.stdout.includes('catch vacio'), 'debe identificar el patron de catch vacio');
+  });
+
+  test('detecta eval() como hallazgo ALTO', () => {
+    const evalOutput = Array(35).fill('').map((_, i) => i === 10 ? 'eval(userInput)' : `const x${i} = ${i};`).join('\n');
+    const r = runScript(SCRIPT, [], { CLAUDE_SUBAGENT_OUTPUT: evalOutput, CLAUDE_SUBAGENT_TYPE: 'test' });
+    assert.equal(r.status, 0);
+    assert.ok(r.stdout.includes('ALTO') || r.stdout.includes('sin hallazgos'), 'debe detectar eval() o no tener otros criticos');
+  });
+
+  test('output limpio (> 30 lineas): exit 0 con mensaje sin hallazgos', () => {
+    const cleanOutput = Array(35).fill('').map((_, i) => `const valor${i} = ${i};`).join('\n');
+    const r = runScript(SCRIPT, [], { CLAUDE_SUBAGENT_OUTPUT: cleanOutput, CLAUDE_SUBAGENT_TYPE: 'test' });
+    assert.equal(r.status, 0, 'codigo limpio debe pasar');
+    assert.ok(r.stdout.includes('sin hallazgos'), 'debe reportar sin hallazgos');
+  });
+
+  test('subagent-review registrado en SubagentStop de settings.json', () => {
+    const settings = JSON.parse(fs.readFileSync(SETTINGS, 'utf8'));
+    const stopHooks = settings.hooks?.SubagentStop?.[0]?.hooks || [];
+    const registered = stopHooks.some(h => (h.command || '').includes('subagent-review.js'));
+    assert.ok(registered, 'subagent-review.js debe estar registrado en SubagentStop');
+  });
+});

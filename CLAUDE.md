@@ -74,8 +74,10 @@ NO esperar a que el usuario declare skills. Seleccionar automaticamente segun la
 | Agentes autonomos con SDK, subagentes, OAuth MCP, hooks de ciclo de vida | `claude-agent-sdk` |
 | Aplicaciones Flutter/Dart, mobile multiplataforma, BLoC/Riverpod | `mobile-engineer` |
 | Operaciones de BD en produccion: queries lentas, migraciones, pooling, vacuum, backup | `database-ops` |
+| Implementacion nueva, feature, refactor que toca mas de un archivo — ciclo con validacion | `dev-loop` |
+| Recuperar contexto de sesiones previas, indexar aprendizajes, busqueda semantica en vault | `memory-manager` |
 
-Los 32 skills disponibles estan en `.claude/skills/`. Cada SKILL.md define el dominio, triggers de activacion y casos de NO activacion.
+Los 34 skills disponibles estan en `.claude/skills/`. Cada SKILL.md define el dominio, triggers de activacion y casos de NO activacion.
 
 ## Visibilidad y Telemetría
 Imprimir una sola línea al inicio de la **primera respuesta de cada sesión**:
@@ -86,6 +88,17 @@ Reglas adicionales (solo cuando aplique):
 - Al cambiar de rol durante la sesión: `[ROL → <nuevo-rol> | IA: <modelo>]` una vez por cambio.
 
 No repetir la línea de telemetría en cada turno — solo en el primero de la sesión.
+
+## Protocolo de Arranque (primera respuesta de cada sesion)
+
+Al inicio de cada sesion, ejecutar este checklist en orden antes de responder al usuario:
+
+1. **Telemetria:** Emitir `[DIR: ... | RAMA: ... | MODELO: ...]` (una sola vez).
+2. **Vault de memoria:** `node .claude/bin/memory-index.js query "<tema del primer mensaje>"` — si hay resultados con score > 2.0, incluirlos como contexto activo.
+3. **Estado del mapa:** El hook `PreToolUse` ejecuta `validate-map.js` automaticamente — si reporta drift, esperar a que se resuelva antes de responder.
+4. **Metricas de sesion anterior:** Si existe `.claude/AGENT_METRICS.json`, leer el ultimo reporte con `node .claude/bin/agent-metrics.js report` para detectar patrones de fallo recurrentes.
+
+Este protocolo es automatico — no requiere que el usuario lo solicite. Se completa en silencio salvo que algun paso reporte un hallazgo relevante.
 
 ## Protocolo de Súper Optimización (Gestión de Cuota)
 1. **Mapeo de Grafo:** USA `.claude/CONTEXT_MAP.json` como indice primario. Al inicio de sesion, el hook `PreToolUse` ejecuta `.claude/bin/validate-map.js` (drift por conteo) y el hook `PostToolUse` ejecuta `.claude/bin/diff-map-trigger.js` (drift estructural por `git status`). PROHIBIDO usar `git ls-files`, `find` o `ls` para explorar estructura. Solo lee un archivo si vas a modificarlo.

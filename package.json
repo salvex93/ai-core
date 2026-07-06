@@ -19,7 +19,12 @@
     "score-report": "node .claude/bin/aiops-score.js --report",
     "migrate": "node scripts/migrator.js",
     "migrate-dry": "node scripts/migrator.js --dry-run",
-    "update": "node scripts/update.js"
+    "update": "node scripts/update.js",
+    "memory-index": "node .claude/bin/memory-index.js index",
+    "memory-query": "node .claude/bin/memory-index.js query",
+    "memory-status": "node .claude/bin/memory-index.js status",
+    "agent-report": "node .claude/bin/agent-metrics.js report",
+    "agent-report-full": "node .claude/bin/agent-metrics.js report --full"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.104.1",

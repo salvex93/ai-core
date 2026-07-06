@@ -1,6 +1,6 @@
-# AI-CORE v3.9.0: Nucleo Multi-Agente Universal
+# AI-CORE v3.10.0: Nucleo Multi-Agente Universal
 
-`ai-core` es un nucleo de configuracion y comportamiento para agentes IA distribuible como submodulo Git o repositorio independiente. Inyecta reglas globales inmutables, 32 skills especializados, 5 agentes autonomos y un sistema de mejora continua por uso — todo sin acoplar su logica al stack del anfitrion.
+`ai-core` es un nucleo de configuracion y comportamiento para agentes IA distribuible como submodulo Git o repositorio independiente. Inyecta reglas globales inmutables, 34 skills especializados, 5 agentes autonomos y un sistema de mejora continua por uso — todo sin acoplar su logica al stack del anfitrion.
 
 **Una sola fuente de verdad:** `CLAUDE.md` define las reglas globales. Los 32 skills las referencian — no las copian. Si una regla cambia en `CLAUDE.md`, los 32 skills se actualizan automaticamente sin tocar ningun archivo.
 
@@ -35,7 +35,7 @@ npm install
 npm run setup    # adapta settings.json a tu ruta exacta (cross-platform)
 
 # 3. Verificar que todo funciona
-npm test         # debe terminar: 286 pass, 0 fail
+npm test         # debe terminar: 342 pass, 0 fail
 
 # 4. Autenticar gh CLI para el issue-tracker (una sola vez por maquina)
 gh auth login    # selecciona: GitHub.com → HTTPS → Login with a web browser
@@ -130,7 +130,7 @@ npm install                               # instalar dependencias
 npm test                                  # 286 tests, Node nativo, sin deps externas
 npm run setup                             # regenerar settings.json con rutas locales
 npm run update                            # actualizacion one-command desde GitHub
-npm run validate-globals                  # auditar conformidad de los 32 skills
+npm run validate-globals                  # auditar conformidad de los 34 skills
 npm run validate-globals -- --fix-drift   # corregir last_updated desincronizado
 npm run token-metrics                     # medir reduccion de consumo de tokens
 npm run dry-run                           # simular 5 turnos con calculo de costo
@@ -139,25 +139,44 @@ npm run score                             # scoring 0-10 por 6 dimensiones del a
 npm run score-report                      # historial completo de scores con delta
 npm run migrate                           # aplicar migraciones de version manualmente
 npm run migrate-dry                       # simular migraciones sin aplicar cambios
+npm run memory-index                      # indexar vault de memoria semantica
+npm run memory-query "<terminos>"         # buscar en vault (BM25)
+npm run memory-status                     # estado del vault
+npm run agent-report                      # resumen de metricas de la sesion actual
+npm run agent-report-full                 # historial de metricas de todas las sesiones
 ```
 
 ---
 
-## Que incorpora v3.9.0
+## Que incorpora v3.10.0
+
+### Novedades v3.10.0 — AI-CORE AAA
+
+**Ponytail enforcement** — Hook `PreToolUse Write|Edit` con escalera YAGNI de 5 capas ejecutable antes de cada escritura. Detecta reimplementaciones de stdlib (capitalize, deepClone, unique, uuid...), features futuras (TODO/YAGNI), funciones con >3 parametros y bloques >200 lineas. Resultado esperado: -40% lineas por diff.
+
+**Dev-loop skill** — Ciclo de desarrollo con 5 gates obligatorios: Spec → Design → Plan → Build → Review. Sin artefacto de la fase anterior, la siguiente no comienza. Elimina el patron "genera 500 lineas sin validar". Basado en Superpowers (Jesse Vincent/obra) y agent-skills (Addy Osmani).
+
+**Memoria semantica BM25** — Vault `.claude/memory-vault/` con motor BM25 puro Node.js, zero-dependency. Indexacion automatica en Stop hook. Recuperacion semantica al inicio de sesion. Umbral: score > 2.0 entra al contexto activo. Resuelve el context rot entre sesiones sin bases de datos externas.
+
+**Observabilidad de agentes** — `agent-metrics.js` registra cada tool call (herramienta, status, tokens estimados, duracion). `npm run agent-report` para ver resumen de sesion actual. Adaptado de agent-house (Addy Osmani).
+
+**Validacion adversarial de subagentes** — Hook `SubagentStop` con `subagent-review.js`: 3 perspectivas (Auditor + Adversario + Pragmatico) antes de integrar el output al padre. Basado en adverse (Addy Osmani). Exit 1 si hay hallazgos CRITICOS.
+
+**Skills de diseno AAA 2026** — `ux-visual-designer` v2.0.0 y `tech-lead-frontend` v4.0.0 reescritos con: 10 paradigmas visuales 2026 (glassmorphism, claymorphism, liquid glass, brutalismo, maximalismo, bento grid, spatial UI...), tokens W3C estandar Oct 2025, WCAG 2.2 AA nuevos criterios (2.4.11, 2.5.8, 3.3.8), CSS moderno (container queries, view transitions, anchor positioning), Motion v11+ con import path correcto.
+
+**Protocolo de arranque automatico** — Al inicio de cada sesion: telemetria, consulta al vault semantico, verificacion del mapa, lectura de metricas de sesion anterior. Sin intervencion del usuario.
+
+**342 tests** — +56 tests nuevos cubriendo ponytail-check, dev-loop, memory-index BM25, agent-metrics y subagent-review.
 
 ### Novedades v3.9.0
 
-**32 skills con patron senior completo** — Todos los skills tienen ahora "Cuando NO Activar Este Perfil" (4-5 casos de no uso por skill), restricciones formuladas como imperativos positivos (no como PROHIBIDO) y checklists de PR donde corresponde. La investigacion indica que las reglas formuladas en negativo se violan ~50% mas que las formuladas en positivo.
+**32 skills con patron senior completo** — Todos los skills tienen "Cuando NO Activar Este Perfil" (4-5 casos por skill), restricciones en imperativo positivo y checklists de PR.
 
-**Sistema de migracion automatica** — Al ejecutar `npm run update`, si la version cambia se aplican automaticamente las migraciones declaradas en `DEPRECATIONS.json`: eliminacion de archivos deprecados, renombrados y advertencias. Sin intervencion manual. Se puede simular con `npm run migrate-dry`.
+**Sistema de migracion automatica** — `DEPRECATIONS.json` + `migrator.js` integrado en `update.js`. Simular con `npm run migrate-dry`.
 
-**aiops-score.js** — Scoring numerico del arnes (0-10) por 6 dimensiones: routing, hooks, skills, drift, seguridad, agentes. Se ejecuta automaticamente al cerrar cada sesion (hook Stop) y persiste historial con delta. `npm run score` en cualquier momento.
+**aiops-score.js** — Scoring 0-10 por 6 dimensiones en Stop hook. `npm run score` en cualquier momento.
 
-**286 tests** — Cobertura de comportamiento para los 4 scripts de seguridad y telemetria: `security-check.js`, `secrets-guard.js`, `session-summary.js`, `aiops-score.js`.
-
-**Optimizacion de tokens en CLAUDE.md** — Eliminados elementos redundantes (~279 tokens/turno menos = ~2.790 tokens menos por sesion de 10 turnos). El bloque ANCLA con las 10 reglas criticas queda al final del system prompt para explotar el sesgo de recencia.
-
-**Codigo muerto eliminado** — `scripts/context-monitor.js` y `scripts/session-close.js` eliminados. Sus funciones estan cubiertas por el bloque ANCLA y `session-summary.js` respectivamente.
+**Optimizacion de tokens en CLAUDE.md** — ~279 tokens/turno menos. Bloque ANCLA al final del system prompt (sesgo de recencia).
 
 ---
 

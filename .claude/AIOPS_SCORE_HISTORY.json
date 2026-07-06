@@ -1,6 +1,6 @@
 [
   {
-    "ts": "2026-06-10T22:57:20.139Z",
+    "ts": "2026-07-06T16:04:31.352Z",
     "total": 10,
     "dimensiones": {
       "routing": {
@@ -30,7 +30,7 @@
     }
   },
   {
-    "ts": "2026-06-10T23:00:26.656Z",
+    "ts": "2026-07-06T16:04:31.432Z",
     "total": 10,
     "dimensiones": {
       "routing": {
@@ -60,7 +60,7 @@
     }
   },
   {
-    "ts": "2026-06-10T23:00:26.762Z",
+    "ts": "2026-07-06T16:04:37.005Z",
     "total": 10,
     "dimensiones": {
       "routing": {
@@ -90,7 +90,7 @@
     }
   },
   {
-    "ts": "2026-06-10T23:00:26.827Z",
+    "ts": "2026-07-06T16:04:37.132Z",
     "total": 10,
     "dimensiones": {
       "routing": {
@@ -120,7 +120,7 @@
     }
   },
   {
-    "ts": "2026-06-10T23:00:32.103Z",
+    "ts": "2026-07-06T16:04:37.197Z",
     "total": 10,
     "dimensiones": {
       "routing": {
@@ -150,7 +150,7 @@
     }
   },
   {
-    "ts": "2026-06-10T23:00:32.232Z",
+    "ts": "2026-07-06T16:07:39.965Z",
     "total": 10,
     "dimensiones": {
       "routing": {
@@ -180,7 +180,7 @@
     }
   },
   {
-    "ts": "2026-06-10T23:00:32.325Z",
+    "ts": "2026-07-06T16:07:40.067Z",
     "total": 10,
     "dimensiones": {
       "routing": {
@@ -210,7 +210,7 @@
     }
   },
   {
-    "ts": "2026-06-10T23:04:23.317Z",
+    "ts": "2026-07-06T16:07:40.128Z",
     "total": 10,
     "dimensiones": {
       "routing": {
@@ -240,7 +240,7 @@
     }
   },
   {
-    "ts": "2026-06-10T23:04:23.436Z",
+    "ts": "2026-07-06T16:07:49.637Z",
     "total": 10,
     "dimensiones": {
       "routing": {
@@ -270,7 +270,7 @@
     }
   },
   {
-    "ts": "2026-06-10T23:04:23.510Z",
+    "ts": "2026-07-06T16:12:26.017Z",
     "total": 10,
     "dimensiones": {
       "routing": {
@@ -283,554 +283,14 @@
       },
       "skills": {
         "score": 10,
-        "detalles": []
-      },
-      "drift": {
-        "score": 10,
-        "detalles": []
-      },
-      "seguridad": {
-        "score": 10,
-        "detalles": []
-      },
-      "agentes": {
-        "score": 10,
-        "detalles": []
-      }
-    }
-  },
-  {
-    "ts": "2026-06-10T23:07:47.169Z",
-    "total": 10,
-    "dimensiones": {
-      "routing": {
-        "score": 10,
-        "detalles": []
-      },
-      "hooks": {
-        "score": 10,
-        "detalles": []
-      },
-      "skills": {
-        "score": 10,
-        "detalles": []
-      },
-      "drift": {
-        "score": 10,
-        "detalles": []
-      },
-      "seguridad": {
-        "score": 10,
-        "detalles": []
-      },
-      "agentes": {
-        "score": 10,
-        "detalles": []
-      }
-    }
-  },
-  {
-    "ts": "2026-06-10T23:07:47.394Z",
-    "total": 10,
-    "dimensiones": {
-      "routing": {
-        "score": 10,
-        "detalles": []
-      },
-      "hooks": {
-        "score": 10,
-        "detalles": []
-      },
-      "skills": {
-        "score": 10,
-        "detalles": []
-      },
-      "drift": {
-        "score": 10,
-        "detalles": []
-      },
-      "seguridad": {
-        "score": 10,
-        "detalles": []
-      },
-      "agentes": {
-        "score": 10,
-        "detalles": []
-      }
-    }
-  },
-  {
-    "ts": "2026-06-10T23:07:47.518Z",
-    "total": 10,
-    "dimensiones": {
-      "routing": {
-        "score": 10,
-        "detalles": []
-      },
-      "hooks": {
-        "score": 10,
-        "detalles": []
-      },
-      "skills": {
-        "score": 10,
-        "detalles": []
-      },
-      "drift": {
-        "score": 10,
-        "detalles": []
-      },
-      "seguridad": {
-        "score": 10,
-        "detalles": []
-      },
-      "agentes": {
-        "score": 10,
-        "detalles": []
-      }
-    }
-  },
-  {
-    "ts": "2026-06-10T23:07:47.989Z",
-    "total": 10,
-    "dimensiones": {
-      "routing": {
-        "score": 10,
-        "detalles": []
-      },
-      "hooks": {
-        "score": 10,
-        "detalles": []
-      },
-      "skills": {
-        "score": 10,
-        "detalles": []
-      },
-      "drift": {
-        "score": 10,
-        "detalles": []
-      },
-      "seguridad": {
-        "score": 10,
-        "detalles": []
-      },
-      "agentes": {
-        "score": 10,
-        "detalles": []
-      }
-    }
-  },
-  {
-    "ts": "2026-06-10T23:10:59.590Z",
-    "total": 10,
-    "dimensiones": {
-      "routing": {
-        "score": 10,
-        "detalles": []
-      },
-      "hooks": {
-        "score": 10,
-        "detalles": []
-      },
-      "skills": {
-        "score": 10,
-        "detalles": []
-      },
-      "drift": {
-        "score": 10,
-        "detalles": []
-      },
-      "seguridad": {
-        "score": 10,
-        "detalles": []
-      },
-      "agentes": {
-        "score": 10,
-        "detalles": []
-      }
-    }
-  },
-  {
-    "ts": "2026-06-10T23:15:50.903Z",
-    "total": 10,
-    "dimensiones": {
-      "routing": {
-        "score": 10,
-        "detalles": []
-      },
-      "hooks": {
-        "score": 10,
-        "detalles": []
-      },
-      "skills": {
-        "score": 10,
-        "detalles": []
-      },
-      "drift": {
-        "score": 10,
-        "detalles": []
-      },
-      "seguridad": {
-        "score": 10,
-        "detalles": []
-      },
-      "agentes": {
-        "score": 10,
-        "detalles": []
-      }
-    }
-  },
-  {
-    "ts": "2026-06-10T23:18:00.339Z",
-    "total": 10,
-    "dimensiones": {
-      "routing": {
-        "score": 10,
-        "detalles": []
-      },
-      "hooks": {
-        "score": 10,
-        "detalles": []
-      },
-      "skills": {
-        "score": 10,
-        "detalles": []
-      },
-      "drift": {
-        "score": 10,
-        "detalles": []
-      },
-      "seguridad": {
-        "score": 10,
-        "detalles": []
-      },
-      "agentes": {
-        "score": 10,
-        "detalles": []
-      }
-    }
-  },
-  {
-    "ts": "2026-06-11T17:06:29.889Z",
-    "total": 10,
-    "dimensiones": {
-      "routing": {
-        "score": 10,
-        "detalles": []
-      },
-      "hooks": {
-        "score": 10,
-        "detalles": []
-      },
-      "skills": {
-        "score": 10,
-        "detalles": []
-      },
-      "drift": {
-        "score": 10,
-        "detalles": []
-      },
-      "seguridad": {
-        "score": 10,
-        "detalles": []
-      },
-      "agentes": {
-        "score": 10,
-        "detalles": []
-      }
-    }
-  },
-  {
-    "ts": "2026-06-11T17:15:03.337Z",
-    "total": 10,
-    "dimensiones": {
-      "routing": {
-        "score": 10,
-        "detalles": []
-      },
-      "hooks": {
-        "score": 10,
-        "detalles": []
-      },
-      "skills": {
-        "score": 10,
-        "detalles": []
-      },
-      "drift": {
-        "score": 10,
-        "detalles": []
-      },
-      "seguridad": {
-        "score": 10,
-        "detalles": []
-      },
-      "agentes": {
-        "score": 10,
-        "detalles": []
-      }
-    }
-  },
-  {
-    "ts": "2026-06-11T17:18:20.626Z",
-    "total": 10,
-    "dimensiones": {
-      "routing": {
-        "score": 10,
-        "detalles": []
-      },
-      "hooks": {
-        "score": 10,
-        "detalles": []
-      },
-      "skills": {
-        "score": 10,
-        "detalles": []
-      },
-      "drift": {
-        "score": 10,
-        "detalles": []
-      },
-      "seguridad": {
-        "score": 10,
-        "detalles": []
-      },
-      "agentes": {
-        "score": 10,
-        "detalles": []
-      }
-    }
-  },
-  {
-    "ts": "2026-06-11T17:23:26.472Z",
-    "total": 10,
-    "dimensiones": {
-      "routing": {
-        "score": 10,
-        "detalles": []
-      },
-      "hooks": {
-        "score": 10,
-        "detalles": []
-      },
-      "skills": {
-        "score": 10,
-        "detalles": []
-      },
-      "drift": {
-        "score": 10,
-        "detalles": []
-      },
-      "seguridad": {
-        "score": 10,
-        "detalles": []
-      },
-      "agentes": {
-        "score": 10,
-        "detalles": []
-      }
-    }
-  },
-  {
-    "ts": "2026-06-13T00:33:10.626Z",
-    "total": 10,
-    "dimensiones": {
-      "routing": {
-        "score": 10,
-        "detalles": []
-      },
-      "hooks": {
-        "score": 10,
-        "detalles": []
-      },
-      "skills": {
-        "score": 10,
-        "detalles": []
-      },
-      "drift": {
-        "score": 10,
-        "detalles": []
-      },
-      "seguridad": {
-        "score": 10,
-        "detalles": []
-      },
-      "agentes": {
-        "score": 10,
-        "detalles": []
-      }
-    }
-  },
-  {
-    "ts": "2026-06-13T00:33:28.169Z",
-    "total": 10,
-    "dimensiones": {
-      "routing": {
-        "score": 10,
-        "detalles": []
-      },
-      "hooks": {
-        "score": 10,
-        "detalles": []
-      },
-      "skills": {
-        "score": 10,
-        "detalles": []
-      },
-      "drift": {
-        "score": 10,
-        "detalles": []
-      },
-      "seguridad": {
-        "score": 10,
-        "detalles": []
-      },
-      "agentes": {
-        "score": 10,
-        "detalles": []
-      }
-    }
-  },
-  {
-    "ts": "2026-06-13T00:37:05.524Z",
-    "total": 10,
-    "dimensiones": {
-      "routing": {
-        "score": 10,
-        "detalles": []
-      },
-      "hooks": {
-        "score": 10,
-        "detalles": []
-      },
-      "skills": {
-        "score": 10,
-        "detalles": []
-      },
-      "drift": {
-        "score": 10,
-        "detalles": []
-      },
-      "seguridad": {
-        "score": 10,
-        "detalles": []
-      },
-      "agentes": {
-        "score": 10,
-        "detalles": []
-      }
-    }
-  },
-  {
-    "ts": "2026-06-13T00:37:05.768Z",
-    "total": 10,
-    "dimensiones": {
-      "routing": {
-        "score": 10,
-        "detalles": []
-      },
-      "hooks": {
-        "score": 10,
-        "detalles": []
-      },
-      "skills": {
-        "score": 10,
-        "detalles": []
-      },
-      "drift": {
-        "score": 10,
-        "detalles": []
-      },
-      "seguridad": {
-        "score": 10,
-        "detalles": []
-      },
-      "agentes": {
-        "score": 10,
-        "detalles": []
-      }
-    }
-  },
-  {
-    "ts": "2026-06-13T00:37:05.888Z",
-    "total": 10,
-    "dimensiones": {
-      "routing": {
-        "score": 10,
-        "detalles": []
-      },
-      "hooks": {
-        "score": 10,
-        "detalles": []
-      },
-      "skills": {
-        "score": 10,
-        "detalles": []
-      },
-      "drift": {
-        "score": 10,
-        "detalles": []
-      },
-      "seguridad": {
-        "score": 10,
-        "detalles": []
-      },
-      "agentes": {
-        "score": 10,
-        "detalles": []
-      }
-    }
-  },
-  {
-    "ts": "2026-06-13T00:37:20.730Z",
-    "total": 10,
-    "dimensiones": {
-      "routing": {
-        "score": 10,
-        "detalles": []
-      },
-      "hooks": {
-        "score": 10,
-        "detalles": []
-      },
-      "skills": {
-        "score": 10,
-        "detalles": []
-      },
-      "drift": {
-        "score": 10,
-        "detalles": []
-      },
-      "seguridad": {
-        "score": 10,
-        "detalles": []
-      },
-      "agentes": {
-        "score": 10,
-        "detalles": []
-      }
-    }
-  },
-  {
-    "ts": "2026-06-13T00:39:51.132Z",
-    "total": 10,
-    "dimensiones": {
-      "routing": {
-        "score": 10,
-        "detalles": []
-      },
-      "hooks": {
-        "score": 10,
-        "detalles": []
-      },
-      "skills": {
-        "score": 10,
-        "detalles": []
-      },
-      "drift": {
-        "score": 9,
         "detalles": [
-          "Version del mapa (3.9.0) != package.json (3.9.1)"
+          "dev-loop: secciones faltantes"
         ]
       },
+      "drift": {
+        "score": 10,
+        "detalles": []
+      },
       "seguridad": {
         "score": 10,
         "detalles": []
@@ -842,7 +302,71 @@
     }
   },
   {
-    "ts": "2026-06-13T00:39:51.329Z",
+    "ts": "2026-07-06T16:12:26.118Z",
+    "total": 10,
+    "dimensiones": {
+      "routing": {
+        "score": 10,
+        "detalles": []
+      },
+      "hooks": {
+        "score": 10,
+        "detalles": []
+      },
+      "skills": {
+        "score": 10,
+        "detalles": [
+          "dev-loop: secciones faltantes"
+        ]
+      },
+      "drift": {
+        "score": 10,
+        "detalles": []
+      },
+      "seguridad": {
+        "score": 10,
+        "detalles": []
+      },
+      "agentes": {
+        "score": 10,
+        "detalles": []
+      }
+    }
+  },
+  {
+    "ts": "2026-07-06T16:12:26.182Z",
+    "total": 10,
+    "dimensiones": {
+      "routing": {
+        "score": 10,
+        "detalles": []
+      },
+      "hooks": {
+        "score": 10,
+        "detalles": []
+      },
+      "skills": {
+        "score": 10,
+        "detalles": [
+          "dev-loop: secciones faltantes"
+        ]
+      },
+      "drift": {
+        "score": 10,
+        "detalles": []
+      },
+      "seguridad": {
+        "score": 10,
+        "detalles": []
+      },
+      "agentes": {
+        "score": 10,
+        "detalles": []
+      }
+    }
+  },
+  {
+    "ts": "2026-07-06T16:12:51.822Z",
     "total": 10,
     "dimensiones": {
       "routing": {
@@ -858,10 +382,8 @@
         "detalles": []
       },
       "drift": {
-        "score": 9,
-        "detalles": [
-          "Version del mapa (3.9.0) != package.json (3.9.1)"
-        ]
+        "score": 10,
+        "detalles": []
       },
       "seguridad": {
         "score": 10,
@@ -874,7 +396,7 @@
     }
   },
   {
-    "ts": "2026-06-13T00:39:51.446Z",
+    "ts": "2026-07-06T16:12:51.956Z",
     "total": 10,
     "dimensiones": {
       "routing": {
@@ -890,14 +412,512 @@
         "detalles": []
       },
       "drift": {
-        "score": 9,
-        "detalles": [
-          "Version del mapa (3.9.0) != package.json (3.9.1)"
-        ]
+        "score": 10,
+        "detalles": []
       },
       "seguridad": {
         "score": 10,
         "detalles": []
+      },
+      "agentes": {
+        "score": 10,
+        "detalles": []
+      }
+    }
+  },
+  {
+    "ts": "2026-07-06T16:12:52.019Z",
+    "total": 10,
+    "dimensiones": {
+      "routing": {
+        "score": 10,
+        "detalles": []
+      },
+      "hooks": {
+        "score": 10,
+        "detalles": []
+      },
+      "skills": {
+        "score": 10,
+        "detalles": []
+      },
+      "drift": {
+        "score": 10,
+        "detalles": []
+      },
+      "seguridad": {
+        "score": 10,
+        "detalles": []
+      },
+      "agentes": {
+        "score": 10,
+        "detalles": []
+      }
+    }
+  },
+  {
+    "ts": "2026-07-06T16:13:04.920Z",
+    "total": 10,
+    "dimensiones": {
+      "routing": {
+        "score": 10,
+        "detalles": []
+      },
+      "hooks": {
+        "score": 10,
+        "detalles": []
+      },
+      "skills": {
+        "score": 10,
+        "detalles": []
+      },
+      "drift": {
+        "score": 10,
+        "detalles": []
+      },
+      "seguridad": {
+        "score": 10,
+        "detalles": []
+      },
+      "agentes": {
+        "score": 10,
+        "detalles": []
+      }
+    }
+  },
+  {
+    "ts": "2026-07-06T16:25:40.731Z",
+    "total": 10,
+    "dimensiones": {
+      "routing": {
+        "score": 10,
+        "detalles": []
+      },
+      "hooks": {
+        "score": 10,
+        "detalles": []
+      },
+      "skills": {
+        "score": 10,
+        "detalles": []
+      },
+      "drift": {
+        "score": 10,
+        "detalles": []
+      },
+      "seguridad": {
+        "score": 10,
+        "detalles": []
+      },
+      "agentes": {
+        "score": 10,
+        "detalles": []
+      }
+    }
+  },
+  {
+    "ts": "2026-07-06T16:25:40.831Z",
+    "total": 10,
+    "dimensiones": {
+      "routing": {
+        "score": 10,
+        "detalles": []
+      },
+      "hooks": {
+        "score": 10,
+        "detalles": []
+      },
+      "skills": {
+        "score": 10,
+        "detalles": []
+      },
+      "drift": {
+        "score": 10,
+        "detalles": []
+      },
+      "seguridad": {
+        "score": 10,
+        "detalles": []
+      },
+      "agentes": {
+        "score": 10,
+        "detalles": []
+      }
+    }
+  },
+  {
+    "ts": "2026-07-06T16:25:40.890Z",
+    "total": 10,
+    "dimensiones": {
+      "routing": {
+        "score": 10,
+        "detalles": []
+      },
+      "hooks": {
+        "score": 10,
+        "detalles": []
+      },
+      "skills": {
+        "score": 10,
+        "detalles": []
+      },
+      "drift": {
+        "score": 10,
+        "detalles": []
+      },
+      "seguridad": {
+        "score": 10,
+        "detalles": []
+      },
+      "agentes": {
+        "score": 10,
+        "detalles": []
+      }
+    }
+  },
+  {
+    "ts": "2026-07-06T16:25:52.485Z",
+    "total": 10,
+    "dimensiones": {
+      "routing": {
+        "score": 10,
+        "detalles": []
+      },
+      "hooks": {
+        "score": 10,
+        "detalles": []
+      },
+      "skills": {
+        "score": 10,
+        "detalles": []
+      },
+      "drift": {
+        "score": 10,
+        "detalles": []
+      },
+      "seguridad": {
+        "score": 10,
+        "detalles": []
+      },
+      "agentes": {
+        "score": 10,
+        "detalles": []
+      }
+    }
+  },
+  {
+    "ts": "2026-07-06T16:42:17.165Z",
+    "total": 10,
+    "dimensiones": {
+      "routing": {
+        "score": 10,
+        "detalles": []
+      },
+      "hooks": {
+        "score": 10,
+        "detalles": []
+      },
+      "skills": {
+        "score": 10,
+        "detalles": []
+      },
+      "drift": {
+        "score": 10,
+        "detalles": []
+      },
+      "seguridad": {
+        "score": 8,
+        "detalles": [
+          "subagent-review.js: patron critico detectado"
+        ]
+      },
+      "agentes": {
+        "score": 10,
+        "detalles": []
+      }
+    }
+  },
+  {
+    "ts": "2026-07-06T16:42:17.293Z",
+    "total": 10,
+    "dimensiones": {
+      "routing": {
+        "score": 10,
+        "detalles": []
+      },
+      "hooks": {
+        "score": 10,
+        "detalles": []
+      },
+      "skills": {
+        "score": 10,
+        "detalles": []
+      },
+      "drift": {
+        "score": 10,
+        "detalles": []
+      },
+      "seguridad": {
+        "score": 8,
+        "detalles": [
+          "subagent-review.js: patron critico detectado"
+        ]
+      },
+      "agentes": {
+        "score": 10,
+        "detalles": []
+      }
+    }
+  },
+  {
+    "ts": "2026-07-06T16:42:17.367Z",
+    "total": 10,
+    "dimensiones": {
+      "routing": {
+        "score": 10,
+        "detalles": []
+      },
+      "hooks": {
+        "score": 10,
+        "detalles": []
+      },
+      "skills": {
+        "score": 10,
+        "detalles": []
+      },
+      "drift": {
+        "score": 10,
+        "detalles": []
+      },
+      "seguridad": {
+        "score": 8,
+        "detalles": [
+          "subagent-review.js: patron critico detectado"
+        ]
+      },
+      "agentes": {
+        "score": 10,
+        "detalles": []
+      }
+    }
+  },
+  {
+    "ts": "2026-07-06T16:43:28.624Z",
+    "total": 10,
+    "dimensiones": {
+      "routing": {
+        "score": 10,
+        "detalles": []
+      },
+      "hooks": {
+        "score": 10,
+        "detalles": []
+      },
+      "skills": {
+        "score": 10,
+        "detalles": []
+      },
+      "drift": {
+        "score": 10,
+        "detalles": []
+      },
+      "seguridad": {
+        "score": 8,
+        "detalles": [
+          "subagent-review.js: patron critico detectado"
+        ]
+      },
+      "agentes": {
+        "score": 10,
+        "detalles": []
+      }
+    }
+  },
+  {
+    "ts": "2026-07-06T16:49:04.129Z",
+    "total": 10,
+    "dimensiones": {
+      "routing": {
+        "score": 10,
+        "detalles": []
+      },
+      "hooks": {
+        "score": 10,
+        "detalles": []
+      },
+      "skills": {
+        "score": 10,
+        "detalles": []
+      },
+      "drift": {
+        "score": 10,
+        "detalles": []
+      },
+      "seguridad": {
+        "score": 8,
+        "detalles": [
+          "subagent-review.js: patron critico detectado"
+        ]
+      },
+      "agentes": {
+        "score": 10,
+        "detalles": []
+      }
+    }
+  },
+  {
+    "ts": "2026-07-06T16:49:04.284Z",
+    "total": 10,
+    "dimensiones": {
+      "routing": {
+        "score": 10,
+        "detalles": []
+      },
+      "hooks": {
+        "score": 10,
+        "detalles": []
+      },
+      "skills": {
+        "score": 10,
+        "detalles": []
+      },
+      "drift": {
+        "score": 10,
+        "detalles": []
+      },
+      "seguridad": {
+        "score": 8,
+        "detalles": [
+          "subagent-review.js: patron critico detectado"
+        ]
+      },
+      "agentes": {
+        "score": 10,
+        "detalles": []
+      }
+    }
+  },
+  {
+    "ts": "2026-07-06T16:49:04.348Z",
+    "total": 10,
+    "dimensiones": {
+      "routing": {
+        "score": 10,
+        "detalles": []
+      },
+      "hooks": {
+        "score": 10,
+        "detalles": []
+      },
+      "skills": {
+        "score": 10,
+        "detalles": []
+      },
+      "drift": {
+        "score": 10,
+        "detalles": []
+      },
+      "seguridad": {
+        "score": 8,
+        "detalles": [
+          "subagent-review.js: patron critico detectado"
+        ]
+      },
+      "agentes": {
+        "score": 10,
+        "detalles": []
+      }
+    }
+  },
+  {
+    "ts": "2026-07-06T16:55:24.963Z",
+    "total": 10,
+    "dimensiones": {
+      "routing": {
+        "score": 10,
+        "detalles": []
+      },
+      "hooks": {
+        "score": 10,
+        "detalles": []
+      },
+      "skills": {
+        "score": 10,
+        "detalles": []
+      },
+      "drift": {
+        "score": 10,
+        "detalles": []
+      },
+      "seguridad": {
+        "score": 8,
+        "detalles": [
+          "subagent-review.js: patron critico detectado"
+        ]
+      },
+      "agentes": {
+        "score": 10,
+        "detalles": []
+      }
+    }
+  },
+  {
+    "ts": "2026-07-06T16:55:25.071Z",
+    "total": 10,
+    "dimensiones": {
+      "routing": {
+        "score": 10,
+        "detalles": []
+      },
+      "hooks": {
+        "score": 10,
+        "detalles": []
+      },
+      "skills": {
+        "score": 10,
+        "detalles": []
+      },
+      "drift": {
+        "score": 10,
+        "detalles": []
+      },
+      "seguridad": {
+        "score": 8,
+        "detalles": [
+          "subagent-review.js: patron critico detectado"
+        ]
+      },
+      "agentes": {
+        "score": 10,
+        "detalles": []
+      }
+    }
+  },
+  {
+    "ts": "2026-07-06T16:55:25.130Z",
+    "total": 10,
+    "dimensiones": {
+      "routing": {
+        "score": 10,
+        "detalles": []
+      },
+      "hooks": {
+        "score": 10,
+        "detalles": []
+      },
+      "skills": {
+        "score": 10,
+        "detalles": []
+      },
+      "drift": {
+        "score": 10,
+        "detalles": []
+      },
+      "seguridad": {
+        "score": 8,
+        "detalles": [
+          "subagent-review.js: patron critico detectado"
+        ]
       },
       "agentes": {
         "score": 10,
