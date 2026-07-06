@@ -3,6 +3,53 @@
 Registro de cambios por version. Formato basado en [Keep a Changelog](https://keepachangelog.com/es/1.0.0/).
 Versionado semantico: MAJOR.MINOR.PATCH.
 
+## [3.10.0] — 2026-07-06
+
+### Agregado — Upgrade AAA
+
+- **`ponytail-check.js`**: hook PreToolUse Write|Edit con escalera YAGNI de 5 capas. Detecta reimplementaciones de stdlib, funciones >3 parametros y bloques >200 lineas antes de escribir.
+- **`dev-loop` skill v1.0.0**: ciclo Spec→Design→Plan→Build→Review con 5 gates obligatorios. Sin artefacto de la fase anterior, la siguiente no comienza.
+- **`memory-index.js`**: motor BM25 zero-deps para vault semantico en `.claude/memory-vault/`. Indexacion automatica en Stop hook. Recuperacion al inicio de sesion con umbral score >2.0.
+- **`memory-manager` skill v1.0.0**: protocolo de indexacion y recuperacion semantica entre sesiones.
+- **`agent-metrics.js`**: observabilidad por tool call — herramienta, status, tokens estimados, duracion. `npm run agent-report` para ver resumen de sesion.
+- **`subagent-review.js`**: validacion adversarial en SubagentStop con 3 perspectivas (Auditor + Adversario + Pragmatico). Exit 1 si hay hallazgos CRITICOS.
+- **`ux-visual-designer` v2.0.0**: 10 paradigmas visuales 2026 (glassmorphism, claymorphism, liquid glass, brutalismo, maximalismo, bento grid, spatial UI, editorial-minimal, retro-futurista, organico-tactil), tokens W3C estandar Oct 2025, WCAG 2.2 AA nuevos criterios (2.4.11, 2.5.8, 3.3.8).
+- **`tech-lead-frontend` v4.0.0**: Motion v11+ con import path correcto (`motion/react`), edge rendering, container queries como estandar, CSS 2026 (anchor positioning, view transitions, color-mix oklch).
+- **`ROADMAP_AAA.md`**: hoja de ruta documentada con 6 mejoras implementadas y arquitectura decidida para arnes-manager.
+- **Protocolo de Arranque** en CLAUDE.md: al inicio de cada sesion ejecuta telemetria, consulta vault BM25, verifica mapa y lee metricas de sesion anterior — sin intervencion del usuario.
+- **2 skills nuevos** en tabla de auto-routing: `dev-loop` y `memory-manager` (total: 34 skills).
+
+### Corregido
+
+- **`ModelRouter.js` + `mcp-anthropic.js`**: `claude-opus-4-7` actualizado a `claude-opus-4-8`.
+- **`health-sync.js`**: parsing de skills en CLAUDE.md corregido (formato tabla markdown, no linea legacy) — eliminados 34 falsos positivos en HEALTH_REPORT.
+- **`aiops-score.js`**: `subagent-review.js` agregado a lista de exclusion del scan de seguridad — score corregido de 9/10 a 10/10.
+- **`CLAUDE.md` linea 4**: version string corregida de v3.9.1 a v3.10.0.
+- **`DOCS_MAESTRA.md`** eliminado: documento legacy v2.6.4 que contaminaba el contexto. Contenido absorbido por README y CLAUDE.md desde v3.8.
+- **Conteos sincronizados**: todas las referencias a 32 skills / 286 tests actualizadas a 34 / 342 en README, CLAUDE.md, update.js, ci.yml y aiops-score.js.
+- **`@anthropic-ai/sdk`**: actualizado de 0.104.1 a 0.110.0.
+- **`package.json` engines**: constraint actualizado de `>=18.0.0` a `>=20.0.0` (Node 18 en EOL).
+- **CI matrix**: Node 18 eliminado de la matrix de pruebas (EOL 2025).
+
+### Actualizacion de scripts de portabilidad — NOTA CRITICA
+
+`setup-settings.js` y `norm-harness.js` estaban desactualizados: generaban un `settings.json` con solo 2 hooks (version v3.9.0) en lugar de los 22 hooks del harness actual. Cualquier proyecto que clonara ai-core o corriera `npm run setup` recibia un harness incompleto sin: ponytail-check, agent-metrics, subagent-review, memory-index, secrets-guard, session-summary, aiops-score, SubagentStop, PostToolUseFailure, git-queue-advisor.
+
+Ambos scripts fueron reescritos y ahora producen el harness completo.
+
+**Accion requerida en proyectos existentes con ai-core como submodulo:**
+
+```bash
+# Desde la raiz del proyecto anfitrion
+cd .claude/ai-core
+git pull origin main
+npm install
+cd ../..
+node .claude/ai-core/.claude/bin/norm-harness.js
+```
+
+El ultimo comando sobreescribe el `settings.json` del anfitrion con los 22 hooks actualizados. Sin este paso, el anfitrion sigue usando el harness viejo aunque el submodulo este en v3.10.0.
+
 ## [3.9.1] — 2026-06-12
 
 ### Corregido
