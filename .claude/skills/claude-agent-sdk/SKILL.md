@@ -4,6 +4,7 @@ description: Especialista en construccion de agentes autonomos con el Claude Age
 origin: ai-core
 version: 2.3.0
 last_updated: 2026-07-10
+rol: architect
 ---
 
 # Claude Agent SDK — Especialista en Agentes Autonomos

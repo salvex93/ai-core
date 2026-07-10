@@ -26,6 +26,7 @@ const { verificar: verificarRootGuard }                   = require('./services/
 const { validar: validarRespuesta }                       = require('./services/ResponseValidator');
 const StyleProfiler                                        = require('./services/StyleProfiler');
 const rateLimiter                                          = require('./services/RateLimiter');
+const { estimarTokensMensajes, truncarInputGemini, truncarOutputGemini } = require('./services/TokenManager');
 
 const MAX_TURNS_WINDOW = 6;  // maximo de turnos user/assistant en el historial enviado
 const MAX_TOKENS_OUT   = 4096;
@@ -113,7 +114,7 @@ function buildSystemBlocks(skillsActivos = [], opcionesRol = null) {
   if (claudeMd) {
     bloques.push({
       type: 'text',
-      text: `# REGLAS GLOBALES DE COMPORTAMIENTO\n\n${claudeMd}`,
+      text: `<static_context>\n# REGLAS GLOBALES DE COMPORTAMIENTO\n\n${claudeMd}`,
       cache_control: { type: 'ephemeral' }, // PUNTO DE CACHE A
     });
   }
@@ -138,11 +139,13 @@ function buildSystemBlocks(skillsActivos = [], opcionesRol = null) {
 
   bloques.push({
     type: 'text',
-    text: catalogoHerramientas,
+    text: `${catalogoHerramientas}\n</static_context>`,
     cache_control: { type: 'ephemeral' }, // PUNTO DE CACHE C
   });
 
   // Bloque de instruccion de rol (sin cache — varia segun la herramienta activa)
+  // Fuera de <static_context>: el input dinamico y el estado por turno van
+  // despues del ultimo punto de cache para maximizar el hit-rate del prefijo.
   bloques.push({
     type: 'text',
     text: systemPromptParaRol(opcionesRol),
@@ -173,63 +176,6 @@ function aplicarVentanaDeslizante(historial) {
     mensajes.push(ultimo);
   }
   return mensajes;
-}
-
-/**
- * Estima tokens aproximados de un array de mensajes (heuristica: 1 token ~ 4 chars).
- *
- * @param {Array<{content: string}>} mensajes
- * @returns {number}
- */
-function estimarTokensMensajes(mensajes) {
-  return mensajes.reduce((acc, m) => {
-    const texto = typeof m.content === 'string' ? m.content : JSON.stringify(m.content);
-    return acc + Math.ceil(texto.length / 4);
-  }, 0);
-}
-
-// Limites para el canal Gemini — protegen la cuota diaria gratuita en ambas direcciones.
-// Input:  texto que enviamos a Gemini (cuota de request)
-// Output: respuesta de Gemini que metemos al historial de Claude (tokens pagados en Claude)
-const MAX_TOKENS_GEMINI_INPUT  = 8_000;   // ~32k chars — suficiente para analizar un archivo grande
-const MAX_CHARS_GEMINI_INPUT   = MAX_TOKENS_GEMINI_INPUT * 4;
-const MAX_TOKENS_GEMINI_OUTPUT = 1_500;   // ~6k chars — resumen conciso, no el archivo completo
-const MAX_CHARS_GEMINI_OUTPUT  = MAX_TOKENS_GEMINI_OUTPUT * 4;
-
-/**
- * Trunca el contenido que se va a enviar a Gemini como input.
- * Protege la cuota diaria gratuita de Gemini evitando requests gigantes.
- * Si supera el limite, conserva inicio + fin (cabecera y cola del archivo).
- *
- * @param {string} contenido - texto a enviar a Gemini
- * @returns {string} texto truncado
- */
-function truncarInputGemini(contenido) {
-  if (!contenido || typeof contenido !== 'string') return '';
-  if (contenido.length <= MAX_CHARS_GEMINI_INPUT) return contenido;
-
-  const mitad     = Math.floor(MAX_CHARS_GEMINI_INPUT / 2);
-  const inicio    = contenido.slice(0, mitad);
-  const fin       = contenido.slice(-mitad);
-  const tokensOrig = Math.ceil(contenido.length / 4);
-  return `${inicio}\n\n[... CONTENIDO CENTRAL OMITIDO — ${tokensOrig} tokens originales, se muestran inicio y fin ...]\n\n${fin}`;
-}
-
-/**
- * Trunca el output de Gemini para que no envenene el historial de Claude.
- * Un output largo de Gemini en el historial = tokens pagados en cada turno siguiente de Claude.
- * Si supera el limite, conserva el inicio (el resumen suele estar al principio).
- *
- * @param {string} outputGemini - respuesta cruda del MCP gemini-bridge
- * @returns {string} texto truncado listo para insertar en el historial
- */
-function truncarOutputGemini(outputGemini) {
-  if (!outputGemini || typeof outputGemini !== 'string') return '';
-  if (outputGemini.length <= MAX_CHARS_GEMINI_OUTPUT) return outputGemini;
-
-  const truncado = outputGemini.slice(0, MAX_CHARS_GEMINI_OUTPUT);
-  const tokensOriginal = Math.ceil(outputGemini.length / 4);
-  return `${truncado}\n\n[OUTPUT GEMINI TRUNCADO — ${tokensOriginal} tokens originales, mostrados primeros ${MAX_TOKENS_GEMINI_OUTPUT}. Si necesitas mas detalle, pide un resumen especifico.]`;
 }
 
 /**

@@ -1,6 +1,6 @@
-# AI-CORE v3.11.0: Nucleo Multi-Agente Universal
+# AI-CORE v3.12.0: Nucleo Multi-Agente Universal
 
-`ai-core` es un nucleo de configuracion y comportamiento para agentes IA. Se usa como submodulo Git en un proyecto existente o como repositorio independiente. Define reglas globales, 36 skills especializados, 6 agentes autonomos y un ciclo de mejora continua por uso, sin acoplarse al stack del proyecto anfitrion.
+`ai-core` es un nucleo de configuracion y comportamiento para agentes IA. Se usa como submodulo Git en un proyecto existente o como repositorio independiente. Define reglas globales, 37 skills especializados, 6 agentes autonomos, un orquestador Mixture-of-Agents (Gemini + DeepSeek + Claude) y un ciclo de mejora continua por uso, sin acoplarse al stack del proyecto anfitrion.
 
 `CLAUDE.md` es la unica fuente de verdad de reglas y enrutamiento de skills. Los skills lo referencian, no lo copian: si una regla cambia ahi, se propaga sin tocar ningun SKILL.md.
 
@@ -33,7 +33,7 @@ npm install
 npm run setup    # adapta settings.json a tu ruta exacta (cross-platform)
 
 # 3. Verificar que todo funciona
-npm test         # debe terminar: 379 pass, 0 fail
+npm test         # debe terminar: 487 pass, 0 fail
 
 # 4. Autenticar gh CLI para el issue-tracker (una sola vez por maquina)
 gh auth login    # GitHub.com -> HTTPS -> Login with a web browser
@@ -81,7 +81,7 @@ Repositorio independiente:
 npm run update
 ```
 
-Esto corre `git pull`, regenera `settings.json`, corre los 379 tests, aplica migraciones de version, valida los 36 skills, y reporta que cambio. Si un test falla, el comando se detiene ahi.
+Esto corre `git pull`, regenera `settings.json` (purga automaticamente cualquier hook de una version anterior que referencie un script eliminado o renombrado — el objeto de hooks se construye desde cero y sobreescribe el archivo completo, nunca mergea), corre los 487 tests, aplica migraciones de version, valida los 37 skills, y reporta que cambio. Si un test falla, el comando se detiene ahi.
 
 Instalado como submodulo:
 
@@ -106,7 +106,7 @@ DEEPSEEK_API_KEY=  # opcional, DeepSeek-V3 / R1
 KIMI_API_KEY=      # opcional, Kimi K2, 256k de contexto
 ```
 
-Sin la clave, el proveedor simplemente no se usa, no hay errores. `OPENAI_API_KEY` y `DEEPSEEK_API_KEY` cumplen doble funcion: proveedor de costo bajo y verificador cross-model independiente de Claude (ver seccion Cross-Model Verifier mas abajo).
+Sin la clave, el proveedor simplemente no se usa, no hay errores. `OPENAI_API_KEY` y `DEEPSEEK_API_KEY` cumplen doble funcion: proveedor de costo bajo y verificador cross-model independiente de Claude (ver seccion Cross-Model Verifier mas abajo). `DEEPSEEK_API_KEY` tiene ademas un tercer uso: worker `SyntaxDrafting` del orquestador MoA (ver seccion Arquitectura Multi-Agente). Sin `GEMINI_API_KEY` y `DEEPSEEK_API_KEY` simultaneamente, el fan-out MoA no se activa — el guard de disponibilidad lo salta sin error.
 
 ### Verificar que el issue-tracker esta activo
 
@@ -123,10 +123,10 @@ Si no esta autenticado, los eventos se acumulan en `.claude/EVENTS_QUEUE.json` y
 
 ```bash
 npm install                               # instalar dependencias
-npm test                                  # 379 tests, Node nativo, sin deps externas
+npm test                                  # 487 tests, Node nativo, sin deps externas
 npm run setup                             # regenerar settings.json con rutas locales
 npm run update                            # actualizacion one-command desde GitHub
-npm run validate-globals                  # auditar conformidad de los 36 skills
+npm run validate-globals                  # auditar conformidad de los 37 skills
 npm run validate-globals -- --fix-drift   # corregir last_updated desincronizado
 npm run token-metrics                     # medir reduccion de consumo de tokens
 npm run dry-run                           # simular 5 turnos con calculo de costo
@@ -145,6 +145,26 @@ npm run agent-report-full                 # historial de metricas de todas las s
 ---
 
 ## Que trae cada version
+
+### v3.12.0 — Arquitectura Multi-Agente (MoA), rol declarativo y TDD obligatorio
+
+**Orquestador MoA (fan-out/fan-in)** — `ModelDispatcher.executeMoATask(userPrompt)` reparte una tarea entre `ContextGathering` (Gemini) y `SyntaxDrafting` (DeepSeek) en paralelo con `Promise.allSettled`. Claude actua como "cirujano" (`SurgicalEdit`): recibe el contexto ya mapeado y el borrador ya escrito, en vez de partir de cero. Un worker caido no aborta al otro — el resultado combinado incluye un marcador de contexto vacio en la seccion que fallo. Conectado al hook `UserPromptSubmit` via `.claude/bin/moa-context-gatherer.js`, con guard de disponibilidad: si falta `GEMINI_API_KEY` o `DEEPSEEK_API_KEY`, no se invoca red — evita que cada turno de cada sesion pague latencia por un worker condenado a fallar por falta de configuracion.
+
+**Rol declarativo en skills** — los 37 `SKILL.md` declaran `rol: architect|coder|auditor` en el frontmatter. `AgentRoles.js` lee ese campo directamente en vez de inferirlo por regex sobre la `description` — el metodo anterior producia un sesgo real (28 de 36 skills caian en `architect` por palabras genericas como "sistema" o "arquitectura" presentes incidentalmente en casi cualquier descripcion tecnica).
+
+**Namespacing de memoria por rol** — `.claude/memory-vault/.raw/<rol>/` aisla lo que escribe cada rol; `memory-index.js query --rol=<rol>` filtra la busqueda o se omite para busqueda cross-rol explicita. Resuelve la saturacion de contexto por memoria compartida entre roles sin sacrificar la capacidad de consultar hallazgos de otro rol cuando es util.
+
+**Ciclo TDD obligatorio (Zero-Regression Gate)** — `.claude/bin/pre-commit-tdd.js` bloquea (exit 2) la escritura de codigo fuente fuera de `tests/` si ningun `*.test.js` tiene cambios sin commitear en la sesion actual. Heuristica de presencia, no verificacion Red-Green real (evita el costo de ejecutar la suite completa en cada Write/Edit). Aplica sin excepcion, incluido el propio harness.
+
+**Guardrails deterministas** — `standards-guard.js` bloquea (exit 2) ante emoji pictografico o prosa de mas de 150 palabras en artefactos conversacionales (`COMMIT_EDITMSG`, `TO_GEMINI.md` — no en documentacion tecnica extensa como `SKILL.md`). Requirio que `process-guard.js` empezara a propagar el exit code real del comando envuelto, que antes se absorbia siempre a 0.
+
+**ACI diff edits** — el system prompt del rol Coder exige formato SEARCH/REPLACE (estilo Aider) para editar codigo existente, prohibiendo reescribir archivos completos salvo que sean nuevos.
+
+**Grafo de dependencias inverso** — `.claude/bin/dependency-tracer.js` lista que otros scripts de `scripts/` y `.claude/bin/` dependen (directa o transitivamente) del archivo que se esta por editar, via `PreToolUse`. Informativo, no bloqueante.
+
+**Zero-debt estructural** — `mcp-gemini.js` fragmentado (527 → 183 lineas) en `GeminiApiClient.js` (cliente SDK) y `McpServerHandlers.js` (las 5 herramientas), eliminando ademas una implementacion duplicada de truncado de tokens. `anthropic-bridge.js` (336 → 280 lineas) con la logica de tokens extraida a `TokenManager.js`. Nuevo skill `aaa-evaluator` (estandares SWE-bench: limite de 300/20 lineas, Factory/Strategy/Observer solo cuando el problema los justifica).
+
+**487 tests, 37 skills.**
 
 ### v3.11.0 — Proteccion contra prompt injection y vigencia de skills
 
@@ -256,9 +276,35 @@ Se dispara automaticamente en el hook `SubagentStop` cuando `code-reviewer` marc
 
 ### Herramientas de gobernanza
 
-- **`validate-globals.js`**: verifica que los 36 skills tengan la referencia inmutable a CLAUDE.md, las secciones obligatorias, frontmatter completo y ningun emoji. `--fix-drift` corrige `last_updated` desincronizado. Sale con exit 1 si hay hallazgos criticos o altos.
+- **`validate-globals.js`**: verifica que los 37 skills tengan la referencia inmutable a CLAUDE.md, las secciones obligatorias, `rol:` valido en frontmatter y ningun emoji. `--fix-drift` corrige `last_updated` desincronizado. Sale con exit 1 si hay hallazgos criticos o altos.
 - **`update.js`**: actualizacion cross-platform en un comando. Reporta version anterior vs nueva y si hay breaking changes que requieran accion manual.
 - **CI** (`.github/workflows/ci.yml`): corre tests y `validate-globals` en Linux, macOS y Windows con Node 20/22 en cada push a `main` y cada PR.
+
+---
+
+## Arquitectura Multi-Agente (MoA)
+
+`scripts/services/ModelDispatcher.js` reparte sub-tareas entre proveedores segun su naturaleza, en vez de resolver todo con un unico modelo:
+
+```js
+const { executeMoATask } = require('./scripts/services/ModelDispatcher');
+
+const { resultado, fallos } = await executeMoATask('implementa la funcion X');
+// resultado: string combinado con seccion ContextGathering + seccion SyntaxDrafting
+// fallos: [] si ambos workers resolvieron, o el detalle del worker que fallo
+```
+
+| Sub-tarea | Proveedor | Rol |
+|---|---|---|
+| `ContextGathering` | Gemini | Mapea el terreno — manejo masivo de tokens, tier gratuito |
+| `SyntaxDrafting` | DeepSeek | Genera un borrador de sintaxis de bajo costo |
+| `SurgicalEdit` | Claude | Aplica el cambio quirurgico final, con el contexto y el borrador ya resueltos |
+
+`executeMoATask` ejecuta `ContextGathering` y `SyntaxDrafting` en paralelo con `Promise.allSettled` — un worker caido (timeout, rate limit, key ausente) no aborta al otro; el orquestador nunca rechaza, solo degrada la seccion afectada a un marcador de contexto vacio.
+
+**Conexion al flujo de conversacion**: `.claude/bin/moa-context-gatherer.js` invoca `executeMoATask` en el hook `UserPromptSubmit`, antes de que Claude procese el prompt. Guard de disponibilidad: si falta `GEMINI_API_KEY` o `DEEPSEEK_API_KEY`, no se hace ninguna llamada de red — evita pagar latencia en cada turno de cada sesion por un worker condenado a fallar en cualquier entorno sin ambas keys configuradas (el caso mas comun, ya que DeepSeek no viene activado por defecto). El resultado se escribe en `.claude/moa_context.md`, estado efimero que el siguiente turno sobrescribe.
+
+Categoria de `process-guard.js` propia (`moa`, no `intent`): `moa-context-gatherer.js` y `detect-role.js` corren en el mismo array de hooks de `UserPromptSubmit` y ambos deben ejecutarse siempre — compartir categoria de lock haria que uno se saltara silenciosamente por colision.
 
 ---
 
@@ -327,13 +373,17 @@ New-Item -ItemType SymbolicLink -Path './CLAUDE.md' -Target 'C:/ruta/a/ai-core/C
 │   ├── services/
 │   │   ├── ModelRouter.js       Enrutamiento Gemini/Haiku/Sonnet/Opus/Fable por herramienta y tokens
 │   │   ├── ModelRegistry.js     Adapter multi-proveedor: chat(provider, messages, options)
+│   │   ├── ModelDispatcher.js   Router MoA entre proveedores (Command/Port): executeMoATask fan-out/fan-in
 │   │   ├── CrossVerifier.js     Verificacion ciega de diffs con proveedor distinto al actor
-│   │   ├── AgentRoles.js        Perfiles Architect/Coder/Auditor con system prompts
+│   │   ├── AgentRoles.js        Perfiles Architect/Coder/Auditor — lee rol: de skills, exige SEARCH/REPLACE en Coder
 │   │   ├── IntentClassifier.js  Infiere herramienta y modelo desde el mensaje crudo del usuario
 │   │   ├── ContextIndex.js      Indice CONTEXT_MAP.json — resolucion de rutas sin I/O ciego
+│   │   ├── TokenManager.js      Conteo y truncado de tokens (Gemini input/output, estimacion de mensajes)
+│   │   ├── GeminiApiClient.js   Cliente SDK de Gemini puro — auth, reintentos, parseo JSON, compactado
+│   │   ├── McpServerHandlers.js Las 5 herramientas MCP de mcp-gemini.js (logica de negocio, sin protocolo)
 │   │   └── ErrorRepairLoop.js   Ciclo deteccion->diagnostico->reparacion de errores
-│   ├── anthropic-bridge.js      Bridge Anthropic SDK con prompt caching y Model Router
-│   ├── mcp-gemini.js            Servidor MCP stdio — 5 herramientas de analisis via Gemini
+│   ├── anthropic-bridge.js      Bridge Anthropic SDK con prompt caching (<static_context>) y Model Router
+│   ├── mcp-gemini.js            Servidor MCP stdio — shell JSON-RPC, delega a McpServerHandlers.js
 │   ├── mcp-anthropic.js         Servidor MCP stdio — bridge Anthropic como herramienta MCP
 │   ├── init-backlog.js          Crea BACKLOG.md en el proyecto anfitrion si no existe
 │   ├── query-backlog.js         Filtra BACKLOG.md sin cargarlo completo en contexto
@@ -348,21 +398,26 @@ New-Item -ItemType SymbolicLink -Path './CLAUDE.md' -Target 'C:/ruta/a/ai-core/C
 │   │   ├── validate-map.js      Valida y regenera CONTEXT_MAP.json si hay drift
 │   │   ├── guard-read.js        Hook PreToolUse: bloquea Read de mas de 200 lineas
 │   │   ├── norm-harness.js      Setup: settings.json + permisos por stack + symlink CLAUDE.md
-│   │   ├── validate-globals.js  Auditor de conformidad de skills contra CLAUDE.md
+│   │   ├── validate-globals.js  Auditor de conformidad de skills contra CLAUDE.md (incluye rol:)
 │   │   ├── generate-map.js      Genera CONTEXT_MAP con seccion de stack detectado
 │   │   ├── security-check.js    Hook PostToolUse: escanea secretos/eval/catch vacio
+│   │   ├── standards-guard.js   Hook PostToolUse: bloquea (exit 2) emoji o prosa >150 palabras
 │   │   ├── secrets-guard.js     Hook UserPromptSubmit: detecta credenciales en el prompt
+│   │   ├── detect-role.js       Hook UserPromptSubmit: clasifica rol y escribe .claude/.current_role
+│   │   ├── moa-context-gatherer.js Hook UserPromptSubmit: fan-out MoA con guard de disponibilidad de keys
+│   │   ├── pre-commit-tdd.js    Hook PreToolUse: bloquea (exit 2) codigo fuente sin test tocado en sesion
+│   │   ├── dependency-tracer.js Hook PreToolUse: grafo de dependencias inverso (informativo)
 │   │   ├── aiops-score.js       Hook Stop: scoring 0-10 por 6 dimensiones
-│   │   ├── memory-index.js      Motor BM25 del vault de memoria semantica
+│   │   ├── memory-index.js      Motor BM25 del vault de memoria semantica — namespacing por rol
+│   │   ├── memory-index-stop.js Hook Stop: consume .current_role de forma destructiva e indexa por rol
 │   │   ├── subagent-review.js   Hook SubagentStop: validacion adversarial de 3 perspectivas
 │   │   └── cross-verify-gate.js Hook SubagentStop: segunda opinion cross-model tras code-reviewer
-│   └── skills/                  36 skills — enrutamiento completo vive en CLAUDE.md
-├── tests/
-│   └── harness.test.js          372 assertions sobre harness y conformidad de skills
+│   └── skills/                  37 skills — enrutamiento completo vive en CLAUDE.md
+├── tests/                       487 tests — harness.test.js + archivos dedicados por modulo nuevo
 ├── .github/workflows/ci.yml     CI en Linux/Mac/Windows x Node 20/22
 ├── CLAUDE.md                    Autoridad unica: reglas globales, skills, enrutamiento
 ├── DEPRECATIONS.json            Contrato de migracion por version
-├── package.json                 v3.11.0, Node >= 18
+├── package.json                 v3.12.0, Node >= 18
 └── .env.example                 Plantilla de variables de entorno
 ```
 
@@ -373,7 +428,7 @@ New-Item -ItemType SymbolicLink -Path './CLAUDE.md' -Target 'C:/ruta/a/ai-core/C
 ### Crear un skill nuevo
 
 1. Crear `.claude/skills/{nombre-en-kebab-case}/SKILL.md`.
-2. Frontmatter obligatorio: `name`, `description`, `origin: ai-core`, `version`, `last_updated`.
+2. Frontmatter obligatorio: `name`, `description`, `origin: ai-core`, `version`, `last_updated`, `rol` (`architect`, `coder` o `auditor` — asignado por criterio semantico real, no por keywords automaticos; determina el system prompt y el proveedor de modelo que hereda el skill).
 3. Secciones obligatorias: "Cuando Activar Este Perfil", "Cuando NO Activar Este Perfil", "Primera Accion al Activar", "Directiva de Interrupcion", "Restricciones del Perfil" con la referencia inmutable a CLAUDE.md.
 4. Evaluar si cumple los tres criterios de agente. Si los cumple, crear tambien el `.md` correspondiente en `.claude/agents/`.
 5. Agregar la fila correspondiente en la tabla "Seleccion de Skills" de `CLAUDE.md` — es la unica tabla que existe, no se duplica en README.
@@ -436,10 +491,10 @@ El agente `aiops-auditor` detecta drift de SDK y skills faltantes. Lanzarlo cuan
 ### Variables de entorno — referencia rapida
 
 ```bash
-GEMINI_API_KEY     # Gemini 3.5 Flash / 3.1 Flash-Lite, gratuito, tier 0
+GEMINI_API_KEY     # Gemini 3.5 Flash / 3.1 Flash-Lite, gratuito, tier 0. Tambien worker ContextGathering de MoA
 ANTHROPIC_API_KEY  # Claude Haiku/Sonnet/Opus/Fable
 OPENAI_API_KEY     # GPT-4o, o1, o3 — opcional, tambien verificador cross-model
-DEEPSEEK_API_KEY   # DeepSeek-V3 / R1 — opcional, tambien verificador cross-model
+DEEPSEEK_API_KEY   # DeepSeek-V3 / R1 — opcional, verificador cross-model y worker SyntaxDrafting de MoA
 KIMI_API_KEY       # Kimi K2, 256k de contexto — opcional
 DOCS_PATH          # ruta a documentacion interna para RAG local
 ```

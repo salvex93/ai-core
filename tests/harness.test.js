@@ -163,6 +163,35 @@ describe('setup-settings.js', () => {
     assert.ok(afterRun.mcpServers['gemini-bridge'], 'gemini-bridge debe estar en mcpServers');
     assert.ok(afterRun.mcpServers['anthropic-router'], 'anthropic-router debe estar en mcpServers');
   });
+
+  test('Zero-Dead-Code: regenerar purga hooks obsoletos de una version anterior', () => {
+    // Simula un settings.json de un proyecto anfitrion desactualizado: un hook
+    // que referencia un script eliminado/renombrado en una version posterior
+    // del harness (ej. si mcp-gemini.js se fragmento y un hook viejo seguia
+    // apuntando a una funcion que ahora vive en otro archivo). setup-settings.js
+    // construye el objeto de settings desde cero y sobreescribe el archivo
+    // completo — no mergea — por lo que cualquier entrada obsoleta desaparece
+    // sin necesidad de una funcion de purga de archivos separada.
+    const settings = JSON.parse(fs.readFileSync(SETTINGS, 'utf8'));
+    settings.hooks.Stop[0].hooks.push({
+      type: 'command',
+      command: 'node "/ruta/obsoleta/script-eliminado-v2.js" 2>/dev/null || true',
+    });
+    fs.writeFileSync(SETTINGS, JSON.stringify(settings, null, 2), 'utf8');
+
+    assert.ok(
+      fs.readFileSync(SETTINGS, 'utf8').includes('script-eliminado-v2.js'),
+      'precondicion: el hook obsoleto debe estar presente antes de regenerar'
+    );
+
+    runScript(SETUP);
+
+    const regenerado = fs.readFileSync(SETTINGS, 'utf8');
+    assert.ok(
+      !regenerado.includes('script-eliminado-v2.js'),
+      'el hook obsoleto debe desaparecer tras regenerar settings.json'
+    );
+  });
 });
 
 // ─── skills — conformidad de estructura ──────────────────────────────────────
@@ -277,6 +306,78 @@ describe('CLAUDE.md — integridad', () => {
       claudeMd.includes('Palabras prohibidas') || claudeMd.includes('prohibidas en prosa'),
       'CLAUDE.md debe definir la seccion de palabras prohibidas en prosa'
     );
+  });
+});
+
+// ─── standards-guard.js (guardrails deterministas Zero-Regression) ──────────
+
+describe('standards-guard.js', () => {
+  const SCRIPT = path.join(BIN, 'standards-guard.js');
+
+  test('el script existe', () => {
+    assert.ok(fs.existsSync(SCRIPT), 'standards-guard.js debe existir en .claude/bin/');
+  });
+
+  test('archivo de codigo con emoji: exit 2 (bloqueante)', () => {
+    const f = tmpFile('const saludo = "hola \u{1F600}";\n');
+    const renamed = f.replace(/\.tmp$/, '.js');
+    fs.renameSync(f, renamed);
+    const r = runScript(SCRIPT, [renamed]);
+    fs.unlinkSync(renamed);
+    assert.equal(r.status, 2, 'debe abortar con exit 2 ante emoji pictografico');
+    assert.match(r.stderr, /Emoji pictografico detectado/);
+  });
+
+  test('COMMIT_EDITMSG con mas de 150 palabras: exit 2 (bloqueante)', () => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'standards-guard-'));
+    const f = path.join(dir, 'COMMIT_EDITMSG');
+    fs.writeFileSync(f, Array(160).fill('palabra').join(' '), 'utf8');
+    const r = runScript(SCRIPT, [f]);
+    fs.rmSync(dir, { recursive: true });
+    assert.equal(r.status, 2, 'debe abortar con exit 2 si la prosa supera 150 palabras');
+    assert.match(r.stderr, /Prosa tiene \d+ palabras/);
+  });
+
+  test('SKILL.md con prosa tecnica extensa (> 150 palabras): NO bloquea', () => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'standards-guard-'));
+    const f = path.join(dir, 'SKILL.md');
+    fs.writeFileSync(f, `# Skill de prueba\n\n${Array(300).fill('palabra').join(' ')}`, 'utf8');
+    const r = runScript(SCRIPT, [f]);
+    fs.rmSync(dir, { recursive: true });
+    assert.equal(r.status, 0, 'documentacion tecnica extensa no debe bloquearse por el limite de 150 palabras');
+  });
+
+  test('archivo sin violaciones: exit 0', () => {
+    const f = tmpFile('const x = 1;\n');
+    const renamed = f.replace(/\.tmp$/, '.js');
+    fs.renameSync(f, renamed);
+    const r = runScript(SCRIPT, [renamed]);
+    fs.unlinkSync(renamed);
+    assert.equal(r.status, 0);
+  });
+
+  test('standards-guard registrado en PostToolUse sin "|| true" que absorba el exit code', () => {
+    const settings = JSON.parse(fs.readFileSync(SETTINGS, 'utf8'));
+    const postHooks = (settings.hooks?.PostToolUse || []).flatMap(h => h.hooks || []);
+    const cmd = postHooks.map(h => h.command || '').find(c => c.includes('standards-guard.js'));
+    assert.ok(cmd, 'standards-guard.js debe estar registrado en PostToolUse');
+    assert.ok(!cmd.includes('|| true'), 'el hook no debe absorber el exit code con || true');
+  });
+});
+
+// ─── process-guard.js (propagacion de exit code) ────────────────────────────
+
+describe('process-guard.js — propagacion de exit code', () => {
+  const SCRIPT = path.join(BIN, 'process-guard.js');
+
+  test('propaga exit code distinto de 0 del comando envuelto', () => {
+    const r = runScript(SCRIPT, ['lint', 'node', '-e', 'process.exit(2)']);
+    assert.equal(r.status, 2, 'process-guard.js debe propagar el exit code real del comando');
+  });
+
+  test('propaga exit 0 cuando el comando envuelto termina normalmente', () => {
+    const r = runScript(SCRIPT, ['lint', 'node', '-e', 'process.exit(0)']);
+    assert.equal(r.status, 0);
   });
 });
 
@@ -657,13 +758,23 @@ describe('memory-index.js (vault BM25)', () => {
     assert.ok(typeof idx.frags   === 'object', 'debe tener frags (fragmentos)');
   });
 
-  test('memory-index registrado en Stop hook de settings.json', () => {
+  test('memory-index-stop registrado en Stop hook de settings.json', () => {
     const settings = JSON.parse(fs.readFileSync(SETTINGS, 'utf8'));
     const stopHooks = settings.hooks?.Stop?.[0]?.hooks || [];
     const cmds = stopHooks.map(h => h.command || '');
     assert.ok(
-      cmds.some(c => c.includes('memory-index.js')),
-      'memory-index.js debe estar registrado en el hook Stop'
+      cmds.some(c => c.includes('memory-index-stop.js')),
+      'memory-index-stop.js debe estar registrado en el hook Stop'
+    );
+  });
+
+  test('detect-role registrado en UserPromptSubmit hook de settings.json', () => {
+    const settings = JSON.parse(fs.readFileSync(SETTINGS, 'utf8'));
+    const upsHooks = settings.hooks?.UserPromptSubmit?.[0]?.hooks || [];
+    const cmds = upsHooks.map(h => h.command || '');
+    assert.ok(
+      cmds.some(c => c.includes('detect-role.js')),
+      'detect-role.js debe estar registrado en el hook UserPromptSubmit'
     );
   });
 
@@ -675,6 +786,62 @@ describe('memory-index.js (vault BM25)', () => {
     assert.ok(content.includes('Cuando NO Activar Este Perfil'), 'debe tener Cuando NO Activar');
     assert.ok(content.includes('CLAUDE.md > este skill'),        'debe tener referencia inmutable');
     assert.ok(content.includes('ALERTA_ARQUITECTONICA'),         'debe tener directiva de interrupcion');
+  });
+
+  describe('namespacing por rol', () => {
+    const ROL_DIR = path.join(RAW, 'auditor');
+    const ROL_FILE = path.join(ROL_DIR, '_test-auditor.md');
+    const ROL_CONTENT = [
+      '# Hallazgo de auditor de prueba',
+      '',
+      'Vulnerabilidad ficticia de inyeccion detectada en el modulo de prueba.',
+    ].join('\n');
+
+    before(() => {
+      fs.mkdirSync(ROL_DIR, { recursive: true });
+      fs.writeFileSync(ROL_FILE, ROL_CONTENT, 'utf8');
+      runScript(SCRIPT, ['index']);
+    });
+
+    after(() => {
+      if (fs.existsSync(ROL_FILE)) fs.unlinkSync(ROL_FILE);
+      const wikiRolFile = path.join(WIKI, 'auditor', '_test-auditor.md');
+      if (fs.existsSync(wikiRolFile)) fs.unlinkSync(wikiRolFile);
+      if (fs.existsSync(ROL_DIR)) fs.rmSync(ROL_DIR, { recursive: true });
+      const wikiRolDir = path.join(WIKI, 'auditor');
+      if (fs.existsSync(wikiRolDir)) fs.rmSync(wikiRolDir, { recursive: true });
+      runScript(SCRIPT, ['index']);
+    });
+
+    test('cmd index: etiqueta cada fragmento con su rol de origen', () => {
+      const idx = JSON.parse(fs.readFileSync(INDEX_FILE, 'utf8'));
+      const fragsAuditor = Object.values(idx.frags).filter(f => f.rol === 'auditor');
+      assert.ok(fragsAuditor.length > 0, 'debe existir al menos un fragmento con rol auditor');
+    });
+
+    test('cmd query --rol=auditor: encuentra contenido del namespace auditor', () => {
+      const r = runScript(SCRIPT, ['query', 'vulnerabilidad inyeccion', '--rol=auditor']);
+      assert.equal(r.status, 0);
+      assert.ok(r.stdout.includes('_test-auditor'), 'debe encontrar el fragmento del namespace auditor');
+    });
+
+    test('cmd query --rol=coder: no filtra contenido de otro namespace (aislamiento)', () => {
+      const r = runScript(SCRIPT, ['query', 'vulnerabilidad inyeccion', '--rol=coder']);
+      assert.equal(r.status, 0);
+      assert.ok(!r.stdout.includes('_test-auditor'), 'no debe filtrar contenido de auditor bajo rol coder');
+    });
+
+    test('cmd query sin --rol: busca cross-rol y encuentra el fragmento de auditor', () => {
+      const r = runScript(SCRIPT, ['query', 'vulnerabilidad inyeccion']);
+      assert.equal(r.status, 0);
+      assert.ok(r.stdout.includes('_test-auditor'), 'sin filtro debe encontrar contenido de cualquier rol');
+    });
+
+    test('cmd status: reporta conteo de fragmentos por rol', () => {
+      const r = runScript(SCRIPT, ['status']);
+      assert.equal(r.status, 0);
+      assert.ok(r.stdout.includes('auditor'), 'debe reportar el namespace auditor en el desglose');
+    });
   });
 });
 
@@ -930,5 +1097,63 @@ describe('injection-guard.js (deteccion de prompt injection indirecta)', () => {
     const stopHooks = settings.hooks?.SubagentStop?.[0]?.hooks || [];
     const registered = stopHooks.some(h => (h.command || '').includes('injection-guard.js'));
     assert.ok(registered, 'injection-guard.js debe estar registrado en SubagentStop');
+  });
+});
+
+describe('detect-role.js + memory-index-stop.js (estado efimero de rol)', () => {
+  const DETECT_ROLE  = path.join(BIN, 'detect-role.js');
+  const STOP_WRAPPER = path.join(BIN, 'memory-index-stop.js');
+  const ROLE_FILE    = path.join(REPO, '.claude', '.current_role');
+  const VAULT        = path.join(REPO, '.claude', 'memory-vault');
+  const RAW          = path.join(VAULT, '.raw');
+  const INDEX_FILE   = path.join(VAULT, 'index.json');
+
+  after(() => {
+    if (fs.existsSync(ROLE_FILE)) fs.unlinkSync(ROLE_FILE);
+  });
+
+  test('ambos scripts existen', () => {
+    assert.ok(fs.existsSync(DETECT_ROLE),  'detect-role.js debe existir en .claude/bin/');
+    assert.ok(fs.existsSync(STOP_WRAPPER), 'memory-index-stop.js debe existir en .claude/bin/');
+  });
+
+  test('detect-role.js escribe .claude/.current_role con el rol detectado', () => {
+    if (fs.existsSync(ROLE_FILE)) fs.unlinkSync(ROLE_FILE);
+    const r = runScript(DETECT_ROLE, [], { CLAUDE_USER_PROMPT: 'audita esta dependencia por CVE de seguridad' });
+    assert.equal(r.status, 0);
+    assert.ok(fs.existsSync(ROLE_FILE), 'debe crear .claude/.current_role');
+    assert.equal(fs.readFileSync(ROLE_FILE, 'utf8').trim(), 'auditor');
+  });
+
+  test('memory-index-stop.js consume .current_role de forma destructiva (lo elimina tras leerlo)', () => {
+    fs.writeFileSync(ROLE_FILE, 'coder', 'utf8');
+    fs.mkdirSync(RAW, { recursive: true });
+    const r = runScript(STOP_WRAPPER);
+    assert.equal(r.status, 0);
+    assert.ok(!fs.existsSync(ROLE_FILE), '.current_role debe eliminarse tras ser consumido');
+  });
+
+  test('memory-index-stop.js indexa en el namespace del rol consumido', () => {
+    fs.writeFileSync(ROLE_FILE, 'auditor', 'utf8');
+    fs.mkdirSync(path.join(RAW, 'auditor'), { recursive: true });
+    fs.writeFileSync(path.join(RAW, 'auditor', '_test-stop.md'), '# nota de prueba\n\ncontenido minimo de prueba.', 'utf8');
+
+    runScript(STOP_WRAPPER);
+
+    const idx = JSON.parse(fs.readFileSync(INDEX_FILE, 'utf8'));
+    const fragsAuditor = Object.values(idx.frags).filter(f => f.rol === 'auditor' && f.source === '_test-stop');
+    assert.ok(fragsAuditor.length > 0, 'debe indexar el fragmento en el namespace auditor');
+
+    fs.unlinkSync(path.join(RAW, 'auditor', '_test-stop.md'));
+    const wikiFile = path.join(VAULT, '.wiki', 'auditor', '_test-stop.md');
+    if (fs.existsSync(wikiFile)) fs.unlinkSync(wikiFile);
+    runScript(STOP_WRAPPER); // reindexar sin el archivo de prueba, deja el vault limpio
+  });
+
+  test('memory-index-stop.js cae a --rol=general si .current_role no existe', () => {
+    if (fs.existsSync(ROLE_FILE)) fs.unlinkSync(ROLE_FILE);
+    const r = runScript(STOP_WRAPPER);
+    assert.equal(r.status, 0);
+    assert.ok(!fs.existsSync(ROLE_FILE), 'no debe crear .current_role si no existia');
   });
 });

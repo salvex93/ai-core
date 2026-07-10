@@ -4,6 +4,7 @@ description: Especialista en Voice AI y sistemas de audio real-time. Cubre strea
 origin: ai-core
 version: 1.3.0
 last_updated: 2026-07-10
+rol: architect
 ---
 
 # Audio Voice Engineer — Sistemas de Audio Real-Time

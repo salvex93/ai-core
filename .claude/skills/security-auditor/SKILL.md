@@ -4,6 +4,7 @@ description: Security Auditor Universal. Especialista en seguridad de aplicacion
 origin: ai-core
 version: 1.3.0
 last_updated: 2026-07-10
+rol: auditor
 ---
 
 # Security Auditor Universal

@@ -1,6 +1,6 @@
 {
   "name": "ai-core",
-  "version": "3.11.0",
+  "version": "3.12.0",
   "description": "AI-CORE by salvex93. Nucleo Centralizado de Agentes para proyectos de desarrollo. Submodulo Git con reglas globales, skills y scripts de orquestacion.",
   "private": true,
   "scripts": {
@@ -11,7 +11,7 @@
     "dry-run": "node scripts/dry-run-cost-sim.js",
     "mcp-anthropic": "node scripts/mcp-anthropic.js",
     "map": "node .claude/bin/generate-map.js",
-    "test": "node --test tests/harness.test.js",
+    "test": "node --test tests/*.test.js",
     "token-metrics": "node tests/token-metrics.js",
     "setup": "node .claude/bin/setup-settings.js",
     "validate-globals": "node .claude/bin/validate-globals.js",

@@ -4,6 +4,7 @@ description: Especialista en pipelines de procesamiento multimodal con LLMs. Cub
 origin: ai-core
 version: 1.1.0
 last_updated: 2026-07-10
+rol: architect
 ---
 
 # Multimodal Engineer

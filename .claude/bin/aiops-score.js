@@ -111,7 +111,8 @@ function scoreHooks() {
 }
 
 // ── 3. SKILLS (0-10) ─────────────────────────────────────────────────────
-// 34 skills esperados, cada uno con las secciones obligatorias
+// El total esperado se descubre en disco (auto-discovery), no es un numero fijo.
+// El score de esta dimension mide unicamente conformidad estructural.
 function scoreSkills() {
   let score = 0;
   const detalles = [];
@@ -123,8 +124,9 @@ function scoreSkills() {
   );
 
   const total    = dirs.length;
-  const esperado = 34;
   const SECCIONES = ['Primera Accion al Activar', 'Directiva de Interrupcion', 'Restricciones del Perfil'];
+
+  if (total === 0) return { score: 0, detalles: ['ningun skill encontrado en disco'] };
 
   let conformes = 0;
   dirs.forEach(d => {
@@ -136,11 +138,9 @@ function scoreSkills() {
     else detalles.push(`${d}: secciones faltantes`);
   });
 
-  // 34 skills presentes → +4; conformidad → hasta +6
-  if (total >= esperado) score += 4;
-  else { score += 2; detalles.push(`Solo ${total}/${esperado} skills`); }
-
-  score += Math.round((conformes / Math.max(total, 1)) * 6);
+  // Score proporcional a la conformidad real, sin comparar contra un total fijo
+  score = Math.round((conformes / total) * 10);
+  if (conformes < total) detalles.unshift(`${conformes}/${total} skills conformes`);
 
   return { score: Math.min(score, 10), detalles };
 }

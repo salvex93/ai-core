@@ -4,6 +4,7 @@ description: Especialista en arquitectura de prompts de produccion. Cubre diseno
 origin: ai-core
 version: 1.8.0
 last_updated: 2026-07-10
+rol: architect
 ---
 
 # Prompt Engineer — Arquitecto de Prompts de Produccion

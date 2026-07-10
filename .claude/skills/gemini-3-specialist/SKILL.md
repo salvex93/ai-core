@@ -4,6 +4,7 @@ description: Especialista en integracion avanzada con la familia Gemini 3.x (3.1
 origin: ai-core
 version: 2.0.0
 last_updated: 2026-07-10
+rol: architect
 ---
 
 # Gemini 3 Specialist

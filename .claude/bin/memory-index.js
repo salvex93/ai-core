@@ -3,14 +3,25 @@
  * memory-index.js — Motor BM25 para el vault de memoria semantica
  *
  * Comandos:
- *   node memory-index.js index              — indexa .raw/ → .wiki/ (ejecutar en Stop hook)
- *   node memory-index.js query "terminos"   — busca y devuelve top-5 fragmentos relevantes
- *   node memory-index.js status             — muestra estado del vault
+ *   node memory-index.js index [--rol=architect|coder|auditor]
+ *     indexa .raw/<rol>/ → .wiki/<rol>/ (ejecutar en Stop hook)
+ *     --rol indica donde escribir/reindexar; si se omite, opera sobre "general"
+ *     y sobre cualquier .raw/<rol>/ ya existente (reindexa todo el vault).
+ *   node memory-index.js query "terminos" [--rol=architect|coder|auditor]
+ *     busca y devuelve top-5 fragmentos relevantes.
+ *     --rol filtra la busqueda a ese namespace; sin --rol busca cross-rol
+ *     (util cuando un hallazgo de un rol es relevante para otro).
+ *   node memory-index.js status             — muestra estado del vault por rol
  *
  * Arquitectura:
- *   .raw/   — fuentes originales (markdown plano, una entrada por archivo)
- *   .wiki/  — fragmentos indexados con backlinks y metadatos BM25
- *   index.json — indice invertido BM25 (regenerado en cada `index`)
+ *   .raw/<rol>/   — fuentes originales por rol (markdown plano, una entrada por archivo)
+ *   .wiki/<rol>/  — fragmentos indexados con backlinks y metadatos BM25
+ *   index.json    — indice invertido BM25 global (regenerado en cada `index`),
+ *                   cada fragmento lleva su `rol` de origen para poder filtrar
+ *
+ * Namespacing: el aislamiento es por convencion de carpeta, no por archivo
+ * separado — permite busqueda cross-rol explicita sin duplicar el indice.
+ * Entradas legacy sin subcarpeta de rol (root de .raw/) se tratan como "general".
  */
 
 'use strict';
@@ -23,6 +34,16 @@ const VAULT = path.join(REPO, '.claude', 'memory-vault');
 const RAW   = path.join(VAULT, '.raw');
 const WIKI  = path.join(VAULT, '.wiki');
 const INDEX = path.join(VAULT, 'index.json');
+
+const ROLES_VALIDOS = ['architect', 'coder', 'auditor'];
+const ROL_DEFECTO   = 'general';
+
+function parseRolArg(args) {
+  const flag = args.find(a => a.startsWith('--rol='));
+  if (!flag) return null;
+  const rol = flag.slice('--rol='.length);
+  return ROLES_VALIDOS.includes(rol) ? rol : null;
+}
 
 // ─── BM25 — parametros estandar ──────────────────────────────────────────────
 const K1 = 1.5;
@@ -105,7 +126,7 @@ function parseFrontmatter(content) {
 }
 
 // ─── Fragmentacion de documentos ─────────────────────────────────────────────
-function fragmentar(content, filePath) {
+function fragmentar(content, filePath, rol) {
   const name = path.basename(filePath, '.md');
   const { meta, body } = parseFrontmatter(content);
   const sections = body.split(/^#{1,3}\s+/m);
@@ -121,8 +142,9 @@ function fragmentar(content, filePath) {
     const trimmed = sec.trim();
     if (trimmed.length < 50) return;
     frags.push({
-      id:     `${name}#${i}`,
+      id:     `${rol}/${name}#${i}`,
       source: name,
+      rol,
       text:   trimmed.slice(0, 800),
       tokens: [...tokenize(trimmed), ...metaTokensBoosted],
     });
@@ -131,14 +153,36 @@ function fragmentar(content, filePath) {
   // Si no hay secciones con headings, tratar el doc como un fragmento
   if (frags.length === 0 && content.trim().length > 20) {
     frags.push({
-      id:     `${name}#0`,
+      id:     `${rol}/${name}#0`,
       source: name,
+      rol,
       text:   content.trim().slice(0, 800),
       tokens: [...tokenize(content), ...metaTokensBoosted],
     });
   }
 
   return frags;
+}
+
+// ─── Descubrimiento de namespaces por rol en .raw/ ───────────────────────────
+// Un archivo directamente en .raw/ (sin subcarpeta) pertenece al namespace
+// ROL_DEFECTO ("general") — cubre las entradas legacy previas al namespacing.
+function descubrirNamespaces() {
+  if (!fs.existsSync(RAW)) return [];
+
+  const entradas = fs.readdirSync(RAW, { withFileTypes: true });
+  const namespaces = [];
+
+  const sueltos = entradas.filter(e => e.isFile() && e.name.endsWith('.md'));
+  if (sueltos.length > 0) namespaces.push({ rol: ROL_DEFECTO, dir: RAW, files: sueltos.map(e => e.name) });
+
+  for (const e of entradas.filter(e => e.isDirectory())) {
+    const dir = path.join(RAW, e.name);
+    const files = fs.readdirSync(dir).filter(f => f.endsWith('.md'));
+    if (files.length > 0) namespaces.push({ rol: e.name, dir, files });
+  }
+
+  return namespaces;
 }
 
 // ─── Construccion del indice invertido ───────────────────────────────────────
@@ -190,19 +234,24 @@ function bm25Score(query, index) {
 
 // ─── Comandos ─────────────────────────────────────────────────────────────────
 
-function cmdIndex() {
+function cmdIndex(rolFiltro) {
   if (!fs.existsSync(RAW)) { console.error('[memory] .raw/ no existe'); process.exit(1); }
 
-  const files = fs.readdirSync(RAW).filter(f => f.endsWith('.md'));
-  if (files.length === 0) {
+  const namespaces = descubrirNamespaces()
+    .filter(ns => !rolFiltro || ns.rol === rolFiltro);
+
+  if (namespaces.length === 0) {
     console.log('[memory] vault vacio — nada que indexar');
     return;
   }
 
   const allFrags = [];
-  for (const f of files) {
-    const content = fs.readFileSync(path.join(RAW, f), 'utf8');
-    allFrags.push(...fragmentar(content, f));
+  for (const ns of namespaces) {
+    fs.mkdirSync(path.join(WIKI, ns.rol === ROL_DEFECTO ? '.' : ns.rol), { recursive: true });
+    for (const f of ns.files) {
+      const content = fs.readFileSync(path.join(ns.dir, f), 'utf8');
+      allFrags.push(...fragmentar(content, f, ns.rol));
+    }
   }
 
   const index = buildIndex(allFrags);
@@ -211,22 +260,27 @@ function cmdIndex() {
 
   fs.writeFileSync(INDEX, JSON.stringify(index, null, 2), 'utf8');
 
-  // Generar .wiki/ — un archivo por fuente con backlinks
-  for (const f of files) {
-    const fragIds = allFrags.filter(fr => fr.source === path.basename(f, '.md')).map(fr => fr.id);
-    const wikiContent = [
-      `# ${path.basename(f, '.md')} — wiki`,
-      `> Generado: ${new Date().toISOString().slice(0, 10)} | Fragmentos: ${fragIds.length}`,
-      '',
-      fs.readFileSync(path.join(RAW, f), 'utf8').trim(),
-    ].join('\n');
-    fs.writeFileSync(path.join(WIKI, f), wikiContent, 'utf8');
+  // Generar .wiki/<rol>/ — un archivo por fuente con backlinks
+  for (const ns of namespaces) {
+    const wikiDir = ns.rol === ROL_DEFECTO ? WIKI : path.join(WIKI, ns.rol);
+    for (const f of ns.files) {
+      const nombre = path.basename(f, '.md');
+      const fragIds = allFrags.filter(fr => fr.source === nombre && fr.rol === ns.rol).map(fr => fr.id);
+      const wikiContent = [
+        `# ${nombre} — wiki [${ns.rol}]`,
+        `> Generado: ${new Date().toISOString().slice(0, 10)} | Fragmentos: ${fragIds.length}`,
+        '',
+        fs.readFileSync(path.join(ns.dir, f), 'utf8').trim(),
+      ].join('\n');
+      fs.writeFileSync(path.join(wikiDir, f), wikiContent, 'utf8');
+    }
   }
 
-  console.log(`[memory] indexados ${allFrags.length} fragmentos de ${files.length} archivos`);
+  const totalFiles = namespaces.reduce((s, ns) => s + ns.files.length, 0);
+  console.log(`[memory] indexados ${allFrags.length} fragmentos de ${totalFiles} archivos (namespaces: ${namespaces.map(n => n.rol).join(', ')})`);
 }
 
-function cmdQuery(query) {
+function cmdQuery(query, rolFiltro) {
   if (!query) { console.error('[memory] query vacia'); process.exit(1); }
   if (!fs.existsSync(INDEX)) {
     console.log('[memory] indice no encontrado — ejecutar: node memory-index.js index');
@@ -234,16 +288,21 @@ function cmdQuery(query) {
   }
 
   const index = JSON.parse(fs.readFileSync(INDEX, 'utf8'));
-  const hits  = bm25Score(query, index);
+
+  const indexFiltrado = rolFiltro
+    ? { ...index, frags: Object.fromEntries(Object.entries(index.frags).filter(([, f]) => f.rol === rolFiltro)) }
+    : index;
+
+  const hits = bm25Score(query, indexFiltrado);
 
   if (hits.length === 0) {
-    console.log('[memory] sin resultados para: ' + query);
+    console.log(`[memory] sin resultados para: ${query}${rolFiltro ? ` (rol: ${rolFiltro})` : ''}`);
     return;
   }
 
-  console.log(`[memory] top resultados para "${query}":\n`);
+  console.log(`[memory] top resultados para "${query}"${rolFiltro ? ` (rol: ${rolFiltro})` : ' (cross-rol)'}:\n`);
   for (const [id, score] of hits) {
-    const frag = index.frags[id];
+    const frag = indexFiltrado.frags[id];
     if (!frag) continue;
     console.log(`--- [${id}] score: ${score.toFixed(3)}`);
     console.log(frag.text.slice(0, 300));
@@ -252,30 +311,47 @@ function cmdQuery(query) {
 }
 
 function cmdStatus() {
-  const rawFiles  = fs.existsSync(RAW)  ? fs.readdirSync(RAW).filter(f => f.endsWith('.md'))  : [];
-  const wikiFiles = fs.existsSync(WIKI) ? fs.readdirSync(WIKI).filter(f => f.endsWith('.md')) : [];
-  const hasIndex  = fs.existsSync(INDEX);
+  const namespaces = descubrirNamespaces();
+  const hasIndex   = fs.existsSync(INDEX);
 
   console.log(`[memory] vault: ${VAULT}`);
-  console.log(`[memory] .raw/  : ${rawFiles.length} archivo(s)`);
-  console.log(`[memory] .wiki/ : ${wikiFiles.length} archivo(s)`);
   console.log(`[memory] indice : ${hasIndex ? 'presente' : 'ausente — ejecutar index'}`);
+
+  if (namespaces.length === 0) {
+    console.log('[memory] .raw/  : 0 archivo(s)');
+    console.log('[memory] .wiki/ : 0 archivo(s)');
+  } else {
+    for (const ns of namespaces) {
+      const sufijo   = ns.rol === ROL_DEFECTO ? '' : ns.rol + '/';
+      const wikiDir   = ns.rol === ROL_DEFECTO ? WIKI : path.join(WIKI, ns.rol);
+      const wikiCount = fs.existsSync(wikiDir) ? fs.readdirSync(wikiDir).filter(f => f.endsWith('.md')).length : 0;
+      console.log(`[memory] .raw/${sufijo}  : ${ns.files.length} archivo(s)`);
+      console.log(`[memory] .wiki/${sufijo} : ${wikiCount} archivo(s)`);
+    }
+  }
 
   if (hasIndex) {
     const idx = JSON.parse(fs.readFileSync(INDEX, 'utf8'));
-    console.log(`[memory] fragmentos: ${Object.keys(idx.frags || {}).length}`);
+    const frags = Object.values(idx.frags || {});
+    console.log(`[memory] fragmentos: ${frags.length}`);
+    for (const rol of [...ROLES_VALIDOS, ROL_DEFECTO]) {
+      const n = frags.filter(f => f.rol === rol).length;
+      if (n > 0) console.log(`[memory]   - ${rol}: ${n}`);
+    }
     console.log(`[memory] construido: ${idx.builtAt || 'desconocido'}`);
   }
 }
 
 // ─── Entry point ──────────────────────────────────────────────────────────────
 const [,, cmd, ...args] = process.argv;
+const rolArg = parseRolArg(args);
+const terminos = args.filter(a => !a.startsWith('--rol=')).join(' ');
 
 switch (cmd) {
-  case 'index':  cmdIndex();            break;
-  case 'query':  cmdQuery(args.join(' ')); break;
-  case 'status': cmdStatus();           break;
+  case 'index':  cmdIndex(rolArg);         break;
+  case 'query':  cmdQuery(terminos, rolArg); break;
+  case 'status': cmdStatus();              break;
   default:
-    console.log('Uso: node memory-index.js [index|query <terminos>|status]');
+    console.log('Uso: node memory-index.js [index [--rol=<rol>]|query <terminos> [--rol=<rol>]|status]');
     process.exit(0);
 }

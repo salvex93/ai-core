@@ -14,6 +14,8 @@
  *   donde cualquier texto adicional rompe el pipeline de automatizacion.
  */
 
+const fs   = require('node:fs');
+const path = require('node:path');
 const { MODELOS } = require('./ModelRouter');
 
 // ---------------------------------------------------------------------------
@@ -25,6 +27,49 @@ const ROLES = Object.freeze({
   CODER:     'coder',       // Modo Neanderthal
   AUDITOR:   'auditor',
 });
+
+const SKILLS_DIR = path.resolve(__dirname, '..', '..', '.claude', 'skills');
+
+function extraerRolDeclarado(contenidoSkillMd) {
+  const m = contenidoSkillMd.match(/^rol:\s*"?([a-z]+)"?\s*$/m);
+  return m ? m[1] : null;
+}
+
+/**
+ * Descubre los skills presentes en .claude/skills/ y los agrupa por rol,
+ * leyendo el campo `rol:` declarado en el frontmatter de cada SKILL.md.
+ * No hay inferencia aqui — el rol es metadata estatica del skill, asignada
+ * por criterio semantico al crearlo. Reemplaza el mapeo estatico
+ * SKILLS_POR_ROL — una skill nueva se incorpora sin editar este archivo,
+ * siempre que declare su `rol:` en el frontmatter.
+ *
+ * @returns {Record<string, string[]>} rol -> nombres de skill
+ */
+function descubrirSkillsPorRol() {
+  const resultado = {
+    [ROLES.ARCHITECT]: [],
+    [ROLES.CODER]:     [],
+    [ROLES.AUDITOR]:   [],
+  };
+
+  if (!fs.existsSync(SKILLS_DIR)) return resultado;
+
+  const dirs = fs.readdirSync(SKILLS_DIR, { withFileTypes: true })
+    .filter(d => d.isDirectory())
+    .map(d => d.name)
+    .sort();
+
+  for (const nombre of dirs) {
+    const skillFile = path.join(SKILLS_DIR, nombre, 'SKILL.md');
+    if (!fs.existsSync(skillFile)) continue;
+    const contenido = fs.readFileSync(skillFile, 'utf8');
+    const rolDeclarado = extraerRolDeclarado(contenido);
+    const rol = Object.values(ROLES).includes(rolDeclarado) ? rolDeclarado : ROLES.CODER;
+    resultado[rol].push(nombre);
+  }
+
+  return resultado;
+}
 
 // System prompts por rol — se inyectan en el bloque final (sin cache) de buildSystemBlocks
 const SYSTEM_PROMPTS = {
@@ -38,7 +83,18 @@ Responde UNICAMENTE con codigo o comandos de shell ejecutables.
 PROHIBIDO: explicaciones, encabezados, confirmaciones, comentarios de cortesia, texto fuera del bloque de codigo.
 Si la respuesta es un comando de shell: solo el comando, sin markdown fence.
 Si la respuesta es codigo: solo el bloque de codigo con el lenguaje correcto, nada mas.
-Idioma de los comentarios en el codigo: Espanol. Nombres de variables: ingles.`,
+Idioma de los comentarios en el codigo: Espanol. Nombres de variables: ingles.
+
+EDICION DE CODIGO EXISTENTE — formato obligatorio SEARCH/REPLACE (estilo Aider):
+<<<<<<< SEARCH
+(fragmento exacto y minimo del archivo actual, tal como existe hoy)
+=======
+(fragmento reemplazado)
+>>>>>>> REPLACE
+PROHIBIDO reescribir un archivo completo cuando el cambio es una edicion localizada.
+Cada bloque SEARCH debe ser el fragmento mas pequeno que identifica unicamente el
+punto de cambio. Un archivo nuevo (que no existe aun) se entrega completo, sin
+bloques SEARCH/REPLACE — la restriccion aplica solo a modificar codigo existente.`,
 
   [ROLES.AUDITOR]: `Eres el Auditor de seguridad y calidad de AI-CORE (salvex93).
 Tu funcion: detectar vulnerabilidades, analizar stderr/errores de ejecucion, y generar ordenes de reparacion.
@@ -55,12 +111,21 @@ const MODELO_POR_ROL = {
   [ROLES.AUDITOR]:   MODELOS.SONNET,  // Balance diagnostico/costo — Sonnet
 };
 
-// Skills recomendados por rol — se inyectan automaticamente si el llamador no pasa skills explícitos
-const SKILLS_POR_ROL = Object.freeze({
-  [ROLES.ARCHITECT]: ['backend-architect', 'devops-infra', 'prompt-engineer'],
-  [ROLES.CODER]:     ['backend-architect', 'qa-engineer'],
-  [ROLES.AUDITOR]:   ['security-auditor', 'attack-surface-analyst', 'llm-observability'],
-});
+// Cache del descubrimiento — se invalida solo si cambia el mtime de SKILLS_DIR,
+// para no releer el filesystem en cada llamada dentro del mismo proceso.
+let _cacheSkillsPorRol = null;
+let _cacheMtime = -1;
+
+function obtenerSkillsPorRol() {
+  let mtime = -1;
+  try { mtime = fs.statSync(SKILLS_DIR).mtimeMs; } catch { /* SKILLS_DIR ausente */ }
+
+  if (_cacheSkillsPorRol && mtime === _cacheMtime) return _cacheSkillsPorRol;
+
+  _cacheSkillsPorRol = descubrirSkillsPorRol();
+  _cacheMtime = mtime;
+  return _cacheSkillsPorRol;
+}
 
 /**
  * Retorna los skills recomendados para una herramienta dada.
@@ -71,7 +136,7 @@ const SKILLS_POR_ROL = Object.freeze({
  */
 function inferirSkills(nombreHerramienta) {
   const rol = HERRAMIENTA_A_ROL[nombreHerramienta] ?? ROLES.CODER;
-  return SKILLS_POR_ROL[rol] ?? [];
+  return obtenerSkillsPorRol()[rol] ?? [];
 }
 
 // Herramientas MCP → rol inferido automaticamente
@@ -144,4 +209,4 @@ function systemPromptParaRol(rol) {
   return SYSTEM_PROMPTS[rol] ?? SYSTEM_PROMPTS[ROLES.CODER];
 }
 
-module.exports = { ROLES, obtenerPerfil, inferirRol, inferirSkills, systemPromptParaRol, MODELO_POR_ROL, SKILLS_POR_ROL };
+module.exports = { ROLES, obtenerPerfil, inferirRol, inferirSkills, systemPromptParaRol, MODELO_POR_ROL, obtenerSkillsPorRol };

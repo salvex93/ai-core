@@ -4,6 +4,7 @@ description: Especialista en pipelines RAG y Mission Manager del LLM Routing Bri
 origin: ai-core
 version: 2.5.0
 last_updated: 2026-07-10
+rol: architect
 ---
 
 # RAG Specialist — Mission Manager (LLM Routing Bridge)

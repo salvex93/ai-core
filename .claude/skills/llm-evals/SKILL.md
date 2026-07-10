@@ -4,6 +4,7 @@ description: Especialista en evaluacion sistematica de outputs de LLM. Cubre dis
 origin: ai-core
 version: 1.2.3
 last_updated: 2026-07-10
+rol: auditor
 ---
 
 # LLM Evals — Especialista en Evaluacion Sistematica de Outputs

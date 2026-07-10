@@ -14,6 +14,11 @@
  *   health   — health-check, health-sync, health-worker
  *   lint     — standards-guard, detox, syntax-check
  *   capture  — capture-event, issue-reporter
+ *   intent   — detect-role.js (clasificacion de rol del prompt entrante)
+ *   moa      — moa-context-gatherer.js (fan-out MoA Gemini+DeepSeek).
+ *              Categoria propia y distinta de "intent": ambos hooks corren
+ *              en la misma lista de UserPromptSubmit y deben ejecutarse
+ *              siempre, sin competir por el mismo lock de proceso.
  *
  * Uso: node process-guard.js <categoria> <comando...>
  *   node process-guard.js map node .claude/bin/validate-map.js
@@ -129,6 +134,12 @@ try {
   if (result.signal === 'SIGTERM' || result.error?.code === 'ETIMEDOUT') {
     process.stderr.write(`[GUARD] Timeout (${TIMEOUT_MS}ms) — ${categoria} cancelado.\n`);
   }
-} finally {
+
+  // Propagar el exit code real del comando envuelto — un guardia de bloqueo
+  // (ej. standards-guard.js con exit 2) no debe quedar absorbido en 0.
   releaseLock();
+  process.exit(result.status ?? 0);
+} catch (err) {
+  releaseLock();
+  throw err;
 }

@@ -36,6 +36,10 @@ if (!fs.existsSync(filePath)) process.exit(0);
 const TEXT_EXTS = ['.js', '.ts', '.py', '.md', '.json', '.yaml', '.yml', '.sh'];
 const ext = path.extname(filePath).toLowerCase();
 const isCommitMsg = filePath.endsWith('COMMIT_EDITMSG');
+// Artefactos de prosa conversacional del arnes — el limite de 150 palabras de
+// CLAUDE.md rige la respuesta de Claude al usuario, no documentacion tecnica
+// (SKILL.md, README, propuestas) que legitimamente supera ese largo.
+const isProsaConversacional = isCommitMsg || filePath.endsWith('TO_GEMINI.md');
 
 if (!TEXT_EXTS.includes(ext) && !isCommitMsg) process.exit(0);
 
@@ -63,10 +67,27 @@ if (EMOJI_RE.test(content)) {
   const lineNum = lines.findIndex(l => EMOJI_RE.test(l)) + 1;
   violations.push({
     rule:    'emoji-prohibido',
-    sev:     'alta',
+    sev:     'critica',
     linea:   lineNum,
     detalle: 'Emoji pictografico detectado — prohibido por CLAUDE.md',
   });
+}
+
+// ---------------------------------------------------------------------------
+// 1b. Limite de 150 palabras de prosa (solo artefactos conversacionales:
+// COMMIT_EDITMSG, TO_GEMINI.md — no aplica a documentacion tecnica extensa)
+// ---------------------------------------------------------------------------
+
+if (isProsaConversacional) {
+  const wordCount = content.trim().split(/\s+/).filter(Boolean).length;
+  if (wordCount > 150) {
+    violations.push({
+      rule:    'prosa-excede-150-palabras',
+      sev:     'critica',
+      linea:   1,
+      detalle: `Prosa tiene ${wordCount} palabras (limite: 150) — reescribir de forma mas concisa`,
+    });
+  }
 }
 
 // ---------------------------------------------------------------------------
@@ -208,6 +229,9 @@ for (const v of violations) {
   }
 }
 
-// Exit 0 — no bloquear la escritura, solo avisar y encolar
-// Las violaciones criticas se convierten en issues automaticamente al cerrar sesion
-process.exit(0);
+// Exit 2 ante violacion critica: Claude Code bloquea y devuelve stderr al
+// modelo como motivo de rechazo, exigiendo reescritura antes de continuar.
+// Violaciones no criticas (media/baja/alta no clasificada) solo se avisan y
+// encolan — mantienen el comportamiento previo de no bloquear.
+const hayCritica = violations.some(v => v.sev === 'critica');
+process.exit(hayCritica ? 2 : 0);

@@ -4,6 +4,7 @@ description: Especialista en Claude API y Anthropic SDK (Python/TypeScript). Cub
 origin: ai-core
 version: 1.2.0
 last_updated: 2026-07-10
+rol: coder
 ---
 
 # Claude API Specialist

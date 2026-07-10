@@ -3,7 +3,8 @@ name: devops-infra
 description: DevOps Infra Universal. Especialista en infraestructura como codigo (Terraform, Pulumi, Helm), gestion de secretos en contenedores, networking de servicios y observabilidad (OpenTelemetry, Prometheus, Grafana). Agnostico al proveedor de nube. Activa al disenar infraestructura, configurar observabilidad, gestionar secretos en Kubernetes o definir estrategias de despliegue en contenedores.
 origin: ai-core
 version: 1.1.4
-last_updated: 2026-06-10
+last_updated: 2026-07-10
+rol: architect
 ---
 
 # DevOps Infra Universal

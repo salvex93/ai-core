@@ -4,6 +4,7 @@ description: Verificacion ciega de diffs con un proveedor de IA distinto al que 
 origin: ai-core
 version: 1.0.0
 last_updated: 2026-07-10
+rol: auditor
 ---
 
 # Cross-Model Verifier — Segunda Opinion Ciega

@@ -4,6 +4,7 @@ description: Especialista en testing de comportamiento de agentes LLM. Cubre moc
 origin: ai-core
 version: 1.0.0
 last_updated: 2026-07-10
+rol: auditor
 ---
 
 # Agent Testing — Especialista en Testing de Comportamiento de Agentes

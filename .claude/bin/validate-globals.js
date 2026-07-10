@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 /**
  * validate-globals.js
- * Audita que los 34 skills sean conformes con las reglas globales de CLAUDE.md.
+ * Audita que los skills descubiertos en .claude/skills/ (auto-discovery,
+ * sin conteo fijo) sean conformes con las reglas globales de CLAUDE.md.
  *
  * Verifica:
  *   1. Que ningun skill copia el bloque PROTOCOLO DE SESION (debe referenciar, no copiar).
@@ -105,6 +106,8 @@ function auditarSkill(skillDir) {
   if (!content.match(/^version:/m))     hallazgos.push({ sev: 'alta',   desc: 'frontmatter: falta "version:"' });
   if (!content.match(/^origin:/m))      hallazgos.push({ sev: 'alta',   desc: 'frontmatter: falta "origin:"' });
   if (!content.match(/^last_updated:/m))hallazgos.push({ sev: 'media',  desc: 'frontmatter: falta "last_updated:"' });
+  if (!content.match(/^rol:\s*"?(architect|coder|auditor)"?\s*$/m))
+    hallazgos.push({ sev: 'alta', desc: 'frontmatter: falta "rol:" valido (architect|coder|auditor)' });
 
   // 2. Secciones obligatorias
   for (const seccion of SECCIONES_OBLIGATORIAS) {

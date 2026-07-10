@@ -3,7 +3,8 @@ name: qa-engineer
 description: QA Engineer Universal. Estrategia de testing, piramide de calidad, contract testing y cobertura en CI/CD. Agnostico al framework: deduce la herramienta del repositorio anfitrion antes de emitir recomendaciones. Activa al definir estrategia de tests, revisar cobertura, implementar contract testing, diagnosticar regresiones, o revisar si un PR tiene tests adecuados.
 origin: ai-core
 version: 2.0.0
-last_updated: 2026-06-10
+last_updated: 2026-07-10
+rol: auditor
 ---
 
 # QA Engineer Universal

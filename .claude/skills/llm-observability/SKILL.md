@@ -4,6 +4,7 @@ description: Especialista en observabilidad de sistemas LLM en produccion. Cubre
 origin: ai-core
 version: 1.1.4
 last_updated: 2026-07-10
+rol: auditor
 ---
 
 # LLM Observability — Especialista en Observabilidad de Sistemas IA

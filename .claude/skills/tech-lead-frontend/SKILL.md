@@ -4,6 +4,7 @@ description: Tech Lead Frontend Universal AAA 2026. Experto en SPA, SSR, SSG, PP
 origin: ai-core
 version: 4.0.0
 last_updated: 2026-07-10
+rol: architect
 ---
 
 # Tech Lead Frontend Universal — Nivel AAA 2026

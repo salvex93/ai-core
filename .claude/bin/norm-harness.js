@@ -121,8 +121,9 @@ function buildSettingsForHost(corePath, stackPermissions) {
       UserPromptSubmit: [
         {
           hooks: [
-            { type: "command", command: `node ${bin("process-guard.js")} intent node -e "const {clasificarConModelo}=require('${path.join(corePath, "scripts/services/IntentClassifier.js")}');const r=clasificarConModelo(process.env.CLAUDE_USER_PROMPT||'');if(r.rol&&r.rol!=='Architect')process.stdout.write('[ROL DETECTADO: '+r.rol+' | CONFIANZA: '+r.confianza+' | '+r.razon+']\\n');" 2>/dev/null || true` },
+            { type: "command", command: `node ${bin("process-guard.js")} intent node ${bin("detect-role.js")} 2>/dev/null || true` },
             { type: "command", command: `node ${bin("secrets-guard.js")} 2>/dev/null || true` },
+            { type: "command", command: `node ${bin("process-guard.js")} moa node ${bin("moa-context-gatherer.js")} 2>/dev/null || true` },
           ],
         },
       ],
@@ -132,7 +133,7 @@ function buildSettingsForHost(corePath, stackPermissions) {
             { type: "command", command: `node ${bin("session-summary.js")} 2>/dev/null || true` },
             { type: "command", command: `node ${bin("process-guard.js")} capture node ${bin("issue-reporter.js")} 2>/dev/null || true` },
             { type: "command", command: `node ${bin("aiops-score.js")} 2>/dev/null || true` },
-            { type: "command", command: `node ${bin("memory-index.js")} index 2>/dev/null || true` },
+            { type: "command", command: `node ${bin("memory-index-stop.js")} 2>/dev/null || true` },
           ],
         },
       ],
@@ -175,7 +176,11 @@ function buildSettingsForHost(corePath, stackPermissions) {
         },
         {
           matcher: "Write|Edit",
-          hooks: [{ type: "command", command: `node ${bin("ponytail-check.js")} 2>/dev/null || true` }],
+          hooks: [
+            { type: "command", command: `node ${bin("ponytail-check.js")} 2>/dev/null || true` },
+            { type: "command", command: `node ${bin("dependency-tracer.js")} "$CLAUDE_TOOL_INPUT_file_path" 2>/dev/null || true` },
+            { type: "command", command: `node ${bin("pre-commit-tdd.js")} "$CLAUDE_TOOL_INPUT_file_path"` },
+          ],
         },
       ],
       PostToolUse: [
@@ -192,7 +197,7 @@ function buildSettingsForHost(corePath, stackPermissions) {
           hooks: [
             { type: "command", command: `node ${bin("process-guard.js")} lint node ${bin("detox.js")} 2>/dev/null || true` },
             { type: "command", command: `FILE="$CLAUDE_TOOL_INPUT_file_path"; if [[ "$FILE" == *.js ]]; then node --check "$FILE" 2>&1 && echo "[syntax-ok] $FILE" || echo "[syntax-error] $FILE"; fi` },
-            { type: "command", command: `node ${bin("process-guard.js")} lint node ${bin("standards-guard.js")} "$CLAUDE_TOOL_INPUT_file_path" 2>/dev/null || true` },
+            { type: "command", command: `node ${bin("process-guard.js")} lint node ${bin("standards-guard.js")} "$CLAUDE_TOOL_INPUT_file_path"` },
             { type: "command", command: `node ${bin("process-guard.js")} map node ${bin("diff-map-trigger.js")} 2>/dev/null || true` },
             { type: "command", command: `node ${bin("process-guard.js")} lint node ${bin("security-check.js")} "$CLAUDE_TOOL_INPUT_file_path" 2>/dev/null || true` },
           ],

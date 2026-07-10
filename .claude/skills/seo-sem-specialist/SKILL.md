@@ -3,7 +3,8 @@ name: seo-sem-specialist
 description: Especialista en SEO tecnico y SEM de produccion. SEO: auditoria tecnica (Core Web Vitals, indexacion, canonicalizacion, Schema.org, sitemaps), SEO on-page y off-page, estrategia de contenido, link building etico. SEM: Google Ads (Search, Display, Performance Max), Meta Ads, LinkedIn Ads, estructura de campanas, pujas inteligentes, Quality Score, remarketing, UTMs y attribution. Analytics: GA4, Google Tag Manager, conversion tracking, dashboards de ROAS. Activa al auditar el posicionamiento SEO de un sitio, disenar o optimizar campanas de publicidad pagada, instrumentar analytics para tracking de conversiones, o definir la estrategia de adquisicion de trafico de un producto.
 origin: ai-core
 version: 1.0.0
-last_updated: 2026-06-10
+last_updated: 2026-07-10
+rol: architect
 ---
 
 # SEO/SEM Specialist — Posicionamiento y Publicidad Digital

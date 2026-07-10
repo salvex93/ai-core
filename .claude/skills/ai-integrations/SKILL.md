@@ -4,6 +4,7 @@ description: Especialista en integracion de LLMs en aplicaciones de produccion. 
 origin: ai-core
 version: 2.4.0
 last_updated: 2026-07-10
+rol: architect
 ---
 
 # AI Integrations — Especialista en Features de IA en Produccion

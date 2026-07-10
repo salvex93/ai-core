@@ -1,6 +1,6 @@
 {
-  "version": "3.11.0",
-  "last_updated": "2026-07-10T20:55:27.989Z",
+  "version": "3.12.0",
+  "last_updated": "2026-07-10T23:29:19.718Z",
   "branch": "main",
   "stack": null,
   "host": {
@@ -70,7 +70,7 @@
         ".claude/skills/dev-loop/SKILL.md",
         ".claude/skills/devops-infra/SKILL.md",
         ".claude/skills/doc-builder/SKILL.md",
-        ".claude/skills/gemini-2-5-specialist/SKILL.md",
+        ".claude/skills/gemini-3-specialist/SKILL.md",
         ".claude/skills/llm-evals/SKILL.md",
         ".claude/skills/llm-observability/SKILL.md",
         ".claude/skills/managed-agents-specialist/SKILL.md",

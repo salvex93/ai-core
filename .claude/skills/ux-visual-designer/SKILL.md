@@ -3,7 +3,8 @@ name: ux-visual-designer
 description: Disenador UX/Visual AAA 2026. Cubre design systems desde cero (tokens W3C, componentes, documentacion), brand identity (logotipo, paleta, tipografia, iconografia), paradigmas visuales 2026 (glassmorphism, claymorphism, brutalismo, maximalismo, liquid glass, bento grid, spatial UI), motion design con principios Disney y Material Motion, accesibilidad visual WCAG 2.2 AA/AAA, diagramas de flujo UX, wireframes en texto/ASCII, especificaciones Figma-ready y handoff de diseno a codigo. Diferenciado de tech-lead-frontend (implementacion) — este skill gobierna las decisiones de diseno previas al codigo. Activa al disenar la identidad visual de un producto, crear un design system desde cero, definir la experiencia de usuario antes de implementar, auditar accesibilidad visual, o producir especificaciones de diseno para el equipo de frontend.
 origin: ai-core
 version: 2.0.0
-last_updated: 2026-07-06
+last_updated: 2026-07-10
+rol: architect
 ---
 
 # UX Visual Designer — Nivel AAA 2026

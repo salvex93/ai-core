@@ -4,6 +4,7 @@ description: Tech Lead Mobile Universal. Experto en aplicaciones moviles y multi
 origin: ai-core
 version: 1.3.0
 last_updated: 2026-07-10
+rol: coder
 ---
 
 # Mobile Engineer — Tech Lead Movil y Multiplataforma (Flutter/Dart)

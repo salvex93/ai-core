@@ -56,6 +56,7 @@ NO esperar a que el usuario declare skills. Seleccionar automaticamente segun la
 | Agentes, MCP, flujos automatizados | `managed-agents-specialist`, `mcp-server-builder` |
 | Evaluar MCPs de terceros antes de instalar, registros mcp.run/glama.ai, decision INSTALAR/RECHAZAR | `mcp-registry-navigator` |
 | Verificacion cross-model de un fix, segunda opinion ciega sobre un diff, diagnostico de regresion silenciosa | `cross-model-verifier` |
+| Auditoria de patrones de diseno, God Objects, limite de 300 lineas, conformidad estilo SWE-bench antes de cerrar una tarea | `aaa-evaluator` |
 | Testing de comportamiento de agentes, mock de herramientas, loops, eficiencia | `agent-testing` |
 | Orquestacion multi-agente, fan-out/fan-in, retry, checkpointing | `workflow-orchestrator` |
 | Gemini 3.x directo: thinking_level, Flash-Lite, Live API, image gen | `gemini-3-specialist` |

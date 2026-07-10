@@ -3,7 +3,8 @@ name: doc-builder
 description: Generador de documentacion profesional en HTML + PDF. Produce propuestas comerciales, documentos de requerimientos y entregables para clientes siguiendo el sistema visual Evolve (navy/azul, Segoe UI, paginacion controlada). Activa cuando se pide crear o modificar cualquier documento HTML/PDF destinado a un cliente o uso interno formal.
 origin: ai-core
 version: 1.0.0
-last_updated: 2026-06-10
+last_updated: 2026-07-10
+rol: architect
 ---
 
 # Doc Builder — Generador de Documentacion Profesional

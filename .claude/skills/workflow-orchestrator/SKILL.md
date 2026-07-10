@@ -4,6 +4,7 @@ description: Especialista en orquestacion multi-agente y workflows de larga dura
 origin: ai-core
 version: 2.2.0
 last_updated: 2026-07-10
+rol: architect
 ---
 
 # Workflow Orchestrator — Orquestacion Multi-Agente

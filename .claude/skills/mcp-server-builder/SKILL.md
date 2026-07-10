@@ -4,6 +4,7 @@ description: Especialista en construccion de servidores MCP (Model Context Proto
 origin: ai-core
 version: 1.4.0
 last_updated: 2026-07-10
+rol: coder
 ---
 
 # MCP Server Builder — Especialista en Servidores Model Context Protocol

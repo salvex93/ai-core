@@ -3,6 +3,43 @@
 Registro de cambios por version. Formato basado en [Keep a Changelog](https://keepachangelog.com/es/1.0.0/).
 Versionado semantico: MAJOR.MINOR.PATCH.
 
+## [3.12.0] — 2026-07-10
+
+### Agregado — Arquitectura Multi-Agente (MoA) y aislamiento de memoria por rol
+
+- **`scripts/services/ModelDispatcher.js`**: router Mixture-of-Agents entre proveedores (distinto de `ModelRouter.js`, que enruta dentro de la familia Claude). Patron Command/Port (`SubTaskCommand` abstracta, no instanciable directamente) + Factory (`crearSubTarea`) + Strategy (`PROVIDER_POR_SUBTASK`): `ContextGathering` → Gemini, `SyntaxDrafting` → DeepSeek, `SurgicalEdit` → Claude. `executeMoATask(userPrompt)` ejecuta fan-out concurrente con `Promise.allSettled` — un worker caido (timeout, rate limit, key ausente) no aborta al otro; el resultado combina ambas secciones con marcador de contexto vacio si alguna falla. El orquestador nunca rechaza.
+- **`.claude/bin/moa-context-gatherer.js`**: conecta `executeMoATask` al hook `UserPromptSubmit`, categoria propia `moa` en `process-guard.js` (no comparte lock con `detect-role.js`, que corre en el mismo array de hooks). Guard de disponibilidad: si falta `GEMINI_API_KEY` o `DEEPSEEK_API_KEY`, no invoca red y limpia cualquier `.claude/moa_context.md` obsoleto de un turno anterior. `ambasKeysDisponibles()` exportada como unidad testeable en memoria — necesario porque `loadEnv()` (patron compartido por todo el arnes) rellena cualquier env var falsy desde `.env`, lo que hacia que pasar una key vacia por entorno no la deshabilitara realmente.
+- **Namespacing del `memory-vault`**: `.raw/<rol>/` y `.wiki/<rol>/` por convencion de carpeta (entradas sueltas en la raiz = namespace `general`, retrocompatible con el vault previo sin namespacing). `index.json` sigue siendo un unico indice BM25 global, pero cada fragmento lleva su `rol` de origen. `memory-index.js query` acepta `--rol=<rol>` para filtrar busqueda o se omite para busqueda cross-rol explicita.
+- **Rol declarativo en frontmatter de skills**: las 37 `SKILL.md` ahora declaran `rol: architect|coder|auditor`. `AgentRoles.descubrirSkillsPorRol()` lee el campo directamente — sin inferencia por regex sobre `description`, que producia un sesgo fuerte (28/36 skills caian en `architect` por keywords genericas como "sistema"). `IntentClassifier.js` sigue siendo el unico lugar que infiere, y solo sobre el prompt dinamico del usuario, no sobre el inventario estatico de skills.
+- **`validate-globals.js`**: `rol:` agregado a los campos de frontmatter obligatorios — un skill sin ese campo o con valor invalido se marca `NO_CONFORME`.
+
+### Agregado — Guardrails deterministas y ciclo TDD obligatorio
+
+- **`standards-guard.js`**: regla de emoji elevada de severidad `alta` a `critica` (bloqueante). Nueva regla de limite de 150 palabras de prosa, restringida a artefactos conversacionales (`COMMIT_EDITMSG`, `TO_GEMINI.md`) — no aplica a documentacion tecnica extensa (`SKILL.md`, README) que legitimamente supera ese largo. El hook ahora sale con exit 2 ante violacion critica (antes siempre `exit(0)`, solo avisaba y encolaba).
+- **`process-guard.js`**: propaga el `result.status` real del comando envuelto en vez de absorberlo — sin esto, `standards-guard.js` nunca podia bloquear una escritura aunque saliera con exit 2.
+- **`.claude/bin/pre-commit-tdd.js`**: gate TDD por heuristica de presencia (no Red-Green real, que requeriria ejecutar la suite completa por cada Write/Edit). Bloquea con exit 2 si se edita codigo fuente fuera de `tests/` y ningun `*.test.js` tiene cambios sin commitear en el repo (via `git status --porcelain`). Aplica sin excepcion, incluido el propio harness.
+- **ACI diff edits**: `SYSTEM_PROMPTS[ROLES.CODER]` en `AgentRoles.js` ahora exige formato SEARCH/REPLACE (estilo Aider) para editar codigo existente, con excepcion explicita para archivos nuevos.
+- **`.claude/bin/dependency-tracer.js`**: grafo de dependencias inverso sobre `require()` relativo en `scripts/` y `.claude/bin/` (regex sobre string literal, sin AST completo). Registrado en `PreToolUse(Write|Edit)`, no bloqueante — informa que otros scripts dependen (directa o transitivamente) del archivo que se esta por tocar.
+
+### Corregido — Deuda estructural (God Objects, DRY)
+
+- **`.claude/skills/aaa-evaluator/SKILL.md`** (nuevo, `rol: auditor`): estandares AAA estilo SWE-bench — limite de 300 lineas por archivo, 20 lineas por funcion, uso justificado (no especulativo) de Factory/Strategy/Observer, prohibicion de God Objects.
+- **`scripts/services/TokenManager.js`** (nuevo): extraidas `estimarTokensMensajes`, `truncarInputGemini`, `truncarOutputGemini` de `anthropic-bridge.js` (336 → 280 lineas). `anthropic-bridge.js` re-exporta los mismos nombres para no romper a `dry-run-cost-sim.js`.
+- **Fragmentacion de `mcp-gemini.js`** (527 → 183 lineas): `scripts/services/GeminiApiClient.js` (146 lineas — cliente SDK puro: auth, reintentos, parseo JSON, compactado) y `scripts/services/McpServerHandlers.js` (250 lineas — las 5 herramientas MCP + system prompts). `mcp-gemini.js` queda solo como shell del protocolo JSON-RPC/stdio. Elimina ademas la implementacion duplicada de `truncarInputGemini`/`truncarOutputGemini` que vivia localmente en este archivo (constantes numericamente identicas a `TokenManager.js`, solo el mensaje de truncado diferia).
+- **Zero-Dead-Code en `settings.json` al actualizar**: `setup-settings.js`/`norm-harness.js` construyen el objeto de hooks desde cero y sobreescriben el archivo completo (nunca mergean) — cualquier hook de una version anterior que referencie un script eliminado o renombrado desaparece automaticamente al regenerar. Verificado con un test de regresion explicito que inyecta un hook obsoleto y confirma su purga tras `npm run setup`.
+
+### Aprendido
+
+- La inferencia por regex sobre texto libre (keywords en `description`) no es un sustituto confiable de metadata declarada explicitamente cuando la clasificacion tiene consecuencias estructurales (asignar rol a un inventario estatico de 37 skills, no un prompt dinamico de un usuario). El mismo mecanismo que funciona razonablemente para clasificar *intent* de una frase corta produce sesgos serios sobre texto largo con vocabulario tecnico repetido entre categorias.
+- Un guard de disponibilidad de credenciales no puede verificarse pasando strings vacios via variable de entorno si el propio script tiene un `loadEnv()` que rellena falsy values desde `.env` — el test debe aislar la funcion de decision en memoria, no simular ausencia de config a traves del proceso completo.
+- `Promise.allSettled` es preferible a `Promise.all` + try/catch manual para fan-out con fallback aislado: la plataforma ya resuelve exactamente el aislamiento de fallo por promesa que se necesita, sin logica adicional que mantener.
+
+### Deuda tecnica remanente
+
+Ninguna deuda estructural conocida al cierre de esta version: todos los archivos tocados en esta sesion estan bajo el limite de 300 lineas (`ModelDispatcher.js` 171, `TokenManager.js` 75, `mcp-gemini.js` 183, `GeminiApiClient.js` 146, `McpServerHandlers.js` 250, `moa-context-gatherer.js` 80), sin duplicacion DRY conocida entre modulos de token/truncado, y el gate `pre-commit-tdd.js` confirma cobertura de test para cada archivo modificado. Zero-debt estructural para el alcance cubierto en esta sesion — no implica ausencia de deuda en areas no tocadas (ver **487/487 tests, 37 skills**).
+
+**487/487 tests, 37 skills.**
+
 ## [3.11.0] — 2026-07-10
 
 ### Agregado — Proteccion contra prompt injection

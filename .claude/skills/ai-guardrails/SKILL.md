@@ -4,6 +4,7 @@ description: Especialista en capas de proteccion para sistemas LLM en produccion
 origin: ai-core
 version: 1.2.0
 last_updated: 2026-07-10
+rol: auditor
 ---
 
 # AI Guardrails

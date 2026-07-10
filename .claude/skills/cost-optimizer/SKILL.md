@@ -4,6 +4,7 @@ description: Optimizador de costos de inferencia LLM. Selecciona el modelo mas b
 origin: ai-core
 version: 1.2.0
 last_updated: 2026-07-10
+rol: architect
 ---
 
 # Cost Optimizer

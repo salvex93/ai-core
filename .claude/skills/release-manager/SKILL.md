@@ -4,6 +4,7 @@ description: Release Manager Universal. Gestiona el ciclo de vida de entregas de
 origin: ai-core
 version: 1.2.0
 last_updated: 2026-07-10
+rol: architect
 ---
 
 # Release Manager Universal
