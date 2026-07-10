@@ -13,8 +13,9 @@
 const MODELOS = Object.freeze({
   GEMINI: 'gemini-2.5-flash',           // gratis (cuota diaria) — lectura de archivos grandes, logs
   HAIKU:  'claude-haiku-4-5-20251001',  // $0.80/$4 por MTok — parseo simple, transformaciones
-  SONNET: 'claude-sonnet-4-6',          // $3/$15 por MTok  — refactorizacion, analisis, busqueda
-  OPUS:   'claude-opus-4-8',            // $15/$75 por MTok — arquitectura critica, diseno de sistema
+  SONNET: 'claude-sonnet-5',            // $3/$15 por MTok  — refactorizacion, analisis, busqueda (GA 2026-06-29)
+  OPUS:   'claude-opus-4-8',            // $15/$75 por MTok — arquitectura con herramientas, computer use
+  FABLE:  'claude-fable-5',             // ~Opus pricing — razonamiento profundo sin tools, diseno de sistemas
 });
 
 // Costos en USD por 1M tokens (input / output)
@@ -23,6 +24,7 @@ const COSTO_POR_MODELO = Object.freeze({
   [MODELOS.HAIKU]:  { input: 0.80,  output: 4.00  },
   [MODELOS.SONNET]: { input: 3.00,  output: 15.00 },
   [MODELOS.OPUS]:   { input: 15.00, output: 75.00 },
+  [MODELOS.FABLE]:  { input: 15.00, output: 75.00 },
 });
 
 // Tier GEMINI: lectura de archivos grandes, logs, contenido extenso, busqueda web — costo cero
@@ -51,11 +53,22 @@ const TIER_SONNET = new Set([
   'auditar_calidad',        // revision de codigo
 ]);
 
-// Tier OPUS: diseno de sistemas nuevos, arquitectura critica — uso excepcional
-const TIER_OPUS = new Set([
+// Tier FABLE: razonamiento profundo sin herramientas integradas — diseno puro
+const TIER_FABLE = new Set([
+  'disenar_sistema',            // nuevo sistema desde cero (razonamiento, sin computer use)
   'refactorizar_arquitectura',  // reestructuracion de multiples modulos
-  'disenar_sistema',            // nuevo sistema desde cero
+]);
+
+// Tier OPUS: arquitectura critica con herramientas integradas o computer use
+const TIER_OPUS = new Set([
   'auditar_seguridad_critica',  // auditoria de seguridad profunda
+]);
+
+// Tier VERIFICADOR: revision ciega de un diff con proveedor distinto al actor
+// (ver scripts/services/CrossVerifier.js). No selecciona modelo Anthropic —
+// selecciona proveedor, resuelto por CrossVerifier.seleccionarVerificador().
+const TIER_VERIFICADOR = new Set([
+  'verificar_diff',  // revision cross-model de un cambio ya generado
 ]);
 
 // Umbral de tokens para recomendar Gemini Bridge en lugar de Haiku
@@ -79,8 +92,26 @@ const UMBRAL_ESCALADO_OPUS   = 60_000;
  * @returns {{ modelo: string, tier: string, razon: string }}
  */
 function route(nombreHerramienta, tokensContexto = 0) {
-  // Opus solo si la tarea lo requiere explicitamente Y el contexto no es gigante
-  // (contexto gigante con Opus = factura brutal)
+  // Verificador cross-model: no aplica jerarquia de costo Anthropic — se resuelve
+  // por proveedor distinto al actor en CrossVerifier.js, no por este router.
+  if (TIER_VERIFICADOR.has(nombreHerramienta)) {
+    return {
+      modelo: null,
+      tier: 'verificador',
+      razon: `Verificacion cross-model: ${nombreHerramienta} — resuelto por CrossVerifier.seleccionarVerificador()`,
+    };
+  }
+
+  // Fable 5 para razonamiento profundo sin tools (diseno puro, arquitectura)
+  if (TIER_FABLE.has(nombreHerramienta) && tokensContexto < UMBRAL_ESCALADO_OPUS) {
+    return {
+      modelo: MODELOS.FABLE,
+      tier: 'fable',
+      razon: `Razonamiento arquitectonico: ${nombreHerramienta}`,
+    };
+  }
+
+  // Opus para tareas criticas con herramientas integradas o computer use
   if (TIER_OPUS.has(nombreHerramienta) && tokensContexto < UMBRAL_ESCALADO_OPUS) {
     return {
       modelo: MODELOS.OPUS,
@@ -193,4 +224,4 @@ function estimarCosto(modelo, tokensInput, tokensOutput, tokensCacheHit = 0) {
   };
 }
 
-module.exports = { route, estimarCosto, MODELOS, COSTO_POR_MODELO };
+module.exports = { route, estimarCosto, MODELOS, COSTO_POR_MODELO, TIER_VERIFICADOR };

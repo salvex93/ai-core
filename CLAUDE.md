@@ -15,10 +15,10 @@
 ## Comandos de Referencia
 ```bash
 npm install                          # instalar dependencias del ai-core
-npm test                             # 342 tests, Node nativo, sin dependencias externas
+npm test                             # 372 tests, Node nativo, sin dependencias externas
 npm run setup                        # regenerar settings.json con rutas locales (cross-platform)
 npm run update                       # actualizacion one-command: pull + setup + test + validate
-npm run validate-globals             # auditar conformidad de los 34 skills con CLAUDE.md
+npm run validate-globals             # auditar conformidad de los 36 skills con CLAUDE.md
 npm run validate-globals -- --fix-drift  # corregir last_updated desincronizado automaticamente
 npm run token-metrics                # medir reduccion de consumo de tokens por sesion
 npm run dry-run                      # simular 5 turnos con calculo de costo/ahorro
@@ -54,6 +54,8 @@ NO esperar a que el usuario declare skills. Seleccionar automaticamente segun la
 | Seguridad, auditoria, vulnerabilidades | `security-auditor`, `attack-surface-analyst` |
 | Fallos silenciosos, catch vacios, errores tragados, logs sin contexto, resilencia de scrapers | `silent-failure-hunter` |
 | Agentes, MCP, flujos automatizados | `managed-agents-specialist`, `mcp-server-builder` |
+| Evaluar MCPs de terceros antes de instalar, registros mcp.run/glama.ai, decision INSTALAR/RECHAZAR | `mcp-registry-navigator` |
+| Verificacion cross-model de un fix, segunda opinion ciega sobre un diff, diagnostico de regresion silenciosa | `cross-model-verifier` |
 | Testing de comportamiento de agentes, mock de herramientas, loops, eficiencia | `agent-testing` |
 | Orquestacion multi-agente, fan-out/fan-in, retry, checkpointing | `workflow-orchestrator` |
 | Gemini 2.5 directo: thinking budgets, Flash-Lite, Live API, image gen | `gemini-2-5-specialist` |
@@ -77,7 +79,7 @@ NO esperar a que el usuario declare skills. Seleccionar automaticamente segun la
 | Implementacion nueva, feature, refactor que toca mas de un archivo — ciclo con validacion | `dev-loop` |
 | Recuperar contexto de sesiones previas, indexar aprendizajes, busqueda semantica en vault | `memory-manager` |
 
-Los 34 skills disponibles estan en `.claude/skills/`. Cada SKILL.md define el dominio, triggers de activacion y casos de NO activacion.
+Los 36 skills disponibles estan en `.claude/skills/`. Cada SKILL.md define el dominio, triggers de activacion y casos de NO activacion.
 
 ## Visibilidad y Telemetría
 Imprimir una sola línea al inicio de la **primera respuesta de cada sesión**:

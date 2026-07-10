@@ -134,6 +134,35 @@ describe('setup-settings.js', () => {
       }
     }
   });
+
+  test('el output de setup-settings es coherente con settings.json en disco', () => {
+    // Ejecuta setup-settings en seco capturando el JSON que generaria
+    const generated = JSON.parse(fs.readFileSync(SETTINGS, 'utf8'));
+    runScript(SETUP);
+    const afterRun = JSON.parse(fs.readFileSync(SETTINGS, 'utf8'));
+
+    // Los hooks declarados en setup-settings deben estar todos presentes en el archivo
+    const hookKeys = Object.keys(afterRun.hooks || {});
+    assert.ok(hookKeys.includes('PreToolUse'), 'settings.json debe tener PreToolUse tras regenerar');
+    assert.ok(hookKeys.includes('PostToolUse'), 'settings.json debe tener PostToolUse tras regenerar');
+    assert.ok(hookKeys.includes('Stop'), 'settings.json debe tener Stop tras regenerar');
+    assert.ok(hookKeys.includes('SubagentStop'), 'settings.json debe tener SubagentStop tras regenerar');
+    assert.ok(hookKeys.includes('PostToolUseFailure'), 'settings.json debe tener PostToolUseFailure tras regenerar');
+    assert.ok(hookKeys.includes('UserPromptSubmit'), 'settings.json debe tener UserPromptSubmit tras regenerar');
+
+    // El numero de grupos en cada hook no debe diferir del generado
+    for (const key of hookKeys) {
+      assert.equal(
+        afterRun.hooks[key].length,
+        generated.hooks[key]?.length ?? afterRun.hooks[key].length,
+        `hook ${key}: numero de grupos distinto entre settings.json y setup-settings`
+      );
+    }
+
+    // MCP servers deben seguir presentes
+    assert.ok(afterRun.mcpServers['gemini-bridge'], 'gemini-bridge debe estar en mcpServers');
+    assert.ok(afterRun.mcpServers['anthropic-router'], 'anthropic-router debe estar en mcpServers');
+  });
 });
 
 // ─── skills — conformidad de estructura ──────────────────────────────────────
@@ -751,5 +780,108 @@ describe('subagent-review.js (adverse)', () => {
     const stopHooks = settings.hooks?.SubagentStop?.[0]?.hooks || [];
     const registered = stopHooks.some(h => (h.command || '').includes('subagent-review.js'));
     assert.ok(registered, 'subagent-review.js debe estar registrado en SubagentStop');
+  });
+});
+
+// ─── CrossVerifier.js ────────────────────────────────────────────────────────
+
+describe('CrossVerifier.js (verificacion cross-model)', () => {
+  const SCRIPT = path.join(REPO, 'scripts', 'services', 'CrossVerifier.js');
+  const { seleccionarVerificador, parsearVeredicto, verificar, PROVEEDORES_VERIFICADOR } = require(SCRIPT);
+
+  test('el script existe', () => {
+    assert.ok(fs.existsSync(SCRIPT), 'CrossVerifier.js debe existir en scripts/services/');
+  });
+
+  test('seleccionarVerificador: elige proveedor distinto al actor', () => {
+    const disponibles = [
+      { provider: 'anthropic', available: true },
+      { provider: 'deepseek',  available: true },
+      { provider: 'openai',    available: true },
+    ];
+    const elegido = seleccionarVerificador('anthropic', disponibles);
+    assert.notEqual(elegido, 'anthropic', 'el verificador nunca debe ser el mismo proveedor que el actor');
+    assert.ok(PROVEEDORES_VERIFICADOR.includes(elegido), 'debe elegir de la lista de proveedores validos');
+  });
+
+  test('seleccionarVerificador: lanza error si no hay proveedor distinto disponible', () => {
+    const disponibles = [{ provider: 'anthropic', available: true }];
+    assert.throws(
+      () => seleccionarVerificador('anthropic', disponibles),
+      /Sin proveedor verificador disponible/,
+      'debe fallar explicitamente en vez de usar el mismo proveedor del actor'
+    );
+  });
+
+  test('parsearVeredicto: camino feliz — JSON valido con pass true', () => {
+    const veredicto = parsearVeredicto('{"pass": true, "hallazgos": []}');
+    assert.equal(veredicto.pass, true);
+    assert.deepEqual(veredicto.hallazgos, []);
+  });
+
+  test('parsearVeredicto: detecta regresion con hallazgos', () => {
+    const texto = '{"pass": false, "hallazgos": [{"severidad": "alta", "descripcion": "rompe test X"}]}';
+    const veredicto = parsearVeredicto(texto);
+    assert.equal(veredicto.pass, false);
+    assert.equal(veredicto.hallazgos.length, 1);
+    assert.equal(veredicto.hallazgos[0].severidad, 'alta');
+  });
+
+  test('parsearVeredicto: output no parseable falla cerrado (pass=false)', () => {
+    const veredicto = parsearVeredicto('esto no es JSON');
+    assert.equal(veredicto.pass, false, 'output no parseable debe fallar cerrado, nunca asumir pass=true');
+    assert.ok(veredicto.hallazgos.length > 0, 'debe reportar el fallo de parseo como hallazgo');
+  });
+
+  test('verificar: diff vacio pasa sin llamar a ningun proveedor', async () => {
+    const resultado = await verificar({ diff: '', tarea: 'tarea sin cambios' });
+    assert.equal(resultado.pass, true);
+    assert.equal(resultado.proveedor, null);
+  });
+
+  test('verificar: sin proveedor disponible distinto al actor, propaga el error', async () => {
+    await assert.rejects(
+      () => verificar({
+        diff: '+ const x = 1;',
+        tarea: 'agregar constante',
+        proveedorActor: 'anthropic',
+        disponibles: [{ provider: 'anthropic', available: true }],
+      }),
+      /Sin proveedor verificador disponible/
+    );
+  });
+
+  test('ModelRouter: tier verificador no asigna modelo Anthropic', () => {
+    const { route } = require(path.join(REPO, 'scripts', 'services', 'ModelRouter.js'));
+    const resultado = route('verificar_diff');
+    assert.equal(resultado.tier, 'verificador');
+    assert.equal(resultado.modelo, null, 'la seleccion de proveedor se delega a CrossVerifier, no al router de costo');
+  });
+});
+
+// ─── cross-verify-gate.js ────────────────────────────────────────────────────
+
+describe('cross-verify-gate.js (gate SubagentStop)', () => {
+  const SCRIPT = path.join(BIN, 'cross-verify-gate.js');
+
+  test('el script existe', () => {
+    assert.ok(fs.existsSync(SCRIPT), 'cross-verify-gate.js debe existir en .claude/bin/');
+  });
+
+  test('subagente distinto de code-reviewer: exit 0 sin activar el gate', () => {
+    const r = runScript(SCRIPT, [], { CLAUDE_SUBAGENT_TYPE: 'security-scanner', CLAUDE_SUBAGENT_OUTPUT: 'VEREDICTO: APROBADO' });
+    assert.equal(r.status, 0, 'solo debe activarse para el subagente code-reviewer');
+  });
+
+  test('code-reviewer sin veredicto APROBADO: exit 0 sin activar el gate', () => {
+    const r = runScript(SCRIPT, [], { CLAUDE_SUBAGENT_TYPE: 'code-reviewer', CLAUDE_SUBAGENT_OUTPUT: 'VEREDICTO: BLOQUEADO' });
+    assert.equal(r.status, 0, 'BLOQUEADO/REQUIERE_CAMBIOS no necesita segunda opinion');
+  });
+
+  test('cross-verify-gate registrado en SubagentStop de settings.json', () => {
+    const settings = JSON.parse(fs.readFileSync(SETTINGS, 'utf8'));
+    const stopHooks = settings.hooks?.SubagentStop?.[0]?.hooks || [];
+    const registered = stopHooks.some(h => (h.command || '').includes('cross-verify-gate.js'));
+    assert.ok(registered, 'cross-verify-gate.js debe estar registrado en SubagentStop');
   });
 });

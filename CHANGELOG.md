@@ -5,6 +5,15 @@ Versionado semantico: MAJOR.MINOR.PATCH.
 
 ## [3.10.0] — 2026-07-06
 
+### Agregado — Verificacion Cross-Model
+
+- **`CrossVerifier.js`**: verificacion ciega de un diff con proveedor de IA distinto al que genero el cambio. Implementa el patron "Writer/Reviewer" de Anthropic (code.claude.com/docs/en/best-practices) — el verificador recibe solo el diff y la tarea original, nunca el razonamiento del actor. Motivado por el hallazgo de que verificar con el mismo modelo detecta solo 9.6% de errores self-consistentes (arXiv 2505.17656). Reutiliza `ModelRegistry.chat()`, sin cliente HTTP propio.
+- **`cross-verify-gate.js`**: hook `SubagentStop` que dispara `CrossVerifier` automaticamente cuando el subagente `code-reviewer` emite veredicto `APROBADO`. Best-effort: se omite sin bloquear si no hay proveedor distinto de Anthropic configurado en `.env`.
+- **`cross-model-verifier` skill v1.0.0**: documenta el mecanismo, activacion automatica via hook y diagnostico manual (total: 36 skills).
+- **`ModelRouter.js`**: nuevo tier `TIER_VERIFICADOR` — delega la seleccion de proveedor a `CrossVerifier.seleccionarVerificador()` en vez de la jerarquia de costo Anthropic.
+- **`.env.example`**: nota de rol dual para `OPENAI_API_KEY`/`DEEPSEEK_API_KEY` — ahorro de costo tier 2 Y verificador cross-model.
+- Plan completo y decision de diseno (sin duplicar `code-reviewer`/`subagent-review.js`/`security-scanner`) en `docs/OPUSPLAN-cross-model-verifier.md`.
+
 ### Agregado — Upgrade AAA
 
 - **`ponytail-check.js`**: hook PreToolUse Write|Edit con escalera YAGNI de 5 capas. Detecta reimplementaciones de stdlib, funciones >3 parametros y bloques >200 lineas antes de escribir.

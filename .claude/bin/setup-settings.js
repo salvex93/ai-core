@@ -95,6 +95,7 @@ const settings = {
       {
         hooks: [
           { type: 'command', command: `node ${bin('subagent-review.js')} 2>/dev/null || true` },
+          { type: 'command', command: `node ${bin('cross-verify-gate.js')} 2>/dev/null || true` },
         ],
       },
     ],

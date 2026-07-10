@@ -1,8 +1,8 @@
 # AI-CORE v3.10.0: Nucleo Multi-Agente Universal
 
-`ai-core` es un nucleo de configuracion y comportamiento para agentes IA distribuible como submodulo Git o repositorio independiente. Inyecta reglas globales inmutables, 34 skills especializados, 5 agentes autonomos y un sistema de mejora continua por uso — todo sin acoplar su logica al stack del anfitrion.
+`ai-core` es un nucleo de configuracion y comportamiento para agentes IA distribuible como submodulo Git o repositorio independiente. Inyecta reglas globales inmutables, 36 skills especializados, 5 agentes autonomos y un sistema de mejora continua por uso — todo sin acoplar su logica al stack del anfitrion.
 
-**Una sola fuente de verdad:** `CLAUDE.md` define las reglas globales. Los 34 skills la referencian — no la copian. Si una regla cambia en `CLAUDE.md`, los 34 skills se actualizan automaticamente sin tocar ningun archivo.
+**Una sola fuente de verdad:** `CLAUDE.md` define las reglas globales. Los 36 skills la referencian — no la copian. Si una regla cambia en `CLAUDE.md`, los 36 skills se actualizan automaticamente sin tocar ningun archivo.
 
 **Agnóstico al proveedor:** funciona con Claude, Gemini, OpenAI, DeepSeek y Kimi via `ModelRegistry`. Agregar un proveedor nuevo = agregar su API key en `.env`. Sin reescribir skills ni agentes.
 
@@ -35,7 +35,7 @@ npm install
 npm run setup    # adapta settings.json a tu ruta exacta (cross-platform)
 
 # 3. Verificar que todo funciona
-npm test         # debe terminar: 342 pass, 0 fail
+npm test         # debe terminar: 351 pass, 0 fail
 
 # 4. Autenticar gh CLI para el issue-tracker (una sola vez por maquina)
 gh auth login    # selecciona: GitHub.com → HTTPS → Login with a web browser
@@ -82,7 +82,7 @@ claude
 npm run update
 ```
 
-Ejecuta en secuencia: `git pull` → regenera `settings.json` → corre 342 tests → aplica migraciones de version → valida 34 skills → reporta que cambio. Si algun test falla, el comando lo indica y no continua.
+Ejecuta en secuencia: `git pull` → regenera `settings.json` → corre 372 tests → aplica migraciones de version → valida 36 skills → reporta que cambio. Si algun test falla, el comando lo indica y no continua.
 
 ### Actualizar el arnes (instalado como submodulo)
 
@@ -127,10 +127,10 @@ Si no esta autenticado, los eventos de mejora se acumulan localmente en `.claude
 
 ```bash
 npm install                               # instalar dependencias
-npm test                                  # 342 tests, Node nativo, sin deps externas
+npm test                                  # 372 tests, Node nativo, sin deps externas
 npm run setup                             # regenerar settings.json con rutas locales
 npm run update                            # actualizacion one-command desde GitHub
-npm run validate-globals                  # auditar conformidad de los 34 skills
+npm run validate-globals                  # auditar conformidad de los 36 skills
 npm run validate-globals -- --fix-drift   # corregir last_updated desincronizado
 npm run token-metrics                     # medir reduccion de consumo de tokens
 npm run dry-run                           # simular 5 turnos con calculo de costo
@@ -166,11 +166,11 @@ npm run agent-report-full                 # historial de metricas de todas las s
 
 **Protocolo de arranque automatico** — Al inicio de cada sesion: telemetria, consulta al vault semantico, verificacion del mapa, lectura de metricas de sesion anterior. Sin intervencion del usuario.
 
-**342 tests** — +56 tests nuevos cubriendo ponytail-check, dev-loop, memory-index BM25, agent-metrics y subagent-review.
+**351 tests** — +56 tests nuevos cubriendo ponytail-check, dev-loop, memory-index BM25, agent-metrics y subagent-review.
 
 ### Novedades v3.9.0
 
-**34 skills con patron senior completo** — Todos los skills tienen "Cuando NO Activar Este Perfil" (4-5 casos por skill), restricciones en imperativo positivo y checklists de PR.
+**36 skills con patron senior completo** — Todos los skills tienen "Cuando NO Activar Este Perfil" (4-5 casos por skill), restricciones en imperativo positivo y checklists de PR.
 
 **Sistema de migracion automatica** — `DEPRECATIONS.json` + `migrator.js` integrado en `update.js`. Simular con `npm run migrate-dry`.
 
@@ -240,10 +240,10 @@ Agregar un proveedor futuro = agregar su config en `PROVIDER_CONFIGS` + su API k
 
 ### Herramienta maestra de gobernanza
 
-- **`validate-globals.js`**: auditor de conformidad. Verifica que los 34 skills tengan la referencia inmutable, las secciones obligatorias, frontmatter completo y sin emojis. Detecta y corrige drift de `last_updated` con `--fix-drift`. Exit code 1 si hay hallazgos criticos — bloquea CI.
+- **`validate-globals.js`**: auditor de conformidad. Verifica que los 36 skills tengan la referencia inmutable, las secciones obligatorias, frontmatter completo y sin emojis. Detecta y corrige drift de `last_updated` con `--fix-drift`. Exit code 1 si hay hallazgos criticos — bloquea CI.
 - **`update.js`**: actualizacion one-command cross-platform. Reporta version anterior vs nueva, que cambio y si hay breaking changes que requieran accion manual.
 - **GitHub Actions CI** (`.github/workflows/ci.yml`): corre `npm test` + `validate-globals` en Linux, macOS y Windows con Node 20/22 en cada push a `main` y en cada PR. Un PR que rompa la conformidad de un skill no puede mergear.
-- **Fuente unica de verdad**: los 34 skills referencian `CLAUDE.md` con jerarquia declarada `CLAUDE.md > skill`. Sin copias — sin drift.
+- **Fuente unica de verdad**: los 36 skills referencian `CLAUDE.md` con jerarquia declarada `CLAUDE.md > skill`. Sin copias — sin drift.
 
 ### 32 Skills especializados (Auto-Routing)
 
@@ -391,15 +391,15 @@ New-Item -ItemType SymbolicLink -Path './CLAUDE.md' -Target 'C:/ruta/a/ai-core/C
 │   │   ├── aiops-score.js       Stop: scoring 0-10 por 6 dimensiones con historial y delta
 │   │   ├── process-guard.js     Semaforo: max 4 scripts paralelos, timeout 8s por proceso
 │   │   └── benchmark-fernet.js  Testea cifrado Fernet (PII)
-│   └── skills/                  34 skills especializados (ver tabla Auto-Routing)
+│   └── skills/                  36 skills especializados (ver tabla Auto-Routing)
 ├── scripts/
 │   └── update.js                Actualizacion one-command: pull + setup + test + validate
 ├── tests/
-│   ├── harness.test.js          342 assertions sobre harness y conformidad de skills
+│   ├── harness.test.js          351 assertions sobre harness y conformidad de skills
 │   └── token-metrics.js         Mide reduccion de consumo de tokens por sesion
 ├── .github/
 │   └── workflows/ci.yml         CI en Linux/Mac/Windows x Node 20/22
-├── CLAUDE.md                    Autoridad unica: reglas globales, 34 skills, enrutamiento
+├── CLAUDE.md                    Autoridad unica: reglas globales, 36 skills, enrutamiento
 ├── DEPRECATIONS.json            Contrato de migracion por version: que se elimina y por que
 ├── package.json                 v3.10.0 — Node >= 20.0.0
 └── .env.example                 Plantilla de variables de entorno
@@ -589,7 +589,7 @@ console.log('Reparacion propuesta:', resultado.reparacion);
 // Codigo o comando ejecutable con ruta y linea como comentario inicial
 
 console.log('Modelos usados:', resultado.modelo_usado);
-// { diagnostico: 'claude-sonnet-4-6', reparacion: 'claude-opus-4-7' }
+// { diagnostico: 'claude-sonnet-4-6', reparacion: 'claude-opus-4-8' }
 ```
 
 **Uso de LoopGuard en scrapers autonomos:**
@@ -775,7 +775,7 @@ Si Gemini agota su cuota (error `429` / `quota`), el sistema:
 |---|---|---|---|
 | Gatekeeper | `claude-haiku-4-5-20251001` | Decisiones rapidas: CRUD, busquedas, parseo, resumen | TIER_HAIKU o tareas triviales |
 | Ejecutor | `claude-sonnet-4-6` | 80% de tareas complejas: codigo, refactor, debug, analisis | TIER_SONNET o escalamiento por tokens |
-| Arquitecto | `claude-opus-4-7` | Diseño de sistemas, auditoria critica, reparacion compleja | TIER_OPUS o `tokensContexto >= 60000` |
+| Arquitecto | `claude-fable-5` | Diseño de sistemas, auditoria critica, reparacion compleja | TIER_OPUS o `tokensContexto >= 60000` |
 
 ### Logica de escalamiento del Model Router
 
