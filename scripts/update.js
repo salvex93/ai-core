@@ -103,7 +103,7 @@ if (setup.status !== 0) {
 ok('settings.json regenerado.');
 
 // PASO 3: npm test
-step('3/5 — Ejecutando suite de tests (342 assertions)');
+step('3/5 — Ejecutando suite de tests (351 assertions)');
 const test = run('node', ['--test', 'tests/harness.test.js'], { silent: true });
 if (test.status !== 0) {
   fail('La suite de tests fallo. La actualizacion introdujo una regresion.\n');
@@ -112,7 +112,7 @@ if (test.status !== 0) {
   fail('Accion requerida: reportar el fallo en https://github.com/salvex93/ai-core/issues');
   process.exit(1);
 }
-ok('342/342 tests pasaron.');
+ok('351/351 tests pasaron.');
 
 // PASO 4: migrador de deprecaciones
 step('4/5 — Aplicando migraciones de version (eliminar deprecados)');
@@ -138,7 +138,28 @@ if (validate.status !== 0) {
   console.error(validateOut);
   process.exit(1);
 }
-ok('34/34 skills conformes con CLAUDE.md — validate-globals OK.');
+ok('35/35 skills conformes con CLAUDE.md — validate-globals OK.');
+
+// PASO 6 (condicional): norm-harness en proyecto anfitrion
+// Si ai-core se ejecuta como submodulo, sincronizar el CLAUDE.md del padre.
+step('6/6 — Verificando si se ejecuta como submodulo (norm-harness)');
+const normHarness = path.join(REPO, '.claude', 'bin', 'norm-harness.js');
+const parentClaude = path.resolve(REPO, '..', '..', 'CLAUDE.md');
+const esSubmodulo  = fs.existsSync(parentClaude) && !fs.existsSync(path.join(REPO, '..', '..', 'package.json'));
+
+if (esSubmodulo) {
+  info('Ejecutando como submodulo — aplicando norm-harness en proyecto padre...');
+  const norm = run('node', [normHarness], { cwd: path.resolve(REPO, '..', '..'), silent: true });
+  if (norm.status !== 0) {
+    fail('norm-harness.js fallo en el proyecto padre. Revisa el symlink CLAUDE.md manualmente.');
+    const normOut = (norm.stdout || '') + (norm.stderr || '');
+    if (normOut) console.error(normOut.slice(0, 400));
+  } else {
+    ok('norm-harness aplicado — CLAUDE.md del proyecto padre apunta a ai-core.');
+  }
+} else {
+  info('Modo standalone — norm-harness omitido (no es submodulo).');
+}
 
 // ─── Resumen final ────────────────────────────────────────────────────────────
 console.log(`\n${'═'.repeat(60)}`);

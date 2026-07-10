@@ -1,6 +1,6 @@
 {
   "version": "3.10.0",
-  "last_updated": "2026-07-10T20:03:19.433Z",
+  "last_updated": "2026-07-10T20:05:18.086Z",
   "branch": "main",
   "stack": null,
   "host": {
@@ -15,6 +15,7 @@
         ".claude/agents/code-reviewer.md",
         ".claude/agents/issue-tracker.md",
         ".claude/agents/map-updater.md",
+        ".claude/agents/mcp-registry-navigator.md",
         ".claude/agents/security-scanner.md",
         ".claude/bin/agent-metrics.js",
         ".claude/bin/aiops-score.js",
@@ -43,6 +44,13 @@
         ".claude/bin/subagent-review.js",
         ".claude/bin/validate-globals.js",
         ".claude/bin/validate-map.js",
+        ".claude/memory-vault/.raw/session-2026-07-06-media-prioridad.md",
+        ".claude/memory-vault/.raw/session-2026-07-06-upgrade-aaa.md",
+        ".claude/memory-vault/.raw/session-2026-07-07-auditoria-y-bm25plus.md",
+        ".claude/memory-vault/.wiki/session-2026-07-06-media-prioridad.md",
+        ".claude/memory-vault/.wiki/session-2026-07-06-upgrade-aaa.md",
+        ".claude/memory-vault/.wiki/session-2026-07-07-auditoria-y-bm25plus.md",
+        ".claude/memory-vault/index.json",
         ".claude/settings.json",
         ".claude/skills/agent-testing/SKILL.md",
         ".claude/skills/ai-guardrails/SKILL.md",
@@ -63,6 +71,7 @@
         ".claude/skills/llm-evals/SKILL.md",
         ".claude/skills/llm-observability/SKILL.md",
         ".claude/skills/managed-agents-specialist/SKILL.md",
+        ".claude/skills/mcp-registry-navigator/SKILL.md",
         ".claude/skills/mcp-server-builder/SKILL.md",
         ".claude/skills/memory-manager/SKILL.md",
         ".claude/skills/mobile-engineer/SKILL.md",
@@ -128,7 +137,7 @@
       "node_modules/",
       ".git/"
     ],
-    "total_files": 105
+    "total_files": 114
   },
   "core": null
 }
