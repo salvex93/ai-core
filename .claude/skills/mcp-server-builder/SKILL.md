@@ -2,8 +2,8 @@
 name: mcp-server-builder
 description: Especialista en construccion de servidores MCP (Model Context Protocol). Cubre ciclo de vida del protocolo, transportes stdio y SSE/HTTP, definicion de herramientas con JSON Schema, seguridad de inputs, testing con MCP Inspector y despliegue. Activa al construir un servidor MCP propio, exponer herramientas internas a Claude, o publicar un servidor MCP en el registro oficial.
 origin: ai-core
-version: 1.3.1
-last_updated: 2026-06-10
+version: 1.4.0
+last_updated: 2026-07-10
 ---
 
 # MCP Server Builder — Especialista en Servidores Model Context Protocol
@@ -65,37 +65,53 @@ Ante cualquiera de estas condiciones, insertar la directiva y detener. No emitir
 [ALERTA_ARQUITECTONICA: REQUIERE_OPUSPLAN]
 ```
 
-## Arquitectura del Protocolo MCP
+## Especificacion Vigente: Release Candidate 2026-07-28
 
-### Ciclo de vida de la conexion
+La especificacion 2026-07-28 (RC publicado 2026-05-21, final el 2026-07-28) reemplaza a 2025-03-26 como base de este skill. Cambio de fondo: el protocolo pasa de sesion con estado a stateless por request. Ver detalle en `blog.modelcontextprotocol.io/posts/2026-07-28-release-candidate/`.
+
+Ventana de migracion: 10 semanas desde el RC. Servidores nuevos deben construirse directamente contra 2026-07-28; servidores existentes en 2025-03-26 siguen funcionando (garantia minima de 12 meses antes de remocion), pero migrar antes del final de la ventana evita trabajo de doble mantenimiento.
+
+### Ciclo de vida de la conexion (stateless)
+
+El handshake `initialize`/`initialized` desaparece como intercambio unico de conexion. La version de protocolo, info del cliente y capabilities viajan en `_meta` en cada request:
 
 ```
-1. Handshake
-   Cliente -> initialize (version, capabilities)
-   Servidor -> initialized (version, capabilities del servidor)
-
-2. Descubrimiento
-   Cliente -> tools/list
+1. Descubrimiento
+   Cliente -> tools/list (incluye _meta con protocol version y capabilities)
    Servidor -> lista de herramientas con schemas JSON Schema
 
-3. Ejecucion
-   Cliente -> tools/call (nombre de herramienta + argumentos tipados)
+2. Ejecucion
+   Cliente -> tools/call (nombre de herramienta + argumentos tipados + _meta)
    Servidor -> resultado (contenido de texto, imagen, recurso, o error)
 
-4. Cierre
-   Cliente -> cierra la conexion (EOF en stdio, cierre del stream HTTP para Streamable HTTP)
+3. Cierre
+   Sin estado de sesion que cerrar — cada request es autonomo (EOF en stdio, fin de request HTTP en Streamable HTTP)
 ```
 
-Todos los mensajes siguen JSON-RPC 2.0. Los IDs de request son enteros o strings. Los errores siguen los codigos estandar de JSON-RPC mas los codigos de error MCP.
+Implicacion practica: sin sticky sessions ni almacen de sesion compartido. Cualquier instancia detras de un load balancer round-robin puede atender cualquier request. Elimina tambien la necesidad de deep packet inspection en el gateway para enrutar — ver headers obligatorios abajo.
+
+Todos los mensajes siguen JSON-RPC 2.0. Los IDs de request son enteros o strings. Recurso no encontrado ahora usa el codigo estandar `-32602` (Invalid Params) en lugar del custom `-32002` de la especificacion anterior.
+
+### Headers obligatorios en Streamable HTTP (2026-07-28)
+
+Todo request Streamable HTTP debe incluir:
+
+| Header | Valor | Proposito |
+|---|---|---|
+| `MCP-Protocol-Version` | `2026-07-28` | Version de especificacion activa |
+| `Mcp-Method` | metodo de la operacion (`tools/call`, `tools/list`, etc.) | Permite enrutar sin inspeccionar el body |
+| `Mcp-Name` | nombre del recurso/herramienta objetivo | Enrutamiento fino sin parsear JSON-RPC |
+
+El servidor debe rechazar el request si los headers y el body son inconsistentes entre si.
 
 ### Transportes disponibles
 
 | Transporte | Descripcion | Cuando usar |
 |---|---|---|
 | `stdio` | El servidor corre como proceso hijo. El cliente se comunica via stdin/stdout. | Servidores locales, herramientas de desarrollo, integracion con Claude Code CLI. |
-| `Streamable HTTP` | El servidor expone un endpoint HTTP con soporte opcional de streaming via SSE. Especificacion MCP 2025-03-26. | Servidores remotos, servicios compartidos, SaaS, servidores multi-usuario. |
+| `Streamable HTTP` | El servidor expone un endpoint HTTP con soporte opcional de streaming via SSE. Stateless desde la especificacion MCP 2026-07-28. | Servidores remotos, servicios compartidos, SaaS, servidores multi-usuario. |
 
-El transporte `stdio` es mas simple de implementar y mas seguro por defecto (sin superficie de red). El transporte `Streamable HTTP` reemplaza al SSE legacy de la especificacion anterior y requiere autenticacion explicita si el servidor es accesible desde redes externas. El transporte SSE puro (`SSEServerTransport`) esta obsoleto a partir de la especificacion 2025-03-26; no construir nuevos servidores con el.
+El transporte `stdio` es mas simple de implementar y mas seguro por defecto (sin superficie de red). El transporte `Streamable HTTP` es stateless desde 2026-07-28 — sin sesion adherida, corre detras de un load balancer round-robin plano. Requiere autenticacion explicita si el servidor es accesible desde redes externas. El transporte SSE puro (`SSEServerTransport`) sigue obsoleto desde 2025-03-26; no construir nuevos servidores con el.
 
 ## Definicion de Herramientas
 
@@ -293,6 +309,36 @@ Todo servidor MCP expuesto en red (no solo localhost) requiere autenticacion:
 - El token se valida antes de procesar el request MCP, no despues.
 - En produccion, rotar los tokens con la misma frecuencia que cualquier API key.
 - El transporte SSE legacy (`SSEServerTransport`) esta obsoleto a partir de la especificacion 2025-03-26. Los servidores nuevos usan `StreamableHTTPServerTransport` exclusivamente.
+
+## Framework de Extensiones (2026-07-28)
+
+Capacidades nuevas se distribuyen como extensiones con ID reverse-DNS, negociadas via un mapa `extensions` en las capabilities de cliente y servidor. Viven en repositorios `ext-*` con mantenedores propios y versionan de forma independiente a la especificacion base.
+
+Extensiones oficiales:
+
+| Extension | Funcion |
+|---|---|
+| `MCP Apps` | El servidor entrega interfaces HTML interactivas que el host renderiza en un iframe sandboxed. Capacidad nueva, no reemplaza ninguna primitiva existente. |
+| `Tasks` | Trabajo de larga duracion con ciclo de vida stateless. Reemplaza la Tasks API experimental de 2025-11-25 — quien implemento contra esa version experimental debe migrar al nuevo ciclo de vida. |
+
+Tools, Resources y Prompts siguen siendo las primitivas core del protocolo; no estan afectadas por el framework de extensiones.
+
+## Politica de Deprecacion Formal (2026-07-28)
+
+Ciclo de vida de cualquier metodo, tipo o capability flag:
+
+| Fase | Comportamiento | Duracion minima |
+|---|---|---|
+| Active | Funcional, recomendado | Indefinida |
+| Deprecated | Funciona completamente, desaconsejado para uso nuevo | 12 meses antes de poder pasar a Removed |
+| Removed | Ya no disponible | — |
+
+Garantia de la especificacion: todo lo publicado en una version sigue funcionando en esa version y en cualquier version posterior publicada dentro del año siguiente.
+
+Deprecados en 2026-07-28 (no usar en servidores nuevos):
+- `Roots` — usar parametros de Tool, URIs de Resource o configuracion propia del servidor.
+- `Sampling` — usar integracion directa con la API del proveedor LLM.
+- `Logging` (primitiva del protocolo) — usar stderr en stdio; OpenTelemetry para observabilidad estructurada en Streamable HTTP.
 
 ## Primitivas Adicionales del Protocolo
 

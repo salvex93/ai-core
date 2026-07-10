@@ -1,6 +1,6 @@
 {
   "version": "3.11.0",
-  "last_updated": "2026-07-10T20:31:10.612Z",
+  "last_updated": "2026-07-10T20:55:27.989Z",
   "branch": "main",
   "stack": null,
   "host": {
@@ -31,6 +31,7 @@
         ".claude/bin/health-report.js",
         ".claude/bin/health-sync.js",
         ".claude/bin/health-worker.js",
+        ".claude/bin/injection-guard.js",
         ".claude/bin/issue-reporter.js",
         ".claude/bin/memory-index.js",
         ".claude/bin/norm-harness.js",
@@ -141,7 +142,7 @@
       "node_modules/",
       ".git/"
     ],
-    "total_files": 118
+    "total_files": 119
   },
   "core": null
 }

@@ -1,6 +1,6 @@
 # AI-CORE v3.11.0: Nucleo Multi-Agente Universal
 
-`ai-core` es un nucleo de configuracion y comportamiento para agentes IA. Se usa como submodulo Git en un proyecto existente o como repositorio independiente. Define reglas globales, 36 skills especializados, 5 agentes autonomos y un ciclo de mejora continua por uso, sin acoplarse al stack del proyecto anfitrion.
+`ai-core` es un nucleo de configuracion y comportamiento para agentes IA. Se usa como submodulo Git en un proyecto existente o como repositorio independiente. Define reglas globales, 36 skills especializados, 6 agentes autonomos y un ciclo de mejora continua por uso, sin acoplarse al stack del proyecto anfitrion.
 
 `CLAUDE.md` es la unica fuente de verdad de reglas y enrutamiento de skills. Los skills lo referencian, no lo copian: si una regla cambia ahi, se propaga sin tocar ningun SKILL.md.
 
@@ -150,9 +150,11 @@ npm run agent-report-full                 # historial de metricas de todas las s
 
 **injection-guard** — hook `SubagentStop` que detecta indirect prompt injection en el output de subagentes: contenido externo (archivos, resultados de Gemini, paginas web) que intenta hacerse pasar por una instruccion nueva del sistema. Advierte, no bloquea — la decision final es del operador. Ver `.claude/bin/injection-guard.js`.
 
-**Correccion de vigencia** — la referencia de modelo `claude-sonnet-4-6` en 16 archivos (CLAUDE.md, ModelRegistry.js, mcp-anthropic.js y 12 skills) actualizada a `claude-sonnet-5`, vigente desde el 30 de junio de 2026. `security-auditor` actualizado de OWASP Top 10:2021 a OWASP Top 10:2025 (SSRF fusionado en Control de Acceso Roto, Security Misconfiguration sube a #2, categorias nuevas Software Supply Chain Failures y Mishandling of Exceptional Conditions).
+**Correccion de vigencia (2026-06)** — la referencia de modelo `claude-sonnet-4-6` en 16 archivos (CLAUDE.md, ModelRegistry.js, mcp-anthropic.js y 12 skills) actualizada a `claude-sonnet-5`, vigente desde el 30 de junio de 2026. `security-auditor` actualizado de OWASP Top 10:2021 a OWASP Top 10:2025 (SSRF fusionado en Control de Acceso Roto, Security Misconfiguration sube a #2, categorias nuevas Software Supply Chain Failures y Mishandling of Exceptional Conditions).
 
-**379 tests.**
+**Migracion a la familia Gemini 3.x (2026-07-10)** — la familia Gemini 2.5 fue reemplazada por 3.1/3.5 en el ecosistema de Google (verificado contra `deepmind.google` y `ai.google.dev`). 8 skills actualizados con detalle verificado contra fuente oficial: `rag-specialist`, `cost-optimizer`, `mobile-engineer`, `workflow-orchestrator`, `multimodal-engineer`, `audio-voice-engineer`, `prompt-engineer` y el renombrado `gemini-2-5-specialist` -> `gemini-3-specialist`. Hallazgos relevantes: el tier "Lite" no sigue el mismo numero de version que "Flash" (heredero real es `gemini-3.1-flash-lite`, no `gemini-3.5-flash-lite`, que no existe); `thinking_budget` fue reemplazado por `thinking_level` (low/medium/high) y ambos son mutuamente excluyentes (error 400 si se combinan); el modelo vigente de Live API (`gemini-3.1-flash-live-preview`) tiene una regresion confirmada de feature — no soporta Affective Dialog, que si estaba disponible en `gemini-2.5-flash-live-preview` (apagado 2025-12-09). Se agrego el "Protocolo de Vigencia Tecnologica" en `CLAUDE.md` para sistematizar este tipo de verificacion en el futuro. Tambien se documento el release candidate del Model Context Protocol (`2026-07-28`, protocolo stateless, headers `Mcp-Method`/`Mcp-Name` obligatorios) en `mcp-server-builder`.
+
+**379 tests, 36 skills.**
 
 ### v3.10.0 — Verificacion Cross-Model y AAA
 
@@ -419,19 +421,22 @@ node .claude/bin/capture-event.js \
 |---|---|---|
 | [Anthropic Changelog](https://www.anthropic.com/changelog) | Modelos nuevos, capacidades de hooks, cambios en MCP | Semanal |
 | [Claude Code Docs](https://docs.anthropic.com/en/docs/claude-code) | Hooks nuevos, cambios en settings.json | Semanal |
-| [MCP Spec](https://modelcontextprotocol.io/changelog) | Transportes, cambios de protocolo | Mensual |
+| [Google DeepMind Models](https://deepmind.google/models/) | Familia Gemini vigente, modelos "coming soon" vs disponibles | Semanal |
+| [Gemini API Docs](https://ai.google.dev/gemini-api/docs) | Pricing, free tier, nombres exactos de modelo, deprecaciones | Semanal |
+| [Gemini Deprecations](https://ai.google.dev/gemini-api/docs/deprecations) | Fechas de apagado y modelo de reemplazo obligatorio | Mensual |
+| [MCP Blog](https://blog.modelcontextprotocol.io/) | Release candidates y cambios de protocolo | Mensual |
+| [MCP Spec Changelog](https://modelcontextprotocol.io/changelog) | Transportes, primitivas, politica de deprecacion | Mensual |
 | [npm: @anthropic-ai/sdk](https://www.npmjs.com/package/@anthropic-ai/sdk) | Versiones, breaking changes | Por release |
 | [npm: @google/generative-ai](https://www.npmjs.com/package/@google/generative-ai) | Versiones de Gemini, cambios de API | Por release |
-| [Gemini API Rate Limits](https://ai.google.dev/gemini-api/docs/rate-limits) | Cuota del free tier | Trimestral |
 
-Cuando aparezca una capacidad nueva: `npm outdated` para ver si el SDK ya la trae, `npm run update` si hay version nueva, revisar si afecta hooks o `settings.json`, y documentar en `CHANGELOG.md` con la version que la habilita.
+Cuando aparezca una capacidad nueva: `npm outdated` para ver si el SDK ya la trae, `npm run update` si hay version nueva, revisar si afecta hooks o `settings.json`, y documentar en `CHANGELOG.md` con la version que la habilita. El detalle del proceso de verificacion (fuentes aceptadas, orden de pasos, alcance de la actualizacion) vive en `CLAUDE.md`, seccion "Protocolo de Vigencia Tecnologica" — no se duplica aqui.
 
 El agente `aiops-auditor` detecta drift de SDK y skills faltantes. Lanzarlo cuando se sospeche degradacion del arnes.
 
 ### Variables de entorno — referencia rapida
 
 ```bash
-GEMINI_API_KEY     # Gemini 2.5 Flash, gratuito, tier 0
+GEMINI_API_KEY     # Gemini 3.5 Flash / 3.1 Flash-Lite, gratuito, tier 0
 ANTHROPIC_API_KEY  # Claude Haiku/Sonnet/Opus/Fable
 OPENAI_API_KEY     # GPT-4o, o1, o3 — opcional, tambien verificador cross-model
 DEEPSEEK_API_KEY   # DeepSeek-V3 / R1 — opcional, tambien verificador cross-model

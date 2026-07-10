@@ -4,7 +4,7 @@
  *
  * Por que: los archivos > 500 lineas cargados en el contexto de Claude consumen
  * cuota diaria innecesariamente. Este servidor expone herramientas MCP que
- * delegan el analisis a Gemini 2.5 Flash (free tier) y devuelven solo la sintesis.
+ * delegan el analisis a Gemini 3.5 Flash (free tier) y devuelven solo la sintesis.
  *
  * Protocolo: JSON-RPC 2.0 sobre stdio (sin SDK ESM — CJS puro para compatibilidad).
  */
@@ -16,7 +16,7 @@ const path     = require('path');
 const readline = require('readline');
 const { capturarError } = require('./services/ErrorRepairLoop');
 
-const GEMINI_DEFAULT      = 'gemini-2.5-flash';
+const GEMINI_DEFAULT      = 'gemini-3.5-flash';
 const LINE_THRESHOLD      = 500;
 const SIZE_THRESHOLD      = 50 * 1024; // 50 KB
 const MAX_RETRIES         = 2;
@@ -390,7 +390,7 @@ const TOOLS = [
   {
     name: 'analizar_archivo',
     description:
-      'Delega el analisis de archivos grandes (>500 lineas o >50 KB) a Gemini 2.5 Flash. ' +
+      'Delega el analisis de archivos grandes (>500 lineas o >50 KB) a Gemini 3.5 Flash. ' +
       'Devuelve sintesis estructurada (resumen, hallazgos_clave, recomendaciones, advertencias, metadatos) ' +
       'sin cargar el contenido en el contexto de Claude. ' +
       'OBLIGATORIO para archivos que superen el umbral — NO usar Read directamente en esos casos.',
@@ -406,7 +406,7 @@ const TOOLS = [
   {
     name: 'analizar_contenido',
     description:
-      'Delega el analisis de texto extenso ya disponible en memoria a Gemini 2.5 Flash. ' +
+      'Delega el analisis de texto extenso ya disponible en memoria a Gemini 3.5 Flash. ' +
       'Usar cuando se tiene contenido concatenado que saturaria el contexto de Claude.',
     inputSchema: {
       type: 'object',

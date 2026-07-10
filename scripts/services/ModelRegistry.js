@@ -78,7 +78,7 @@ async function chatGemini(messages, options = {}) {
   const { GoogleGenerativeAI } = require('@google/generative-ai');
   const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
-  const model   = options.model || 'gemini-2.5-flash';
+  const model   = options.model || 'gemini-3.5-flash';
   const genModel = genAI.getGenerativeModel({ model });
 
   // Convertir formato Messages API → Gemini contents

@@ -11,7 +11,7 @@
 
 // Catalogo de modelos disponibles (julio 2026)
 const MODELOS = Object.freeze({
-  GEMINI: 'gemini-2.5-flash',           // gratis (cuota diaria) — lectura de archivos grandes, logs
+  GEMINI: 'gemini-3.5-flash',           // gratis en API (cuota diaria) — lectura de archivos grandes, logs
   HAIKU:  'claude-haiku-4-5-20251001',  // $0.80/$4 por MTok — parseo simple, transformaciones
   SONNET: 'claude-sonnet-5',            // $3/$15 por MTok  — refactorizacion, analisis, busqueda (GA 2026-06-29)
   OPUS:   'claude-opus-4-8',            // $15/$75 por MTok — arquitectura con herramientas, computer use

@@ -2,7 +2,7 @@
 name: prompt-engineer
 description: Especialista en arquitectura de prompts de produccion. Cubre diseno de system prompts, few-shot examples, chain-of-thought, prefill de respuesta, cache breakpoints estrategicos, output estructurado con JSON Schema, versionado de prompts y testing antes de despliegue. Complementa ai-integrations (integracion del LLM), llm-evals (medicion de calidad) y rag-specialist (contexto documental). Activa al disenar o refactorizar un system prompt, definir la estrategia de few-shot, implementar output estructurado o versionar prompts para produccion.
 origin: ai-core
-version: 1.7.0
+version: 1.8.0
 last_updated: 2026-07-10
 ---
 
@@ -281,38 +281,40 @@ Verificar en orden antes de desplegar un cambio de prompt a produccion.
 6. Defensa contra injection: el system prompt incluye instrucciones explicitas para ignorar instrucciones del usuario o del contexto recuperado.
 7. Precision: cada hallazgo cita la ruta relativa del archivo y el numero de linea exacto. Sin esta referencia, el hallazgo no es accionable.
 
-## Dynamic Thinking (Gemini 2.5 Pro — thinking_level)
+## Dynamic Thinking (Gemini 3.1 Pro — thinking_level)
 
-Gemini 2.5 Pro soporta `thinking_level` (razonamiento dinamico) como alternativa a Opus extended thinking. Define el grado de razonamiento interno antes de emitir la respuesta. Disponible via Google AI SDK (`google-genai`) o Vertex AI; no confundir con `thinking_budget` de la Live API.
+Gemini 3.1 Pro soporta `thinking_level` (razonamiento dinamico) como alternativa a Opus extended thinking. Define el grado maximo de razonamiento interno antes de emitir la respuesta. Disponible via Google AI SDK (`google-genai`) o Vertex AI.
 
-### Niveles de thinking en Gemini 2.5 Pro
+Cambio de fondo respecto a la generacion 2.5 (verificado 2026-07-10 contra `ai.google.dev/gemini-api/docs/gemini-3`): el parametro real ya no es `thinking_config.thinking_budget` en tokens — es `thinking_level` con tres valores discretos (`low`/`medium`/`high`). **`thinking_level` y `thinking_budget` son mutuamente excluyentes: combinarlos en el mismo request retorna error 400.** No portar codigo legacy con `thinking_budget` sin migrarlo.
+
+### Niveles de thinking en Gemini 3.1 Pro
 
 ```python
-import google.generativeai as genai
+from google import genai
 
-# thinking_level: "auto" — Gemini asigna presupuesto de razonamiento adaptativo por turno
-modelo = genai.GenerativeModel(
-    model_name="gemini-2.5-pro",
-    generation_config={"thinking_config": {"thinking_budget": -1}}  # -1 = auto
+client = genai.Client()
+
+interaction = client.interactions.create(
+    model="gemini-3.1-pro-preview",
+    input="Prompt del usuario",
+    generation_config={"thinking_level": "low"},   # "low" | "medium" | "high"
 )
 
-# thinking_level equivalente con budget fijo (0 = disabled, N tokens = enabled con techo)
-config_disabled = {"thinking_config": {"thinking_budget": 0}}
-config_enabled  = {"thinking_config": {"thinking_budget": 8000}}  # hasta 8k tokens de razonamiento
+print(interaction.output_text)
 ```
 
-### Cuando usar thinking_level en Gemini 2.5 Pro
+### Cuando usar cada nivel
 
-- `auto` (`budget: -1`): agentes multiturno con complejidad variable — planificacion, debug, analisis. El modelo ajusta el presupuesto por paso.
-- `enabled` (budget fijo): tareas de una sola vuelta donde la precision es critica — traduccion tecnica, analisis de seguridad, diseño de arquitectura.
-- `disabled` (`budget: 0`): tareas donde la latencia domina o el razonamiento no aporta — clasificacion, extraccion simple, formateo.
+- `low`: latencia y costo minimos — instruction-following simple, chat, aplicaciones de alto throughput.
+- `medium`: default recomendado para uso diario — balance entre calidad y costo.
+- `high`: razonamiento maximo, activa "Deep Think Mini" (77.1% en ARC-AGI-2, benchmark Google DeepMind feb-2026). Latencia notablemente mayor hasta el primer token de salida. **Es el default si `thinking_level` no se especifica** — fijar explicitamente `low` o `medium` si el caso de uso no requiere el nivel maximo, para evitar costo/latencia inesperados.
 
 ### Reglas de costo y logging
 
-- Los tokens de razonamiento (`thoughts_token_count`) se facturan a la misma tarifa que los tokens de salida en Gemini 2.5 Pro.
-- Registrar `thoughts_token_count` separado de `candidates[0].token_count` para medir el costo real del razonamiento.
-- Con `budget: -1`, el costo puede ser impredecible en produccion — establecer un techo explicito si el presupuesto de inferencia es fijo.
-- Para integracion via bridge MCP del ai-core, delegar al skill `gemini-2-5-specialist`. Este bloque aplica a integracion directa via SDK.
+- Los tokens de razonamiento se facturan a la misma tarifa que los tokens de salida.
+- El campo exacto de conteo de tokens de razonamiento en la respuesta no esta confirmado en esta pasada — verificar contra la respuesta real del SDK antes de instrumentar logging de costo.
+- Migracion desde codigo con `thinking_budget`: reemplazar por el nivel discreto mas cercano (`budget: 0` → `low`; `budget` bajo/fijo → `medium`; `budget: -1`/alto → `high`) y probar contra el error 400 de parametros mutuamente excluyentes.
+- Para integracion via bridge MCP del ai-core, delegar al skill `gemini-3-specialist`. Este bloque aplica a integracion directa via SDK.
 
 ## Effort Levels (Opus 4.8 Adaptive Reasoning)
 

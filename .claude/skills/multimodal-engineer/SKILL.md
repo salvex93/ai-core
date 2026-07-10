@@ -1,8 +1,8 @@
 ---
 name: multimodal-engineer
-description: Especialista en pipelines de procesamiento multimodal con LLMs. Cubre analisis de imagenes con Claude Opus 4.8 (vision 3.75MP) y Gemini 2.5 Pro (1M tokens), extraccion estructurada desde PDFs y documentos con Citations API, pipelines OCR semanticos, optimizacion de costo por token visual y arquitectura de sistemas que procesan entradas mixtas (texto + imagen + documento). Activa al construir pipelines que procesan imagenes o documentos, integrar vision en agentes, comparar capacidades multimodales entre Claude y Gemini, o disenar extraccion estructurada desde contratos, facturas o diagramas tecnicos.
+description: Especialista en pipelines de procesamiento multimodal con LLMs. Cubre analisis de imagenes con Claude Opus 4.8 (vision 3.75MP) y Gemini 3.1 Pro (1M tokens), extraccion estructurada desde PDFs y documentos con Citations API, pipelines OCR semanticos, optimizacion de costo por token visual y arquitectura de sistemas que procesan entradas mixtas (texto + imagen + documento). Activa al construir pipelines que procesan imagenes o documentos, integrar vision en agentes, comparar capacidades multimodales entre Claude y Gemini, o disenar extraccion estructurada desde contratos, facturas o diagramas tecnicos.
 origin: ai-core
-version: 1.0.0
+version: 1.1.0
 last_updated: 2026-07-10
 ---
 
@@ -10,14 +10,14 @@ last_updated: 2026-07-10
 
 Este perfil gobierna el diseno e implementacion de sistemas que procesan entradas visuales o documentales con LLMs. Su responsabilidad es producir pipelines multimodales correctos, eficientes en costo y preparados para produccion. Es agnostico al modelo: evalua y recomienda entre Claude y Gemini segun el caso de uso, el presupuesto de tokens y los requisitos de precision.
 
-Complementos: `rag-specialist` (embeddings de contenido visual para busqueda semantica), `web-scraping-specialist` (OCR de documentos retail), `claude-api` (Citations API y Files API), `gemini-2-5-specialist` (pipelines multimodales con Gemini directo), `cost-optimizer` (seleccion de tier por costo de imagen).
+Complementos: `rag-specialist` (embeddings de contenido visual para busqueda semantica), `web-scraping-specialist` (OCR de documentos retail), `claude-api` (Citations API y Files API), `gemini-3-specialist` (pipelines multimodales con Gemini directo), `cost-optimizer` (seleccion de tier por costo de imagen).
 
 ## Cuando Activar Este Perfil
 
 - Al construir un pipeline que analiza imagenes, PDFs, capturas de pantalla o diagramas con un LLM.
 - Al integrar vision en un agente para percepcion del entorno (computer use, analisis de UI, inspeccion de dashboards).
 - Al disenar extraccion estructurada de documentos: contratos, facturas, formularios, tablas en PDF.
-- Al comparar capacidades multimodales entre Claude Opus 4.8 y Gemini 2.5 Pro para un caso de uso especifico.
+- Al comparar capacidades multimodales entre Claude Opus 4.8 y Gemini 3.1 Pro / 3.5 Flash para un caso de uso especifico.
 - Al optimizar el costo de un pipeline que procesa muchas imagenes (estrategia de resolucion, compresion, caching).
 - Al construir un sistema de Citations API para respuestas con referencias a fuentes documentales.
 - Al integrar embeddings multimodales para busqueda semantica sobre colecciones de imagenes o documentos.
@@ -51,22 +51,25 @@ Deducir:
 
 | Caso de uso | Modelo recomendado | Justificacion |
 |---|---|---|
-| Analisis de documentos largos (> 50 paginas) | Gemini 2.5 Pro (1M tokens) | Contexto extendido sin fragmentacion |
+| Analisis de documentos largos (> 50 paginas) | Gemini 3.1 Pro (1M tokens) | Contexto extendido sin fragmentacion |
 | Extraccion estructurada con citations | Claude Opus 4.8 + Citations API | Citations API nativa; referencias exactas a fragmentos |
 | Vision en agente (computer use, UI) | Claude Opus 4.8 | Computer use 2025 con `computer-use-2025-01-24` |
-| Clasificacion masiva de imagenes (> 10k/dia) | Gemini 2.5 Flash-Lite (tier 0) | Costo minimo; adecuado para clasificacion sin razonamiento profundo |
-| Analisis de diagramas tecnicos o planos | Gemini 2.5 Pro (1M, resolucion alta) | Superior en comprension espacial y diagramas complejos |
-| Extraccion de tablas de facturas/contratos | Claude Opus 4.8 o Gemini 2.5 Flash | Ambos comparables; Claude con tool_use para schema forzado |
+| Clasificacion masiva de imagenes (> 10k/dia) | Gemini 3.1 Flash-Lite (tier 0) | Costo minimo; heredero del tier Lite, mas barato que 3.5 Flash |
+| Analisis de diagramas tecnicos o planos | Gemini 3.1 Pro (1M, resolucion alta) | Superior en comprension espacial y diagramas complejos |
+| Tareas agenticas multimodales (multi-step, sub-agentes) | Gemini 3.5 Flash | Rinde por encima de 3.1 Pro en razonamiento multimodal (MMMU-Pro); mayor costo que 3.1 Flash-Lite |
+| Extraccion de tablas de facturas/contratos | Claude Opus 4.8 o Gemini 3.1 Flash | Ambos comparables; Claude con tool_use para schema forzado |
 | Embeddings multimodales para busqueda | Gemini text-embedding-004 o voyage-multimodal-3 | Unico tier con embeddings nativos imagen+texto |
+
+Nota: Gemini 3.5 Pro esta listado como "coming soon" en deepmind.google (verificado 2026-07-10) — no usar como default hasta confirmar disponibilidad general.
 
 ### Jerarquia de costo para procesamiento visual
 
 ```
-Gemini 2.5 Flash-Lite (tier 0, gratis) → clasificacion simple, sin razonamiento
-Gemini 2.5 Flash (tier 0B)             → analisis general, balance inteligencia/costo
+Gemini 3.1 Flash-Lite (tier 0, gratis)  → clasificacion simple, sin razonamiento
+Gemini 3.5 Flash (tier 0B, gratis en API) → analisis general y tareas agenticas multi-step
 Claude Haiku 4.5                        → extraccion estructurada de bajo volumen
 Claude Sonnet 5                       → analisis de calidad media con schema
-Claude Opus 4.8 / Gemini 2.5 Pro       → documentos complejos, citations, razonamiento profundo
+Claude Opus 4.8 / Gemini 3.1 Pro       → documentos complejos, citations, razonamiento profundo
 ```
 
 ## Costo de Tokens por Imagen
@@ -91,7 +94,7 @@ def calcular_tokens_imagen_claude(ancho: int, alto: int, modo: str = "high") -> 
 
 ### Gemini — calculo de tokens por imagen
 
-Gemini 2.5 Pro/Flash usa un sistema de patches fijos:
+Gemini 3.1 Pro/Flash-Lite y 3.5 Flash usan un sistema de patches fijos (heredado de la generacion 2.5):
 - Imagenes < 384x384px: ~258 tokens.
 - Imagenes mayores: escala segun la resolucion. Techo de ~1290 tokens por imagen en resoluciones altas.
 - Con `thinking_budget > 0`, agregar el costo de razonamiento al total.
@@ -208,7 +211,7 @@ def analizar_contrato_con_citas(ruta_pdf: str, pregunta: str) -> dict:
     }
 ```
 
-### Procesamiento de PDFs multi-pagina con Gemini 2.5 Pro
+### Procesamiento de PDFs multi-pagina con Gemini 3.1 Pro
 
 ```python
 import google.generativeai as genai
@@ -216,7 +219,7 @@ import pathlib
 
 def analizar_documento_largo(ruta_pdf: str, instruccion: str) -> str:
     genai.configure(api_key=os.environ["GEMINI_API_KEY"])
-    modelo = genai.GenerativeModel("gemini-2.5-pro")
+    modelo = genai.GenerativeModel("gemini-3.1-pro")
 
     # Subir el PDF — Gemini maneja la extraccion de paginas internamente
     archivo = genai.upload_file(ruta_pdf, mime_type="application/pdf")
@@ -230,7 +233,7 @@ def analizar_documento_largo(ruta_pdf: str, instruccion: str) -> str:
 ```
 
 Reglas:
-- Gemini 2.5 Pro acepta PDFs hasta 1M tokens (aprox. 1000 paginas de texto denso).
+- Gemini 3.1 Pro acepta PDFs hasta 1M tokens (aprox. 1000 paginas de texto denso).
 - Para documentos > 200 paginas con estructura compleja, usar `thinking_config: {"thinking_budget": 4000}` para mejorar la comprension de la estructura del documento.
 - El archivo subido via `genai.upload_file` expira en 48 horas — no confiar en persistencia.
 

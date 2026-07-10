@@ -1,9 +1,9 @@
 ---
 name: audio-voice-engineer
-description: Especialista en Voice AI y sistemas de audio real-time. Cubre streaming de audio, conversational interfaces nativas, Gemini 2.5 Flash Live API, APIs de speech-to-text/text-to-speech, latencia submilisegundo, y orquestacion de voice workflows. Activa al disenar interfaces de voz, implementar streaming de audio en produccion, o integrar modelos speech de Gemini.
+description: Especialista en Voice AI y sistemas de audio real-time. Cubre streaming de audio, conversational interfaces nativas, Gemini 3.1 Flash Live API, APIs de speech-to-text/text-to-speech, latencia submilisegundo, y orquestacion de voice workflows. Activa al disenar interfaces de voz, implementar streaming de audio en produccion, o integrar modelos speech de Gemini.
 origin: ai-core
-version: 1.2.0
-last_updated: 2026-06-10
+version: 1.3.0
+last_updated: 2026-07-10
 ---
 
 # Audio Voice Engineer — Sistemas de Audio Real-Time
@@ -12,7 +12,7 @@ Gobierna el diseno e implementacion de sistemas de audio real-time y Voice AI. G
 
 ## Cuando Activar Este Perfil
 
-- Al disenar una interfaz conversacional con Voice AI (Gemini 2.5 Flash Live API).
+- Al disenar una interfaz conversacional con Voice AI (Gemini 3.1 Flash Live API).
 - Al implementar streaming de audio bidireccional en produccion.
 - Al configurar pipelines speech-to-text / text-to-speech con latencia critica.
 - Al optimizar el uso de ancho de banda en aplicaciones mobile con audio comprimido.
@@ -52,25 +52,28 @@ Ante cualquiera de estas condiciones, insertar la directiva y detener:
 [ALERTA_ARQUITECTONICA: REQUIERE_OPUSPLAN]
 ```
 
-## Gemini 2.5 Flash — Live API (Audio-to-Audio Nativo)
+## Gemini 3.1 Flash Live — Live API (Audio-to-Audio Nativo)
 
-Modelo activo: `gemini-2.5-flash` con Live API. Reemplaza a `gemini-2.0-flash-live-001` (deprecado).
+Modelo activo: `gemini-3.1-flash-live-preview`. Sucesor directo de `gemini-2.5-flash-live-preview` / `gemini-live-2.5-flash-preview`, ambos apagados el 2025-12-09. `gemini-2.0-flash-live-001` fue apagado en la misma fecha y ya no existe como fallback.
+
+Regresion de feature confirmada (verificado 2026-07-10 contra `ai.google.dev/gemini-api/docs/models/gemini-3.1-flash-live-preview`): **Affective Dialog no esta soportado en 3.1 Flash Live todavia** — la documentacion oficial lo lista explicitamente como "not yet supported". Ver seccion Affective Dialog abajo antes de prometer esta capacidad en un diseno nuevo.
 
 La Live API es arquitectura multimodal nativa que elimina el pipeline legado transcribe-reason-synthesize. Procesa entrada y salida de audio directamente en un proceso end-to-end.
 
-### Caracteristicas (Mayo 2026)
+### Caracteristicas (verificado 2026-07-10)
 
 - Entrada: `audio/pcm` (16-bit, 16kHz), `audio/opus`, `audio/wav`, video frames (multimodal).
 - Salida: `audio/pcm` (24kHz) o texto — bidireccional real-time.
-- Latencia de extremo a extremo: 80-150ms tipicamente (vs 300-500ms en pipeline tradicional).
+- Latencia de extremo a extremo: 80-150ms tipicamente (vs 300-500ms en pipeline tradicional) — heredado de la arquitectura nativa; reverificar cifra exacta contra benchmark propio antes de comprometerla en un SLA.
 - Soporte multimodal nativo: audio + video + transcriptos en una sola llamada.
 - `thinking_budget`: parametrizable para controlar profundidad de razonamiento.
 - Interrupcion de usuario: WebSocket full-duplex — el usuario puede interrumpir en tiempo real.
+- Deteccion de nuance acustica y precision numerica mejoradas respecto a la generacion 2.5, segun Google DeepMind.
 
 ### Arquitectura recomendada
 
 ```
-Cliente Audio → WebSocket (full-duplex) → Gemini 2.5 Flash Live API (audio-to-audio)
+Cliente Audio → WebSocket (full-duplex) → Gemini 3.1 Flash Live API (audio-to-audio)
                                         ← Audio respuesta en tiempo real + transcriptos opcionales
 ```
 
@@ -93,7 +96,7 @@ async def voice_agent_nativo():
         "system_instruction": "Eres un asistente conversacional. Responde en espanol."
     }
 
-    async with client.aio.live.connect(model="gemini-2.5-flash", config=config) as session:
+    async with client.aio.live.connect(model="gemini-3.1-flash-live-preview", config=config) as session:
         async for audio_chunk in receive_audio_from_microphone():
             await session.send_realtime_input(
                 audio=genai.types.Blob(data=audio_chunk, mime_type="audio/pcm;rate=16000")
@@ -149,26 +152,23 @@ Solucion: normalizar a reloj comun (NTP, UNIX timestamp en milisegundos).
 Sintoma: audio entrecortado, saltos en la conversacion.
 Solucion: implementar retransmision selectiva, usar FEC (Forward Error Correction) si perdida > 1%.
 
-## Gemini 2.5 Flash TTS Nativo — Text-to-Speech de Alta Calidad
+## Gemini 3.1 Flash TTS — Text-to-Speech Nativo
 
-Disponible desde 2026. Dos variantes con objetivos distintos:
+Modelo vigente (preview, lanzado 2026-04-15): `gemini-3.1-flash-tts-preview`. Reemplaza a la familia `gemini-2.5-*-tts` (`gemini-2.5-flash-preview-tts`, `gemini-2.5-pro-preview-tts`, `gemini-2.5-flash-lite-preview-tts`).
 
-| Modelo TTS | Optimizacion | Latencia tipica | Uso |
-|---|---|---|---|
-| `gemini-2.5-flash-preview-tts` | Baja latencia | 80-120ms | Conversacion real-time |
-| `gemini-2.5-pro-preview-tts` | Alta calidad | 200-400ms | Narracion, contenido grabado |
+Diferencias confirmadas respecto a la generacion 2.5: soporta 70+ idiomas (vs 24), 200+ audio tags para control expresivo (ej. `[frustration]`, `[curiosity]`, `[whispers]`), dialogo nativo multi-hablante, y watermark SynthID incrustado en el audio de salida. No se confirmo una variante separada "pro" de mayor calidad/latencia dentro de la linea 3.1 — verificar en `ai.google.dev/gemini-api/docs/speech-generation` antes de asumir que existe, en vez de asumir la tabla de dos variantes de la generacion anterior.
 
 ```python
 from google import genai
 
 client = genai.Client()
 
-# TTS con expresividad controlada
+# TTS con expresividad controlada via audio tags
 response = client.models.generate_content(
-    model="gemini-2.5-flash-preview-tts",
+    model="gemini-3.1-flash-tts-preview",
     contents=[{
         "parts": [{
-            "text": "Bienvenido al sistema. ¿En que puedo ayudarte hoy?"
+            "text": "[enthusiasm] Bienvenido al sistema. ¿En que puedo ayudarte hoy?"
         }]
     }],
     config=genai.types.GenerateContentConfig(
@@ -183,33 +183,36 @@ response = client.models.generate_content(
 audio_data = response.candidates[0].content.parts[0].inline_data.data
 ```
 
-Voces disponibles (30 HD en 24 idiomas): Aoede, Charon, Fenrir, Kore, Puck — entre otras. Verificar lista completa en `ai.google.dev/gemini-api/docs/speech-generation`.
+Voces disponibles (30 en 70+ idiomas): Aoede, Charon, Fenrir, Kore, Puck — entre otras. Verificar lista completa en `ai.google.dev/gemini-api/docs/speech-generation`.
 
-## Affective Dialog — Respuesta Emocional Contextual
+## Affective Dialog — Estado Actual (Regresion Confirmada)
 
-`gemini-2.5-flash` con Live API detecta y responde adecuadamente al tono emocional del usuario (urgencia, frustracion, entusiasmo). Activo por defecto en Live API.
+`gemini-2.5-flash` con Live API soportaba deteccion y respuesta al tono emocional del usuario (urgencia, frustracion, entusiasmo) de forma nativa. Ese modelo fue apagado el 2025-12-09.
+
+**`gemini-3.1-flash-live-preview`, el sucesor vigente, NO soporta Affective Dialog** — confirmado explicitamente como "not yet supported" en la documentacion oficial (verificado 2026-07-10). No disenar un flujo que dependa de esta capacidad sobre el modelo actual sin volver a verificar si Google la restauro.
+
+Alternativa disponible hoy: los audio tags expresivos de `gemini-3.1-flash-tts-preview` (ej. `[frustration]`, `[determination]`) permiten controlar el tono de la *salida* generada por el modelo, pero no reemplazan la deteccion automatica del tono de *entrada* del usuario que ofrecia Affective Dialog en 2.5.
 
 ```python
+# Patron de fallback manual mientras 3.1 Flash Live no soporta Affective Dialog:
+# clasificar tono del input con una llamada de texto liviana antes del turno de audio.
 config = {
     "response_modalities": ["AUDIO"],
     "speech_config": {
         "voice_config": {"prebuilt_voice_config": {"voice_name": "Aoede"}}
     },
     "system_instruction": (
-        "Detecta el tono emocional del usuario. "
-        "Si expresa urgencia, responde de forma concisa y directa. "
-        "Si expresa frustracion, valida antes de dar solucion. "
-        "Responde siempre en espanol."
+        "Responde siempre en espanol. "
+        "Si el texto transcrito del usuario contiene senales de urgencia, "
+        "responde de forma concisa y directa."
     )
 }
 ```
 
-Affective Dialog no requiere configuracion adicional — es capacidad nativa de `gemini-2.5-flash`. El system prompt define el comportamiento de respuesta emocional.
-
 ## Lista de Verificacion — Voice Systems
 
 1. Latencia end-to-end documentada y < 300ms en ruta critica.
-2. Modelo activo es `gemini-2.5-flash` con Live API — no `gemini-2.0-flash-live-001` (deprecado).
+2. Modelo activo es `gemini-3.1-flash-live-preview` — `gemini-2.5-flash-live-preview` y `gemini-2.0-flash-live-001` fueron apagados el 2025-12-09.
 3. Codec seleccionado es compatible con todos los clientes objetivo (mobile, web, desktop).
 4. Sincronizacion audio-video (si aplica) usa reloj comun.
 5. Timeout: si Gemini no responde en 10s, reintentar una vez antes de fallar al usuario.
@@ -224,5 +227,6 @@ Las Reglas Globales definidas en CLAUDE.md aplican sin excepcion. Adicionales:
 > Reglas de sesion activas: CLAUDE.md > este skill. Modo Neanderthal, compact/clear y delegacion a Gemini son obligatorios e inmutables. Ver seccion 'Protocolo Zero-Token' en CLAUDE.md.
 - Verificar especificar latencia objetivo y plan de medicion antes de disenar un voice system.
 - Verificar plan de migracion de clientes existentes antes de cambiar codec en produccion.
-- Prohibido recomendar `gemini-2.0-flash-live-001` — modelo deprecado, usar `gemini-2.5-flash` con Live API.
+- Prohibido recomendar `gemini-2.0-flash-live-001` o `gemini-2.5-flash-live-preview` — ambos apagados desde 2025-12-09, usar `gemini-3.1-flash-live-preview`.
+- Advertir explicitamente si el diseno requiere Affective Dialog: no soportado en `gemini-3.1-flash-live-preview` a la fecha de este skill (verificado 2026-07-10) — confirmar contra documentacion oficial antes de prometerlo.
 - Verificar streaming si duracion supera 60 segundos antes de serializar audio.

@@ -2,7 +2,7 @@
 name: cost-optimizer
 description: Optimizador de costos de inferencia LLM. Selecciona el modelo mas barato que completa la tarea, fuerza Gemini como tier 0, aplica prompt caching, prefill y batch inference. Activa al detectar consumo excesivo de tokens, al iniciar sesion con tareas multiples, o al disenar pipelines de agentes donde el costo es variable.
 origin: ai-core
-version: 1.1.0
+version: 1.2.0
 last_updated: 2026-07-10
 ---
 
@@ -29,18 +29,20 @@ Este perfil gobierna la seleccion de modelo, la estrategia de caching y la reduc
 ## Jerarquia de Modelos (releer antes de cada llamada LLM)
 
 ```
-Tier 0A — Gemini 2.5 Flash Lite (GRATUITO — escala masiva)
+Tier 0A — Gemini 3.1 Flash-Lite (GRATUITO — escala masiva)
   Volumen > 10.000 requests/dia donde Flash es suficiente
   Clasificacion masiva, moderacion de contenido, extraccion simple a escala
   Latencia objetivo < 300ms con contextos cortos (< 4k tokens)
   Pipelines de alto throughput donde el costo por token es la variable critica
+  Nota: heredero del tier "Lite" — mas barato en paid que 2.5 Flash-Lite ($0.25/$1.50 vs $0.10/$0.40 por 1M in/out, verificar vigencia antes de asumir)
 
-Tier 0B — Gemini 2.5 Flash (GRATUITO — uso general)
+Tier 0B — Gemini 3.5 Flash (GRATUITO en API — uso general)
   Leer archivos > 200 lineas
   Analizar logs > 50 lineas
   Resumir repositorios completos
   Busqueda web e investigacion
   Comparar mas de 3 alternativas tecnicas
+  Nota: en paid es ~5x mas caro que 2.5 Flash ($1.50/$9 vs $0.30/$2.50 por 1M in/out) — modelo agentico de mayor capacidad, no un reemplazo 1:1 de bajo costo. Confirmar que el free tier de la API sigue vigente antes de asumirlo en produccion de alto volumen.
 
 Tier 1 — Haiku 4.5 (MAS BARATO PAGADO)
   Transformaciones simples < 8k tokens de contexto

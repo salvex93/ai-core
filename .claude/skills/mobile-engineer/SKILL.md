@@ -2,8 +2,8 @@
 name: mobile-engineer
 description: Tech Lead Mobile Universal. Experto en aplicaciones moviles y multiplataforma con Flutter/Dart. Cubre arquitectura de features, state management (BLoC/Riverpod), navegacion, integracion con APIs REST, Firebase, mapas, graficos y testing. Agnostico a la capa de backend. Activa al construir pantallas Flutter, disenar la arquitectura de features moviles, integrar SDKs nativos o resolver problemas de rendimiento en el widget tree.
 origin: ai-core
-version: 1.2.0
-last_updated: 2026-06-10
+version: 1.3.0
+last_updated: 2026-07-10
 ---
 
 # Mobile Engineer — Tech Lead Movil y Multiplataforma (Flutter/Dart)
@@ -181,7 +181,7 @@ firebase_vertexai: ^1.0.0  # Gemini en el dispositivo via Firebase App Check
 ```dart
 // Inicializar modelo Gemini en edge
 final modelo = FirebaseVertexAI.instance.generativeModel(
-  model: 'gemini-2.5-flash-lite',  // tier 0 — modelo ligero para edge
+  model: 'gemini-3.1-flash-lite',  // tier 0 — modelo ligero para edge
 );
 
 final respuesta = await modelo.generateContent([
@@ -191,7 +191,7 @@ final respuesta = await modelo.generateContent([
 
 Reglas de uso:
 - Requerir Firebase App Check activo antes de habilitar `firebase_vertexai` — evita abuso de cuota.
-- Usar `gemini-2.5-flash-lite` para edge (latencia minima, costo minimo). Reservar modelos mayores para el backend.
+- Usar `gemini-3.1-flash-lite` para edge (latencia minima, costo minimo — heredero del tier Lite, mas barato que la generacion 2.5). Reservar modelos mayores para el backend.
 - No enviar datos personales del usuario al modelo de edge sin consentimiento explicito — los datos pasan por Firebase.
 
 ### Impeller (Renderer por Defecto — Flutter 3.32)
