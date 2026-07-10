@@ -1,6 +1,6 @@
 {
-  "version": "3.10.0",
-  "last_updated": "2026-07-10T20:05:18.086Z",
+  "version": "3.11.0",
+  "last_updated": "2026-07-10T20:31:10.612Z",
   "branch": "main",
   "stack": null,
   "host": {
@@ -20,6 +20,7 @@
         ".claude/bin/agent-metrics.js",
         ".claude/bin/aiops-score.js",
         ".claude/bin/capture-event.js",
+        ".claude/bin/cross-verify-gate.js",
         ".claude/bin/detect-stack.js",
         ".claude/bin/detox.js",
         ".claude/bin/diff-map-trigger.js",
@@ -62,6 +63,7 @@
         ".claude/skills/claude-agent-sdk/SKILL.md",
         ".claude/skills/claude-api/SKILL.md",
         ".claude/skills/cost-optimizer/SKILL.md",
+        ".claude/skills/cross-model-verifier/SKILL.md",
         ".claude/skills/data-engineer/SKILL.md",
         ".claude/skills/database-ops/SKILL.md",
         ".claude/skills/dev-loop/SKILL.md",
@@ -92,6 +94,7 @@
         ".github/workflows/ci.yml"
       ],
       "docs/": [
+        "docs/OPUSPLAN-cross-model-verifier.md",
         "docs/OPUSPLAN-files-api-bridge.md",
         "docs/benchmarks/benchmark-fernet.js"
       ],
@@ -105,6 +108,7 @@
         "scripts/query-backlog.js",
         "scripts/services/AgentRoles.js",
         "scripts/services/ContextIndex.js",
+        "scripts/services/CrossVerifier.js",
         "scripts/services/ErrorRepairLoop.js",
         "scripts/services/IntentClassifier.js",
         "scripts/services/ModelRegistry.js",
@@ -137,7 +141,7 @@
       "node_modules/",
       ".git/"
     ],
-    "total_files": 114
+    "total_files": 118
   },
   "core": null
 }

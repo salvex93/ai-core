@@ -3,7 +3,7 @@ name: multimodal-engineer
 description: Especialista en pipelines de procesamiento multimodal con LLMs. Cubre analisis de imagenes con Claude Opus 4.8 (vision 3.75MP) y Gemini 2.5 Pro (1M tokens), extraccion estructurada desde PDFs y documentos con Citations API, pipelines OCR semanticos, optimizacion de costo por token visual y arquitectura de sistemas que procesan entradas mixtas (texto + imagen + documento). Activa al construir pipelines que procesan imagenes o documentos, integrar vision en agentes, comparar capacidades multimodales entre Claude y Gemini, o disenar extraccion estructurada desde contratos, facturas o diagramas tecnicos.
 origin: ai-core
 version: 1.0.0
-last_updated: 2026-06-10
+last_updated: 2026-07-10
 ---
 
 # Multimodal Engineer
@@ -65,7 +65,7 @@ Deducir:
 Gemini 2.5 Flash-Lite (tier 0, gratis) → clasificacion simple, sin razonamiento
 Gemini 2.5 Flash (tier 0B)             → analisis general, balance inteligencia/costo
 Claude Haiku 4.5                        → extraccion estructurada de bajo volumen
-Claude Sonnet 4.6                       → analisis de calidad media con schema
+Claude Sonnet 5                       → analisis de calidad media con schema
 Claude Opus 4.8 / Gemini 2.5 Pro       → documentos complejos, citations, razonamiento profundo
 ```
 

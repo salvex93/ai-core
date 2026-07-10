@@ -106,7 +106,7 @@ const TOOLS = [
       properties: {
         modelo: {
           type: 'string',
-          description: 'ID del modelo. Usar los IDs exactos: claude-haiku-4-5-20251001, claude-sonnet-4-6, claude-opus-4-8',
+          description: 'ID del modelo. Usar los IDs exactos: claude-haiku-4-5-20251001, claude-sonnet-5, claude-opus-4-8',
         },
         tokens_input:  { type: 'number', description: 'Tokens de entrada estimados' },
         tokens_output: { type: 'number', description: 'Tokens de salida estimados' },

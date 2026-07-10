@@ -3,7 +3,7 @@ name: claude-agent-sdk
 description: Especialista en construccion de agentes autonomos con el Claude Agent SDK (TypeScript/Python). Cubre herramientas integradas, hooks de ciclo de vida, subagentes, integracion MCP, OAuth 2.0 client flow (Authorization Code + PKCE) para servidores MCP remotos, gestion de permisos y sesiones. Activa al construir agentes personalizados, orquestar subagentes, integrar el Agent SDK en un proyecto anfitrion o disenar flujos de automatizacion con Claude.
 origin: ai-core
 version: 2.3.0
-last_updated: 2026-06-10
+last_updated: 2026-07-10
 ---
 
 # Claude Agent SDK — Especialista en Agentes Autonomos
@@ -223,7 +223,7 @@ Cuando activar:
 
 No activar en flujos deterministas simples — el overhead de tokens no se justifica sin razonamiento adaptativo.
 
-Reglas: incluir bloques `thinking` del turno anterior en el historial del siguiente. Loguear tokens thinking separado. Requiere `claude-sonnet-4-6` o superior.
+Reglas: incluir bloques `thinking` del turno anterior en el historial del siguiente. Loguear tokens thinking separado. Requiere `claude-sonnet-5` o superior.
 
 ## Adaptive Thinking — Opus 4.8
 
@@ -242,7 +242,7 @@ const respuesta = await cliente.messages.create({
 
 Cuando usar cada modo:
 - `{ type: "auto" }` (Opus 4.8): pasos de complejidad variable — ahorra en pasos simples sin degradar calidad en pasos complejos.
-- `{ type: "enabled", budget_tokens: N }` (Opus/Sonnet 4.6): costo predecible por llamada o complejidad uniforme entre pasos.
+- `{ type: "enabled", budget_tokens: N }` (Opus/Sonnet 5): costo predecible por llamada o complejidad uniforme entre pasos.
 
 Loguear `thinking_tokens` separado de `output_tokens` en ambos modos. La diferencia entre llamadas revela que porcion del costo es razonamiento adaptativo.
 

@@ -3,7 +3,7 @@ name: cost-optimizer
 description: Optimizador de costos de inferencia LLM. Selecciona el modelo mas barato que completa la tarea, fuerza Gemini como tier 0, aplica prompt caching, prefill y batch inference. Activa al detectar consumo excesivo de tokens, al iniciar sesion con tareas multiples, o al disenar pipelines de agentes donde el costo es variable.
 origin: ai-core
 version: 1.1.0
-last_updated: 2026-06-10
+last_updated: 2026-07-10
 ---
 
 # Cost Optimizer
@@ -48,7 +48,7 @@ Tier 1 — Haiku 4.5 (MAS BARATO PAGADO)
   Formateo, conversiones de estructura
   Generacion de codigo boilerplate sin logica compleja
 
-Tier 2 — Sonnet 4.6 (EQUILIBRIO)
+Tier 2 — Sonnet 5 (EQUILIBRIO)
   Refactorizacion con logica
   Diagnostico de errores
   Busqueda y analisis de calidad
@@ -168,7 +168,7 @@ Cada turno visible en el historial = ~800 tokens de contexto acumulado. Para ses
 Costo estimado por turno = (turnos_visibles × 800) × precio_por_token_del_modelo_activo
 ```
 
-Ejemplo con Sonnet 4.6 ($3/Mtok input):
+Ejemplo con Sonnet 5 ($3/Mtok input):
 - 10 turnos = 8.000 tokens × $3/Mtok = $0.024 por turno de input
 - 30 turnos = 24.000 tokens × $3/Mtok = $0.072 por turno de input
 

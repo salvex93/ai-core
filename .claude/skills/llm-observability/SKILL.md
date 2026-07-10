@@ -3,7 +3,7 @@ name: llm-observability
 description: Especialista en observabilidad de sistemas LLM en produccion. Cubre instrumentacion con OpenTelemetry, dashboards de costo por operacion, alertas de degradacion de calidad, tracing de prompts y completions, y plataformas de observabilidad IA (Langfuse, Helicone, Phoenix). Activa al instrumentar un sistema que usa LLMs, disenar dashboards de costo/calidad, configurar alertas de degradacion o diagnosticar regresiones de calidad en produccion.
 origin: ai-core
 version: 1.1.4
-last_updated: 2026-06-10
+last_updated: 2026-07-10
 ---
 
 # LLM Observability — Especialista en Observabilidad de Sistemas IA
@@ -107,7 +107,7 @@ async function llamarLLM(operacion: string, prompt: PromptRequest): Promise<LLMR
     // Atributos semanticos estandar para LLM (OpenTelemetry GenAI semantic conventions)
     span.setAttributes({
       'gen_ai.system': 'anthropic',
-      'gen_ai.request.model': prompt.modelo ?? 'claude-sonnet-4-6',
+      'gen_ai.request.model': prompt.modelo ?? 'claude-sonnet-5',
       'gen_ai.request.max_tokens': prompt.maxTokens ?? 1024,
       'gen_ai.operation.name': operacion,
     });
@@ -162,7 +162,7 @@ async function llamarLLMConLangfuse(operacion: string, prompt: PromptRequest): P
   // Registrar la generacion LLM dentro de la traza
   const generacion = traza.generation({
     name: 'llm-call',
-    model: prompt.modelo ?? 'claude-sonnet-4-6',
+    model: prompt.modelo ?? 'claude-sonnet-5',
     input: prompt.usuario,
     systemPrompt: prompt.sistema,
   });

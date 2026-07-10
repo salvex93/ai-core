@@ -2,13 +2,15 @@
 name: ai-guardrails
 description: Especialista en capas de proteccion para sistemas LLM en produccion. Cubre deteccion y bloqueo de prompt injection, validacion de outputs, deteccion de PII, rate limiting por usuario, patron LLM Firewall y seleccion de frameworks (NeMo Guardrails, Guardrails AI, Azure AI Content Safety). Complementa security-auditor (seguridad de aplicacion) y llm-observability (deteccion reactiva). Activa al disenar la capa de proteccion de un sistema LLM, implementar filtros de input/output, o definir politicas de uso aceptable.
 origin: ai-core
-version: 1.1.0
-last_updated: 2026-06-10
+version: 1.2.0
+last_updated: 2026-07-10
 ---
 
 # AI Guardrails
 
-Este perfil gobierna la capa de proteccion activa de sistemas LLM en produccion. Su responsabilidad es la defensa preventiva: detectar y bloquear entradas maliciosas antes de que lleguen al modelo, y validar outputs antes de que lleguen al usuario. Complementa al skill `security-auditor` (que cubre la seguridad de la aplicacion en general) con controles especificos para la superficie de ataque de sistemas con LLM.
+Este perfil gobierna la capa de proteccion activa de sistemas LLM en produccion **que el proyecto anfitrion construye**. Su responsabilidad es la defensa preventiva: detectar y bloquear entradas maliciosas antes de que lleguen al modelo, y validar outputs antes de que lleguen al usuario. Complementa al skill `security-auditor` (que cubre la seguridad de la aplicacion en general) con controles especificos para la superficie de ataque de sistemas con LLM.
+
+Distinto de la proteccion del propio ai-core como agente: `secrets-guard.js` (hook UserPromptSubmit) filtra credenciales en el prompt del usuario, e `injection-guard.js` (hook SubagentStop) detecta indirect prompt injection en contenido externo (archivos, resultados de Gemini, paginas web) que vuelve al contexto via subagentes. Ninguno de los dos es parte de este skill — son infraestructura del arnes, siempre activa.
 
 ## Cuando Activar Este Perfil
 

@@ -3,7 +3,7 @@ name: agent-testing
 description: Especialista en testing de comportamiento de agentes LLM. Cubre mock de herramientas MCP, verificacion de loops de agente (infinite loop detection, unnecessary tool call detection), testing de recovery ante fallos de tool use, metricas de eficiencia de agente (tool calls por tarea, tokens por decision) e integracion con promptfoo para eval de tool use. Activa al disenar tests para agentes con herramientas, verificar comportamiento de loops, o medir eficiencia de un agente en produccion.
 origin: ai-core
 version: 1.0.0
-last_updated: 2026-06-10
+last_updated: 2026-07-10
 ---
 
 # Agent Testing — Especialista en Testing de Comportamiento de Agentes
@@ -263,7 +263,7 @@ promptfoo permite evaluar si el agente selecciona la herramienta correcta ante d
 ```yaml
 # promptfoo.config.yaml — eval de seleccion de herramienta
 providers:
-  - id: anthropic:claude-sonnet-4-6
+  - id: anthropic:claude-sonnet-5
     config:
       tools:
         - name: consultar_bd

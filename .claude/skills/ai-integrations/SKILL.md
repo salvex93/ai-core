@@ -3,7 +3,7 @@ name: ai-integrations
 description: Especialista en integracion de LLMs en aplicaciones de produccion. Cubre diseno de features de IA, gestion de costos por token, prompt versioning, streaming, fallback entre proveedores y evaluacion de outputs. Agnostico al proveedor. Activa al integrar Claude, Gemini u otro LLM en un proyecto anfitrion, disenar endpoints de IA o gestionar costos de inferencia.
 origin: ai-core
 version: 2.4.0
-last_updated: 2026-07-06
+last_updated: 2026-07-10
 ---
 
 # AI Integrations — Especialista en Features de IA en Produccion
@@ -93,7 +93,7 @@ Definir como constantes de configuracion, no como literales dispersos en el codi
 |---|---|---|---|
 | Adaptive thinking | `claude-opus-4-8` | Presupuesto adaptativo por paso (`task_budgets`), `effort` dinamico (low/high/xhigh), vision 3.75MP | Agentes multi-paso, planificacion con complejidad variable, debug profundo |
 | Razonamiento profundo | `claude-fable-5` | Razonamiento multi-paso sin tools, alternativa a Opus para diseno puro | Arquitectura critica, analisis profundo sin computer use |
-| Ejecucion estandar | `claude-sonnet-4-6` | Prompt Caching GA, token-efficient tools GA, rendimiento optimo | Codigo, resumen, chat, 80% de tareas sustanciales |
+| Ejecucion estandar | `claude-sonnet-5` | Prompt Caching GA, token-efficient tools GA, rendimiento optimo | Codigo, resumen, chat, 80% de tareas sustanciales |
 | Volumen alto | `claude-haiku-4-5-20251001` | Latencia minima, costo base | Clasificacion, extraccion, moderacion, lotes, tareas triviales |
 | Voice nativo | `gemini-3.1-flash-live` | Audio-to-audio nativo, WebSocket full-duplex, `thinking_level` dinamico | Voice agents, interfaces conversacionales reales, audio streaming |
 
@@ -194,7 +194,7 @@ No usar en: operaciones internas con output procesado programaticamente, generac
 
 Contrato del evento `done`: siempre incluye `tokens_totales` para logging.
 
-## Fallback y Routing Inteligente (Opus 4.8 + Sonnet 4.6)
+## Fallback y Routing Inteligente (Opus 4.8 + Sonnet 5)
 
 Patrón recomendado: router dinamico según complejidad inferida de la tarea.
 
@@ -203,8 +203,8 @@ Patrón recomendado: router dinamico según complejidad inferida de la tarea.
 | Complejidad | Modelo | Reasoning | Budget | Latencia SLA |
 |---|---|---|---|---|
 | Trivial (clasificacion, extraccion) | Haiku 4.5 | none | N/A | <200ms |
-| Simple (resumen, respuesta directa) | Sonnet 4.6 | none | N/A | <500ms |
-| Moderada (debug, analisis, generacion) | Sonnet 4.6 + cache | extended | budget_tokens: 2000 | <2s |
+| Simple (resumen, respuesta directa) | Sonnet 5 | none | N/A | <500ms |
+| Moderada (debug, analisis, generacion) | Sonnet 5 + cache | extended | budget_tokens: 2000 | <2s |
 | Compleja (arquitectura, planificacion multistep) | Opus 4.8 | adaptive | task_budgets, effort: high | <5s |
 | Muy compleja (debug exhaustivo, diseño critico) | Opus 4.8 | adaptive | task_budgets, effort: xhigh | <15s |
 | Voice conversacional (real-time) | Gemini 3.1-flash-live | dynamic | thinking_level: auto | <150ms |

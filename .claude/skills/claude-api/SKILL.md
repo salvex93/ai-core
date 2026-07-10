@@ -3,7 +3,7 @@ name: claude-api
 description: Especialista en Claude API y Anthropic SDK (Python/TypeScript). Cubre prompt caching, extended thinking, tool use, streaming, Batch API, Files API, Citations API, modelos Fable 5/Opus/Sonnet/Haiku, migracion entre versiones de modelo y optimizacion de costo por token. Activa al escribir codigo que importa anthropic/@anthropic-ai/sdk, disenar pipelines con cache de prompts, implementar tool use nativo, o migrar entre versiones de Claude.
 origin: ai-core
 version: 1.2.0
-last_updated: 2026-07-06
+last_updated: 2026-07-10
 ---
 
 # Claude API Specialist
@@ -13,7 +13,7 @@ last_updated: 2026-07-06
 - Codigo importa `anthropic` o `@anthropic-ai/sdk`.
 - El usuario pregunta sobre prompt caching, cache hit rate, o costos de inferencia.
 - Implementacion de tool use, streaming, extended thinking o Batch API.
-- Migracion de modelo: Haiku 4.5 → Sonnet 4.6 → Opus 4.8, o reemplazo de modelos retirados.
+- Migracion de modelo: Haiku 4.5 → Sonnet 5 → Opus 4.8, o reemplazo de modelos retirados.
 - Disenar system prompts con cache para reducir costo en sesiones largas.
 - Uso de Citations API para documentos estructurados o Files API para contexto persistente.
 
@@ -41,7 +41,7 @@ grep -r "cache_control\|anthropic\|claude-" src/ --include="*.ts" --include="*.p
 |---|---|---|
 | Fable 5 | `claude-fable-5` | Razonamiento profundo multi-paso, diseno de sistemas, alternativa a Opus cuando la tarea es puro razonamiento sin computer use |
 | Opus 4.8 | `claude-opus-4-8` | Agentes autonomos, computer use, arquitectura con herramientas integradas |
-| Sonnet 4.6 | `claude-sonnet-4-6` | Produccion general, balance costo/calidad |
+| Sonnet 5 | `claude-sonnet-5` | Produccion general, balance costo/calidad |
 | Haiku 4.5 | `claude-haiku-4-5-20251001` | Tareas simples, maximo ahorro de tokens |
 
 Jerarquia de costo: Haiku < Sonnet < Opus ≈ Fable. Usar siempre el minimo suficiente.
@@ -54,7 +54,7 @@ Cache reduce costo hasta 90% en tokens de input repetidos. TTL: 5 minutos.
 
 ```python
 response = client.messages.create(
-    model="claude-sonnet-4-6",
+    model="claude-sonnet-5",
     max_tokens=1024,
     system=[
         {
@@ -69,7 +69,7 @@ response = client.messages.create(
 
 ```typescript
 const response = await client.messages.create({
-  model: "claude-sonnet-4-6",
+  model: "claude-sonnet-5",
   max_tokens: 1024,
   system: [{ type: "text", text: SYSTEM_PROMPT_LARGO, cache_control: { type: "ephemeral" } }],
   messages: [{ role: "user", content: userMessage }]
@@ -123,7 +123,7 @@ tools = [{
 }]
 
 response = client.messages.create(
-    model="claude-sonnet-4-6", max_tokens=1024, tools=tools,
+    model="claude-sonnet-5", max_tokens=1024, tools=tools,
     messages=[{"role": "user", "content": "Busca los datos de X"}]
 )
 
@@ -163,7 +163,7 @@ with open("documento.pdf", "rb") as f:
 
 # Referenciar en requests subsiguientes
 response = client.messages.create(
-    model="claude-sonnet-4-6",
+    model="claude-sonnet-5",
     max_tokens=1024,
     messages=[{
         "role": "user",
@@ -184,7 +184,7 @@ Para documentos estructurados donde el usuario necesita saber de donde proviene 
 
 ```python
 response = client.messages.create(
-    model="claude-sonnet-4-6",
+    model="claude-sonnet-5",
     max_tokens=1024,
     messages=[{
         "role": "user",
@@ -237,7 +237,7 @@ response = client.messages.create(
 npm install -g @anthropic-ai/ant
 
 # Llamada directa al modelo
-ant messages create --model claude-sonnet-4-6 --max-tokens 1024 "Analiza este error: ..."
+ant messages create --model claude-sonnet-5 --max-tokens 1024 "Analiza este error: ..."
 
 # Versionado de recursos en YAML
 ant prompts push prompts/system.yaml   # versionar prompt
@@ -271,7 +271,7 @@ El agente puede compactar su propio historial de contexto para continuar tareas 
 ```python
 # Activar compaction en el loop del agente
 response = client.messages.create(
-    model="claude-sonnet-4-6",
+    model="claude-sonnet-5",
     max_tokens=8192,
     system=[{"type": "text", "text": SYSTEM, "cache_control": {"type": "ephemeral"}}],
     messages=historial,
@@ -287,14 +287,14 @@ Regla: si el pipeline supera 20 iteraciones, implementar compaction manual como 
 
 ## Batch API — Limite 300k tokens (actualizado)
 
-Limite actualizado en 2026: `max_tokens` de hasta 300.000 en Message Batches API para Opus 4.8 y Sonnet 4.6. Aplica para procesamiento masivo de documentos largos.
+Limite actualizado en 2026: `max_tokens` de hasta 300.000 en Message Batches API para Opus 4.8 y Sonnet 5. Aplica para procesamiento masivo de documentos largos.
 
 ```python
 batch = client.messages.batches.create(
     requests=[{
         "custom_id": f"doc-{i}",
         "params": {
-            "model": "claude-sonnet-4-6",
+            "model": "claude-sonnet-5",
             "max_tokens": 300000,   # limite actualizado 2026
             "messages": [{"role": "user", "content": doc_largo}]
         }

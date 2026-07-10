@@ -3,7 +3,7 @@ name: release-manager
 description: Release Manager Universal. Gestiona el ciclo de vida de entregas de software: versionado semantico, estrategia de branching, pipelines CI/CD, resolucion de conflictos Git y planes de rollback. Agnóstico a la plataforma de CI/CD. Activa al planificar releases, gestionar ramas, configurar pipelines o coordinar despliegues.
 origin: ai-core
 version: 1.2.0
-last_updated: 2026-06-10
+last_updated: 2026-07-10
 ---
 
 # Release Manager Universal
@@ -290,7 +290,7 @@ Para proyectos que incluyen componentes de IA (prompts, modelos, configuracion d
 
 El gate `evals:llm` aplica si el release incluye cualquiera de:
 - Cambios en system prompts o few-shot examples.
-- Migracion entre versiones de modelo (ej: Sonnet 4.5 → Sonnet 4.6, Opus 4.6 → Opus 4.8).
+- Migracion entre versiones de modelo (ej: Sonnet 4.5 → Sonnet 5, Opus 4.6 → Opus 4.8).
 - Cambios en parametros de inferencia (temperature, max_tokens, thinking budget).
 - Cambios en el pipeline RAG (chunking, embeddings, re-ranker).
 - Cambios en la configuracion de guardrails que afecten la tasa de bloqueo.
