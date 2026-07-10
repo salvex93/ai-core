@@ -1,8 +1,8 @@
 ---
 name: memory-manager
-description: Gestiona la memoria semantica persistente del arnés ai-core via vault BM25. Indexa conocimiento en .claude/memory-vault/.raw/, sintetiza en .wiki/ y recupera contexto relevante antes de cada sesion. Resuelve el context rot entre sesiones sin depender de bases de datos externas — plain markdown, git-compatible. Activa al iniciar sesion para recuperar contexto previo, al cerrar sesion para indexar aprendizajes nuevos, o cuando se necesita recuperar informacion de sesiones anteriores.
+description: Gestiona la memoria semantica persistente del arnés ai-core via vault BM25+ (stemming español, boost por campo, query expansion de sinonimos de dominio). Indexa conocimiento en .claude/memory-vault/.raw/, sintetiza en .wiki/ y recupera contexto relevante antes de cada sesion. Resuelve el context rot entre sesiones sin depender de bases de datos externas — plain markdown, git-compatible. Activa al iniciar sesion para recuperar contexto previo, al cerrar sesion para indexar aprendizajes nuevos, o cuando se necesita recuperar informacion de sesiones anteriores.
 origin: ai-core
-version: 1.0.0
+version: 1.1.0
 last_updated: 2026-07-06
 ---
 

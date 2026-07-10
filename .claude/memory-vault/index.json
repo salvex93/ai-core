@@ -1,0 +1,7937 @@
+{
+  "df": {
+    "104": 1,
+    "110": 1,
+    "206": 1,
+    "342": 3,
+    "351": 3,
+    "592": 1,
+    "778": 1,
+    "2026": 9,
+    "sesion": 3,
+    "item": 3,
+    "media": 3,
+    "prioridad": 7,
+    "complet": 3,
+    "test": 9,
+    "coherencia": 6,
+    "setup": 9,
+    "setting": 7,
+    "json": 8,
+    "harnes": 13,
+    "agreg": 4,
+    "output": 5,
+    "coherente": 1,
+    "disco": 1,
+    "bloque": 1,
+    "verifica": 1,
+    "todo": 6,
+    "hook": 7,
+    "key": 1,
+    "present": 1,
+    "pretooluse": 2,
+    "posttooluse": 1,
+    "stop": 2,
+    "subagentstop": 2,
+    "posttoolusefailure": 1,
+    "userpromptsubmit": 1,
+    "numero": 1,
+    "grupo": 2,
+    "consistente": 2,
+    "entre": 1,
+    "ejecucion": 1,
+    "mcpserver": 1,
+    "gemini": 3,
+    "bridge": 2,
+    "anthropic": 4,
+    "router": 3,
+    "post": 5,
+    "update": 8,
+    "norm": 7,
+    "proyecto": 9,
+    "anfitrion": 3,
+    "paso": 3,
+    "condicional": 1,
+    "final": 1,
+    "script": 5,
+    "detecta": 4,
+    "core": 3,
+    "ejecuta": 3,
+    "submodulo": 5,
+    "verific": 2,
+    "existe": 3,
+    "claude": 15,
+    "padre": 3,
+    "tiene": 1,
+    "propio": 1,
+    "package": 2,
+    "otro": 1,
+    "modulo": 1,
+    "node": 3,
+    "confirma": 1,
+    "cwd": 1,
+    "standalone": 2,
+    "informa": 2,
+    "omite": 1,
+    "skill": 13,
+    "mcp": 8,
+    "registry": 3,
+    "navigator": 3,
+    "nuevo": 9,
+    "cre": 1,
+    "evaluador": 1,
+    "tercero": 2,
+    "agent": 6,
+    "agente": 5,
+    "autonomo": 1,
+    "evalu": 2,
+    "criterio": 2,
+    "puntu": 1,
+    "transporte": 1,
+    "stdio": 2,
+    "sse": 2,
+    "http": 1,
+    "seguridad": 2,
+    "input": 1,
+    "eval": 2,
+    "exec": 1,
+    "shell": 1,
+    "sin": 5,
+    "sanitizar": 1,
+    "mantenimiento": 2,
+    "repositorio": 1,
+    "ultimo": 1,
+    "commit": 1,
+    "issu": 1,
+    "licencia": 1,
+    "calidad": 2,
+    "schema": 1,
+    "herramienta": 3,
+    "inputschema": 1,
+    "completo": 2,
+    "riesgo": 1,
+    "operativo": 1,
+    "dependencia": 2,
+    "filesystem": 1,
+    "api": 5,
+    "externa": 1,
+    "decision": 1,
+    "instalar": 4,
+    "evaluar": 2,
+    "rechazar": 1,
+    "registro": 1,
+    "persistente": 1,
+    "mcp_registry": 1,
+    "sonnet": 5,
+    "modelrouter": 7,
+    "via": 3,
+    "live": 1,
+    "desde": 5,
+    "capacidad": 1,
+    "max_input_token": 2,
+    "max_token": 1,
+    "128k": 1,
+    "thinking": 3,
+    "adaptativo": 2,
+    "code": 2,
+    "execution": 2,
+    "structured": 1,
+    "pricing": 2,
+    "mismo": 4,
+    "tier": 5,
+    "mtok": 1,
+    "actualiz": 6,
+    "servic": 2,
+    "modelo": 5,
+    "reemplaza": 1,
+    "conteo": 3,
+    "conformidad": 1,
+    "archivo": 3,
+    "modific": 1,
+    "entr": 5,
+    "tabla": 6,
+    "readme": 5,
+    "aprendizaj": 1,
+    "verificar": 2,
+    "contexto": 2,
+    "ant": 3,
+    "corregir": 1,
+    "vault": 4,
+    "marcaba": 1,
+    "referencia": 2,
+    "pendiente": 2,
+    "corrección": 1,
+    "leerlo": 1,
+    "real": 6,
+    "toda": 1,
+    "eran": 1,
+    "correcta": 1,
+    "produccion": 1,
+    "general": 1,
+    "hallazgo": 2,
+    "era": 1,
+    "falso": 2,
+    "positivo": 2,
+    "registr": 1,
+    "lección": 1,
+    "siempre": 3,
+    "leer": 1,
+    "actuar": 1,
+    "sobre": 1,
+    "memoria": 3,
+    "confirm": 1,
+    "client": 1,
+    "model": 4,
+    "list": 1,
+    "vivo": 1,
+    "cache": 2,
+    "tenia": 1,
+    "habia": 1,
+    "incorpor": 1,
+    "detección": 1,
+    "patron": 2,
+    "suficiente": 1,
+    "robusto": 1,
+    "distinguir": 1,
+    "depender": 1,
+    "git": 1,
+    "modul": 1,
+    "requieren": 2,
+    "seccion": 1,
+    "obligatoria": 1,
+    "restriccion": 1,
+    "perfil": 1,
+    "directiva": 1,
+    "interrupcion": 1,
+    "primera": 3,
+    "accion": 1,
+    "activar": 1,
+    "marcador": 1,
+    "alerta_arquitectonica": 1,
+    "requiere_opusplan": 1,
+    "suite": 1,
+    "inmediata": 3,
+    "util": 1,
+    "gate": 1,
+    "crear": 1,
+    "sed": 1,
+    "múltipl": 2,
+    "puede": 1,
+    "introducir": 1,
+    "bug": 4,
+    "parcial": 1,
+    "actualizó": 1,
+    "dejó": 1,
+    "combin": 1,
+    "incorrecta": 1,
+    "c": 3,
+    "reemplazo": 1,
+    "individual": 1,
+    "cu": 5,
+    "usan": 1,
+    "generico": 1,
+    "logica": 1,
+    "alta": 2,
+    "arn": 7,
+    "manager": 8,
+    "principal": 2,
+    "arquitectura": 6,
+    "decid": 4,
+    "ver": 2,
+    "session": 5,
+    "arrancar": 3,
+    "memory": 5,
+    "parte": 2,
+    "inicial": 3,
+    "remanente": 1,
+    "fueron": 1,
+    "descart": 3,
+    "hay": 4,
+    "pendient": 1,
+    "cierre": 1,
+    "baja": 2,
+    "resuelto": 2,
+    "sesión": 4,
+    "upgrade": 1,
+    "aaa": 2,
+    "auditoría": 7,
+    "release": 2,
+    "mejora": 3,
+    "implement": 2,
+    "ponytail": 1,
+    "check": 2,
+    "write": 1,
+    "edit": 1,
+    "escalera": 1,
+    "yagni": 1,
+    "capa": 1,
+    "dev": 1,
+    "loop": 1,
+    "ciclo": 1,
+    "spec": 1,
+    "design": 1,
+    "plan": 1,
+    "build": 1,
+    "review": 2,
+    "ba": 1,
+    "superpower": 1,
+    "jesse": 2,
+    "vincent": 2,
+    "obra": 2,
+    "addy": 1,
+    "osmani": 1,
+    "index": 1,
+    "motor": 2,
+    "bm25": 4,
+    "zero": 1,
+    "dep": 1,
+    "auto": 1,
+    "umbral": 1,
+    "score": 5,
+    "activo": 2,
+    "metric": 1,
+    "observabilidad": 1,
+    "tool": 3,
+    "call": 1,
+    "statu": 1,
+    "token": 2,
+    "dur": 1,
+    "house": 1,
+    "subagent": 2,
+    "valid": 1,
+    "adversarial": 1,
+    "auditor": 2,
+    "adversario": 1,
+    "pragmático": 1,
+    "exit": 1,
+    "critico": 1,
+    "adverse": 1,
+    "visual": 1,
+    "designer": 1,
+    "tech": 2,
+    "lead": 2,
+    "frontend": 2,
+    "reescrito": 2,
+    "paradigma": 1,
+    "w3c": 1,
+    "wcag": 1,
+    "motion": 1,
+    "v11": 1,
+    "import": 1,
+    "correcto": 2,
+    "react": 1,
+    "correccion": 1,
+    "opu": 4,
+    "health": 3,
+    "sync": 2,
+    "parsing": 1,
+    "correg": 1,
+    "formato": 2,
+    "markdown": 2,
+    "línea": 3,
+    "legacy": 3,
+    "aiop": 4,
+    "exclu": 1,
+    "scan": 1,
+    "version": 3,
+    "string": 2,
+    "sdk": 1,
+    "sincroniz": 1,
+    "yml": 1,
+    "engin": 1,
+    "eol": 1,
+    "matrix": 1,
+    "elimin": 1,
+    "docs_maestra": 1,
+    "repo": 2,
+    "fix": 1,
+    "crítico": 1,
+    "portabilidad": 1,
+    "generaban": 1,
+    "solo": 6,
+    "versión": 1,
+    "ahora": 4,
+    "producen": 2,
+    "actual": 1,
+    "document": 2,
+    "changelog": 2,
+    "nota": 1,
+    "migr": 2,
+    "existent": 1,
+    "roadmap_aaa": 1,
+    "marc": 1,
+    "comando": 1,
+    "novedad": 1,
+    "silencioso": 1,
+    "frecuent": 1,
+    "actualizar": 3,
+    "bootstrap": 3,
+    "son": 4,
+    "primero": 1,
+    "desincronizarse": 1,
+    "agregan": 1,
+    "porque": 3,
+    "valide": 1,
+    "coincide": 1,
+    "detect": 1,
+    "manual": 2,
+    "patrón": 3,
+    "vigilar": 2,
+    "vez": 2,
+    "modifique": 1,
+    "directa": 1,
+    "result": 4,
+    "contienen": 1,
+    "regex": 1,
+    "dato": 1,
+    "activan": 1,
+    "scanner": 1,
+    "scorer": 1,
+    "lista": 1,
+    "excluir": 1,
+    "debe": 2,
+    "actualizarse": 1,
+    "agregue": 2,
+    "checkskill": 1,
+    "buscaba": 1,
+    "disponibl": 1,
+    "existió": 1,
+    "hasta": 1,
+    "llevaba": 1,
+    "detectarse": 1,
+    "reporte": 1,
+    "bloquea": 1,
+    "n": 1,
+    "flujo": 1,
+    "bin": 1,
+    "anfitrión": 1,
+    "automático": 1,
+    "único": 1,
+    "corre": 1,
+    "npm": 2,
+    "run": 3,
+    "candidato": 1,
+    "automatizar": 3,
+    "futuro": 2,
+    "próximo": 1,
+    "gestor": 1,
+    "remoto": 1,
+    "arne": 1,
+    "expres": 1,
+    "fastify": 1,
+    "updater": 1,
+    "clona": 1,
+    "abre": 1,
+    "obsoleto": 1,
+    "dependency": 1,
+    "watcher": 1,
+    "cv": 1,
+    "deprec": 1,
+    "dashboard": 1,
+    "web": 1,
+    "cli": 1,
+    "npx": 1,
+    "init": 1,
+    "deploy": 1,
+    "railway": 1,
+    "app": 1,
+    "instalable": 1,
+    "base": 1,
+    "técnica": 1,
+    "driver": 1,
+    "worker": 1,
+    "paralelo": 1,
+    "jsonl": 1,
+    "considerar": 2,
+    "agregar": 4,
+    "detecte": 2,
+    "corra": 2,
+    "automática": 2,
+    "vacío": 2,
+    "inicio": 1,
+    "protocolo": 2,
+    "arranque": 1,
+    "consulta": 1,
+    "raw": 2,
+    "índice": 1,
+    "incluir": 1,
+    "est": 2,
+    "tenga": 2,
+    "ejecute": 2,
+    "compare": 2,
+    "existente": 1,
+    "detectar": 1,
+    "quedan": 3,
+    "desincroniz": 2,
+    "completa": 2,
+    "fable": 4,
+    "stemming": 1,
+    "mínimo": 1,
+    "español": 1,
+    "sufijo": 1,
+    "comun": 1,
+    "": 1,
+    "etc": 1,
+    "matchean": 1,
+    "boost": 1,
+    "campo": 1,
+    "frontmatter": 1,
+    "name": 1,
+    "description": 2,
+    "repiten": 1,
+    "vec": 1,
+    "vector": 1,
+    "bien": 1,
+    "titul": 1,
+    "suben": 1,
+    "ranking": 1,
+    "query": 2,
+    "expansion": 1,
+    "sinón": 1,
+    "dominio": 1,
+    "conver": 1,
+    "recall": 1,
+    "queri": 1,
+    "natural": 1,
+    "med": 1,
+    "pa": 1,
+    "engineer": 2,
+    "regla": 1,
+    "selección": 1,
+    "workflow": 2,
+    "orchestrator": 2,
+    "mapeo": 1,
+    "split": 1,
+    "arquitectura_tool": 1,
+    "specialist": 1,
+    "flash": 1,
+    "intermedio": 1,
+    "integration": 2,
+    "reemplaz": 1,
+    "prompt": 2,
+    "extended": 1,
+    "código": 3,
+    "autónomo": 1,
+    "comentario": 2,
+    "ejemplo": 2,
+    "standard": 1,
+    "guard": 1,
+    "catch": 1,
+    "log": 1,
+    "stderr": 1,
+    "mensaje": 1,
+    "error": 1,
+    "tier_fable": 1,
+    "cubre": 1,
+    "disenar_sistema": 1,
+    "refactorizar_arquitectura": 1,
+    "tier_opu": 1,
+    "auditar_seguridad_critica": 1,
+    "tarea": 1,
+    "computer": 2,
+    "use": 2,
+    "integr": 2,
+    "modelregistry": 2,
+    "tenía": 1,
+    "soporta": 1,
+    "formal": 1,
+    "stdin": 1,
+    "rpc": 1,
+    "invál": 1,
+    "ru": 1,
+    "normal": 1,
+    "compresión": 1,
+    "iterativa": 1,
+    "retorna": 1,
+    "acumul": 1,
+    "ronda": 1,
+    "falla": 1,
+    "return": 1,
+    "getversion": 1,
+    "degrad": 1,
+    "graceful": 1,
+    "intencional": 1,
+    "distinción": 1,
+    "clave": 1,
+    "razonamiento": 1,
+    "profundo": 1,
+    "mantenerse": 1,
+    "orden": 1,
+    "costo_por_modelo": 1,
+    "rol": 1,
+    "aplica": 1,
+    "afect": 1,
+    "decisión": 1,
+    "difer": 1,
+    "oficial": 1,
+    "modelcontextprotocol": 1,
+    "server": 1,
+    "fue": 1,
+    "razón": 1,
+    "grafo": 1,
+    "queda": 1,
+    "plano": 1,
+    "momento": 1,
+    "donde": 1,
+    "habrá": 1,
+    "entidad": 1,
+    "rel": 1,
+    "cruz": 1,
+    "auditoria": 1,
+    "muerto": 1,
+    "módulo": 1,
+    "contextindex": 1,
+    "styleprofiler": 1,
+    "responsevalidator": 1,
+    "consum": 1,
+    "elimina": 1,
+    "huérfano": 1,
+    "tra": 1,
+    "glama": 1,
+    "transport": 1,
+    "caso": 1,
+    "uso": 1,
+    "directo": 1,
+    "detectó": 1,
+    "está": 1,
+    "producción": 1,
+    "agregarlo": 1,
+    "funciona": 1,
+    "llm": 1,
+    "observability": 1,
+    "testing": 1,
+    "tienen": 1,
+    "anterior": 1,
+    "routing": 1,
+    "severidad": 1,
+    "próxima": 1
+  },
+  "inv": {
+    "104": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#4",
+        "tf": 1
+      }
+    ],
+    "110": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#4",
+        "tf": 1
+      }
+    ],
+    "206": [
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#5",
+        "tf": 1
+      }
+    ],
+    "342": [
+      {
+        "id": "session-2026-07-06-media-prioridad#7",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-media-prioridad#9",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-upgrade-aaa#5",
+        "tf": 1
+      }
+    ],
+    "351": [
+      {
+        "id": "session-2026-07-06-media-prioridad#7",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-media-prioridad#8",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-media-prioridad#9",
+        "tf": 1
+      }
+    ],
+    "592": [
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#5",
+        "tf": 1
+      }
+    ],
+    "778": [
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#5",
+        "tf": 1
+      }
+    ],
+    "2026": [
+      {
+        "id": "session-2026-07-06-media-prioridad#1",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-media-prioridad#6",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-media-prioridad#9",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-media-prioridad#11",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-media-prioridad#12",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-upgrade-aaa#1",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-upgrade-aaa#3",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#1",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#11",
+        "tf": 1
+      }
+    ],
+    "sesion": [
+      {
+        "id": "session-2026-07-06-media-prioridad#1",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-media-prioridad#12",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#3",
+        "tf": 2
+      }
+    ],
+    "item": [
+      {
+        "id": "session-2026-07-06-media-prioridad#1",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-media-prioridad#12",
+        "tf": 2
+      },
+      {
+        "id": "session-2026-07-06-media-prioridad#13",
+        "tf": 1
+      }
+    ],
+    "media": [
+      {
+        "id": "session-2026-07-06-media-prioridad#1",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-media-prioridad#12",
+        "tf": 3
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#12",
+        "tf": 1
+      }
+    ],
+    "prioridad": [
+      {
+        "id": "session-2026-07-06-media-prioridad#1",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-media-prioridad#11",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-media-prioridad#12",
+        "tf": 3
+      },
+      {
+        "id": "session-2026-07-06-media-prioridad#13",
+        "tf": 2
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#11",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#12",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#13",
+        "tf": 1
+      }
+    ],
+    "complet": [
+      {
+        "id": "session-2026-07-06-media-prioridad#1",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-media-prioridad#12",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-upgrade-aaa#7",
+        "tf": 1
+      }
+    ],
+    "test": [
+      {
+        "id": "session-2026-07-06-media-prioridad#3",
+        "tf": 5
+      },
+      {
+        "id": "session-2026-07-06-media-prioridad#7",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-media-prioridad#8",
+        "tf": 3
+      },
+      {
+        "id": "session-2026-07-06-media-prioridad#9",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-upgrade-aaa#3",
+        "tf": 5
+      },
+      {
+        "id": "session-2026-07-06-upgrade-aaa#5",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-upgrade-aaa#9",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-upgrade-aaa#17",
+        "tf": 3
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#12",
+        "tf": 3
+      }
+    ],
+    "coherencia": [
+      {
+        "id": "session-2026-07-06-media-prioridad#3",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-media-prioridad#7",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-media-prioridad#8",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-upgrade-aaa#5",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-upgrade-aaa#17",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#12",
+        "tf": 1
+      }
+    ],
+    "setup": [
+      {
+        "id": "session-2026-07-06-media-prioridad#3",
+        "tf": 3
+      },
+      {
+        "id": "session-2026-07-06-media-prioridad#7",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-media-prioridad#8",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-media-prioridad#11",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-upgrade-aaa#6",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-upgrade-aaa#9",
+        "tf": 2
+      },
+      {
+        "id": "session-2026-07-06-upgrade-aaa#17",
+        "tf": 2
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#11",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#12",
+        "tf": 2
+      }
+    ],
+    "setting": [
+      {
+        "id": "session-2026-07-06-media-prioridad#3",
+        "tf": 5
+      },
+      {
+        "id": "session-2026-07-06-media-prioridad#7",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-media-prioridad#8",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-upgrade-aaa#6",
+        "tf": 2
+      },
+      {
+        "id": "session-2026-07-06-upgrade-aaa#9",
+        "tf": 4
+      },
+      {
+        "id": "session-2026-07-06-upgrade-aaa#17",
+        "tf": 4
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#12",
+        "tf": 4
+      }
+    ],
+    "json": [
+      {
+        "id": "session-2026-07-06-media-prioridad#3",
+        "tf": 2
+      },
+      {
+        "id": "session-2026-07-06-media-prioridad#4",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-media-prioridad#9",
+        "tf": 2
+      },
+      {
+        "id": "session-2026-07-06-upgrade-aaa#6",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-upgrade-aaa#9",
+        "tf": 2
+      },
+      {
+        "id": "session-2026-07-06-upgrade-aaa#17",
+        "tf": 2
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#5",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#12",
+        "tf": 3
+      }
+    ],
+    "harnes": [
+      {
+        "id": "session-2026-07-06-media-prioridad#3",
+        "tf": 2
+      },
+      {
+        "id": "session-2026-07-06-media-prioridad#4",
+        "tf": 2
+      },
+      {
+        "id": "session-2026-07-06-media-prioridad#8",
+        "tf": 2
+      },
+      {
+        "id": "session-2026-07-06-upgrade-aaa#6",
+        "tf": 2
+      },
+      {
+        "id": "session-2026-07-06-upgrade-aaa#9",
+        "tf": 3
+      },
+      {
+        "id": "session-2026-07-06-upgrade-aaa#12",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-upgrade-aaa#14",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-upgrade-aaa#15",
+        "tf": 2
+      },
+      {
+        "id": "session-2026-07-06-upgrade-aaa#16",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-upgrade-aaa#17",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#3",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#12",
+        "tf": 3
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#13",
+        "tf": 1
+      }
+    ],
+    "agreg": [
+      {
+        "id": "session-2026-07-06-media-prioridad#3",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-media-prioridad#4",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#4",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#5",
+        "tf": 1
+      }
+    ],
+    "output": [
+      {
+        "id": "session-2026-07-06-media-prioridad#3",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-media-prioridad#6",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-upgrade-aaa#9",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-upgrade-aaa#17",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#12",
+        "tf": 1
+      }
+    ],
+    "coherente": [
+      {
+        "id": "session-2026-07-06-media-prioridad#3",
+        "tf": 1
+      }
+    ],
+    "disco": [
+      {
+        "id": "session-2026-07-06-media-prioridad#3",
+        "tf": 1
+      }
+    ],
+    "bloque": [
+      {
+        "id": "session-2026-07-06-media-prioridad#3",
+        "tf": 1
+      }
+    ],
+    "verifica": [
+      {
+        "id": "session-2026-07-06-media-prioridad#3",
+        "tf": 1
+      }
+    ],
+    "todo": [
+      {
+        "id": "session-2026-07-06-media-prioridad#3",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-media-prioridad#12",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-media-prioridad#13",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-upgrade-aaa#5",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-upgrade-aaa#7",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#7",
+        "tf": 1
+      }
+    ],
+    "hook": [
+      {
+        "id": "session-2026-07-06-media-prioridad#3",
+        "tf": 2
+      },
+      {
+        "id": "session-2026-07-06-media-prioridad#4",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-upgrade-aaa#3",
+        "tf": 2
+      },
+      {
+        "id": "session-2026-07-06-upgrade-aaa#6",
+        "tf": 2
+      },
+      {
+        "id": "session-2026-07-06-upgrade-aaa#9",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-upgrade-aaa#15",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#12",
+        "tf": 2
+      }
+    ],
+    "key": [
+      {
+        "id": "session-2026-07-06-media-prioridad#3",
+        "tf": 1
+      }
+    ],
+    "present": [
+      {
+        "id": "session-2026-07-06-media-prioridad#3",
+        "tf": 2
+      }
+    ],
+    "pretooluse": [
+      {
+        "id": "session-2026-07-06-media-prioridad#3",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-upgrade-aaa#3",
+        "tf": 1
+      }
+    ],
+    "posttooluse": [
+      {
+        "id": "session-2026-07-06-media-prioridad#3",
+        "tf": 1
+      }
+    ],
+    "stop": [
+      {
+        "id": "session-2026-07-06-media-prioridad#3",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-upgrade-aaa#3",
+        "tf": 1
+      }
+    ],
+    "subagentstop": [
+      {
+        "id": "session-2026-07-06-media-prioridad#3",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-upgrade-aaa#3",
+        "tf": 1
+      }
+    ],
+    "posttoolusefailure": [
+      {
+        "id": "session-2026-07-06-media-prioridad#3",
+        "tf": 1
+      }
+    ],
+    "userpromptsubmit": [
+      {
+        "id": "session-2026-07-06-media-prioridad#3",
+        "tf": 1
+      }
+    ],
+    "numero": [
+      {
+        "id": "session-2026-07-06-media-prioridad#3",
+        "tf": 1
+      }
+    ],
+    "grupo": [
+      {
+        "id": "session-2026-07-06-media-prioridad#3",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#3",
+        "tf": 1
+      }
+    ],
+    "consistente": [
+      {
+        "id": "session-2026-07-06-media-prioridad#3",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#7",
+        "tf": 1
+      }
+    ],
+    "entre": [
+      {
+        "id": "session-2026-07-06-media-prioridad#3",
+        "tf": 1
+      }
+    ],
+    "ejecucion": [
+      {
+        "id": "session-2026-07-06-media-prioridad#3",
+        "tf": 1
+      }
+    ],
+    "mcpserver": [
+      {
+        "id": "session-2026-07-06-media-prioridad#3",
+        "tf": 1
+      }
+    ],
+    "gemini": [
+      {
+        "id": "session-2026-07-06-media-prioridad#3",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#4",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#5",
+        "tf": 1
+      }
+    ],
+    "bridge": [
+      {
+        "id": "session-2026-07-06-media-prioridad#3",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#9",
+        "tf": 3
+      }
+    ],
+    "anthropic": [
+      {
+        "id": "session-2026-07-06-media-prioridad#3",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-upgrade-aaa#4",
+        "tf": 2
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#5",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#9",
+        "tf": 1
+      }
+    ],
+    "router": [
+      {
+        "id": "session-2026-07-06-media-prioridad#3",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#5",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#7",
+        "tf": 1
+      }
+    ],
+    "post": [
+      {
+        "id": "session-2026-07-06-media-prioridad#4",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-upgrade-aaa#1",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-upgrade-aaa#4",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-upgrade-aaa#15",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#12",
+        "tf": 1
+      }
+    ],
+    "update": [
+      {
+        "id": "session-2026-07-06-media-prioridad#4",
+        "tf": 3
+      },
+      {
+        "id": "session-2026-07-06-media-prioridad#8",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-media-prioridad#9",
+        "tf": 2
+      },
+      {
+        "id": "session-2026-07-06-upgrade-aaa#5",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-upgrade-aaa#12",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-upgrade-aaa#14",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-upgrade-aaa#15",
+        "tf": 2
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#12",
+        "tf": 2
+      }
+    ],
+    "norm": [
+      {
+        "id": "session-2026-07-06-media-prioridad#4",
+        "tf": 2
+      },
+      {
+        "id": "session-2026-07-06-media-prioridad#8",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-upgrade-aaa#6",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-upgrade-aaa#9",
+        "tf": 2
+      },
+      {
+        "id": "session-2026-07-06-upgrade-aaa#12",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-upgrade-aaa#15",
+        "tf": 2
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#12",
+        "tf": 2
+      }
+    ],
+    "proyecto": [
+      {
+        "id": "session-2026-07-06-media-prioridad#4",
+        "tf": 2
+      },
+      {
+        "id": "session-2026-07-06-media-prioridad#11",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-upgrade-aaa#7",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-upgrade-aaa#12",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-upgrade-aaa#14",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-upgrade-aaa#15",
+        "tf": 2
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#8",
+        "tf": 2
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#11",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#12",
+        "tf": 2
+      }
+    ],
+    "anfitrion": [
+      {
+        "id": "session-2026-07-06-media-prioridad#4",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-upgrade-aaa#15",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#12",
+        "tf": 1
+      }
+    ],
+    "paso": [
+      {
+        "id": "session-2026-07-06-media-prioridad#4",
+        "tf": 2
+      },
+      {
+        "id": "session-2026-07-06-media-prioridad#8",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-upgrade-aaa#12",
+        "tf": 2
+      }
+    ],
+    "condicional": [
+      {
+        "id": "session-2026-07-06-media-prioridad#4",
+        "tf": 1
+      }
+    ],
+    "final": [
+      {
+        "id": "session-2026-07-06-media-prioridad#4",
+        "tf": 1
+      }
+    ],
+    "script": [
+      {
+        "id": "session-2026-07-06-media-prioridad#4",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-media-prioridad#6",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-media-prioridad#8",
+        "tf": 2
+      },
+      {
+        "id": "session-2026-07-06-upgrade-aaa#9",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-upgrade-aaa#10",
+        "tf": 2
+      }
+    ],
+    "detecta": [
+      {
+        "id": "session-2026-07-06-media-prioridad#4",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-media-prioridad#9",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-upgrade-aaa#14",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#12",
+        "tf": 1
+      }
+    ],
+    "core": [
+      {
+        "id": "session-2026-07-06-media-prioridad#4",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-upgrade-aaa#12",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#3",
+        "tf": 1
+      }
+    ],
+    "ejecuta": [
+      {
+        "id": "session-2026-07-06-media-prioridad#4",
+        "tf": 2
+      },
+      {
+        "id": "session-2026-07-06-upgrade-aaa#15",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#12",
+        "tf": 1
+      }
+    ],
+    "submodulo": [
+      {
+        "id": "session-2026-07-06-media-prioridad#4",
+        "tf": 2
+      },
+      {
+        "id": "session-2026-07-06-media-prioridad#9",
+        "tf": 2
+      },
+      {
+        "id": "session-2026-07-06-upgrade-aaa#12",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-upgrade-aaa#15",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#12",
+        "tf": 1
+      }
+    ],
+    "verific": [
+      {
+        "id": "session-2026-07-06-media-prioridad#4",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-media-prioridad#6",
+        "tf": 1
+      }
+    ],
+    "existe": [
+      {
+        "id": "session-2026-07-06-media-prioridad#4",
+        "tf": 2
+      },
+      {
+        "id": "session-2026-07-06-media-prioridad#9",
+        "tf": 2
+      },
+      {
+        "id": "session-2026-07-06-upgrade-aaa#16",
+        "tf": 1
+      }
+    ],
+    "claude": [
+      {
+        "id": "session-2026-07-06-media-prioridad#4",
+        "tf": 2
+      },
+      {
+        "id": "session-2026-07-06-media-prioridad#5",
+        "tf": 3
+      },
+      {
+        "id": "session-2026-07-06-media-prioridad#6",
+        "tf": 4
+      },
+      {
+        "id": "session-2026-07-06-media-prioridad#8",
+        "tf": 4
+      },
+      {
+        "id": "session-2026-07-06-media-prioridad#9",
+        "tf": 3
+      },
+      {
+        "id": "session-2026-07-06-upgrade-aaa#3",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-upgrade-aaa#4",
+        "tf": 3
+      },
+      {
+        "id": "session-2026-07-06-upgrade-aaa#5",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-upgrade-aaa#12",
+        "tf": 2
+      },
+      {
+        "id": "session-2026-07-06-upgrade-aaa#14",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#4",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#5",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#7",
+        "tf": 2
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#12",
+        "tf": 2
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#13",
+        "tf": 1
+      }
+    ],
+    "padre": [
+      {
+        "id": "session-2026-07-06-media-prioridad#4",
+        "tf": 3
+      },
+      {
+        "id": "session-2026-07-06-upgrade-aaa#15",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#12",
+        "tf": 1
+      }
+    ],
+    "tiene": [
+      {
+        "id": "session-2026-07-06-media-prioridad#4",
+        "tf": 1
+      }
+    ],
+    "propio": [
+      {
+        "id": "session-2026-07-06-media-prioridad#4",
+        "tf": 1
+      }
+    ],
+    "package": [
+      {
+        "id": "session-2026-07-06-media-prioridad#4",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-media-prioridad#9",
+        "tf": 1
+      }
+    ],
+    "otro": [
+      {
+        "id": "session-2026-07-06-media-prioridad#4",
+        "tf": 1
+      }
+    ],
+    "modulo": [
+      {
+        "id": "session-2026-07-06-media-prioridad#4",
+        "tf": 1
+      }
+    ],
+    "node": [
+      {
+        "id": "session-2026-07-06-media-prioridad#4",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-upgrade-aaa#5",
+        "tf": 3
+      },
+      {
+        "id": "session-2026-07-06-upgrade-aaa#12",
+        "tf": 1
+      }
+    ],
+    "confirma": [
+      {
+        "id": "session-2026-07-06-media-prioridad#4",
+        "tf": 1
+      }
+    ],
+    "cwd": [
+      {
+        "id": "session-2026-07-06-media-prioridad#4",
+        "tf": 1
+      }
+    ],
+    "standalone": [
+      {
+        "id": "session-2026-07-06-media-prioridad#4",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-media-prioridad#9",
+        "tf": 1
+      }
+    ],
+    "informa": [
+      {
+        "id": "session-2026-07-06-media-prioridad#4",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-upgrade-aaa#11",
+        "tf": 1
+      }
+    ],
+    "omite": [
+      {
+        "id": "session-2026-07-06-media-prioridad#4",
+        "tf": 1
+      }
+    ],
+    "skill": [
+      {
+        "id": "session-2026-07-06-media-prioridad#5",
+        "tf": 3
+      },
+      {
+        "id": "session-2026-07-06-media-prioridad#7",
+        "tf": 2
+      },
+      {
+        "id": "session-2026-07-06-media-prioridad#8",
+        "tf": 4
+      },
+      {
+        "id": "session-2026-07-06-media-prioridad#9",
+        "tf": 3
+      },
+      {
+        "id": "session-2026-07-06-upgrade-aaa#3",
+        "tf": 3
+      },
+      {
+        "id": "session-2026-07-06-upgrade-aaa#4",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-upgrade-aaa#5",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-upgrade-aaa#11",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-upgrade-aaa#14",
+        "tf": 2
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#4",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#7",
+        "tf": 2
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#12",
+        "tf": 2
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#13",
+        "tf": 1
+      }
+    ],
+    "mcp": [
+      {
+        "id": "session-2026-07-06-media-prioridad#5",
+        "tf": 4
+      },
+      {
+        "id": "session-2026-07-06-media-prioridad#8",
+        "tf": 3
+      },
+      {
+        "id": "session-2026-07-06-media-prioridad#11",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-upgrade-aaa#4",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#5",
+        "tf": 2
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#8",
+        "tf": 2
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#11",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#12",
+        "tf": 3
+      }
+    ],
+    "registry": [
+      {
+        "id": "session-2026-07-06-media-prioridad#5",
+        "tf": 3
+      },
+      {
+        "id": "session-2026-07-06-media-prioridad#8",
+        "tf": 3
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#12",
+        "tf": 1
+      }
+    ],
+    "navigator": [
+      {
+        "id": "session-2026-07-06-media-prioridad#5",
+        "tf": 3
+      },
+      {
+        "id": "session-2026-07-06-media-prioridad#8",
+        "tf": 3
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#12",
+        "tf": 1
+      }
+    ],
+    "nuevo": [
+      {
+        "id": "session-2026-07-06-media-prioridad#5",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-media-prioridad#7",
+        "tf": 2
+      },
+      {
+        "id": "session-2026-07-06-media-prioridad#8",
+        "tf": 2
+      },
+      {
+        "id": "session-2026-07-06-media-prioridad#9",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-upgrade-aaa#3",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-upgrade-aaa#9",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#5",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#7",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#12",
+        "tf": 2
+      }
+    ],
+    "cre": [
+      {
+        "id": "session-2026-07-06-media-prioridad#5",
+        "tf": 2
+      }
+    ],
+    "evaluador": [
+      {
+        "id": "session-2026-07-06-media-prioridad#5",
+        "tf": 1
+      }
+    ],
+    "tercero": [
+      {
+        "id": "session-2026-07-06-media-prioridad#5",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#12",
+        "tf": 1
+      }
+    ],
+    "agent": [
+      {
+        "id": "session-2026-07-06-media-prioridad#5",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-media-prioridad#8",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-upgrade-aaa#3",
+        "tf": 3
+      },
+      {
+        "id": "session-2026-07-06-upgrade-aaa#14",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#3",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#13",
+        "tf": 1
+      }
+    ],
+    "agente": [
+      {
+        "id": "session-2026-07-06-media-prioridad#5",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-media-prioridad#8",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#3",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#5",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#12",
+        "tf": 1
+      }
+    ],
+    "autonomo": [
+      {
+        "id": "session-2026-07-06-media-prioridad#5",
+        "tf": 1
+      }
+    ],
+    "evalu": [
+      {
+        "id": "session-2026-07-06-media-prioridad#5",
+        "tf": 2
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#8",
+        "tf": 1
+      }
+    ],
+    "criterio": [
+      {
+        "id": "session-2026-07-06-media-prioridad#5",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-upgrade-aaa#3",
+        "tf": 1
+      }
+    ],
+    "puntu": [
+      {
+        "id": "session-2026-07-06-media-prioridad#5",
+        "tf": 1
+      }
+    ],
+    "transporte": [
+      {
+        "id": "session-2026-07-06-media-prioridad#5",
+        "tf": 1
+      }
+    ],
+    "stdio": [
+      {
+        "id": "session-2026-07-06-media-prioridad#5",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#12",
+        "tf": 1
+      }
+    ],
+    "sse": [
+      {
+        "id": "session-2026-07-06-media-prioridad#5",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#12",
+        "tf": 1
+      }
+    ],
+    "http": [
+      {
+        "id": "session-2026-07-06-media-prioridad#5",
+        "tf": 1
+      }
+    ],
+    "seguridad": [
+      {
+        "id": "session-2026-07-06-media-prioridad#5",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-upgrade-aaa#10",
+        "tf": 1
+      }
+    ],
+    "input": [
+      {
+        "id": "session-2026-07-06-media-prioridad#5",
+        "tf": 1
+      }
+    ],
+    "eval": [
+      {
+        "id": "session-2026-07-06-media-prioridad#5",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#13",
+        "tf": 1
+      }
+    ],
+    "exec": [
+      {
+        "id": "session-2026-07-06-media-prioridad#5",
+        "tf": 1
+      }
+    ],
+    "shell": [
+      {
+        "id": "session-2026-07-06-media-prioridad#5",
+        "tf": 1
+      }
+    ],
+    "sin": [
+      {
+        "id": "session-2026-07-06-media-prioridad#5",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-media-prioridad#9",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-upgrade-aaa#11",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#3",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#7",
+        "tf": 1
+      }
+    ],
+    "sanitizar": [
+      {
+        "id": "session-2026-07-06-media-prioridad#5",
+        "tf": 1
+      }
+    ],
+    "mantenimiento": [
+      {
+        "id": "session-2026-07-06-media-prioridad#5",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#13",
+        "tf": 1
+      }
+    ],
+    "repositorio": [
+      {
+        "id": "session-2026-07-06-media-prioridad#5",
+        "tf": 1
+      }
+    ],
+    "ultimo": [
+      {
+        "id": "session-2026-07-06-media-prioridad#5",
+        "tf": 1
+      }
+    ],
+    "commit": [
+      {
+        "id": "session-2026-07-06-media-prioridad#5",
+        "tf": 1
+      }
+    ],
+    "issu": [
+      {
+        "id": "session-2026-07-06-media-prioridad#5",
+        "tf": 1
+      }
+    ],
+    "licencia": [
+      {
+        "id": "session-2026-07-06-media-prioridad#5",
+        "tf": 1
+      }
+    ],
+    "calidad": [
+      {
+        "id": "session-2026-07-06-media-prioridad#5",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-media-prioridad#9",
+        "tf": 1
+      }
+    ],
+    "schema": [
+      {
+        "id": "session-2026-07-06-media-prioridad#5",
+        "tf": 1
+      }
+    ],
+    "herramienta": [
+      {
+        "id": "session-2026-07-06-media-prioridad#5",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-upgrade-aaa#3",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#7",
+        "tf": 1
+      }
+    ],
+    "inputschema": [
+      {
+        "id": "session-2026-07-06-media-prioridad#5",
+        "tf": 1
+      }
+    ],
+    "completo": [
+      {
+        "id": "session-2026-07-06-media-prioridad#5",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-upgrade-aaa#6",
+        "tf": 1
+      }
+    ],
+    "riesgo": [
+      {
+        "id": "session-2026-07-06-media-prioridad#5",
+        "tf": 1
+      }
+    ],
+    "operativo": [
+      {
+        "id": "session-2026-07-06-media-prioridad#5",
+        "tf": 1
+      }
+    ],
+    "dependencia": [
+      {
+        "id": "session-2026-07-06-media-prioridad#5",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#9",
+        "tf": 1
+      }
+    ],
+    "filesystem": [
+      {
+        "id": "session-2026-07-06-media-prioridad#5",
+        "tf": 1
+      }
+    ],
+    "api": [
+      {
+        "id": "session-2026-07-06-media-prioridad#5",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-media-prioridad#6",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-upgrade-aaa#14",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#4",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#7",
+        "tf": 1
+      }
+    ],
+    "externa": [
+      {
+        "id": "session-2026-07-06-media-prioridad#5",
+        "tf": 1
+      }
+    ],
+    "decision": [
+      {
+        "id": "session-2026-07-06-media-prioridad#5",
+        "tf": 1
+      }
+    ],
+    "instalar": [
+      {
+        "id": "session-2026-07-06-media-prioridad#5",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-media-prioridad#11",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#11",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#12",
+        "tf": 1
+      }
+    ],
+    "evaluar": [
+      {
+        "id": "session-2026-07-06-media-prioridad#5",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#12",
+        "tf": 2
+      }
+    ],
+    "rechazar": [
+      {
+        "id": "session-2026-07-06-media-prioridad#5",
+        "tf": 1
+      }
+    ],
+    "registro": [
+      {
+        "id": "session-2026-07-06-media-prioridad#5",
+        "tf": 1
+      }
+    ],
+    "persistente": [
+      {
+        "id": "session-2026-07-06-media-prioridad#5",
+        "tf": 1
+      }
+    ],
+    "mcp_registry": [
+      {
+        "id": "session-2026-07-06-media-prioridad#5",
+        "tf": 1
+      }
+    ],
+    "sonnet": [
+      {
+        "id": "session-2026-07-06-media-prioridad#6",
+        "tf": 6
+      },
+      {
+        "id": "session-2026-07-06-media-prioridad#8",
+        "tf": 2
+      },
+      {
+        "id": "session-2026-07-06-media-prioridad#9",
+        "tf": 3
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#12",
+        "tf": 2
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#13",
+        "tf": 1
+      }
+    ],
+    "modelrouter": [
+      {
+        "id": "session-2026-07-06-media-prioridad#6",
+        "tf": 2
+      },
+      {
+        "id": "session-2026-07-06-media-prioridad#8",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-media-prioridad#9",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-upgrade-aaa#4",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#5",
+        "tf": 2
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#7",
+        "tf": 2
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#12",
+        "tf": 1
+      }
+    ],
+    "via": [
+      {
+        "id": "session-2026-07-06-media-prioridad#6",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-media-prioridad#9",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-upgrade-aaa#14",
+        "tf": 1
+      }
+    ],
+    "live": [
+      {
+        "id": "session-2026-07-06-media-prioridad#6",
+        "tf": 1
+      }
+    ],
+    "desde": [
+      {
+        "id": "session-2026-07-06-media-prioridad#6",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-media-prioridad#9",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-upgrade-aaa#11",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-upgrade-aaa#15",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#12",
+        "tf": 1
+      }
+    ],
+    "capacidad": [
+      {
+        "id": "session-2026-07-06-media-prioridad#6",
+        "tf": 1
+      }
+    ],
+    "max_input_token": [
+      {
+        "id": "session-2026-07-06-media-prioridad#6",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-media-prioridad#9",
+        "tf": 1
+      }
+    ],
+    "max_token": [
+      {
+        "id": "session-2026-07-06-media-prioridad#6",
+        "tf": 1
+      }
+    ],
+    "128k": [
+      {
+        "id": "session-2026-07-06-media-prioridad#6",
+        "tf": 1
+      }
+    ],
+    "thinking": [
+      {
+        "id": "session-2026-07-06-media-prioridad#6",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-media-prioridad#9",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#4",
+        "tf": 2
+      }
+    ],
+    "adaptativo": [
+      {
+        "id": "session-2026-07-06-media-prioridad#6",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-media-prioridad#9",
+        "tf": 1
+      }
+    ],
+    "code": [
+      {
+        "id": "session-2026-07-06-media-prioridad#6",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-media-prioridad#9",
+        "tf": 1
+      }
+    ],
+    "execution": [
+      {
+        "id": "session-2026-07-06-media-prioridad#6",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-media-prioridad#9",
+        "tf": 1
+      }
+    ],
+    "structured": [
+      {
+        "id": "session-2026-07-06-media-prioridad#6",
+        "tf": 1
+      }
+    ],
+    "pricing": [
+      {
+        "id": "session-2026-07-06-media-prioridad#6",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-media-prioridad#9",
+        "tf": 1
+      }
+    ],
+    "mismo": [
+      {
+        "id": "session-2026-07-06-media-prioridad#6",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-media-prioridad#9",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-upgrade-aaa#9",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#3",
+        "tf": 1
+      }
+    ],
+    "tier": [
+      {
+        "id": "session-2026-07-06-media-prioridad#6",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-media-prioridad#9",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#4",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#5",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#7",
+        "tf": 1
+      }
+    ],
+    "mtok": [
+      {
+        "id": "session-2026-07-06-media-prioridad#6",
+        "tf": 1
+      }
+    ],
+    "actualiz": [
+      {
+        "id": "session-2026-07-06-media-prioridad#6",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-media-prioridad#7",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-media-prioridad#8",
+        "tf": 2
+      },
+      {
+        "id": "session-2026-07-06-upgrade-aaa#5",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-upgrade-aaa#7",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#4",
+        "tf": 3
+      }
+    ],
+    "servic": [
+      {
+        "id": "session-2026-07-06-media-prioridad#6",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-media-prioridad#8",
+        "tf": 1
+      }
+    ],
+    "modelo": [
+      {
+        "id": "session-2026-07-06-media-prioridad#6",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#4",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#7",
+        "tf": 3
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#12",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#13",
+        "tf": 1
+      }
+    ],
+    "reemplaza": [
+      {
+        "id": "session-2026-07-06-media-prioridad#6",
+        "tf": 1
+      }
+    ],
+    "conteo": [
+      {
+        "id": "session-2026-07-06-media-prioridad#7",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-media-prioridad#8",
+        "tf": 3
+      },
+      {
+        "id": "session-2026-07-06-media-prioridad#9",
+        "tf": 1
+      }
+    ],
+    "conformidad": [
+      {
+        "id": "session-2026-07-06-media-prioridad#7",
+        "tf": 1
+      }
+    ],
+    "archivo": [
+      {
+        "id": "session-2026-07-06-media-prioridad#8",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-media-prioridad#9",
+        "tf": 3
+      },
+      {
+        "id": "session-2026-07-06-upgrade-aaa#5",
+        "tf": 1
+      }
+    ],
+    "modific": [
+      {
+        "id": "session-2026-07-06-media-prioridad#8",
+        "tf": 1
+      }
+    ],
+    "entr": [
+      {
+        "id": "session-2026-07-06-media-prioridad#8",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-upgrade-aaa#7",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-upgrade-aaa#16",
+        "tf": 2
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#3",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#13",
+        "tf": 2
+      }
+    ],
+    "tabla": [
+      {
+        "id": "session-2026-07-06-media-prioridad#8",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-upgrade-aaa#4",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-upgrade-aaa#11",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#4",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#5",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#7",
+        "tf": 2
+      }
+    ],
+    "readme": [
+      {
+        "id": "session-2026-07-06-media-prioridad#8",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-upgrade-aaa#5",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-upgrade-aaa#7",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#5",
+        "tf": 2
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#7",
+        "tf": 1
+      }
+    ],
+    "aprendizaj": [
+      {
+        "id": "session-2026-07-06-media-prioridad#9",
+        "tf": 1
+      }
+    ],
+    "verificar": [
+      {
+        "id": "session-2026-07-06-media-prioridad#9",
+        "tf": 3
+      },
+      {
+        "id": "session-2026-07-06-upgrade-aaa#9",
+        "tf": 1
+      }
+    ],
+    "contexto": [
+      {
+        "id": "session-2026-07-06-media-prioridad#9",
+        "tf": 2
+      },
+      {
+        "id": "session-2026-07-06-upgrade-aaa#3",
+        "tf": 1
+      }
+    ],
+    "ant": [
+      {
+        "id": "session-2026-07-06-media-prioridad#9",
+        "tf": 3
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#3",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#12",
+        "tf": 2
+      }
+    ],
+    "corregir": [
+      {
+        "id": "session-2026-07-06-media-prioridad#9",
+        "tf": 1
+      }
+    ],
+    "vault": [
+      {
+        "id": "session-2026-07-06-media-prioridad#9",
+        "tf": 2
+      },
+      {
+        "id": "session-2026-07-06-upgrade-aaa#3",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-upgrade-aaa#16",
+        "tf": 3
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#13",
+        "tf": 1
+      }
+    ],
+    "marcaba": [
+      {
+        "id": "session-2026-07-06-media-prioridad#9",
+        "tf": 1
+      }
+    ],
+    "referencia": [
+      {
+        "id": "session-2026-07-06-media-prioridad#9",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#13",
+        "tf": 1
+      }
+    ],
+    "pendiente": [
+      {
+        "id": "session-2026-07-06-media-prioridad#9",
+        "tf": 2
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#11",
+        "tf": 1
+      }
+    ],
+    "corrección": [
+      {
+        "id": "session-2026-07-06-media-prioridad#9",
+        "tf": 1
+      }
+    ],
+    "leerlo": [
+      {
+        "id": "session-2026-07-06-media-prioridad#9",
+        "tf": 1
+      }
+    ],
+    "real": [
+      {
+        "id": "session-2026-07-06-media-prioridad#9",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-upgrade-aaa#4",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-upgrade-aaa#9",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#5",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#12",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#13",
+        "tf": 1
+      }
+    ],
+    "toda": [
+      {
+        "id": "session-2026-07-06-media-prioridad#9",
+        "tf": 1
+      }
+    ],
+    "eran": [
+      {
+        "id": "session-2026-07-06-media-prioridad#9",
+        "tf": 1
+      }
+    ],
+    "correcta": [
+      {
+        "id": "session-2026-07-06-media-prioridad#9",
+        "tf": 1
+      }
+    ],
+    "produccion": [
+      {
+        "id": "session-2026-07-06-media-prioridad#9",
+        "tf": 1
+      }
+    ],
+    "general": [
+      {
+        "id": "session-2026-07-06-media-prioridad#9",
+        "tf": 1
+      }
+    ],
+    "hallazgo": [
+      {
+        "id": "session-2026-07-06-media-prioridad#9",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#5",
+        "tf": 2
+      }
+    ],
+    "era": [
+      {
+        "id": "session-2026-07-06-media-prioridad#9",
+        "tf": 1
+      }
+    ],
+    "falso": [
+      {
+        "id": "session-2026-07-06-media-prioridad#9",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-upgrade-aaa#10",
+        "tf": 1
+      }
+    ],
+    "positivo": [
+      {
+        "id": "session-2026-07-06-media-prioridad#9",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-upgrade-aaa#10",
+        "tf": 1
+      }
+    ],
+    "registr": [
+      {
+        "id": "session-2026-07-06-media-prioridad#9",
+        "tf": 2
+      }
+    ],
+    "lección": [
+      {
+        "id": "session-2026-07-06-media-prioridad#9",
+        "tf": 1
+      }
+    ],
+    "siempre": [
+      {
+        "id": "session-2026-07-06-media-prioridad#9",
+        "tf": 2
+      },
+      {
+        "id": "session-2026-07-06-upgrade-aaa#16",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#13",
+        "tf": 1
+      }
+    ],
+    "leer": [
+      {
+        "id": "session-2026-07-06-media-prioridad#9",
+        "tf": 1
+      }
+    ],
+    "actuar": [
+      {
+        "id": "session-2026-07-06-media-prioridad#9",
+        "tf": 1
+      }
+    ],
+    "sobre": [
+      {
+        "id": "session-2026-07-06-media-prioridad#9",
+        "tf": 1
+      }
+    ],
+    "memoria": [
+      {
+        "id": "session-2026-07-06-media-prioridad#9",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-upgrade-aaa#16",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#3",
+        "tf": 1
+      }
+    ],
+    "confirm": [
+      {
+        "id": "session-2026-07-06-media-prioridad#9",
+        "tf": 1
+      }
+    ],
+    "client": [
+      {
+        "id": "session-2026-07-06-media-prioridad#9",
+        "tf": 1
+      }
+    ],
+    "model": [
+      {
+        "id": "session-2026-07-06-media-prioridad#9",
+        "tf": 2
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#5",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#7",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#12",
+        "tf": 1
+      }
+    ],
+    "list": [
+      {
+        "id": "session-2026-07-06-media-prioridad#9",
+        "tf": 1
+      }
+    ],
+    "vivo": [
+      {
+        "id": "session-2026-07-06-media-prioridad#9",
+        "tf": 1
+      }
+    ],
+    "cache": [
+      {
+        "id": "session-2026-07-06-media-prioridad#9",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#12",
+        "tf": 1
+      }
+    ],
+    "tenia": [
+      {
+        "id": "session-2026-07-06-media-prioridad#9",
+        "tf": 1
+      }
+    ],
+    "habia": [
+      {
+        "id": "session-2026-07-06-media-prioridad#9",
+        "tf": 1
+      }
+    ],
+    "incorpor": [
+      {
+        "id": "session-2026-07-06-media-prioridad#9",
+        "tf": 1
+      }
+    ],
+    "detección": [
+      {
+        "id": "session-2026-07-06-media-prioridad#9",
+        "tf": 1
+      }
+    ],
+    "patron": [
+      {
+        "id": "session-2026-07-06-media-prioridad#9",
+        "tf": 2
+      },
+      {
+        "id": "session-2026-07-06-upgrade-aaa#10",
+        "tf": 1
+      }
+    ],
+    "suficiente": [
+      {
+        "id": "session-2026-07-06-media-prioridad#9",
+        "tf": 1
+      }
+    ],
+    "robusto": [
+      {
+        "id": "session-2026-07-06-media-prioridad#9",
+        "tf": 1
+      }
+    ],
+    "distinguir": [
+      {
+        "id": "session-2026-07-06-media-prioridad#9",
+        "tf": 1
+      }
+    ],
+    "depender": [
+      {
+        "id": "session-2026-07-06-media-prioridad#9",
+        "tf": 1
+      }
+    ],
+    "git": [
+      {
+        "id": "session-2026-07-06-media-prioridad#9",
+        "tf": 1
+      }
+    ],
+    "modul": [
+      {
+        "id": "session-2026-07-06-media-prioridad#9",
+        "tf": 1
+      }
+    ],
+    "requieren": [
+      {
+        "id": "session-2026-07-06-media-prioridad#9",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#5",
+        "tf": 1
+      }
+    ],
+    "seccion": [
+      {
+        "id": "session-2026-07-06-media-prioridad#9",
+        "tf": 1
+      }
+    ],
+    "obligatoria": [
+      {
+        "id": "session-2026-07-06-media-prioridad#9",
+        "tf": 1
+      }
+    ],
+    "restriccion": [
+      {
+        "id": "session-2026-07-06-media-prioridad#9",
+        "tf": 1
+      }
+    ],
+    "perfil": [
+      {
+        "id": "session-2026-07-06-media-prioridad#9",
+        "tf": 1
+      }
+    ],
+    "directiva": [
+      {
+        "id": "session-2026-07-06-media-prioridad#9",
+        "tf": 1
+      }
+    ],
+    "interrupcion": [
+      {
+        "id": "session-2026-07-06-media-prioridad#9",
+        "tf": 1
+      }
+    ],
+    "primera": [
+      {
+        "id": "session-2026-07-06-media-prioridad#9",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-upgrade-aaa#16",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#13",
+        "tf": 1
+      }
+    ],
+    "accion": [
+      {
+        "id": "session-2026-07-06-media-prioridad#9",
+        "tf": 1
+      }
+    ],
+    "activar": [
+      {
+        "id": "session-2026-07-06-media-prioridad#9",
+        "tf": 1
+      }
+    ],
+    "marcador": [
+      {
+        "id": "session-2026-07-06-media-prioridad#9",
+        "tf": 1
+      }
+    ],
+    "alerta_arquitectonica": [
+      {
+        "id": "session-2026-07-06-media-prioridad#9",
+        "tf": 1
+      }
+    ],
+    "requiere_opusplan": [
+      {
+        "id": "session-2026-07-06-media-prioridad#9",
+        "tf": 1
+      }
+    ],
+    "suite": [
+      {
+        "id": "session-2026-07-06-media-prioridad#9",
+        "tf": 1
+      }
+    ],
+    "inmediata": [
+      {
+        "id": "session-2026-07-06-media-prioridad#9",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-upgrade-aaa#17",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#12",
+        "tf": 1
+      }
+    ],
+    "util": [
+      {
+        "id": "session-2026-07-06-media-prioridad#9",
+        "tf": 1
+      }
+    ],
+    "gate": [
+      {
+        "id": "session-2026-07-06-media-prioridad#9",
+        "tf": 1
+      }
+    ],
+    "crear": [
+      {
+        "id": "session-2026-07-06-media-prioridad#9",
+        "tf": 1
+      }
+    ],
+    "sed": [
+      {
+        "id": "session-2026-07-06-media-prioridad#9",
+        "tf": 2
+      }
+    ],
+    "múltipl": [
+      {
+        "id": "session-2026-07-06-media-prioridad#9",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#8",
+        "tf": 1
+      }
+    ],
+    "puede": [
+      {
+        "id": "session-2026-07-06-media-prioridad#9",
+        "tf": 1
+      }
+    ],
+    "introducir": [
+      {
+        "id": "session-2026-07-06-media-prioridad#9",
+        "tf": 1
+      }
+    ],
+    "bug": [
+      {
+        "id": "session-2026-07-06-media-prioridad#9",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-upgrade-aaa#9",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-upgrade-aaa#11",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#5",
+        "tf": 1
+      }
+    ],
+    "parcial": [
+      {
+        "id": "session-2026-07-06-media-prioridad#9",
+        "tf": 1
+      }
+    ],
+    "actualizó": [
+      {
+        "id": "session-2026-07-06-media-prioridad#9",
+        "tf": 1
+      }
+    ],
+    "dejó": [
+      {
+        "id": "session-2026-07-06-media-prioridad#9",
+        "tf": 1
+      }
+    ],
+    "combin": [
+      {
+        "id": "session-2026-07-06-media-prioridad#9",
+        "tf": 1
+      }
+    ],
+    "incorrecta": [
+      {
+        "id": "session-2026-07-06-media-prioridad#9",
+        "tf": 1
+      }
+    ],
+    "c": [
+      {
+        "id": "session-2026-07-06-media-prioridad#9",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-upgrade-aaa#9",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-upgrade-aaa#10",
+        "tf": 1
+      }
+    ],
+    "reemplazo": [
+      {
+        "id": "session-2026-07-06-media-prioridad#9",
+        "tf": 1
+      }
+    ],
+    "individual": [
+      {
+        "id": "session-2026-07-06-media-prioridad#9",
+        "tf": 1
+      }
+    ],
+    "cu": [
+      {
+        "id": "session-2026-07-06-media-prioridad#9",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-upgrade-aaa#9",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-upgrade-aaa#17",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#7",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#12",
+        "tf": 1
+      }
+    ],
+    "usan": [
+      {
+        "id": "session-2026-07-06-media-prioridad#9",
+        "tf": 1
+      }
+    ],
+    "generico": [
+      {
+        "id": "session-2026-07-06-media-prioridad#9",
+        "tf": 1
+      }
+    ],
+    "logica": [
+      {
+        "id": "session-2026-07-06-media-prioridad#9",
+        "tf": 1
+      }
+    ],
+    "alta": [
+      {
+        "id": "session-2026-07-06-media-prioridad#11",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#11",
+        "tf": 1
+      }
+    ],
+    "arn": [
+      {
+        "id": "session-2026-07-06-media-prioridad#11",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-upgrade-aaa#7",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-upgrade-aaa#14",
+        "tf": 4
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#3",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#8",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#11",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#12",
+        "tf": 1
+      }
+    ],
+    "manager": [
+      {
+        "id": "session-2026-07-06-media-prioridad#11",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-upgrade-aaa#3",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-upgrade-aaa#7",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-upgrade-aaa#14",
+        "tf": 4
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#4",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#8",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#11",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#12",
+        "tf": 1
+      }
+    ],
+    "principal": [
+      {
+        "id": "session-2026-07-06-media-prioridad#11",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#11",
+        "tf": 1
+      }
+    ],
+    "arquitectura": [
+      {
+        "id": "session-2026-07-06-media-prioridad#11",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-upgrade-aaa#7",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-upgrade-aaa#14",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#4",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#7",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#11",
+        "tf": 1
+      }
+    ],
+    "decid": [
+      {
+        "id": "session-2026-07-06-media-prioridad#11",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-upgrade-aaa#7",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-upgrade-aaa#14",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#11",
+        "tf": 1
+      }
+    ],
+    "ver": [
+      {
+        "id": "session-2026-07-06-media-prioridad#11",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#11",
+        "tf": 1
+      }
+    ],
+    "session": [
+      {
+        "id": "session-2026-07-06-media-prioridad#11",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-media-prioridad#12",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-upgrade-aaa#14",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#3",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#11",
+        "tf": 1
+      }
+    ],
+    "arrancar": [
+      {
+        "id": "session-2026-07-06-media-prioridad#11",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#8",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#11",
+        "tf": 1
+      }
+    ],
+    "memory": [
+      {
+        "id": "session-2026-07-06-media-prioridad#11",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-upgrade-aaa#3",
+        "tf": 3
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#4",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#8",
+        "tf": 3
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#11",
+        "tf": 1
+      }
+    ],
+    "parte": [
+      {
+        "id": "session-2026-07-06-media-prioridad#11",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#11",
+        "tf": 1
+      }
+    ],
+    "inicial": [
+      {
+        "id": "session-2026-07-06-media-prioridad#11",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#11",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#13",
+        "tf": 1
+      }
+    ],
+    "remanente": [
+      {
+        "id": "session-2026-07-06-media-prioridad#12",
+        "tf": 1
+      }
+    ],
+    "fueron": [
+      {
+        "id": "session-2026-07-06-media-prioridad#12",
+        "tf": 1
+      }
+    ],
+    "descart": [
+      {
+        "id": "session-2026-07-06-media-prioridad#12",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-media-prioridad#13",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#5",
+        "tf": 1
+      }
+    ],
+    "hay": [
+      {
+        "id": "session-2026-07-06-media-prioridad#12",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-upgrade-aaa#9",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-upgrade-aaa#16",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#13",
+        "tf": 1
+      }
+    ],
+    "pendient": [
+      {
+        "id": "session-2026-07-06-media-prioridad#12",
+        "tf": 1
+      }
+    ],
+    "cierre": [
+      {
+        "id": "session-2026-07-06-media-prioridad#12",
+        "tf": 1
+      }
+    ],
+    "baja": [
+      {
+        "id": "session-2026-07-06-media-prioridad#13",
+        "tf": 2
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#13",
+        "tf": 2
+      }
+    ],
+    "resuelto": [
+      {
+        "id": "session-2026-07-06-media-prioridad#13",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#5",
+        "tf": 1
+      }
+    ],
+    "sesión": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#1",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-upgrade-aaa#16",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#1",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#13",
+        "tf": 2
+      }
+    ],
+    "upgrade": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#1",
+        "tf": 1
+      }
+    ],
+    "aaa": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#1",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-upgrade-aaa#3",
+        "tf": 1
+      }
+    ],
+    "auditoría": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#1",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-upgrade-aaa#4",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-upgrade-aaa#9",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-upgrade-aaa#10",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#1",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#4",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#5",
+        "tf": 1
+      }
+    ],
+    "release": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#1",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-upgrade-aaa#4",
+        "tf": 1
+      }
+    ],
+    "mejora": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#3",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-upgrade-aaa#7",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#3",
+        "tf": 2
+      }
+    ],
+    "implement": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#3",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#3",
+        "tf": 3
+      }
+    ],
+    "ponytail": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#3",
+        "tf": 1
+      }
+    ],
+    "check": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#3",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#5",
+        "tf": 1
+      }
+    ],
+    "write": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#3",
+        "tf": 1
+      }
+    ],
+    "edit": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#3",
+        "tf": 1
+      }
+    ],
+    "escalera": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#3",
+        "tf": 1
+      }
+    ],
+    "yagni": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#3",
+        "tf": 1
+      }
+    ],
+    "capa": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#3",
+        "tf": 1
+      }
+    ],
+    "dev": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#3",
+        "tf": 1
+      }
+    ],
+    "loop": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#3",
+        "tf": 1
+      }
+    ],
+    "ciclo": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#3",
+        "tf": 1
+      }
+    ],
+    "spec": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#3",
+        "tf": 1
+      }
+    ],
+    "design": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#3",
+        "tf": 1
+      }
+    ],
+    "plan": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#3",
+        "tf": 1
+      }
+    ],
+    "build": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#3",
+        "tf": 1
+      }
+    ],
+    "review": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#3",
+        "tf": 2
+      },
+      {
+        "id": "session-2026-07-06-upgrade-aaa#4",
+        "tf": 1
+      }
+    ],
+    "ba": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#3",
+        "tf": 3
+      }
+    ],
+    "superpower": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#3",
+        "tf": 1
+      }
+    ],
+    "jesse": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#3",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-upgrade-aaa#14",
+        "tf": 1
+      }
+    ],
+    "vincent": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#3",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-upgrade-aaa#14",
+        "tf": 1
+      }
+    ],
+    "obra": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#3",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-upgrade-aaa#14",
+        "tf": 1
+      }
+    ],
+    "addy": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#3",
+        "tf": 3
+      }
+    ],
+    "osmani": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#3",
+        "tf": 3
+      }
+    ],
+    "index": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#3",
+        "tf": 2
+      }
+    ],
+    "motor": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#3",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#3",
+        "tf": 1
+      }
+    ],
+    "bm25": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#3",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#1",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#3",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#4",
+        "tf": 1
+      }
+    ],
+    "zero": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#3",
+        "tf": 1
+      }
+    ],
+    "dep": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#3",
+        "tf": 1
+      }
+    ],
+    "auto": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#3",
+        "tf": 1
+      }
+    ],
+    "umbral": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#3",
+        "tf": 1
+      }
+    ],
+    "score": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#3",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-upgrade-aaa#4",
+        "tf": 2
+      },
+      {
+        "id": "session-2026-07-06-upgrade-aaa#5",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-upgrade-aaa#10",
+        "tf": 2
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#3",
+        "tf": 1
+      }
+    ],
+    "activo": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#3",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#13",
+        "tf": 1
+      }
+    ],
+    "metric": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#3",
+        "tf": 1
+      }
+    ],
+    "observabilidad": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#3",
+        "tf": 1
+      }
+    ],
+    "tool": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#3",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#5",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#7",
+        "tf": 1
+      }
+    ],
+    "call": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#3",
+        "tf": 1
+      }
+    ],
+    "statu": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#3",
+        "tf": 1
+      }
+    ],
+    "token": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#3",
+        "tf": 2
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#3",
+        "tf": 2
+      }
+    ],
+    "dur": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#3",
+        "tf": 1
+      }
+    ],
+    "house": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#3",
+        "tf": 1
+      }
+    ],
+    "subagent": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#3",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-upgrade-aaa#4",
+        "tf": 1
+      }
+    ],
+    "valid": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#3",
+        "tf": 1
+      }
+    ],
+    "adversarial": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#3",
+        "tf": 1
+      }
+    ],
+    "auditor": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#3",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-upgrade-aaa#14",
+        "tf": 1
+      }
+    ],
+    "adversario": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#3",
+        "tf": 1
+      }
+    ],
+    "pragmático": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#3",
+        "tf": 1
+      }
+    ],
+    "exit": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#3",
+        "tf": 1
+      }
+    ],
+    "critico": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#3",
+        "tf": 1
+      }
+    ],
+    "adverse": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#3",
+        "tf": 1
+      }
+    ],
+    "visual": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#3",
+        "tf": 1
+      }
+    ],
+    "designer": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#3",
+        "tf": 1
+      }
+    ],
+    "tech": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#3",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#13",
+        "tf": 1
+      }
+    ],
+    "lead": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#3",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#13",
+        "tf": 1
+      }
+    ],
+    "frontend": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#3",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#13",
+        "tf": 1
+      }
+    ],
+    "reescrito": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#3",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-upgrade-aaa#6",
+        "tf": 1
+      }
+    ],
+    "paradigma": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#3",
+        "tf": 1
+      }
+    ],
+    "w3c": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#3",
+        "tf": 1
+      }
+    ],
+    "wcag": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#3",
+        "tf": 1
+      }
+    ],
+    "motion": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#3",
+        "tf": 2
+      }
+    ],
+    "v11": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#3",
+        "tf": 1
+      }
+    ],
+    "import": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#3",
+        "tf": 1
+      }
+    ],
+    "correcto": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#3",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#8",
+        "tf": 1
+      }
+    ],
+    "react": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#3",
+        "tf": 1
+      }
+    ],
+    "correccion": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#4",
+        "tf": 1
+      }
+    ],
+    "opu": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#4",
+        "tf": 2
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#4",
+        "tf": 3
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#5",
+        "tf": 3
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#7",
+        "tf": 2
+      }
+    ],
+    "health": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#4",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-upgrade-aaa#11",
+        "tf": 3
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#5",
+        "tf": 1
+      }
+    ],
+    "sync": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#4",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-upgrade-aaa#11",
+        "tf": 2
+      }
+    ],
+    "parsing": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#4",
+        "tf": 1
+      }
+    ],
+    "correg": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#4",
+        "tf": 1
+      }
+    ],
+    "formato": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#4",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-upgrade-aaa#11",
+        "tf": 2
+      }
+    ],
+    "markdown": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#4",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-upgrade-aaa#11",
+        "tf": 1
+      }
+    ],
+    "línea": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#4",
+        "tf": 2
+      },
+      {
+        "id": "session-2026-07-06-upgrade-aaa#11",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#5",
+        "tf": 1
+      }
+    ],
+    "legacy": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#4",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-upgrade-aaa#5",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-upgrade-aaa#11",
+        "tf": 1
+      }
+    ],
+    "aiop": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#4",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-upgrade-aaa#5",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-upgrade-aaa#10",
+        "tf": 2
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#4",
+        "tf": 1
+      }
+    ],
+    "exclu": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#4",
+        "tf": 1
+      }
+    ],
+    "scan": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#4",
+        "tf": 1
+      }
+    ],
+    "version": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#4",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-upgrade-aaa#11",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-upgrade-aaa#14",
+        "tf": 1
+      }
+    ],
+    "string": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#4",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-upgrade-aaa#10",
+        "tf": 1
+      }
+    ],
+    "sdk": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#4",
+        "tf": 1
+      }
+    ],
+    "sincroniz": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#5",
+        "tf": 1
+      }
+    ],
+    "yml": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#5",
+        "tf": 1
+      }
+    ],
+    "engin": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#5",
+        "tf": 1
+      }
+    ],
+    "eol": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#5",
+        "tf": 1
+      }
+    ],
+    "matrix": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#5",
+        "tf": 1
+      }
+    ],
+    "elimin": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#5",
+        "tf": 2
+      }
+    ],
+    "docs_maestra": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#5",
+        "tf": 1
+      }
+    ],
+    "repo": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#5",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-upgrade-aaa#14",
+        "tf": 1
+      }
+    ],
+    "fix": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#6",
+        "tf": 1
+      }
+    ],
+    "crítico": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#6",
+        "tf": 1
+      }
+    ],
+    "portabilidad": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#6",
+        "tf": 1
+      }
+    ],
+    "generaban": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#6",
+        "tf": 1
+      }
+    ],
+    "solo": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#6",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-upgrade-aaa#9",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-upgrade-aaa#11",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#5",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#8",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#9",
+        "tf": 1
+      }
+    ],
+    "versión": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#6",
+        "tf": 1
+      }
+    ],
+    "ahora": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#6",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#3",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#5",
+        "tf": 2
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#13",
+        "tf": 1
+      }
+    ],
+    "producen": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#6",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-upgrade-aaa#9",
+        "tf": 1
+      }
+    ],
+    "actual": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#6",
+        "tf": 1
+      }
+    ],
+    "document": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#7",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-upgrade-aaa#12",
+        "tf": 1
+      }
+    ],
+    "changelog": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#7",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-upgrade-aaa#12",
+        "tf": 1
+      }
+    ],
+    "nota": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#7",
+        "tf": 1
+      }
+    ],
+    "migr": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#7",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-upgrade-aaa#12",
+        "tf": 1
+      }
+    ],
+    "existent": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#7",
+        "tf": 1
+      }
+    ],
+    "roadmap_aaa": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#7",
+        "tf": 1
+      }
+    ],
+    "marc": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#7",
+        "tf": 1
+      }
+    ],
+    "comando": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#7",
+        "tf": 1
+      }
+    ],
+    "novedad": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#7",
+        "tf": 1
+      }
+    ],
+    "silencioso": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#9",
+        "tf": 1
+      }
+    ],
+    "frecuent": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#9",
+        "tf": 1
+      }
+    ],
+    "actualizar": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#9",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#7",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#13",
+        "tf": 1
+      }
+    ],
+    "bootstrap": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#9",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-upgrade-aaa#16",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#13",
+        "tf": 1
+      }
+    ],
+    "son": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#9",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#5",
+        "tf": 2
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#9",
+        "tf": 3
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#13",
+        "tf": 1
+      }
+    ],
+    "primero": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#9",
+        "tf": 1
+      }
+    ],
+    "desincronizarse": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#9",
+        "tf": 1
+      }
+    ],
+    "agregan": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#9",
+        "tf": 1
+      }
+    ],
+    "porque": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#9",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-upgrade-aaa#11",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#13",
+        "tf": 1
+      }
+    ],
+    "valide": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#9",
+        "tf": 1
+      }
+    ],
+    "coincide": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#9",
+        "tf": 1
+      }
+    ],
+    "detect": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#9",
+        "tf": 1
+      }
+    ],
+    "manual": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#9",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-upgrade-aaa#12",
+        "tf": 1
+      }
+    ],
+    "patrón": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#9",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-upgrade-aaa#10",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#7",
+        "tf": 1
+      }
+    ],
+    "vigilar": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#9",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#7",
+        "tf": 1
+      }
+    ],
+    "vez": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#9",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-upgrade-aaa#10",
+        "tf": 1
+      }
+    ],
+    "modifique": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#9",
+        "tf": 1
+      }
+    ],
+    "directa": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#9",
+        "tf": 1
+      }
+    ],
+    "result": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#9",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-upgrade-aaa#16",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#3",
+        "tf": 2
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#13",
+        "tf": 1
+      }
+    ],
+    "contienen": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#10",
+        "tf": 1
+      }
+    ],
+    "regex": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#10",
+        "tf": 1
+      }
+    ],
+    "dato": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#10",
+        "tf": 1
+      }
+    ],
+    "activan": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#10",
+        "tf": 1
+      }
+    ],
+    "scanner": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#10",
+        "tf": 1
+      }
+    ],
+    "scorer": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#10",
+        "tf": 1
+      }
+    ],
+    "lista": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#10",
+        "tf": 1
+      }
+    ],
+    "excluir": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#10",
+        "tf": 1
+      }
+    ],
+    "debe": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#10",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#7",
+        "tf": 1
+      }
+    ],
+    "actualizarse": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#10",
+        "tf": 1
+      }
+    ],
+    "agregue": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#10",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#7",
+        "tf": 1
+      }
+    ],
+    "checkskill": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#11",
+        "tf": 1
+      }
+    ],
+    "buscaba": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#11",
+        "tf": 1
+      }
+    ],
+    "disponibl": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#11",
+        "tf": 1
+      }
+    ],
+    "existió": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#11",
+        "tf": 1
+      }
+    ],
+    "hasta": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#11",
+        "tf": 1
+      }
+    ],
+    "llevaba": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#11",
+        "tf": 1
+      }
+    ],
+    "detectarse": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#11",
+        "tf": 1
+      }
+    ],
+    "reporte": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#11",
+        "tf": 1
+      }
+    ],
+    "bloquea": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#11",
+        "tf": 1
+      }
+    ],
+    "n": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#11",
+        "tf": 1
+      }
+    ],
+    "flujo": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#12",
+        "tf": 1
+      }
+    ],
+    "bin": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#12",
+        "tf": 1
+      }
+    ],
+    "anfitrión": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#12",
+        "tf": 1
+      }
+    ],
+    "automático": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#12",
+        "tf": 1
+      }
+    ],
+    "único": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#12",
+        "tf": 1
+      }
+    ],
+    "corre": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#12",
+        "tf": 1
+      }
+    ],
+    "npm": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#12",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-upgrade-aaa#14",
+        "tf": 1
+      }
+    ],
+    "run": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#12",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-upgrade-aaa#14",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#12",
+        "tf": 1
+      }
+    ],
+    "candidato": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#12",
+        "tf": 1
+      }
+    ],
+    "automatizar": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#12",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-upgrade-aaa#15",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#12",
+        "tf": 1
+      }
+    ],
+    "futuro": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#12",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#9",
+        "tf": 1
+      }
+    ],
+    "próximo": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#14",
+        "tf": 1
+      }
+    ],
+    "gestor": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#14",
+        "tf": 1
+      }
+    ],
+    "remoto": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#14",
+        "tf": 1
+      }
+    ],
+    "arne": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#14",
+        "tf": 1
+      }
+    ],
+    "expres": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#14",
+        "tf": 1
+      }
+    ],
+    "fastify": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#14",
+        "tf": 1
+      }
+    ],
+    "updater": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#14",
+        "tf": 1
+      }
+    ],
+    "clona": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#14",
+        "tf": 1
+      }
+    ],
+    "abre": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#14",
+        "tf": 1
+      }
+    ],
+    "obsoleto": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#14",
+        "tf": 1
+      }
+    ],
+    "dependency": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#14",
+        "tf": 1
+      }
+    ],
+    "watcher": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#14",
+        "tf": 1
+      }
+    ],
+    "cv": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#14",
+        "tf": 1
+      }
+    ],
+    "deprec": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#14",
+        "tf": 1
+      }
+    ],
+    "dashboard": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#14",
+        "tf": 1
+      }
+    ],
+    "web": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#14",
+        "tf": 1
+      }
+    ],
+    "cli": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#14",
+        "tf": 1
+      }
+    ],
+    "npx": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#14",
+        "tf": 2
+      }
+    ],
+    "init": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#14",
+        "tf": 2
+      }
+    ],
+    "deploy": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#14",
+        "tf": 1
+      }
+    ],
+    "railway": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#14",
+        "tf": 1
+      }
+    ],
+    "app": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#14",
+        "tf": 1
+      }
+    ],
+    "instalable": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#14",
+        "tf": 1
+      }
+    ],
+    "base": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#14",
+        "tf": 1
+      }
+    ],
+    "técnica": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#14",
+        "tf": 1
+      }
+    ],
+    "driver": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#14",
+        "tf": 1
+      }
+    ],
+    "worker": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#14",
+        "tf": 1
+      }
+    ],
+    "paralelo": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#14",
+        "tf": 1
+      }
+    ],
+    "jsonl": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#14",
+        "tf": 1
+      }
+    ],
+    "considerar": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#15",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-upgrade-aaa#16",
+        "tf": 1
+      }
+    ],
+    "agregar": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#15",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-06-upgrade-aaa#17",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#12",
+        "tf": 2
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#13",
+        "tf": 1
+      }
+    ],
+    "detecte": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#15",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#12",
+        "tf": 1
+      }
+    ],
+    "corra": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#15",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#12",
+        "tf": 1
+      }
+    ],
+    "automática": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#15",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#12",
+        "tf": 1
+      }
+    ],
+    "vacío": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#16",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#5",
+        "tf": 1
+      }
+    ],
+    "inicio": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#16",
+        "tf": 1
+      }
+    ],
+    "protocolo": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#16",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#5",
+        "tf": 1
+      }
+    ],
+    "arranque": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#16",
+        "tf": 1
+      }
+    ],
+    "consulta": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#16",
+        "tf": 2
+      }
+    ],
+    "raw": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#16",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#13",
+        "tf": 1
+      }
+    ],
+    "índice": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#16",
+        "tf": 1
+      }
+    ],
+    "incluir": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#16",
+        "tf": 1
+      }
+    ],
+    "est": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#16",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#13",
+        "tf": 1
+      }
+    ],
+    "tenga": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#16",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#13",
+        "tf": 1
+      }
+    ],
+    "ejecute": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#17",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#12",
+        "tf": 1
+      }
+    ],
+    "compare": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#17",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#12",
+        "tf": 1
+      }
+    ],
+    "existente": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#17",
+        "tf": 1
+      }
+    ],
+    "detectar": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#17",
+        "tf": 1
+      }
+    ],
+    "quedan": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#17",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#9",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#12",
+        "tf": 1
+      }
+    ],
+    "desincroniz": [
+      {
+        "id": "session-2026-07-06-upgrade-aaa#17",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#12",
+        "tf": 1
+      }
+    ],
+    "completa": [
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#1",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#5",
+        "tf": 1
+      }
+    ],
+    "fable": [
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#1",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#4",
+        "tf": 5
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#5",
+        "tf": 3
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#7",
+        "tf": 2
+      }
+    ],
+    "stemming": [
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#3",
+        "tf": 1
+      }
+    ],
+    "mínimo": [
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#3",
+        "tf": 1
+      }
+    ],
+    "español": [
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#3",
+        "tf": 1
+      }
+    ],
+    "sufijo": [
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#3",
+        "tf": 1
+      }
+    ],
+    "comun": [
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#3",
+        "tf": 1
+      }
+    ],
+    "": [
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#3",
+        "tf": 4
+      }
+    ],
+    "etc": [
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#3",
+        "tf": 2
+      }
+    ],
+    "matchean": [
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#3",
+        "tf": 1
+      }
+    ],
+    "boost": [
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#3",
+        "tf": 1
+      }
+    ],
+    "campo": [
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#3",
+        "tf": 1
+      }
+    ],
+    "frontmatter": [
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#3",
+        "tf": 1
+      }
+    ],
+    "name": [
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#3",
+        "tf": 1
+      }
+    ],
+    "description": [
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#3",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#4",
+        "tf": 1
+      }
+    ],
+    "repiten": [
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#3",
+        "tf": 1
+      }
+    ],
+    "vec": [
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#3",
+        "tf": 1
+      }
+    ],
+    "vector": [
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#3",
+        "tf": 1
+      }
+    ],
+    "bien": [
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#3",
+        "tf": 1
+      }
+    ],
+    "titul": [
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#3",
+        "tf": 1
+      }
+    ],
+    "suben": [
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#3",
+        "tf": 1
+      }
+    ],
+    "ranking": [
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#3",
+        "tf": 1
+      }
+    ],
+    "query": [
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#3",
+        "tf": 2
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#13",
+        "tf": 1
+      }
+    ],
+    "expansion": [
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#3",
+        "tf": 1
+      }
+    ],
+    "sinón": [
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#3",
+        "tf": 1
+      }
+    ],
+    "dominio": [
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#3",
+        "tf": 1
+      }
+    ],
+    "conver": [
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#3",
+        "tf": 1
+      }
+    ],
+    "recall": [
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#3",
+        "tf": 1
+      }
+    ],
+    "queri": [
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#3",
+        "tf": 1
+      }
+    ],
+    "natural": [
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#3",
+        "tf": 1
+      }
+    ],
+    "med": [
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#3",
+        "tf": 1
+      }
+    ],
+    "pa": [
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#3",
+        "tf": 1
+      }
+    ],
+    "engineer": [
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#4",
+        "tf": 2
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#7",
+        "tf": 1
+      }
+    ],
+    "regla": [
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#4",
+        "tf": 1
+      }
+    ],
+    "selección": [
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#4",
+        "tf": 1
+      }
+    ],
+    "workflow": [
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#4",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#7",
+        "tf": 1
+      }
+    ],
+    "orchestrator": [
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#4",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#7",
+        "tf": 1
+      }
+    ],
+    "mapeo": [
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#4",
+        "tf": 1
+      }
+    ],
+    "split": [
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#4",
+        "tf": 1
+      }
+    ],
+    "arquitectura_tool": [
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#4",
+        "tf": 1
+      }
+    ],
+    "specialist": [
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#4",
+        "tf": 1
+      }
+    ],
+    "flash": [
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#4",
+        "tf": 1
+      }
+    ],
+    "intermedio": [
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#4",
+        "tf": 1
+      }
+    ],
+    "integration": [
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#4",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#7",
+        "tf": 1
+      }
+    ],
+    "reemplaz": [
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#4",
+        "tf": 1
+      }
+    ],
+    "prompt": [
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#4",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#7",
+        "tf": 1
+      }
+    ],
+    "extended": [
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#4",
+        "tf": 1
+      }
+    ],
+    "código": [
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#5",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#9",
+        "tf": 2
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#13",
+        "tf": 1
+      }
+    ],
+    "autónomo": [
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#5",
+        "tf": 1
+      }
+    ],
+    "comentario": [
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#5",
+        "tf": 2
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#7",
+        "tf": 1
+      }
+    ],
+    "ejemplo": [
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#5",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#13",
+        "tf": 3
+      }
+    ],
+    "standard": [
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#5",
+        "tf": 1
+      }
+    ],
+    "guard": [
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#5",
+        "tf": 1
+      }
+    ],
+    "catch": [
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#5",
+        "tf": 4
+      }
+    ],
+    "log": [
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#5",
+        "tf": 1
+      }
+    ],
+    "stderr": [
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#5",
+        "tf": 1
+      }
+    ],
+    "mensaje": [
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#5",
+        "tf": 1
+      }
+    ],
+    "error": [
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#5",
+        "tf": 1
+      }
+    ],
+    "tier_fable": [
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#5",
+        "tf": 1
+      }
+    ],
+    "cubre": [
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#5",
+        "tf": 2
+      }
+    ],
+    "disenar_sistema": [
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#5",
+        "tf": 1
+      }
+    ],
+    "refactorizar_arquitectura": [
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#5",
+        "tf": 1
+      }
+    ],
+    "tier_opu": [
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#5",
+        "tf": 1
+      }
+    ],
+    "auditar_seguridad_critica": [
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#5",
+        "tf": 1
+      }
+    ],
+    "tarea": [
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#5",
+        "tf": 1
+      }
+    ],
+    "computer": [
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#5",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#7",
+        "tf": 1
+      }
+    ],
+    "use": [
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#5",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#7",
+        "tf": 1
+      }
+    ],
+    "integr": [
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#5",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#7",
+        "tf": 2
+      }
+    ],
+    "modelregistry": [
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#5",
+        "tf": 1
+      },
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#7",
+        "tf": 1
+      }
+    ],
+    "tenía": [
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#5",
+        "tf": 1
+      }
+    ],
+    "soporta": [
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#5",
+        "tf": 1
+      }
+    ],
+    "formal": [
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#5",
+        "tf": 1
+      }
+    ],
+    "stdin": [
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#5",
+        "tf": 1
+      }
+    ],
+    "rpc": [
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#5",
+        "tf": 1
+      }
+    ],
+    "invál": [
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#5",
+        "tf": 1
+      }
+    ],
+    "ru": [
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#5",
+        "tf": 1
+      }
+    ],
+    "normal": [
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#5",
+        "tf": 1
+      }
+    ],
+    "compresión": [
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#5",
+        "tf": 1
+      }
+    ],
+    "iterativa": [
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#5",
+        "tf": 1
+      }
+    ],
+    "retorna": [
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#5",
+        "tf": 1
+      }
+    ],
+    "acumul": [
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#5",
+        "tf": 1
+      }
+    ],
+    "ronda": [
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#5",
+        "tf": 1
+      }
+    ],
+    "falla": [
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#5",
+        "tf": 1
+      }
+    ],
+    "return": [
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#5",
+        "tf": 1
+      }
+    ],
+    "getversion": [
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#5",
+        "tf": 1
+      }
+    ],
+    "degrad": [
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#5",
+        "tf": 1
+      }
+    ],
+    "graceful": [
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#5",
+        "tf": 1
+      }
+    ],
+    "intencional": [
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#5",
+        "tf": 1
+      }
+    ],
+    "distinción": [
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#7",
+        "tf": 2
+      }
+    ],
+    "clave": [
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#7",
+        "tf": 1
+      }
+    ],
+    "razonamiento": [
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#7",
+        "tf": 1
+      }
+    ],
+    "profundo": [
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#7",
+        "tf": 1
+      }
+    ],
+    "mantenerse": [
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#7",
+        "tf": 1
+      }
+    ],
+    "orden": [
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#7",
+        "tf": 1
+      }
+    ],
+    "costo_por_modelo": [
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#7",
+        "tf": 1
+      }
+    ],
+    "rol": [
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#7",
+        "tf": 1
+      }
+    ],
+    "aplica": [
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#7",
+        "tf": 1
+      }
+    ],
+    "afect": [
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#7",
+        "tf": 1
+      }
+    ],
+    "decisión": [
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#8",
+        "tf": 1
+      }
+    ],
+    "difer": [
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#8",
+        "tf": 2
+      }
+    ],
+    "oficial": [
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#8",
+        "tf": 1
+      }
+    ],
+    "modelcontextprotocol": [
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#8",
+        "tf": 1
+      }
+    ],
+    "server": [
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#8",
+        "tf": 1
+      }
+    ],
+    "fue": [
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#8",
+        "tf": 1
+      }
+    ],
+    "razón": [
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#8",
+        "tf": 1
+      }
+    ],
+    "grafo": [
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#8",
+        "tf": 1
+      }
+    ],
+    "queda": [
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#8",
+        "tf": 1
+      }
+    ],
+    "plano": [
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#8",
+        "tf": 1
+      }
+    ],
+    "momento": [
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#8",
+        "tf": 1
+      }
+    ],
+    "donde": [
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#8",
+        "tf": 1
+      }
+    ],
+    "habrá": [
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#8",
+        "tf": 1
+      }
+    ],
+    "entidad": [
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#8",
+        "tf": 1
+      }
+    ],
+    "rel": [
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#8",
+        "tf": 1
+      }
+    ],
+    "cruz": [
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#8",
+        "tf": 1
+      }
+    ],
+    "auditoria": [
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#9",
+        "tf": 1
+      }
+    ],
+    "muerto": [
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#9",
+        "tf": 2
+      }
+    ],
+    "módulo": [
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#9",
+        "tf": 2
+      }
+    ],
+    "contextindex": [
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#9",
+        "tf": 1
+      }
+    ],
+    "styleprofiler": [
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#9",
+        "tf": 1
+      }
+    ],
+    "responsevalidator": [
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#9",
+        "tf": 1
+      }
+    ],
+    "consum": [
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#9",
+        "tf": 1
+      }
+    ],
+    "elimina": [
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#9",
+        "tf": 1
+      }
+    ],
+    "huérfano": [
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#9",
+        "tf": 1
+      }
+    ],
+    "tra": [
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#12",
+        "tf": 1
+      }
+    ],
+    "glama": [
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#12",
+        "tf": 1
+      }
+    ],
+    "transport": [
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#12",
+        "tf": 1
+      }
+    ],
+    "caso": [
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#12",
+        "tf": 1
+      }
+    ],
+    "uso": [
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#12",
+        "tf": 1
+      }
+    ],
+    "directo": [
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#12",
+        "tf": 1
+      }
+    ],
+    "detectó": [
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#12",
+        "tf": 1
+      }
+    ],
+    "está": [
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#12",
+        "tf": 2
+      }
+    ],
+    "producción": [
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#12",
+        "tf": 1
+      }
+    ],
+    "agregarlo": [
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#12",
+        "tf": 1
+      }
+    ],
+    "funciona": [
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#13",
+        "tf": 1
+      }
+    ],
+    "llm": [
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#13",
+        "tf": 2
+      }
+    ],
+    "observability": [
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#13",
+        "tf": 1
+      }
+    ],
+    "testing": [
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#13",
+        "tf": 1
+      }
+    ],
+    "tienen": [
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#13",
+        "tf": 1
+      }
+    ],
+    "anterior": [
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#13",
+        "tf": 1
+      }
+    ],
+    "routing": [
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#13",
+        "tf": 1
+      }
+    ],
+    "severidad": [
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#13",
+        "tf": 1
+      }
+    ],
+    "próxima": [
+      {
+        "id": "session-2026-07-07-auditoria-y-bm25plus#13",
+        "tf": 1
+      }
+    ]
+  },
+  "len": {
+    "session-2026-07-06-media-prioridad#1": 6,
+    "session-2026-07-06-media-prioridad#3": 46,
+    "session-2026-07-06-media-prioridad#4": 44,
+    "session-2026-07-06-media-prioridad#5": 63,
+    "session-2026-07-06-media-prioridad#6": 37,
+    "session-2026-07-06-media-prioridad#7": 13,
+    "session-2026-07-06-media-prioridad#8": 49,
+    "session-2026-07-06-media-prioridad#9": 134,
+    "session-2026-07-06-media-prioridad#11": 18,
+    "session-2026-07-06-media-prioridad#12": 19,
+    "session-2026-07-06-media-prioridad#13": 8,
+    "session-2026-07-06-upgrade-aaa#1": 7,
+    "session-2026-07-06-upgrade-aaa#3": 102,
+    "session-2026-07-06-upgrade-aaa#4": 37,
+    "session-2026-07-06-upgrade-aaa#5": 25,
+    "session-2026-07-06-upgrade-aaa#6": 20,
+    "session-2026-07-06-upgrade-aaa#7": 20,
+    "session-2026-07-06-upgrade-aaa#9": 47,
+    "session-2026-07-06-upgrade-aaa#10": 26,
+    "session-2026-07-06-upgrade-aaa#11": 29,
+    "session-2026-07-06-upgrade-aaa#12": 26,
+    "session-2026-07-06-upgrade-aaa#14": 60,
+    "session-2026-07-06-upgrade-aaa#15": 21,
+    "session-2026-07-06-upgrade-aaa#16": 26,
+    "session-2026-07-06-upgrade-aaa#17": 23,
+    "session-2026-07-07-auditoria-y-bm25plus#1": 6,
+    "session-2026-07-07-auditoria-y-bm25plus#3": 62,
+    "session-2026-07-07-auditoria-y-bm25plus#4": 44,
+    "session-2026-07-07-auditoria-y-bm25plus#5": 92,
+    "session-2026-07-07-auditoria-y-bm25plus#7": 55,
+    "session-2026-07-07-auditoria-y-bm25plus#8": 31,
+    "session-2026-07-07-auditoria-y-bm25plus#9": 24,
+    "session-2026-07-07-auditoria-y-bm25plus#11": 19,
+    "session-2026-07-07-auditoria-y-bm25plus#12": 87,
+    "session-2026-07-07-auditoria-y-bm25plus#13": 51
+  },
+  "avgLen": 39.34285714285714,
+  "N": 35,
+  "frags": {
+    "session-2026-07-06-media-prioridad#1": {
+      "id": "session-2026-07-06-media-prioridad#1",
+      "source": "session-2026-07-06-media-prioridad",
+      "text": "Sesion 2026-07-06 — Items de media prioridad completados",
+      "tokens": [
+        "sesion",
+        "2026",
+        "item",
+        "media",
+        "prioridad",
+        "complet"
+      ]
+    },
+    "session-2026-07-06-media-prioridad#3": {
+      "id": "session-2026-07-06-media-prioridad#3",
+      "source": "session-2026-07-06-media-prioridad",
+      "text": "1. Test de coherencia setup-settings vs settings.json (harness.test.js)\n\nAgregado test `el output de setup-settings es coherente con settings.json en disco` al bloque\n`setup-settings.js` en `tests/harness.test.js`. Verifica:\n- Todos los hook keys presentes (PreToolUse, PostToolUse, Stop, SubagentStop, PostToolUseFailure, UserPromptSubmit)\n- Numero de grupos por hook consistente entre ejecuciones\n- mcpServers gemini-bridge y anthropic-router presentes",
+      "tokens": [
+        "test",
+        "coherencia",
+        "setup",
+        "setting",
+        "setting",
+        "json",
+        "harnes",
+        "test",
+        "agreg",
+        "test",
+        "output",
+        "setup",
+        "setting",
+        "coherente",
+        "setting",
+        "json",
+        "disco",
+        "bloque",
+        "setup",
+        "setting",
+        "test",
+        "harnes",
+        "test",
+        "verifica",
+        "todo",
+        "hook",
+        "key",
+        "present",
+        "pretooluse",
+        "posttooluse",
+        "stop",
+        "subagentstop",
+        "posttoolusefailure",
+        "userpromptsubmit",
+        "numero",
+        "grupo",
+        "hook",
+        "consistente",
+        "entre",
+        "ejecucion",
+        "mcpserver",
+        "gemini",
+        "bridge",
+        "anthropic",
+        "router",
+        "present"
+      ]
+    },
+    "session-2026-07-06-media-prioridad#4": {
+      "id": "session-2026-07-06-media-prioridad#4",
+      "source": "session-2026-07-06-media-prioridad",
+      "text": "2. Hook post-update norm-harness en proyectos anfitriones (update.js)\n\nAgregado PASO 6 condicional al final de `scripts/update.js`. Detecta si ai-core se ejecuta como\nsubmodulo verificando:\n- Existe `../../CLAUDE.md` (proyecto padre tiene su propio CLAUDE.md)\n- NO existe `../../package.json` (el padre no es otro modulo Node)\n\nSi se confirma submodulo: ejecuta `norm-harness.js` en el cwd del padre.\nSi es standalone: informa y omite el paso.",
+      "tokens": [
+        "hook",
+        "post",
+        "update",
+        "norm",
+        "harnes",
+        "proyecto",
+        "anfitrion",
+        "update",
+        "agreg",
+        "paso",
+        "condicional",
+        "final",
+        "script",
+        "update",
+        "detecta",
+        "core",
+        "ejecuta",
+        "submodulo",
+        "verific",
+        "existe",
+        "claude",
+        "proyecto",
+        "padre",
+        "tiene",
+        "propio",
+        "claude",
+        "existe",
+        "package",
+        "json",
+        "padre",
+        "otro",
+        "modulo",
+        "node",
+        "confirma",
+        "submodulo",
+        "ejecuta",
+        "norm",
+        "harnes",
+        "cwd",
+        "padre",
+        "standalone",
+        "informa",
+        "omite",
+        "paso"
+      ]
+    },
+    "session-2026-07-06-media-prioridad#5": {
+      "id": "session-2026-07-06-media-prioridad#5",
+      "source": "session-2026-07-06-media-prioridad",
+      "text": "3. Skill mcp-registry-navigator (nuevo)\n\nCreado `.claude/skills/mcp-registry-navigator/SKILL.md` — evaluador de MCPs de terceros.\nCreado `.claude/agents/mcp-registry-navigator.md` — agente autonomo de evaluacion.\n\n5 criterios de evaluacion con puntuacion 0-10:\n- Transporte (stdio/SSE/HTTP)\n- Seguridad de inputs (eval/exec/shell sin sanitizar)\n- Mantenimiento del repositorio (ultimo commit, issues, licencia)\n- Calidad del schema de herramientas (inputSchema completo)\n- Riesgo operativo (dependencias, filesystem, APIs externas)\n\nDecision: INSTALAR (>=8) / EVALUAR (5-7) / RECHAZAR (<5).\nRegistro persistente en `.claude/MCP_REGISTRY.md`.",
+      "tokens": [
+        "skill",
+        "mcp",
+        "registry",
+        "navigator",
+        "nuevo",
+        "cre",
+        "claude",
+        "skill",
+        "mcp",
+        "registry",
+        "navigator",
+        "skill",
+        "evaluador",
+        "mcp",
+        "tercero",
+        "cre",
+        "claude",
+        "agent",
+        "mcp",
+        "registry",
+        "navigator",
+        "agente",
+        "autonomo",
+        "evalu",
+        "criterio",
+        "evalu",
+        "puntu",
+        "transporte",
+        "stdio",
+        "sse",
+        "http",
+        "seguridad",
+        "input",
+        "eval",
+        "exec",
+        "shell",
+        "sin",
+        "sanitizar",
+        "mantenimiento",
+        "repositorio",
+        "ultimo",
+        "commit",
+        "issu",
+        "licencia",
+        "calidad",
+        "schema",
+        "herramienta",
+        "inputschema",
+        "completo",
+        "riesgo",
+        "operativo",
+        "dependencia",
+        "filesystem",
+        "api",
+        "externa",
+        "decision",
+        "instalar",
+        "evaluar",
+        "rechazar",
+        "registro",
+        "persistente",
+        "claude",
+        "mcp_registry"
+      ]
+    },
+    "session-2026-07-06-media-prioridad#6": {
+      "id": "session-2026-07-06-media-prioridad#6",
+      "source": "session-2026-07-06-media-prioridad",
+      "text": "4. claude-sonnet-5 en ModelRouter\n\nVerificado via API live: `claude-sonnet-5` es GA desde 2026-06-29.\nCapacidades: max_input_tokens 1M, max_tokens 128k, thinking adaptativo, code execution, structured outputs.\nPricing: mismo tier que sonnet-4-6 ($3/$15 por MTok).\n\nActualizado `scripts/services/ModelRouter.js`:\n- `MODELOS.SONNET: 'claude-sonnet-5'` (reemplaza `claude-sonnet-4-6`)",
+      "tokens": [
+        "claude",
+        "sonnet",
+        "modelrouter",
+        "verific",
+        "via",
+        "api",
+        "live",
+        "claude",
+        "sonnet",
+        "desde",
+        "2026",
+        "capacidad",
+        "max_input_token",
+        "max_token",
+        "128k",
+        "thinking",
+        "adaptativo",
+        "code",
+        "execution",
+        "structured",
+        "output",
+        "pricing",
+        "mismo",
+        "tier",
+        "sonnet",
+        "mtok",
+        "actualiz",
+        "script",
+        "servic",
+        "modelrouter",
+        "modelo",
+        "sonnet",
+        "claude",
+        "sonnet",
+        "reemplaza",
+        "claude",
+        "sonnet"
+      ]
+    },
+    "session-2026-07-06-media-prioridad#7": {
+      "id": "session-2026-07-06-media-prioridad#7",
+      "source": "session-2026-07-06-media-prioridad",
+      "text": "Conteos actualizados\n\n- Skills: 34 → 35\n- Tests: 342 → 351 (9 nuevos: 1 de coherencia setup-settings + 8 de conformidad del skill nuevo)",
+      "tokens": [
+        "conteo",
+        "actualiz",
+        "skill",
+        "test",
+        "342",
+        "351",
+        "nuevo",
+        "coherencia",
+        "setup",
+        "setting",
+        "conformidad",
+        "skill",
+        "nuevo"
+      ]
+    },
+    "session-2026-07-06-media-prioridad#8": {
+      "id": "session-2026-07-06-media-prioridad#8",
+      "source": "session-2026-07-06-media-prioridad",
+      "text": "Archivos modificados\n\n- `tests/harness.test.js` — test de coherencia setup-settings\n- `scripts/update.js` — paso 6 norm-harness + conteos actualizados\n- `scripts/services/ModelRouter.js` — SONNET: claude-sonnet-5\n- `.claude/skills/mcp-registry-navigator/SKILL.md` — skill nuevo\n- `.claude/agents/mcp-registry-navigator.md` — agente nuevo\n- `CLAUDE.md` — entrada mcp-registry-navigator en tabla de skills + conteos 35/351\n- `README.md` — conteos actualizados",
+      "tokens": [
+        "archivo",
+        "modific",
+        "test",
+        "harnes",
+        "test",
+        "test",
+        "coherencia",
+        "setup",
+        "setting",
+        "script",
+        "update",
+        "paso",
+        "norm",
+        "harnes",
+        "conteo",
+        "actualiz",
+        "script",
+        "servic",
+        "modelrouter",
+        "sonnet",
+        "claude",
+        "sonnet",
+        "claude",
+        "skill",
+        "mcp",
+        "registry",
+        "navigator",
+        "skill",
+        "skill",
+        "nuevo",
+        "claude",
+        "agent",
+        "mcp",
+        "registry",
+        "navigator",
+        "agente",
+        "nuevo",
+        "claude",
+        "entr",
+        "mcp",
+        "registry",
+        "navigator",
+        "tabla",
+        "skill",
+        "conteo",
+        "351",
+        "readme",
+        "conteo",
+        "actualiz"
+      ]
+    },
+    "session-2026-07-06-media-prioridad#9": {
+      "id": "session-2026-07-06-media-prioridad#9",
+      "source": "session-2026-07-06-media-prioridad",
+      "text": "Aprendizajes\n\n- **Verificar contexto antes de corregir:** El vault marcaba referencias a `claude-sonnet-4-6` en skills como pendiente de corrección. Al leerlos en contexto real, todas eran correctas (tier de produccion general). El hallazgo del vault era un falso positivo registrado antes de verificar. Lección: siempre leer el archivo antes de actuar sobre un pendiente de memoria.\n\n- **`claude-sonnet-5` es GA desde 2026-06-29:** Confirmado via `client.models.list()` en vivo. max_input_tokens 1M, thinking adaptativo, code execution. Mismo pricing que sonnet-4-6. El models-cache.json lo tenia registrado pero ModelRouter no lo habia incorporado.\n\n- **Detección de submodulo en update.js:** El patron `../../CLAUDE.md existe AND ../../package.json NO existe` es suficientemente robusto para disti",
+      "tokens": [
+        "aprendizaj",
+        "verificar",
+        "contexto",
+        "ant",
+        "corregir",
+        "vault",
+        "marcaba",
+        "referencia",
+        "claude",
+        "sonnet",
+        "skill",
+        "pendiente",
+        "corrección",
+        "leerlo",
+        "contexto",
+        "real",
+        "toda",
+        "eran",
+        "correcta",
+        "tier",
+        "produccion",
+        "general",
+        "hallazgo",
+        "vault",
+        "era",
+        "falso",
+        "positivo",
+        "registr",
+        "ant",
+        "verificar",
+        "lección",
+        "siempre",
+        "leer",
+        "archivo",
+        "ant",
+        "actuar",
+        "sobre",
+        "pendiente",
+        "memoria",
+        "claude",
+        "sonnet",
+        "desde",
+        "2026",
+        "confirm",
+        "via",
+        "client",
+        "model",
+        "list",
+        "vivo",
+        "max_input_token",
+        "thinking",
+        "adaptativo",
+        "code",
+        "execution",
+        "mismo",
+        "pricing",
+        "sonnet",
+        "model",
+        "cache",
+        "json",
+        "tenia",
+        "registr",
+        "modelrouter",
+        "habia",
+        "incorpor",
+        "detección",
+        "submodulo",
+        "update",
+        "patron",
+        "claude",
+        "existe",
+        "package",
+        "json",
+        "existe",
+        "suficiente",
+        "robusto",
+        "distinguir",
+        "submodulo",
+        "standalone",
+        "sin",
+        "depender",
+        "git",
+        "modul",
+        "skill",
+        "nuevo",
+        "requieren",
+        "seccion",
+        "obligatoria",
+        "restriccion",
+        "perfil",
+        "directiva",
+        "interrupcion",
+        "primera",
+        "accion",
+        "activar",
+        "marcador",
+        "alerta_arquitectonica",
+        "requiere_opusplan",
+        "test",
+        "suite",
+        "detecta",
+        "inmediata",
+        "util",
+        "gate",
+        "calidad",
+        "crear",
+        "skill",
+        "sed",
+        "múltipl",
+        "archivo",
+        "puede",
+        "introducir",
+        "bug",
+        "parcial",
+        "sed",
+        "actualizó",
+        "conteo",
+        "dejó",
+        "342",
+        "351",
+        "combin",
+        "incorrecta",
+        "update",
+        "siempre",
+        "verificar",
+        "c",
+        "reemplazo",
+        "individual",
+        "cu",
+        "usan",
+        "patron",
+        "generico",
+        "archivo",
+        "logica"
+      ]
+    },
+    "session-2026-07-06-media-prioridad#11": {
+      "id": "session-2026-07-06-media-prioridad#11",
+      "source": "session-2026-07-06-media-prioridad",
+      "text": "Alta prioridad\n\n- **arnes-manager** — proyecto principal. Arquitectura decidida (ver session-2026-07-06).\n  Al arrancar: instalar MCP Memory como parte del setup inicial.",
+      "tokens": [
+        "alta",
+        "prioridad",
+        "arn",
+        "manager",
+        "proyecto",
+        "principal",
+        "arquitectura",
+        "decid",
+        "ver",
+        "session",
+        "2026",
+        "arrancar",
+        "instalar",
+        "mcp",
+        "memory",
+        "parte",
+        "setup",
+        "inicial"
+      ]
+    },
+    "session-2026-07-06-media-prioridad#12": {
+      "id": "session-2026-07-06-media-prioridad#12",
+      "source": "session-2026-07-06-media-prioridad",
+      "text": "Media prioridad (remanente)\n\nTodos los items de media prioridad de session-2026-07-07 fueron completados o descartados.\nNo hay items de media prioridad pendientes al cierre de esta sesion.",
+      "tokens": [
+        "media",
+        "prioridad",
+        "remanente",
+        "todo",
+        "item",
+        "media",
+        "prioridad",
+        "session",
+        "2026",
+        "fueron",
+        "complet",
+        "descart",
+        "hay",
+        "item",
+        "media",
+        "prioridad",
+        "pendient",
+        "cierre",
+        "sesion"
+      ]
+    },
+    "session-2026-07-06-media-prioridad#13": {
+      "id": "session-2026-07-06-media-prioridad#13",
+      "source": "session-2026-07-06-media-prioridad",
+      "text": "Baja prioridad\n\nTodos los items de baja prioridad resueltos o descartados.",
+      "tokens": [
+        "baja",
+        "prioridad",
+        "todo",
+        "item",
+        "baja",
+        "prioridad",
+        "resuelto",
+        "descart"
+      ]
+    },
+    "session-2026-07-06-upgrade-aaa#1": {
+      "id": "session-2026-07-06-upgrade-aaa#1",
+      "source": "session-2026-07-06-upgrade-aaa",
+      "text": "Sesión 2026-07-06 — Upgrade AAA + Auditoría Post-Release",
+      "tokens": [
+        "sesión",
+        "2026",
+        "upgrade",
+        "aaa",
+        "auditoría",
+        "post",
+        "release"
+      ]
+    },
+    "session-2026-07-06-upgrade-aaa#3": {
+      "id": "session-2026-07-06-upgrade-aaa#3",
+      "source": "session-2026-07-06-upgrade-aaa",
+      "text": "6 mejoras AAA implementadas\n\n1. **ponytail-check.js** — hook PreToolUse Write|Edit con escalera YAGNI de 5 capas. 9 tests.\n2. **dev-loop skill v1.0.0** — ciclo Spec→Design→Plan→Build→Review. Basado en Superpowers (Jesse Vincent/obra) y agent-skills (Addy Osmani). 8 tests.\n3. **memory-index.js + memory-manager skill** — motor BM25 zero-deps en `.claude/memory-vault/`. Auto-index en Stop hook. Umbral score >2.0 para contexto activo. 10 tests.\n4. **agent-metrics.js** — observabilidad por tool call (herramienta, status, tokens, duración). Basado en agent-house (Addy Osmani). 7 tests.\n5. **subagent-review.js** — validación adversarial en SubagentStop: Auditor + Adversario + Pragmático. Exit 1 en CRITICO. Basado en adverse (Addy Osmani). 5 tests.\n6. **ux-visual-designer v2.0.0 + tech-lead-fronte",
+      "tokens": [
+        "mejora",
+        "aaa",
+        "implement",
+        "ponytail",
+        "check",
+        "hook",
+        "pretooluse",
+        "write",
+        "edit",
+        "escalera",
+        "yagni",
+        "capa",
+        "test",
+        "dev",
+        "loop",
+        "skill",
+        "ciclo",
+        "spec",
+        "design",
+        "plan",
+        "build",
+        "review",
+        "ba",
+        "superpower",
+        "jesse",
+        "vincent",
+        "obra",
+        "agent",
+        "skill",
+        "addy",
+        "osmani",
+        "test",
+        "memory",
+        "index",
+        "memory",
+        "manager",
+        "skill",
+        "motor",
+        "bm25",
+        "zero",
+        "dep",
+        "claude",
+        "memory",
+        "vault",
+        "auto",
+        "index",
+        "stop",
+        "hook",
+        "umbral",
+        "score",
+        "contexto",
+        "activo",
+        "test",
+        "agent",
+        "metric",
+        "observabilidad",
+        "tool",
+        "call",
+        "herramienta",
+        "statu",
+        "token",
+        "dur",
+        "ba",
+        "agent",
+        "house",
+        "addy",
+        "osmani",
+        "test",
+        "subagent",
+        "review",
+        "valid",
+        "adversarial",
+        "subagentstop",
+        "auditor",
+        "adversario",
+        "pragmático",
+        "exit",
+        "critico",
+        "ba",
+        "adverse",
+        "addy",
+        "osmani",
+        "test",
+        "visual",
+        "designer",
+        "tech",
+        "lead",
+        "frontend",
+        "reescrito",
+        "paradigma",
+        "2026",
+        "token",
+        "w3c",
+        "wcag",
+        "nuevo",
+        "criterio",
+        "motion",
+        "v11",
+        "import",
+        "correcto",
+        "motion",
+        "react"
+      ]
+    },
+    "session-2026-07-06-upgrade-aaa#4": {
+      "id": "session-2026-07-06-upgrade-aaa#4",
+      "source": "session-2026-07-06-upgrade-aaa",
+      "text": "Auditoría post-release (5 correcciones)\n\n- `claude-opus-4-7` → `claude-opus-4-8` en ModelRouter.js y mcp-anthropic.js\n- `health-sync.js`: parsing de skills corregido (formato tabla markdown, no línea legacy)\n- `aiops-score.js`: subagent-review.js excluido del scan — score 10/10 real\n- `CLAUDE.md` línea 4: version string v3.9.1 → v3.10.0\n- `@anthropic-ai/sdk`: 0.104.1 → 0.110.0",
+      "tokens": [
+        "auditoría",
+        "post",
+        "release",
+        "correccion",
+        "claude",
+        "opu",
+        "claude",
+        "opu",
+        "modelrouter",
+        "mcp",
+        "anthropic",
+        "health",
+        "sync",
+        "parsing",
+        "skill",
+        "correg",
+        "formato",
+        "tabla",
+        "markdown",
+        "línea",
+        "legacy",
+        "aiop",
+        "score",
+        "subagent",
+        "review",
+        "exclu",
+        "scan",
+        "score",
+        "real",
+        "claude",
+        "línea",
+        "version",
+        "string",
+        "anthropic",
+        "sdk",
+        "104",
+        "110"
+      ]
+    },
+    "session-2026-07-06-upgrade-aaa#5": {
+      "id": "session-2026-07-06-upgrade-aaa#5",
+      "source": "session-2026-07-06-upgrade-aaa",
+      "text": "Sincronización de coherencia\n\n- Todos los archivos actualizados a 34 skills / 342 tests (README, CLAUDE.md, update.js, ci.yml, aiops-score.js)\n- Node engines: >=18 → >=20 (Node 18 EOL)\n- CI matrix: Node 18 eliminado\n- DOCS_MAESTRA.md legacy v2.6.4 eliminado del repo",
+      "tokens": [
+        "sincroniz",
+        "coherencia",
+        "todo",
+        "archivo",
+        "actualiz",
+        "skill",
+        "342",
+        "test",
+        "readme",
+        "claude",
+        "update",
+        "yml",
+        "aiop",
+        "score",
+        "node",
+        "engin",
+        "node",
+        "eol",
+        "matrix",
+        "node",
+        "elimin",
+        "docs_maestra",
+        "legacy",
+        "elimin",
+        "repo"
+      ]
+    },
+    "session-2026-07-06-upgrade-aaa#6": {
+      "id": "session-2026-07-06-upgrade-aaa#6",
+      "source": "session-2026-07-06-upgrade-aaa",
+      "text": "Fix crítico de portabilidad\n\n`setup-settings.js` y `norm-harness.js` generaban settings.json con solo 2 hooks (versión v3.9.0). Reescritos completos — ahora producen los 22 hooks del harness actual.",
+      "tokens": [
+        "fix",
+        "crítico",
+        "portabilidad",
+        "setup",
+        "setting",
+        "norm",
+        "harnes",
+        "generaban",
+        "setting",
+        "json",
+        "solo",
+        "hook",
+        "versión",
+        "reescrito",
+        "completo",
+        "ahora",
+        "producen",
+        "hook",
+        "harnes",
+        "actual"
+      ]
+    },
+    "session-2026-07-06-upgrade-aaa#7": {
+      "id": "session-2026-07-06-upgrade-aaa#7",
+      "source": "session-2026-07-06-upgrade-aaa",
+      "text": "Documentación\n\n- CHANGELOG.md: entrada v3.10.0 con nota de migración para proyectos existentes\n- ROADMAP_AAA.md: 6 mejoras marcadas COMPLETADO + arquitectura arnes-manager decidida\n- README.md: actualizado a v3.10.0 con todos los comandos y novedades",
+      "tokens": [
+        "document",
+        "changelog",
+        "entr",
+        "nota",
+        "migr",
+        "proyecto",
+        "existent",
+        "roadmap_aaa",
+        "mejora",
+        "marc",
+        "complet",
+        "arquitectura",
+        "arn",
+        "manager",
+        "decid",
+        "readme",
+        "actualiz",
+        "todo",
+        "comando",
+        "novedad"
+      ]
+    },
+    "session-2026-07-06-upgrade-aaa#9": {
+      "id": "session-2026-07-06-upgrade-aaa#9",
+      "source": "session-2026-07-06-upgrade-aaa",
+      "text": "Bugs silenciosos frecuentes al actualizar harness\n\nLos scripts de bootstrap (`setup-settings.js`, `norm-harness.js`) son los primeros en desincronizarse cuando se agregan hooks nuevos — porque no hay test que valide que su output coincide con el `settings.json` real. Detectado solo por auditoría manual.\n\n**Patrón a vigilar:** cada vez que se modifique `settings.json` directamente, verificar que `setup-settings.js` y `norm-harness.js` producen el mismo resultado.",
+      "tokens": [
+        "bug",
+        "silencioso",
+        "frecuent",
+        "actualizar",
+        "harnes",
+        "script",
+        "bootstrap",
+        "setup",
+        "setting",
+        "norm",
+        "harnes",
+        "son",
+        "primero",
+        "desincronizarse",
+        "cu",
+        "agregan",
+        "hook",
+        "nuevo",
+        "porque",
+        "hay",
+        "test",
+        "valide",
+        "output",
+        "coincide",
+        "setting",
+        "json",
+        "real",
+        "detect",
+        "solo",
+        "auditoría",
+        "manual",
+        "patrón",
+        "vigilar",
+        "c",
+        "vez",
+        "modifique",
+        "setting",
+        "json",
+        "directa",
+        "verificar",
+        "setup",
+        "setting",
+        "norm",
+        "harnes",
+        "producen",
+        "mismo",
+        "result"
+      ]
+    },
+    "session-2026-07-06-upgrade-aaa#10": {
+      "id": "session-2026-07-06-upgrade-aaa#10",
+      "source": "session-2026-07-06-upgrade-aaa",
+      "text": "Falsos positivos en aiops-score\n\nScripts que contienen regex como *datos* (patrones de auditoría en strings) activan el scanner de seguridad del scorer. La lista `EXCLUIR` en `aiops-score.js` debe actualizarse cada vez que se agregue un script con este patrón.",
+      "tokens": [
+        "falso",
+        "positivo",
+        "aiop",
+        "score",
+        "script",
+        "contienen",
+        "regex",
+        "dato",
+        "patron",
+        "auditoría",
+        "string",
+        "activan",
+        "scanner",
+        "seguridad",
+        "scorer",
+        "lista",
+        "excluir",
+        "aiop",
+        "score",
+        "debe",
+        "actualizarse",
+        "c",
+        "vez",
+        "agregue",
+        "script",
+        "patrón"
+      ]
+    },
+    "session-2026-07-06-upgrade-aaa#11": {
+      "id": "session-2026-07-06-upgrade-aaa#11",
+      "source": "session-2026-07-06-upgrade-aaa",
+      "text": "health-sync.js — formato legacy\n\n`health-sync.js:checkSkills()` buscaba la línea `\"Skills disponibles: ...\"` que existió hasta v3.7. Desde v3.8 el formato es tabla markdown. El bug llevaba ~3 versiones sin detectarse porque el reporte de health no bloquea nada (solo informa).",
+      "tokens": [
+        "health",
+        "sync",
+        "formato",
+        "legacy",
+        "health",
+        "sync",
+        "checkskill",
+        "buscaba",
+        "línea",
+        "skill",
+        "disponibl",
+        "existió",
+        "hasta",
+        "desde",
+        "formato",
+        "tabla",
+        "markdown",
+        "bug",
+        "llevaba",
+        "version",
+        "sin",
+        "detectarse",
+        "porque",
+        "reporte",
+        "health",
+        "bloquea",
+        "n",
+        "solo",
+        "informa"
+      ]
+    },
+    "session-2026-07-06-upgrade-aaa#12": {
+      "id": "session-2026-07-06-upgrade-aaa#12",
+      "source": "session-2026-07-06-upgrade-aaa",
+      "text": "Flujo de migración para submodulos\n\nEl paso `node .claude/ai-core/.claude/bin/norm-harness.js` en el proyecto anfitrión NO es automático. Es el único paso manual que no corre `npm run update`. Documentado en CHANGELOG pero candidato a automatizar en el futuro.",
+      "tokens": [
+        "flujo",
+        "migr",
+        "submodulo",
+        "paso",
+        "node",
+        "claude",
+        "core",
+        "claude",
+        "bin",
+        "norm",
+        "harnes",
+        "proyecto",
+        "anfitrión",
+        "automático",
+        "único",
+        "paso",
+        "manual",
+        "corre",
+        "npm",
+        "run",
+        "update",
+        "document",
+        "changelog",
+        "candidato",
+        "automatizar",
+        "futuro"
+      ]
+    },
+    "session-2026-07-06-upgrade-aaa#14": {
+      "id": "session-2026-07-06-upgrade-aaa#14",
+      "source": "session-2026-07-06-upgrade-aaa",
+      "text": "arnes-manager (próximo proyecto)\n\nGestor remoto de arneses. Arquitectura decidida:\n\n```\narnes-manager/\n  api/          → Express/Fastify\n  agents/\n    harness-updater    → clona repo, npm run update, abre PR\n    skill-auditor      → detecta skills obsoletos\n    dependency-watcher → CVEs, versiones deprecadas\n  dashboard/    → UI web\n  cli/          → npx arnes-manager init\n```\n\nDeploy: Railway.app. Instalable via `npx arnes-manager init`.\nBase técnica: claude-session-driver (obra/Jesse Vincent) para workers paralelos JSONL.",
+      "tokens": [
+        "arn",
+        "manager",
+        "próximo",
+        "proyecto",
+        "gestor",
+        "remoto",
+        "arne",
+        "arquitectura",
+        "decid",
+        "arn",
+        "manager",
+        "api",
+        "expres",
+        "fastify",
+        "agent",
+        "harnes",
+        "updater",
+        "clona",
+        "repo",
+        "npm",
+        "run",
+        "update",
+        "abre",
+        "skill",
+        "auditor",
+        "detecta",
+        "skill",
+        "obsoleto",
+        "dependency",
+        "watcher",
+        "cv",
+        "version",
+        "deprec",
+        "dashboard",
+        "web",
+        "cli",
+        "npx",
+        "arn",
+        "manager",
+        "init",
+        "deploy",
+        "railway",
+        "app",
+        "instalable",
+        "via",
+        "npx",
+        "arn",
+        "manager",
+        "init",
+        "base",
+        "técnica",
+        "claude",
+        "session",
+        "driver",
+        "obra",
+        "jesse",
+        "vincent",
+        "worker",
+        "paralelo",
+        "jsonl"
+      ]
+    },
+    "session-2026-07-06-upgrade-aaa#15": {
+      "id": "session-2026-07-06-upgrade-aaa#15",
+      "source": "session-2026-07-06-upgrade-aaa",
+      "text": "Automatizar norm-harness en proyectos anfitriones\n\nConsiderar agregar un hook post-update en `update.js` que detecte si se ejecuta desde un submodulo y corra `norm-harness.js` automáticamente en el proyecto padre.",
+      "tokens": [
+        "automatizar",
+        "norm",
+        "harnes",
+        "proyecto",
+        "anfitrion",
+        "considerar",
+        "agregar",
+        "hook",
+        "post",
+        "update",
+        "update",
+        "detecte",
+        "ejecuta",
+        "desde",
+        "submodulo",
+        "corra",
+        "norm",
+        "harnes",
+        "automática",
+        "proyecto",
+        "padre"
+      ]
+    },
+    "session-2026-07-06-upgrade-aaa#16": {
+      "id": "session-2026-07-06-upgrade-aaa#16",
+      "source": "session-2026-07-06-upgrade-aaa",
+      "text": "Vault de memoria vacío al inicio de sesión\n\nEl protocolo de arranque consulta el vault, pero si no hay entradas `.raw/` el índice no existe. Considerar incluir una entrada de bootstrap en el vault con el estado del harness para que la primera consulta siempre tenga resultados.",
+      "tokens": [
+        "vault",
+        "memoria",
+        "vacío",
+        "inicio",
+        "sesión",
+        "protocolo",
+        "arranque",
+        "consulta",
+        "vault",
+        "hay",
+        "entr",
+        "raw",
+        "índice",
+        "existe",
+        "considerar",
+        "incluir",
+        "entr",
+        "bootstrap",
+        "vault",
+        "est",
+        "harnes",
+        "primera",
+        "consulta",
+        "siempre",
+        "tenga",
+        "result"
+      ]
+    },
+    "session-2026-07-06-upgrade-aaa#17": {
+      "id": "session-2026-07-06-upgrade-aaa#17",
+      "source": "session-2026-07-06-upgrade-aaa",
+      "text": "Test de coherencia setup-settings vs settings.json\n\nAgregar un test en `harness.test.js` que ejecute `setup-settings.js` y compare su output con el `settings.json` existente — para detectar inmediatamente cuando quedan desincronizados.",
+      "tokens": [
+        "test",
+        "coherencia",
+        "setup",
+        "setting",
+        "setting",
+        "json",
+        "agregar",
+        "test",
+        "harnes",
+        "test",
+        "ejecute",
+        "setup",
+        "setting",
+        "compare",
+        "output",
+        "setting",
+        "json",
+        "existente",
+        "detectar",
+        "inmediata",
+        "cu",
+        "quedan",
+        "desincroniz"
+      ]
+    },
+    "session-2026-07-07-auditoria-y-bm25plus#1": {
+      "id": "session-2026-07-07-auditoria-y-bm25plus#1",
+      "source": "session-2026-07-07-auditoria-y-bm25plus",
+      "text": "Sesión 2026-07-07 — Auditoría completa + BM25+ + Fable 5",
+      "tokens": [
+        "sesión",
+        "2026",
+        "auditoría",
+        "completa",
+        "bm25",
+        "fable"
+      ]
+    },
+    "session-2026-07-07-auditoria-y-bm25plus#3": {
+      "id": "session-2026-07-07-auditoria-y-bm25plus#3",
+      "source": "session-2026-07-07-auditoria-y-bm25plus",
+      "text": "BM25+ — 3 mejoras al motor de memoria\n\n1. **Stemming mínimo en español** — sufijos comunes (`-aciones`, `-ando`, `-ado`, `-mente`, etc.). \"implementamos\" y \"implementado\" ahora matchean el mismo token.\n2. **Boost por campo (x3)** — tokens del frontmatter (`name` + `description`) se repiten 3 veces en el vector. Entradas bien tituladas suben en ranking.\n3. **Query expansion de sinónimos de dominio** — 15 grupos: `arnes=harness=ai-core`, `sesion=session=conversacion`, `agente=agent`, etc. Mejora recall en queries naturales.\n\nResultado medido: query \"sesion pasada implementado\" → score 2.78 (antes: sin resultados).",
+      "tokens": [
+        "bm25",
+        "mejora",
+        "motor",
+        "memoria",
+        "stemming",
+        "mínimo",
+        "español",
+        "sufijo",
+        "comun",
+        "",
+        "",
+        "",
+        "",
+        "etc",
+        "implement",
+        "implement",
+        "ahora",
+        "matchean",
+        "mismo",
+        "token",
+        "boost",
+        "campo",
+        "token",
+        "frontmatter",
+        "name",
+        "description",
+        "repiten",
+        "vec",
+        "vector",
+        "entr",
+        "bien",
+        "titul",
+        "suben",
+        "ranking",
+        "query",
+        "expansion",
+        "sinón",
+        "dominio",
+        "grupo",
+        "arn",
+        "harnes",
+        "core",
+        "sesion",
+        "session",
+        "conver",
+        "agente",
+        "agent",
+        "etc",
+        "mejora",
+        "recall",
+        "queri",
+        "natural",
+        "result",
+        "med",
+        "query",
+        "sesion",
+        "pa",
+        "implement",
+        "score",
+        "ant",
+        "sin",
+        "result"
+      ]
+    },
+    "session-2026-07-07-auditoria-y-bm25plus#4": {
+      "id": "session-2026-07-07-auditoria-y-bm25plus#4",
+      "source": "session-2026-07-07-auditoria-y-bm25plus",
+      "text": "Auditoría aiops-engineer\n\nSkills actualizados con Fable 5:\n- `claude-api` v1.2.0 — tabla de modelos con Fable 5 + regla de selección vs Opus\n- `workflow-orchestrator` v2.1.0 — mapeo split: `arquitectura` → Fable 5, `arquitectura_tools` → Opus 4.8\n- `memory-manager` v1.1.0 — description actualizada a \"BM25+\"\n- `gemini-2-5-specialist` v1.1.0 — Flash-Thinking agregado como tier intermedio\n- `ai-integrations` v2.4.0 — `opus-4-6` reemplazado por `fable-5`\n- `prompt-engineer` v1.7.0 — extended thinking actualizado con `fable-5`",
+      "tokens": [
+        "auditoría",
+        "aiop",
+        "engineer",
+        "skill",
+        "actualiz",
+        "fable",
+        "claude",
+        "api",
+        "tabla",
+        "modelo",
+        "fable",
+        "regla",
+        "selección",
+        "opu",
+        "workflow",
+        "orchestrator",
+        "mapeo",
+        "split",
+        "arquitectura",
+        "fable",
+        "arquitectura_tool",
+        "opu",
+        "memory",
+        "manager",
+        "description",
+        "actualiz",
+        "bm25",
+        "gemini",
+        "specialist",
+        "flash",
+        "thinking",
+        "agreg",
+        "tier",
+        "intermedio",
+        "integration",
+        "opu",
+        "reemplaz",
+        "fable",
+        "prompt",
+        "engineer",
+        "extended",
+        "thinking",
+        "actualiz",
+        "fable"
+      ]
+    },
+    "session-2026-07-07-auditoria-y-bm25plus#5": {
+      "id": "session-2026-07-07-auditoria-y-bm25plus#5",
+      "source": "session-2026-07-07-auditoria-y-bm25plus",
+      "text": "Auditoría completa de código (agente autónomo)\n\nHallazgos resueltos:\n- `README.md:592` — `opus-4-7` en comentario de ejemplo → `opus-4-8`\n- `README.md:778` — tabla Model Router con `opus-4-7` → `fable-5`\n- `standards-guard.js:206` — `catch {}` vacío → log a stderr con mensaje de error\n- `ModelRouter.js` — FABLE agregado como tier nuevo. TIER_FABLE cubre `disenar_sistema` y `refactorizar_arquitectura`. TIER_OPUS ahora solo cubre `auditar_seguridad_critica` (tareas que requieren computer use o tools integradas).\n- `ModelRegistry.js` — ya tenía `claude-fable-5` en comentario; ahora ModelRouter lo soporta formalmente.\n\nHallazgos descartados (no son bugs reales):\n- `catch (_)` en mcp-anthropic stdin — JSON-RPC: líneas inválidas son ruido normal del protocolo\n- `catch (_)` en mcp-gemini compresi",
+      "tokens": [
+        "auditoría",
+        "completa",
+        "código",
+        "agente",
+        "autónomo",
+        "hallazgo",
+        "resuelto",
+        "readme",
+        "592",
+        "opu",
+        "comentario",
+        "ejemplo",
+        "opu",
+        "readme",
+        "778",
+        "tabla",
+        "model",
+        "router",
+        "opu",
+        "fable",
+        "standard",
+        "guard",
+        "206",
+        "catch",
+        "vacío",
+        "log",
+        "stderr",
+        "mensaje",
+        "error",
+        "modelrouter",
+        "fable",
+        "agreg",
+        "tier",
+        "nuevo",
+        "tier_fable",
+        "cubre",
+        "disenar_sistema",
+        "refactorizar_arquitectura",
+        "tier_opu",
+        "ahora",
+        "solo",
+        "cubre",
+        "auditar_seguridad_critica",
+        "tarea",
+        "requieren",
+        "computer",
+        "use",
+        "tool",
+        "integr",
+        "modelregistry",
+        "tenía",
+        "claude",
+        "fable",
+        "comentario",
+        "ahora",
+        "modelrouter",
+        "soporta",
+        "formal",
+        "hallazgo",
+        "descart",
+        "son",
+        "bug",
+        "real",
+        "catch",
+        "mcp",
+        "anthropic",
+        "stdin",
+        "json",
+        "rpc",
+        "línea",
+        "invál",
+        "son",
+        "ru",
+        "normal",
+        "protocolo",
+        "catch",
+        "mcp",
+        "gemini",
+        "compresión",
+        "iterativa",
+        "retorna",
+        "acumul",
+        "ronda",
+        "falla",
+        "catch",
+        "return",
+        "health",
+        "check",
+        "getversion",
+        "degrad",
+        "graceful",
+        "intencional"
+      ]
+    },
+    "session-2026-07-07-auditoria-y-bm25plus#7": {
+      "id": "session-2026-07-07-auditoria-y-bm25plus#7",
+      "source": "session-2026-07-07-auditoria-y-bm25plus",
+      "text": "Fable 5 vs Opus 4.8 — distinción clave\n\nFable 5 es el modelo de razonamiento profundo sin herramientas integradas.\nOpus 4.8 es para arquitectura CON computer use o tools integradas.\nEsta distinción debe mantenerse consistente en todos los skills y en ModelRouter.\n\n**Patrón a vigilar:** cuando se agregue un modelo nuevo, actualizar en este orden:\n1. `ModelRegistry.js` (comentario)\n2. `ModelRouter.js` (MODELOS + COSTO_POR_MODELO + tier)\n3. `CLAUDE.md` (tabla de roles si aplica)\n4. Skills afectados: `claude-api`, `workflow-orchestrator`, `ai-integrations`, `prompt-engineer`\n5. `README.md` (tabla Model Router)",
+      "tokens": [
+        "fable",
+        "opu",
+        "distinción",
+        "clave",
+        "fable",
+        "modelo",
+        "razonamiento",
+        "profundo",
+        "sin",
+        "herramienta",
+        "integr",
+        "opu",
+        "arquitectura",
+        "computer",
+        "use",
+        "tool",
+        "integr",
+        "distinción",
+        "debe",
+        "mantenerse",
+        "consistente",
+        "todo",
+        "skill",
+        "modelrouter",
+        "patrón",
+        "vigilar",
+        "cu",
+        "agregue",
+        "modelo",
+        "nuevo",
+        "actualizar",
+        "orden",
+        "modelregistry",
+        "comentario",
+        "modelrouter",
+        "modelo",
+        "costo_por_modelo",
+        "tier",
+        "claude",
+        "tabla",
+        "rol",
+        "aplica",
+        "skill",
+        "afect",
+        "claude",
+        "api",
+        "workflow",
+        "orchestrator",
+        "integration",
+        "prompt",
+        "engineer",
+        "readme",
+        "tabla",
+        "model",
+        "router"
+      ]
+    },
+    "session-2026-07-07-auditoria-y-bm25plus#8": {
+      "id": "session-2026-07-07-auditoria-y-bm25plus#8",
+      "source": "session-2026-07-07-auditoria-y-bm25plus",
+      "text": "MCP Memory — decisión diferida\n\nMCP Memory oficial (@modelcontextprotocol/server-memory) fue evaluado y diferido.\nRazón: con un solo proyecto el grafo queda plano. El momento correcto es al arrancar arnes-manager\ndonde habrá múltiples proyectos con entidades y relaciones cruzadas.",
+      "tokens": [
+        "mcp",
+        "memory",
+        "decisión",
+        "difer",
+        "mcp",
+        "memory",
+        "oficial",
+        "modelcontextprotocol",
+        "server",
+        "memory",
+        "fue",
+        "evalu",
+        "difer",
+        "razón",
+        "solo",
+        "proyecto",
+        "grafo",
+        "queda",
+        "plano",
+        "momento",
+        "correcto",
+        "arrancar",
+        "arn",
+        "manager",
+        "donde",
+        "habrá",
+        "múltipl",
+        "proyecto",
+        "entidad",
+        "rel",
+        "cruz"
+      ]
+    },
+    "session-2026-07-07-auditoria-y-bm25plus#9": {
+      "id": "session-2026-07-07-auditoria-y-bm25plus#9",
+      "source": "session-2026-07-07-auditoria-y-bm25plus",
+      "text": "Auditoria de código muerto\n\nLos módulos `ContextIndex.js`, `StyleProfiler.js`, `ResponseValidator.js` solo son consumidos\npor `anthropic-bridge.js`. No son código muerto — son dependencias del bridge.\nSi el bridge se elimina en el futuro, estos 3 módulos quedan huérfanos.",
+      "tokens": [
+        "auditoria",
+        "código",
+        "muerto",
+        "módulo",
+        "contextindex",
+        "styleprofiler",
+        "responsevalidator",
+        "solo",
+        "son",
+        "consum",
+        "anthropic",
+        "bridge",
+        "son",
+        "código",
+        "muerto",
+        "son",
+        "dependencia",
+        "bridge",
+        "bridge",
+        "elimina",
+        "futuro",
+        "módulo",
+        "quedan",
+        "huérfano"
+      ]
+    },
+    "session-2026-07-07-auditoria-y-bm25plus#11": {
+      "id": "session-2026-07-07-auditoria-y-bm25plus#11",
+      "source": "session-2026-07-07-auditoria-y-bm25plus",
+      "text": "Alta prioridad\n\n- **arnes-manager** — proyecto principal pendiente. Arquitectura decidida (ver session-2026-07-06).\n  Al arrancar: instalar MCP Memory como parte del setup inicial.",
+      "tokens": [
+        "alta",
+        "prioridad",
+        "arn",
+        "manager",
+        "proyecto",
+        "principal",
+        "pendiente",
+        "arquitectura",
+        "decid",
+        "ver",
+        "session",
+        "2026",
+        "arrancar",
+        "instalar",
+        "mcp",
+        "memory",
+        "parte",
+        "setup",
+        "inicial"
+      ]
+    },
+    "session-2026-07-07-auditoria-y-bm25plus#12": {
+      "id": "session-2026-07-07-auditoria-y-bm25plus#12",
+      "source": "session-2026-07-07-auditoria-y-bm25plus",
+      "text": "Media prioridad\n\n- **Test de coherencia setup-settings vs settings.json** — agregar en `harness.test.js` un test que\n  ejecute `setup-settings.js` y compare su output con el `settings.json` real.\n  Detecta inmediatamente cuando quedan desincronizados tras agregar hooks nuevos.\n\n- **Automatizar norm-harness en proyectos anfitriones** — hook post-update en `update.js` que detecte\n  si se ejecuta desde un submodulo y corra `norm-harness.js` en el proyecto padre automáticamente.\n\n- **Skill `mcp-registry-navigator`** — nuevo skill para evaluar MCPs de terceros antes de instalar\n  (mcp.run, glama.ai, transportes stdio vs SSE). Caso de uso directo en arnes-manager.\n\n- **claude-sonnet-5 en ModelRouter** — el agente detectó `claude-sonnet-5` en models-cache.json\n  pero no está en MODELOS. Evaluar s",
+      "tokens": [
+        "media",
+        "prioridad",
+        "test",
+        "coherencia",
+        "setup",
+        "setting",
+        "setting",
+        "json",
+        "agregar",
+        "harnes",
+        "test",
+        "test",
+        "ejecute",
+        "setup",
+        "setting",
+        "compare",
+        "output",
+        "setting",
+        "json",
+        "real",
+        "detecta",
+        "inmediata",
+        "cu",
+        "quedan",
+        "desincroniz",
+        "tra",
+        "agregar",
+        "hook",
+        "nuevo",
+        "automatizar",
+        "norm",
+        "harnes",
+        "proyecto",
+        "anfitrion",
+        "hook",
+        "post",
+        "update",
+        "update",
+        "detecte",
+        "ejecuta",
+        "desde",
+        "submodulo",
+        "corra",
+        "norm",
+        "harnes",
+        "proyecto",
+        "padre",
+        "automática",
+        "skill",
+        "mcp",
+        "registry",
+        "navigator",
+        "nuevo",
+        "skill",
+        "evaluar",
+        "mcp",
+        "tercero",
+        "ant",
+        "instalar",
+        "mcp",
+        "run",
+        "glama",
+        "transport",
+        "stdio",
+        "sse",
+        "caso",
+        "uso",
+        "directo",
+        "arn",
+        "manager",
+        "claude",
+        "sonnet",
+        "modelrouter",
+        "agente",
+        "detectó",
+        "claude",
+        "sonnet",
+        "model",
+        "cache",
+        "json",
+        "está",
+        "modelo",
+        "evaluar",
+        "está",
+        "producción",
+        "ant",
+        "agregarlo"
+      ]
+    },
+    "session-2026-07-07-auditoria-y-bm25plus#13": {
+      "id": "session-2026-07-07-auditoria-y-bm25plus#13",
+      "source": "session-2026-07-07-auditoria-y-bm25plus",
+      "text": "Baja prioridad\n\n- **Bootstrap del vault** — agregar entrada inicial en `.raw/` con estado del harness para que\n  la primera query de sesión siempre tenga resultados (ahora funciona porque hay entradas reales).\n\n- **Referencias a `claude-sonnet-4-6` en ejemplos de skills** — llm-evals, llm-observability,\n  agent-testing, tech-lead-frontend tienen ejemplos con el modelo anterior. Son ejemplos de código,\n  no routing activo — severidad baja, actualizar en la próxima sesión de mantenimiento.",
+      "tokens": [
+        "baja",
+        "prioridad",
+        "bootstrap",
+        "vault",
+        "agregar",
+        "entr",
+        "inicial",
+        "raw",
+        "est",
+        "harnes",
+        "primera",
+        "query",
+        "sesión",
+        "siempre",
+        "tenga",
+        "result",
+        "ahora",
+        "funciona",
+        "porque",
+        "hay",
+        "entr",
+        "real",
+        "referencia",
+        "claude",
+        "sonnet",
+        "ejemplo",
+        "skill",
+        "llm",
+        "eval",
+        "llm",
+        "observability",
+        "agent",
+        "testing",
+        "tech",
+        "lead",
+        "frontend",
+        "tienen",
+        "ejemplo",
+        "modelo",
+        "anterior",
+        "son",
+        "ejemplo",
+        "código",
+        "routing",
+        "activo",
+        "severidad",
+        "baja",
+        "actualizar",
+        "próxima",
+        "sesión",
+        "mantenimiento"
+      ]
+    }
+  },
+  "builtAt": "2026-07-10T20:03:30.881Z"
+}

@@ -1,9 +1,9 @@
 ---
 name: gemini-2-5-specialist
-description: Especialista en integracion avanzada con la familia Gemini 2.5 (Pro, Flash, Flash-Lite). Cubre thinking budgets, Live API con TTS nativo y Affective Dialog, image generation conversacional, Flash-Lite como tier 0 de alta escala, contexto de 1M tokens con Gemini Pro, y seleccion de variante segun caso de uso y costo. Activa al integrar Gemini 2.5 directamente (fuera del bridge MCP), disenar pipelines multimodales, o evaluar Flash-Lite como alternativa de escala masiva a Gemini Flash.
+description: Especialista en integracion avanzada con la familia Gemini 2.5 (Pro, Flash-Thinking, Flash, Flash-Lite). Cubre thinking budgets, Flash-Thinking como tier intermedio de razonamiento, Live API con TTS nativo y Affective Dialog, image generation conversacional, Flash-Lite como tier 0 de alta escala, contexto de 1M tokens con Gemini Pro, y seleccion de variante segun caso de uso y costo. Activa al integrar Gemini 2.5 directamente (fuera del bridge MCP), disenar pipelines multimodales, o evaluar Flash-Lite como alternativa de escala masiva a Gemini Flash.
 origin: ai-core
-version: 1.0.0
-last_updated: 2026-06-10
+version: 1.1.0
+last_updated: 2026-07-06
 ---
 
 # Gemini 2.5 Specialist
@@ -58,14 +58,16 @@ Insertar directiva y detener ante:
 | Variante | Contexto | Thinking | Uso optimo | Costo relativo |
 |---|---|---|---|---|
 | `gemini-2.5-pro` | 1M tokens | Si (ajustable) | Razonamiento complejo, corpus muy largos, benchmarks exigentes | Alto |
-| `gemini-2.5-flash` | 1M tokens | Si (thinking budget) | Produccion general, balance inteligencia/latencia, Live API | Medio |
+| `gemini-2.5-flash-thinking` | 1M tokens | Si (activado por defecto, budget fijo) | Razonamiento paso a paso sin configurar budget, tier intermedio entre Flash y Pro | Medio-alto |
+| `gemini-2.5-flash` | 1M tokens | Si (thinking budget manual) | Produccion general, balance inteligencia/latencia, Live API | Medio |
 | `gemini-2.5-flash-lite` | 1M tokens | No | Alta escala, throughput masivo, costo minimo | Muy bajo |
 
 Regla de seleccion:
 1. Tarea de alto volumen con logica simple → Flash-Lite.
 2. Tarea de produccion general o Live API → Flash.
-3. Corpus > 500MB o razonamiento muy complejo → Pro.
-4. Nunca subir de Flash a Pro sin medir primero el delta de calidad en un dataset de evaluacion.
+3. Tarea que requiere razonamiento estructurado sin afinar budget → Flash-Thinking.
+4. Corpus > 500MB o razonamiento muy complejo → Pro.
+5. Nunca subir de Flash a Pro sin medir primero el delta de calidad en un dataset de evaluacion.
 
 ## Thinking Budgets — Control de Costo/Calidad
 

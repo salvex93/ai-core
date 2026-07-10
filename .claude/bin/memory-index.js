@@ -28,6 +28,9 @@ const INDEX = path.join(VAULT, 'index.json');
 const K1 = 1.5;
 const B  = 0.75;
 
+// Boost aplicado a tokens que provienen del frontmatter (name + description)
+const FIELD_BOOST = 3;
+
 // ─── Tokenizacion ─────────────────────────────────────────────────────────────
 const STOP_WORDS = new Set([
   'el','la','los','las','un','una','de','del','en','y','a','al','con','por',
@@ -36,19 +39,83 @@ const STOP_WORDS = new Set([
   'a','is','it','was','for','on','are','as','with','his','they','at','be',
 ]);
 
+// Sinonimos del dominio — expansión de query
+const SYNONYMS = {
+  arnes:    ['harness','aicore','ai-core','arnés'],
+  harness:  ['arnes','arnés','aicore','ai-core'],
+  skill:    ['habilidad','skills','perfil'],
+  sesion:   ['session','sesión','conversacion'],
+  sesión:   ['session','sesion','conversacion'],
+  session:  ['sesion','sesión','conversacion'],
+  agente:   ['agent','agents','agentes','subagente'],
+  agent:    ['agente','agentes','subagente'],
+  memoria:  ['memory','vault','recuerdo'],
+  memory:   ['memoria','vault'],
+  estado:   ['status','estado','activo','score'],
+  pendiente:['todo','pending','tarea','task'],
+  implementar:['implementacion','implementado','deploy','despliegue'],
+  error:    ['fallo','bug','fix','problema','issue'],
+};
+
+// Stemming minimo en español — elimina sufijos comunes para normalizar terminos
+function stem(word) {
+  return word
+    .replace(/aciones$/, '')
+    .replace(/ación$|acion$/, '')
+    .replace(/iendo$|ando$/, '')
+    .replace(/ados$|idas$|idos$|adas$/, '')
+    .replace(/ado$|ida$|ido$|ada$/, '')
+    .replace(/mente$/, '')
+    .replace(/amos$|emos$|imos$/, '')
+    .replace(/mos$/, '')
+    .replace(/es$/, '')
+    .replace(/s$/, '');
+}
+
 function tokenize(text) {
   return text
     .toLowerCase()
     .replace(/[^a-záéíóúüñ\w\s]/gi, ' ')
     .split(/\s+/)
-    .filter(t => t.length > 2 && !STOP_WORDS.has(t));
+    .filter(t => t.length > 2 && !STOP_WORDS.has(t))
+    .map(stem);
+}
+
+// Expande una query incluyendo sinonimos del dominio
+function expandQuery(tokens) {
+  const expanded = new Set(tokens);
+  for (const t of tokens) {
+    const syns = SYNONYMS[t];
+    if (syns) syns.forEach(s => expanded.add(stem(s)));
+  }
+  return [...expanded];
+}
+
+// ─── Extraccion de frontmatter ────────────────────────────────────────────────
+function parseFrontmatter(content) {
+  const match = content.match(/^---\s*\n([\s\S]*?)\n---\s*\n/);
+  if (!match) return { meta: {}, body: content };
+
+  const meta = {};
+  for (const line of match[1].split('\n')) {
+    const [key, ...rest] = line.split(':');
+    if (key && rest.length) meta[key.trim()] = rest.join(':').trim();
+  }
+  return { meta, body: content.slice(match[0].length) };
 }
 
 // ─── Fragmentacion de documentos ─────────────────────────────────────────────
 function fragmentar(content, filePath) {
   const name = path.basename(filePath, '.md');
-  const sections = content.split(/^#{1,3}\s+/m);
+  const { meta, body } = parseFrontmatter(content);
+  const sections = body.split(/^#{1,3}\s+/m);
   const frags = [];
+
+  // Tokens del frontmatter con boost: se repiten FIELD_BOOST veces en el vector
+  const metaText = [meta.name || '', meta.description || ''].join(' ');
+  const metaTokensBoosted = metaText.trim().length > 2
+    ? Array(FIELD_BOOST).fill(tokenize(metaText)).flat()
+    : [];
 
   sections.forEach((sec, i) => {
     const trimmed = sec.trim();
@@ -57,7 +124,7 @@ function fragmentar(content, filePath) {
       id:     `${name}#${i}`,
       source: name,
       text:   trimmed.slice(0, 800),
-      tokens: tokenize(trimmed),
+      tokens: [...tokenize(trimmed), ...metaTokensBoosted],
     });
   });
 
@@ -67,7 +134,7 @@ function fragmentar(content, filePath) {
       id:     `${name}#0`,
       source: name,
       text:   content.trim().slice(0, 800),
-      tokens: tokenize(content),
+      tokens: [...tokenize(content), ...metaTokensBoosted],
     });
   }
 
@@ -100,7 +167,7 @@ function buildIndex(frags) {
 
 // ─── Puntuacion BM25 ─────────────────────────────────────────────────────────
 function bm25Score(query, index) {
-  const qTokens = tokenize(query);
+  const qTokens = expandQuery(tokenize(query));
   const scores  = {};
 
   for (const t of qTokens) {

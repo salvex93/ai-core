@@ -2,8 +2,8 @@
 name: ai-integrations
 description: Especialista en integracion de LLMs en aplicaciones de produccion. Cubre diseno de features de IA, gestion de costos por token, prompt versioning, streaming, fallback entre proveedores y evaluacion de outputs. Agnostico al proveedor. Activa al integrar Claude, Gemini u otro LLM en un proyecto anfitrion, disenar endpoints de IA o gestionar costos de inferencia.
 origin: ai-core
-version: 2.3.0
-last_updated: 2026-06-10
+version: 2.4.0
+last_updated: 2026-07-06
 ---
 
 # AI Integrations — Especialista en Features de IA en Produccion
@@ -92,7 +92,7 @@ Definir como constantes de configuracion, no como literales dispersos en el codi
 | Tier | Modelo | Caracteristicas | Cuando usar |
 |---|---|---|---|
 | Adaptive thinking | `claude-opus-4-8` | Presupuesto adaptativo por paso (`task_budgets`), `effort` dinamico (low/high/xhigh), vision 3.75MP | Agentes multi-paso, planificacion con complejidad variable, debug profundo |
-| Razonamiento complejo | `claude-opus-4-6` | Extended thinking fijo (`budget_tokens`), context 200K | Arquitectura critica, analisis profundo de carga uniforme |
+| Razonamiento profundo | `claude-fable-5` | Razonamiento multi-paso sin tools, alternativa a Opus para diseno puro | Arquitectura critica, analisis profundo sin computer use |
 | Ejecucion estandar | `claude-sonnet-4-6` | Prompt Caching GA, token-efficient tools GA, rendimiento optimo | Codigo, resumen, chat, 80% de tareas sustanciales |
 | Volumen alto | `claude-haiku-4-5-20251001` | Latencia minima, costo base | Clasificacion, extraccion, moderacion, lotes, tareas triviales |
 | Voice nativo | `gemini-3.1-flash-live` | Audio-to-audio nativo, WebSocket full-duplex, `thinking_level` dinamico | Voice agents, interfaces conversacionales reales, audio streaming |

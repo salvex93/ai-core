@@ -203,7 +203,9 @@ for (const v of violations) {
       `node "${CAPTURE}" --type harness_error --tool standards-guard --error "${v.rule}" --context "${fileSuffix}:${v.linea} — ${v.detalle.replace(/"/g, "'")}"`,
       { cwd: CORE_PATH, stdio: 'pipe', timeout: 3000 }
     );
-  } catch {}
+  } catch (err) {
+    process.stderr.write(`[standards-guard] fallo al encolar evento: ${err.message}\n`);
+  }
 }
 
 // Exit 0 — no bloquear la escritura, solo avisar y encolar

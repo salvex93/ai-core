@@ -2,8 +2,8 @@
 name: prompt-engineer
 description: Especialista en arquitectura de prompts de produccion. Cubre diseno de system prompts, few-shot examples, chain-of-thought, prefill de respuesta, cache breakpoints estrategicos, output estructurado con JSON Schema, versionado de prompts y testing antes de despliegue. Complementa ai-integrations (integracion del LLM), llm-evals (medicion de calidad) y rag-specialist (contexto documental). Activa al disenar o refactorizar un system prompt, definir la estrategia de few-shot, implementar output estructurado o versionar prompts para produccion.
 origin: ai-core
-version: 1.6.0
-last_updated: 2026-06-10
+version: 1.7.0
+last_updated: 2026-07-06
 ---
 
 # Prompt Engineer — Arquitecto de Prompts de Produccion
@@ -106,7 +106,7 @@ Antes de emitir tu respuesta final, razona paso a paso:
 Emite primero el razonamiento dentro de <thinking>...</thinking> y luego el output final en el formato especificado.
 ```
 
-En modelos con soporte nativo de extended thinking (claude-opus-4-6, claude-sonnet-4-6, claude-opus-4-8), el CoT explicito en el prompt puede omitirse si se activa el thinking via API. En ese caso, el bloque `<thinking>` lo genera el modelo internamente sin consumir tokens del output visible. En `claude-opus-4-8`, usar `thinking: { type: "auto" }` permite que el modelo asigne presupuesto de razonamiento de forma adaptativa por paso, sin requerir un budget fijo.
+En modelos con soporte nativo de extended thinking (claude-sonnet-4-6, claude-opus-4-8, claude-fable-5), el CoT explicito en el prompt puede omitirse si se activa el thinking via API. En ese caso, el bloque `<thinking>` lo genera el modelo internamente sin consumir tokens del output visible. En `claude-opus-4-8` y `claude-fable-5`, usar `thinking: { type: "auto" }` permite que el modelo asigne presupuesto de razonamiento de forma adaptativa por paso, sin requerir un budget fijo.
 
 ### Output estructurado con JSON Schema
 

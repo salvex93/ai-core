@@ -1,9 +1,9 @@
 ---
 name: claude-api
-description: Especialista en Claude API y Anthropic SDK (Python/TypeScript). Cubre prompt caching, extended thinking, tool use, streaming, Batch API, Files API, Citations API, modelos Opus/Sonnet/Haiku, migracion entre versiones de modelo y optimizacion de costo por token. Activa al escribir codigo que importa anthropic/@anthropic-ai/sdk, disenar pipelines con cache de prompts, implementar tool use nativo, o migrar entre versiones de Claude.
+description: Especialista en Claude API y Anthropic SDK (Python/TypeScript). Cubre prompt caching, extended thinking, tool use, streaming, Batch API, Files API, Citations API, modelos Fable 5/Opus/Sonnet/Haiku, migracion entre versiones de modelo y optimizacion de costo por token. Activa al escribir codigo que importa anthropic/@anthropic-ai/sdk, disenar pipelines con cache de prompts, implementar tool use nativo, o migrar entre versiones de Claude.
 origin: ai-core
-version: 1.1.0
-last_updated: 2026-06-10
+version: 1.2.0
+last_updated: 2026-07-06
 ---
 
 # Claude API Specialist
@@ -35,15 +35,17 @@ last_updated: 2026-06-10
 grep -r "cache_control\|anthropic\|claude-" src/ --include="*.ts" --include="*.py" -l
 ```
 
-## Modelos Vigentes (2026-05)
+## Modelos Vigentes (2026-07)
 
 | Modelo | ID exacto | Uso recomendado |
 |---|---|---|
-| Opus 4.8 | `claude-opus-4-8` | Razonamiento complejo, agentes autonomos, arquitectura |
+| Fable 5 | `claude-fable-5` | Razonamiento profundo multi-paso, diseno de sistemas, alternativa a Opus cuando la tarea es puro razonamiento sin computer use |
+| Opus 4.8 | `claude-opus-4-8` | Agentes autonomos, computer use, arquitectura con herramientas integradas |
 | Sonnet 4.6 | `claude-sonnet-4-6` | Produccion general, balance costo/calidad |
 | Haiku 4.5 | `claude-haiku-4-5-20251001` | Tareas simples, maximo ahorro de tokens |
 
-Jerarquia de costo: Haiku < Sonnet < Opus. Usar siempre el minimo suficiente.
+Jerarquia de costo: Haiku < Sonnet < Opus ≈ Fable. Usar siempre el minimo suficiente.
+Regla de seleccion Fable vs Opus: si la tarea requiere razonamiento profundo SIN herramientas integradas → Fable 5. Si requiere computer use o loops de agente con tools → Opus 4.8.
 
 ## Prompt Caching — Patron Obligatorio
 
