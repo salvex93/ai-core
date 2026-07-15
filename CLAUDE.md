@@ -52,6 +52,7 @@ NO esperar a que el usuario declare skills. Seleccionar automaticamente segun la
 | Integracion con LLM, Claude API, prompts | `prompt-engineer`, `ai-integrations`, `claude-api` |
 | Infraestructura, deploy, Docker, CI/CD | `devops-infra`, `release-manager` |
 | Seguridad, auditoria, vulnerabilidades | `security-auditor`, `attack-surface-analyst` |
+| Riesgo de terceros (TPRM), cuestionarios TPS/GRM, VRA de proveedores, BCP/DRP, politicas de gobierno, contraste evidencia-vs-afirmacion | `ciso` |
 | Fallos silenciosos, catch vacios, errores tragados, logs sin contexto, resilencia de scrapers | `silent-failure-hunter` |
 | Agentes, MCP, flujos automatizados | `managed-agents-specialist`, `mcp-server-builder` |
 | Evaluar MCPs de terceros antes de instalar, registros mcp.run/glama.ai, decision INSTALAR/RECHAZAR | `mcp-registry-navigator` |
@@ -80,7 +81,7 @@ NO esperar a que el usuario declare skills. Seleccionar automaticamente segun la
 | Implementacion nueva, feature, refactor que toca mas de un archivo — ciclo con validacion | `dev-loop` |
 | Recuperar contexto de sesiones previas, indexar aprendizajes, busqueda semantica en vault | `memory-manager` |
 
-Los 36 skills disponibles estan en `.claude/skills/`. Cada SKILL.md define el dominio, triggers de activacion y casos de NO activacion.
+Los 37 skills disponibles estan en `.claude/skills/`. Cada SKILL.md define el dominio, triggers de activacion y casos de NO activacion.
 
 ## Visibilidad y Telemetría
 Imprimir una sola línea al inicio de la **primera respuesta de cada sesión**:

@@ -90,24 +90,28 @@ if (!target) {
   process.exit(0);
 }
 
+function aRutaPosix(f) {
+  return path.relative(REPO, f).split(path.sep).join('/');
+}
+
 const rutaAbsoluta = path.resolve(REPO, target);
 if (!fs.existsSync(rutaAbsoluta)) process.exit(0);
 
 const grafo = construirGrafo();
 const dependientes = dependientesDe(rutaAbsoluta, grafo)
-  .map(f => path.relative(REPO, f))
+  .map(aRutaPosix)
   .sort();
 
 if (JSON_OUT) {
-  console.log(JSON.stringify({ archivo: path.relative(REPO, rutaAbsoluta), dependientes }, null, 2));
+  console.log(JSON.stringify({ archivo: aRutaPosix(rutaAbsoluta), dependientes }, null, 2));
   process.exit(0);
 }
 
 if (dependientes.length === 0) {
-  console.log(`[dependency-tracer] ${path.relative(REPO, rutaAbsoluta)}: sin dependientes conocidos en scripts/ o .claude/bin/`);
+  console.log(`[dependency-tracer] ${aRutaPosix(rutaAbsoluta)}: sin dependientes conocidos en scripts/ o .claude/bin/`);
   process.exit(0);
 }
 
-console.log(`[dependency-tracer] ${path.relative(REPO, rutaAbsoluta)} es requerido (directa o transitivamente) por:`);
+console.log(`[dependency-tracer] ${aRutaPosix(rutaAbsoluta)} es requerido (directa o transitivamente) por:`);
 dependientes.forEach(d => console.log(`  - ${d}`));
 console.log(`[dependency-tracer] Ejecutar los tests correspondientes antes de aceptar este cambio.`);
