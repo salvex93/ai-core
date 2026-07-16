@@ -31,8 +31,9 @@ const TEST_EXTS = ['.js', '.ts', '.py'];
 const ext = path.extname(filePath).toLowerCase();
 const esArchivoFuente = TEST_EXTS.includes(ext);
 const relPath = path.relative(REPO, path.resolve(filePath));
+const relPathPosix = relPath.split(path.sep).join('/');
 
-const esArchivoDeTest = /\.test\.js$|\.spec\.js$|^tests\//.test(relPath) || relPath.includes(`${path.sep}tests${path.sep}`);
+const esArchivoDeTest = /\.test\.js$|\.spec\.js$|^tests\//.test(relPathPosix);
 const esFueraDelRepo  = relPath.startsWith('..');
 
 // Solo aplica a codigo fuente real dentro del repo, fuera de tests/

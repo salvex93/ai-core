@@ -2,8 +2,8 @@
 name: workflow-orchestrator
 description: Especialista en orquestacion multi-agente y workflows de larga duracion. Fan-out/fan-in, retry con backoff exponencial, checkpointing de estado, coordinacion de subagentes heterogeneos y recuperacion ante fallos parciales. Activa al disenar workflows con multiples agentes paralelos, implementar pipelines con dependencias entre pasos, o garantizar durabilidad ante fallos transitorios.
 origin: ai-core
-version: 2.2.0
-last_updated: 2026-07-10
+version: 2.3.0
+last_updated: 2026-07-15
 rol: architect
 ---
 
@@ -50,6 +50,12 @@ Ante cualquiera de estas condiciones, insertar la directiva y detener:
 ```
 [ALERTA_ARQUITECTONICA: REQUIERE_OPUSPLAN]
 ```
+
+## Subagentes Nativos de Claude Code vs Orquestacion via API
+
+- Si la coordinacion vive DENTRO de una sesion de Claude Code (el padre es Claude, los subagentes son Task/Agent lanzados por Claude Code) → usar subagentes nativos (`.claude/agents/` o `AgentDefinition` del Agent SDK si es una app SDK), NO reimplementar fan-out con asyncio y llamadas directas a la API. Los subagentes nativos ya traen scope de tools via allowlist/disallowedTools y contexto aislado por diseno.
+- Reservar los patrones de asyncio.gather + AsyncAnthropic de este skill para el caso donde el orquestador NO es una sesion de Claude Code (un servicio backend propio, un cron, un pipeline batch fuera del IDE) y por tanto no hay Task tool disponible.
+- Para coordinar mas de unas pocas tareas por turno dentro de una sesion Claude Code, evaluar la herramienta Workflow (Dynamic Workflows) en vez de fan-out manual: permite hasta 16 agentes concurrentes y 1000 totales por corrida, con resultados intermedios en variables de un script en vez de en el contexto de Claude — mas apropiado que este patron de asyncio cuando el fan-out ocurre a peticion del usuario dentro de Claude Code.
 
 ## Patrones de Orquestacion
 

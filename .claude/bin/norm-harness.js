@@ -196,7 +196,7 @@ function buildSettingsForHost(corePath, stackPermissions) {
           matcher: "Write|Edit",
           hooks: [
             { type: "command", command: `node ${bin("process-guard.js")} lint node ${bin("detox.js")} 2>/dev/null || true` },
-            { type: "command", command: `FILE="$CLAUDE_TOOL_INPUT_file_path"; if [[ "$FILE" == *.js ]]; then node --check "$FILE" 2>&1 && echo "[syntax-ok] $FILE" || echo "[syntax-error] $FILE"; fi` },
+            { type: "command", command: `node ${bin("syntax-check.js")} "$CLAUDE_TOOL_INPUT_file_path" 2>/dev/null || true` },
             { type: "command", command: `node ${bin("process-guard.js")} lint node ${bin("standards-guard.js")} "$CLAUDE_TOOL_INPUT_file_path"` },
             { type: "command", command: `node ${bin("process-guard.js")} map node ${bin("diff-map-trigger.js")} 2>/dev/null || true` },
             { type: "command", command: `node ${bin("process-guard.js")} lint node ${bin("security-check.js")} "$CLAUDE_TOOL_INPUT_file_path" 2>/dev/null || true` },

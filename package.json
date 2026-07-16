@@ -15,6 +15,7 @@
     "token-metrics": "node tests/token-metrics.js",
     "setup": "node .claude/bin/setup-settings.js",
     "validate-globals": "node .claude/bin/validate-globals.js",
+    "audit-market": "node .claude/bin/audit-market.js",
     "score": "node .claude/bin/aiops-score.js",
     "score-report": "node .claude/bin/aiops-score.js --report",
     "migrate": "node scripts/migrator.js",

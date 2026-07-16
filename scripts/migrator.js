@@ -43,7 +43,7 @@ function resolveFrom() {
   // Intentar leer de git log la versión anterior en package.json
   try {
     const { execSync } = require('child_process');
-    const prev = execSync('git show HEAD~1:package.json 2>/dev/null', { encoding: 'utf8', cwd: ROOT });
+    const prev = execSync('git show HEAD~1:package.json', { encoding: 'utf8', cwd: ROOT, stdio: ['pipe', 'pipe', 'ignore'] });
     return JSON.parse(prev).version;
   } catch {
     return null;

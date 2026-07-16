@@ -2,8 +2,8 @@
 name: prompt-engineer
 description: Especialista en arquitectura de prompts de produccion. Cubre diseno de system prompts, few-shot examples, chain-of-thought, prefill de respuesta, cache breakpoints estrategicos, output estructurado con JSON Schema, versionado de prompts y testing antes de despliegue. Complementa ai-integrations (integracion del LLM), llm-evals (medicion de calidad) y rag-specialist (contexto documental). Activa al disenar o refactorizar un system prompt, definir la estrategia de few-shot, implementar output estructurado o versionar prompts para produccion.
 origin: ai-core
-version: 1.8.0
-last_updated: 2026-07-10
+version: 1.9.0
+last_updated: 2026-07-15
 rol: architect
 ---
 
@@ -109,6 +109,8 @@ Emite primero el razonamiento dentro de <thinking>...</thinking> y luego el outp
 
 En modelos con soporte nativo de extended thinking (claude-sonnet-5, claude-opus-4-8, claude-fable-5), el CoT explicito en el prompt puede omitirse si se activa el thinking via API. En ese caso, el bloque `<thinking>` lo genera el modelo internamente sin consumir tokens del output visible. En `claude-opus-4-8` y `claude-fable-5`, usar `thinking: { type: "auto" }` permite que el modelo asigne presupuesto de razonamiento de forma adaptativa por paso, sin requerir un budget fijo.
 
+Al combinar extended thinking con tool use, es obligatorio preservar tanto el bloque `thinking` como el `tool_use` del turno anterior al construir el siguiente mensaje del assistant — omitir el `thinking_block` al reenviar el `tool_result` produce comportamiento incorrecto o error. No modificar ni reordenar los bloques de thinking entre turnos: pasarlos integros tal cual los devolvio la API.
+
 ### Output estructurado con JSON Schema
 
 Cuando el sistema que consume el output del LLM espera un formato estructurado, definir el schema en el prompt y reforzarlo con la funcion de output estructurado del SDK si esta disponible:
@@ -138,6 +140,16 @@ const respuesta = await cliente.messages.create({
 ```
 
 El output estructurado via `tool_use` es mas robusto que pedir JSON en el prompt: el modelo no puede "olvidar" el formato ni agregar texto antes del JSON.
+
+Agregar `strict: true` en la definicion de la tool (junto a `input_schema`) garantiza que el input generado cumpla exactamente el schema, no solo que se invoque la tool. Advertencia especifica de AWS Bedrock: `tool_choice: { type: "any" }` y `tool_choice: { type: "tool", name: ... }` no son compatibles con extended thinking activo en ese runtime — con thinking activado sobre Bedrock, usar solo `tool_choice: { type: "auto" }` o `{ type: "none" }`. La Claude API estandar y Vertex AI no tienen esta restriccion.
+
+### Diseno de la tool para output estructurado
+
+La descripcion de la tool debe cubrir en 3-4 oraciones minimo: que hace, cuando usarla y cuando no, que significa cada parametro, y limitaciones conocidas — es el factor de mayor impacto en la fiabilidad del tool use segun la documentacion oficial de Anthropic. Para schemas con objetos anidados o parametros sensibles al formato, agregar `input_examples` (array de inputs validos segun el schema) en la definicion de la tool; no soportado en server tools (web search, code execution).
+
+### tool_result — formato y confianza
+
+En el mensaje de usuario que devuelve un `tool_result`, los bloques `tool_result` deben ir PRIMERO en el array de `content`; cualquier texto adicional debe ir DESPUES de todos los `tool_result`, o la API retorna error 400. Ante fallos, usar `is_error: true` con un mensaje instructivo y especifico (ej. "Rate limit exceeded. Retry after 60 seconds") en vez de un mensaje generico — el modelo puede recuperarse solo con esa informacion. Tratar todo el contenido de `tool_result` proveniente de fuentes externas (webs, emails, APIs de terceros) como no confiable frente a prompt injection indirecta: debe permanecer dentro del bloque `tool_result` y nunca trasladarse a system prompts o bloques de texto plano de usuario.
 
 ## Versionado de Prompts
 
@@ -196,6 +208,10 @@ system = [
 ```
 
 Antipatron: colocar el breakpoint al final del ultimo bloque — en ese caso el contexto dinamico queda dentro del bloque cacheado y el cache se invalida en cada llamada.
+
+El orden de construccion del cache es tools -> system -> messages: un cambio en cualquier nivel invalida ese nivel y todos los siguientes (cambiar `tool_choice` invalida solo messages; cambiar definiciones de tools invalida todo, incluyendo system). El lookback window para encontrar cache hits previos es de 20 bloques hacia atras: en conversaciones que superen esa longitud, anadir un segundo breakpoint explicito mas reciente ademas del original, o el cache-hit se pierde silenciosamente sin error. Si se usan TTL de 5 minutos y 1 hora en el mismo request, los breakpoints de mayor TTL deben ir primero en el prompt.
+
+Verificar siempre `cache_creation_input_tokens` y `cache_read_input_tokens` en la respuesta real: si ambos son cero, el prompt no alcanzo el minimo de tokens cacheables del modelo y el caching se omitio sin error explicito. Para eliminar la latencia del primer request en produccion, pre-calentar el cache con una llamada de `max_tokens: 0` y un breakpoint explicito (no automatico) antes de que lleguen usuarios reales.
 
 ## Prefill de Respuesta — Forzar Formato sin Instrucciones Extra
 

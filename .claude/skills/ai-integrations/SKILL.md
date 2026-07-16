@@ -2,8 +2,8 @@
 name: ai-integrations
 description: Especialista en integracion de LLMs en aplicaciones de produccion. Cubre diseno de features de IA, gestion de costos por token, prompt versioning, streaming, fallback entre proveedores y evaluacion de outputs. Agnostico al proveedor. Activa al integrar Claude, Gemini u otro LLM en un proyecto anfitrion, disenar endpoints de IA o gestionar costos de inferencia.
 origin: ai-core
-version: 2.4.0
-last_updated: 2026-07-10
+version: 2.5.0
+last_updated: 2026-07-15
 rol: architect
 ---
 
@@ -112,6 +112,7 @@ API simplificada: un unico campo `cache_control: { type: "ephemeral" }` por bloq
 - Umbral minimo: 1024 tokens (Sonnet/Opus) o 2048 (Haiku) para activar el cache.
 - Loguear `cache_creation_input_tokens` y `cache_read_input_tokens` separado de `input_tokens`.
 - TTL del cache: 5 minutos de inactividad — refrescar si el intervalo entre llamadas puede superarlo.
+- Si `cache_creation_input_tokens` y `cache_read_input_tokens` son ambos 0 en la respuesta, el caching se omitio silenciosamente (no hay error explicito) — verificar que el bloque marcado supera el umbral minimo de tokens cacheables antes de asumir que el cache esta funcionando. Para eliminar la latencia del primer request real, pre-calentar el cache con una llamada de `max_tokens: 0` y un breakpoint explicito antes de que lleguen usuarios reales.
 
 ### Token Counting API
 
@@ -234,6 +235,15 @@ Primario: modelo basado en complejidad. Fallo tras timeout (3s) o 3 errores cons
 
 Rate limits 429: retry con backoff exponencial — 0s, 1s, 2s, 4s (maximo 4 intentos), luego propagar error con contexto.
 
+## Diseno de Tools para Integraciones de IA
+
+Un feature de IA en produccion casi siempre expone tools al LLM, sin importar el proveedor:
+
+- Descripciones de tools con minimo 3-4 oraciones: que hace, cuando usarla, cuando NO usarla, que significa cada parametro y limitaciones conocidas (Anthropic: "por mucho el factor mas importante" en tool use; Gemini: ejemplo oficial "no Gets data sino Retrieves the current stock price... Use this when the user asks about stock prices").
+- Consolidar operaciones relacionadas en una tool con parametro `action` (ej. `manage_pr` con `action=create/review/merge`) en vez de una tool por accion, para reducir ambiguedad de seleccion.
+- Namespacing con prefijo de servicio en el nombre (`github_list_prs`, `slack_send_message`); Gemini exige nombres sin espacios (letras, numeros, guion bajo, punto o guion).
+- Respuestas de tools: devolver identificadores semanticos estables (slugs, nombres) en vez de UUIDs/referencias internas opacas, e implementar paginacion/truncamiento con defaults sensatos que indiquen que hacer a continuacion.
+
 ## Evaluacion de Outputs
 
 | Tipo | Cuando | Herramienta |
@@ -242,6 +252,8 @@ Rate limits 429: retry con backoff exponencial — 0s, 1s, 2s, 4s (maximo 4 inte
 | Semantica automatica | Texto libre con criterios de calidad | LLM-as-judge |
 | Humana | Flujos criticos o cambios de prompt importantes | Golden dataset |
 | Regresion | Tras cambio de modelo o prompt | Comparacion contra historial aprobado |
+
+Si el proveedor soporta modo estricto de schema (Anthropic `strict: true` + `tool_choice: {type: any}`; OpenAI Structured Outputs `strict: true`), usarlo en vez de solo validar post-hoc con Zod/Pydantic — garantiza adherencia al schema en el proveedor. Con OpenAI, revisar el campo `refusal` en la respuesta como error de primera clase ANTES de intentar parsear el contenido — no asumir que ausencia de error de red implica una respuesta valida. Nota: `tool_choice: any`/`tool` no es compatible con extended thinking activo en AWS Bedrock (la Claude API estandar y Vertex AI no tienen esta restriccion).
 
 ### Prompt Injection — Defensa obligatoria
 

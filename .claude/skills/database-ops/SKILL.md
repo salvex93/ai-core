@@ -2,8 +2,8 @@
 name: database-ops
 description: Especialista en operaciones de base de datos en produccion. Cubre migraciones zero-downtime, analisis de query plans, particionamiento, vacuuming PostgreSQL, connection pooling con PgBouncer, backup/restore, y observabilidad de queries lentas. Diferenciado de backend-architect (diseño de esquemas) y data-engineer (pipelines ETL). Activa al diagnosticar degradacion de performance en BD, planificar migraciones en produccion, configurar pooling o definir estrategias de backup.
 origin: ai-core
-version: 1.0.0
-last_updated: 2026-07-10
+version: 1.1.0
+last_updated: 2026-07-15
 rol: architect
 ---
 
@@ -88,6 +88,12 @@ Regla: `CREATE INDEX CONCURRENTLY` siempre en produccion — nunca `CREATE INDEX
 
 Principio: ninguna migracion bloquea la tabla mas de 50ms en produccion.
 
+Patron general: expand-contract. Fase expand (pre-deploy) agrega estructura nueva sin romper el codigo actual (columnas, indices, constraints `NOT VALID`); fase contract (post-deploy) retira lo viejo una vez el codigo nuevo esta desplegado y el backfill completo. Nunca combinar expand y contract en el mismo deploy.
+
+Toda migracion en produccion debe fijar `lock_timeout` explicito antes de la operacion (ej. `SET lock_timeout = '2s';`) para que un lock inesperado falle rapido en vez de bloquear trafico indefinidamente.
+
+Si el motor detectado es MySQL, sustituir `CREATE INDEX CONCURRENTLY` por `gh-ost` o `pt-online-schema-change` (Percona Toolkit) — `ALTER TABLE` nativo de MySQL bloquea la tabla en la mayoria de operaciones.
+
 ### Operaciones seguras (no bloquean)
 - `CREATE INDEX CONCURRENTLY`
 - `ADD COLUMN` sin `NOT NULL` ni `DEFAULT` (PostgreSQL >= 11: `ADD COLUMN DEFAULT` es seguro)
@@ -147,6 +153,8 @@ log_disconnections = 0
 Regla: `pool_mode = transaction` para APIs REST. `pool_mode = session` solo si la app usa `SET LOCAL`, advisory locks o `LISTEN/NOTIFY`.
 
 Señal de alarma: `cl_waiting > 0` en `SHOW POOLS` indica que el pool esta saturado — aumentar `default_pool_size` o reducir `max_client_conn`.
+
+Usar PgBouncer >= 1.25.1 si el despliegue combina simultaneamente `track_extra_parameters` con `search_path`, `auth_user` configurado, y `auth_query` sin nombres fully-qualified — esa combinacion especifica de configuracion no-default es vulnerable a CVE-2025-12819 (corregido en 1.25.1); fuera de esas tres condiciones simultaneas, el CVE no aplica. Dimensionar `default_pool_size` segun la capacidad real de conexiones que Postgres puede sostener (revisar `max_connections` y recursos del servidor), no segun la demanda pico de la aplicacion. Monitorear en conjunto `SHOW POOLS` (`cl_waiting`) y `pg_stat_activity` del lado del servidor Postgres para confirmar que el cuello de botella esta donde se piensa antes de ajustar el tamano del pool.
 
 ## Mantenimiento — Vacuum y Bloat
 

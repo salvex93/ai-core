@@ -2,8 +2,8 @@
 name: ai-guardrails
 description: Especialista en capas de proteccion para sistemas LLM en produccion. Cubre deteccion y bloqueo de prompt injection, validacion de outputs, deteccion de PII, rate limiting por usuario, patron LLM Firewall y seleccion de frameworks (NeMo Guardrails, Guardrails AI, Azure AI Content Safety). Complementa security-auditor (seguridad de aplicacion) y llm-observability (deteccion reactiva). Activa al disenar la capa de proteccion de un sistema LLM, implementar filtros de input/output, o definir politicas de uso aceptable.
 origin: ai-core
-version: 1.2.0
-last_updated: 2026-07-10
+version: 1.3.0
+last_updated: 2026-07-15
 rol: auditor
 ---
 
@@ -185,7 +185,7 @@ Delegar la configuracion de alertas basadas en estos eventos al skill `llm-obser
 
 ### Interleaved Thinking como canal opaco
 
-El beta `interleaved-thinking-2025-05-14` de Anthropic introduce bloques `thinking` intercalados entre pasos de tool use. Estos bloques son invisibles al Output Guard si el sistema solo inspeciona el texto final. Riesgos:
+El beta `interleaved-thinking-2025-05-14` de Anthropic introduce bloques `thinking` intercalados entre pasos de tool use. Estos bloques son invisibles al Output Guard si el sistema solo inspeciona el texto final. En modelos con adaptive thinking (Sonnet 5, Opus 4.8, Claude Fable 5), el interleaved thinking entre llamadas a herramientas esta disponible de forma automatica, sin necesidad de activar el header beta — ese header aplica solo a modelos legacy. Consecuencia para el guardrail: no asumir que la inspeccion de bloques thinking es opcional condicionada a un flag explicito en el codigo del anfitrion; verificar primero que modelo esta en uso antes de concluir que el canal esta cerrado por default. Riesgos:
 
 - Un prompt injection bien diseñado puede instruir al modelo a razonar en el bloque `thinking` sobre como eludir la politica, y luego emitir una respuesta aparentemente conforme.
 - Los bloques `thinking` pueden contener razonamiento sobre el system prompt, filtrando estructura interna del sistema.

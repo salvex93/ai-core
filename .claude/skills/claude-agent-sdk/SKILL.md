@@ -2,8 +2,8 @@
 name: claude-agent-sdk
 description: Especialista en construccion de agentes autonomos con el Claude Agent SDK (TypeScript/Python). Cubre herramientas integradas, hooks de ciclo de vida, subagentes, integracion MCP, OAuth 2.0 client flow (Authorization Code + PKCE) para servidores MCP remotos, gestion de permisos y sesiones. Activa al construir agentes personalizados, orquestar subagentes, integrar el Agent SDK en un proyecto anfitrion o disenar flujos de automatizacion con Claude.
 origin: ai-core
-version: 2.3.0
-last_updated: 2026-07-10
+version: 2.4.0
+last_updated: 2026-07-15
 rol: architect
 ---
 
@@ -79,6 +79,14 @@ Orquestador → Investigador (solo lectura)
 
 Cada subagente tiene scope de herramientas restringido al minimo necesario para su rol. El orquestador no ejecuta herramientas destructivas directamente — las delega al ejecutor.
 
+### Definicion Programatica de Subagentes (Agent SDK)
+
+Definir subagentes programaticamente con el parametro `agents` de `query()` (`AgentDefinition`: `description`, `prompt`, `tools`, `model`, `skills`, `memory`, `mcpServers`, `maxTurns`, `background`, `effort`, `permissionMode`) cuando el caso de uso es una app SDK propia. Los subagentes definidos por codigo tienen precedencia sobre los definidos en archivos markdown con el mismo nombre. Incluir siempre `Agent` en `allowedTools` del orquestador para que las invocaciones de subagentes se auto-aprueben sin prompt de permiso.
+
+Patron orchestrator-worker verificado: emparejar un modelo capaz como orquestador con subagentes en un modelo mas economico mejora resultados frente a un solo modelo grande trabajando solo, y reduce el costo por tarea. Para configuracion dinamica de agentes, usar una funcion factory que devuelva un `AgentDefinition` condicionado en tiempo de ejecucion (ejemplo: modelo mas capaz para revisiones estrictas de seguridad vs un modelo balanceado para revisiones generales) en vez de una definicion estatica unica.
+
+El patron turn-by-turn descrito arriba (Claude decide que invocar en cada turno, el resultado vive en el context window del orquestador) es apto solo para unas pocas tareas delegadas por turno. Para coordinar decenas o cientos de agentes en una sola corrida, usar la herramienta `Workflow` (Dynamic Workflows): Claude escribe un script que el runtime ejecuta fuera de la conversacion, con resultados intermedios en variables del script en vez de en el contexto de Claude. Ver `workflow-orchestrator` para el diseno de esa escala.
+
 ## Herramientas Integradas (Built-in Tools)
 
 | Herramienta | Capacidad | Cuando usar |
@@ -92,6 +100,14 @@ Cada subagente tiene scope de herramientas restringido al minimo necesario para 
 Nota: el nombre `web_search_20250305` incluye fecha de version. Verificar identificador vigente en `docs.anthropic.com/tools` antes de usar en proyecto nuevo — un nombre obsoleto hace que la herramienta no se active sin error explicito.
 
 Herramientas destructivas (`bash` con rm/delete, `text_editor` con write) requieren hook de confirmacion humana en produccion o sobre repositorios compartidos.
+
+### Diseno de Tool Definitions
+
+Escribir descripciones de herramientas extremadamente detalladas (minimo 3-4 oraciones, mas si la tool es compleja): que hace, cuando usarla y cuando NO, que significa cada parametro, y limitaciones — es el factor mas importante en el desempeno de tool use segun la documentacion oficial. Consolidar operaciones relacionadas en menos tools con un parametro `action` (ej. una sola `manage_pr` con `action=create/review/merge`) en vez de una tool por accion, para reducir ambiguedad de seleccion. Usar namespacing con prefijo de servicio (`github_list_prs`, `slack_send_message`). Disenar las respuestas de las tools para devolver solo informacion de alta senal: identificadores semanticos y estables (slugs, nombres) en vez de UUIDs u opacos internos; implementar paginacion/filtrado/truncamiento con defaults sensatos, incluyendo en la respuesta de truncamiento instrucciones concretas de que hacer a continuacion. Para tools complejas con objetos anidados o parametros sensibles al formato, usar el campo opcional `input_examples` (array de inputs validos segun el schema); no soportado en server tools (web search, code execution).
+
+### Contrato de tool_result
+
+Los bloques `tool_result` deben ir PRIMERO en el array de `content` del mensaje de usuario; cualquier texto adicional debe ir DESPUES de todos los `tool_result` o la API devuelve error 400. Ante fallo de herramienta, usar `is_error: true` con un mensaje instructivo de recuperacion (ej. "Rate limit exceeded. Retry after 60 seconds") en vez de un mensaje generico ("failed"), para que el modelo pueda recuperarse sin adivinar. Tratar todo el contenido de `tool_result` proveniente de fuentes externas (webs, emails, uploads, APIs de terceros) como no confiable frente a prompt injection indirecta: mantenerlo dentro de bloques `tool_result` y nunca trasladarlo a system prompts o bloques de texto plano de usuario.
 
 ## Hooks de Ciclo de Vida
 
@@ -108,6 +124,8 @@ Implementar siempre ambos hooks en agentes de produccion. El pre-hook valida y l
 ## Gestion de Permisos
 
 Principio: minimo privilegio. El constructor del agente recibe `permissions: { allow: [...], deny: [...] }`. En produccion, los permisos se definen en configuracion externa (`.claude/settings.json` o variable de entorno), no como literales en el codigo.
+
+Para subagentes, definir el scope de herramientas con el campo `tools` como allowlist o `disallowedTools` como denylist en la definicion del subagente (`AgentDefinition` o archivo markdown). Si ningun tool de la lista resuelve, el subagente falla al lanzarse en vez de arrancar sin tools — verificar los nombres antes de desplegar. Cada subagente arranca con contexto fresco: no ve el historial de la conversacion padre, skills ya invocadas ni archivos ya leidos por el padre — solo recibe su propio system prompt, el mensaje de delegacion, y el contexto explicitamente precargado (memoria, skills declaradas). Por eso cualquier regla critica debe repetirse en el prompt de delegacion, no basta con que exista en un CLAUDE.md que el subagente no vera si es un subagente built-in de exploracion.
 
 ## Integracion con Servidores MCP
 
@@ -143,6 +161,10 @@ agent_sessions_active{agent_name}                   # sesiones activas (gauge)
 Eventos obligatorios: `agent.session.started`, `agent.session.ended`, `agent.tool.pre_call`, `agent.tool.post_call`, `agent.tool.blocked`, `agent.stop_condition.reached`, `agent.loop.error`, `agent.limit.reached`.
 
 Instrumentar con OpenTelemetry: un span por invocacion de herramienta, atributos `agent.tool.name` y `agent.tool.success`. Adjuntar el span en `onPreToolCall` y cerrarlo en `onPostToolCall`.
+
+### Prompt Caching en el Loop del Agente
+
+El orden de construccion del cache es tools -> system -> messages; un cambio en cualquier nivel invalida ese nivel y todos los siguientes. Colocar el contenido estatico del agente (definiciones de tools, system prompt, ejemplos) al inicio del prompt con el `cache_control` breakpoint justo al final de ese prefijo estatico, y el contenido dinamico (historial de turnos, resultados de tools) al final, nunca sobre contenido que cambia cada request. Verificar `cache_creation_input_tokens` y `cache_read_input_tokens` en cada respuesta: si ambos son cero, el prompt no alcanzo el minimo de tokens cacheables del modelo — el caching se omite sin error explicito.
 
 ## Gestion de Sesiones
 

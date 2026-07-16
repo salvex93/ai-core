@@ -10,7 +10,7 @@
  * Ejecutado via hook PostToolUse (matcher: Write|Edit|Bash) en settings.json.
  */
 
-const { execSync } = require('child_process');
+const { execSync, execFileSync } = require('child_process');
 const path = require('path');
 const fs   = require('fs');
 
@@ -72,7 +72,7 @@ const commitMs = getLastCommitMs();
 // Si el mapa es mas nuevo que el ultimo commit y no hay untracked files nuevos, salir
 // (el check hasStructuralChanges ya garantizo que hay algo nuevo)
 try {
-  execSync(`node ${GENERATE}`, { cwd: HOST_PATH, stdio: 'pipe' });
+  execFileSync('node', [GENERATE], { cwd: HOST_PATH, stdio: 'pipe' });
   process.stderr.write('[MAP] Cambio estructural detectado — mapa regenerado.\n');
 } catch (e) {
   process.stderr.write(`[MAP] Error regenerando mapa: ${e.message.split('\n')[0]}\n`);

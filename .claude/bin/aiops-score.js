@@ -156,8 +156,8 @@ function scoreDrift() {
     const mapa = JSON.parse(fs.readFileSync(MAP_F, 'utf8'));
     const totalMapa = mapa.host?.total_files || 0;
 
-    const gitFiles = exec('git ls-files | wc -l');
-    const totalGit = parseInt(gitFiles, 10) || 0;
+    const gitFiles = exec('git ls-files');
+    const totalGit = gitFiles ? gitFiles.split('\n').filter(Boolean).length : 0;
     const diff = Math.abs(totalMapa - totalGit);
 
     if (diff === 0) { /* perfecto */ }

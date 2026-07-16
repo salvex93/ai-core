@@ -27,7 +27,7 @@
 
 const fs           = require('fs');
 const path         = require('path');
-const { execSync, spawnSync } = require('child_process');
+const { spawnSync } = require('child_process');
 
 const TIMEOUT_MS  = 8000;  // max tiempo de espera por lock (ms)
 const LOCK_DIR    = path.join(require('os').tmpdir(), 'ai-core-locks');
@@ -52,16 +52,26 @@ const LOCK_FILE = path.join(LOCK_DIR, `${categoria}.lock`);
 // Verificar carga global de procesos Node del harness
 // ---------------------------------------------------------------------------
 
+// Cuenta locks activos en LOCK_DIR en vez de interrogar al SO (ps/grep/wc no
+// son nativos de Windows) — cada lock vivo representa un proceso del harness
+// en curso, ya que acquireLock()/releaseLock() los crean y borran alrededor
+// de cada spawnSync.
 function countHarnessProcs() {
   try {
-    // Contar procesos node que tienen 'ai-core' en su ruta de comando
-    const out = execSync(
-      "ps aux 2>/dev/null | grep 'ai-core/.claude/bin' | grep -v grep | wc -l",
-      { encoding: 'utf8', stdio: ['pipe', 'pipe', 'ignore'] }
-    ).trim();
-    return parseInt(out, 10) || 0;
+    return fs.readdirSync(LOCK_DIR)
+      .filter(f => f.endsWith('.lock'))
+      .filter(f => !isLockStale(readLockFile(path.join(LOCK_DIR, f))))
+      .length;
   } catch {
     return 0;
+  }
+}
+
+function readLockFile(lockPath) {
+  try {
+    return JSON.parse(fs.readFileSync(lockPath, 'utf8'));
+  } catch {
+    return null;
   }
 }
 
@@ -70,12 +80,7 @@ function countHarnessProcs() {
 // ---------------------------------------------------------------------------
 
 function readLock() {
-  try {
-    const data = JSON.parse(fs.readFileSync(LOCK_FILE, 'utf8'));
-    return data;
-  } catch {
-    return null;
-  }
+  return readLockFile(LOCK_FILE);
 }
 
 function isLockStale(lock) {

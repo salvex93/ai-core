@@ -2,8 +2,8 @@
 name: gemini-3-specialist
 description: Especialista en integracion avanzada con la familia Gemini 3.x (3.1 Pro, 3.1 Flash, 3.1 Flash-Lite, 3.5 Flash, 3.1 Flash Image). Cubre thinking_level (low/medium/high), Live API con TTS nativo, generacion y edicion conversacional de imagenes (Nano Banana 2), contexto de 1M tokens, y seleccion de variante segun caso de uso y costo. Activa al integrar Gemini directamente (fuera del bridge MCP), disenar pipelines multimodales, o evaluar Flash-Lite como alternativa de escala masiva.
 origin: ai-core
-version: 2.0.0
-last_updated: 2026-07-10
+version: 2.1.0
+last_updated: 2026-07-15
 rol: architect
 ---
 
@@ -11,7 +11,7 @@ rol: architect
 
 Gobierna la integracion directa con la familia Gemini 3.x de Google (reemplaza al perfil de la familia 2.5, retirada). Complementa al bridge MCP gemini-bridge (que cubre casos delegados desde Claude) con la logica de integracion programatica directa: SDK, APIs REST, thinking levels, streaming y seleccion de variante por caso de uso.
 
-Complementos activos: `audio-voice-engineer` (Live API y TTS), `rag-specialist` (corpus documentales), `cost-optimizer` (jerarquia de tier 0), `workflow-orchestrator` (coordinacion de modelos heterogeneos), `multimodal-engineer` (vision y procesamiento de documentos), `prompt-engineer` (detalle tecnico de `thinking_level`).
+Complementos activos: `audio-voice-engineer` (Live API y TTS), `rag-specialist` (corpus documentales), `cost-optimizer` (jerarquia de tier 0), `workflow-orchestrator` (coordinacion de modelos heterogeneos), `multimodal-engineer` (vision y procesamiento de documentos), `prompt-engineer` (detalle tecnico de `thinking_level`), `llm-evals` (diseno del dataset de evaluacion para medir delta de calidad/costo antes de cambiar de variante o thinking_level).
 
 ## Cuando Activar Este Perfil
 
@@ -72,7 +72,15 @@ Regla de seleccion:
 2. Tarea agentica multi-step o coding con presupuesto medio → `gemini-3.5-flash`.
 3. Live API / audio-to-audio → `gemini-3.1-flash-live-preview` (ver `audio-voice-engineer` para detalle; Affective Dialog no soportado a la fecha).
 4. Corpus > 500MB o razonamiento muy complejo → `gemini-3.1-pro-preview` con `thinking_level: "high"`.
-5. Nunca subir de tier sin medir primero el delta de calidad/costo en un dataset de evaluacion.
+5. Nunca subir de tier sin medir primero el delta de calidad/costo en un dataset de evaluacion. Ver `llm-evals` para diseno del dataset de evaluacion representativo.
+
+## Function Calling en Gemini 3.x
+
+Reglas de naming de funcion: nombres descriptivos sin espacios ni caracteres especiales (letras, numeros, guion bajo, punto o guion, maximo 64 caracteres). Las descripciones deben indicar CUANDO usar la funcion, no solo que hace (ejemplo oficial de Google: no "Gets data" sino "Retrieves the current stock price for a given ticker symbol. Use this when the user asks about stock prices or market data"). Usar `enum` para valores de conjunto finito en vez de describirlos en texto libre; usar `integer` en vez de `number` cuando el valor siempre es entero. Limitar el set activo de tools (guia practica de 10 a 20 herramientas) porque demasiadas aumentan el riesgo de seleccion incorrecta. Iterar sobre todas las function calls devueltas en la respuesta, ya que Gemini puede solicitar varias en un mismo turno, sean paralelas o composicionales encadenadas.
+
+## Structured Output con Gemini
+
+Usar `response_schema` junto con `response_mime_type: "application/json"` en `generation_config` para forzar el output a cumplir un JSON Schema. Nombrar los campos del schema de forma intuitiva. Los campos opcionales requieren `nullable: true` (subconjunto OpenAPI 3.0 que usa la API de Gemini) — no es el mismo mecanismo que el union-con-null de otros proveedores, aunque el principio de diseno de schema (marcar explicitamente que campos pueden faltar) es el mismo. Verificar que extraccion estructurada desde documentos (ej. clasificacion por severidad) usa `response_schema` explicito, no parsing de texto libre.
 
 ## Thinking Level — Control de Costo/Calidad
 
@@ -158,6 +166,8 @@ interaction = client.interactions.create(
 
 Limite practico: 1M tokens = ~750k palabras = ~1500 paginas A4. Para corpus mayores, implementar chunking con Hybrid Search (ver `rag-specialist`).
 
+Para recuperacion de un solo dato puntual dentro del corpus, la precision es alta. Para recuperar multiples elementos discretos en una sola pasada (ej. "todos los requisitos de seguridad"), la precision cae notablemente con multiples needles simultaneos segun documentacion oficial de Google — considerar dividir en multiples solicitudes en vez de una sola con contexto masivo cuando la tarea requiere recuperar muchos items distintos. Colocar la pregunta o instruccion DESPUES del bloque de contexto largo, con una frase de transicion explicita (ejemplo oficial: "Based on the information above...") para anclar la respuesta al contenido precedente.
+
 ## Gemini 3.1 Flash Image (Nano Banana 2) — Generacion y Edicion Conversacional
 
 Modelo dedicado de imagen, nombre en codigo "Nano Banana 2" (lanzado 2026-02, verificado 2026-07-10). No es una flag sobre el modelo de texto — es un modelo propio: `gemini-3.1-flash-image-preview`.
@@ -217,6 +227,8 @@ Regla: para proyectos con datos de clientes finales o contratos de confidenciali
 - [ ] Corpus > 100MB usa File API de Google — no retransmitir en cada request.
 - [ ] Live API usa modelo `gemini-3.1-flash-live-preview` — no `gemini-2.5-flash-live-preview` ni `gemini-2.0-flash-live-001` (ambos apagados 2025-12-09).
 - [ ] Outputs criticos (financiero, legal) no dependen exclusivamente de Gemini sin validacion humana.
+- [ ] Nombres de funcion sin espacios/caracteres especiales, descripciones indican CUANDO usar la funcion, no solo que hace.
+- [ ] Extraccion de multiples items desde corpus largo (>1 needle) evalua dividir en varias solicitudes en vez de una sola pasada.
 
 ## Restricciones del Perfil
 

@@ -2,8 +2,8 @@
 name: agent-testing
 description: Especialista en testing de comportamiento de agentes LLM. Cubre mock de herramientas MCP, verificacion de loops de agente (infinite loop detection, unnecessary tool call detection), testing de recovery ante fallos de tool use, metricas de eficiencia de agente (tool calls por tarea, tokens por decision) e integracion con promptfoo para eval de tool use. Activa al disenar tests para agentes con herramientas, verificar comportamiento de loops, o medir eficiencia de un agente en produccion.
 origin: ai-core
-version: 1.0.0
-last_updated: 2026-07-10
+version: 1.1.0
+last_updated: 2026-07-15
 rol: auditor
 ---
 
@@ -213,6 +213,25 @@ def test_agente_recupera_ante_fallo_de_herramienta(fallo):
         "El agente debe comunicar el fallo, no retornar exito falso"
 ```
 
+### Test de fallo al lanzar por scope de herramientas
+
+El scope de un subagente se define con `tools` como allowlist (o `disallowedTools` como denylist). Si ningun tool de la lista resuelve, el subagente falla al lanzarse en vez de arrancar sin tools silenciosamente — un modo de fallo distinto a los de tiempo de ejecucion (timeout, rate_limit, invalid_response, schema_error) de arriba, porque ocurre en tiempo de configuracion/lanzamiento.
+
+```python
+def test_subagente_falla_al_lanzar_si_tools_no_resuelven():
+    """Un subagente con allowlist de tools que no resuelve debe fallar
+    explicitamente al lanzarse, nunca arrancar en modo degradado sin
+    herramientas."""
+    with pytest.raises(AgentLaunchError):
+        lanzar_subagente(tools=["herramienta_que_no_existe"])
+```
+
+Agregar al checklist final: `[ ] Existe un test que verifique que el subagente falla al lanzarse si su allowlist de tools no resuelve, en vez de arrancar silenciosamente sin herramientas.`
+
+### Test de Integridad de Thinking Blocks en Tool Use
+
+Al usar extended thinking con tool use, es obligatorio preservar integros tanto el bloque `thinking` como el `tool_use` del turno anterior al construir el siguiente mensaje del assistant — omitir o reordenar el `thinking_block` al reenviar el `tool_result` produce comportamiento incorrecto o error de la API. Construir un historial de mensajes multi-turno con thinking+tool_use, ejecutar un segundo turno con `tool_result`, y verificar programaticamente que el bloque thinking del turno anterior sigue presente e integro (sin modificar ni reordenar) en el array de `content` enviado en la siguiente request — fallar el test si el bloque thinking fue omitido o alterado.
+
 ## Metricas de Eficiencia de Agente
 
 Instrumentar el agente para capturar metricas por ejecucion:
@@ -256,6 +275,20 @@ class AgentTrace:
 | Workflow multi-paso con subagentes | 15 | 25.000 |
 
 Si el agente supera estos umbrales en un test de regresion, es una degradacion — no necesariamente un error funcional, pero si un aumento de costo que debe ser justificado.
+
+### Test de subagentes paralelos y contexto agregado
+
+El paralelismo funciona mejor con rutas de investigacion independientes, pero muchos subagentes que devuelven resultados detallados pueden consumir contexto significativo del padre igualmente. Distinguir este umbral del de tool calls por agente individual:
+
+```python
+def test_subagentes_paralelos_no_saturan_contexto_padre():
+    """N subagentes en paralelo con tareas independientes no deben hacer
+    que la suma de tokens de sus respuestas consolidadas exceda el
+    umbral definido para ese workflow."""
+    traces = ejecutar_subagentes_paralelos(n=5, tarea="investigacion independiente")
+    total_tokens_consolidados = sum(t.total_input_tokens + t.total_output_tokens for t in traces)
+    assert total_tokens_consolidados <= UMBRAL_CONTEXTO_PADRE
+```
 
 ## Integracion con promptfoo para Tool Use
 

@@ -10,6 +10,7 @@
 
 const fs   = require('fs');
 const path = require('path');
+const os   = require('os');
 const { spawn } = require('child_process');
 
 const CORE_PATH   = path.resolve(__dirname, '../..');
@@ -62,7 +63,7 @@ function getSessionId() {
 }
 
 function getFlagPath(sessionId) {
-  return path.join('/tmp', `ai-core-hc-${sessionId}.flag`);
+  return path.join(os.tmpdir(), `ai-core-hc-${sessionId}.flag`);
 }
 
 function isFirstRun(flagPath) {

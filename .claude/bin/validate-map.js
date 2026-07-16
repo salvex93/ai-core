@@ -7,7 +7,7 @@
  */
 const fs          = require('fs');
 const path        = require('path');
-const { execSync } = require('child_process');
+const { execSync, execFileSync } = require('child_process');
 
 const DRIFT_THRESHOLD = 3;
 const CORE_PATH = path.resolve(__dirname, '../..');
@@ -19,7 +19,7 @@ const MAP_PATH  = path.join(MAP_DIR, 'CONTEXT_MAP.json');
 const GENERATE  = path.resolve(__dirname, 'generate-map.js');
 
 if (!fs.existsSync(MAP_PATH)) {
-  execSync(`node ${GENERATE}`, { cwd: HOST_PATH });
+  execFileSync('node', [GENERATE], { cwd: HOST_PATH });
   process.exit(0);
 }
 
@@ -37,6 +37,6 @@ const enGit = execSync('git ls-files', { cwd: HOST_PATH, encoding: 'utf8' })
 
 const drift = Math.abs(enGit - enMapa);
 if (drift >= DRIFT_THRESHOLD) {
-  execSync(`node ${GENERATE}`, { cwd: HOST_PATH });
+  execFileSync('node', [GENERATE], { cwd: HOST_PATH });
   process.stderr.write(`[MAP] Drift detectado (${drift} archivos) — mapa regenerado.\n`);
 }

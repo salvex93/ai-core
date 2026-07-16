@@ -26,7 +26,7 @@ const archivosModificados = gitStatus
   : 0;
 
 // ── Commits realizados en la sesion (desde el inicio — ultimos 10) ─────────
-const ultimoCommit = exec('git log -1 --format="%s" 2>/dev/null');
+const ultimoCommit = exec('git log -1 --format="%s"');
 
 // ── Eventos capturados en cola ─────────────────────────────────────────────
 let eventosPendientes = 0;

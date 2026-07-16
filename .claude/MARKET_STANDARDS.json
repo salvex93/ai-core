@@ -1,0 +1,44 @@
+{
+  "_meta": {
+    "descripcion": "Registro de la fecha de verificacion mas reciente de cada dominio tecnico contra fuente primaria (Anthropic, OpenAI, Google, OWASP, W3C, etc.). audit-market.js compara last_updated de cada skill contra el dominio que le corresponde para detectar drift.",
+    "como_actualizar": "Tras verificar un dominio contra fuente oficial, actualizar su entrada aqui con la fecha de hoy y la fuente citada. Ver Protocolo de Vigencia Tecnologica en CLAUDE.md.",
+    "last_full_audit": "2026-07-15"
+  },
+  "domains": {
+    "anthropic-agents": {
+      "verified": "2026-07-15",
+      "sources": ["platform.claude.com/docs/en/build-with-claude/prompt-caching", "platform.claude.com/docs/en/agents-and-tools/tool-use/implement-tool-use", "platform.claude.com/docs/en/build-with-claude/adaptive-thinking", "anthropic.com/engineering/writing-tools-for-agents"],
+      "skills": ["claude-agent-sdk", "managed-agents-specialist", "prompt-engineer", "ai-integrations", "claude-api", "agent-testing", "workflow-orchestrator"]
+    },
+    "openai-gemini-agents": {
+      "verified": "2026-07-15",
+      "sources": ["ai.google.dev/gemini-api/docs/function-calling", "ai.google.dev/gemini-api/docs/tools", "developers.openai.com/api/docs/guides/structured-outputs"],
+      "skills": ["gemini-3-specialist", "ai-integrations", "agent-testing"]
+    },
+    "security-owasp": {
+      "verified": "2026-07-15",
+      "sources": ["owasp.org (research placeholder — no se confirmo edicion vigente exacta contra fuente primaria en esta pasada, re-verificar antes de citar numero de categoria)"],
+      "skills": ["security-auditor", "attack-surface-analyst", "ai-guardrails", "ciso"]
+    },
+    "frontend-web-standards": {
+      "verified": "2026-07-15",
+      "sources": ["web.dev, w3.org (research placeholder — no se confirmo contra fuente primaria en esta pasada)"],
+      "skills": ["tech-lead-frontend", "ux-visual-designer"]
+    },
+    "devops-supply-chain": {
+      "verified": "2026-07-15",
+      "sources": ["slsa.dev (research placeholder — no se confirmo contra fuente primaria en esta pasada)"],
+      "skills": ["devops-infra", "release-manager"]
+    },
+    "rag-llm-eval": {
+      "verified": "2026-07-15",
+      "sources": ["community benchmarks: RAGAS, deepeval, promptfoo (research placeholder — no se confirmo contra fuente primaria en esta pasada)"],
+      "skills": ["rag-specialist", "llm-evals", "llm-observability"]
+    },
+    "data-database-ops": {
+      "verified": "2026-07-15",
+      "sources": ["docs.getdbt.com (Model Contracts)", "airflow.apache.org (Airflow 3.0)", "databricks.com (Medallion Architecture)", "postgresql.org/support/security (CVE-2025-12819)"],
+      "skills": ["data-engineer", "database-ops"]
+    }
+  }
+}

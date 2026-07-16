@@ -2,8 +2,8 @@
 name: data-engineer
 description: Especialista en ingenieria de datos. Cubre Medallion Architecture (Bronze/Silver/Gold), transformacion con dbt, orquestacion con Airflow/Dagster/Prefect, calidad de datos con Great Expectations y Soda, Data Contracts con openDataContract y linaje con OpenLineage. Agnostico al stack. Activa al disenar pipelines de ingesta, transformacion o exportacion de datos, modelar capas de un data warehouse o lakehouse, o establecer contratos de calidad entre productores y consumidores de datos.
 origin: ai-core
-version: 1.1.4
-last_updated: 2026-07-10
+version: 1.2.0
+last_updated: 2026-07-15
 rol: architect
 ---
 
@@ -87,6 +87,7 @@ Principios obligatorios:
 - Los tipos de datos se normalizan a los tipos canonicos del warehouse activo.
 - La deduplicacion usa una clave de negocio definida en el Data Contract del productor. No usar row_number() sobre timestamps como unica estrategia de deduplicacion.
 - Los tests de calidad en Silver son obligatorios: unicidad de la clave primaria, no nulos en campos criticos, rango de valores validos.
+- Prohibido escribir directamente a Silver desde un proceso de ingesta que evita Bronze. Toda escritura a Silver parte de una fuente Bronze ya materializada, sin excepcion por urgencia o volumen bajo.
 
 ### Capa Gold (Business)
 
@@ -97,6 +98,7 @@ Principios obligatorios:
 - Cada tabla de Gold tiene un propietario de dominio documentado.
 - Los cambios de esquema en Gold activan el protocolo de Data Contract antes de implementarse.
 - Los tiempos de frescura (freshness) de cada tabla de Gold estan documentados y monitoreados.
+- Antes de crear una tabla Gold nueva, verificar que no exista ya una tabla Gold que responda al mismo concepto de negocio con otra definicion. Si existe, extenderla o corregirla, no crear una version paralela. Cada concepto de negocio en Gold tiene una unica definicion autoritativa y un unico propietario.
 
 ## Transformacion con dbt
 
@@ -166,7 +168,13 @@ Los snapshots en dbt implementan SCD Tipo 2 (Slowly Changing Dimensions). Se usa
 
 Un modelo `incremental` mal definido produce duplicados silenciosos. El predicado incremental debe estar alineado con la clave de unicidad del modelo.
 
+### Model Contracts
+
+Un dbt Model Contract (`contract: {enforced: true}` en el YAML del modelo) fija el nombre, tipo y orden de las columnas declaradas y hace fallar el build si el modelo no cumple ese esquema exacto. Es distinto de un test dbt: el test valida calidad de datos despues de construir el modelo; el contract impide que el modelo se construya con un esquema distinto al declarado. Aplicar `contract: enforced: true` en modelos de Gold con consumidores declarados en un Data Contract, comenzando con 1-2 assertions simples (esquema y freshness) antes de expandir cobertura. Ante un cambio de esquema que rompe el contrato, versionar el modelo (dbt model versions) en vez de modificarlo en sitio.
+
 ## Orquestacion de Pipelines
+
+Criterio de seleccion cuando el anfitrion no tiene orquestador fijado: Airflow es la opcion por defecto en entornos enterprise o con inversion previa en el ecosistema Airflow; Dagster es preferible en proyectos greenfield y en equipos con uso intensivo de dbt, por su modelo asset-centric alineado con los modelos dbt.
 
 ### Principios universales (agnosticos al orquestador)
 
@@ -213,6 +221,8 @@ def pipeline_pedidos():
 
 pipeline_pedidos()
 ```
+
+Airflow 3.0 (GA abril 2025) incorpora DAG Versioning (permite que ejecuciones en curso terminen con la version del DAG con la que iniciaron, sin corrupcion de estado ante un deploy a mitad de ejecucion), Event-Driven Scheduling (DAGs disparados por eventos externos en vez de solo cron/intervalos) y Task SDKs. Verificar la version de Airflow del anfitrion antes de asumir disponibilidad de estas capacidades.
 
 ### Dagster
 
