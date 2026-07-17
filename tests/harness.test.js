@@ -80,6 +80,56 @@ describe('guard-read.js', () => {
   });
 });
 
+// ─── subagent-guard.js ───────────────────────────────────────────────────────
+
+describe('subagent-guard.js', () => {
+  const GUARD     = path.join(BIN, 'subagent-guard.js');
+  const LOCK_DIR  = path.join(os.tmpdir(), 'ai-core-locks', 'subagents');
+
+  function limpiarLocks() {
+    fs.rmSync(LOCK_DIR, { recursive: true, force: true });
+  }
+
+  before(limpiarLocks);
+  after(limpiarLocks);
+
+  test('sale con codigo 0 sin variables de entorno (caso normal)', () => {
+    limpiarLocks();
+    const r = runScript(GUARD, []);
+    assert.equal(r.status, 0, 'debe permitir el spawn cuando no hay contexto de recursion ni limite excedido');
+  });
+
+  test('bloquea (codigo 2) cuando el subagente actual intenta lanzar otro de su mismo tipo', () => {
+    limpiarLocks();
+    const r = runScript(GUARD, [], {
+      CLAUDE_SUBAGENT_TYPE: 'general-purpose',
+      CLAUDE_TOOL_INPUT_subagent_type: 'general-purpose',
+    });
+    assert.equal(r.status, 2, 'debe bloquear recursion del mismo tipo de subagente');
+    assert.ok(r.stderr.includes('SUBAGENT-GUARD'), 'debe incluir [SUBAGENT-GUARD] en stderr');
+  });
+
+  test('permite tipos distintos entre padre e hijo', () => {
+    limpiarLocks();
+    const r = runScript(GUARD, [], {
+      CLAUDE_SUBAGENT_TYPE: 'Explore',
+      CLAUDE_TOOL_INPUT_subagent_type: 'general-purpose',
+    });
+    assert.equal(r.status, 0, 'no debe bloquear si el tipo del padre difiere del tipo a lanzar');
+  });
+
+  test('bloquea (codigo 2) al superar MAX_PARALLEL subagentes en la ventana de tiempo', () => {
+    limpiarLocks();
+    for (let i = 0; i < 3; i++) {
+      const r = runScript(GUARD, [], { CLAUDE_TOOL_INPUT_subagent_type: 'Explore' });
+      assert.equal(r.status, 0, `lanzamiento ${i + 1}/3 no deberia bloquear`);
+    }
+    const r4 = runScript(GUARD, [], { CLAUDE_TOOL_INPUT_subagent_type: 'Explore' });
+    assert.equal(r4.status, 2, 'el 4to lanzamiento concurrente debe bloquear');
+    assert.ok(r4.stderr.includes('SUBAGENT-GUARD'), 'debe incluir [SUBAGENT-GUARD] en stderr');
+  });
+});
+
 // ─── setup-settings.js ───────────────────────────────────────────────────────
 
 describe('setup-settings.js', () => {
@@ -505,19 +555,33 @@ describe('aiops-score.js', () => {
   });
 
   test('el score total esta entre 0 y 10', () => {
+    // La corrida normal puede emitir formato compacto "[AIOPS-SCORE] N/10" o
+    // completo "Total: N/10" segun el gate de verbosidad — aceptar ambos.
     const r = runScript(SCRIPT, []);
-    const match = r.stdout.match(/Total:\s*(\d+)\/10/);
-    assert.ok(match, 'debe incluir Total: N/10 en el output');
+    const match = r.stdout.match(/Total:\s*(\d+)\/10/) || r.stdout.match(/\[AIOPS-SCORE\]\s*(\d+)\/10/);
+    assert.ok(match, 'debe incluir el score total en el output (formato compacto o completo)');
     const score = parseInt(match[1], 10);
     assert.ok(score >= 0 && score <= 10, `score ${score} debe estar entre 0 y 10`);
   });
 
-  test('produce score en las 6 dimensiones esperadas', () => {
-    const r = runScript(SCRIPT, []);
+  test('produce score en las 6 dimensiones esperadas (via --report)', () => {
+    // La corrida normal usa un gate de verbosidad: si el score es estable
+    // (no baja y sin detalles nuevos) solo imprime una linea compacta para
+    // no quemar tokens en cada Stop hook. El detalle completo por dimension
+    // sigue disponible siempre via --report.
+    runScript(SCRIPT, []);
+    const r = runScript(SCRIPT, ['--report']);
     const dimensiones = ['routing', 'hooks', 'skills', 'drift', 'seguridad', 'agentes'];
     for (const dim of dimensiones) {
       assert.ok(r.stdout.includes(dim), `debe incluir dimension '${dim}'`);
     }
+  });
+
+  test('corrida normal: gate de verbosidad compacta cuando el score es estable', () => {
+    runScript(SCRIPT, []); // primera corrida establece linea base
+    const r = runScript(SCRIPT, []); // segunda corrida: estable, sin detalles
+    assert.ok(r.stdout.includes('[AIOPS-SCORE]'), 'debe incluir linea de score');
+    assert.ok(!r.stdout.includes('routing'), 'no debe listar dimensiones cuando el score es estable y sin detalles');
   });
 });
 

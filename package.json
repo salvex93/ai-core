@@ -4,6 +4,7 @@
   "description": "AI-CORE by salvex93. Nucleo Centralizado de Agentes para proyectos de desarrollo. Submodulo Git con reglas globales, skills y scripts de orquestacion.",
   "private": true,
   "scripts": {
+    "postinstall": "node .claude/bin/setup-settings.js",
     "init-backlog": "node scripts/init-backlog.js",
     "anthropic-bridge": "node scripts/anthropic-bridge.js",
     "mcp-gemini": "node scripts/mcp-gemini.js",

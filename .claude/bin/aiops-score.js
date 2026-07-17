@@ -317,18 +317,27 @@ if (MODO_REPORT && anterior) {
 const actual = calcularScore();
 guardarHistorial(historial, actual);
 
-// Imprimir reporte con delta
+// Gate de verbosidad: solo el reporte completo si el total bajo o hay detalles nuevos.
+// En turnos estables (score igual o mejor, sin detalles) basta una linea de confirmacion.
+const delta       = anterior ? actual.total - anterior.total : 0;
+const hayDetalles = Object.values(actual.dimensiones).some(d => d.detalles.length > 0);
+
+if (anterior && delta >= 0 && !hayDetalles) {
+  process.stdout.write(`[AIOPS-SCORE] ${actual.total}/10${delta > 0 ? ` (+${delta})` : ' (=)'}\n`);
+  process.exit(0);
+}
+
+// Reporte completo con delta
 process.stdout.write(`\n[AIOPS-SCORE] ${actual.ts.slice(0, 10)} | Total: ${actual.total}/10`);
 if (anterior) {
-  const d = actual.total - anterior.total;
-  process.stdout.write(d === 0 ? ' (=)' : d > 0 ? ` (+${d} vs anterior)` : ` (${d} vs anterior)`);
+  process.stdout.write(delta === 0 ? ' (=)' : delta > 0 ? ` (+${delta} vs anterior)` : ` (${delta} vs anterior)`);
 }
 process.stdout.write('\n');
 
 Object.entries(actual.dimensiones).forEach(([dim, data]) => {
-  const delta = anterior ? formatDelta(data.score, anterior.dimensiones[dim]?.score) : '';
+  const dimDelta = anterior ? formatDelta(data.score, anterior.dimensiones[dim]?.score) : '';
   const barra = '█'.repeat(data.score) + '░'.repeat(10 - data.score);
-  process.stdout.write(`  ${dim.padEnd(12)} ${barra} ${data.score}/10${delta}\n`);
+  process.stdout.write(`  ${dim.padEnd(12)} ${barra} ${data.score}/10${dimDelta}\n`);
   data.detalles.forEach(d => process.stdout.write(`               - ${d}\n`));
 });
 process.stdout.write('\n');

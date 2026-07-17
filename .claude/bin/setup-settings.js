@@ -152,6 +152,12 @@ const settings = {
           { type: 'command', command: `node ${bin('pre-commit-tdd.js')} "$CLAUDE_TOOL_INPUT_file_path"` },
         ],
       },
+      {
+        matcher: 'Agent',
+        hooks: [
+          { type: 'command', command: `node ${bin('subagent-guard.js')}` },
+        ],
+      },
     ],
     PostToolUse: [
       {
