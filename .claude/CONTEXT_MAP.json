@@ -1,6 +1,6 @@
 {
   "version": "3.12.0",
-  "last_updated": "2026-07-17T18:42:32.839Z",
+  "last_updated": "2026-07-17T19:05:11.595Z",
   "branch": "main",
   "stack": null,
   "host": {
@@ -21,6 +21,7 @@
         ".claude/bin/agent-metrics.js",
         ".claude/bin/aiops-score.js",
         ".claude/bin/audit-market.js",
+        ".claude/bin/bash-verbosity-guard.js",
         ".claude/bin/capture-event.js",
         ".claude/bin/cross-verify-gate.js",
         ".claude/bin/dependency-tracer.js",
@@ -39,6 +40,7 @@
         ".claude/bin/issue-reporter.js",
         ".claude/bin/memory-index-stop.js",
         ".claude/bin/memory-index.js",
+        ".claude/bin/memory-vault-prune-check.js",
         ".claude/bin/moa-context-gatherer.js",
         ".claude/bin/norm-harness.js",
         ".claude/bin/norm-harness.ps1",
@@ -163,7 +165,7 @@
       "node_modules/",
       ".git/"
     ],
-    "total_files": 140
+    "total_files": 142
   },
   "core": null
 }

@@ -1,547 +1,5 @@
 [
   {
-    "ts": "2026-07-17T18:16:36.229Z",
-    "total": 10,
-    "dimensiones": {
-      "routing": {
-        "score": 10,
-        "detalles": []
-      },
-      "hooks": {
-        "score": 10,
-        "detalles": []
-      },
-      "skills": {
-        "score": 10,
-        "detalles": []
-      },
-      "drift": {
-        "score": 10,
-        "detalles": []
-      },
-      "seguridad": {
-        "score": 10,
-        "detalles": []
-      },
-      "agentes": {
-        "score": 10,
-        "detalles": []
-      }
-    }
-  },
-  {
-    "ts": "2026-07-17T18:16:36.336Z",
-    "total": 10,
-    "dimensiones": {
-      "routing": {
-        "score": 10,
-        "detalles": []
-      },
-      "hooks": {
-        "score": 10,
-        "detalles": []
-      },
-      "skills": {
-        "score": 10,
-        "detalles": []
-      },
-      "drift": {
-        "score": 10,
-        "detalles": []
-      },
-      "seguridad": {
-        "score": 10,
-        "detalles": []
-      },
-      "agentes": {
-        "score": 10,
-        "detalles": []
-      }
-    }
-  },
-  {
-    "ts": "2026-07-17T18:17:13.467Z",
-    "total": 10,
-    "dimensiones": {
-      "routing": {
-        "score": 10,
-        "detalles": []
-      },
-      "hooks": {
-        "score": 10,
-        "detalles": []
-      },
-      "skills": {
-        "score": 10,
-        "detalles": []
-      },
-      "drift": {
-        "score": 10,
-        "detalles": []
-      },
-      "seguridad": {
-        "score": 10,
-        "detalles": []
-      },
-      "agentes": {
-        "score": 10,
-        "detalles": []
-      }
-    }
-  },
-  {
-    "ts": "2026-07-17T18:18:37.508Z",
-    "total": 10,
-    "dimensiones": {
-      "routing": {
-        "score": 10,
-        "detalles": []
-      },
-      "hooks": {
-        "score": 10,
-        "detalles": []
-      },
-      "skills": {
-        "score": 10,
-        "detalles": []
-      },
-      "drift": {
-        "score": 8,
-        "detalles": [
-          "Drift leve: 1 archivos"
-        ]
-      },
-      "seguridad": {
-        "score": 10,
-        "detalles": []
-      },
-      "agentes": {
-        "score": 10,
-        "detalles": []
-      }
-    }
-  },
-  {
-    "ts": "2026-07-17T18:27:01.942Z",
-    "total": 10,
-    "dimensiones": {
-      "routing": {
-        "score": 10,
-        "detalles": []
-      },
-      "hooks": {
-        "score": 10,
-        "detalles": []
-      },
-      "skills": {
-        "score": 10,
-        "detalles": []
-      },
-      "drift": {
-        "score": 10,
-        "detalles": []
-      },
-      "seguridad": {
-        "score": 10,
-        "detalles": []
-      },
-      "agentes": {
-        "score": 10,
-        "detalles": []
-      }
-    }
-  },
-  {
-    "ts": "2026-07-17T18:27:02.091Z",
-    "total": 10,
-    "dimensiones": {
-      "routing": {
-        "score": 10,
-        "detalles": []
-      },
-      "hooks": {
-        "score": 10,
-        "detalles": []
-      },
-      "skills": {
-        "score": 10,
-        "detalles": []
-      },
-      "drift": {
-        "score": 10,
-        "detalles": []
-      },
-      "seguridad": {
-        "score": 10,
-        "detalles": []
-      },
-      "agentes": {
-        "score": 10,
-        "detalles": []
-      }
-    }
-  },
-  {
-    "ts": "2026-07-17T18:27:02.199Z",
-    "total": 10,
-    "dimensiones": {
-      "routing": {
-        "score": 10,
-        "detalles": []
-      },
-      "hooks": {
-        "score": 10,
-        "detalles": []
-      },
-      "skills": {
-        "score": 10,
-        "detalles": []
-      },
-      "drift": {
-        "score": 10,
-        "detalles": []
-      },
-      "seguridad": {
-        "score": 10,
-        "detalles": []
-      },
-      "agentes": {
-        "score": 10,
-        "detalles": []
-      }
-    }
-  },
-  {
-    "ts": "2026-07-17T18:27:02.340Z",
-    "total": 10,
-    "dimensiones": {
-      "routing": {
-        "score": 10,
-        "detalles": []
-      },
-      "hooks": {
-        "score": 10,
-        "detalles": []
-      },
-      "skills": {
-        "score": 10,
-        "detalles": []
-      },
-      "drift": {
-        "score": 10,
-        "detalles": []
-      },
-      "seguridad": {
-        "score": 10,
-        "detalles": []
-      },
-      "agentes": {
-        "score": 10,
-        "detalles": []
-      }
-    }
-  },
-  {
-    "ts": "2026-07-17T18:27:02.453Z",
-    "total": 10,
-    "dimensiones": {
-      "routing": {
-        "score": 10,
-        "detalles": []
-      },
-      "hooks": {
-        "score": 10,
-        "detalles": []
-      },
-      "skills": {
-        "score": 10,
-        "detalles": []
-      },
-      "drift": {
-        "score": 10,
-        "detalles": []
-      },
-      "seguridad": {
-        "score": 10,
-        "detalles": []
-      },
-      "agentes": {
-        "score": 10,
-        "detalles": []
-      }
-    }
-  },
-  {
-    "ts": "2026-07-17T18:29:39.380Z",
-    "total": 10,
-    "dimensiones": {
-      "routing": {
-        "score": 10,
-        "detalles": []
-      },
-      "hooks": {
-        "score": 10,
-        "detalles": []
-      },
-      "skills": {
-        "score": 10,
-        "detalles": []
-      },
-      "drift": {
-        "score": 10,
-        "detalles": []
-      },
-      "seguridad": {
-        "score": 10,
-        "detalles": []
-      },
-      "agentes": {
-        "score": 10,
-        "detalles": []
-      }
-    }
-  },
-  {
-    "ts": "2026-07-17T18:29:39.534Z",
-    "total": 10,
-    "dimensiones": {
-      "routing": {
-        "score": 10,
-        "detalles": []
-      },
-      "hooks": {
-        "score": 10,
-        "detalles": []
-      },
-      "skills": {
-        "score": 10,
-        "detalles": []
-      },
-      "drift": {
-        "score": 10,
-        "detalles": []
-      },
-      "seguridad": {
-        "score": 10,
-        "detalles": []
-      },
-      "agentes": {
-        "score": 10,
-        "detalles": []
-      }
-    }
-  },
-  {
-    "ts": "2026-07-17T18:29:39.639Z",
-    "total": 10,
-    "dimensiones": {
-      "routing": {
-        "score": 10,
-        "detalles": []
-      },
-      "hooks": {
-        "score": 10,
-        "detalles": []
-      },
-      "skills": {
-        "score": 10,
-        "detalles": []
-      },
-      "drift": {
-        "score": 10,
-        "detalles": []
-      },
-      "seguridad": {
-        "score": 10,
-        "detalles": []
-      },
-      "agentes": {
-        "score": 10,
-        "detalles": []
-      }
-    }
-  },
-  {
-    "ts": "2026-07-17T18:29:39.795Z",
-    "total": 10,
-    "dimensiones": {
-      "routing": {
-        "score": 10,
-        "detalles": []
-      },
-      "hooks": {
-        "score": 10,
-        "detalles": []
-      },
-      "skills": {
-        "score": 10,
-        "detalles": []
-      },
-      "drift": {
-        "score": 10,
-        "detalles": []
-      },
-      "seguridad": {
-        "score": 10,
-        "detalles": []
-      },
-      "agentes": {
-        "score": 10,
-        "detalles": []
-      }
-    }
-  },
-  {
-    "ts": "2026-07-17T18:29:39.910Z",
-    "total": 10,
-    "dimensiones": {
-      "routing": {
-        "score": 10,
-        "detalles": []
-      },
-      "hooks": {
-        "score": 10,
-        "detalles": []
-      },
-      "skills": {
-        "score": 10,
-        "detalles": []
-      },
-      "drift": {
-        "score": 10,
-        "detalles": []
-      },
-      "seguridad": {
-        "score": 10,
-        "detalles": []
-      },
-      "agentes": {
-        "score": 10,
-        "detalles": []
-      }
-    }
-  },
-  {
-    "ts": "2026-07-17T18:40:27.177Z",
-    "total": 10,
-    "dimensiones": {
-      "routing": {
-        "score": 10,
-        "detalles": []
-      },
-      "hooks": {
-        "score": 10,
-        "detalles": []
-      },
-      "skills": {
-        "score": 10,
-        "detalles": []
-      },
-      "drift": {
-        "score": 10,
-        "detalles": []
-      },
-      "seguridad": {
-        "score": 10,
-        "detalles": []
-      },
-      "agentes": {
-        "score": 10,
-        "detalles": []
-      }
-    }
-  },
-  {
-    "ts": "2026-07-17T18:40:27.342Z",
-    "total": 10,
-    "dimensiones": {
-      "routing": {
-        "score": 10,
-        "detalles": []
-      },
-      "hooks": {
-        "score": 10,
-        "detalles": []
-      },
-      "skills": {
-        "score": 10,
-        "detalles": []
-      },
-      "drift": {
-        "score": 10,
-        "detalles": []
-      },
-      "seguridad": {
-        "score": 10,
-        "detalles": []
-      },
-      "agentes": {
-        "score": 10,
-        "detalles": []
-      }
-    }
-  },
-  {
-    "ts": "2026-07-17T18:40:27.453Z",
-    "total": 10,
-    "dimensiones": {
-      "routing": {
-        "score": 10,
-        "detalles": []
-      },
-      "hooks": {
-        "score": 10,
-        "detalles": []
-      },
-      "skills": {
-        "score": 10,
-        "detalles": []
-      },
-      "drift": {
-        "score": 10,
-        "detalles": []
-      },
-      "seguridad": {
-        "score": 10,
-        "detalles": []
-      },
-      "agentes": {
-        "score": 10,
-        "detalles": []
-      }
-    }
-  },
-  {
-    "ts": "2026-07-17T18:40:27.590Z",
-    "total": 10,
-    "dimensiones": {
-      "routing": {
-        "score": 10,
-        "detalles": []
-      },
-      "hooks": {
-        "score": 10,
-        "detalles": []
-      },
-      "skills": {
-        "score": 10,
-        "detalles": []
-      },
-      "drift": {
-        "score": 10,
-        "detalles": []
-      },
-      "seguridad": {
-        "score": 10,
-        "detalles": []
-      },
-      "agentes": {
-        "score": 10,
-        "detalles": []
-      }
-    }
-  },
-  {
     "ts": "2026-07-17T18:40:27.700Z",
     "total": 10,
     "dimensiones": {
@@ -873,6 +331,568 @@
   },
   {
     "ts": "2026-07-17T18:42:47.487Z",
+    "total": 10,
+    "dimensiones": {
+      "routing": {
+        "score": 10,
+        "detalles": []
+      },
+      "hooks": {
+        "score": 10,
+        "detalles": []
+      },
+      "skills": {
+        "score": 10,
+        "detalles": []
+      },
+      "drift": {
+        "score": 10,
+        "detalles": []
+      },
+      "seguridad": {
+        "score": 10,
+        "detalles": []
+      },
+      "agentes": {
+        "score": 10,
+        "detalles": []
+      }
+    }
+  },
+  {
+    "ts": "2026-07-17T19:03:23.078Z",
+    "total": 10,
+    "dimensiones": {
+      "routing": {
+        "score": 10,
+        "detalles": []
+      },
+      "hooks": {
+        "score": 10,
+        "detalles": []
+      },
+      "skills": {
+        "score": 10,
+        "detalles": []
+      },
+      "drift": {
+        "score": 8,
+        "detalles": [
+          "Drift leve: 2 archivos"
+        ]
+      },
+      "seguridad": {
+        "score": 10,
+        "detalles": []
+      },
+      "agentes": {
+        "score": 10,
+        "detalles": []
+      }
+    }
+  },
+  {
+    "ts": "2026-07-17T19:03:23.268Z",
+    "total": 10,
+    "dimensiones": {
+      "routing": {
+        "score": 10,
+        "detalles": []
+      },
+      "hooks": {
+        "score": 10,
+        "detalles": []
+      },
+      "skills": {
+        "score": 10,
+        "detalles": []
+      },
+      "drift": {
+        "score": 8,
+        "detalles": [
+          "Drift leve: 2 archivos"
+        ]
+      },
+      "seguridad": {
+        "score": 10,
+        "detalles": []
+      },
+      "agentes": {
+        "score": 10,
+        "detalles": []
+      }
+    }
+  },
+  {
+    "ts": "2026-07-17T19:03:23.427Z",
+    "total": 10,
+    "dimensiones": {
+      "routing": {
+        "score": 10,
+        "detalles": []
+      },
+      "hooks": {
+        "score": 10,
+        "detalles": []
+      },
+      "skills": {
+        "score": 10,
+        "detalles": []
+      },
+      "drift": {
+        "score": 8,
+        "detalles": [
+          "Drift leve: 2 archivos"
+        ]
+      },
+      "seguridad": {
+        "score": 10,
+        "detalles": []
+      },
+      "agentes": {
+        "score": 10,
+        "detalles": []
+      }
+    }
+  },
+  {
+    "ts": "2026-07-17T19:03:23.756Z",
+    "total": 10,
+    "dimensiones": {
+      "routing": {
+        "score": 10,
+        "detalles": []
+      },
+      "hooks": {
+        "score": 10,
+        "detalles": []
+      },
+      "skills": {
+        "score": 10,
+        "detalles": []
+      },
+      "drift": {
+        "score": 8,
+        "detalles": [
+          "Drift leve: 2 archivos"
+        ]
+      },
+      "seguridad": {
+        "score": 10,
+        "detalles": []
+      },
+      "agentes": {
+        "score": 10,
+        "detalles": []
+      }
+    }
+  },
+  {
+    "ts": "2026-07-17T19:03:23.910Z",
+    "total": 10,
+    "dimensiones": {
+      "routing": {
+        "score": 10,
+        "detalles": []
+      },
+      "hooks": {
+        "score": 10,
+        "detalles": []
+      },
+      "skills": {
+        "score": 10,
+        "detalles": []
+      },
+      "drift": {
+        "score": 8,
+        "detalles": [
+          "Drift leve: 2 archivos"
+        ]
+      },
+      "seguridad": {
+        "score": 10,
+        "detalles": []
+      },
+      "agentes": {
+        "score": 10,
+        "detalles": []
+      }
+    }
+  },
+  {
+    "ts": "2026-07-17T19:03:39.046Z",
+    "total": 10,
+    "dimensiones": {
+      "routing": {
+        "score": 10,
+        "detalles": []
+      },
+      "hooks": {
+        "score": 10,
+        "detalles": []
+      },
+      "skills": {
+        "score": 10,
+        "detalles": []
+      },
+      "drift": {
+        "score": 8,
+        "detalles": [
+          "Drift leve: 2 archivos"
+        ]
+      },
+      "seguridad": {
+        "score": 10,
+        "detalles": []
+      },
+      "agentes": {
+        "score": 10,
+        "detalles": []
+      }
+    }
+  },
+  {
+    "ts": "2026-07-17T19:03:39.246Z",
+    "total": 10,
+    "dimensiones": {
+      "routing": {
+        "score": 10,
+        "detalles": []
+      },
+      "hooks": {
+        "score": 10,
+        "detalles": []
+      },
+      "skills": {
+        "score": 10,
+        "detalles": []
+      },
+      "drift": {
+        "score": 8,
+        "detalles": [
+          "Drift leve: 2 archivos"
+        ]
+      },
+      "seguridad": {
+        "score": 10,
+        "detalles": []
+      },
+      "agentes": {
+        "score": 10,
+        "detalles": []
+      }
+    }
+  },
+  {
+    "ts": "2026-07-17T19:03:39.406Z",
+    "total": 10,
+    "dimensiones": {
+      "routing": {
+        "score": 10,
+        "detalles": []
+      },
+      "hooks": {
+        "score": 10,
+        "detalles": []
+      },
+      "skills": {
+        "score": 10,
+        "detalles": []
+      },
+      "drift": {
+        "score": 8,
+        "detalles": [
+          "Drift leve: 2 archivos"
+        ]
+      },
+      "seguridad": {
+        "score": 10,
+        "detalles": []
+      },
+      "agentes": {
+        "score": 10,
+        "detalles": []
+      }
+    }
+  },
+  {
+    "ts": "2026-07-17T19:03:39.615Z",
+    "total": 10,
+    "dimensiones": {
+      "routing": {
+        "score": 10,
+        "detalles": []
+      },
+      "hooks": {
+        "score": 10,
+        "detalles": []
+      },
+      "skills": {
+        "score": 10,
+        "detalles": []
+      },
+      "drift": {
+        "score": 8,
+        "detalles": [
+          "Drift leve: 2 archivos"
+        ]
+      },
+      "seguridad": {
+        "score": 10,
+        "detalles": []
+      },
+      "agentes": {
+        "score": 10,
+        "detalles": []
+      }
+    }
+  },
+  {
+    "ts": "2026-07-17T19:03:39.751Z",
+    "total": 10,
+    "dimensiones": {
+      "routing": {
+        "score": 10,
+        "detalles": []
+      },
+      "hooks": {
+        "score": 10,
+        "detalles": []
+      },
+      "skills": {
+        "score": 10,
+        "detalles": []
+      },
+      "drift": {
+        "score": 8,
+        "detalles": [
+          "Drift leve: 2 archivos"
+        ]
+      },
+      "seguridad": {
+        "score": 10,
+        "detalles": []
+      },
+      "agentes": {
+        "score": 10,
+        "detalles": []
+      }
+    }
+  },
+  {
+    "ts": "2026-07-17T19:03:50.693Z",
+    "total": 10,
+    "dimensiones": {
+      "routing": {
+        "score": 10,
+        "detalles": []
+      },
+      "hooks": {
+        "score": 10,
+        "detalles": []
+      },
+      "skills": {
+        "score": 10,
+        "detalles": []
+      },
+      "drift": {
+        "score": 8,
+        "detalles": [
+          "Drift leve: 2 archivos"
+        ]
+      },
+      "seguridad": {
+        "score": 10,
+        "detalles": []
+      },
+      "agentes": {
+        "score": 10,
+        "detalles": []
+      }
+    }
+  },
+  {
+    "ts": "2026-07-17T19:04:03.179Z",
+    "total": 10,
+    "dimensiones": {
+      "routing": {
+        "score": 10,
+        "detalles": []
+      },
+      "hooks": {
+        "score": 10,
+        "detalles": []
+      },
+      "skills": {
+        "score": 10,
+        "detalles": []
+      },
+      "drift": {
+        "score": 10,
+        "detalles": []
+      },
+      "seguridad": {
+        "score": 10,
+        "detalles": []
+      },
+      "agentes": {
+        "score": 10,
+        "detalles": []
+      }
+    }
+  },
+  {
+    "ts": "2026-07-17T19:04:12.267Z",
+    "total": 10,
+    "dimensiones": {
+      "routing": {
+        "score": 10,
+        "detalles": []
+      },
+      "hooks": {
+        "score": 10,
+        "detalles": []
+      },
+      "skills": {
+        "score": 10,
+        "detalles": []
+      },
+      "drift": {
+        "score": 10,
+        "detalles": []
+      },
+      "seguridad": {
+        "score": 10,
+        "detalles": []
+      },
+      "agentes": {
+        "score": 10,
+        "detalles": []
+      }
+    }
+  },
+  {
+    "ts": "2026-07-17T19:04:12.413Z",
+    "total": 10,
+    "dimensiones": {
+      "routing": {
+        "score": 10,
+        "detalles": []
+      },
+      "hooks": {
+        "score": 10,
+        "detalles": []
+      },
+      "skills": {
+        "score": 10,
+        "detalles": []
+      },
+      "drift": {
+        "score": 10,
+        "detalles": []
+      },
+      "seguridad": {
+        "score": 10,
+        "detalles": []
+      },
+      "agentes": {
+        "score": 10,
+        "detalles": []
+      }
+    }
+  },
+  {
+    "ts": "2026-07-17T19:04:12.515Z",
+    "total": 10,
+    "dimensiones": {
+      "routing": {
+        "score": 10,
+        "detalles": []
+      },
+      "hooks": {
+        "score": 10,
+        "detalles": []
+      },
+      "skills": {
+        "score": 10,
+        "detalles": []
+      },
+      "drift": {
+        "score": 10,
+        "detalles": []
+      },
+      "seguridad": {
+        "score": 10,
+        "detalles": []
+      },
+      "agentes": {
+        "score": 10,
+        "detalles": []
+      }
+    }
+  },
+  {
+    "ts": "2026-07-17T19:04:12.664Z",
+    "total": 10,
+    "dimensiones": {
+      "routing": {
+        "score": 10,
+        "detalles": []
+      },
+      "hooks": {
+        "score": 10,
+        "detalles": []
+      },
+      "skills": {
+        "score": 10,
+        "detalles": []
+      },
+      "drift": {
+        "score": 10,
+        "detalles": []
+      },
+      "seguridad": {
+        "score": 10,
+        "detalles": []
+      },
+      "agentes": {
+        "score": 10,
+        "detalles": []
+      }
+    }
+  },
+  {
+    "ts": "2026-07-17T19:04:12.765Z",
+    "total": 10,
+    "dimensiones": {
+      "routing": {
+        "score": 10,
+        "detalles": []
+      },
+      "hooks": {
+        "score": 10,
+        "detalles": []
+      },
+      "skills": {
+        "score": 10,
+        "detalles": []
+      },
+      "drift": {
+        "score": 10,
+        "detalles": []
+      },
+      "seguridad": {
+        "score": 10,
+        "detalles": []
+      },
+      "agentes": {
+        "score": 10,
+        "detalles": []
+      }
+    }
+  },
+  {
+    "ts": "2026-07-17T19:05:11.732Z",
     "total": 10,
     "dimensiones": {
       "routing": {
