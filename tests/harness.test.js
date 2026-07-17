@@ -238,6 +238,46 @@ describe('memory-vault-prune-check.js', () => {
   });
 });
 
+// ─── issue-reporter.js ───────────────────────────────────────────────────────
+
+describe('issue-reporter.js', () => {
+  const SCRIPT = path.join(BIN, 'issue-reporter.js');
+  const content = fs.readFileSync(SCRIPT, 'utf8');
+
+  // Labels reales del repo (gh label list --repo salvex93/ai-core). Si esta
+  // lista cambia, actualizarla aqui tras confirmar con el comando real —
+  // nunca inventar una label nueva sin verificarla contra el repo primero.
+  const LABELS_REALES = new Set([
+    'bug', 'documentation', 'duplicate', 'enhancement',
+    'good first issue', 'help wanted', 'invalid', 'question', 'wontfix',
+  ]);
+
+  test('el script existe', () => {
+    assert.ok(fs.existsSync(SCRIPT));
+  });
+
+  test('todas las labels en ISSUE_META existen en el repo real', () => {
+    // gh issue create falla el comando COMPLETO si una sola label no existe,
+    // dejando el evento sin marcar reported=true de forma silenciosa. Este
+    // test previene reintroducir una label inventada (ej. "bug,hooks").
+    const match = content.match(/const ISSUE_META = Object\.freeze\(\{([\s\S]*?)\}\);/);
+    assert.ok(match, 'debe encontrar la definicion de ISSUE_META en el archivo');
+
+    const labelMatches = [...match[1].matchAll(/label:\s*'([^']+)'/g)];
+    assert.ok(labelMatches.length > 0, 'debe encontrar al menos una label declarada');
+
+    for (const [, labelValue] of labelMatches) {
+      for (const label of labelValue.split(',')) {
+        assert.ok(
+          LABELS_REALES.has(label.trim()),
+          `label "${label.trim()}" no existe en el repo — verificar con "gh label list --repo salvex93/ai-core"`
+        );
+      }
+    }
+  });
+
+});
+
 // ─── setup-settings.js ───────────────────────────────────────────────────────
 
 describe('setup-settings.js', () => {
@@ -437,6 +477,113 @@ describe('skills — conformidad estructural', () => {
   }
 });
 
+// ─── validate-globals.js — conformidad agentskills.io ────────────────────────
+
+describe('validate-globals.js — schema agentskills.io', () => {
+  const SCRIPT   = path.join(BIN, 'validate-globals.js');
+  const TEST_DIR = path.join(SKILLS, 'zz-test-agentskills-temp');
+
+  function crearSkillDePrueba(frontmatter) {
+    fs.mkdirSync(TEST_DIR, { recursive: true });
+    fs.writeFileSync(path.join(TEST_DIR, 'SKILL.md'), frontmatter, 'utf8');
+  }
+
+  function limpiar() {
+    fs.rmSync(TEST_DIR, { recursive: true, force: true });
+  }
+
+  function runValidate() {
+    return spawnSync('node', [SCRIPT, '--json'], { encoding: 'utf8', cwd: REPO });
+  }
+
+  after(limpiar);
+
+  test('name que no coincide con la carpeta genera hallazgo alta', () => {
+    limpiar();
+    crearSkillDePrueba([
+      '---',
+      'name: nombre-incorrecto',
+      'description: skill de prueba para test unitario, no usar en produccion.',
+      'origin: ai-core',
+      'version: 1.0.0',
+      'last_updated: 2026-01-01',
+      'rol: coder',
+      '---',
+      '# Skill de prueba',
+    ].join('\n'));
+
+    const r = runValidate();
+    limpiar();
+    const salida = JSON.parse(r.stdout);
+    const resultado = salida.resultados.find(x => x.nombre === 'zz-test-agentskills-temp');
+    assert.ok(resultado, 'debe auditar el skill de prueba');
+    assert.ok(
+      resultado.hallazgos.some(h => h.desc.includes('no coincide con la carpeta')),
+      'debe reportar el mismatch name vs carpeta'
+    );
+  });
+
+  test('name con mayusculas o guiones consecutivos genera hallazgo', () => {
+    limpiar();
+    crearSkillDePrueba([
+      '---',
+      'name: zz-test-agentskills-temp',
+      'description: skill de prueba para test unitario, no usar en produccion.',
+      'origin: ai-core',
+      'version: 1.0.0',
+      'last_updated: 2026-01-01',
+      'rol: coder',
+      '---',
+      '# Skill de prueba',
+    ].join('\n'));
+    // name valido aqui (coincide con carpeta) — probar el formato por separado
+    // renombrando el frontmatter con guiones consecutivos, invalido segun spec.
+    fs.writeFileSync(
+      path.join(TEST_DIR, 'SKILL.md'),
+      fs.readFileSync(path.join(TEST_DIR, 'SKILL.md'), 'utf8').replace(
+        'name: zz-test-agentskills-temp',
+        'name: zz--test-agentskills-temp'
+      ),
+      'utf8'
+    );
+
+    const r = runValidate();
+    limpiar();
+    const salida = JSON.parse(r.stdout);
+    const resultado = salida.resultados.find(x => x.nombre === 'zz-test-agentskills-temp');
+    assert.ok(resultado, 'debe auditar el skill de prueba');
+    assert.ok(
+      resultado.hallazgos.some(h => h.desc.includes('no cumple el formato')),
+      'debe reportar el formato invalido por guiones consecutivos'
+    );
+  });
+
+  test('skill conforme al schema no genera hallazgos de agentskills.io', () => {
+    limpiar();
+    crearSkillDePrueba([
+      '---',
+      'name: zz-test-agentskills-temp',
+      'description: skill de prueba para test unitario, no usar en produccion.',
+      'origin: ai-core',
+      'version: 1.0.0',
+      'last_updated: 2026-01-01',
+      'rol: coder',
+      '---',
+      '# Skill de prueba',
+    ].join('\n'));
+
+    const r = runValidate();
+    limpiar();
+    const salida = JSON.parse(r.stdout);
+    const resultado = salida.resultados.find(x => x.nombre === 'zz-test-agentskills-temp');
+    assert.ok(resultado, 'debe auditar el skill de prueba');
+    assert.ok(
+      !resultado.hallazgos.some(h => h.desc.startsWith('agentskills.io:')),
+      'un skill con name valido y coincidente no debe generar hallazgos de agentskills.io'
+    );
+  });
+});
+
 // ─── CLAUDE.md — integridad del nucleo ───────────────────────────────────────
 
 describe('CLAUDE.md — integridad', () => {
@@ -489,13 +636,25 @@ describe('standards-guard.js', () => {
     assert.match(r.stderr, /Emoji pictografico detectado/);
   });
 
-  test('COMMIT_EDITMSG con mas de 150 palabras: exit 2 (bloqueante)', () => {
+  test('COMMIT_EDITMSG con mas de 150 palabras: NO bloquea', () => {
+    // Un mensaje de commit es documentacion tecnica del cambio (puede listar
+    // varios puntos con vineta legitimamente), no prosa conversacional al
+    // usuario -- solo TO_GEMINI.md queda sujeto al limite de 150 palabras.
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'standards-guard-'));
     const f = path.join(dir, 'COMMIT_EDITMSG');
     fs.writeFileSync(f, Array(160).fill('palabra').join(' '), 'utf8');
     const r = runScript(SCRIPT, [f]);
     fs.rmSync(dir, { recursive: true });
-    assert.equal(r.status, 2, 'debe abortar con exit 2 si la prosa supera 150 palabras');
+    assert.equal(r.status, 0, 'un mensaje de commit extenso no debe bloquearse por el limite de 150 palabras');
+  });
+
+  test('TO_GEMINI.md con mas de 150 palabras: exit 2 (bloqueante)', () => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'standards-guard-'));
+    const f = path.join(dir, 'TO_GEMINI.md');
+    fs.writeFileSync(f, Array(160).fill('palabra').join(' '), 'utf8');
+    const r = runScript(SCRIPT, [f]);
+    fs.rmSync(dir, { recursive: true });
+    assert.equal(r.status, 2, 'TO_GEMINI.md si es prosa conversacional real y debe respetar el limite');
     assert.match(r.stderr, /Prosa tiene \d+ palabras/);
   });
 
@@ -1122,6 +1281,41 @@ describe('subagent-review.js (adverse)', () => {
     const stopHooks = settings.hooks?.SubagentStop?.[0]?.hooks || [];
     const registered = stopHooks.some(h => (h.command || '').includes('subagent-review.js'));
     assert.ok(registered, 'subagent-review.js debe estar registrado en SubagentStop');
+  });
+});
+
+// ─── ModelRegistry.js — parsearJSONFailClosed ────────────────────────────────
+
+describe('ModelRegistry.js — parsearJSONFailClosed', () => {
+  const { parsearJSONFailClosed } = require(path.join(REPO, 'scripts', 'services', 'ModelRegistry.js'));
+
+  test('JSON valido se parsea correctamente', () => {
+    const obj = parsearJSONFailClosed('{"ok": true, "valor": 42}');
+    assert.deepEqual(obj, { ok: true, valor: 42 });
+  });
+
+  test('JSON valido con texto alrededor extrae el objeto', () => {
+    const obj = parsearJSONFailClosed('Aqui esta el resultado: {"ok": true} -- fin del mensaje');
+    assert.deepEqual(obj, { ok: true });
+  });
+
+  test('texto no-JSON falla cerrado (retorna null)', () => {
+    assert.equal(parsearJSONFailClosed('esto no es JSON en absoluto'), null);
+  });
+
+  test('string vacio falla cerrado (retorna null)', () => {
+    assert.equal(parsearJSONFailClosed(''), null);
+    assert.equal(parsearJSONFailClosed('   '), null);
+  });
+
+  test('input no-string falla cerrado (retorna null) sin lanzar excepcion', () => {
+    assert.equal(parsearJSONFailClosed(null), null);
+    assert.equal(parsearJSONFailClosed(undefined), null);
+    assert.equal(parsearJSONFailClosed(42), null);
+  });
+
+  test('JSON truncado/malformado falla cerrado (retorna null)', () => {
+    assert.equal(parsearJSONFailClosed('{"pass": true, "hallazg'), null);
   });
 });
 

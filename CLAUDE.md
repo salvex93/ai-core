@@ -159,11 +159,13 @@ Al crear un nuevo skill en `.claude/skills/`:
 
 ### Portabilidad multi-harness
 
+Cada `SKILL.md` cumple el estandar abierto [agentskills.io](https://agentskills.io/specification) (originado por Anthropic, adoptado por ~40 productos incluyendo Claude Code, Cursor, Gemini CLI, OpenCode, GitHub Copilot): frontmatter `name` (coincide con la carpeta, minusculas/numeros/guion simple, max 64 chars) + `description` (max 1024 chars, con lenguaje de activacion). `validate-globals.js` verifica esta conformidad automaticamente.
+
 Los archivos `.md` en `skills/` y `agents/` son el activo portable. Funcionan en:
 - Claude Code: nativo (skills via sistema de skills, agents via Agent tool)
 - Cursor: via `.cursor/rules/` o `.claude/skills/` (auto-discovery)
 - Cline / OpenCode: via system prompt o config de reglas
-- Cualquier CLI que soporte archivos de instrucciones Markdown
+- Cualquier cliente compatible con el estandar agentskills.io
 
 Los scripts en `.claude/bin/` y `scripts/` son la infraestructura de ejecucion — especifica de Node.js pero no de Claude Code. Si cambia el harness, los scripts siguen siendo validos como CLI independiente.
 

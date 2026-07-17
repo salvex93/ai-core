@@ -14,6 +14,15 @@
  * implementado — ninguna sub-tarea ejecuta un flujo MoA real todavia; eso
  * requiere ademas orquestacion de fan-out/fan-in (ver skill
  * workflow-orchestrator) fuera del alcance de esta interfaz base.
+ *
+ * Deuda tecnica conocida: execute() solo distingue exito/fallo de la llamada
+ * HTTP (via Promise.allSettled en executeMoATask), no valida la CALIDAD del
+ * contenido que llego exitosamente (vacio, truncado, JSON malformado si la
+ * sub-tarea lo requiere). ModelRegistry.parsearJSONFailClosed() ya existe
+ * como el helper reutilizable para esa validacion (usado hoy por
+ * CrossVerifier.js) — falta engancharlo aqui cuando exista una sub-tarea
+ * real que dependa de output estructurado, en vez de agregarlo ahora sobre
+ * un dispatcher sin caller productivo.
  */
 
 const { chat } = require('./ModelRegistry');

@@ -10,6 +10,9 @@
  *   3. Que cada skill tiene las secciones obligatorias de estructura.
  *   4. Que ningun skill contradice reglas criticas de CLAUDE.md (emojis, ingles, etc.).
  *   5. Que el frontmatter de cada skill tiene name, version, origin y last_updated.
+ *   6. Que name/description cumplen el schema abierto agentskills.io
+ *      (agentskills.io/specification): name coincide con la carpeta, formato
+ *      minusculas/numeros/guion simple, limites de longitud.
  *
  * Salida:
  *   - Tabla de conformidad por skill.
@@ -80,6 +83,26 @@ function auditarSkill(skillDir) {
   if (!content.match(/^last_updated:/m))hallazgos.push({ sev: 'media',  desc: 'frontmatter: falta "last_updated:"' });
   if (!content.match(/^rol:\s*"?(architect|coder|auditor)"?\s*$/m))
     hallazgos.push({ sev: 'alta', desc: 'frontmatter: falta "rol:" valido (architect|coder|auditor)' });
+
+  // 1b. Conformidad con el schema abierto agentskills.io (name/description) —
+  // https://agentskills.io/specification
+  const nameMatch = content.match(/^name:\s*(.+)$/m);
+  if (nameMatch) {
+    const skillName = nameMatch[1].trim();
+    if (skillName !== nombre) {
+      hallazgos.push({ sev: 'alta', desc: `agentskills.io: name "${skillName}" no coincide con la carpeta "${nombre}"` });
+    }
+    if (!/^[a-z0-9]+(-[a-z0-9]+)*$/.test(skillName)) {
+      hallazgos.push({ sev: 'media', desc: `agentskills.io: name "${skillName}" no cumple el formato (minusculas, numeros, guion simple)` });
+    }
+    if (skillName.length > 64) {
+      hallazgos.push({ sev: 'media', desc: 'agentskills.io: name supera 64 caracteres' });
+    }
+  }
+  const descMatch = content.match(/^description:\s*(.+)$/m);
+  if (descMatch && descMatch[1].trim().length > 1024) {
+    hallazgos.push({ sev: 'media', desc: 'agentskills.io: description supera 1024 caracteres' });
+  }
 
   // 2. Secciones obligatorias
   for (const seccion of SECCIONES_OBLIGATORIAS) {

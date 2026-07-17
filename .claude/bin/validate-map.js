@@ -9,7 +9,7 @@ const fs          = require('fs');
 const path        = require('path');
 const { execSync, execFileSync } = require('child_process');
 
-const DRIFT_THRESHOLD = 3;
+const DRIFT_THRESHOLD = 1; // cualquier drift real dispara regeneracion — el mapa es barato de regenerar, la desincronizacion no
 const CORE_PATH = path.resolve(__dirname, '../..');
 const HOST_PATH = process.cwd();
 // El mapa vive siempre en .claude/ del proyecto anfitrion (o core si standalone)

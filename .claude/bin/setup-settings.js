@@ -169,6 +169,15 @@ const settings = {
         ],
       },
       {
+        // git commit/push pueden dejar drift entre CONTEXT_MAP.json y el
+        // arbol real (archivos nuevos en el commit que el mapa aun no
+        // conoce) — ningun otro hook cubre este momento especifico.
+        matcher: 'Bash(git commit*)|Bash(git push*)',
+        hooks: [
+          { type: 'command', command: `node ${bin('process-guard.js')} map node ${bin('diff-map-trigger.js')} 2>/dev/null || true` },
+        ],
+      },
+      {
         matcher: 'Bash|Read|Write|Edit|Agent',
         hooks: [
           { type: 'command', command: `node ${bin('agent-metrics.js')} record --tool "$CLAUDE_TOOL_NAME" --status ok 2>/dev/null || true` },

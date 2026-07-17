@@ -36,10 +36,11 @@ if (!fs.existsSync(filePath)) process.exit(0);
 const TEXT_EXTS = ['.js', '.ts', '.py', '.md', '.json', '.yaml', '.yml', '.sh'];
 const ext = path.extname(filePath).toLowerCase();
 const isCommitMsg = filePath.endsWith('COMMIT_EDITMSG');
-// Artefactos de prosa conversacional del arnes — el limite de 150 palabras de
-// CLAUDE.md rige la respuesta de Claude al usuario, no documentacion tecnica
-// (SKILL.md, README, propuestas) que legitimamente supera ese largo.
-const isProsaConversacional = isCommitMsg || filePath.endsWith('TO_GEMINI.md');
+// Solo TO_GEMINI.md es prosa conversacional real (equivalente a una respuesta
+// de Claude al usuario). Un mensaje de commit es documentacion tecnica del
+// cambio -- legitimamente usa viñetas extensas para listar varios cambios,
+// igual que un SKILL.md o un README; no debe medirse con el mismo limite.
+const isProsaConversacional = filePath.endsWith('TO_GEMINI.md');
 
 if (!TEXT_EXTS.includes(ext) && !isCommitMsg) process.exit(0);
 

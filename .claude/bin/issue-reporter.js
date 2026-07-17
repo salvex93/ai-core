@@ -30,12 +30,16 @@ const REPO_TARGET = 'salvex93/ai-core';
 // Tipos de evento → labels y titulo de issue
 // ---------------------------------------------------------------------------
 
+// Labels limitadas a las que existen en github.com/salvex93/ai-core (ver
+// `gh label list`) -- gh issue create falla el comando COMPLETO si una sola
+// label no existe, dejando el evento sin marcar reported=true de forma
+// silenciosa. No usar subcategorias inventadas (mcp, hooks, skill).
 const ISSUE_META = Object.freeze({
-  mcp_failure:   { label: 'bug,mcp',          prefix: '[MCP-FAIL]',    priority: 'alta'  },
-  hook_failure:  { label: 'bug,hooks',         prefix: '[HOOK-FAIL]',   priority: 'alta'  },
-  skill_gap:     { label: 'enhancement,skill', prefix: '[SKILL-GAP]',   priority: 'media' },
-  pattern:       { label: 'enhancement',       prefix: '[PATTERN]',     priority: 'baja'  },
-  harness_error: { label: 'bug',               prefix: '[HARNESS-ERR]', priority: 'alta'  },
+  mcp_failure:   { label: 'bug',         prefix: '[MCP-FAIL]',    priority: 'alta'  },
+  hook_failure:  { label: 'bug',         prefix: '[HOOK-FAIL]',   priority: 'alta'  },
+  skill_gap:     { label: 'enhancement', prefix: '[SKILL-GAP]',   priority: 'media' },
+  pattern:       { label: 'enhancement', prefix: '[PATTERN]',     priority: 'baja'  },
+  harness_error: { label: 'bug',         prefix: '[HARNESS-ERR]', priority: 'alta'  },
 });
 
 // ---------------------------------------------------------------------------

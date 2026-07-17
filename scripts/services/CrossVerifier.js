@@ -11,7 +11,7 @@
  * No crea cliente HTTP propio: reutiliza ModelRegistry.chat().
  */
 
-const { chat } = require('./ModelRegistry');
+const { chat, parsearJSONFailClosed } = require('./ModelRegistry');
 
 // Proveedores validos como verificador, en orden de preferencia (mas barato primero)
 const PROVEEDORES_VERIFICADOR = Object.freeze(['deepseek', 'openai', 'gemini']);
@@ -85,19 +85,17 @@ async function verificar({ diff, tarea, proveedorActor = 'anthropic', disponible
  * @returns {{pass: boolean, hallazgos: Array}}
  */
 function parsearVeredicto(texto) {
-  try {
-    const match = texto.match(/\{[\s\S]*\}/);
-    const json = JSON.parse(match ? match[0] : texto);
-    return {
-      pass: json.pass === true,
-      hallazgos: Array.isArray(json.hallazgos) ? json.hallazgos : [],
-    };
-  } catch {
+  const json = parsearJSONFailClosed(texto);
+  if (!json) {
     return {
       pass: false,
       hallazgos: [{ severidad: 'alta', descripcion: 'Veredicto del verificador no parseable — falla cerrado' }],
     };
   }
+  return {
+    pass: json.pass === true,
+    hallazgos: Array.isArray(json.hallazgos) ? json.hallazgos : [],
+  };
 }
 
 module.exports = { verificar, seleccionarVerificador, parsearVeredicto, PROVEEDORES_VERIFICADOR };

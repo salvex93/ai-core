@@ -269,4 +269,31 @@ function listProviders() {
   ];
 }
 
-module.exports = { chat, listProviders, PROVIDER_CONFIGS };
+// ---------------------------------------------------------------------------
+// Validacion de calidad de output — fail-closed ante JSON invalido
+// ---------------------------------------------------------------------------
+
+/**
+ * Parsea un output de modelo que se espera sea JSON, fallando cerrado
+ * (retorna null) si el contenido no es JSON valido en vez de asumir que el
+ * output esta bien solo porque el proveedor respondio 200 OK. Un proveedor
+ * puede completar la llamada exitosamente y aun asi devolver contenido vacio,
+ * truncado o mal formado — este helper es el punto unico donde esa distincion
+ * se hace, para que cualquier caller (verificadores, parsers de veredicto,
+ * futura logica de cascada entre proveedores) la reutilice sin duplicar el
+ * intento de parseo + regex de extraccion.
+ *
+ * @param {string} texto - contenido crudo de la respuesta del modelo
+ * @returns {object|null} el objeto parseado, o null si no es JSON valido
+ */
+function parsearJSONFailClosed(texto) {
+  if (typeof texto !== 'string' || !texto.trim()) return null;
+  try {
+    const match = texto.match(/\{[\s\S]*\}/);
+    return JSON.parse(match ? match[0] : texto);
+  } catch {
+    return null;
+  }
+}
+
+module.exports = { chat, listProviders, PROVIDER_CONFIGS, parsearJSONFailClosed };
