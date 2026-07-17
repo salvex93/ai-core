@@ -3,6 +3,51 @@
 Registro de cambios por version. Formato basado en [Keep a Changelog](https://keepachangelog.com/es/1.0.0/).
 Versionado semantico: MAJOR.MINOR.PATCH.
 
+## [3.13.0] — 2026-07-17
+
+### Corregido — 10 bugs reales de regresion silenciosa
+
+- **`scripts/services/ContextIndex.js`**: `listarArchivos()` y `diagnostico()` leian el esquema legacy `map.map.{root_files,directories,total_files}`, que ya no existe (el esquema real de `CONTEXT_MAP.json` es `map.host.*`). El modulo completo quedaba inerte desde el cambio de esquema — `resolver()` nunca encontraba nada, `total_archivos` siempre reportaba 0. Su proposito documentado (evitar lecturas ciegas a disco) nunca funciono en la practica hasta este fix.
+- **`.claude/bin/git-queue-advisor.js`**: clasificaba severidad de eventos por `e.sev`, campo que no existe en el esquema real de `capture-event.js` (usa `type`). Todo evento pendiente caia a severidad "INFO" sin distincion real entre critico y trivial. Corregido para derivar prioridad desde `type`, igual criterio que `ISSUE_META` en `issue-reporter.js`.
+- **`.claude/bin/health-worker.js`**: filtraba el string hardcodeado `'gemini-2.5-flash'` para excluir el modelo Gemini de la comparacion contra el catalogo de Anthropic — el nombre real ya es `gemini-3.5-flash` desde v3.11.0, el filtro nunca hacia match desde entonces.
+- **`.claude/bin/health-sync.js` (`checkSkills`)**: dependia de una tabla de skills en CLAUDE.md eliminada en esta misma sesion (routing via frontmatter `description`, ver mas abajo) — reportaba 36/38 skills como "huerfanos" falsamente en cada `HEALTH_REPORT.md`. Reescrito para verificar conformidad estructural real (`name` coincide con la carpeta, `description` no vacia), mismo criterio que `validate-globals.js`.
+- **Bug de regex compartido** en `health-sync.js` y `validate-globals.js`: `\s*` (en vez de `[ \t]*`) al extraer `name`/`description` del frontmatter cruzaba el salto de linea cuando el valor estaba vacio, capturando el contenido de la linea siguiente del YAML como si fuera el valor del campo.
+- **`.claude/bin/issue-reporter.js`**: labels de GitHub inexistentes (`bug,hooks`, `bug,mcp`, `enhancement,skill`) hacian fallar `gh issue create` de forma completa y silenciosa, dejando eventos sin marcar `reported: true` indefinidamente. Reducidas a las labels reales del repo (`bug`, `enhancement`). Test que valida las labels contra el repo real para prevenir regresion.
+- **`.claude/bin/norm-harness.js` / `setup-settings.js`**: mantenian una copia paralela y desincronizada de la definicion de hooks. `norm-harness.js` (usado cuando ai-core se instala como submodulo) carecia de `subagent-guard.js`, `bash-verbosity-guard.js`, `memory-vault-prune-check.js`, y de `cross-verify-gate.js`/`injection-guard.js` en `SubagentStop`. Unificado en `.claude/bin/hooks-definition.js` (nuevo) como fuente unica de verdad, consumida por ambos callers via su propia funcion `bin()`.
+- **`scripts/services/ModelRegistry.js`**: 3 defaults de modelo deprecados actualizados con evidencia verificada por busqueda web — `gpt-4o-mini` (GPT-4o retirado 2026-02) → `gpt-5.6-luna`; `deepseek-chat` (deprecacion confirmada 2026-07-24) → `deepseek-v4-flash`; `moonshot-v1-8k` (sunset 2026-08-31) → `kimi-k3`. Test que impide reintroducir los identificadores deprecados.
+- **`tests/model-dispatcher.test.js`**: test de concurrencia media `duracion < 40ms` — flaky bajo carga de CPU (falla intermitentemente cuando la suite completa corre con muchos `spawnSync` reales, aunque la ejecucion si sea concurrente). Reemplazado por verificacion de orden de eventos (ambos workers inician antes de que cualquiera termine).
+- **Contaminacion de `EVENTS_QUEUE.json` por los propios tests**: los tests que ejercitan guards reales (`standards-guard.js`, etc.) invocaban `capture-event.js` de verdad, encolando eventos de archivos temporales de prueba junto a fallos genuinos del arnes. `runScript()` en `tests/harness.test.js` inyecta `AI_CORE_TEST_MODE=1`, que `capture-event.js` respeta para salir temprano sin escribir.
+
+### Agregado — Enforcement real y ahorro de tokens
+
+- **`.claude/bin/subagent-guard.js`** (nuevo, hook `PreToolUse` matcher `Agent`): bloquea con exit 2 la recursion del mismo tipo de subagente y el spawn mas alla de 3 subagentes en una ventana de 2 minutos. Antes "maximo 3 subagentes paralelos" y "prohibido spawn recursivo" eran solo prosa en CLAUDE.md sin verificacion.
+- **`.claude/bin/bash-verbosity-guard.js`** (nuevo, hook `PreToolUse` matcher `Bash`): bloquea comandos de alto riesgo de output masivo sin acotar (`git log`/`git diff`/`cat`/`find` sin limite) antes de ejecutarlos — los hooks de Claude Code no exponen el output real de una tool call via variable de entorno, solo el input, asi que la unica intervencion posible es preventiva.
+- **`.claude/bin/memory-vault-prune-check.js`** (nuevo, hook `Stop`): avisa cuando `.raw/` del vault de memoria supera 50 archivos, sin mover ni eliminar nada — la poda sigue siendo responsabilidad manual del operador, ya documentada en `memory-manager`.
+- **`package.json`**: `postinstall` corre `setup-settings.js` automaticamente tras cada `npm install`, evitando hooks rotos por rutas placeholder sin regenerar manualmente en una maquina nueva.
+- **`aiops-score.js`**: gate de verbosidad — solo imprime el reporte completo de las 6 dimensiones si el score baja o hay hallazgos nuevos; en turnos estables emite una sola linea compacta.
+- **CLAUDE.md — tabla de seleccion de skills eliminada**: los 38 `SKILL.md` ya cumplen el estandar abierto [agentskills.io](https://agentskills.io/specification) (`name`/`description` en frontmatter con lenguaje de activacion), que Claude Code carga nativamente via skill-discovery — la tabla de 32 filas era duplicacion pura. `validate-globals.js` ahora verifica conformidad con el schema formal (name coincide con la carpeta, formato, limites de longitud).
+- **`validate-map.js`**: `DRIFT_THRESHOLD` de 3 a 1 — un drift de 2 archivos no disparaba regeneracion automatica del mapa, causando desincronizacion silenciosa entre `CONTEXT_MAP.json` y el arbol real.
+- **Hook post-commit para el mapa**: nuevo matcher `PostToolUse(Bash(git commit*)|Bash(git push*))` que dispara `diff-map-trigger.js` — ningun hook cubria ese momento antes.
+- **`standards-guard.js`**: `COMMIT_EDITMSG` ya no se trata como prosa conversacional sujeta al limite de 150 palabras (solo `TO_GEMINI.md` lo es) — un mensaje de commit es documentacion tecnica del cambio, no una respuesta al usuario.
+
+### Cobertura de tests
+
+141 tests nuevos (487 → 628) cubriendo los 19 archivos de `.claude/bin/` y `scripts/services/` que no tenian ninguno: `generate-map.js`, `validate-map.js`, `diff-map-trigger.js`, `health-check.js`, `health-sync.js`, `detect-stack.js`, `detox.js`, `syntax-check.js`, `health-report.js`, `health-worker.js`, `git-queue-advisor.js`, `audit-market.js`, `norm-harness.js`, `hooks-definition.js`, `ContextIndex.js`, `RateLimiter.js`, `ResponseValidator.js`, `RootGuard.js`, `StyleProfiler.js`, `ErrorRepairLoop.js`.
+
+### Aprendido
+
+- Un modulo que "nunca lanza excepcion" (retorna `null`/`[]`/`0` en el camino de error) puede quedar completamente inerte tras un cambio de esquema en sus datos de entrada sin que nada lo detecte — `ContextIndex.js` llevaba sesiones enteras sin resolver ninguna ruta real. La ausencia de error no es evidencia de funcionamiento correcto.
+- Escribir el primer test de un modulo existente es, en la practica, una auditoria — 4 de los 10 bugs de esta version se descubrieron exclusivamente al construir el caso de prueba, no en una revision de codigo previa.
+- Un test que mide tiempo de reloj real (`duracion < Nms`) para inferir concurrencia es inherentemente fragil bajo carga variable de CPU; verificar orden de eventos (que ambos workers iniciaron antes de que cualquiera terminara) prueba lo mismo sin depender del scheduler del sistema operativo.
+
+### Deuda tecnica remanente
+
+- 17 de 38 skills sin dominio registrado en `MARKET_STANDARDS.json` (no bloqueante, solo limita la auditoria automatica de vigencia de mercado para esos skills).
+- Timeouts sin comentario explicativo en `health-sync.js`, `standards-guard.js`, `health-worker.js` (bajo impacto, cosmetico).
+- Cascada de calidad de output entre proveedores (`ModelDispatcher.js`) deliberadamente no implementada: no existe caller productivo real que la necesite hoy; se extrajo `ModelRegistry.parsearJSONFailClosed()` como helper compartido para cuando exista.
+
+**628/628 tests, 38 skills.**
+
 ## [3.12.0] — 2026-07-10
 
 ### Agregado — Arquitectura Multi-Agente (MoA) y aislamiento de memoria por rol

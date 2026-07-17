@@ -1,6 +1,6 @@
 {
-  "version": "3.12.0",
-  "last_updated": "2026-07-17T20:35:12.758Z",
+  "version": "3.13.0",
+  "last_updated": "2026-07-17T22:42:00.923Z",
   "branch": "main",
   "stack": null,
   "host": {
@@ -36,6 +36,7 @@
         ".claude/bin/health-report.js",
         ".claude/bin/health-sync.js",
         ".claude/bin/health-worker.js",
+        ".claude/bin/hooks-definition.js",
         ".claude/bin/injection-guard.js",
         ".claude/bin/issue-reporter.js",
         ".claude/bin/memory-index-stop.js",
@@ -165,7 +166,7 @@
       "node_modules/",
       ".git/"
     ],
-    "total_files": 142
+    "total_files": 143
   },
   "core": null
 }

@@ -1,6 +1,6 @@
-# AI-CORE v3.12.0: Nucleo Multi-Agente Universal
+# AI-CORE v3.13.0: Nucleo Multi-Agente Universal
 
-`ai-core` es un nucleo de configuracion y comportamiento para agentes IA. Se usa como submodulo Git en un proyecto existente o como repositorio independiente. Define reglas globales, 37 skills especializados, 6 agentes autonomos, un orquestador Mixture-of-Agents (Gemini + DeepSeek + Claude) y un ciclo de mejora continua por uso, sin acoplarse al stack del proyecto anfitrion.
+`ai-core` es un nucleo de configuracion y comportamiento para agentes IA. Se usa como submodulo Git en un proyecto existente o como repositorio independiente. Define reglas globales, 38 skills especializados, 6 agentes autonomos, un orquestador Mixture-of-Agents (Gemini + DeepSeek + Claude) y un ciclo de mejora continua por uso, sin acoplarse al stack del proyecto anfitrion.
 
 `CLAUDE.md` es la unica fuente de verdad de reglas y enrutamiento de skills. Los skills lo referencian, no lo copian: si una regla cambia ahi, se propaga sin tocar ningun SKILL.md.
 
@@ -33,7 +33,7 @@ npm install
 npm run setup    # adapta settings.json a tu ruta exacta (cross-platform)
 
 # 3. Verificar que todo funciona
-npm test         # debe terminar: 487 pass, 0 fail
+npm test         # debe terminar: 628 pass, 0 fail
 
 # 4. Autenticar gh CLI para el issue-tracker (una sola vez por maquina)
 gh auth login    # GitHub.com -> HTTPS -> Login with a web browser
@@ -81,7 +81,7 @@ Repositorio independiente:
 npm run update
 ```
 
-Esto corre `git pull`, regenera `settings.json` (purga automaticamente cualquier hook de una version anterior que referencie un script eliminado o renombrado — el objeto de hooks se construye desde cero y sobreescribe el archivo completo, nunca mergea), corre los 487 tests, aplica migraciones de version, valida los 37 skills, y reporta que cambio. Si un test falla, el comando se detiene ahi.
+Esto corre `git pull`, regenera `settings.json` (purga automaticamente cualquier hook de una version anterior que referencie un script eliminado o renombrado — el objeto de hooks se construye desde cero y sobreescribe el archivo completo, nunca mergea, con la definicion compartida en `hooks-definition.js`), corre los 628 tests, aplica migraciones de version, valida los 38 skills, y reporta que cambio. Si un test falla, el comando se detiene ahi.
 
 Instalado como submodulo:
 
@@ -101,9 +101,9 @@ Gemini (gratuito) y Anthropic funcionan desde el primer momento. El resto se act
 ```bash
 GEMINI_API_KEY=    # obligatorio, gratuito en aistudio.google.com
 ANTHROPIC_API_KEY= # ya configurado por Claude Code
-OPENAI_API_KEY=    # opcional, GPT-4o / o1 / o3
-DEEPSEEK_API_KEY=  # opcional, DeepSeek-V3 / R1
-KIMI_API_KEY=      # opcional, Kimi K2, 256k de contexto
+OPENAI_API_KEY=    # opcional, GPT-5.6 (Sol/Terra/Luna)
+DEEPSEEK_API_KEY=  # opcional, DeepSeek V4 (Flash/Pro)
+KIMI_API_KEY=      # opcional, Kimi K3, 1M de contexto
 ```
 
 Sin la clave, el proveedor simplemente no se usa, no hay errores. `OPENAI_API_KEY` y `DEEPSEEK_API_KEY` cumplen doble funcion: proveedor de costo bajo y verificador cross-model independiente de Claude (ver seccion Cross-Model Verifier mas abajo). `DEEPSEEK_API_KEY` tiene ademas un tercer uso: worker `SyntaxDrafting` del orquestador MoA (ver seccion Arquitectura Multi-Agente). Sin `GEMINI_API_KEY` y `DEEPSEEK_API_KEY` simultaneamente, el fan-out MoA no se activa — el guard de disponibilidad lo salta sin error.
@@ -122,15 +122,16 @@ Si no esta autenticado, los eventos se acumulan en `.claude/EVENTS_QUEUE.json` y
 ## Comandos de referencia
 
 ```bash
-npm install                               # instalar dependencias
-npm test                                  # 487 tests, Node nativo, sin deps externas
-npm run setup                             # regenerar settings.json con rutas locales
+npm install                               # instalar dependencias (corre postinstall -> npm run setup)
+npm test                                  # 628 tests, Node nativo, sin deps externas
+npm run setup                             # regenerar settings.json con rutas locales (ya corre solo via postinstall)
 npm run update                            # actualizacion one-command desde GitHub
-npm run validate-globals                  # auditar conformidad de los 37 skills
+npm run validate-globals                  # auditar conformidad de los 38 skills (incluye schema agentskills.io)
 npm run validate-globals -- --fix-drift   # corregir last_updated desincronizado
 npm run token-metrics                     # medir reduccion de consumo de tokens
 npm run dry-run                           # simular 5 turnos con calculo de costo
 npm run map                               # regenerar CONTEXT_MAP.json
+npm run audit-market                      # auditar vigencia de skills vs. dominios en MARKET_STANDARDS.json
 npm run score                             # scoring 0-10 por 6 dimensiones del arnes
 npm run score-report                      # historial completo de scores con delta
 npm run migrate                           # aplicar migraciones de version manualmente
@@ -145,6 +146,31 @@ npm run agent-report-full                 # historial de metricas de todas las s
 ---
 
 ## Que trae cada version
+
+### v3.13.0 — 10 bugs reales corregidos, enforcement de subagentes y cobertura completa
+
+**10 bugs reales de regresion silenciosa** encontrados escribiendo el primer test de cada modulo sin cobertura previa — ninguno lanzaba excepcion, todos retornaban un valor "vacio" plausible en el camino de error, asi que nada los habia detectado antes:
+
+- `ContextIndex.js` leia un esquema de `CONTEXT_MAP.json` (`map.map.*`) que ya no existe (el real es `map.host.*`) — el modulo entero estaba inerte, `resolver()` nunca encontraba nada.
+- `git-queue-advisor.js` clasificaba severidad por `e.sev`, campo inexistente en el esquema real de eventos — todo caia a "INFO" sin distincion.
+- `health-worker.js` filtraba el string hardcodeado `'gemini-2.5-flash'`, obsoleto desde el rename a `gemini-3.5-flash` en v3.11.0.
+- `health-sync.js` (`checkSkills`) dependia de la tabla de skills en CLAUDE.md que esta misma version elimino — reportaba 36/38 skills como huerfanos falsamente.
+- Bug de regex compartido en `health-sync.js` y `validate-globals.js`: `\s*` cruzaba el salto de linea del frontmatter YAML cuando un campo estaba vacio.
+- `issue-reporter.js` usaba labels de GitHub inexistentes, causando que `gh issue create` fallara completo y silencioso.
+- `norm-harness.js` mantenia una copia de hooks desincronizada de `setup-settings.js`, sin los 4 hooks de seguridad mas recientes.
+- 3 modelos deprecados en `ModelRegistry.js` (`gpt-4o-mini`, `deepseek-chat`, `moonshot-v1-8k`), uno con deadline de deprecacion real a 7 dias de la correccion.
+- Test de concurrencia flaky por umbral de tiempo real en vez de orden de eventos.
+- Los propios tests contaminaban `EVENTS_QUEUE.json` con eventos de archivos temporales de prueba.
+
+**Enforcement real de gobierno de agentes** — `subagent-guard.js` (bloquea recursion y exceso de subagentes paralelos) y `bash-verbosity-guard.js` (bloquea comandos de alto riesgo de output masivo antes de ejecutarlos, unica intervencion posible ya que los hooks no exponen el output real de una tool call). Antes eran solo reglas en prosa sin verificacion.
+
+**Tabla de seleccion de skills eliminada de CLAUDE.md** — los 38 `SKILL.md` cumplen el estandar abierto [agentskills.io](https://agentskills.io/specification), cargado nativamente por el skill-discovery de Claude Code. La tabla de 32 filas era duplicacion pura (~600-700 tokens/turno ahorrados).
+
+**`hooks-definition.js`** (nuevo) — fuente unica de verdad para la seccion `hooks` de `settings.json`, compartida por `setup-settings.js` y `norm-harness.js`.
+
+**141 tests nuevos** (487 → 628) cubriendo los 19 archivos de `.claude/bin/` y `scripts/services/` que no tenian ninguno.
+
+**628 tests, 38 skills.**
 
 ### v3.12.0 — Arquitectura Multi-Agente (MoA), rol declarativo y TDD obligatorio
 
@@ -204,7 +230,7 @@ Skills reescritos con seccion "Cuando NO Activar Este Perfil" en todos, sistema 
 
 | Capa | Directorio | Que hace | Cuando se activa |
 |---|---|---|---|
-| Skills | `.claude/skills/` (36) | Perfil de comportamiento — como piensa Claude en un dominio | Claude lo adopta como rol dentro de la conversacion |
+| Skills | `.claude/skills/` (38) | Perfil de comportamiento — como piensa Claude en un dominio | Claude lo adopta como rol dentro de la conversacion |
 | Agents | `.claude/agents/` (5+) | Loop autonomo que ejecuta una tarea completa sin intervencion | Claude Code lo lanza como subagente con contexto cero |
 
 Un skill se convierte en agente solo si cumple los tres criterios a la vez: autonomia real (sin interaccion por turno), salida estructurada verificable, y uso recurrente. Si falta uno, se queda como skill.
@@ -250,9 +276,9 @@ listProviders().forEach(p => console.log(p.provider, p.available ? 'OK' : 'sin k
 
 await chat('gemini',    messages);  // gratis, tier 0 para lecturas y resumenes
 await chat('anthropic', messages);  // Claude Haiku / Sonnet / Opus / Fable
-await chat('openai',    messages);  // GPT-4o, o1
-await chat('deepseek',  messages);  // DeepSeek-V3 / R1
-await chat('kimi',      messages);  // Kimi K2, 256k de contexto
+await chat('openai',    messages);  // GPT-5.6 (Sol / Terra / Luna)
+await chat('deepseek',  messages);  // DeepSeek V4 (Flash / Pro)
+await chat('kimi',      messages);  // Kimi K3, 1M de contexto
 ```
 
 Agregar un proveedor nuevo es agregar su config en `PROVIDER_CONFIGS` y su key en `.env`. No toca CLAUDE.md ni skills.
@@ -276,7 +302,7 @@ Se dispara automaticamente en el hook `SubagentStop` cuando `code-reviewer` marc
 
 ### Herramientas de gobernanza
 
-- **`validate-globals.js`**: verifica que los 37 skills tengan la referencia inmutable a CLAUDE.md, las secciones obligatorias, `rol:` valido en frontmatter y ningun emoji. `--fix-drift` corrige `last_updated` desincronizado. Sale con exit 1 si hay hallazgos criticos o altos.
+- **`validate-globals.js`**: verifica que los 38 skills tengan la referencia inmutable a CLAUDE.md, las secciones obligatorias, `rol:` valido en frontmatter, ningun emoji, y conformidad con el schema abierto [agentskills.io](https://agentskills.io/specification) (`name` coincide con la carpeta, formato, limites de longitud). `--fix-drift` corrige `last_updated` desincronizado. Sale con exit 1 si hay hallazgos criticos o altos.
 - **`update.js`**: actualizacion cross-platform en un comando. Reporta version anterior vs nueva y si hay breaking changes que requieran accion manual.
 - **CI** (`.github/workflows/ci.yml`): corre tests y `validate-globals` en Linux, macOS y Windows con Node 20/22 en cada push a `main` y cada PR.
 
@@ -411,13 +437,17 @@ New-Item -ItemType SymbolicLink -Path './CLAUDE.md' -Target 'C:/ruta/a/ai-core/C
 │   │   ├── memory-index.js      Motor BM25 del vault de memoria semantica — namespacing por rol
 │   │   ├── memory-index-stop.js Hook Stop: consume .current_role de forma destructiva e indexa por rol
 │   │   ├── subagent-review.js   Hook SubagentStop: validacion adversarial de 3 perspectivas
-│   │   └── cross-verify-gate.js Hook SubagentStop: segunda opinion cross-model tras code-reviewer
-│   └── skills/                  37 skills — enrutamiento completo vive en CLAUDE.md
-├── tests/                       487 tests — harness.test.js + archivos dedicados por modulo nuevo
+│   │   ├── cross-verify-gate.js Hook SubagentStop: segunda opinion cross-model tras code-reviewer
+│   │   ├── hooks-definition.js  Fuente unica de la seccion "hooks" de settings.json (usada por setup-settings.js y norm-harness.js)
+│   │   ├── subagent-guard.js    Hook PreToolUse(Agent): bloquea recursion y exceso de subagentes paralelos
+│   │   ├── bash-verbosity-guard.js Hook PreToolUse(Bash): bloquea comandos de alto riesgo de output masivo
+│   │   └── memory-vault-prune-check.js Hook Stop: avisa (sin borrar) cuando el vault supera 50 archivos
+│   └── skills/                  38 skills — enrutamiento via frontmatter description (agentskills.io), reglas en CLAUDE.md
+├── tests/                       628 tests — harness.test.js + archivos dedicados por modulo nuevo
 ├── .github/workflows/ci.yml     CI en Linux/Mac/Windows x Node 20/22
 ├── CLAUDE.md                    Autoridad unica: reglas globales, skills, enrutamiento
 ├── DEPRECATIONS.json            Contrato de migracion por version
-├── package.json                 v3.12.0, Node >= 18
+├── package.json                 v3.13.0, Node >= 18
 └── .env.example                 Plantilla de variables de entorno
 ```
 
@@ -493,9 +523,9 @@ El agente `aiops-auditor` detecta drift de SDK y skills faltantes. Lanzarlo cuan
 ```bash
 GEMINI_API_KEY     # Gemini 3.5 Flash / 3.1 Flash-Lite, gratuito, tier 0. Tambien worker ContextGathering de MoA
 ANTHROPIC_API_KEY  # Claude Haiku/Sonnet/Opus/Fable
-OPENAI_API_KEY     # GPT-4o, o1, o3 — opcional, tambien verificador cross-model
-DEEPSEEK_API_KEY   # DeepSeek-V3 / R1 — opcional, verificador cross-model y worker SyntaxDrafting de MoA
-KIMI_API_KEY       # Kimi K2, 256k de contexto — opcional
+OPENAI_API_KEY     # GPT-5.6 (Sol/Terra/Luna) — opcional, tambien verificador cross-model
+DEEPSEEK_API_KEY   # DeepSeek V4 (Flash/Pro) — opcional, verificador cross-model y worker SyntaxDrafting de MoA
+KIMI_API_KEY       # Kimi K3, 1M de contexto — opcional
 DOCS_PATH          # ruta a documentacion interna para RAG local
 ```
 
