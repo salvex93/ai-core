@@ -54,6 +54,10 @@ function cargarMapa() {
 
 /**
  * Retorna todos los archivos indexados (lista plana de rutas relativas).
+ * Esquema real de CONTEXT_MAP.json: { host: { root_files, directories,
+ * total_files }, core: {...} | null } -- "host" es el proyecto anfitrion
+ * (o el propio ai-core si standalone), no una clave "map" (esquema legacy
+ * que ya no existe, causaba que este modulo nunca encontrara nada).
  * @returns {string[]}
  */
 function listarArchivos() {
@@ -61,8 +65,8 @@ function listarArchivos() {
   if (!cargado) return [];
 
   const { map } = cargado;
-  const todos = [...(map.map?.root_files ?? [])];
-  for (const archivos of Object.values(map.map?.directories ?? {})) {
+  const todos = [...(map.host?.root_files ?? [])];
+  for (const archivos of Object.values(map.host?.directories ?? {})) {
     todos.push(...archivos);
   }
   return todos;
@@ -140,7 +144,7 @@ function diagnostico() {
     version:         cargado.map.version,
     branch:          cargado.map.branch,
     last_updated:    cargado.map.last_updated,
-    total_archivos:  cargado.map.map?.total_files ?? listarArchivos().length,
+    total_archivos:  cargado.map.host?.total_files ?? listarArchivos().length,
     raiz_resuelta:   _mapRaiz,
     mapa_origen:     MAP_CANDIDATES.find(c => fs.existsSync(c)),
   };

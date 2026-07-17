@@ -1805,3 +1805,804 @@ describe('health-check.js — gate de sesion', () => {
     assert.equal(r2.stderr, '', 'la segunda corrida no debe emitir ningun banner (gate de sesion activo)');
   });
 });
+
+// ─── detect-stack.js ──────────────────────────────────────────────────────────
+
+describe('detect-stack.js', () => {
+  const { detectStack } = require(path.join(BIN, 'detect-stack.js'));
+  let tmpDir;
+
+  before(() => { tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'detect-stack-')); });
+  after(() => { fs.rmSync(tmpDir, { recursive: true, force: true }); });
+
+  test('proyecto vacio: sin techs, sin permisos, sin labels', () => {
+    const r = detectStack(tmpDir);
+    assert.deepEqual(r.techs, []);
+    assert.deepEqual(r.permissions, []);
+    assert.deepEqual(r.labels, []);
+  });
+
+  test('detecta node por package.json y agrega permisos npx/yarn', () => {
+    fs.writeFileSync(path.join(tmpDir, 'package.json'), '{}');
+    const r = detectStack(tmpDir);
+    fs.unlinkSync(path.join(tmpDir, 'package.json'));
+
+    assert.ok(r.techs.includes('node'));
+    assert.ok(r.permissions.includes('Bash(npx*)'));
+    assert.ok(r.labels.includes('Node.js / npm'));
+  });
+
+  test('detecta python por requirements.txt', () => {
+    fs.writeFileSync(path.join(tmpDir, 'requirements.txt'), '');
+    const r = detectStack(tmpDir);
+    fs.unlinkSync(path.join(tmpDir, 'requirements.txt'));
+
+    assert.ok(r.techs.includes('python'));
+    assert.ok(r.permissions.includes('Bash(pytest*)'));
+  });
+
+  test('detecta multiples techs combinadas sin duplicar permisos', () => {
+    fs.writeFileSync(path.join(tmpDir, 'package.json'), '{}');
+    fs.writeFileSync(path.join(tmpDir, 'Dockerfile'), '');
+    const r = detectStack(tmpDir);
+    fs.unlinkSync(path.join(tmpDir, 'package.json'));
+    fs.unlinkSync(path.join(tmpDir, 'Dockerfile'));
+
+    assert.ok(r.techs.includes('node') && r.techs.includes('docker'));
+    const unicos = new Set(r.permissions);
+    assert.equal(unicos.size, r.permissions.length, 'no debe haber permisos duplicados');
+  });
+
+  test('detecta monorepo por directorio hint (dir, no archivo)', () => {
+    fs.mkdirSync(path.join(tmpDir, 'tests'));
+    const r = detectStack(tmpDir);
+    fs.rmSync(path.join(tmpDir, 'tests'), { recursive: true });
+
+    assert.ok(r.techs.includes('testing'));
+  });
+});
+
+// ─── syntax-check.js ──────────────────────────────────────────────────────────
+
+describe('syntax-check.js', () => {
+  const SCRIPT = path.join(BIN, 'syntax-check.js');
+
+  test('archivo .js con sintaxis valida: [syntax-ok]', () => {
+    const f = path.join(os.tmpdir(), `syntax-test-${Date.now()}.js`);
+    fs.writeFileSync(f, 'const x = 1;\n');
+
+    const r = runScript(SCRIPT, [f]);
+    fs.unlinkSync(f);
+
+    assert.equal(r.status, 0);
+    assert.match(r.stdout, /\[syntax-ok\]/);
+  });
+
+  test('archivo .js con sintaxis invalida: [syntax-error] y stderr con detalle', () => {
+    const f = path.join(os.tmpdir(), `syntax-test-${Date.now()}.js`);
+    fs.writeFileSync(f, 'const x = ;\n'); // sintaxis invalida deliberada
+
+    const r = runScript(SCRIPT, [f]);
+    fs.unlinkSync(f);
+
+    assert.match(r.stdout, /\[syntax-error\]/);
+    assert.ok(r.stderr.length > 0, 'debe incluir el detalle del error de Node en stderr');
+  });
+
+  test('archivo no-.js: sale con 0 sin verificar nada', () => {
+    const f = tmpFile('contenido cualquiera');
+    const r = runScript(SCRIPT, [f]);
+    fs.unlinkSync(f);
+
+    assert.equal(r.status, 0);
+    assert.equal(r.stdout, '', 'no debe imprimir nada para archivos no-.js');
+  });
+
+  test('sin argumento ni CLAUDE_TOOL_INPUT_file_path: sale con 0', () => {
+    const r = runScript(SCRIPT, []);
+    assert.equal(r.status, 0);
+  });
+});
+
+// ─── detox.js ─────────────────────────────────────────────────────────────────
+// Operacion destructiva real (fs.unlinkSync) -- se prueba EXCLUSIVAMENTE
+// contra un repo git temporal, nunca contra el repo principal.
+
+describe('detox.js', () => {
+  const SCRIPT = path.join(BIN, 'detox.js');
+  let tmpRepo;
+
+  function crearRepoConArchivosMd() {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'detox-test-'));
+    execSync('git init -q', { cwd: dir });
+    execSync('git config user.email "test@test.com"', { cwd: dir });
+    execSync('git config user.name "Test"', { cwd: dir });
+    fs.writeFileSync(path.join(dir, 'README.md'), '# trackeado, no tocar\n');
+    execSync('git add README.md', { cwd: dir });
+    execSync('git commit -q -m "inicial"', { cwd: dir });
+    return dir;
+  }
+
+  // runScript() usa cwd: REPO (fijo al repo principal) -- detox.js resuelve
+  // su raiz via "git rev-parse --show-toplevel", asi que necesita correr con
+  // cwd apuntando al repo temporal, no al principal. spawnSync directo.
+  function runEnRepoTemporal(dir) {
+    return spawnSync('node', [SCRIPT], { encoding: 'utf8', cwd: dir });
+  }
+
+  test('elimina .md legacy sin trackear con prefijo conocido', () => {
+    tmpRepo = crearRepoConArchivosMd();
+    fs.writeFileSync(path.join(tmpRepo, 'REPORT-2024.md'), 'legacy');
+    fs.writeFileSync(path.join(tmpRepo, 'TO_GEMINI.md'), 'legacy');
+
+    const r = runEnRepoTemporal(tmpRepo);
+    fs.rmSync(tmpRepo, { recursive: true, force: true });
+
+    assert.equal(r.status, 0);
+    assert.match(r.stderr, /2 archivo\(s\) legacy eliminados/);
+  });
+
+  test('NUNCA elimina un .md trackeado en git, aunque tenga prefijo legacy', () => {
+    tmpRepo = crearRepoConArchivosMd();
+    fs.writeFileSync(path.join(tmpRepo, 'REPORT-trackeado.md'), 'no deberia borrarse');
+    execSync('git add REPORT-trackeado.md', { cwd: tmpRepo });
+    execSync('git commit -q -m "trackear reporte legacy a proposito"', { cwd: tmpRepo });
+
+    runEnRepoTemporal(tmpRepo);
+    const sobrevivio = fs.existsSync(path.join(tmpRepo, 'REPORT-trackeado.md'));
+    fs.rmSync(tmpRepo, { recursive: true, force: true });
+
+    assert.ok(sobrevivio, 'un archivo trackeado en git nunca debe eliminarse sin importar el nombre');
+  });
+
+  test('no elimina .md sin trackear que NO tenga prefijo legacy conocido', () => {
+    tmpRepo = crearRepoConArchivosMd();
+    fs.writeFileSync(path.join(tmpRepo, 'notas-personales.md'), 'contenido del usuario');
+
+    runEnRepoTemporal(tmpRepo);
+    const sobrevivio = fs.existsSync(path.join(tmpRepo, 'notas-personales.md'));
+    fs.rmSync(tmpRepo, { recursive: true, force: true });
+
+    assert.ok(sobrevivio, 'archivos .md sin prefijo legacy conocido no deben tocarse');
+  });
+});
+
+// ─── health-report.js ─────────────────────────────────────────────────────────
+// Modulo puro (segun su propio docstring: "no toca disco, no hace checks") --
+// se prueba con datos mock, sin necesidad de correr los checks reales.
+
+describe('health-report.js', () => {
+  const { buildSyncReport, buildAsyncSection, buildBanner } = require(path.join(BIN, 'health-report.js'));
+
+  const metaOk = { version: '3.12.0', ts: '2026-07-17T00:00:00.000Z', sessionId: 'abc12345' };
+
+  test('buildSyncReport: todo OK produce "Estado general: OK"', () => {
+    const results = {
+      deps:   { ok: true, count: 3, installed: ['a@1', 'b@1', 'c@1'], missing: [], autoFixed: false },
+      skills: { ok: true, count: 38, invalid: [] },
+      mcp:    [{ server: 'gemini-bridge', ok: true, tools: ['x'], latencyMs: 10 }],
+    };
+    const md = buildSyncReport(results, metaOk);
+    assert.match(md, /\*\*Estado general: OK\*\*/);
+    assert.match(md, /HEALTH REPORT — AI-CORE v3\.12\.0/);
+  });
+
+  test('buildSyncReport: con fallos lista los issues por nombre', () => {
+    const results = {
+      deps:   { ok: false, count: 3, installed: [], missing: ['a'], autoFixed: false, error: 'ENOENT' },
+      skills: { ok: false, count: 38, invalid: ['x-skill'] },
+      mcp:    [{ server: 'gemini-bridge', ok: false, error: 'timeout 3s' }],
+    };
+    const md = buildSyncReport(results, metaOk);
+    assert.match(md, /3 ERROR\(ES\)/);
+    assert.match(md, /dependencias npm/);
+    assert.match(md, /skills/);
+    assert.match(md, /MCP gemini-bridge/);
+    assert.match(md, /invalidos: x-skill/);
+  });
+
+  test('buildAsyncSection: reporta drift de version cuando corresponde', () => {
+    const versionResults = [
+      { dep: 'pkg-a', installed: '1.0.0', latest: '1.0.0', drift: false },
+      { dep: 'pkg-b', installed: '1.0.0', latest: '2.0.0', drift: true },
+    ];
+    const md = buildAsyncSection(versionResults, { skipped: true, reason: 'sin API key' });
+    assert.match(md, /npm install pkg-b@latest/);
+    assert.match(md, /OMITIDO — sin API key/);
+  });
+
+  test('buildAsyncSection: reporta modelos nuevos y retirados', () => {
+    const md = buildAsyncSection([], { nuevos: ['modelo-x'], retirados: ['modelo-viejo'] });
+    assert.match(md, /NUEVOS modelos disponibles.*modelo-x/);
+    assert.match(md, /POSIBLEMENTE RETIRADOS.*modelo-viejo/);
+  });
+
+  test('buildBanner: sin issues', () => {
+    assert.equal(buildBanner(false, 0, '2026-07-17'), '[HEALTH-CHECK OK | 2026-07-17 | 0 issues]');
+  });
+
+  test('buildBanner: con issues incluye el conteo', () => {
+    assert.equal(
+      buildBanner(true, 3, '2026-07-17'),
+      '[HEALTH-CHECK 3 ISSUE(S) | 2026-07-17 | ver .claude/HEALTH_REPORT.md]'
+    );
+  });
+});
+
+// ─── health-worker.js ─────────────────────────────────────────────────────────
+// main() se auto-ejecuta al requerir el archivo y hace llamadas HTTP reales
+// (registry.npmjs.org, API de Anthropic) -- no se ejercita end-to-end aqui.
+// Se prueba el efecto observable en disco de appendAsyncSection() corriendo
+// el script completo contra un HEALTH_REPORT.md de prueba, con ANTHROPIC_API_KEY
+// vacia para forzar el camino "skipped" sin red.
+
+describe('health-worker.js', () => {
+  const SCRIPT = path.join(BIN, 'health-worker.js');
+
+  test('el script existe', () => {
+    assert.ok(fs.existsSync(SCRIPT));
+  });
+
+  test('getLocalModels ya no filtra por el string obsoleto "gemini-2.5-flash"', () => {
+    // Regresion real: el filtro estaba hardcodeado al nombre viejo del modelo
+    // Gemini (gemini-2.5-flash), que ya cambio a gemini-3.5-flash -- el string
+    // literal nunca hacia match, dejando el filtro sin efecto silenciosamente.
+    const content = fs.readFileSync(SCRIPT, 'utf8');
+    assert.ok(!content.includes("'gemini-2.5-flash'"), 'no debe quedar el string hardcodeado obsoleto');
+    assert.ok(content.includes('MODELOS_LOCALES.GEMINI'), 'debe filtrar por referencia a MODELOS.GEMINI, no por string');
+  });
+});
+
+// ─── git-queue-advisor.js ─────────────────────────────────────────────────────
+
+describe('git-queue-advisor.js', () => {
+  const SCRIPT     = path.join(BIN, 'git-queue-advisor.js');
+  const QUEUE_PATH = path.join(REPO, '.claude', 'EVENTS_QUEUE.json');
+
+  function leerCola() { return JSON.parse(fs.readFileSync(QUEUE_PATH, 'utf8')); }
+  function escribirCola(eventos) { fs.writeFileSync(QUEUE_PATH, JSON.stringify(eventos, null, 2)); }
+
+  let colaOriginal;
+  before(() => { colaOriginal = leerCola(); });
+  after(() => { escribirCola(colaOriginal); });
+
+  test('sale con 0 sin output si no hay eventos pendientes', () => {
+    escribirCola([{ id: '1', type: 'harness_error', tool: 'x', error: 'y', reported: true }]);
+    const r = runScript(SCRIPT, ['push']);
+    assert.equal(r.status, 0);
+    assert.equal(r.stderr, '');
+  });
+
+  test('clasifica mcp_failure como ALTA (regresion real: antes usaba e.sev, que no existe en los eventos reales)', () => {
+    escribirCola([
+      { id: '1', type: 'mcp_failure', tool: 'gemini-bridge', error: 'quota exceeded', reported: false },
+    ]);
+    const r = runScript(SCRIPT, ['push']);
+    assert.equal(r.status, 0);
+    assert.match(r.stderr, /ALTA\s*\|\s*gemini-bridge/);
+  });
+
+  test('clasifica skill_gap como MEDIA y pattern como BAJA', () => {
+    escribirCola([
+      { id: '1', type: 'skill_gap', tool: 'n/a', error: 'sin skill para esto', reported: false },
+      { id: '2', type: 'pattern', tool: 'n/a', error: 'tarea repetida', reported: false },
+    ]);
+    const r = runScript(SCRIPT, ['push']);
+    assert.equal(r.status, 0);
+    assert.match(r.stderr, /MEDIA/);
+    assert.match(r.stderr, /BAJA/);
+  });
+
+  test('modo pull: usa el banner [POST-PULL]', () => {
+    escribirCola([{ id: '1', type: 'harness_error', tool: 'x', error: 'fallo', reported: false }]);
+    const r = runScript(SCRIPT, ['pull']);
+    assert.match(r.stderr, /\[POST-PULL\]/);
+  });
+
+  test('nunca bloquea (siempre exit 0) aunque haya eventos criticos', () => {
+    escribirCola([{ id: '1', type: 'harness_error', tool: 'x', error: 'fallo grave', reported: false }]);
+    const r = runScript(SCRIPT, ['push']);
+    assert.equal(r.status, 0, 'git-queue-advisor solo informa, nunca bloquea push/pull');
+  });
+
+  test('sin modo detectado (ni argv ni CLAUDE_TOOL_INPUT_command): sale con 0', () => {
+    const r = runScript(SCRIPT, []);
+    assert.equal(r.status, 0);
+  });
+});
+
+// ─── audit-market.js ──────────────────────────────────────────────────────────
+
+describe('audit-market.js', () => {
+  const SCRIPT = path.join(BIN, 'audit-market.js');
+
+  test('el script existe', () => {
+    assert.ok(fs.existsSync(SCRIPT));
+  });
+
+  test('--json produce un resumen valido con los 38 skills reales', () => {
+    const r = runScript(SCRIPT, ['--json']);
+    assert.equal(r.status, 0);
+    const salida = JSON.parse(r.stdout);
+    assert.equal(salida.resumen.total, 38);
+    assert.ok(Array.isArray(salida.resultados));
+  });
+
+  test('--skill filtra a un solo skill', () => {
+    const r = runScript(SCRIPT, ['--json', '--skill', 'ciso']);
+    const salida = JSON.parse(r.stdout);
+    assert.equal(salida.resultados.length, 1);
+    assert.equal(salida.resultados[0].skill, 'ciso');
+  });
+
+  test('nunca hace llamadas de red ni escribe archivos (solo lectura + stdout)', () => {
+    const antes = fs.statSync(path.join(REPO, '.claude', 'MARKET_STANDARDS.json')).mtimeMs;
+    runScript(SCRIPT, ['--json']);
+    const despues = fs.statSync(path.join(REPO, '.claude', 'MARKET_STANDARDS.json')).mtimeMs;
+    assert.equal(antes, despues, 'audit-market.js es de solo lectura, nunca debe modificar MARKET_STANDARDS.json');
+  });
+});
+
+// ─── norm-harness.js ──────────────────────────────────────────────────────────
+// Script con efectos reales de sistema (symlinks, borrado de archivos legacy)
+// -- se prueba SIEMPRE con cwd apuntando a un proyecto anfitrion temporal,
+// nunca contra el repo principal.
+
+describe('norm-harness.js', () => {
+  const SCRIPT = path.join(BIN, 'norm-harness.js');
+  let tmpHost;
+
+  function crearProyectoAnfitrionTemporal() {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'norm-harness-test-'));
+    execSync('git init -q', { cwd: dir });
+    execSync('git config user.email "test@test.com"', { cwd: dir });
+    execSync('git config user.name "Test"', { cwd: dir });
+    fs.writeFileSync(path.join(dir, 'package.json'), '{}');
+    execSync('git add package.json', { cwd: dir });
+    execSync('git commit -q -m "inicial"', { cwd: dir });
+    return dir;
+  }
+
+  after(() => { if (tmpHost) fs.rmSync(tmpHost, { recursive: true, force: true }); });
+
+  test('genera settings.json con los hooks completos en el proyecto anfitrion', () => {
+    tmpHost = crearProyectoAnfitrionTemporal();
+    const r = spawnSync('node', [SCRIPT], { encoding: 'utf8', cwd: tmpHost });
+    assert.equal(r.status, 0, `debe terminar sin error (stderr: ${r.stderr})`);
+
+    const settingsPath = path.join(tmpHost, '.claude', 'settings.json');
+    assert.ok(fs.existsSync(settingsPath), 'debe generar .claude/settings.json en el anfitrion');
+
+    const settings = JSON.parse(fs.readFileSync(settingsPath, 'utf8'));
+    const hooksStr = JSON.stringify(settings.hooks);
+
+    // Regresion real: norm-harness.js mantenia una copia paralela de la
+    // definicion de hooks, desincronizada de setup-settings.js -- le
+    // faltaban estos 4 hooks agregados en sesiones anteriores.
+    assert.ok(hooksStr.includes('subagent-guard'), 'debe incluir subagent-guard.js');
+    assert.ok(hooksStr.includes('bash-verbosity-guard'), 'debe incluir bash-verbosity-guard.js');
+    assert.ok(hooksStr.includes('memory-vault-prune-check'), 'debe incluir memory-vault-prune-check.js');
+    assert.ok(JSON.stringify(settings.hooks.SubagentStop).includes('cross-verify-gate'), 'SubagentStop debe incluir cross-verify-gate.js');
+  });
+
+  test('detecta el stack (node) y agrega los permisos correspondientes', () => {
+    tmpHost = crearProyectoAnfitrionTemporal();
+    spawnSync('node', [SCRIPT], { encoding: 'utf8', cwd: tmpHost });
+
+    const settings = JSON.parse(fs.readFileSync(path.join(tmpHost, '.claude', 'settings.json'), 'utf8'));
+    assert.ok(settings.permissions.allow.includes('Bash(npx*)'), 'debe agregar permisos de node detectados en el stack');
+  });
+
+  test('crea CLAUDE.md del anfitrion con la referencia al ai-core', () => {
+    tmpHost = crearProyectoAnfitrionTemporal();
+    spawnSync('node', [SCRIPT], { encoding: 'utf8', cwd: tmpHost });
+
+    const claudeMdPath = path.join(tmpHost, 'CLAUDE.md');
+    assert.ok(fs.existsSync(claudeMdPath), 'debe crear CLAUDE.md en el anfitrion si no existia');
+  });
+
+  test('elimina archivos legacy de la blacklist en el proyecto anfitrion', () => {
+    tmpHost = crearProyectoAnfitrionTemporal();
+    fs.writeFileSync(path.join(tmpHost, 'SECURITY_CHANGES_v2.4.0.md'), 'legacy');
+
+    spawnSync('node', [SCRIPT], { encoding: 'utf8', cwd: tmpHost });
+
+    assert.ok(!fs.existsSync(path.join(tmpHost, 'SECURITY_CHANGES_v2.4.0.md')), 'debe eliminar el archivo legacy conocido');
+  });
+});
+
+// ─── ContextIndex.js ──────────────────────────────────────────────────────────
+
+describe('ContextIndex.js', () => {
+  const { resolver, estaIndexado, leerSiIndexado, listarArchivos, diagnostico } =
+    require(path.join(REPO, 'scripts', 'services', 'ContextIndex.js'));
+
+  test('diagnostico: el mapa real de ai-core carga correctamente', () => {
+    const d = diagnostico();
+    assert.equal(d.estado, 'cargado');
+    assert.ok(d.total_archivos > 0);
+  });
+
+  test('listarArchivos: retorna una lista no vacia de rutas', () => {
+    const archivos = listarArchivos();
+    assert.ok(Array.isArray(archivos));
+    assert.ok(archivos.length > 0);
+    assert.ok(archivos.includes('CLAUDE.md'), 'CLAUDE.md debe estar indexado en el mapa real');
+  });
+
+  test('resolver: encuentra un archivo real por ruta exacta', () => {
+    const ruta = resolver('CLAUDE.md');
+    assert.ok(ruta, 'debe resolver CLAUDE.md a una ruta absoluta');
+    assert.ok(fs.existsSync(ruta));
+  });
+
+  test('resolver: retorna null para un archivo que no existe en el indice', () => {
+    assert.equal(resolver('archivo-que-no-existe-jamas-12345.md'), null);
+  });
+
+  test('estaIndexado: true para archivo real, false para inexistente', () => {
+    assert.equal(estaIndexado('CLAUDE.md'), true);
+    assert.equal(estaIndexado('nunca-existira.xyz'), false);
+  });
+
+  test('leerSiIndexado: retorna contenido para archivo indexado', () => {
+    const r = leerSiIndexado('CLAUDE.md');
+    assert.ok(r);
+    assert.match(r.contenido, /AI-CORE/);
+  });
+
+  test('leerSiIndexado: retorna null para archivo no indexado', () => {
+    assert.equal(leerSiIndexado('no-existe.md'), null);
+  });
+});
+
+// ─── RateLimiter.js ───────────────────────────────────────────────────────────
+
+describe('RateLimiter.js', () => {
+  const { verificar, registrar, estado, RateLimitError, LIMITES, _reset } =
+    require(path.join(REPO, 'scripts', 'services', 'RateLimiter.js'));
+
+  test('estado inicial: sin uso registrado', () => {
+    _reset();
+    const e = estado();
+    assert.equal(e.requests.actual, 0);
+    assert.equal(e.tokens_input.actual, 0);
+    assert.equal(e.tokens_output.actual, 0);
+  });
+
+  test('verificar: no lanza dentro del limite', () => {
+    _reset();
+    assert.doesNotThrow(() => verificar({ tokensInput: 100, tokensOutput: 50 }));
+  });
+
+  test('registrar: acumula uso real en el estado', () => {
+    _reset();
+    registrar({ input_tokens: 1000, output_tokens: 500 });
+    const e = estado();
+    assert.equal(e.tokens_input.actual, 1000);
+    assert.equal(e.tokens_output.actual, 500);
+    assert.equal(e.requests.actual, 1);
+  });
+
+  test('verificar: lanza RateLimitError al superar requests/min (limite seguro)', () => {
+    _reset();
+    const limiteSeguro = Math.floor(LIMITES.requests_por_minuto * LIMITES.factor_seguridad);
+    for (let i = 0; i < limiteSeguro; i++) registrar({ input_tokens: 1, output_tokens: 1 });
+
+    assert.throws(() => verificar({}), RateLimitError);
+  });
+
+  test('verificar: lanza RateLimitError al superar input_tokens/min', () => {
+    _reset();
+    registrar({ input_tokens: Math.floor(LIMITES.input_tokens_por_minuto * LIMITES.factor_seguridad), output_tokens: 0 });
+    assert.throws(() => verificar({ tokensInput: 1 }), RateLimitError);
+  });
+
+  test('RateLimitError incluye recurso, actual, limite y tiempo de espera', () => {
+    _reset();
+    const limiteSeguro = Math.floor(LIMITES.requests_por_minuto * LIMITES.factor_seguridad);
+    for (let i = 0; i < limiteSeguro; i++) registrar({});
+
+    try {
+      verificar({});
+      assert.fail('debia lanzar RateLimitError');
+    } catch (e) {
+      assert.ok(e instanceof RateLimitError);
+      assert.equal(e.recurso, 'requests/min');
+      assert.ok(e.esperarMs >= 0);
+    }
+  });
+
+  after(() => _reset()); // no dejar estado sucio para otras suites
+});
+
+// ─── ResponseValidator.js ─────────────────────────────────────────────────────
+
+describe('ResponseValidator.js', () => {
+  const { validar, validarEstricto, verificarEmojis, verificarFrasesProhibidas, verificarIdioma, verificarAccionesNoSolicitadas, SEVERIDAD } =
+    require(path.join(REPO, 'scripts', 'services', 'ResponseValidator.js'));
+
+  test('validar: respuesta limpia es valida sin violaciones', () => {
+    const r = validar('Esta es una respuesta tecnica en español sin problemas.');
+    assert.equal(r.valido, true);
+    assert.deepEqual(r.violaciones, []);
+  });
+
+  test('validar: input vacio o no-string es invalido (CRITICO)', () => {
+    assert.equal(validar('').valido, false);
+    assert.equal(validar(null).valido, false);
+    assert.equal(validar(undefined).valido, false);
+  });
+
+  test('verificarEmojis: detecta emoji fuera de bloque de codigo', () => {
+    const r = verificarEmojis('Todo listo 🎉');
+    assert.equal(r.ok, false);
+  });
+
+  test('verificarEmojis: ignora emoji dentro de un bloque de codigo', () => {
+    const r = verificarEmojis('```\nconst x = "🎉";\n```');
+    assert.equal(r.ok, true, 'un emoji dentro de un bloque de codigo no debe contar como violacion');
+  });
+
+  test('verificarFrasesProhibidas: detecta frases de cortesia prohibidas', () => {
+    const r = verificarFrasesProhibidas('Claro, aqui esta el resultado.');
+    assert.equal(r.ok, false);
+    assert.ok(r.frases.length > 0);
+  });
+
+  test('verificarIdioma: detecta ingles fuerte fuera de codigo', () => {
+    const r = verificarIdioma('Let me check that for you.');
+    assert.equal(r.ok, false);
+  });
+
+  test('verificarIdioma: no marca español como ingles', () => {
+    const r = verificarIdioma('Voy a revisar esto para ti.');
+    assert.equal(r.ok, true);
+  });
+
+  test('verificarAccionesNoSolicitadas: detecta accion autonoma no pedida', () => {
+    const r = verificarAccionesNoSolicitadas('He creado el archivo sin que me lo pidieras.');
+    assert.equal(r.ok, false);
+  });
+
+  test('validar: acumula multiples violaciones en un solo informe', () => {
+    const r = validar('Claro! Let me help. He creado un archivo nuevo. 🎉');
+    assert.equal(r.valido, false);
+    assert.ok(r.violaciones.length >= 3, 'debe detectar emoji + ingles + frase prohibida + accion no solicitada');
+  });
+
+  test('validarEstricto: lanza excepcion ante violacion CRITICA (emoji/ingles)', () => {
+    assert.throws(() => validarEstricto('Sure, here is the code 🎉'), /Violacion critica/);
+  });
+
+  test('validarEstricto: no lanza si solo hay violaciones ALTO (frases prohibidas)', () => {
+    assert.doesNotThrow(() => validarEstricto('Claro, aqui tienes.'));
+  });
+
+  test('SEVERIDAD expone las 3 categorias esperadas', () => {
+    assert.deepEqual(Object.keys(SEVERIDAD).sort(), ['ALTO', 'CRITICO', 'MEDIO']);
+  });
+});
+
+// ─── RootGuard.js ─────────────────────────────────────────────────────────────
+
+describe('RootGuard.js', () => {
+  const SCRIPT = path.join(REPO, 'scripts', 'services', 'RootGuard.js');
+  const { verificar, assertNoMasivaSinMapa, estaBloqueado, escanearRaizLocal } = require(SCRIPT);
+
+  test('verificar: no bloquea cuando cwd coincide con la raiz del mapa (repo real)', () => {
+    const r = verificar();
+    assert.equal(r.bloqueado, false);
+    assert.equal(estaBloqueado(), false);
+  });
+
+  test('assertNoMasivaSinMapa: no lanza cuando el guard no esta activado', () => {
+    verificar(); // asegura estado desbloqueado (cwd real coincide con el mapa)
+    assert.doesNotThrow(() => assertNoMasivaSinMapa('test'));
+  });
+
+  test('escanearRaizLocal: retorna entradas reales del directorio', () => {
+    const entradas = escanearRaizLocal(REPO);
+    assert.ok(entradas.includes('CLAUDE.md'));
+    assert.ok(entradas.includes('package.json'));
+  });
+
+  test('escanearRaizLocal: retorna array vacio para directorio inexistente (no lanza)', () => {
+    assert.deepEqual(escanearRaizLocal('/ruta/que/no/existe/jamas'), []);
+  });
+});
+
+// ─── StyleProfiler.js ─────────────────────────────────────────────────────────
+
+describe('StyleProfiler.js', () => {
+  const { registrar, generarBloqueEstilo, obtenerPerfil, limpiar } =
+    require(path.join(REPO, 'scripts', 'services', 'StyleProfiler.js'));
+
+  test('sin muestras: generarBloqueEstilo retorna null', () => {
+    limpiar();
+    assert.equal(generarBloqueEstilo(), null);
+  });
+
+  test('menos de 3 muestras: sigue retornando null', () => {
+    limpiar();
+    registrar('mensaje de prueba suficientemente largo');
+    registrar('otro mensaje de prueba suficientemente largo');
+    assert.equal(generarBloqueEstilo(), null);
+  });
+
+  test('mensajes muy cortos (< 5 chars) no se registran', () => {
+    limpiar();
+    registrar('hi');
+    assert.equal(obtenerPerfil().muestras, 0);
+  });
+
+  test('con 3+ muestras: genera bloque de estilo con reglas inamovibles', () => {
+    limpiar();
+    registrar('mensaje uno de prueba tecnica con API y token');
+    registrar('mensaje dos de prueba tecnica con schema y endpoint');
+    registrar('mensaje tres de prueba tecnica con commit y branch');
+
+    const bloque = generarBloqueEstilo();
+    assert.ok(bloque);
+    assert.match(bloque, /PERFIL DE ESTILO/);
+    assert.match(bloque, /Nunca emojis ni iconos/);
+    assert.match(bloque, /Nunca responder en ingles/);
+  });
+
+  test('obtenerPerfil: detecta alta densidad tecnica', () => {
+    limpiar();
+    registrar('API MCP LLM SQL token prompt schema endpoint');
+    registrar('API MCP LLM SQL token prompt schema endpoint');
+    registrar('API MCP LLM SQL token prompt schema endpoint');
+    const perfil = obtenerPerfil();
+    assert.ok(perfil.densidadTecnicaMedia > 0.05);
+  });
+
+  test('limpiar: resetea el buffer de muestras', () => {
+    registrar('mensaje de prueba suficientemente largo para contar');
+    assert.ok(obtenerPerfil().muestras > 0);
+    limpiar();
+    assert.equal(obtenerPerfil().muestras, 0);
+  });
+
+  test('ventana de MAX_MUESTRAS: no crece indefinidamente', () => {
+    limpiar();
+    for (let i = 0; i < 25; i++) registrar(`mensaje numero ${i} de prueba con longitud suficiente`);
+    assert.ok(obtenerPerfil().muestras <= 20, 'el buffer debe estar acotado a MAX_MUESTRAS');
+    limpiar();
+  });
+});
+
+// ─── ErrorRepairLoop.js ───────────────────────────────────────────────────────
+
+describe('ErrorRepairLoop.js', () => {
+  const { clasificarError, buildPromptDiagnostico, buildPromptReparacion, capturarError, LoopGuard } =
+    require(path.join(REPO, 'scripts', 'services', 'ErrorRepairLoop.js'));
+
+  test('clasificarError: detecta ENOENT como sistema_de_archivos/ALTO', () => {
+    const r = clasificarError(new Error('ENOENT: no such file or directory'));
+    assert.equal(r.severidad, 'ALTO');
+    assert.equal(r.categoria, 'sistema_de_archivos');
+  });
+
+  test('clasificarError: detecta timeout de red como CRITICO', () => {
+    const r = clasificarError(new Error('connect ECONNREFUSED 127.0.0.1:443'));
+    assert.equal(r.severidad, 'CRITICO');
+    assert.equal(r.categoria, 'red_conectividad');
+  });
+
+  test('clasificarError: detecta rate limit como api_quota/MEDIO', () => {
+    const r = clasificarError(new Error('429 rate limit exceeded'));
+    assert.equal(r.categoria, 'api_quota');
+  });
+
+  test('clasificarError: sin patron conocido cae a BAJO/desconocido', () => {
+    const r = clasificarError(new Error('algo raro paso'));
+    assert.deepEqual(r, { severidad: 'BAJO', categoria: 'desconocido' });
+  });
+
+  test('clasificarError: acepta string ademas de Error', () => {
+    const r = clasificarError('EACCES: permission denied');
+    assert.equal(r.categoria, 'permisos');
+  });
+
+  test('buildPromptDiagnostico: incluye severidad, categoria y mensaje', () => {
+    const prompt = buildPromptDiagnostico({ error: new Error('ENOENT: falta el archivo'), herramienta: 'test-tool' });
+    assert.match(prompt, /Severidad: ALTO/);
+    assert.match(prompt, /Herramienta que fallo: test-tool/);
+    assert.match(prompt, /ENOENT/);
+  });
+
+  test('buildPromptReparacion: incluye causa raiz y accion correctiva del informe', () => {
+    const prompt = buildPromptReparacion({
+      causa_raiz: 'variable no definida',
+      archivos_afectados: ['a.js:10'],
+      accion_correctiva: 'definir la variable antes de usarla',
+    });
+    assert.match(prompt, /variable no definida/);
+    assert.match(prompt, /a\.js:10/);
+    assert.match(prompt, /definir la variable/);
+  });
+
+  test('capturarError: retorna clasificacion + prompt de diagnostico + roles correctos', () => {
+    const r = capturarError(new Error('ENOENT: no such file'), { herramienta: 'test' });
+    assert.equal(r.clasificacion.categoria, 'sistema_de_archivos');
+    assert.equal(r.prompts.reparacion_pendiente, true);
+    assert.equal(r.rol_diagnostico, 'auditor');
+    assert.equal(r.rol_reparacion, 'architect');
+  });
+
+  test('LoopGuard: no escala dentro del presupuesto normal', () => {
+    const guard = new LoopGuard({ maxIntentos: 5 });
+    const r = guard.registrarCheckpoint({ avance: true });
+    assert.equal(r.escalar, false);
+  });
+
+  test('LoopGuard: escala al superar el presupuesto de intentos', () => {
+    const guard = new LoopGuard({ maxIntentos: 2 });
+    guard.registrarCheckpoint({ avance: true });
+    const r = guard.registrarCheckpoint({ avance: true });
+    assert.equal(r.escalar, true);
+    assert.match(r.razon, /PRESUPUESTO_EXCEDIDO/);
+  });
+
+  test('LoopGuard: escala tras 2 checkpoints consecutivos sin avance', () => {
+    const guard = new LoopGuard({ maxIntentos: 10 });
+    guard.registrarCheckpoint({ avance: false });
+    const r = guard.registrarCheckpoint({ avance: false });
+    assert.equal(r.escalar, true);
+    assert.match(r.razon, /SIN_AVANCE/);
+  });
+
+  test('LoopGuard: escala ante el mismo error repetido 2 veces', () => {
+    const guard = new LoopGuard({ maxIntentos: 10 });
+    guard.registrarCheckpoint({ avance: false, error: 'TypeError: x is undefined' });
+    const r = guard.registrarCheckpoint({ avance: true, error: 'TypeError: x is undefined' });
+    assert.equal(r.escalar, true);
+    assert.match(r.razon, /ERROR_REPETIDO/);
+  });
+
+  test('LoopGuard: reset() reinicia el estado para reutilizar el guard', () => {
+    const guard = new LoopGuard({ maxIntentos: 2 });
+    guard.registrarCheckpoint({ avance: true });
+    guard.registrarCheckpoint({ avance: true });
+    guard.reset();
+    assert.equal(guard.intentos, 0);
+    assert.deepEqual(guard.checkpoints, []);
+    assert.deepEqual(guard.historialErrores, []);
+  });
+});
+
+// Nota: pre-commit-tdd.js ya tiene cobertura completa en
+// tests/intent-classifier.test.js ("pre-commit-tdd.js — gate TDD por
+// heuristica de presencia") -- no se duplica aqui.
+
+// ─── hooks-definition.js ──────────────────────────────────────────────────────
+
+describe('hooks-definition.js', () => {
+  const { buildHooksSection } = require(path.join(BIN, 'hooks-definition.js'));
+
+  test('produce las 6 categorias de hooks esperadas', () => {
+    const hooks = buildHooksSection((s) => `"/fake/${s}"`);
+    assert.deepEqual(
+      Object.keys(hooks).sort(),
+      ['PostToolUse', 'PostToolUseFailure', 'PreToolUse', 'Stop', 'SubagentStop', 'UserPromptSubmit'].sort()
+    );
+  });
+
+  test('usa la funcion bin() pasada para resolver cada script, no rutas hardcodeadas', () => {
+    const hooks = buildHooksSection((s) => `"MARCADOR-${s}"`);
+    const str = JSON.stringify(hooks);
+    assert.match(str, /MARCADOR-subagent-guard\.js/);
+    assert.match(str, /MARCADOR-bash-verbosity-guard\.js/);
+    assert.match(str, /MARCADOR-memory-vault-prune-check\.js/);
+  });
+
+  test('SubagentStop incluye los 3 guards de validacion de output', () => {
+    const hooks = buildHooksSection((s) => `"${s}"`);
+    const str = JSON.stringify(hooks.SubagentStop);
+    assert.match(str, /subagent-review\.js/);
+    assert.match(str, /cross-verify-gate\.js/);
+    assert.match(str, /injection-guard\.js/);
+  });
+});

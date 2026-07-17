@@ -22,8 +22,24 @@ const path = require('path');
 const CORE_PATH  = path.resolve(__dirname, '../..');
 const QUEUE_PATH = path.join(CORE_PATH, '.claude', 'EVENTS_QUEUE.json');
 
+// Los eventos de capture-event.js no tienen campo "sev" -- la severidad real
+// se deriva de "type", igual que ISSUE_META en issue-reporter.js (no se
+// importa de ahi para no acoplar ambos scripts de entrada directa; mantener
+// esta tabla sincronizada si issue-reporter.js cambia sus prioridades).
+const PRIORIDAD_POR_TIPO = {
+  mcp_failure:   'alta',
+  hook_failure:  'alta',
+  harness_error: 'alta',
+  skill_gap:     'media',
+  pattern:       'baja',
+};
+
 const SEV_ORDER = { critica: 0, alta: 1, media: 2, baja: 3 };
 const SEV_LABEL = { critica: 'CRITICA', alta: 'ALTA', media: 'MEDIA', baja: 'BAJA' };
+
+function severidadDe(evento) {
+  return evento.sev || PRIORIDAD_POR_TIPO[evento.type] || 'baja';
+}
 
 // ---------------------------------------------------------------------------
 // Leer queue
@@ -35,7 +51,7 @@ function readPending() {
     const all = JSON.parse(fs.readFileSync(QUEUE_PATH, 'utf8'));
     return all
       .filter(e => !e.reported)
-      .sort((a, b) => (SEV_ORDER[a.sev] ?? 9) - (SEV_ORDER[b.sev] ?? 9));
+      .sort((a, b) => (SEV_ORDER[severidadDe(a)] ?? 9) - (SEV_ORDER[severidadDe(b)] ?? 9));
   } catch {
     return [];
   }
@@ -61,7 +77,7 @@ function detectMode() {
 // ---------------------------------------------------------------------------
 
 function formatEvent(e) {
-  const sev     = SEV_LABEL[e.sev] || e.sev?.toUpperCase() || 'INFO';
+  const sev     = SEV_LABEL[severidadDe(e)] || 'INFO';
   const tool    = (e.tool || 'unknown').padEnd(20);
   const detalle = (e.error || '').slice(0, 60);
   return `  - ${sev.padEnd(8)} | ${tool} | ${detalle}`;
@@ -69,9 +85,9 @@ function formatEvent(e) {
 
 function buildSummary(pending, mode) {
   const lines = [];
-  const criticos = pending.filter(e => e.sev === 'critica');
-  const altos    = pending.filter(e => e.sev === 'alta');
-  const resto    = pending.filter(e => !['critica', 'alta'].includes(e.sev));
+  const criticos = pending.filter(e => severidadDe(e) === 'critica');
+  const altos    = pending.filter(e => severidadDe(e) === 'alta');
+  const resto    = pending.filter(e => !['critica', 'alta'].includes(severidadDe(e)));
 
   if (mode === 'push') {
     lines.push(`[PRE-PUSH] ${pending.length} evento(s) pendiente(s) en queue:`);

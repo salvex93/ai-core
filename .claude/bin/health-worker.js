@@ -130,9 +130,14 @@ async function checkAnthropicModels(root) {
     const apiModels  = page.data.map(m => m.id);
     const localModels = getLocalModels();
 
+    // MODELOS.GEMINI no aparece en la API de Anthropic (proveedor distinto) —
+    // excluirlo por referencia, no por string hardcodeado (el nombre exacto
+    // del modelo Gemini cambia con el tiempo; ya cambio una vez de
+    // gemini-2.5-flash a gemini-3.5-flash sin que este filtro se actualizara).
+    const { MODELOS: MODELOS_LOCALES } = require('../../scripts/services/ModelRouter');
     const nuevos    = apiModels.filter(m => !localModels.includes(m));
     const retirados = localModels
-      .filter(m => m !== 'gemini-2.5-flash') // Gemini no está en la API de Anthropic
+      .filter(m => m !== MODELOS_LOCALES.GEMINI)
       .filter(m => !apiModels.includes(m));
 
     const result = { nuevos, retirados };

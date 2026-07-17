@@ -278,6 +278,8 @@ Ejecuta al inicio de sesion: node .claude/ai-core/.claude/bin/norm-harness.js
 El norm-harness crea el symlink CLAUDE.md → ai-core/CLAUDE.md en la raiz del anfitrion.
 Sin ese symlink, Claude Code no carga las reglas de ai-core.
 
+`.claude/bin/hooks-definition.js` es la fuente unica de verdad de la seccion "hooks" de settings.json, compartida por `setup-settings.js` (ai-core standalone) y `norm-harness.js` (submodulo en anfitrion). Agregar un hook nuevo: editar solo `hooks-definition.js` — nunca duplicar la definicion en ninguno de los dos callers.
+
 ## Estandares de Documentacion Tecnica
 
 ### Archivos .md (ROADMAP, HISTORIAS, README, etc.)

@@ -109,20 +109,32 @@ describe('ModelDispatcher.executeMoATask — fan-out/fan-in con fallback aislado
   });
 
   test('las dos sub-tareas se ejecutan concurrentemente, no en serie', async () => {
-    const inicios = [];
+    // Verificar concurrencia por ORDEN DE EVENTOS, no por umbral de tiempo
+    // real -- un assert basado en "duracion < Nms" es flaky bajo carga de
+    // CPU (falla intermitentemente cuando toda la suite corre junto con
+    // muchos spawnSync reales, aunque la ejecucion SI sea concurrente).
+    const eventos = [];
+    let resueltos = 0;
     mockearRegistry(async (provider) => {
-      inicios.push(provider);
+      eventos.push(`inicio:${provider}`);
       await new Promise(r => setTimeout(r, 20));
+      resueltos++;
+      eventos.push(`fin:${provider}`);
       return { content: `ok-${provider}`, provider };
     });
 
     const { executeMoATask } = require('../scripts/services/ModelDispatcher');
-    const antes = Date.now();
     await executeMoATask('prompt');
-    const duracionMs = Date.now() - antes;
 
-    // Si fuera secuencial tomaria ~40ms (20+20); concurrente deberia tomar ~20ms.
-    assert.ok(duracionMs < 40, `duracion ${duracionMs}ms sugiere ejecucion serial, no concurrente`);
-    assert.equal(inicios.length, 2);
+    // Si fuera serial: inicio:A, fin:A, inicio:B, fin:B (el primer "fin"
+    // ocurre antes del segundo "inicio"). Si es concurrente: ambos "inicio"
+    // ocurren antes de cualquier "fin".
+    const indiceInicios = eventos.map((e, i) => e.startsWith('inicio:') ? i : -1).filter(i => i >= 0);
+    const indicePrimerFin = eventos.findIndex(e => e.startsWith('fin:'));
+    assert.equal(indiceInicios.length, 2, 'ambas sub-tareas deben haber iniciado');
+    assert.ok(
+      indiceInicios.every(i => i < indicePrimerFin),
+      `ejecucion serial detectada: ${eventos.join(', ')}`
+    );
   });
 });
