@@ -147,7 +147,9 @@ node .claude/bin/memory-index.js query "autenticacion JWT tokens"
 
 ## Politica de Poda
 
-El vault crece con el tiempo. Poda cuando `.raw/` supera 50 archivos:
+El vault crece con el tiempo. Poda cuando `.raw/` supera 50 archivos.
+
+`memory-vault-prune-check.js` (hook `Stop`, tras `memory-index-stop.js`) cuenta los archivos en `.raw/` en cada cierre de sesion y avisa por stdout si se cruzo el umbral — nunca mueve ni elimina nada, solo detecta y notifica. La poda en si sigue siendo manual:
 
 1. Identificar archivos con fecha > 90 dias y sin referencias en `.wiki/` recientes.
 2. Archivar (mover a `.raw/archive/`) en lugar de eliminar.

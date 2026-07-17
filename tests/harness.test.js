@@ -130,6 +130,114 @@ describe('subagent-guard.js', () => {
   });
 });
 
+// ─── bash-verbosity-guard.js ─────────────────────────────────────────────────
+
+describe('bash-verbosity-guard.js', () => {
+  const GUARD = path.join(BIN, 'bash-verbosity-guard.js');
+
+  function run(cmd) {
+    return runScript(GUARD, [], { CLAUDE_TOOL_INPUT_command: cmd });
+  }
+
+  test('sale con codigo 0 si no hay comando', () => {
+    const r = runScript(GUARD, []);
+    assert.equal(r.status, 0, 'debe permitir cuando no hay comando en el env');
+  });
+
+  test('bloquea "git log" sin acotar', () => {
+    const r = run('git log');
+    assert.equal(r.status, 2);
+    assert.ok(r.stderr.includes('BASH-VERBOSITY-GUARD'));
+  });
+
+  test('permite "git log --oneline -n"', () => {
+    assert.equal(run('git log --oneline -n 10').status, 0);
+  });
+
+  test('permite "git log | head"', () => {
+    assert.equal(run('git log | head -20').status, 0);
+  });
+
+  test('bloquea "git diff" a secas', () => {
+    assert.equal(run('git diff').status, 2);
+  });
+
+  test('bloquea "git diff --cached" sin archivo', () => {
+    assert.equal(run('git diff --cached').status, 2);
+  });
+
+  test('permite "git diff" con archivos especificos', () => {
+    assert.equal(run('git diff CLAUDE.md package.json').status, 0);
+  });
+
+  test('permite "git diff --stat"', () => {
+    assert.equal(run('git diff --stat').status, 0);
+  });
+
+  test('bloquea "cat" de archivo sin acotar', () => {
+    assert.equal(run('cat package.json').status, 2);
+  });
+
+  test('permite "cat" con head/tail/grep', () => {
+    assert.equal(run('cat file.txt | head -50').status, 0);
+  });
+
+  test('permite "cat /dev/null"', () => {
+    assert.equal(run('cat /dev/null').status, 0);
+  });
+
+  test('bloquea "find -name" sin maxdepth', () => {
+    assert.equal(run("find . -name '*.js'").status, 2);
+  });
+
+  test('permite "find" con -maxdepth', () => {
+    assert.equal(run("find . -maxdepth 1 -name '*.js'").status, 0);
+  });
+
+  test('permite comandos no relacionados (npm test, git status)', () => {
+    assert.equal(run('npm test').status, 0);
+    assert.equal(run('git status --short').status, 0);
+  });
+});
+
+// ─── memory-vault-prune-check.js ─────────────────────────────────────────────
+
+describe('memory-vault-prune-check.js', () => {
+  const GUARD    = path.join(BIN, 'memory-vault-prune-check.js');
+  const TEST_DIR = path.join(REPO, '.claude', 'memory-vault', '.raw', 'architect');
+  const PREFIJO  = 'test-prune-';
+
+  function limpiarPruebas() {
+    if (!fs.existsSync(TEST_DIR)) return;
+    for (const f of fs.readdirSync(TEST_DIR)) {
+      if (f.startsWith(PREFIJO)) fs.unlinkSync(path.join(TEST_DIR, f));
+    }
+  }
+
+  before(limpiarPruebas);
+  after(limpiarPruebas);
+
+  test('sin aviso cuando el vault esta bajo el umbral', () => {
+    limpiarPruebas();
+    const r = runScript(GUARD, []);
+    assert.equal(r.status, 0);
+    assert.ok(!r.stdout.includes('MEMORY-VAULT'), 'no debe avisar si no se supero el umbral de 50');
+  });
+
+  test('avisa (sin bloquear) cuando .raw/ supera 50 archivos', () => {
+    limpiarPruebas();
+    fs.mkdirSync(TEST_DIR, { recursive: true });
+    for (let i = 0; i < 55; i++) {
+      fs.writeFileSync(path.join(TEST_DIR, `${PREFIJO}${i}.md`), '# test');
+    }
+    const r = runScript(GUARD, []);
+    limpiarPruebas();
+    assert.equal(r.status, 0, 'nunca debe bloquear — solo es un aviso');
+    assert.ok(r.stdout.includes('MEMORY-VAULT'), 'debe avisar al superar el umbral');
+    assert.ok(r.stdout.includes('archive'), 'debe mencionar la politica de archivar, no eliminar');
+  });
+});
+
 // ─── setup-settings.js ───────────────────────────────────────────────────────
 
 describe('setup-settings.js', () => {
@@ -334,9 +442,12 @@ describe('skills — conformidad estructural', () => {
 describe('CLAUDE.md — integridad', () => {
   const claudeMd = fs.readFileSync(path.join(REPO, 'CLAUDE.md'), 'utf8');
 
-  test('menciona los 2 nuevos skills en la tabla de seleccion', () => {
-    assert.ok(claudeMd.includes('ux-visual-designer'), 'debe incluir ux-visual-designer');
-    assert.ok(claudeMd.includes('seo-sem-specialist'), 'debe incluir seo-sem-specialist');
+  test('ux-visual-designer y seo-sem-specialist existen como skills en disco', () => {
+    // CLAUDE.md ya no lista skills en una tabla (redundante con el frontmatter
+    // description de cada SKILL.md, que Claude Code carga via skill-discovery
+    // nativo) — la garantia real es que el skill exista, no que se mencione aqui.
+    assert.ok(fs.existsSync(path.join(SKILLS, 'ux-visual-designer', 'SKILL.md')));
+    assert.ok(fs.existsSync(path.join(SKILLS, 'seo-sem-specialist', 'SKILL.md')));
   });
 
   test('contiene reglas de Modo Neanderthal', () => {

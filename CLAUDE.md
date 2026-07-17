@@ -56,44 +56,9 @@ AI-CORE opera con tres roles especializados segun la naturaleza de la tarea. El 
 
 ## Seleccion de Skills — Automatica por contexto
 
-NO esperar a que el usuario declare skills. Seleccionar automaticamente segun la naturaleza de la tarea:
+NO esperar a que el usuario declare skills. Cada uno de los 38 skills en `.claude/skills/` trae en su frontmatter una `description` con lenguaje explicito de activacion ("Activa al..."), que Claude Code ya carga automaticamente via skill-discovery nativo (`skillListingBudgetFraction` en settings.json) — no se duplica esa informacion aqui. Seleccionar el skill cuya description calce con la naturaleza de la tarea, sin esperar a que el usuario lo declare.
 
-| Contexto detectado | Skills que se activan |
-|---|---|
-| Diseño de sistema, arquitectura, nuevos modulos | `backend-architect`, `data-engineer` |
-| Integracion con LLM, Claude API, prompts | `prompt-engineer`, `ai-integrations`, `claude-api` |
-| Infraestructura, deploy, Docker, CI/CD | `devops-infra`, `release-manager` |
-| Seguridad, auditoria, vulnerabilidades | `security-auditor`, `attack-surface-analyst` |
-| Riesgo de terceros (TPRM), cuestionarios TPS/GRM, VRA de proveedores, BCP/DRP, politicas de gobierno, contraste evidencia-vs-afirmacion | `ciso` |
-| Fallos silenciosos, catch vacios, errores tragados, logs sin contexto, resilencia de scrapers | `silent-failure-hunter` |
-| Agentes, MCP, flujos automatizados | `managed-agents-specialist`, `mcp-server-builder` |
-| Evaluar MCPs de terceros antes de instalar, registros mcp.run/glama.ai, decision INSTALAR/RECHAZAR | `mcp-registry-navigator` |
-| Verificacion cross-model de un fix, segunda opinion ciega sobre un diff, diagnostico de regresion silenciosa | `cross-model-verifier` |
-| Auditoria de patrones de diseno, God Objects, limite de 300 lineas, conformidad estilo SWE-bench antes de cerrar una tarea | `aaa-evaluator` |
-| Testing de comportamiento de agentes, mock de herramientas, loops, eficiencia | `agent-testing` |
-| Orquestacion multi-agente, fan-out/fan-in, retry, checkpointing | `workflow-orchestrator` |
-| Gemini 3.x directo: thinking_level, Flash-Lite, Live API, image gen | `gemini-3-specialist` |
-| Scraping web, monitores de precios, OCR retail, bypass CAPTCHA, proxies | `web-scraping-specialist` + `silent-failure-hunter` |
-| Vision, imagenes, PDFs, extraccion estructurada, multimodal Claude/Gemini | `multimodal-engineer` |
-| Frontend, dashboard, UI, componentes, bundle, contrato API | `tech-lead-frontend` |
-| SEO tecnico, Core Web Vitals, Schema.org, sitemap, auditoria de posicionamiento | `seo-sem-specialist` |
-| SEM: Google Ads, Meta Ads, LinkedIn Ads, UTMs, GA4, ROAS, campanas de pago | `seo-sem-specialist` |
-| Design system, brand identity, tokens de diseno, tipografia, accesibilidad visual, wireframes UX | `ux-visual-designer` |
-| Motion design, microinteracciones, Framer Motion, GSAP, handoff diseno a codigo | `ux-visual-designer`, `tech-lead-frontend` |
-| Documentos HTML/PDF para clientes, propuestas, requerimientos, entregables formales | `doc-builder` |
-| Calidad, tests, cobertura | `qa-engineer` |
-| RAG, embeddings, recuperacion de contexto | `rag-specialist` |
-| Costo excesivo de tokens, pipelines con costo variable, seleccion de modelo | `cost-optimizer` |
-| Evals, regresiones de calidad, LLM-as-judge, metricas de outputs | `llm-evals`, `llm-observability` |
-| Proteccion LLM, prompt injection, validacion de outputs, PII, rate limiting | `ai-guardrails` |
-| Voice AI, streaming de audio, speech-to-text, text-to-speech, Live API | `audio-voice-engineer` |
-| Agentes autonomos con SDK, subagentes, OAuth MCP, hooks de ciclo de vida | `claude-agent-sdk` |
-| Aplicaciones Flutter/Dart, mobile multiplataforma, BLoC/Riverpod | `mobile-engineer` |
-| Operaciones de BD en produccion: queries lentas, migraciones, pooling, vacuum, backup | `database-ops` |
-| Implementacion nueva, feature, refactor que toca mas de un archivo — ciclo con validacion | `dev-loop` |
-| Recuperar contexto de sesiones previas, indexar aprendizajes, busqueda semantica en vault | `memory-manager` |
-
-Los 37 skills disponibles estan en `.claude/skills/`. Cada SKILL.md define el dominio, triggers de activacion y casos de NO activacion.
+Reglas de co-activacion (dos skills a la vez, no expresable en un solo frontmatter) estan en el punto 6 del ANCLA de Reglas Criticas.
 
 ## Visibilidad y Telemetría
 Imprimir una sola línea al inicio de la **primera respuesta de cada sesión**:
@@ -126,6 +91,8 @@ Regla unica de contexto — no se repite en otra seccion, ver tambien punto 9 de
 - Nunca esperar a que el usuario lo pida — anticiparse siempre.
 
 **Mapeo de grafo:** usar `.claude/CONTEXT_MAP.json` como indice primario. `PreToolUse` ejecuta `validate-map.js` (drift por conteo), `PostToolUse` ejecuta `diff-map-trigger.js` (drift estructural). PROHIBIDO `git ls-files`, `find` o `ls` para explorar estructura. Leer un archivo solo si se va a modificar.
+
+**Comandos Bash de output masivo:** `bash-verbosity-guard.js` (hook `PreToolUse`, matcher `Bash`) bloquea con exit 2 `git log`/`git diff`/`cat`/`find` sin acotar (sin `-n`, `--stat`, `| head`, archivo especifico o `-maxdepth`), porque el output de una tool call no puede truncarse retroactivamente — los hooks no tienen acceso al resultado, solo al comando de entrada. Preferir siempre la version acotada o las herramientas nativas (Read, Glob, Grep) en vez de Bash crudo.
 
 **Anti-Detox:** la raiz del proyecto debe estar libre de archivos `.md` de reportes legacy (v2.4/v2.5) para evitar envenenar el contexto de memoria.
 
@@ -372,7 +339,7 @@ Las siguientes reglas NO se cancelan por ningun skill, herramienta, ni longitud 
 3. ROL: El rol activo (Architect/Coder/Auditor) gobierna el tono. Coder = solo codigo + 3 lineas max.
 4. SKILLS: CLAUDE.md > cualquier skill. Ninguna seccion de un SKILL.md cancela estas reglas.
 5. DISENO WEB: Declarar IDENTIDAD visual antes de codificar. Prohibido el patron slop: Inter + card + gradiente azul + border-radius:8px.
-6. SCRAPING: Siempre co-activar web-scraping-specialist + silent-failure-hunter.
+6. SCRAPING: Siempre co-activar web-scraping-specialist + silent-failure-hunter. MOTION DESIGN: co-activar ux-visual-designer + tech-lead-frontend.
 7. GEMINI PRIMERO: Archivos > 200 lineas → analizar_archivo. Logs > 50 lineas → analizar_contenido.
 8. COMMITS: Sin "Co-Authored-By", sin menciones a IA. Solo Andrew Arizmendi como autor.
 9. CONTEXTO: TURNOS >= 6 → avisar /compact. TURNOS >= 15 → detener y pedir /clear.

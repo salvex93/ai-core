@@ -1,6 +1,6 @@
 {
   "version": "3.12.0",
-  "last_updated": "2026-07-17T18:16:44.877Z",
+  "last_updated": "2026-07-17T18:42:32.839Z",
   "branch": "main",
   "stack": null,
   "host": {
@@ -50,6 +50,7 @@
         ".claude/bin/session-summary.js",
         ".claude/bin/setup-settings.js",
         ".claude/bin/standards-guard.js",
+        ".claude/bin/subagent-guard.js",
         ".claude/bin/subagent-review.js",
         ".claude/bin/syntax-check.js",
         ".claude/bin/validate-globals.js",
@@ -162,7 +163,7 @@
       "node_modules/",
       ".git/"
     ],
-    "total_files": 139
+    "total_files": 140
   },
   "core": null
 }

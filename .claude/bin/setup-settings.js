@@ -92,6 +92,7 @@ const settings = {
           { type: 'command', command: `node ${bin('process-guard.js')} capture node ${bin('issue-reporter.js')} 2>/dev/null || true` },
           { type: 'command', command: `node ${bin('aiops-score.js')} 2>/dev/null || true` },
           { type: 'command', command: `node ${bin('memory-index-stop.js')} 2>/dev/null || true` },
+          { type: 'command', command: `node ${bin('memory-vault-prune-check.js')} 2>/dev/null || true` },
         ],
       },
     ],
@@ -136,6 +137,7 @@ const settings = {
         hooks: [
           { type: 'command', command: `node ${bin('process-guard.js')} health node ${bin('health-check.js')} 2>&1 || true` },
           { type: 'command', command: `node ${bin('process-guard.js')} map node ${bin('validate-map.js')} 2>/dev/null || true` },
+          { type: 'command', command: `node ${bin('bash-verbosity-guard.js')}` },
         ],
       },
       {

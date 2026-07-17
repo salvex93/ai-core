@@ -10,7 +10,6 @@
  *   3. Que cada skill tiene las secciones obligatorias de estructura.
  *   4. Que ningun skill contradice reglas criticas de CLAUDE.md (emojis, ingles, etc.).
  *   5. Que el frontmatter de cada skill tiene name, version, origin y last_updated.
- *   6. Que la tabla de seleccion de CLAUDE.md lista todos los skills existentes.
  *
  * Salida:
  *   - Tabla de conformidad por skill.
@@ -30,7 +29,6 @@ const path = require('node:path');
 
 const REPO     = path.resolve(__dirname, '..', '..');
 const SKILLS   = path.join(REPO, '.claude', 'skills');
-const CLAUDE   = path.join(REPO, 'CLAUDE.md');
 const JSON_OUT = process.argv.includes('--json');
 const FIX_DRIFT = process.argv.includes('--fix-drift');
 const HOY = new Date().toISOString().slice(0, 10);
@@ -62,32 +60,6 @@ const VIOLACIONES = [
   { patron: EMOJI_PICTOGRAFICO,  desc: 'contiene emojis pictograficos (prohibido por CLAUDE.md)', sev: 'alta' },
   { patron: /Co-Authored-By/i,   desc: 'menciona Co-Authored-By (prohibido en commits)',           sev: 'media' },
 ];
-
-// ─── Leer CLAUDE.md y extraer lista de skills declarados ─────────────────────
-function getSkillsDeclaradosEnClaudeMd() {
-  const content = fs.readFileSync(CLAUDE, 'utf8');
-
-  // Formato legacy: "Skills disponibles: a, b, c."
-  const matchLegacy = content.match(/Skills disponibles: (.+)\./);
-  if (matchLegacy) {
-    return new Set(matchLegacy[1].split(',').map(s => s.trim().replace(/`/g, '')));
-  }
-
-  // Formato tabla: columna de skills en tabla markdown de seleccion automatica
-  // Ejemplo: | backend-architect`, `data-engineer |
-  const skillsEnTabla = new Set();
-  const reTabla = /`([a-z][a-z0-9-]+)`/g;
-  let m;
-  while ((m = reTabla.exec(content)) !== null) {
-    skillsEnTabla.add(m[1]);
-  }
-
-  // Validar contra skills reales en disco para descartar falsos positivos
-  const skillsEnDisco = fs.readdirSync(SKILLS).filter(d =>
-    fs.existsSync(path.join(SKILLS, d, 'SKILL.md'))
-  );
-  return new Set(skillsEnDisco.filter(s => skillsEnTabla.has(s)));
-}
 
 // ─── Auditar un skill ─────────────────────────────────────────────────────────
 function auditarSkill(skillDir) {
@@ -161,7 +133,6 @@ function auditarSkill(skillDir) {
 }
 
 // ─── Main ─────────────────────────────────────────────────────────────────────
-const skillsDeclarados = getSkillsDeclaradosEnClaudeMd();
 const skillDirs = fs.readdirSync(SKILLS, { withFileTypes: true })
   .filter(d => d.isDirectory())
   .map(d => path.join(SKILLS, d.name))
@@ -169,18 +140,10 @@ const skillDirs = fs.readdirSync(SKILLS, { withFileTypes: true })
 
 const resultados = skillDirs.map(auditarSkill);
 
-// Skills en disco pero no en CLAUDE.md
-const skillsEnDisco = new Set(skillDirs.map(d => path.basename(d)));
-const noDeclarados  = [...skillsEnDisco].filter(s => !skillsDeclarados.has(s));
-const noExisten     = [...skillsDeclarados].filter(s => !skillsEnDisco.has(s));
-
+// CLAUDE.md ya no mantiene una lista/tabla de skills (routing via frontmatter
+// description, ver "Seleccion de Skills" en CLAUDE.md) — no hay nada que
+// comparar entre disco y CLAUDE.md en ese frente.
 const hallazgosGlobales = [];
-for (const s of noDeclarados) {
-  hallazgosGlobales.push({ sev: 'media', desc: `skill "${s}" existe en disco pero no esta en la lista de CLAUDE.md` });
-}
-for (const s of noExisten) {
-  hallazgosGlobales.push({ sev: 'alta', desc: `skill "${s}" declarado en CLAUDE.md pero no existe en disco` });
-}
 
 // ─── Salida ───────────────────────────────────────────────────────────────────
 const totalCriticos   = resultados.flatMap(r => r.hallazgos).filter(h => h.sev === 'critica').length
