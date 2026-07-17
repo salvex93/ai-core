@@ -19,6 +19,10 @@
  *   CLAUDE_TOOL_NAME        — nombre de la herramienta que fallo
  *   CLAUDE_TOOL_INPUT       — input de la herramienta (JSON string)
  *   CLAUDE_TOOL_ERROR       — mensaje de error (en PostToolUseFailure)
+ *
+ * AI_CORE_TEST_MODE=1 — inyectada por tests/harness.test.js (runScript) para
+ * que ejercitar guards con archivos temporales de prueba no contamine
+ * EVENTS_QUEUE.json con eventos que no son fallos reales del arnes.
  */
 
 const fs   = require('fs');
@@ -120,6 +124,13 @@ function isDuplicate(queue, event) {
 // ---------------------------------------------------------------------------
 // Main
 // ---------------------------------------------------------------------------
+
+// En modo test (inyectado por tests/harness.test.js) no se escribe en la cola
+// real -- evita que ejercitar guards con archivos temporales de prueba
+// contamine EVENTS_QUEUE.json con eventos que no son fallos reales del arnes.
+if (process.env.AI_CORE_TEST_MODE === '1') {
+  process.exit(0);
+}
 
 const args    = parseArgs();
 const hookCtx = getHookContext();

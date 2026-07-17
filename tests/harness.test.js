@@ -23,7 +23,11 @@ const SETTINGS = path.join(REPO, '.claude', 'settings.json');
 function runScript(scriptPath, args = [], env = {}) {
   const result = spawnSync('node', [scriptPath, ...args], {
     encoding: 'utf8',
-    env: { ...process.env, ...env },
+    // AI_CORE_TEST_MODE=1 le indica a capture-event.js que no escriba en
+    // EVENTS_QUEUE.json real -- sin esto, cada test que ejercita un guard
+    // (standards-guard.js, etc.) contamina la cola con eventos de archivos
+    // temporales de test, no fallos reales del harness.
+    env: { ...process.env, AI_CORE_TEST_MODE: '1', ...env },
     cwd: REPO,
   });
   return result;
@@ -614,6 +618,47 @@ describe('CLAUDE.md — integridad', () => {
       claudeMd.includes('Palabras prohibidas') || claudeMd.includes('prohibidas en prosa'),
       'CLAUDE.md debe definir la seccion de palabras prohibidas en prosa'
     );
+  });
+});
+
+// ─── capture-event.js — aislamiento en modo test ─────────────────────────────
+
+describe('capture-event.js — AI_CORE_TEST_MODE', () => {
+  const SCRIPT     = path.join(BIN, 'capture-event.js');
+  const QUEUE_PATH = path.join(REPO, '.claude', 'EVENTS_QUEUE.json');
+
+  function leerCola() {
+    try { return JSON.parse(fs.readFileSync(QUEUE_PATH, 'utf8')); }
+    catch { return []; }
+  }
+
+  test('con AI_CORE_TEST_MODE=1 no escribe en la cola real', () => {
+    const antes = leerCola().length;
+    const r = runScript(SCRIPT, [
+      '--type', 'harness_error', '--tool', 'test-fake', '--error', 'evento de prueba que no debe persistir',
+    ]);
+    const despues = leerCola().length;
+    assert.equal(r.status, 0);
+    assert.equal(despues, antes, 'AI_CORE_TEST_MODE=1 (inyectado por runScript) no debe agregar eventos a la cola real');
+  });
+
+  test('sin AI_CORE_TEST_MODE, capture-event.js si encola (limpiado despues)', () => {
+    // Prueba el comportamiento real (sin el gate) para confirmar que el fix
+    // no rompio la captura genuina -- limpia el evento de prueba al terminar
+    // para no dejar ruido permanente en la cola real.
+    const antes = leerCola().length;
+    const marcador = `test-real-encolado-${Date.now()}`;
+    const r = spawnSync('node', [
+      SCRIPT, '--type', 'harness_error', '--tool', 'test-fake', '--error', marcador,
+    ], { encoding: 'utf8', cwd: REPO }); // sin AI_CORE_TEST_MODE — env real del proceso
+
+    const colaTrasEjecutar = leerCola();
+    assert.equal(r.status, 0);
+    assert.equal(colaTrasEjecutar.length, antes + 1, 'sin el gate de test, el evento si debe encolarse');
+
+    // Limpieza: remover el evento de prueba para no dejarlo en la cola real
+    const limpio = colaTrasEjecutar.filter(e => e.error !== marcador);
+    fs.writeFileSync(QUEUE_PATH, JSON.stringify(limpio, null, 2), 'utf8');
   });
 });
 
