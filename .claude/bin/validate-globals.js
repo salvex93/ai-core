@@ -86,7 +86,9 @@ function auditarSkill(skillDir) {
 
   // 1b. Conformidad con el schema abierto agentskills.io (name/description) —
   // https://agentskills.io/specification
-  const nameMatch = content.match(/^name:\s*(.+)$/m);
+  // [ \t]* (no \s*) evita que un valor vacio cruce a la siguiente linea del
+  // frontmatter y capture su contenido como si fuera el valor de este campo.
+  const nameMatch = content.match(/^name:[ \t]*(.+)$/m);
   if (nameMatch) {
     const skillName = nameMatch[1].trim();
     if (skillName !== nombre) {
@@ -99,7 +101,7 @@ function auditarSkill(skillDir) {
       hallazgos.push({ sev: 'media', desc: 'agentskills.io: name supera 64 caracteres' });
     }
   }
-  const descMatch = content.match(/^description:\s*(.+)$/m);
+  const descMatch = content.match(/^description:[ \t]*(.+)$/m);
   if (descMatch && descMatch[1].trim().length > 1024) {
     hallazgos.push({ sev: 'media', desc: 'agentskills.io: description supera 1024 caracteres' });
   }

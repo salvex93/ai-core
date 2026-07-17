@@ -60,38 +60,38 @@ function checkDependencies(root) {
 // -------------------------------------------------------------------
 
 /**
- * Verifica presencia de skills en disco y coherencia con CLAUDE.md.
+ * Verifica que cada skill en disco tenga un SKILL.md con frontmatter valido
+ * (name coincide con la carpeta, description no vacia). Desde que CLAUDE.md
+ * dejo de listar una tabla de skills (routing via frontmatter description,
+ * cargado nativamente por skill-discovery de Claude Code), la conformidad
+ * real es estructural -- no "aparece mencionado en CLAUDE.md".
  * @param {string} root
- * @returns {{ ok: boolean, count: number, declared: number, orphans: string[], missing: string[] }}
+ * @returns {{ ok: boolean, count: number, invalid: string[] }}
  */
 function checkSkills(root) {
-  const skillsDir    = path.join(root, '.claude', 'skills');
-  const claudeMdPath = path.join(root, 'CLAUDE.md');
+  const skillsDir = path.join(root, '.claude', 'skills');
 
-  // Skills en disco
   const inDisk = fs.readdirSync(skillsDir).filter(d =>
     fs.statSync(path.join(skillsDir, d)).isDirectory() &&
     fs.existsSync(path.join(skillsDir, d, 'SKILL.md'))
   );
 
-  // Skills declarados en CLAUDE.md — extraer backtick-names de la tabla de auto-routing
-  // Formato actual: columna de tabla con "`nombre-skill`" en filas | ... | `skill` |
-  const claudeMd   = fs.readFileSync(claudeMdPath, 'utf8');
-  const mentioned  = new Set([...claudeMd.matchAll(/`([a-z][a-z0-9-]+)`/g)].map(m => m[1]));
-  const inClaudeMd = inDisk.filter(s => mentioned.has(s));
-
-  const diskSet   = new Set(inDisk);
-  const claudeSet = new Set(inClaudeMd);
-
-  const orphans = inDisk.filter(s => !claudeSet.has(s));
-  const missing = inClaudeMd.filter(s => !diskSet.has(s));
+  const invalid = inDisk.filter(nombre => {
+    const content   = fs.readFileSync(path.join(skillsDir, nombre, 'SKILL.md'), 'utf8');
+    // \s* (no [ \t]*) cruzaria la linea si el valor esta vacio, dejando que
+    // .+ capture contenido de la SIGUIENTE linea del frontmatter (ej. "---")
+    // en vez de fallar el match como corresponde a un valor vacio.
+    const nameMatch = content.match(/^name:[ \t]*(.+)$/m);
+    const descMatch = content.match(/^description:[ \t]*(.+)$/m);
+    if (!nameMatch || nameMatch[1].trim() !== nombre) return true;
+    if (!descMatch || !descMatch[1].trim()) return true;
+    return false;
+  });
 
   return {
-    ok:       orphans.length === 0 && missing.length === 0,
-    count:    inDisk.length,
-    declared: inClaudeMd.length,
-    orphans,
-    missing,
+    ok:    invalid.length === 0,
+    count: inDisk.length,
+    invalid,
   };
 }
 

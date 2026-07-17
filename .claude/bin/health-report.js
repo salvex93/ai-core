@@ -142,11 +142,8 @@ function depDetail(deps) {
 }
 
 function skillDetail(skills) {
-  if (skills.ok) return `${skills.count} presentes, ${skills.declared} en CLAUDE.md`;
-  const parts = [];
-  if (skills.missing.length)  parts.push(`faltan: ${skills.missing.join(', ')}`);
-  if (skills.orphans.length)  parts.push(`huerfanos: ${skills.orphans.join(', ')}`);
-  return parts.join(' | ');
+  if (skills.ok) return `${skills.count} presentes, todos con frontmatter valido`;
+  return `invalidos: ${skills.invalid.join(', ')}`;
 }
 
 function mcpDetail(s) {
@@ -169,21 +166,12 @@ function depSection(deps) {
 }
 
 function skillSection(skills) {
-  const lines = [
-    `Conteo en disco: ${skills.count}`,
-    `Mencionados en CLAUDE.md: ${skills.declared}`,
-  ];
-  if (skills.orphans.length) {
-    lines.push(`Huerfanos (en disco, no en CLAUDE.md): ${skills.orphans.join(', ')}`);
-    lines.push(`Accion: agregar a la linea "Skills disponibles" en CLAUDE.md.`);
+  const lines = [`Conteo en disco: ${skills.count}`];
+  if (skills.invalid.length) {
+    lines.push(`Invalidos (frontmatter name/description incorrecto): ${skills.invalid.join(', ')}`);
+    lines.push('Accion: verificar que "name:" coincida con la carpeta y "description:" no este vacia.');
   } else {
-    lines.push('Huerfanos: ninguno');
-  }
-  if (skills.missing.length) {
-    lines.push(`Faltantes (en CLAUDE.md, no en disco): ${skills.missing.join(', ')}`);
-    lines.push(`Accion: crear .claude/skills/<nombre>/SKILL.md para cada uno.`);
-  } else {
-    lines.push('Faltantes: ninguno');
+    lines.push('Invalidos: ninguno');
   }
   return lines.join('\n');
 }

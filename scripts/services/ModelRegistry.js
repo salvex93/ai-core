@@ -6,12 +6,14 @@
  * Patron Adapter: interfaz unica chat() independiente del proveedor.
  * Agregar un proveedor nuevo = agregar un adapter. Sin modificar la logica de routing.
  *
- * Proveedores soportados:
+ * Proveedores soportados (nombres de modelo vigentes a 2026-07-17, ver
+ * PROVIDER_CONFIGS y los comentarios junto a cada defaultModel para el
+ * detalle de deprecaciones y fecha de verificacion):
  *   anthropic  — Claude Haiku 4.5 / Sonnet 5 / Opus 4.8 / Fable 5 via @anthropic-ai/sdk
- *   gemini     — Gemini Flash/Pro via @google/generative-ai
- *   openai     — GPT-4o, o1, o3 via openai-compatible HTTP
- *   deepseek   — DeepSeek-V3/R1 via openai-compatible HTTP (api.deepseek.com)
- *   kimi       — Kimi K2 via openai-compatible HTTP (api.moonshot.ai)
+ *   gemini     — Gemini 3.5 Flash / 3.1 Pro / 3.1 Flash-Lite via @google/generative-ai
+ *   openai     — GPT-5.6 (Sol/Terra/Luna) via openai-compatible HTTP
+ *   deepseek   — DeepSeek V4 (Flash/Pro) via openai-compatible HTTP (api.deepseek.com)
+ *   kimi       — Kimi K3 via openai-compatible HTTP (api.moonshot.ai)
  */
 
 const fs   = require('fs');
@@ -78,6 +80,10 @@ async function chatGemini(messages, options = {}) {
   const { GoogleGenerativeAI } = require('@google/generative-ai');
   const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
+  // gemini-3.5-flash: default vigente a julio 2026 -- Google lo promovio a
+  // default de Gemini Enterprise por su balance velocidad/capacidad agentic.
+  // Para tareas de alto volumen y bajo costo sin razonamiento complejo,
+  // gemini-3.1-flash-lite es mas barato ($0.25/$1.50 vs $1.50/$9 por 1M).
   const model   = options.model || 'gemini-3.5-flash';
   const genModel = genAI.getGenerativeModel({ model });
 
@@ -117,7 +123,10 @@ async function chatOpenAICompat(messages, options = {}, providerConfig = {}) {
 
   const baseUrl = providerConfig.baseUrl || 'https://api.openai.com';
   const apiKey  = providerConfig.apiKey  || process.env.OPENAI_API_KEY || '';
-  const model   = options.model || providerConfig.defaultModel || 'gpt-4o-mini';
+  // gpt-4o-mini fue retirado (GPT-4o discontinuado febrero 2026). Fallback
+  // final aqui usa el tier mas barato de GPT-5.6 (Luna, $1/$6 por 1M) via
+  // providerConfig.defaultModel de cada proveedor OpenAI-compatible abajo.
+  const model   = options.model || providerConfig.defaultModel || 'gpt-5.6-luna';
   const maxOut  = options.max_tokens || 1024;
 
   const body = JSON.stringify({
@@ -175,19 +184,26 @@ const PROVIDER_CONFIGS = Object.freeze({
     name:         'openai',
     baseUrl:      'https://api.openai.com',
     apiKeyEnv:    'OPENAI_API_KEY',
-    defaultModel: 'gpt-4o-mini',
+    // GPT-5.6 Luna: tier mas barato de la familia GPT-5.6 (GA 2026-07-09),
+    // $1/$6 por 1M tokens. gpt-4o-mini fue retirado (GPT-4o discontinuado
+    // febrero 2026) y ya no es la opcion recomendada para proyectos nuevos.
+    defaultModel: 'gpt-5.6-luna',
   },
   deepseek: {
     name:         'deepseek',
     baseUrl:      'https://api.deepseek.com',
     apiKeyEnv:    'DEEPSEEK_API_KEY',
-    defaultModel: 'deepseek-chat',
+    // "deepseek-chat" se deprecha 2026-07-24 15:59 UTC (mapea a modo
+    // no-thinking de deepseek-v4-flash) -- usar el nombre nuevo directamente.
+    defaultModel: 'deepseek-v4-flash',
   },
   kimi: {
     name:         'kimi',
     baseUrl:      'https://api.moonshot.ai',
     apiKeyEnv:    'KIMI_API_KEY',
-    defaultModel: 'moonshot-v1-8k',
+    // La serie moonshot-v1 cierra a nuevos usuarios y sunset completo
+    // 2026-08-31 -- kimi-k3 (2026-07-16, 1M contexto) es el flagship vigente.
+    defaultModel: 'kimi-k3',
   },
 });
 
