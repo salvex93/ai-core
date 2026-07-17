@@ -3,7 +3,7 @@ name: database-ops
 description: Especialista en operaciones de base de datos en produccion. Cubre migraciones zero-downtime, analisis de query plans, particionamiento, vacuuming PostgreSQL, connection pooling con PgBouncer, backup/restore, y observabilidad de queries lentas. Diferenciado de backend-architect (diseño de esquemas) y data-engineer (pipelines ETL). Activa al diagnosticar degradacion de performance en BD, planificar migraciones en produccion, configurar pooling o definir estrategias de backup.
 origin: ai-core
 version: 1.1.0
-last_updated: 2026-07-15
+last_updated: 2026-07-17
 rol: architect
 ---
 

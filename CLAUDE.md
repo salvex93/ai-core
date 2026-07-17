@@ -1,7 +1,7 @@
-# AI-CORE v3.11.0 | Sentinel Protocol
+# AI-CORE v3.12.0 | Sentinel Protocol
 
 ## Identidad
-- **Sistema:** AI-CORE v3.11.0 by salvex93 — Nucleo Centralizado de Agentes para proyectos de desarrollo.
+- **Sistema:** AI-CORE v3.12.0 by salvex93 — Nucleo Centralizado de Agentes para proyectos de desarrollo.
 - **Estilo:** Profesional, tecnico, directo. Sin circunloquios, sin cortesias vacias.
 - **Idioma:** Español estricto. Sin code-switch despues del turno 3.
 - **REGLA CRITICA:** PROHIBIDO el uso de iconos, emojis o adornos visuales en las respuestas.
@@ -15,14 +15,26 @@
 ## Comandos de Referencia
 ```bash
 npm install                          # instalar dependencias del ai-core
-npm test                             # 379 tests, Node nativo, sin dependencias externas
+npm test                             # 495 tests, Node nativo, sin dependencias externas
 npm run setup                        # regenerar settings.json con rutas locales (cross-platform)
 npm run update                       # actualizacion one-command: pull + setup + test + validate
-npm run validate-globals             # auditar conformidad de los 36 skills con CLAUDE.md
+npm run validate-globals             # auditar conformidad de los 38 skills con CLAUDE.md
 npm run validate-globals -- --fix-drift  # corregir last_updated desincronizado automaticamente
 npm run token-metrics                # medir reduccion de consumo de tokens por sesion
 npm run dry-run                      # simular 5 turnos con calculo de costo/ahorro
 npm run map                          # regenerar CONTEXT_MAP.json
+npm run migrate                      # aplicar migraciones pendientes de DEPRECATIONS.json
+npm run migrate-dry                  # simular migraciones sin aplicar cambios
+npm run audit-market                 # auditar vigencia de modelos/SDKs contra MARKET_STANDARDS.json
+npm run score                        # calcular aiops-score de la sesion actual
+npm run score-report                 # reporte historico de aiops-score
+npm run memory-index                 # indexar vault de memoria (.claude/memory-vault/)
+npm run memory-query                 # busqueda BM25+ en el vault de memoria
+npm run memory-status                # estado del indice de memoria
+npm run agent-report                 # metricas de uso de subagentes
+npm run agent-report-full            # metricas de uso de subagentes, detalle completo
+npm run init-backlog                 # inicializar BACKLOG.md en el proyecto anfitrion
+npm run query-backlog                # consultar estado del backlog
 ```
 
 ## Roles del Agente

@@ -6328,7 +6328,7 @@
       "id": "general/session-2026-07-06-media-prioridad#3",
       "source": "session-2026-07-06-media-prioridad",
       "rol": "general",
-      "text": "1. Test de coherencia setup-settings vs settings.json (harness.test.js)\n\nAgregado test `el output de setup-settings es coherente con settings.json en disco` al bloque\n`setup-settings.js` en `tests/harness.test.js`. Verifica:\n- Todos los hook keys presentes (PreToolUse, PostToolUse, Stop, SubagentStop, PostToolUseFailure, UserPromptSubmit)\n- Numero de grupos por hook consistente entre ejecuciones\n- mcpServers gemini-bridge y anthropic-router presentes",
+      "text": "1. Test de coherencia setup-settings vs settings.json (harness.test.js)\r\n\r\nAgregado test `el output de setup-settings es coherente con settings.json en disco` al bloque\r\n`setup-settings.js` en `tests/harness.test.js`. Verifica:\r\n- Todos los hook keys presentes (PreToolUse, PostToolUse, Stop, SubagentStop, PostToolUseFailure, UserPromptSubmit)\r\n- Numero de grupos por hook consistente entre ejecuciones\r\n- mcpServers gemini-bridge y anthropic-router presentes",
       "tokens": [
         "test",
         "coherencia",
@@ -6382,7 +6382,7 @@
       "id": "general/session-2026-07-06-media-prioridad#4",
       "source": "session-2026-07-06-media-prioridad",
       "rol": "general",
-      "text": "2. Hook post-update norm-harness en proyectos anfitriones (update.js)\n\nAgregado PASO 6 condicional al final de `scripts/update.js`. Detecta si ai-core se ejecuta como\nsubmodulo verificando:\n- Existe `../../CLAUDE.md` (proyecto padre tiene su propio CLAUDE.md)\n- NO existe `../../package.json` (el padre no es otro modulo Node)\n\nSi se confirma submodulo: ejecuta `norm-harness.js` en el cwd del padre.\nSi es standalone: informa y omite el paso.",
+      "text": "2. Hook post-update norm-harness en proyectos anfitriones (update.js)\r\n\r\nAgregado PASO 6 condicional al final de `scripts/update.js`. Detecta si ai-core se ejecuta como\r\nsubmodulo verificando:\r\n- Existe `../../CLAUDE.md` (proyecto padre tiene su propio CLAUDE.md)\r\n- NO existe `../../package.json` (el padre no es otro modulo Node)\r\n\r\nSi se confirma submodulo: ejecuta `norm-harness.js` en el cwd del padre.\r\nSi es standalone: informa y omite el paso.",
       "tokens": [
         "hook",
         "post",
@@ -6434,7 +6434,7 @@
       "id": "general/session-2026-07-06-media-prioridad#5",
       "source": "session-2026-07-06-media-prioridad",
       "rol": "general",
-      "text": "3. Skill mcp-registry-navigator (nuevo)\n\nCreado `.claude/skills/mcp-registry-navigator/SKILL.md` — evaluador de MCPs de terceros.\nCreado `.claude/agents/mcp-registry-navigator.md` — agente autonomo de evaluacion.\n\n5 criterios de evaluacion con puntuacion 0-10:\n- Transporte (stdio/SSE/HTTP)\n- Seguridad de inputs (eval/exec/shell sin sanitizar)\n- Mantenimiento del repositorio (ultimo commit, issues, licencia)\n- Calidad del schema de herramientas (inputSchema completo)\n- Riesgo operativo (dependencias, filesystem, APIs externas)\n\nDecision: INSTALAR (>=8) / EVALUAR (5-7) / RECHAZAR (<5).\nRegistro persistente en `.claude/MCP_REGISTRY.md`.",
+      "text": "3. Skill mcp-registry-navigator (nuevo)\r\n\r\nCreado `.claude/skills/mcp-registry-navigator/SKILL.md` — evaluador de MCPs de terceros.\r\nCreado `.claude/agents/mcp-registry-navigator.md` — agente autonomo de evaluacion.\r\n\r\n5 criterios de evaluacion con puntuacion 0-10:\r\n- Transporte (stdio/SSE/HTTP)\r\n- Seguridad de inputs (eval/exec/shell sin sanitizar)\r\n- Mantenimiento del repositorio (ultimo commit, issues, licencia)\r\n- Calidad del schema de herramientas (inputSchema completo)\r\n- Riesgo operativo (dependencias, filesystem, APIs externas)\r\n\r\nDecision: INSTALAR (>=8) / EVALUAR (5-7) / RECHAZAR (<5).\r\nRegistro persistente en `.claude/MCP_REGISTRY.md`.",
       "tokens": [
         "skill",
         "mcp",
@@ -6505,7 +6505,7 @@
       "id": "general/session-2026-07-06-media-prioridad#6",
       "source": "session-2026-07-06-media-prioridad",
       "rol": "general",
-      "text": "4. claude-sonnet-5 en ModelRouter\n\nVerificado via API live: `claude-sonnet-5` es GA desde 2026-06-29.\nCapacidades: max_input_tokens 1M, max_tokens 128k, thinking adaptativo, code execution, structured outputs.\nPricing: mismo tier que sonnet-4-6 ($3/$15 por MTok).\n\nActualizado `scripts/services/ModelRouter.js`:\n- `MODELOS.SONNET: 'claude-sonnet-5'` (reemplaza `claude-sonnet-4-6`)",
+      "text": "4. claude-sonnet-5 en ModelRouter\r\n\r\nVerificado via API live: `claude-sonnet-5` es GA desde 2026-06-29.\r\nCapacidades: max_input_tokens 1M, max_tokens 128k, thinking adaptativo, code execution, structured outputs.\r\nPricing: mismo tier que sonnet-4-6 ($3/$15 por MTok).\r\n\r\nActualizado `scripts/services/ModelRouter.js`:\r\n- `MODELOS.SONNET: 'claude-sonnet-5'` (reemplaza `claude-sonnet-4-6`)",
       "tokens": [
         "claude",
         "sonnet",
@@ -6550,7 +6550,7 @@
       "id": "general/session-2026-07-06-media-prioridad#7",
       "source": "session-2026-07-06-media-prioridad",
       "rol": "general",
-      "text": "Conteos actualizados\n\n- Skills: 34 → 35\n- Tests: 342 → 351 (9 nuevos: 1 de coherencia setup-settings + 8 de conformidad del skill nuevo)",
+      "text": "Conteos actualizados\r\n\r\n- Skills: 34 → 35\r\n- Tests: 342 → 351 (9 nuevos: 1 de coherencia setup-settings + 8 de conformidad del skill nuevo)",
       "tokens": [
         "conteo",
         "actualiz",
@@ -6571,7 +6571,7 @@
       "id": "general/session-2026-07-06-media-prioridad#8",
       "source": "session-2026-07-06-media-prioridad",
       "rol": "general",
-      "text": "Archivos modificados\n\n- `tests/harness.test.js` — test de coherencia setup-settings\n- `scripts/update.js` — paso 6 norm-harness + conteos actualizados\n- `scripts/services/ModelRouter.js` — SONNET: claude-sonnet-5\n- `.claude/skills/mcp-registry-navigator/SKILL.md` — skill nuevo\n- `.claude/agents/mcp-registry-navigator.md` — agente nuevo\n- `CLAUDE.md` — entrada mcp-registry-navigator en tabla de skills + conteos 35/351\n- `README.md` — conteos actualizados",
+      "text": "Archivos modificados\r\n\r\n- `tests/harness.test.js` — test de coherencia setup-settings\r\n- `scripts/update.js` — paso 6 norm-harness + conteos actualizados\r\n- `scripts/services/ModelRouter.js` — SONNET: claude-sonnet-5\r\n- `.claude/skills/mcp-registry-navigator/SKILL.md` — skill nuevo\r\n- `.claude/agents/mcp-registry-navigator.md` — agente nuevo\r\n- `CLAUDE.md` — entrada mcp-registry-navigator en tabla de skills + conteos 35/351\r\n- `README.md` — conteos actualizados",
       "tokens": [
         "archivo",
         "modific",
@@ -6628,7 +6628,7 @@
       "id": "general/session-2026-07-06-media-prioridad#9",
       "source": "session-2026-07-06-media-prioridad",
       "rol": "general",
-      "text": "Aprendizajes\n\n- **Verificar contexto antes de corregir:** El vault marcaba referencias a `claude-sonnet-4-6` en skills como pendiente de corrección. Al leerlos en contexto real, todas eran correctas (tier de produccion general). El hallazgo del vault era un falso positivo registrado antes de verificar. Lección: siempre leer el archivo antes de actuar sobre un pendiente de memoria.\n\n- **`claude-sonnet-5` es GA desde 2026-06-29:** Confirmado via `client.models.list()` en vivo. max_input_tokens 1M, thinking adaptativo, code execution. Mismo pricing que sonnet-4-6. El models-cache.json lo tenia registrado pero ModelRouter no lo habia incorporado.\n\n- **Detección de submodulo en update.js:** El patron `../../CLAUDE.md existe AND ../../package.json NO existe` es suficientemente robusto para disti",
+      "text": "Aprendizajes\r\n\r\n- **Verificar contexto antes de corregir:** El vault marcaba referencias a `claude-sonnet-4-6` en skills como pendiente de corrección. Al leerlos en contexto real, todas eran correctas (tier de produccion general). El hallazgo del vault era un falso positivo registrado antes de verificar. Lección: siempre leer el archivo antes de actuar sobre un pendiente de memoria.\r\n\r\n- **`claude-sonnet-5` es GA desde 2026-06-29:** Confirmado via `client.models.list()` en vivo. max_input_tokens 1M, thinking adaptativo, code execution. Mismo pricing que sonnet-4-6. El models-cache.json lo tenia registrado pero ModelRouter no lo habia incorporado.\r\n\r\n- **Detección de submodulo en update.js:** El patron `../../CLAUDE.md existe AND ../../package.json NO existe` es suficientemente robusto para",
       "tokens": [
         "aprendizaj",
         "verificar",
@@ -6770,7 +6770,7 @@
       "id": "general/session-2026-07-06-media-prioridad#11",
       "source": "session-2026-07-06-media-prioridad",
       "rol": "general",
-      "text": "Alta prioridad\n\n- **arnes-manager** — proyecto principal. Arquitectura decidida (ver session-2026-07-06).\n  Al arrancar: instalar MCP Memory como parte del setup inicial.",
+      "text": "Alta prioridad\r\n\r\n- **arnes-manager** — proyecto principal. Arquitectura decidida (ver session-2026-07-06).\r\n  Al arrancar: instalar MCP Memory como parte del setup inicial.",
       "tokens": [
         "alta",
         "prioridad",
@@ -6796,7 +6796,7 @@
       "id": "general/session-2026-07-06-media-prioridad#12",
       "source": "session-2026-07-06-media-prioridad",
       "rol": "general",
-      "text": "Media prioridad (remanente)\n\nTodos los items de media prioridad de session-2026-07-07 fueron completados o descartados.\nNo hay items de media prioridad pendientes al cierre de esta sesion.",
+      "text": "Media prioridad (remanente)\r\n\r\nTodos los items de media prioridad de session-2026-07-07 fueron completados o descartados.\r\nNo hay items de media prioridad pendientes al cierre de esta sesion.",
       "tokens": [
         "media",
         "prioridad",
@@ -6823,7 +6823,7 @@
       "id": "general/session-2026-07-06-media-prioridad#13",
       "source": "session-2026-07-06-media-prioridad",
       "rol": "general",
-      "text": "Baja prioridad\n\nTodos los items de baja prioridad resueltos o descartados.",
+      "text": "Baja prioridad\r\n\r\nTodos los items de baja prioridad resueltos o descartados.",
       "tokens": [
         "baja",
         "prioridad",
@@ -6854,7 +6854,7 @@
       "id": "general/session-2026-07-06-upgrade-aaa#3",
       "source": "session-2026-07-06-upgrade-aaa",
       "rol": "general",
-      "text": "6 mejoras AAA implementadas\n\n1. **ponytail-check.js** — hook PreToolUse Write|Edit con escalera YAGNI de 5 capas. 9 tests.\n2. **dev-loop skill v1.0.0** — ciclo Spec→Design→Plan→Build→Review. Basado en Superpowers (Jesse Vincent/obra) y agent-skills (Addy Osmani). 8 tests.\n3. **memory-index.js + memory-manager skill** — motor BM25 zero-deps en `.claude/memory-vault/`. Auto-index en Stop hook. Umbral score >2.0 para contexto activo. 10 tests.\n4. **agent-metrics.js** — observabilidad por tool call (herramienta, status, tokens, duración). Basado en agent-house (Addy Osmani). 7 tests.\n5. **subagent-review.js** — validación adversarial en SubagentStop: Auditor + Adversario + Pragmático. Exit 1 en CRITICO. Basado en adverse (Addy Osmani). 5 tests.\n6. **ux-visual-designer v2.0.0 + tech-lead-fronte",
+      "text": "6 mejoras AAA implementadas\r\n\r\n1. **ponytail-check.js** — hook PreToolUse Write|Edit con escalera YAGNI de 5 capas. 9 tests.\r\n2. **dev-loop skill v1.0.0** — ciclo Spec→Design→Plan→Build→Review. Basado en Superpowers (Jesse Vincent/obra) y agent-skills (Addy Osmani). 8 tests.\r\n3. **memory-index.js + memory-manager skill** — motor BM25 zero-deps en `.claude/memory-vault/`. Auto-index en Stop hook. Umbral score >2.0 para contexto activo. 10 tests.\r\n4. **agent-metrics.js** — observabilidad por tool call (herramienta, status, tokens, duración). Basado en agent-house (Addy Osmani). 7 tests.\r\n5. **subagent-review.js** — validación adversarial en SubagentStop: Auditor + Adversario + Pragmático. Exit 1 en CRITICO. Basado en adverse (Addy Osmani). 5 tests.\r\n6. **ux-visual-designer v2.0.0 + tech-lead",
       "tokens": [
         "mejora",
         "aaa",
@@ -6964,7 +6964,7 @@
       "id": "general/session-2026-07-06-upgrade-aaa#4",
       "source": "session-2026-07-06-upgrade-aaa",
       "rol": "general",
-      "text": "Auditoría post-release (5 correcciones)\n\n- `claude-opus-4-7` → `claude-opus-4-8` en ModelRouter.js y mcp-anthropic.js\n- `health-sync.js`: parsing de skills corregido (formato tabla markdown, no línea legacy)\n- `aiops-score.js`: subagent-review.js excluido del scan — score 10/10 real\n- `CLAUDE.md` línea 4: version string v3.9.1 → v3.10.0\n- `@anthropic-ai/sdk`: 0.104.1 → 0.110.0",
+      "text": "Auditoría post-release (5 correcciones)\r\n\r\n- `claude-opus-4-7` → `claude-opus-4-8` en ModelRouter.js y mcp-anthropic.js\r\n- `health-sync.js`: parsing de skills corregido (formato tabla markdown, no línea legacy)\r\n- `aiops-score.js`: subagent-review.js excluido del scan — score 10/10 real\r\n- `CLAUDE.md` línea 4: version string v3.9.1 → v3.10.0\r\n- `@anthropic-ai/sdk`: 0.104.1 → 0.110.0",
       "tokens": [
         "auditoría",
         "post",
@@ -7009,7 +7009,7 @@
       "id": "general/session-2026-07-06-upgrade-aaa#5",
       "source": "session-2026-07-06-upgrade-aaa",
       "rol": "general",
-      "text": "Sincronización de coherencia\n\n- Todos los archivos actualizados a 34 skills / 342 tests (README, CLAUDE.md, update.js, ci.yml, aiops-score.js)\n- Node engines: >=18 → >=20 (Node 18 EOL)\n- CI matrix: Node 18 eliminado\n- DOCS_MAESTRA.md legacy v2.6.4 eliminado del repo",
+      "text": "Sincronización de coherencia\r\n\r\n- Todos los archivos actualizados a 34 skills / 342 tests (README, CLAUDE.md, update.js, ci.yml, aiops-score.js)\r\n- Node engines: >=18 → >=20 (Node 18 EOL)\r\n- CI matrix: Node 18 eliminado\r\n- DOCS_MAESTRA.md legacy v2.6.4 eliminado del repo",
       "tokens": [
         "sincroniz",
         "coherencia",
@@ -7042,7 +7042,7 @@
       "id": "general/session-2026-07-06-upgrade-aaa#6",
       "source": "session-2026-07-06-upgrade-aaa",
       "rol": "general",
-      "text": "Fix crítico de portabilidad\n\n`setup-settings.js` y `norm-harness.js` generaban settings.json con solo 2 hooks (versión v3.9.0). Reescritos completos — ahora producen los 22 hooks del harness actual.",
+      "text": "Fix crítico de portabilidad\r\n\r\n`setup-settings.js` y `norm-harness.js` generaban settings.json con solo 2 hooks (versión v3.9.0). Reescritos completos — ahora producen los 22 hooks del harness actual.",
       "tokens": [
         "fix",
         "crítico",
@@ -7070,7 +7070,7 @@
       "id": "general/session-2026-07-06-upgrade-aaa#7",
       "source": "session-2026-07-06-upgrade-aaa",
       "rol": "general",
-      "text": "Documentación\n\n- CHANGELOG.md: entrada v3.10.0 con nota de migración para proyectos existentes\n- ROADMAP_AAA.md: 6 mejoras marcadas COMPLETADO + arquitectura arnes-manager decidida\n- README.md: actualizado a v3.10.0 con todos los comandos y novedades",
+      "text": "Documentación\r\n\r\n- CHANGELOG.md: entrada v3.10.0 con nota de migración para proyectos existentes\r\n- ROADMAP_AAA.md: 6 mejoras marcadas COMPLETADO + arquitectura arnes-manager decidida\r\n- README.md: actualizado a v3.10.0 con todos los comandos y novedades",
       "tokens": [
         "document",
         "changelog",
@@ -7098,7 +7098,7 @@
       "id": "general/session-2026-07-06-upgrade-aaa#9",
       "source": "session-2026-07-06-upgrade-aaa",
       "rol": "general",
-      "text": "Bugs silenciosos frecuentes al actualizar harness\n\nLos scripts de bootstrap (`setup-settings.js`, `norm-harness.js`) son los primeros en desincronizarse cuando se agregan hooks nuevos — porque no hay test que valide que su output coincide con el `settings.json` real. Detectado solo por auditoría manual.\n\n**Patrón a vigilar:** cada vez que se modifique `settings.json` directamente, verificar que `setup-settings.js` y `norm-harness.js` producen el mismo resultado.",
+      "text": "Bugs silenciosos frecuentes al actualizar harness\r\n\r\nLos scripts de bootstrap (`setup-settings.js`, `norm-harness.js`) son los primeros en desincronizarse cuando se agregan hooks nuevos — porque no hay test que valide que su output coincide con el `settings.json` real. Detectado solo por auditoría manual.\r\n\r\n**Patrón a vigilar:** cada vez que se modifique `settings.json` directamente, verificar que `setup-settings.js` y `norm-harness.js` producen el mismo resultado.",
       "tokens": [
         "bug",
         "silencioso",
@@ -7153,7 +7153,7 @@
       "id": "general/session-2026-07-06-upgrade-aaa#10",
       "source": "session-2026-07-06-upgrade-aaa",
       "rol": "general",
-      "text": "Falsos positivos en aiops-score\n\nScripts que contienen regex como *datos* (patrones de auditoría en strings) activan el scanner de seguridad del scorer. La lista `EXCLUIR` en `aiops-score.js` debe actualizarse cada vez que se agregue un script con este patrón.",
+      "text": "Falsos positivos en aiops-score\r\n\r\nScripts que contienen regex como *datos* (patrones de auditoría en strings) activan el scanner de seguridad del scorer. La lista `EXCLUIR` en `aiops-score.js` debe actualizarse cada vez que se agregue un script con este patrón.",
       "tokens": [
         "falso",
         "positivo",
@@ -7187,7 +7187,7 @@
       "id": "general/session-2026-07-06-upgrade-aaa#11",
       "source": "session-2026-07-06-upgrade-aaa",
       "rol": "general",
-      "text": "health-sync.js — formato legacy\n\n`health-sync.js:checkSkills()` buscaba la línea `\"Skills disponibles: ...\"` que existió hasta v3.7. Desde v3.8 el formato es tabla markdown. El bug llevaba ~3 versiones sin detectarse porque el reporte de health no bloquea nada (solo informa).",
+      "text": "health-sync.js — formato legacy\r\n\r\n`health-sync.js:checkSkills()` buscaba la línea `\"Skills disponibles: ...\"` que existió hasta v3.7. Desde v3.8 el formato es tabla markdown. El bug llevaba ~3 versiones sin detectarse porque el reporte de health no bloquea nada (solo informa).",
       "tokens": [
         "health",
         "sync",
@@ -7224,7 +7224,7 @@
       "id": "general/session-2026-07-06-upgrade-aaa#12",
       "source": "session-2026-07-06-upgrade-aaa",
       "rol": "general",
-      "text": "Flujo de migración para submodulos\n\nEl paso `node .claude/ai-core/.claude/bin/norm-harness.js` en el proyecto anfitrión NO es automático. Es el único paso manual que no corre `npm run update`. Documentado en CHANGELOG pero candidato a automatizar en el futuro.",
+      "text": "Flujo de migración para submodulos\r\n\r\nEl paso `node .claude/ai-core/.claude/bin/norm-harness.js` en el proyecto anfitrión NO es automático. Es el único paso manual que no corre `npm run update`. Documentado en CHANGELOG pero candidato a automatizar en el futuro.",
       "tokens": [
         "flujo",
         "migr",
@@ -7258,7 +7258,7 @@
       "id": "general/session-2026-07-06-upgrade-aaa#14",
       "source": "session-2026-07-06-upgrade-aaa",
       "rol": "general",
-      "text": "arnes-manager (próximo proyecto)\n\nGestor remoto de arneses. Arquitectura decidida:\n\n```\narnes-manager/\n  api/          → Express/Fastify\n  agents/\n    harness-updater    → clona repo, npm run update, abre PR\n    skill-auditor      → detecta skills obsoletos\n    dependency-watcher → CVEs, versiones deprecadas\n  dashboard/    → UI web\n  cli/          → npx arnes-manager init\n```\n\nDeploy: Railway.app. Instalable via `npx arnes-manager init`.\nBase técnica: claude-session-driver (obra/Jesse Vincent) para workers paralelos JSONL.",
+      "text": "arnes-manager (próximo proyecto)\r\n\r\nGestor remoto de arneses. Arquitectura decidida:\r\n\r\n```\r\narnes-manager/\r\n  api/          → Express/Fastify\r\n  agents/\r\n    harness-updater    → clona repo, npm run update, abre PR\r\n    skill-auditor      → detecta skills obsoletos\r\n    dependency-watcher → CVEs, versiones deprecadas\r\n  dashboard/    → UI web\r\n  cli/          → npx arnes-manager init\r\n```\r\n\r\nDeploy: Railway.app. Instalable via `npx arnes-manager init`.\r\nBase técnica: claude-session-driver (obra/Jesse Vincent) para workers paralelos JSONL.",
       "tokens": [
         "arn",
         "manager",
@@ -7326,7 +7326,7 @@
       "id": "general/session-2026-07-06-upgrade-aaa#15",
       "source": "session-2026-07-06-upgrade-aaa",
       "rol": "general",
-      "text": "Automatizar norm-harness en proyectos anfitriones\n\nConsiderar agregar un hook post-update en `update.js` que detecte si se ejecuta desde un submodulo y corra `norm-harness.js` automáticamente en el proyecto padre.",
+      "text": "Automatizar norm-harness en proyectos anfitriones\r\n\r\nConsiderar agregar un hook post-update en `update.js` que detecte si se ejecuta desde un submodulo y corra `norm-harness.js` automáticamente en el proyecto padre.",
       "tokens": [
         "automatizar",
         "norm",
@@ -7355,7 +7355,7 @@
       "id": "general/session-2026-07-06-upgrade-aaa#16",
       "source": "session-2026-07-06-upgrade-aaa",
       "rol": "general",
-      "text": "Vault de memoria vacío al inicio de sesión\n\nEl protocolo de arranque consulta el vault, pero si no hay entradas `.raw/` el índice no existe. Considerar incluir una entrada de bootstrap en el vault con el estado del harness para que la primera consulta siempre tenga resultados.",
+      "text": "Vault de memoria vacío al inicio de sesión\r\n\r\nEl protocolo de arranque consulta el vault, pero si no hay entradas `.raw/` el índice no existe. Considerar incluir una entrada de bootstrap en el vault con el estado del harness para que la primera consulta siempre tenga resultados.",
       "tokens": [
         "vault",
         "memoria",
@@ -7389,7 +7389,7 @@
       "id": "general/session-2026-07-06-upgrade-aaa#17",
       "source": "session-2026-07-06-upgrade-aaa",
       "rol": "general",
-      "text": "Test de coherencia setup-settings vs settings.json\n\nAgregar un test en `harness.test.js` que ejecute `setup-settings.js` y compare su output con el `settings.json` existente — para detectar inmediatamente cuando quedan desincronizados.",
+      "text": "Test de coherencia setup-settings vs settings.json\r\n\r\nAgregar un test en `harness.test.js` que ejecute `setup-settings.js` y compare su output con el `settings.json` existente — para detectar inmediatamente cuando quedan desincronizados.",
       "tokens": [
         "test",
         "coherencia",
@@ -7434,7 +7434,7 @@
       "id": "general/session-2026-07-07-auditoria-y-bm25plus#3",
       "source": "session-2026-07-07-auditoria-y-bm25plus",
       "rol": "general",
-      "text": "BM25+ — 3 mejoras al motor de memoria\n\n1. **Stemming mínimo en español** — sufijos comunes (`-aciones`, `-ando`, `-ado`, `-mente`, etc.). \"implementamos\" y \"implementado\" ahora matchean el mismo token.\n2. **Boost por campo (x3)** — tokens del frontmatter (`name` + `description`) se repiten 3 veces en el vector. Entradas bien tituladas suben en ranking.\n3. **Query expansion de sinónimos de dominio** — 15 grupos: `arnes=harness=ai-core`, `sesion=session=conversacion`, `agente=agent`, etc. Mejora recall en queries naturales.\n\nResultado medido: query \"sesion pasada implementado\" → score 2.78 (antes: sin resultados).",
+      "text": "BM25+ — 3 mejoras al motor de memoria\r\n\r\n1. **Stemming mínimo en español** — sufijos comunes (`-aciones`, `-ando`, `-ado`, `-mente`, etc.). \"implementamos\" y \"implementado\" ahora matchean el mismo token.\r\n2. **Boost por campo (x3)** — tokens del frontmatter (`name` + `description`) se repiten 3 veces en el vector. Entradas bien tituladas suben en ranking.\r\n3. **Query expansion de sinónimos de dominio** — 15 grupos: `arnes=harness=ai-core`, `sesion=session=conversacion`, `agente=agent`, etc. Mejora recall en queries naturales.\r\n\r\nResultado medido: query \"sesion pasada implementado\" → score 2.78 (antes: sin resultados).",
       "tokens": [
         "bm25",
         "mejora",
@@ -7504,7 +7504,7 @@
       "id": "general/session-2026-07-07-auditoria-y-bm25plus#4",
       "source": "session-2026-07-07-auditoria-y-bm25plus",
       "rol": "general",
-      "text": "Auditoría aiops-engineer\n\nSkills actualizados con Fable 5:\n- `claude-api` v1.2.0 — tabla de modelos con Fable 5 + regla de selección vs Opus\n- `workflow-orchestrator` v2.1.0 — mapeo split: `arquitectura` → Fable 5, `arquitectura_tools` → Opus 4.8\n- `memory-manager` v1.1.0 — description actualizada a \"BM25+\"\n- `gemini-2-5-specialist` v1.1.0 — Flash-Thinking agregado como tier intermedio\n- `ai-integrations` v2.4.0 — `opus-4-6` reemplazado por `fable-5`\n- `prompt-engineer` v1.7.0 — extended thinking actualizado con `fable-5`",
+      "text": "Auditoría aiops-engineer\r\n\r\nSkills actualizados con Fable 5:\r\n- `claude-api` v1.2.0 — tabla de modelos con Fable 5 + regla de selección vs Opus\r\n- `workflow-orchestrator` v2.1.0 — mapeo split: `arquitectura` → Fable 5, `arquitectura_tools` → Opus 4.8\r\n- `memory-manager` v1.1.0 — description actualizada a \"BM25+\"\r\n- `gemini-2-5-specialist` v1.1.0 — Flash-Thinking agregado como tier intermedio\r\n- `ai-integrations` v2.4.0 — `opus-4-6` reemplazado por `fable-5`\r\n- `prompt-engineer` v1.7.0 — extended thinking actualizado con `fable-5`",
       "tokens": [
         "auditoría",
         "aiop",
@@ -7556,7 +7556,7 @@
       "id": "general/session-2026-07-07-auditoria-y-bm25plus#5",
       "source": "session-2026-07-07-auditoria-y-bm25plus",
       "rol": "general",
-      "text": "Auditoría completa de código (agente autónomo)\n\nHallazgos resueltos:\n- `README.md:592` — `opus-4-7` en comentario de ejemplo → `opus-4-8`\n- `README.md:778` — tabla Model Router con `opus-4-7` → `fable-5`\n- `standards-guard.js:206` — `catch {}` vacío → log a stderr con mensaje de error\n- `ModelRouter.js` — FABLE agregado como tier nuevo. TIER_FABLE cubre `disenar_sistema` y `refactorizar_arquitectura`. TIER_OPUS ahora solo cubre `auditar_seguridad_critica` (tareas que requieren computer use o tools integradas).\n- `ModelRegistry.js` — ya tenía `claude-fable-5` en comentario; ahora ModelRouter lo soporta formalmente.\n\nHallazgos descartados (no son bugs reales):\n- `catch (_)` en mcp-anthropic stdin — JSON-RPC: líneas inválidas son ruido normal del protocolo\n- `catch (_)` en mcp-gemini compresi",
+      "text": "Auditoría completa de código (agente autónomo)\r\n\r\nHallazgos resueltos:\r\n- `README.md:592` — `opus-4-7` en comentario de ejemplo → `opus-4-8`\r\n- `README.md:778` — tabla Model Router con `opus-4-7` → `fable-5`\r\n- `standards-guard.js:206` — `catch {}` vacío → log a stderr con mensaje de error\r\n- `ModelRouter.js` — FABLE agregado como tier nuevo. TIER_FABLE cubre `disenar_sistema` y `refactorizar_arquitectura`. TIER_OPUS ahora solo cubre `auditar_seguridad_critica` (tareas que requieren computer use o tools integradas).\r\n- `ModelRegistry.js` — ya tenía `claude-fable-5` en comentario; ahora ModelRouter lo soporta formalmente.\r\n\r\nHallazgos descartados (no son bugs reales):\r\n- `catch (_)` en mcp-anthropic stdin — JSON-RPC: líneas inválidas son ruido normal del protocolo\r\n- `catch (_)` en mcp-gemi",
       "tokens": [
         "auditoría",
         "completa",
@@ -7656,7 +7656,7 @@
       "id": "general/session-2026-07-07-auditoria-y-bm25plus#7",
       "source": "session-2026-07-07-auditoria-y-bm25plus",
       "rol": "general",
-      "text": "Fable 5 vs Opus 4.8 — distinción clave\n\nFable 5 es el modelo de razonamiento profundo sin herramientas integradas.\nOpus 4.8 es para arquitectura CON computer use o tools integradas.\nEsta distinción debe mantenerse consistente en todos los skills y en ModelRouter.\n\n**Patrón a vigilar:** cuando se agregue un modelo nuevo, actualizar en este orden:\n1. `ModelRegistry.js` (comentario)\n2. `ModelRouter.js` (MODELOS + COSTO_POR_MODELO + tier)\n3. `CLAUDE.md` (tabla de roles si aplica)\n4. Skills afectados: `claude-api`, `workflow-orchestrator`, `ai-integrations`, `prompt-engineer`\n5. `README.md` (tabla Model Router)",
+      "text": "Fable 5 vs Opus 4.8 — distinción clave\r\n\r\nFable 5 es el modelo de razonamiento profundo sin herramientas integradas.\r\nOpus 4.8 es para arquitectura CON computer use o tools integradas.\r\nEsta distinción debe mantenerse consistente en todos los skills y en ModelRouter.\r\n\r\n**Patrón a vigilar:** cuando se agregue un modelo nuevo, actualizar en este orden:\r\n1. `ModelRegistry.js` (comentario)\r\n2. `ModelRouter.js` (MODELOS + COSTO_POR_MODELO + tier)\r\n3. `CLAUDE.md` (tabla de roles si aplica)\r\n4. Skills afectados: `claude-api`, `workflow-orchestrator`, `ai-integrations`, `prompt-engineer`\r\n5. `README.md` (tabla Model Router)",
       "tokens": [
         "fable",
         "opu",
@@ -7719,7 +7719,7 @@
       "id": "general/session-2026-07-07-auditoria-y-bm25plus#8",
       "source": "session-2026-07-07-auditoria-y-bm25plus",
       "rol": "general",
-      "text": "MCP Memory — decisión diferida\n\nMCP Memory oficial (@modelcontextprotocol/server-memory) fue evaluado y diferido.\nRazón: con un solo proyecto el grafo queda plano. El momento correcto es al arrancar arnes-manager\ndonde habrá múltiples proyectos con entidades y relaciones cruzadas.",
+      "text": "MCP Memory — decisión diferida\r\n\r\nMCP Memory oficial (@modelcontextprotocol/server-memory) fue evaluado y diferido.\r\nRazón: con un solo proyecto el grafo queda plano. El momento correcto es al arrancar arnes-manager\r\ndonde habrá múltiples proyectos con entidades y relaciones cruzadas.",
       "tokens": [
         "mcp",
         "memory",
@@ -7758,7 +7758,7 @@
       "id": "general/session-2026-07-07-auditoria-y-bm25plus#9",
       "source": "session-2026-07-07-auditoria-y-bm25plus",
       "rol": "general",
-      "text": "Auditoria de código muerto\n\nLos módulos `ContextIndex.js`, `StyleProfiler.js`, `ResponseValidator.js` solo son consumidos\npor `anthropic-bridge.js`. No son código muerto — son dependencias del bridge.\nSi el bridge se elimina en el futuro, estos 3 módulos quedan huérfanos.",
+      "text": "Auditoria de código muerto\r\n\r\nLos módulos `ContextIndex.js`, `StyleProfiler.js`, `ResponseValidator.js` solo son consumidos\r\npor `anthropic-bridge.js`. No son código muerto — son dependencias del bridge.\r\nSi el bridge se elimina en el futuro, estos 3 módulos quedan huérfanos.",
       "tokens": [
         "auditoria",
         "código",
@@ -7790,7 +7790,7 @@
       "id": "general/session-2026-07-07-auditoria-y-bm25plus#11",
       "source": "session-2026-07-07-auditoria-y-bm25plus",
       "rol": "general",
-      "text": "Alta prioridad\n\n- **arnes-manager** — proyecto principal pendiente. Arquitectura decidida (ver session-2026-07-06).\n  Al arrancar: instalar MCP Memory como parte del setup inicial.",
+      "text": "Alta prioridad\r\n\r\n- **arnes-manager** — proyecto principal pendiente. Arquitectura decidida (ver session-2026-07-06).\r\n  Al arrancar: instalar MCP Memory como parte del setup inicial.",
       "tokens": [
         "alta",
         "prioridad",
@@ -7817,7 +7817,7 @@
       "id": "general/session-2026-07-07-auditoria-y-bm25plus#12",
       "source": "session-2026-07-07-auditoria-y-bm25plus",
       "rol": "general",
-      "text": "Media prioridad\n\n- **Test de coherencia setup-settings vs settings.json** — agregar en `harness.test.js` un test que\n  ejecute `setup-settings.js` y compare su output con el `settings.json` real.\n  Detecta inmediatamente cuando quedan desincronizados tras agregar hooks nuevos.\n\n- **Automatizar norm-harness en proyectos anfitriones** — hook post-update en `update.js` que detecte\n  si se ejecuta desde un submodulo y corra `norm-harness.js` en el proyecto padre automáticamente.\n\n- **Skill `mcp-registry-navigator`** — nuevo skill para evaluar MCPs de terceros antes de instalar\n  (mcp.run, glama.ai, transportes stdio vs SSE). Caso de uso directo en arnes-manager.\n\n- **claude-sonnet-5 en ModelRouter** — el agente detectó `claude-sonnet-5` en models-cache.json\n  pero no está en MODELOS. Evaluar s",
+      "text": "Media prioridad\r\n\r\n- **Test de coherencia setup-settings vs settings.json** — agregar en `harness.test.js` un test que\r\n  ejecute `setup-settings.js` y compare su output con el `settings.json` real.\r\n  Detecta inmediatamente cuando quedan desincronizados tras agregar hooks nuevos.\r\n\r\n- **Automatizar norm-harness en proyectos anfitriones** — hook post-update en `update.js` que detecte\r\n  si se ejecuta desde un submodulo y corra `norm-harness.js` en el proyecto padre automáticamente.\r\n\r\n- **Skill `mcp-registry-navigator`** — nuevo skill para evaluar MCPs de terceros antes de instalar\r\n  (mcp.run, glama.ai, transportes stdio vs SSE). Caso de uso directo en arnes-manager.\r\n\r\n- **claude-sonnet-5 en ModelRouter** — el agente detectó `claude-sonnet-5` en models-cache.json\r\n  pero no está en MODEL",
       "tokens": [
         "media",
         "prioridad",
@@ -7912,7 +7912,7 @@
       "id": "general/session-2026-07-07-auditoria-y-bm25plus#13",
       "source": "session-2026-07-07-auditoria-y-bm25plus",
       "rol": "general",
-      "text": "Baja prioridad\n\n- **Bootstrap del vault** — agregar entrada inicial en `.raw/` con estado del harness para que\n  la primera query de sesión siempre tenga resultados (ahora funciona porque hay entradas reales).\n\n- **Referencias a `claude-sonnet-4-6` en ejemplos de skills** — llm-evals, llm-observability,\n  agent-testing, tech-lead-frontend tienen ejemplos con el modelo anterior. Son ejemplos de código,\n  no routing activo — severidad baja, actualizar en la próxima sesión de mantenimiento.",
+      "text": "Baja prioridad\r\n\r\n- **Bootstrap del vault** — agregar entrada inicial en `.raw/` con estado del harness para que\r\n  la primera query de sesión siempre tenga resultados (ahora funciona porque hay entradas reales).\r\n\r\n- **Referencias a `claude-sonnet-4-6` en ejemplos de skills** — llm-evals, llm-observability,\r\n  agent-testing, tech-lead-frontend tienen ejemplos con el modelo anterior. Son ejemplos de código,\r\n  no routing activo — severidad baja, actualizar en la próxima sesión de mantenimiento.",
       "tokens": [
         "baja",
         "prioridad",
@@ -7968,5 +7968,5 @@
       ]
     }
   },
-  "builtAt": "2026-07-10T23:30:16.733Z"
+  "builtAt": "2026-07-17T17:40:02.064Z"
 }

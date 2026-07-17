@@ -1,6 +1,6 @@
 {
   "version": "3.12.0",
-  "last_updated": "2026-07-15T23:58:19.805Z",
+  "last_updated": "2026-07-17T17:39:40.127Z",
   "branch": "main",
   "stack": null,
   "host": {
@@ -9,6 +9,7 @@
       ".claude/": [
         ".claude/AIOPS_SCORE_HISTORY.json",
         ".claude/CONTEXT_MAP.json",
+        ".claude/MARKET_STANDARDS.json",
         ".claude/MEMORY.md",
         ".claude/ROADMAP_AAA.md",
         ".claude/agents/aiops-auditor.md",
@@ -19,6 +20,7 @@
         ".claude/agents/security-scanner.md",
         ".claude/bin/agent-metrics.js",
         ".claude/bin/aiops-score.js",
+        ".claude/bin/audit-market.js",
         ".claude/bin/capture-event.js",
         ".claude/bin/cross-verify-gate.js",
         ".claude/bin/dependency-tracer.js",
@@ -49,6 +51,7 @@
         ".claude/bin/setup-settings.js",
         ".claude/bin/standards-guard.js",
         ".claude/bin/subagent-review.js",
+        ".claude/bin/syntax-check.js",
         ".claude/bin/validate-globals.js",
         ".claude/bin/validate-map.js",
         ".claude/memory-vault/.raw/session-2026-07-06-media-prioridad.md",
@@ -159,7 +162,7 @@
       "node_modules/",
       ".git/"
     ],
-    "total_files": 136
+    "total_files": 139
   },
   "core": null
 }

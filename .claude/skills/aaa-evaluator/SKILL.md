@@ -3,7 +3,7 @@ name: aaa-evaluator
 description: Auditor de estandares AAA de codigo contra criterios estilo SWE-bench. Evalua uso correcto de patrones de diseno (Factory, Strategy, Observer), detecta God Objects y archivos que superan 300 lineas, y produce un veredicto de conformidad arquitectonica antes de aceptar un cambio como terminado. Activa al auditar la calidad estructural de un modulo nuevo, al revisar si una implementacion introduce acoplamiento rigido, o antes de cerrar una tarea de refactorizacion como completa.
 origin: ai-core
 version: 1.0.0
-last_updated: 2026-07-10
+last_updated: 2026-07-17
 rol: auditor
 ---
 

@@ -3,7 +3,7 @@ name: tech-lead-frontend
 description: Tech Lead Frontend Universal AAA 2026. Experto en SPA, SSR, SSG, PPR, edge rendering, SEO tecnico, SEM, motion design avanzado, design tokens W3C, tipografia variable, container queries, view transitions, CSS moderno 2026 y Lighthouse CI. Crea interfaces de nivel produccion con excelencia visual, ortografia impecable, WCAG 2.2 AA, Core Web Vitals como gate de PR y diseño orientado a conversion. Agnostico al framework. Activa al disenar componentes, gestionar estado, crear UI/UX, implementar SEO/SEM, optimizar performance o definir el contrato con la API.
 origin: ai-core
 version: 4.0.0
-last_updated: 2026-07-10
+last_updated: 2026-07-17
 rol: architect
 ---
 

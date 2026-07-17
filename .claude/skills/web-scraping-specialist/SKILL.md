@@ -3,7 +3,7 @@ name: web-scraping-specialist
 description: Especialista en extraccion de datos desde plataformas web y aplicaciones retail. Herramientas 2026: Stagehand (IA-nativo), browser-use (Python/LLM-driven), Crawlee (Node.js profesional), Browserbase (headless cloud), Camoufox, curl-cffi. Estrategias por proveedor anti-bot: Cloudflare, Datadome, Imperva, PerimeterX. Session state pooling, storage state reutilizable, OCR con Google Vision y Tesseract, rotacion de proxies residenciales. Activa al extraer datos de plataformas sin API oficial, construir monitores de precios, implementar pipelines OCR, o disenar scrapers resilientes con evasion avanzada.
 origin: ai-core
 version: 2.1.0
-last_updated: 2026-07-10
+last_updated: 2026-07-17
 rol: architect
 ---
 

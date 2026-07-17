@@ -3,7 +3,7 @@ name: mcp-registry-navigator
 description: Evaluador de servidores MCP de terceros antes de instalar. Analiza transporte (stdio vs SSE/HTTP), seguridad de inputs, mantenimiento del repo, calidad del schema y riesgo operativo. Produce un reporte de evaluacion estructurado con decision INSTALAR / EVALUAR / RECHAZAR. Activa al evaluar MCPs de mcp.run, glama.ai o cualquier registro publico antes de agregar a settings.json.
 origin: ai-core
 version: 1.0.0
-last_updated: 2026-07-10
+last_updated: 2026-07-17
 rol: auditor
 ---
 

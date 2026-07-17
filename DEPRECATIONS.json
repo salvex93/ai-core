@@ -16,5 +16,22 @@
         "reason": "El BACKLOG.md del anfitrion fue la fuente de estado de sesion hasta v3.8. Desde v3.9 el estado se gestiona via memory/ y EVENTS_QUEUE.json. Puedes eliminar BACKLOG.md si no lo usas para otro fin."
       }
     ]
+  },
+  "3.10.0": {
+    "remove": [
+      {
+        "path": "DOCS_MAESTRA.md",
+        "reason": "Documento legacy v2.6.4 que contaminaba el contexto de memoria. Contenido absorbido por README.md y CLAUDE.md desde v3.8."
+      }
+    ]
+  },
+  "3.11.0": {
+    "rename": [
+      {
+        "from": "gemini-2-5-specialist",
+        "to": "gemini-3-specialist",
+        "reason": "Reescritura completa del skill, no solo cambio de nombre. El tier Flash-Thinking desaparecio como modelo discreto — el razonamiento es ahora un parametro (thinking_level) sobre cualquier modelo de la familia Gemini 3. Referencias actualizadas en CLAUDE.md (tabla de seleccion de skills), multimodal-engineer y prompt-engineer."
+      }
+    ]
   }
 }
