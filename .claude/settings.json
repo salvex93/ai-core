@@ -5,14 +5,14 @@
       "args": [
         "scripts/mcp-gemini.js"
       ],
-      "cwd": "/home/cyber/Proyectos/ai-core"
+      "cwd": "C:/Users/arimac/Documents/ai-core"
     },
     "anthropic-router": {
       "command": "node",
       "args": [
         "scripts/mcp-anthropic.js"
       ],
-      "cwd": "/home/cyber/Proyectos/ai-core"
+      "cwd": "C:/Users/arimac/Documents/ai-core"
     }
   },
   "skillListingBudgetFraction": 0.03,
@@ -49,15 +49,15 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node \"/home/cyber/Proyectos/ai-core/.claude/bin/process-guard.js\" intent node \"/home/cyber/Proyectos/ai-core/.claude/bin/detect-role.js\" 2>/dev/null || true"
+            "command": "node \"C:/Users/arimac/Documents/ai-core/.claude/bin/process-guard.js\" intent node \"C:/Users/arimac/Documents/ai-core/.claude/bin/detect-role.js\" 2>/dev/null || true"
           },
           {
             "type": "command",
-            "command": "node \"/home/cyber/Proyectos/ai-core/.claude/bin/secrets-guard.js\" 2>/dev/null || true"
+            "command": "node \"C:/Users/arimac/Documents/ai-core/.claude/bin/secrets-guard.js\" 2>/dev/null || true"
           },
           {
             "type": "command",
-            "command": "node \"/home/cyber/Proyectos/ai-core/.claude/bin/process-guard.js\" moa node \"/home/cyber/Proyectos/ai-core/.claude/bin/moa-context-gatherer.js\" 2>/dev/null || true"
+            "command": "node \"C:/Users/arimac/Documents/ai-core/.claude/bin/process-guard.js\" moa node \"C:/Users/arimac/Documents/ai-core/.claude/bin/moa-context-gatherer.js\" 2>/dev/null || true"
           }
         ]
       }
@@ -67,19 +67,23 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node \"/home/cyber/Proyectos/ai-core/.claude/bin/session-summary.js\" 2>/dev/null || true"
+            "command": "node \"C:/Users/arimac/Documents/ai-core/.claude/bin/session-summary.js\" 2>/dev/null || true"
           },
           {
             "type": "command",
-            "command": "node \"/home/cyber/Proyectos/ai-core/.claude/bin/process-guard.js\" capture node \"/home/cyber/Proyectos/ai-core/.claude/bin/issue-reporter.js\" 2>/dev/null || true"
+            "command": "node \"C:/Users/arimac/Documents/ai-core/.claude/bin/process-guard.js\" capture node \"C:/Users/arimac/Documents/ai-core/.claude/bin/issue-reporter.js\" 2>/dev/null || true"
           },
           {
             "type": "command",
-            "command": "node \"/home/cyber/Proyectos/ai-core/.claude/bin/aiops-score.js\" 2>/dev/null || true"
+            "command": "node \"C:/Users/arimac/Documents/ai-core/.claude/bin/aiops-score.js\" 2>/dev/null || true"
           },
           {
             "type": "command",
-            "command": "node \"/home/cyber/Proyectos/ai-core/.claude/bin/memory-index-stop.js\" 2>/dev/null || true"
+            "command": "node \"C:/Users/arimac/Documents/ai-core/.claude/bin/memory-index-stop.js\" 2>/dev/null || true"
+          },
+          {
+            "type": "command",
+            "command": "node \"C:/Users/arimac/Documents/ai-core/.claude/bin/memory-vault-prune-check.js\" 2>/dev/null || true"
           }
         ]
       }
@@ -89,15 +93,15 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node \"/home/cyber/Proyectos/ai-core/.claude/bin/subagent-review.js\" 2>/dev/null || true"
+            "command": "node \"C:/Users/arimac/Documents/ai-core/.claude/bin/subagent-review.js\" 2>/dev/null || true"
           },
           {
             "type": "command",
-            "command": "node \"/home/cyber/Proyectos/ai-core/.claude/bin/cross-verify-gate.js\" 2>/dev/null || true"
+            "command": "node \"C:/Users/arimac/Documents/ai-core/.claude/bin/cross-verify-gate.js\" 2>/dev/null || true"
           },
           {
             "type": "command",
-            "command": "node \"/home/cyber/Proyectos/ai-core/.claude/bin/injection-guard.js\" 2>/dev/null || true"
+            "command": "node \"C:/Users/arimac/Documents/ai-core/.claude/bin/injection-guard.js\" 2>/dev/null || true"
           }
         ]
       }
@@ -108,7 +112,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "echo \"[MCP-FAIL] gemini-bridge fallo — usar tier Claude segun jerarquia de costo\" >&2 && node \"/home/cyber/Proyectos/ai-core/.claude/bin/process-guard.js\" capture node \"/home/cyber/Proyectos/ai-core/.claude/bin/capture-event.js\" --type mcp_failure --tool gemini-bridge 2>/dev/null || true"
+            "command": "echo \"[MCP-FAIL] gemini-bridge fallo — usar tier Claude segun jerarquia de costo\" >&2 && node \"C:/Users/arimac/Documents/ai-core/.claude/bin/process-guard.js\" capture node \"C:/Users/arimac/Documents/ai-core/.claude/bin/capture-event.js\" --type mcp_failure --tool gemini-bridge 2>/dev/null || true"
           }
         ]
       },
@@ -117,7 +121,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node \"/home/cyber/Proyectos/ai-core/.claude/bin/process-guard.js\" capture node \"/home/cyber/Proyectos/ai-core/.claude/bin/capture-event.js\" --type mcp_failure --tool anthropic-router 2>/dev/null || true"
+            "command": "node \"C:/Users/arimac/Documents/ai-core/.claude/bin/process-guard.js\" capture node \"C:/Users/arimac/Documents/ai-core/.claude/bin/capture-event.js\" --type mcp_failure --tool anthropic-router 2>/dev/null || true"
           }
         ]
       },
@@ -126,7 +130,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node \"/home/cyber/Proyectos/ai-core/.claude/bin/process-guard.js\" capture node \"/home/cyber/Proyectos/ai-core/.claude/bin/capture-event.js\" --type hook_failure --tool bash 2>/dev/null || true"
+            "command": "node \"C:/Users/arimac/Documents/ai-core/.claude/bin/process-guard.js\" capture node \"C:/Users/arimac/Documents/ai-core/.claude/bin/capture-event.js\" --type hook_failure --tool bash 2>/dev/null || true"
           }
         ]
       }
@@ -137,7 +141,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node \"/home/cyber/Proyectos/ai-core/.claude/bin/git-queue-advisor.js\" push 2>&1 || true"
+            "command": "node \"C:/Users/arimac/Documents/ai-core/.claude/bin/git-queue-advisor.js\" push 2>&1 || true"
           }
         ]
       },
@@ -146,11 +150,15 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node \"/home/cyber/Proyectos/ai-core/.claude/bin/process-guard.js\" health node \"/home/cyber/Proyectos/ai-core/.claude/bin/health-check.js\" 2>&1 || true"
+            "command": "node \"C:/Users/arimac/Documents/ai-core/.claude/bin/process-guard.js\" health node \"C:/Users/arimac/Documents/ai-core/.claude/bin/health-check.js\" 2>&1 || true"
           },
           {
             "type": "command",
-            "command": "node \"/home/cyber/Proyectos/ai-core/.claude/bin/process-guard.js\" map node \"/home/cyber/Proyectos/ai-core/.claude/bin/validate-map.js\" 2>/dev/null || true"
+            "command": "node \"C:/Users/arimac/Documents/ai-core/.claude/bin/process-guard.js\" map node \"C:/Users/arimac/Documents/ai-core/.claude/bin/validate-map.js\" 2>/dev/null || true"
+          },
+          {
+            "type": "command",
+            "command": "node \"C:/Users/arimac/Documents/ai-core/.claude/bin/bash-verbosity-guard.js\""
           }
         ]
       },
@@ -159,7 +167,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node \"/home/cyber/Proyectos/ai-core/.claude/bin/guard-read.js\" \"$CLAUDE_TOOL_INPUT_file_path\" 2>/dev/null || true"
+            "command": "node \"C:/Users/arimac/Documents/ai-core/.claude/bin/guard-read.js\" \"$CLAUDE_TOOL_INPUT_file_path\" 2>/dev/null || true"
           }
         ]
       },
@@ -168,15 +176,24 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node \"/home/cyber/Proyectos/ai-core/.claude/bin/ponytail-check.js\" 2>/dev/null || true"
+            "command": "node \"C:/Users/arimac/Documents/ai-core/.claude/bin/ponytail-check.js\" 2>/dev/null || true"
           },
           {
             "type": "command",
-            "command": "node \"/home/cyber/Proyectos/ai-core/.claude/bin/dependency-tracer.js\" \"$CLAUDE_TOOL_INPUT_file_path\" 2>/dev/null || true"
+            "command": "node \"C:/Users/arimac/Documents/ai-core/.claude/bin/dependency-tracer.js\" \"$CLAUDE_TOOL_INPUT_file_path\" 2>/dev/null || true"
           },
           {
             "type": "command",
-            "command": "node \"/home/cyber/Proyectos/ai-core/.claude/bin/pre-commit-tdd.js\" \"$CLAUDE_TOOL_INPUT_file_path\""
+            "command": "node \"C:/Users/arimac/Documents/ai-core/.claude/bin/pre-commit-tdd.js\" \"$CLAUDE_TOOL_INPUT_file_path\""
+          }
+        ]
+      },
+      {
+        "matcher": "Agent",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"C:/Users/arimac/Documents/ai-core/.claude/bin/subagent-guard.js\""
           }
         ]
       }
@@ -187,7 +204,16 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node \"/home/cyber/Proyectos/ai-core/.claude/bin/git-queue-advisor.js\" pull 2>&1 || true"
+            "command": "node \"C:/Users/arimac/Documents/ai-core/.claude/bin/git-queue-advisor.js\" pull 2>&1 || true"
+          }
+        ]
+      },
+      {
+        "matcher": "Bash(git commit*)|Bash(git push*)",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"C:/Users/arimac/Documents/ai-core/.claude/bin/process-guard.js\" map node \"C:/Users/arimac/Documents/ai-core/.claude/bin/diff-map-trigger.js\" 2>/dev/null || true"
           }
         ]
       },
@@ -196,7 +222,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node \"/home/cyber/Proyectos/ai-core/.claude/bin/agent-metrics.js\" record --tool \"$CLAUDE_TOOL_NAME\" --status ok 2>/dev/null || true"
+            "command": "node \"C:/Users/arimac/Documents/ai-core/.claude/bin/agent-metrics.js\" record --tool \"$CLAUDE_TOOL_NAME\" --status ok 2>/dev/null || true"
           }
         ]
       },
@@ -205,23 +231,23 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node \"/home/cyber/Proyectos/ai-core/.claude/bin/process-guard.js\" lint node \"/home/cyber/Proyectos/ai-core/.claude/bin/detox.js\" 2>/dev/null || true"
+            "command": "node \"C:/Users/arimac/Documents/ai-core/.claude/bin/process-guard.js\" lint node \"C:/Users/arimac/Documents/ai-core/.claude/bin/detox.js\" 2>/dev/null || true"
           },
           {
             "type": "command",
-            "command": "FILE=\"$CLAUDE_TOOL_INPUT_file_path\"; if [[ \"$FILE\" == *.js ]]; then node --check \"$FILE\" 2>&1 && echo \"[syntax-ok] $FILE\" || echo \"[syntax-error] $FILE\"; fi"
+            "command": "node \"C:/Users/arimac/Documents/ai-core/.claude/bin/syntax-check.js\" \"$CLAUDE_TOOL_INPUT_file_path\" 2>/dev/null || true"
           },
           {
             "type": "command",
-            "command": "node \"/home/cyber/Proyectos/ai-core/.claude/bin/process-guard.js\" lint node \"/home/cyber/Proyectos/ai-core/.claude/bin/standards-guard.js\" \"$CLAUDE_TOOL_INPUT_file_path\""
+            "command": "node \"C:/Users/arimac/Documents/ai-core/.claude/bin/process-guard.js\" lint node \"C:/Users/arimac/Documents/ai-core/.claude/bin/standards-guard.js\" \"$CLAUDE_TOOL_INPUT_file_path\""
           },
           {
             "type": "command",
-            "command": "node \"/home/cyber/Proyectos/ai-core/.claude/bin/process-guard.js\" map node \"/home/cyber/Proyectos/ai-core/.claude/bin/diff-map-trigger.js\" 2>/dev/null || true"
+            "command": "node \"C:/Users/arimac/Documents/ai-core/.claude/bin/process-guard.js\" map node \"C:/Users/arimac/Documents/ai-core/.claude/bin/diff-map-trigger.js\" 2>/dev/null || true"
           },
           {
             "type": "command",
-            "command": "node \"/home/cyber/Proyectos/ai-core/.claude/bin/process-guard.js\" lint node \"/home/cyber/Proyectos/ai-core/.claude/bin/security-check.js\" \"$CLAUDE_TOOL_INPUT_file_path\" 2>/dev/null || true"
+            "command": "node \"C:/Users/arimac/Documents/ai-core/.claude/bin/process-guard.js\" lint node \"C:/Users/arimac/Documents/ai-core/.claude/bin/security-check.js\" \"$CLAUDE_TOOL_INPUT_file_path\" 2>/dev/null || true"
           }
         ]
       }

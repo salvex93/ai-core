@@ -25,3 +25,7 @@ scripts/premium/
 .claude/CONTEXT_MAP.json
 .claude/EVENTS_QUEUE.json
 .claude/_issue_tmp_*.md
+.claude/.current_role
+
+# Documentos de trabajo personal — no forman parte del arnes
+loops-claude-code-prompteafacil.pdf
