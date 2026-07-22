@@ -793,7 +793,13 @@ describe('capture-event.js — AI_CORE_TEST_MODE', () => {
     // Prueba el comportamiento real (sin el gate) para confirmar que el fix
     // no rompio la captura genuina -- limpia el evento de prueba al terminar
     // para no dejar ruido permanente en la cola real.
-    const antes = leerCola().length;
+    //
+    // Regresion real (test flaky detectado en auditoria de cierre): este
+    // test escribe a EVENTS_QUEUE.json real (sin AI_CORE_TEST_MODE), un
+    // archivo compartido con otros tests del mismo describe block que
+    // tambien escriben sin el gate -- contar "antes + 1" es fragil ante
+    // ejecucion concurrente/no determinista de node:test. Se verifica que
+    // el evento con su marcador unico existe, no el conteo total.
     const marcador = `test-real-encolado-${Date.now()}`;
     const r = spawnSync('node', [
       SCRIPT, '--type', 'harness_error', '--tool', 'test-fake', '--error', marcador,
@@ -801,7 +807,7 @@ describe('capture-event.js — AI_CORE_TEST_MODE', () => {
 
     const colaTrasEjecutar = leerCola();
     assert.equal(r.status, 0);
-    assert.equal(colaTrasEjecutar.length, antes + 1, 'sin el gate de test, el evento si debe encolarse');
+    assert.ok(colaTrasEjecutar.some(e => e.error === marcador), 'sin el gate de test, el evento si debe encolarse');
 
     // Limpieza: remover el evento de prueba para no dejarlo en la cola real
     const limpio = colaTrasEjecutar.filter(e => e.error !== marcador);
@@ -813,7 +819,11 @@ describe('capture-event.js — AI_CORE_TEST_MODE', () => {
     // nunca existieron como variables de entorno reales -- solo importa en
     // la practica cuando el caller no pasa --tool/--error explicitos (todos
     // los hooks reales de hooks-definition.js si los pasan).
-    const antes = leerCola().length;
+    //
+    // Mismo fix de flakiness que el test anterior: se busca el evento por
+    // su marcador unico (tool_response), no por conteo relativo -- este
+    // describe block comparte EVENTS_QUEUE.json real con otro test que
+    // tambien escribe sin AI_CORE_TEST_MODE.
     const marcador = `test-stdin-${Date.now()}`;
     const evento = JSON.stringify({ tool_name: 'test-fake-stdin', tool_response: marcador });
     const r = spawnSync('node', [SCRIPT, '--type', 'harness_error'], {
@@ -821,8 +831,9 @@ describe('capture-event.js — AI_CORE_TEST_MODE', () => {
     });
     const colaTrasEjecutar = leerCola();
     assert.equal(r.status, 0);
-    assert.equal(colaTrasEjecutar.length, antes + 1);
-    assert.equal(colaTrasEjecutar[colaTrasEjecutar.length - 1].tool, 'test-fake-stdin', 'debe completar tool desde stdin');
+    const evt = colaTrasEjecutar.find(e => e.tool === 'test-fake-stdin');
+    assert.ok(evt, 'debe encolar el evento con tool completado desde stdin');
+    assert.equal(evt.tool, 'test-fake-stdin', 'debe completar tool desde stdin');
 
     const limpio = colaTrasEjecutar.filter(e => e.tool !== 'test-fake-stdin');
     fs.writeFileSync(QUEUE_PATH, JSON.stringify(limpio, null, 2), 'utf8');

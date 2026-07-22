@@ -3,7 +3,11 @@
 Registro de cambios por version. Formato basado en [Keep a Changelog](https://keepachangelog.com/es/1.0.0/).
 Versionado semantico: MAJOR.MINOR.PATCH.
 
-## [Unreleased]
+## [3.14.0] — 2026-07-22
+
+### Corregido — test flaky en tests/harness.test.js sobre EVENTS_QUEUE.json real
+
+Auditoria de cierre de sesion detecto un test flaky real: `capture-event.js — sin AI_CORE_TEST_MODE, capture-event.js si encola` fallaba intermitentemente porque contaba `antes + 1` eventos en `EVENTS_QUEUE.json`, un archivo compartido con otro test del mismo describe block que tambien escribe sin `AI_CORE_TEST_MODE`. Ambos tests corregidos para buscar su evento por marcador unico en vez de contar el total -- confirmado estable en 5+ corridas consecutivas tras el fix.
 
 ### Verificado — subagent-guard.js: tool_input.subagent_type confirmado empiricamente
 

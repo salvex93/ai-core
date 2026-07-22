@@ -1,4 +1,4 @@
-# AI-CORE v3.13.0: Nucleo Multi-Agente Universal
+# AI-CORE v3.14.0: Nucleo Multi-Agente Universal
 
 `ai-core` es un nucleo de configuracion y comportamiento para agentes IA. Se usa como submodulo Git en un proyecto existente o como repositorio independiente. Define reglas globales, 39 skills especializados, 6 agentes autonomos, un orquestador Mixture-of-Agents (Gemini + DeepSeek + Claude) y un ciclo de mejora continua por uso, sin acoplarse al stack del proyecto anfitrion.
 
@@ -81,7 +81,7 @@ Repositorio independiente:
 npm run update
 ```
 
-Esto corre `git pull`, regenera `settings.json` (purga automaticamente cualquier hook de una version anterior que referencie un script eliminado o renombrado — el objeto de hooks se construye desde cero y sobreescribe el archivo completo, nunca mergea, con la definicion compartida en `hooks-definition.js`), corre los 636 tests, aplica migraciones de version, valida los 39 skills, y reporta que cambio. Si un test falla, el comando se detiene ahi.
+Esto corre `git pull`, regenera `settings.json` (purga automaticamente cualquier hook de una version anterior que referencie un script eliminado o renombrado — el objeto de hooks se construye desde cero y sobreescribe el archivo completo, nunca mergea, con la definicion compartida en `hooks-definition.js`), corre los 699 tests, aplica migraciones de version, valida los 39 skills, y reporta que cambio. Si un test falla, el comando se detiene ahi.
 
 Instalado como submodulo:
 
@@ -146,6 +146,31 @@ npm run agent-report-full                 # historial de metricas de todas las s
 ---
 
 ## Que trae cada version
+
+### v3.14.0 — Bug sistemico de hooks corregido, 4 guards OWASP Agentic nuevos, grader de calidad
+
+**Bug sistemico: 14 hooks/scripts leian variables de entorno que Claude Code nunca establece.** Detectado al escribir un guard nuevo: `bash-verbosity-guard.js` seguia leyendo `CLAUDE_TOOL_INPUT_command`, que la documentacion oficial de hooks confirma que nunca existio (corroborado por el issue publico `anthropics/claude-code#9567`). El dato real llega exclusivamente por JSON en stdin, con forma distinta segun el evento:
+- `UserPromptSubmit`: `{ prompt_text, ... }`
+- `PreToolUse`/`PostToolUse`: `{ tool_name, tool_input, tool_response, ... }`
+- `SubagentStop`: `{ agent_type, last_assistant_message, ... }`
+
+Afectaba a guards de seguridad activos que llevaban desde su implementacion operando sobre datos vacios sin que ningun test lo detectara — los tests inyectaban la variable a mano, algo que Claude Code nunca hace en produccion. Corregidos: `secrets-guard.js`, `detect-role.js`, `moa-context-gatherer.js`, `injection-guard.js`, `subagent-review.js`, `cross-verify-gate.js`, `subagent-guard.js`, `bash-verbosity-guard.js`, `git-queue-advisor.js`, `ponytail-check.js`, `pre-commit-tdd.js`, `standards-guard.js`, `syntax-check.js`, `security-check.js`, `dependency-tracer.js`, `capture-event.js`, `agent-metrics.js` y `tests/token-metrics.js` (que ademas nunca encontraba el directorio real de sesiones). Nuevo `.claude/bin/lib/hook-stdin.js` centraliza la lectura de stdin para todos.
+
+**4 guards nuevos cierran los gaps de una auditoria contra OWASP Top 10 for Agentic Applications 2026:**
+- **`code-exec-guard.js`** (ASI05, Unexpected Code Execution) — bloquea (`PreToolUse`, `Write|Edit`) contenido con `eval()`, `new Function()`, `exec`/`subprocess` con shell habilitado o `pickle.load` ANTES de escribirlo, en vez de solo reportarlo despues como ya hacia `security-check.js`.
+- **`mcp-integrity-check.js`** (ASI04, Agentic Supply Chain) — hash SHA-256 de los servidores MCP propios (`gemini-bridge`, `anthropic-router`) contra un baseline persistido; invocado desde `health-check.js`. Alcance acotado: MCPs de terceros ya los cubre el skill `mcp-registry-navigator` antes de instalar.
+- **`circuit-breaker.js`** (ASI08, Cascading Agent Failures) — cuenta fallos MCP consecutivos en una ventana de 5 min (`PreToolUse`, matcher `mcp__.*`) y avisa antes de reintentar una herramienta condenada a fallar de nuevo.
+- **`subagent-grader.js`** + **`SubagentGrader.js`** (Performance Outcomes del Claude Agent SDK) — grader de calidad post-subagente via LLM-as-judge, complementario a `subagent-review.js` (patrones via regex) y `cross-verify-gate.js` (solo `code-reviewer`): califica CUALQUIER subagente contra una rubrica de completitud/coherencia/riesgos.
+
+**3 bugs reales encontrados verificando el grader en vivo (no simulado):** `OpenAICompatAdapter.js` enviaba `max_tokens`, que la API actual de OpenAI rechaza por completo (exige `max_completion_tokens`); nunca usaba `options.system`, perdiendo el system prompt en toda llamada a OpenAI/DeepSeek/Kimi; y OpenAI ignoraba instrucciones de texto plano pidiendo JSON hasta forzar `response_format:{type:"json_object"}`.
+
+**Skill nuevo `performance-engineer`** — cache de aplicacion (in-memory vs Redis segun escala), CDN de assets estaticos y pruebas de carga (`autocannon`), brecha que ni `database-ops` ni `devops-infra` ni `qa-engineer` cubrian.
+
+**Refactor SOLID** de 3 archivos que excedian 300 lineas: `ModelRegistry.js` (adapters extraidos a `scripts/services/model-adapters/`), `aiops-score.js` (scorers extraidos a `lib/aiops-scorers.js`), `memory-index.js` (motor BM25 extraido a `lib/bm25-engine.js`).
+
+**Auditoria de secretos**: estado seguro, 0 hallazgos criticos. `.gitignore` reforzado con `.env*` generico y patrones de credenciales comunes (`*.pem`, `*.key`, `*.p12`, `credentials.json`).
+
+**699 tests, 39 skills.**
 
 ### v3.13.0 — 10 bugs reales corregidos, enforcement de subagentes y cobertura completa
 
@@ -400,7 +425,12 @@ New-Item -ItemType SymbolicLink -Path './CLAUDE.md' -Target 'C:/ruta/a/ai-core/C
 │   │   ├── ModelRouter.js       Enrutamiento Gemini/Haiku/Sonnet/Opus/Fable por herramienta y tokens
 │   │   ├── ModelRegistry.js     Adapter multi-proveedor: chat(provider, messages, options)
 │   │   ├── ModelDispatcher.js   Router MoA entre proveedores (Command/Port): executeMoATask fan-out/fan-in
-│   │   ├── CrossVerifier.js     Verificacion ciega de diffs con proveedor distinto al actor
+│   │   ├── model-adapters/      Adapters extraidos de ModelRegistry.js (SOLID, <300 lineas c/u)
+│   │   │   ├── AnthropicAdapter.js    Claude Haiku/Sonnet/Opus/Fable via @anthropic-ai/sdk
+│   │   │   ├── GeminiAdapter.js       Gemini 3.5/3.1 via @google/generative-ai
+│   │   │   └── OpenAICompatAdapter.js OpenAI/DeepSeek/Kimi — maxTokensParam y soportaJSONMode por proveedor
+│   │   ├── CrossVerifier.js     Verificacion ciega de diffs con proveedor distinto al actor (code-reviewer)
+│   │   ├── SubagentGrader.js    Grader generico de calidad post-subagente via LLM-as-judge (Performance Outcomes)
 │   │   ├── AgentRoles.js        Perfiles Architect/Coder/Auditor — lee rol: de skills, exige SEARCH/REPLACE en Coder
 │   │   ├── IntentClassifier.js  Infiere herramienta y modelo desde el mensaje crudo del usuario
 │   │   ├── ContextIndex.js      Indice CONTEXT_MAP.json — resolucion de rutas sin I/O ciego
@@ -428,7 +458,7 @@ New-Item -ItemType SymbolicLink -Path './CLAUDE.md' -Target 'C:/ruta/a/ai-core/C
 │   │   ├── generate-map.js      Genera CONTEXT_MAP con seccion de stack detectado
 │   │   ├── security-check.js    Hook PostToolUse: escanea secretos/eval/catch vacio
 │   │   ├── standards-guard.js   Hook PostToolUse: bloquea (exit 2) emoji o prosa >150 palabras
-│   │   ├── secrets-guard.js     Hook UserPromptSubmit: detecta credenciales en el prompt
+│   │   ├── secrets-guard.js     Hook UserPromptSubmit: bloquea (exit 2) credenciales de alta confianza, advierte el resto
 │   │   ├── detect-role.js       Hook UserPromptSubmit: clasifica rol y escribe .claude/.current_role
 │   │   ├── moa-context-gatherer.js Hook UserPromptSubmit: fan-out MoA con guard de disponibilidad de keys
 │   │   ├── pre-commit-tdd.js    Hook PreToolUse: bloquea (exit 2) codigo fuente sin test tocado en sesion
@@ -441,13 +471,22 @@ New-Item -ItemType SymbolicLink -Path './CLAUDE.md' -Target 'C:/ruta/a/ai-core/C
 │   │   ├── hooks-definition.js  Fuente unica de la seccion "hooks" de settings.json (usada por setup-settings.js y norm-harness.js)
 │   │   ├── subagent-guard.js    Hook PreToolUse(Agent): bloquea recursion y exceso de subagentes paralelos
 │   │   ├── bash-verbosity-guard.js Hook PreToolUse(Bash): bloquea comandos de alto riesgo de output masivo
+│   │   ├── code-exec-guard.js   Hook PreToolUse(Write|Edit): bloquea eval/exec/shell antes de escribir (ASI05)
+│   │   ├── mcp-integrity-check.js Hash SHA-256 de servidores MCP propios contra baseline (ASI04, via health-check.js)
+│   │   ├── circuit-breaker.js   Hook PreToolUse(mcp__.*): avisa tras 3 fallos MCP consecutivos en 5 min (ASI08)
+│   │   ├── subagent-grader.js   Hook SubagentStop: grader de calidad via SubagentGrader.js (Performance Outcomes)
+│   │   ├── lib/                 Modulos compartidos entre hooks
+│   │   │   ├── hook-stdin.js         Lectura/parseo del JSON de evento que Claude Code entrega por stdin
+│   │   │   ├── risky-code-patterns.js Patrones de ejecucion arbitraria compartidos con code-exec-guard.js
+│   │   │   ├── aiops-scorers.js      Las 6 funciones de scoring de aiops-score.js
+│   │   │   └── bm25-engine.js        Motor BM25 de memory-index.js (tokenizacion, indice invertido)
 │   │   └── memory-vault-prune-check.js Hook Stop: avisa (sin borrar) cuando el vault supera 50 archivos
 │   └── skills/                  39 skills — enrutamiento via frontmatter description (agentskills.io), reglas en CLAUDE.md
-├── tests/                       628 tests — harness.test.js + archivos dedicados por modulo nuevo
+├── tests/                       699 tests — harness.test.js + archivos dedicados por modulo nuevo
 ├── .github/workflows/ci.yml     CI en Linux/Mac/Windows x Node 20/22
 ├── CLAUDE.md                    Autoridad unica: reglas globales, skills, enrutamiento
 ├── DEPRECATIONS.json            Contrato de migracion por version
-├── package.json                 v3.13.0, Node >= 18
+├── package.json                 v3.14.0, Node >= 18
 └── .env.example                 Plantilla de variables de entorno
 ```
 
