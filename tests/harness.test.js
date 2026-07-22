@@ -932,19 +932,30 @@ describe('secrets-guard.js', () => {
     assert.equal(r.status, 0);
   });
 
-  test('detecta OpenAI API key en el prompt', () => {
+  test('bloquea OpenAI API key en el prompt (alta confianza, exit 2)', () => {
+    // UserPromptSubmit si soporta bloqueo real: exit 2 borra el prompt antes
+    // de que llegue al modelo (confirmado contra code.claude.com/docs/en/hooks).
     const r = runScript(SCRIPT, [], {
       CLAUDE_USER_PROMPT: 'usa esta key: sk-abcdefghijklmnopqrstuvwxyz123456 para el test',
     });
-    assert.ok(r.stdout.includes('[secrets-guard]'), 'debe advertir sobre la key detectada');
-    assert.equal(r.status, 0, 'debe advertir sin bloquear (exit 0)');
+    assert.ok(r.stderr.includes('[secrets-guard]'), 'debe reportar el bloqueo por stderr');
+    assert.equal(r.status, 2, 'debe bloquear (exit 2) — credencial de alta confianza');
   });
 
-  test('detecta GitHub PAT en el prompt', () => {
+  test('bloquea GitHub PAT en el prompt (alta confianza, exit 2)', () => {
     const r = runScript(SCRIPT, [], {
       CLAUDE_USER_PROMPT: 'token: ghp_ABCDEFGHIJKLMNOPQRSTUVWXYZ123456789A',
     });
-    assert.ok(r.stdout.includes('[secrets-guard]'), 'debe detectar GitHub PAT');
+    assert.ok(r.stderr.includes('[secrets-guard]'), 'debe reportar el bloqueo por stderr');
+    assert.equal(r.status, 2, 'debe bloquear (exit 2) — credencial de alta confianza');
+  });
+
+  test('solo advierte (exit 0) para patron de confianza media', () => {
+    const r = runScript(SCRIPT, [], {
+      CLAUDE_USER_PROMPT: 'a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2:f1e2d3c4b5a6f1e2d3c4b5a6f1e2d3c4b5a6f1e2',
+    });
+    assert.ok(r.stdout.includes('[secrets-guard]'), 'debe advertir sobre el patron detectado');
+    assert.equal(r.status, 0, 'confianza media no bloquea');
   });
 });
 

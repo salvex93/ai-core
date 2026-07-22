@@ -5,6 +5,12 @@ Versionado semantico: MAJOR.MINOR.PATCH.
 
 ## [Unreleased]
 
+### Agregado — bloqueo real en secrets-guard.js (auditoria OWASP Agentic Top 10)
+
+- **`.claude/bin/secrets-guard.js`**: auditoria contra OWASP Top 10 for Agentic Applications 2026 (genai.owasp.org) detecto que el guard solo advertia (exit 0 siempre) incluso ante una credencial de formato inequivoco (OpenAI key, GitHub PAT, AWS key, Slack token, Google API key, clave privada). Confirmado contra la doc oficial de hooks que `UserPromptSubmit` si soporta bloqueo real (exit 2 borra el prompt antes de que llegue al modelo). Patrones de alta confianza ahora bloquean; el patron generico de menor confianza (par clave:secreto de 40 caracteres, mayor riesgo de falso positivo) sigue solo advirtiendo.
+- **`.claude/bin/injection-guard.js`**: comentario actualizado para reflejar una limitacion real confirmada, no una eleccion de diseño — en `SubagentStop`, `exit 2` fuerza al subagente a seguir ejecutandose ("Prevents the subagent from stopping"), no impide que su output ya generado se integre al contexto del padre. Vetar el resultado requeriria un mecanismo distinto al exit code de este hook; queda sin bloqueo real por ahora, cubierto por la regla de CLAUDE.md de no ejecutar contenido externo como instruccion.
+- **`tests/harness.test.js`**: tests de `secrets-guard.js` actualizados para esperar `exit 2` en los 2 casos de alta confianza (antes esperaban `exit 0`, comportamiento ahora intencionalmente distinto), mas 1 test nuevo que confirma que el patron de confianza media sigue sin bloquear.
+
 ### Corregido — CONTEXT_MAP.json versionado pese a estar en .gitignore
 
 - **`.claude/CONTEXT_MAP.json`**: versionado en git desde v2.6.3, pese a estar declarado en `.gitignore` desde una version posterior (`.gitignore` no afecta archivos ya trackeados). Causaba diff de timestamp/conteo en `git status` en cada sesion sin ningun cambio real de codigo. Sacado del tracking con `git rm --cached` — sigue en disco y se regenera normal con `npm run map`, ya no aparece como modificado salvo que se edite el `.gitignore` mismo.

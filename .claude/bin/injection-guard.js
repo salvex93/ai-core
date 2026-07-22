@@ -6,8 +6,15 @@
  * potencialmente inyectado desde fuentes externas (archivos leidos, resultados
  * de Gemini bridge, paginas web) que intenta redirigir al agente padre.
  *
- * Solo advierte, no bloquea — mismo criterio que secrets-guard.js. El
- * operador humano decide si el hallazgo es una falsa alarma o un ataque real.
+ * Solo advierte, no bloquea — limitacion real del tipo de hook, no eleccion
+ * de diseno: en SubagentStop, exit 2 fuerza al subagente a seguir corriendo
+ * ("Prevents the subagent from stopping"), no impide que su output ya
+ * generado se integre al contexto del padre (confirmado contra
+ * code.claude.com/docs/en/hooks). Vetar el resultado requeriria un mecanismo
+ * distinto (validacion en el propio agente padre antes de actuar sobre el
+ * contenido). El operador humano decide si el hallazgo es una falsa alarma
+ * o un ataque real — ver "Contenido externo es no confiable por defecto" en
+ * CLAUDE.md.
  */
 
 'use strict';
