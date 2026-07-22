@@ -5,6 +5,10 @@ Versionado semantico: MAJOR.MINOR.PATCH.
 
 ## [Unreleased]
 
+### Corregido — token-metrics.js nunca encontraba sesiones reales, y estimaba en vez de medir
+
+- **`tests/token-metrics.js`**: la ruta de sesiones (`~/.config/.claude/sessions` / `%APPDATA%/.claude/sessions`) nunca existio en esta maquina -- la ruta real confirmada es `~/.claude/projects/<proyecto-normalizado>/*.jsonl`. El script llevaba desde su implementacion reportando "sin datos" sin importar cuanto se usara el arnes. Ademas, reescrito para leer tokens REALES de `message.usage` (input_tokens, output_tokens, cache_read_input_tokens, cache_creation_input_tokens -- campos que Anthropic ya calcula) en vez de estimar 800 tokens/turno. Primera medicion real tras el fix: 98% de ahorro por prompt caching en las ultimas 3 sesiones (13.9M tokens reales facturados vs 637.7M leidos de cache).
+
 ### Agregado — code-exec-guard.js (ASI05 — OWASP Agentic Top 10 2026)
 
 - **`.claude/bin/code-exec-guard.js`** (nuevo, `PreToolUse` matcher `Write|Edit`, sin `|| true`): bloquea (exit 2) ANTES de escribir si el contenido a escribir contiene `eval()`, `new Function()`, `exec`/`subprocess` con shell habilitado, o `pickle.load` -- en vez de solo reportarlo despues de escrito como hace `security-check.js` (`PostToolUse`, deteccion post-hoc sin bloqueo). Cierra el gap ASI05 (Unexpected Code Execution) de la auditoria OWASP Agentic previa. Exime archivos `.test.js`/`.spec.js` para no bloquear fixtures de prueba que contienen el patron como dato.
