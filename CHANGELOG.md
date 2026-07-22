@@ -5,6 +5,11 @@ Versionado semantico: MAJOR.MINOR.PATCH.
 
 ## [Unreleased]
 
+### Agregado — SubagentGrader.js + subagent-grader.js (Performance Outcomes)
+
+- **`scripts/services/SubagentGrader.js`** (nuevo): grader generico de calidad post-subagente via LLM-as-judge, patron "Performance Outcomes" del Claude Agent SDK (un juez separado evalua el trabajo del subagente contra una rubrica antes de aceptarlo, en vez de solo limitar cuantos corren en paralelo). Diferenciado de `CrossVerifier.js` (solo diffs de codigo de `code-reviewer`) y `subagent-review.js` (patrones via regex): este evalua CUALQUIER subagente por calidad general (completitud, coherencia, riesgos no mencionados). Alcance deliberadamente acotado: no requiere la tarea original con la que se lanzo el subagente (no confirmado si `SubagentStop` la expone, limite de investigacion de esta sesion) -- solo califica el output por si mismo.
+- **`.claude/bin/subagent-grader.js`** (nuevo, hook `SubagentStop`): invoca `SubagentGrader.calificar()` con el `last_assistant_message` real (via `lib/hook-stdin.js`), informa el score al padre por stdout. Igual que `injection-guard.js`, no puede vetar el output (limitacion real de `SubagentStop`, no eleccion de diseño) -- informa para que el operador decida. Se omite sin bloquear si no hay proveedor disponible.
+
 ### Agregado — circuit-breaker.js (ASI08 — OWASP Agentic Top 10 2026)
 
 - **`.claude/bin/circuit-breaker.js`** (nuevo, `PreToolUse` matcher `mcp__.*`): cuenta fallos `mcp_failure` consecutivos y no reportados de una herramienta MCP dentro de una ventana de 5 minutos (via `EVENTS_QUEUE.json`, ya poblado por `capture-event.js` en `PostToolUseFailure`). Si supera el umbral (3), avisa (no bloquea de forma dura -- un MCP externo puede recuperarse) sugiriendo escalar al tier de costo inmediato superior en vez de reintentar la misma llamada condenada a fallar. Cierra el gap ASI08 (Cascading Agent Failures): antes, `PostToolUseFailure` solo registraba el evento sin ningun mecanismo que evitara reintentar la misma herramienta caida turno tras turno.
