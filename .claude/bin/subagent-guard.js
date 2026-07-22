@@ -26,12 +26,20 @@
  * el JSON real de un evento PreToolUse(Agent) en esta misma instalacion:
  * tool_input trae { description, prompt, subagent_type, model,
  * run_in_background } -- subagent_type es exactamente el nombre esperado.
+ *
+ * Tambien persiste tool_input.prompt (la tarea original) indexado por
+ * session_id+prompt_id via lib/subagent-task-store.js, para que
+ * subagent-grader.js (SubagentStop) pueda evaluar si el subagente cumplio
+ * la tarea, no solo la calidad general del output. Confirmado empiricamente
+ * que tool_use_id (este evento) y agent_id (SubagentStop) NO correlacionan
+ * entre si -- session_id+prompt_id si son identicos en ambos eventos.
  */
 
 const fs     = require('fs');
 const path   = require('path');
 const crypto = require('crypto');
 const { leerEventoDeStdin } = require('./lib/hook-stdin');
+const { guardarTarea } = require('./lib/subagent-task-store');
 
 const MAX_PARALLEL = 3;        // alineado con la regla de CLAUDE.md; ajustar ahi tambien si cambia
 const TIMEOUT_MS   = 2 * 60 * 1000; // 2 min — ventana de "lanzados recientemente", no timeout de ejecucion
@@ -107,5 +115,11 @@ const lockFile = path.join(LOCK_DIR, `${Date.now()}-${lockId}.lock`);
 try {
   fs.writeFileSync(lockFile, JSON.stringify({ pid: process.pid, ts: Date.now(), tipo: nuevoTipo }), 'utf8');
 } catch { /* no bloquear el spawn si el lock no se pudo escribir */ }
+
+// Persistir la tarea original para que subagent-grader.js pueda evaluar
+// cumplimiento de tarea en SubagentStop, no solo calidad general.
+try {
+  guardarTarea(evento.session_id, evento.prompt_id, evento.tool_input?.prompt || '');
+} catch { /* best-effort, nunca bloquear el spawn por esto */ }
 
 process.exit(0);

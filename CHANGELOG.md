@@ -3,6 +3,18 @@
 Registro de cambios por version. Formato basado en [Keep a Changelog](https://keepachangelog.com/es/1.0.0/).
 Versionado semantico: MAJOR.MINOR.PATCH.
 
+## [Unreleased]
+
+### Agregado — SubagentGrader.js evalua cumplimiento de tarea, no solo calidad general
+
+Cierra la limitacion documentada en v3.14.0: "SubagentGrader.js no usa la tarea original". Verificado empiricamente (lanzando un subagente real e inspeccionando ambos eventos) que `tool_use_id` (PreToolUse) y `agent_id` (SubagentStop) son valores DISTINTOS y no correlacionan entre si -- pero `session_id`+`prompt_id` si son identicos en ambos eventos del mismo subagente.
+
+- **`.claude/bin/lib/subagent-task-store.js`** (nuevo): persiste `tool_input.prompt` indexado por `session_id+prompt_id`, con TTL de 10 min como red de seguridad ante un `SubagentStop` que nunca llega. `recuperarTarea()` consume (borra) la entrada al leerla.
+- **`.claude/bin/subagent-guard.js`**: ahora tambien guarda la tarea original en `PreToolUse` (ademas de su rol existente de anti-recursion/anti-paralelismo).
+- **`.claude/bin/subagent-grader.js`**: recupera la tarea correlacionada en `SubagentStop` y la pasa al grader.
+- **`scripts/services/SubagentGrader.js`**: `calificar()` acepta `tareaOriginal` opcional. Con ella, usa `RUBRICA_CON_TAREA` (agrega "Cumplimiento de tarea" a la rubrica existente) en vez de `RUBRICA_DEFECTO`. Sin ella, cae al comportamiento anterior (solo calidad general) -- compatible hacia atras.
+- Verificado en vivo con un subagente real: el store queda vacio tras el ciclo completo (`PreToolUse` guarda -> `SubagentStop` consume), mas test de integracion end-to-end que ejercita ambos hooks reales por la misma clave.
+
 ## [3.14.0] — 2026-07-22
 
 ### Corregido — test flaky en tests/harness.test.js sobre EVENTS_QUEUE.json real

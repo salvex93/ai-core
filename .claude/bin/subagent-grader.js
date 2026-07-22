@@ -9,6 +9,12 @@
  * este hook califica CUALQUIER subagente contra una rubrica de calidad
  * general (completitud, coherencia, riesgos no mencionados) via LLM-as-judge.
  *
+ * Recupera la tarea original del subagente via lib/subagent-task-store.js
+ * (guardada por subagent-guard.js en PreToolUse, correlacionada por
+ * session_id+prompt_id -- confirmado empiricamente que tool_use_id/agent_id
+ * NO correlacionan entre si). Con la tarea disponible, el juez evalua
+ * cumplimiento de tarea, no solo calidad general del output.
+ *
  * Igual que injection-guard.js/subagent-review.js: SubagentStop no puede
  * vetar el output ya generado (exit 2 en este evento fuerza al subagente a
  * seguir corriendo, no bloquea la integracion al padre) -- este hook informa
@@ -21,6 +27,7 @@
 
 const path = require('node:path');
 const { leerEventoDeStdin } = require('./lib/hook-stdin');
+const { recuperarTarea } = require('./lib/subagent-task-store');
 
 const REPO = path.resolve(__dirname, '..', '..');
 
@@ -33,11 +40,13 @@ async function main() {
 
   if (!output.trim()) process.exit(0);
 
+  const tareaOriginal = recuperarTarea(evento.session_id, evento.prompt_id) || undefined;
+
   const { calificar } = require(path.join(REPO, 'scripts', 'services', 'SubagentGrader.js'));
 
   let resultado;
   try {
-    resultado = await calificar({ output, agentType });
+    resultado = await calificar({ output, agentType, tareaOriginal });
   } catch (err) {
     console.log(`[subagent-grader] omitido — ${err.message}`);
     process.exit(0);
