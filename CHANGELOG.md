@@ -3,7 +3,11 @@
 Registro de cambios por version. Formato basado en [Keep a Changelog](https://keepachangelog.com/es/1.0.0/).
 Versionado semantico: MAJOR.MINOR.PATCH.
 
-## [Unreleased]
+## [3.15.0] — 2026-07-22
+
+### Agregado — SubagentGrader.js evalua cumplimiento de tarea, no solo calidad general
+
+Ver detalle completo en el commit `d41e00c`. Confirmado empiricamente que `session_id`+`prompt_id` correlacionan `PreToolUse` con `SubagentStop` del mismo subagente (`tool_use_id`/`agent_id` no sirven para esto). Nuevo `.claude/bin/lib/subagent-task-store.js`; `subagent-guard.js` guarda la tarea, `subagent-grader.js` la recupera y consume, `SubagentGrader.calificar()` la usa cuando esta disponible.
 
 ### Agregado — ahorro real de cuota Claude via ModelRouter multi-proveedor
 

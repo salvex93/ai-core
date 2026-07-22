@@ -1,4 +1,4 @@
-# AI-CORE v3.14.0: Nucleo Multi-Agente Universal
+# AI-CORE v3.15.0: Nucleo Multi-Agente Universal
 
 `ai-core` es un nucleo de configuracion y comportamiento para agentes IA. Se usa como submodulo Git en un proyecto existente o como repositorio independiente. Define reglas globales, 39 skills especializados, 6 agentes autonomos, un orquestador Mixture-of-Agents (Gemini + DeepSeek + Claude) y un ciclo de mejora continua por uso, sin acoplarse al stack del proyecto anfitrion.
 
@@ -81,7 +81,7 @@ Repositorio independiente:
 npm run update
 ```
 
-Esto corre `git pull`, regenera `settings.json` (purga automaticamente cualquier hook de una version anterior que referencie un script eliminado o renombrado — el objeto de hooks se construye desde cero y sobreescribe el archivo completo, nunca mergea, con la definicion compartida en `hooks-definition.js`), corre los 699 tests, aplica migraciones de version, valida los 39 skills, y reporta que cambio. Si un test falla, el comando se detiene ahi.
+Esto corre `git pull`, regenera `settings.json` (purga automaticamente cualquier hook de una version anterior que referencie un script eliminado o renombrado — el objeto de hooks se construye desde cero y sobreescribe el archivo completo, nunca mergea, con la definicion compartida en `hooks-definition.js`), corre los 719 tests, aplica migraciones de version, valida los 39 skills, y reporta que cambio. Si un test falla, el comando se detiene ahi.
 
 Instalado como submodulo:
 
@@ -146,6 +146,14 @@ npm run agent-report-full                 # historial de metricas de todas las s
 ---
 
 ## Que trae cada version
+
+### v3.15.0 — Grader con tarea original y router multi-proveedor para ahorro de cuota Claude
+
+**`SubagentGrader.js` ahora evalua cumplimiento de tarea, no solo calidad general.** Cierra una limitacion documentada en v3.14.0: confirmado empiricamente (lanzando un subagente real e inspeccionando ambos eventos) que `tool_use_id` (`PreToolUse`) y `agent_id` (`SubagentStop`) son valores DISTINTOS y no correlacionan entre si — pero `session_id`+`prompt_id` si son identicos en ambos eventos del mismo subagente. Nuevo `.claude/bin/lib/subagent-task-store.js` persiste la tarea original (`tool_input.prompt`) indexada por esa clave, con TTL de 10 min; `subagent-guard.js` la guarda en `PreToolUse`, `subagent-grader.js` la recupera y consume en `SubagentStop`, y `SubagentGrader.calificar()` usa una rubrica ampliada ("Cumplimiento de tarea") cuando la tarea esta disponible — sin ella, cae al comportamiento anterior, compatible hacia atras.
+
+**Ahorro real de cuota Claude via `ModelRouter.js` multi-proveedor.** Hasta ahora el router solo enrutaba entre Gemini y modelos Anthropic — OpenAI, DeepSeek y Kimi solo existian como jueces de verificacion, nunca como opcion real para tareas de trabajo. Un usuario con Claude + Gemini + ChatGPT reales no tenia forma de que el arnes usara ChatGPT para bajar la cuota de Claude en tareas simples. `route()` acepta ahora un tercer parametro opcional `{ disponibles }`: para tareas del tier Haiku, si Gemini no aplica pero hay un proveedor delegable disponible (`PROVEEDORES_DELEGABLES`: `gemini` → `openai` → `deepseek` → `kimi`, gratis antes que pagados), se enruta ahi en vez de gastar cuota de Anthropic. Sin el parametro, `route()` es identico a antes — degradacion con gracia total para quien solo tiene Claude, que sigue siendo la unica constante del arnes (nunca se enruta el chat principal, solo tareas delegadas). `IntentClassifier.clasificarConModelo()` ya conecta `listProviders()` real, activo en produccion. Verificado en vivo con Claude+Gemini+OpenAI reales.
+
+**719 tests, 39 skills.**
 
 ### v3.14.0 — Bug sistemico de hooks corregido, 4 guards OWASP Agentic nuevos, grader de calidad
 
@@ -479,14 +487,15 @@ New-Item -ItemType SymbolicLink -Path './CLAUDE.md' -Target 'C:/ruta/a/ai-core/C
 │   │   │   ├── hook-stdin.js         Lectura/parseo del JSON de evento que Claude Code entrega por stdin
 │   │   │   ├── risky-code-patterns.js Patrones de ejecucion arbitraria compartidos con code-exec-guard.js
 │   │   │   ├── aiops-scorers.js      Las 6 funciones de scoring de aiops-score.js
-│   │   │   └── bm25-engine.js        Motor BM25 de memory-index.js (tokenizacion, indice invertido)
+│   │   │   ├── bm25-engine.js        Motor BM25 de memory-index.js (tokenizacion, indice invertido)
+│   │   │   └── subagent-task-store.js Correlaciona PreToolUse/SubagentStop por session_id+prompt_id
 │   │   └── memory-vault-prune-check.js Hook Stop: avisa (sin borrar) cuando el vault supera 50 archivos
 │   └── skills/                  39 skills — enrutamiento via frontmatter description (agentskills.io), reglas en CLAUDE.md
-├── tests/                       699 tests — harness.test.js + archivos dedicados por modulo nuevo
+├── tests/                       719 tests — harness.test.js + archivos dedicados por modulo nuevo
 ├── .github/workflows/ci.yml     CI en Linux/Mac/Windows x Node 20/22
 ├── CLAUDE.md                    Autoridad unica: reglas globales, skills, enrutamiento
 ├── DEPRECATIONS.json            Contrato de migracion por version
-├── package.json                 v3.14.0, Node >= 18
+├── package.json                 v3.15.0, Node >= 18
 └── .env.example                 Plantilla de variables de entorno
 ```
 
