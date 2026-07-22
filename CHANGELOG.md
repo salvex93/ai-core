@@ -5,6 +5,12 @@ Versionado semantico: MAJOR.MINOR.PATCH.
 
 ## [Unreleased]
 
+### Corregido — auditoria de secretos y test flaky en agent-metrics.js
+
+Auditoria de secretos hardcodeados (categoria no cubierta por la auditoria OWASP Agentic anterior): estado **SEGURO**, 0 hallazgos criticos. `.env` nunca aparecio en el historial de git (confirmado con `git log --all --diff-filter=A`), sin credenciales hardcodeadas en codigo fuente, sin logging de variables de entorno sensibles, sin API keys literales en `mcpServers` de `settings.json`. Unico hallazgo (severidad alta preventiva, no fuga confirmada): `.gitignore` no tenia el patron generico `.env*` (solo 4 variantes explicitas) ni patrones de credenciales comunes (`*.pem`, `*.key`, `*.p12`, `credentials.json`) -- ninguno existe hoy en el repo, pero faltaba la red de seguridad. Agregados ambos; confirmado que `.env.example` (placeholders, si debe versionarse) no queda excluido por el nuevo patron generico.
+
+- **`tests/harness.test.js`**: test flaky real detectado (`agent-metrics.js — record: crea AGENT_METRICS.json con la entrada correcta`) -- `AGENT_METRICS.json` es un archivo compartido en disco namespaced solo por hora de sesion, no por test; el test verificaba `calls[0]` asumiendo ser el primero en escribir, lo cual fallaba si otro proceso escribia en la misma ventana horaria antes. Corregido para verificar el ultimo call en vez del primero.
+
 ### Corregido — 3 bugs reales en OpenAICompatAdapter.js (verificacion en vivo del grader)
 
 Al ejercitar `subagent-grader.js` con una llamada real (no simulada) a OpenAI para cerrar deuda tecnica pendiente, se encontraron y corrigieron 3 bugs reales en `scripts/services/model-adapters/OpenAICompatAdapter.js`:

@@ -1532,15 +1532,23 @@ describe('agent-metrics.js (observabilidad)', () => {
   });
 
   test('record: crea AGENT_METRICS.json con la entrada correcta', () => {
+    // Test aislado detectado como flaky real: AGENT_METRICS.json es un
+    // archivo compartido en disco (namespaced solo por hora de sesion, no
+    // por test) -- otro proceso (otro test, o una verificacion manual real
+    // del operador) puede escribir en la misma ventana horaria antes de que
+    // este test corra, haciendo que calls[0] ya no sea la llamada de este
+    // test. Se verifica el ULTIMO call (el que este test acaba de agregar),
+    // no el primero.
     const r = runScript(SCRIPT, ['record', '--tool', 'Bash', '--status', 'ok', '--ms', '100']);
     assert.equal(r.status, 0, 'debe terminar con exit 0');
     assert.ok(fs.existsSync(METRICS), 'debe crear AGENT_METRICS.json');
     const data = JSON.parse(fs.readFileSync(METRICS, 'utf8'));
     assert.ok(data.sessions.length > 0, 'debe tener al menos una sesion');
-    const session = data.sessions[data.sessions.length - 1];
+    const session  = data.sessions[data.sessions.length - 1];
+    const ultimoCall = session.calls[session.calls.length - 1];
     assert.ok(session.calls.length > 0, 'debe tener al menos un call');
-    assert.equal(session.calls[0].tool, 'Bash');
-    assert.equal(session.calls[0].status, 'ok');
+    assert.equal(ultimoCall.tool, 'Bash');
+    assert.equal(ultimoCall.status, 'ok');
   });
 
   test('record: acumula calls en la misma sesion', () => {

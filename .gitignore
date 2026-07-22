@@ -2,6 +2,10 @@
 node_modules/
 
 # Variables de entorno — nunca al repositorio
+# Patron generico .env* como red de seguridad (cubre .env.test, .env.staging,
+# etc. sin depender de listar cada variante explicita) + las 4 ya conocidas
+# por claridad documental.
+.env*
 .env
 .env.local
 .env.development
@@ -13,6 +17,13 @@ NOTEBOOK_SETUP.md
 # Archivos de configuracion Claude Code con credenciales personales
 .claude/settings.local.json
 .claude.json
+
+# Credenciales/claves que no deberian versionarse nunca, aunque hoy no
+# existan en el repo — red de seguridad preventiva.
+*.pem
+*.key
+*.p12
+credentials.json
 
 # Scripts de automatizacion premium — nunca al repositorio publico
 scripts/premium/
