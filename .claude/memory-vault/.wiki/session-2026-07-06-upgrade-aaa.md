@@ -1,5 +1,5 @@
 # session-2026-07-06-upgrade-aaa — wiki [general]
-> Generado: 2026-07-17 | Fragmentos: 14
+> Generado: 2026-07-22 | Fragmentos: 14
 
 # Sesión 2026-07-06 — Upgrade AAA + Auditoría Post-Release
 
