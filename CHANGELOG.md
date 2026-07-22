@@ -5,6 +5,16 @@ Versionado semantico: MAJOR.MINOR.PATCH.
 
 ## [Unreleased]
 
+### Agregado — code-exec-guard.js (ASI05 — OWASP Agentic Top 10 2026)
+
+- **`.claude/bin/code-exec-guard.js`** (nuevo, `PreToolUse` matcher `Write|Edit`, sin `|| true`): bloquea (exit 2) ANTES de escribir si el contenido a escribir contiene `eval()`, `new Function()`, `exec`/`subprocess` con shell habilitado, o `pickle.load` -- en vez de solo reportarlo despues de escrito como hace `security-check.js` (`PostToolUse`, deteccion post-hoc sin bloqueo). Cierra el gap ASI05 (Unexpected Code Execution) de la auditoria OWASP Agentic previa. Exime archivos `.test.js`/`.spec.js` para no bloquear fixtures de prueba que contienen el patron como dato.
+- **`.claude/bin/lib/risky-code-patterns.js`** (nuevo): subconjunto de patrones de ejecucion arbitraria compartido conceptualmente con `security-check.js` (no fusionado en codigo para no alterar su comportamiento existente).
+- **`.claude/bin/lib/aiops-scorers.js`**: `code-exec-guard.js` agregado a la lista `EXCLUIR` de `scoreSeguridad()` -- el propio comentario del script que documenta que detecta `eval()` disparaba un falso positivo del scorer de seguridad, mismo criterio ya aplicado a `security-check.js`/`subagent-review.js`.
+
+### Corregido — security-check.js y dependency-tracer.js con el mismo bug sistemico de variables inventadas
+
+Al revisar el gap ASI05 se detecto que `security-check.js` y `dependency-tracer.js` (ambos `PreToolUse`/`PostToolUse` matcher `Write|Edit`) tambien dependian de `"$CLAUDE_TOOL_INPUT_file_path"` como argumento en `hooks-definition.js` -- la misma variable inexistente confirmada en el fix sistemico anterior. `security-check.js` nunca evaluaba un archivo real en produccion (`argv[2]` siempre vacio); `dependency-tracer.js` nunca detectaba dependientes reales. Ambos corregidos con el mismo patron: `tool_input.file_path` via `lib/hook-stdin.js`, con test de regresion cada uno.
+
 ### Corregido — bug sistemico: 14 hooks leian variables de entorno que Claude Code nunca establece
 
 Al intentar escribir un guard nuevo de sandboxing (ASI05), se detecto que `bash-verbosity-guard.js` (ya "arreglado" hoy junto con `agent-metrics.js`) seguia leyendo `CLAUDE_TOOL_INPUT_command`, una variable que la doc oficial (code.claude.com/docs/en/hooks) confirma que nunca existio -- corroborado ademas por el issue publico `anthropics/claude-code#9567`. Esto disparo una auditoria completa de TODOS los hooks del arnes: 14 scripts dependian del mismo patron roto (variables `CLAUDE_TOOL_INPUT_*`, `CLAUDE_USER_PROMPT`, `CLAUDE_SUBAGENT_*` inventadas), varios de ellos guards de seguridad activos que llevaban toda su vida operando sobre strings vacios sin que ningun test lo detectara (los tests inyectaban la variable a mano, algo que Claude Code nunca hace).

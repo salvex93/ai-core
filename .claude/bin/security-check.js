@@ -3,13 +3,18 @@
 /**
  * security-check.js — Revisa archivos recién escritos en busca de patrones críticos.
  * Inspirado en ECC code-review-on-write hook. Solo imprime si hay hallazgos.
- * Uso: node security-check.js <ruta_archivo>
+ * Uso: node security-check.js <ruta_archivo> (o via stdin, ver mas abajo)
  */
 
 const fs   = require('fs');
 const path = require('path');
+const { leerEventoDeStdin } = require('./lib/hook-stdin');
 
-const filePath = process.argv[2];
+// hooks-definition.js invoca este script con "$CLAUDE_TOOL_INPUT_file_path"
+// como argumento -- esa variable nunca existio (confirmado contra
+// code.claude.com/docs/en/hooks), por lo que argv[2] siempre llegaba vacio.
+// La ruta real esta en tool_input.file_path del JSON de stdin.
+const filePath = process.argv[2] || leerEventoDeStdin().tool_input?.file_path || '';
 if (!filePath || !fs.existsSync(filePath)) process.exit(0);
 
 const ext = path.extname(filePath).toLowerCase();

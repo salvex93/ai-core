@@ -185,6 +185,10 @@
           {
             "type": "command",
             "command": "node \"C:/Users/arimac/Documents/ai-core/.claude/bin/pre-commit-tdd.js\" \"$CLAUDE_TOOL_INPUT_file_path\""
+          },
+          {
+            "type": "command",
+            "command": "node \"C:/Users/arimac/Documents/ai-core/.claude/bin/code-exec-guard.js\""
           }
         ]
       },

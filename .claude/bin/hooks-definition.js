@@ -96,6 +96,7 @@ function buildHooksSection(bin) {
           { type: 'command', command: `node ${bin('ponytail-check.js')} 2>/dev/null || true` },
           { type: 'command', command: `node ${bin('dependency-tracer.js')} "$CLAUDE_TOOL_INPUT_file_path" 2>/dev/null || true` },
           { type: 'command', command: `node ${bin('pre-commit-tdd.js')} "$CLAUDE_TOOL_INPUT_file_path"` },
+          { type: 'command', command: `node ${bin('code-exec-guard.js')}` },
         ],
       },
       {

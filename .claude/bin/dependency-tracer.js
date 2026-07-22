@@ -22,12 +22,18 @@
 
 const fs   = require('node:fs');
 const path = require('node:path');
+const { leerEventoDeStdin } = require('./lib/hook-stdin');
 
 const REPO = path.resolve(__dirname, '..', '..');
 const ROOTS = [path.join(REPO, 'scripts'), path.join(REPO, '.claude', 'bin')];
 
 const JSON_OUT = process.argv.includes('--json');
-const target = process.argv.filter(a => a !== '--json')[2];
+// hooks-definition.js invoca este script con "$CLAUDE_TOOL_INPUT_file_path"
+// como argumento -- esa variable nunca existio (confirmado contra
+// code.claude.com/docs/en/hooks), por lo que argv[2] siempre llegaba vacio
+// en el uso real via hook. La ruta real esta en tool_input.file_path del
+// JSON de stdin.
+const target = process.argv.filter(a => a !== '--json')[2] || leerEventoDeStdin().tool_input?.file_path;
 
 function listarArchivosJs(dir) {
   if (!fs.existsSync(dir)) return [];

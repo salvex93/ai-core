@@ -977,6 +977,19 @@ describe('security-check.js', () => {
     assert.equal(r.status, 0);
     assert.equal(r.stdout, '');
   });
+
+  test('sin argv, lee tool_input.file_path del JSON de stdin', () => {
+    // Regresion real: hooks-definition.js invoca este script con
+    // "$CLAUDE_TOOL_INPUT_file_path" como argumento -- esa variable nunca
+    // existio (confirmado contra code.claude.com/docs/en/hooks), asi que
+    // argv[2] siempre llegaba vacio y el check nunca evaluaba un archivo real.
+    const f = path.join(os.tmpdir(), `sec-stdin-${Date.now()}.js`);
+    fs.writeFileSync(f, 'function run(code) { return eval(code); }\n');
+    const evento = JSON.stringify({ tool_input: { file_path: f } });
+    const r = spawnSync('node', [SCRIPT], { encoding: 'utf8', cwd: REPO, input: evento });
+    fs.unlinkSync(f);
+    assert.ok(r.stdout.includes('[SEGURIDAD]'), 'debe leer la ruta real desde stdin y detectar eval()');
+  });
 });
 
 // ─── secrets-guard.js ────────────────────────────────────────────────────────
@@ -1087,6 +1100,86 @@ describe('aiops-score.js', () => {
     const r = runScript(SCRIPT, []); // segunda corrida: estable, sin detalles
     assert.ok(r.stdout.includes('[AIOPS-SCORE]'), 'debe incluir linea de score');
     assert.ok(!r.stdout.includes('routing'), 'no debe listar dimensiones cuando el score es estable y sin detalles');
+  });
+});
+
+// ─── code-exec-guard.js (ASI05 — bloqueo preventivo de ejecucion arbitraria) ──
+
+describe('code-exec-guard.js', () => {
+  const SCRIPT = path.join(BIN, 'code-exec-guard.js');
+
+  test('el script existe', () => {
+    assert.ok(fs.existsSync(SCRIPT), 'code-exec-guard.js debe existir en .claude/bin/');
+  });
+
+  function run(tool_input) {
+    return spawnSync('node', [SCRIPT], { encoding: 'utf8', cwd: REPO, input: JSON.stringify({ tool_input }) });
+  }
+
+  test('sin stdin con datos: exit 0', () => {
+    const r = spawnSync('node', [SCRIPT], { encoding: 'utf8', cwd: REPO, input: '' });
+    assert.equal(r.status, 0);
+  });
+
+  test('bloquea (exit 2) eval() en contenido .js nuevo (Write)', () => {
+    const r = run({ file_path: 'x.js', content: 'function run(c) { return ' + 'eval' + '(c); }' });
+    assert.equal(r.status, 2);
+    assert.ok(r.stderr.includes('CODE-EXEC-GUARD'));
+  });
+
+  test('bloquea (exit 2) eval() en new_string (Edit)', () => {
+    const r = run({ file_path: 'x.js', old_string: 'const a = 1;', new_string: 'const a = 1;\n' + 'eval' + '(userInput);' });
+    assert.equal(r.status, 2);
+  });
+
+  test('bloquea (exit 2) subprocess con shell=True en .py', () => {
+    const r = run({ file_path: 'x.py', content: 'subprocess.run(cmd, shell=True)' });
+    assert.equal(r.status, 2);
+    assert.ok(r.stderr.includes('shell=True'));
+  });
+
+  test('permite (exit 0) codigo limpio', () => {
+    const r = run({ file_path: 'x.js', content: 'const suma = (a, b) => a + b;' });
+    assert.equal(r.status, 0);
+  });
+
+  test('permite (exit 0) extensiones no vigiladas', () => {
+    const r = run({ file_path: 'x.md', content: 'eval' + '(userInput)' });
+    assert.equal(r.status, 0);
+  });
+
+  test('exime archivos .test.js del propio guard (evita bloquear fixtures de prueba)', () => {
+    const r = run({ file_path: 'algo.test.js', content: 'eval' + '(userInput)' });
+    assert.equal(r.status, 0, 'archivos de test deben poder contener el patron como dato de prueba');
+  });
+
+  test('code-exec-guard registrado en PreToolUse(Write|Edit) sin "|| true" que absorba el exit code', () => {
+    const settings = JSON.parse(fs.readFileSync(SETTINGS, 'utf8'));
+    const preHooks = (settings.hooks?.PreToolUse || [])
+      .filter(h => h.matcher === 'Write|Edit')
+      .flatMap(h => h.hooks || []);
+    const cmd = preHooks.map(h => h.command || '').find(c => c.includes('code-exec-guard.js'));
+    assert.ok(cmd, 'code-exec-guard.js debe estar registrado en PreToolUse(Write|Edit)');
+    assert.ok(!cmd.includes('|| true'), 'el hook no debe absorber el exit code con || true');
+  });
+});
+
+// ─── dependency-tracer.js ─────────────────────────────────────────────────────
+
+describe('dependency-tracer.js', () => {
+  const SCRIPT = path.join(BIN, 'dependency-tracer.js');
+
+  test('el script existe', () => {
+    assert.ok(fs.existsSync(SCRIPT), 'dependency-tracer.js debe existir en .claude/bin/');
+  });
+
+  test('sin argv, lee tool_input.file_path del JSON de stdin', () => {
+    // Regresion real: hooks-definition.js invoca este script con
+    // "$CLAUDE_TOOL_INPUT_file_path" como argumento -- esa variable nunca
+    // existio (confirmado contra code.claude.com/docs/en/hooks).
+    const evento = JSON.stringify({ tool_input: { file_path: path.join('scripts', 'services', 'ModelRegistry.js') } });
+    const r = spawnSync('node', [SCRIPT], { encoding: 'utf8', cwd: REPO, input: evento });
+    assert.equal(r.status, 0);
   });
 });
 
