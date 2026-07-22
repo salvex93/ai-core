@@ -10,7 +10,7 @@
  *
  * Verificaciones:
  *   1. Emojis pictograficos en codigo o comentarios
- *   2. Co-Authored-By en archivos (prohibido por CLAUDE.md)
+ *   2. Atribucion de commit a herramientas de IA (prohibido por CLAUDE.md)
  *   3. Archivos .js/.ts/.py que superan 300 lineas (modularizar)
  *   4. Funciones con mas de 20 lineas (SOLID: SRP)
  *   5. Mas de 3 parametros en una funcion JS/TS
@@ -22,12 +22,18 @@
 const fs   = require('fs');
 const path = require('path');
 const { execSync } = require('child_process');
+const { leerEventoDeStdin } = require('./lib/hook-stdin');
 
 const CORE_PATH = path.resolve(__dirname, '../..');
 const CAPTURE   = path.join(__dirname, 'capture-event.js');
 
-// Archivo a verificar (pasado como argumento o via variable de entorno del hook)
-const filePath = process.argv[2] || process.env.CLAUDE_TOOL_INPUT_file_path || '';
+// Archivo a verificar. CLAUDE_TOOL_INPUT_file_path nunca existio como
+// variable de entorno real (confirmado contra code.claude.com/docs/en/hooks)
+// -- el JSON de stdin trae tool_input.file_path.
+const filePath = process.argv[2]
+  || process.env.CLAUDE_TOOL_INPUT_file_path
+  || leerEventoDeStdin().tool_input?.file_path
+  || '';
 
 if (!filePath) process.exit(0);
 if (!fs.existsSync(filePath)) process.exit(0);

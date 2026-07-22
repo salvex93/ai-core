@@ -22,6 +22,8 @@
 const fs   = require('node:fs');
 const path = require('node:path');
 
+const { leerEventoDeStdin } = require('./lib/hook-stdin');
+
 const REPO        = path.resolve(__dirname, '..', '..');
 const MOA_CONTEXT  = path.join(REPO, '.claude', 'moa_context.md');
 
@@ -49,7 +51,10 @@ async function main() {
     return;
   }
 
-  const userPrompt = process.env.CLAUDE_USER_PROMPT || '';
+  // CLAUDE_USER_PROMPT nunca existio como variable de entorno real -- el
+  // prompt llega por JSON en stdin (prompt_text), confirmado contra
+  // code.claude.com/docs/en/hooks.
+  const userPrompt = process.env.CLAUDE_USER_PROMPT || leerEventoDeStdin().prompt_text || '';
   if (!userPrompt.trim()) return;
 
   const { executeMoATask } = require(path.join(REPO, 'scripts', 'services', 'ModelDispatcher.js'));

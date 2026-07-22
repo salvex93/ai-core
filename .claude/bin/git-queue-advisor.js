@@ -65,8 +65,13 @@ function detectMode() {
   const mode = process.argv[2];
   if (mode === 'push' || mode === 'pull') return mode;
 
-  // Fallback: leer variable de entorno del hook
-  const cmd = process.env.CLAUDE_TOOL_INPUT_command || '';
+  // Fallback: nunca se ejecuta en produccion real -- hooks-definition.js
+  // siempre pasa "push"/"pull" como argv[2] explicito. CLAUDE_TOOL_INPUT_command
+  // nunca existio como variable de entorno real (confirmado contra
+  // code.claude.com/docs/en/hooks); se deja el intento por stdin por si algun
+  // caller futuro invoca este script sin el argumento posicional.
+  const { leerEventoDeStdin } = require('./lib/hook-stdin');
+  const cmd = process.env.CLAUDE_TOOL_INPUT_command || leerEventoDeStdin().tool_input?.command || '';
   if (cmd.includes('git push')) return 'push';
   if (cmd.includes('git pull')) return 'pull';
   return null;

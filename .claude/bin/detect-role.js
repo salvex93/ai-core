@@ -14,10 +14,15 @@ const fs   = require('node:fs');
 const path = require('node:path');
 
 const { clasificarConModelo } = require(path.join(__dirname, '..', '..', 'scripts', 'services', 'IntentClassifier.js'));
+const { leerEventoDeStdin }   = require('./lib/hook-stdin');
 
 const ROLE_FILE = path.join(__dirname, '..', '.current_role');
 
-const r = clasificarConModelo(process.env.CLAUDE_USER_PROMPT || '');
+// CLAUDE_USER_PROMPT nunca existio como variable de entorno real -- el prompt
+// llega por JSON en stdin (prompt_text), confirmado contra
+// code.claude.com/docs/en/hooks. Invocado via process-guard.js, que hereda
+// stdio (incluido stdin) del proceso padre sin modificarlo.
+const r = clasificarConModelo(process.env.CLAUDE_USER_PROMPT || leerEventoDeStdin().prompt_text || '');
 
 try {
   fs.writeFileSync(ROLE_FILE, r.rol, 'utf8');

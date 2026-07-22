@@ -5,6 +5,28 @@ Versionado semantico: MAJOR.MINOR.PATCH.
 
 ## [Unreleased]
 
+### Corregido — bug sistemico: 14 hooks leian variables de entorno que Claude Code nunca establece
+
+Al intentar escribir un guard nuevo de sandboxing (ASI05), se detecto que `bash-verbosity-guard.js` (ya "arreglado" hoy junto con `agent-metrics.js`) seguia leyendo `CLAUDE_TOOL_INPUT_command`, una variable que la doc oficial (code.claude.com/docs/en/hooks) confirma que nunca existio -- corroborado ademas por el issue publico `anthropics/claude-code#9567`. Esto disparo una auditoria completa de TODOS los hooks del arnes: 14 scripts dependian del mismo patron roto (variables `CLAUDE_TOOL_INPUT_*`, `CLAUDE_USER_PROMPT`, `CLAUDE_SUBAGENT_*` inventadas), varios de ellos guards de seguridad activos que llevaban toda su vida operando sobre strings vacios sin que ningun test lo detectara (los tests inyectaban la variable a mano, algo que Claude Code nunca hace).
+
+Contrato real confirmado por evento:
+- `UserPromptSubmit`: JSON por stdin, campo `prompt_text` (no `prompt`, no env var).
+- `PreToolUse`/`PostToolUse`: JSON por stdin, `{tool_name, tool_input: {...}, tool_response}`.
+- `SubagentStop`: JSON por stdin, campos `agent_type` y `last_assistant_message` (no `agent_output`/`result`; `transcript_path` no debe leerse por ser asincrono).
+
+**Nuevo:** `.claude/bin/lib/hook-stdin.js` -- lectura y parseo de stdin compartida por los 14 scripts, sin bloquear si stdin es TTY o esta vacio.
+
+**Corregidos** (todos mantienen la variable de entorno legacy como fallback compatible, agregan lectura de stdin como fuente real, y suman test de regresion que ejercita el path de stdin):
+- `secrets-guard.js` (`UserPromptSubmit`) -- el bloqueo de credenciales de alta confianza agregado hoy mismo nunca se activaba en produccion real.
+- `detect-role.js` (`UserPromptSubmit`) -- la clasificacion de rol siempre caia al fallback "Architect, confianza 0.3" visible en cada turno de esta sesion.
+- `moa-context-gatherer.js` (`UserPromptSubmit`) -- el fan-out MoA nunca se disparaba con el prompt real.
+- `injection-guard.js`, `subagent-review.js`, `cross-verify-gate.js` (`SubagentStop`) -- ninguno inspeccionaba el output real del subagente.
+- `subagent-guard.js` (`PreToolUse` matcher Agent) -- el enforcement anti-recursion/anti-loop documentado en CLAUDE.md como "real" nunca veia el tipo real de subagente. Nota: el nombre exacto de `tool_input.subagent_type` para el Agent tool no se reverifico contra fuente oficial en esta sesion (limite de uso de API alcanzado a mitad de la investigacion) -- confirmar si un caso real muestra otro nombre de campo.
+- `ponytail-check.js` (`PreToolUse` Write|Edit) -- sin fallback alguno, siempre evaluaba contenido vacio.
+- `pre-commit-tdd.js`, `standards-guard.js`, `syntax-check.js` (`PreToolUse`/`PostToolUse` Write|Edit) -- ya tenian `process.argv[2]` como primer fallback, pero el segundo fallback (env var) nunca aplicaba.
+- `git-queue-advisor.js` -- impacto real bajo (siempre recibe `push`/`pull` como argv explicito desde `hooks-definition.js`), corregido por consistencia.
+- `capture-event.js` -- impacto real bajo (siempre recibe `--type`/`--tool` explicitos), el fallback solo cubria `--error`/`--context`.
+
 ### Agregado — bloqueo real en secrets-guard.js (auditoria OWASP Agentic Top 10)
 
 - **`.claude/bin/secrets-guard.js`**: auditoria contra OWASP Top 10 for Agentic Applications 2026 (genai.owasp.org) detecto que el guard solo advertia (exit 0 siempre) incluso ante una credencial de formato inequivoco (OpenAI key, GitHub PAT, AWS key, Slack token, Google API key, clave privada). Confirmado contra la doc oficial de hooks que `UserPromptSubmit` si soporta bloqueo real (exit 2 borra el prompt antes de que llegue al modelo). Patrones de alta confianza ahora bloquean; el patron generico de menor confianza (par clave:secreto de 40 caracteres, mayor riesgo de falso positivo) sigue solo advirtiendo.

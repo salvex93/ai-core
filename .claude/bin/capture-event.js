@@ -14,11 +14,13 @@
  *   node capture-event.js --type mcp_failure --tool gemini-bridge --error "quota exceeded" --context "analizar_archivo llamado en turno 4"
  *   node capture-event.js --type hook_failure --tool guard-read --error "ENOENT" --context "/ruta/al/archivo"
  *
- * Variables de entorno disponibles en hooks de Claude Code:
- *   CLAUDE_CODE_SESSION_ID  — id de sesion
- *   CLAUDE_TOOL_NAME        — nombre de la herramienta que fallo
- *   CLAUDE_TOOL_INPUT       — input de la herramienta (JSON string)
- *   CLAUDE_TOOL_ERROR       — mensaje de error (en PostToolUseFailure)
+ * Contexto de hook disponible:
+ *   CLAUDE_CODE_SESSION_ID — variable de entorno real, id de sesion.
+ *   tool_name/tool_input/tool_response del JSON de stdin -- CLAUDE_TOOL_NAME,
+ *   CLAUDE_TOOL_INPUT y CLAUDE_TOOL_ERROR nunca existieron como variables de
+ *   entorno reales (confirmado contra code.claude.com/docs/en/hooks). En la
+ *   practica esto script siempre recibe --type/--tool explicitos desde
+ *   hooks-definition.js, asi que el fallback solo cubre --error/--context.
  *
  * AI_CORE_TEST_MODE=1 — inyectada por tests/harness.test.js (runScript) para
  * que ejercitar guards con archivos temporales de prueba no contamine
@@ -27,6 +29,7 @@
 
 const fs   = require('fs');
 const path = require('path');
+const { leerEventoDeStdin } = require('./lib/hook-stdin');
 
 const CORE_PATH  = path.resolve(__dirname, '../..');
 const QUEUE_PATH = path.join(CORE_PATH, '.claude', 'EVENTS_QUEUE.json');
@@ -53,11 +56,12 @@ function parseArgs() {
 // ---------------------------------------------------------------------------
 
 function getHookContext() {
+  const evento = leerEventoDeStdin();
   return {
     sessionId: (process.env.CLAUDE_CODE_SESSION_ID || 'unknown').slice(0, 12),
-    toolName:  process.env.CLAUDE_TOOL_NAME        || '',
-    toolInput: process.env.CLAUDE_TOOL_INPUT        || '',
-    toolError: process.env.CLAUDE_TOOL_ERROR        || '',
+    toolName:  process.env.CLAUDE_TOOL_NAME  || evento.tool_name || '',
+    toolInput: process.env.CLAUDE_TOOL_INPUT || (evento.tool_input ? JSON.stringify(evento.tool_input) : '') || '',
+    toolError: process.env.CLAUDE_TOOL_ERROR || evento.tool_response || '',
   };
 }
 

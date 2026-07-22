@@ -5,21 +5,41 @@
  * de output masivo sin acotar.
  *
  * Los hooks de Claude Code no exponen el OUTPUT de una tool call via variable
- * de entorno (solo el input: CLAUDE_TOOL_INPUT_command) — no es posible
- * truncar o indexar el resultado de Bash despues de que corre. Este guard
- * ataca la causa en vez del sintoma: bloquea (exit 2) el comando ANTES de
- * ejecutarlo si coincide con un patron conocido de output no acotado, y
- * sugiere la version equivalente con limite.
+ * de entorno -- no es posible truncar o indexar el resultado de Bash despues
+ * de que corre. Este guard ataca la causa en vez del sintoma: bloquea
+ * (exit 2) el comando ANTES de ejecutarlo si coincide con un patron conocido
+ * de output no acotado, y sugiere la version equivalente con limite.
+ *
+ * El comando a ejecutar llega por JSON en stdin (tool_input.command), NO por
+ * variable de entorno -- CLAUDE_TOOL_INPUT_command nunca existio en runtime
+ * real (confirmado contra code.claude.com/docs/en/hooks y el issue
+ * anthropics/claude-code#9567, que documenta ese patron de variable como
+ * siempre vacio). Bug real: el guard nunca vio un comando real en produccion,
+ * solo pasaba sus propios tests porque estos inyectan la variable a mano.
  *
  * Deliberadamente conservador: solo bloquea patrones donde el equivalente
  * acotado es inequivoco. Ante duda, deja pasar (falso negativo > falso
  * positivo — bloquear de mas rompe flujos legitimos).
  *
- * Uso: node bash-verbosity-guard.js
- * Variable leida: CLAUDE_TOOL_INPUT_command
+ * Uso: node bash-verbosity-guard.js (recibe el evento PreToolUse por stdin)
  */
 
-const cmd = process.env.CLAUDE_TOOL_INPUT_command || '';
+function leerComandoDeStdin() {
+  try {
+    const fs  = require('node:fs');
+    const raw = fs.readFileSync(0, 'utf8');
+    if (!raw.trim()) return '';
+    const evento = JSON.parse(raw);
+    return evento.tool_input?.command || '';
+  } catch {
+    return '';
+  }
+}
+
+// CLAUDE_TOOL_INPUT_command como fallback: nunca la establece Claude Code en
+// produccion, pero permite invocacion manual/tests sin tener que armar JSON.
+const cmd = process.env.CLAUDE_TOOL_INPUT_command
+  || (!process.stdin.isTTY ? leerComandoDeStdin() : '');
 
 if (!cmd) process.exit(0);
 

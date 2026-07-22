@@ -18,13 +18,20 @@
 
 const path = require('node:path');
 const { execSync } = require('node:child_process');
+const { leerEventoDeStdin } = require('./lib/hook-stdin');
 
 // El repo a auditar es el directorio de trabajo activo (proyecto anfitrion o
 // el propio ai-core en standalone) — no la ruta de instalacion de este script,
 // que en modo submodulo vive dentro de .claude/ai-core/ del anfitrion.
 const REPO = process.cwd();
 
-const filePath = process.argv[2] || process.env.CLAUDE_TOOL_INPUT_file_path || '';
+// CLAUDE_TOOL_INPUT_file_path nunca existio como variable de entorno real
+// (confirmado contra code.claude.com/docs/en/hooks) -- el JSON de stdin trae
+// tool_input.file_path.
+const filePath = process.argv[2]
+  || process.env.CLAUDE_TOOL_INPUT_file_path
+  || leerEventoDeStdin().tool_input?.file_path
+  || '';
 if (!filePath) process.exit(0);
 
 const TEST_EXTS = ['.js', '.ts', '.py'];

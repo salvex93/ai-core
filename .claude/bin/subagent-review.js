@@ -17,11 +17,17 @@
 const fs   = require('node:fs');
 const path = require('node:path');
 
+const { leerEventoDeStdin } = require('./lib/hook-stdin');
+
 const REPO = path.resolve(__dirname, '..', '..');
 
-// Output del subagente disponible via env o stdin
-const subagentOutput = process.env.CLAUDE_SUBAGENT_OUTPUT || '';
-const subagentName   = process.env.CLAUDE_SUBAGENT_TYPE   || 'unknown';
+// CLAUDE_SUBAGENT_OUTPUT/CLAUDE_SUBAGENT_TYPE nunca existieron como variables
+// de entorno reales -- SubagentStop entrega el output por stdin como JSON,
+// campos agent_type y last_assistant_message (confirmado contra
+// code.claude.com/docs/en/hooks).
+const evento = leerEventoDeStdin();
+const subagentOutput = process.env.CLAUDE_SUBAGENT_OUTPUT || evento.last_assistant_message || '';
+const subagentName   = process.env.CLAUDE_SUBAGENT_TYPE   || evento.agent_type || 'unknown';
 
 // Umbral: solo activar revision si el output es significativo
 const OUTPUT_THRESHOLD_LINES = 30;

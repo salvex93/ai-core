@@ -19,8 +19,15 @@
 
 'use strict';
 
-const subagentOutput = process.env.CLAUDE_SUBAGENT_OUTPUT || '';
-const subagentName   = process.env.CLAUDE_SUBAGENT_TYPE   || 'unknown';
+const { leerEventoDeStdin } = require('./lib/hook-stdin');
+
+// CLAUDE_SUBAGENT_OUTPUT/CLAUDE_SUBAGENT_TYPE nunca existieron como variables
+// de entorno reales -- SubagentStop entrega el output por stdin como JSON,
+// campos agent_type y last_assistant_message (confirmado contra
+// code.claude.com/docs/en/hooks).
+const evento = leerEventoDeStdin();
+const subagentOutput = process.env.CLAUDE_SUBAGENT_OUTPUT || evento.last_assistant_message || '';
+const subagentName   = process.env.CLAUDE_SUBAGENT_TYPE   || evento.agent_type || 'unknown';
 
 if (!subagentOutput) process.exit(0);
 

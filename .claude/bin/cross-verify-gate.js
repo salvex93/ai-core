@@ -15,10 +15,17 @@
 
 const path = require('node:path');
 
+const { leerEventoDeStdin } = require('./lib/hook-stdin');
+
 const REPO = path.resolve(__dirname, '..', '..');
 
-const subagentType   = process.env.CLAUDE_SUBAGENT_TYPE   || '';
-const subagentOutput = process.env.CLAUDE_SUBAGENT_OUTPUT || '';
+// CLAUDE_SUBAGENT_TYPE/CLAUDE_SUBAGENT_OUTPUT nunca existieron como variables
+// de entorno reales -- SubagentStop entrega el output por stdin como JSON,
+// campos agent_type y last_assistant_message (confirmado contra
+// code.claude.com/docs/en/hooks).
+const evento = leerEventoDeStdin();
+const subagentType   = process.env.CLAUDE_SUBAGENT_TYPE   || evento.agent_type || '';
+const subagentOutput = process.env.CLAUDE_SUBAGENT_OUTPUT || evento.last_assistant_message || '';
 
 if (subagentType !== 'code-reviewer') {
   process.exit(0);

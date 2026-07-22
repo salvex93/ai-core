@@ -279,6 +279,19 @@ describe('pre-commit-tdd.js — gate TDD por heuristica de presencia', () => {
     fs.rmSync(repoDir, { recursive: true });
   });
 
+  test('sin argv, lee tool_input.file_path del JSON de stdin', () => {
+    // Regresion real: CLAUDE_TOOL_INPUT_file_path nunca existio como
+    // variable de entorno real.
+    const { spawnSync } = require('node:child_process');
+    initRepo();
+    fs.appendFileSync(path.join(repoDir, 'app.js'), 'console.log(2);\n');
+    const evento = JSON.stringify({ tool_input: { file_path: 'app.js' } });
+    const r = spawnSync('node', [SCRIPT], { encoding: 'utf8', cwd: repoDir, input: evento });
+    fs.rmSync(repoDir, { recursive: true });
+    assert.equal(r.status, 2, 'debe bloquear leyendo la ruta real desde stdin');
+    assert.match(r.stderr, /TDD-GATE/);
+  });
+
   test('pre-commit-tdd registrado en PreToolUse(Write|Edit) de settings.json', () => {
     const settings = JSON.parse(fs.readFileSync(path.resolve(__dirname, '..', '.claude', 'settings.json'), 'utf8'));
     const preHooks = (settings.hooks?.PreToolUse || [])

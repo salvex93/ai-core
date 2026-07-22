@@ -18,23 +18,38 @@
  * de process-guard.js. MAX_PARALLEL debe leerse como "hasta N subagentes
  * lanzados en los ultimos TIMEOUT_MS", no como contador exacto en vivo.
  *
- * Uso: node subagent-guard.js
- * Variables leidas: CLAUDE_TOOL_INPUT_subagent_type, CLAUDE_SUBAGENT_TYPE
+ * Uso: node subagent-guard.js (recibe el evento PreToolUse por stdin)
+ *
+ * CLAUDE_TOOL_INPUT_subagent_type y CLAUDE_SUBAGENT_TYPE nunca existieron
+ * como variables de entorno reales (confirmado contra
+ * code.claude.com/docs/en/hooks para PreToolUse general: el dato real llega
+ * por stdin como tool_input.<param>). El parametro subagent_type es el que
+ * la propia tool Agent/Task documenta para su invocacion -- se lee de
+ * tool_input.subagent_type por analogia directa con tool_input.command ya
+ * confirmado para Bash. NOTA: el nombre exacto de este campo especifico para
+ * el Agent tool no se re-verifico contra la doc oficial en esta sesion
+ * (limite de uso de API alcanzado a mitad de la investigacion) -- si un test
+ * de integracion real muestra que el campo tiene otro nombre, corregir aqui.
  */
 
 const fs     = require('fs');
 const path   = require('path');
 const crypto = require('crypto');
+const { leerEventoDeStdin } = require('./lib/hook-stdin');
 
 const MAX_PARALLEL = 3;        // alineado con la regla de CLAUDE.md; ajustar ahi tambien si cambia
 const TIMEOUT_MS   = 2 * 60 * 1000; // 2 min — ventana de "lanzados recientemente", no timeout de ejecucion
 
 const LOCK_DIR = path.join(require('os').tmpdir(), 'ai-core-locks', 'subagents');
 
+const evento = leerEventoDeStdin();
+
 // El tipo que se esta a punto de lanzar (parametro de la tool call entrante)
-const nuevoTipo = process.env.CLAUDE_TOOL_INPUT_subagent_type || '';
+const nuevoTipo = process.env.CLAUDE_TOOL_INPUT_subagent_type
+  || evento.tool_input?.subagent_type
+  || '';
 // El tipo del subagente actual, si quien pide el spawn ES a su vez un subagente
-const tipoActual = process.env.CLAUDE_SUBAGENT_TYPE || '';
+const tipoActual = process.env.CLAUDE_SUBAGENT_TYPE || evento.agent_type || '';
 
 function ensureDir() {
   try { fs.mkdirSync(LOCK_DIR, { recursive: true }); } catch { /* ya existe */ }

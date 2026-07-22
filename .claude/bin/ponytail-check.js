@@ -12,12 +12,19 @@
 
 const fs   = require('fs');
 const path = require('path');
+const { leerEventoDeStdin } = require('./lib/hook-stdin');
 
-// --- Contexto disponible via variables de entorno de Claude Code hooks ---
-const filePath    = process.env.CLAUDE_TOOL_INPUT_file_path    || '';
-const newContent  = process.env.CLAUDE_TOOL_INPUT_content      || '';  // Write
-const oldString   = process.env.CLAUDE_TOOL_INPUT_old_string   || '';  // Edit
-const newString   = process.env.CLAUDE_TOOL_INPUT_new_string   || '';  // Edit
+// --- Contexto real: CLAUDE_TOOL_INPUT_* nunca existieron como variables de
+// entorno (confirmado contra code.claude.com/docs/en/hooks) -- el JSON de
+// stdin trae tool_input.file_path, tool_input.content (Write) y
+// tool_input.old_string/new_string (Edit). Bug real: este check operaba
+// siempre sobre strings vacios, nunca evaluo un archivo real en produccion.
+const evento      = leerEventoDeStdin();
+const toolInput   = evento.tool_input || {};
+const filePath    = process.env.CLAUDE_TOOL_INPUT_file_path  || toolInput.file_path  || '';
+const newContent  = process.env.CLAUDE_TOOL_INPUT_content    || toolInput.content    || '';  // Write
+const oldString   = process.env.CLAUDE_TOOL_INPUT_old_string || toolInput.old_string || '';  // Edit
+const newString   = process.env.CLAUDE_TOOL_INPUT_new_string || toolInput.new_string || '';  // Edit
 
 const targetContent = newContent || newString;
 

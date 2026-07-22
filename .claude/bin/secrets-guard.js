@@ -2,16 +2,23 @@
 
 /**
  * secrets-guard.js — Detecta credenciales en el prompt del usuario antes de enviarlo.
- * Corre en hook UserPromptSubmit via $CLAUDE_USER_PROMPT.
+ * Corre en hook UserPromptSubmit.
  *
- * UserPromptSubmit soporta bloqueo real: exit 2 borra el prompt antes de que
- * llegue al modelo (confirmado contra code.claude.com/docs/en/hooks). Los
- * patrones de ALTA_CONFIANZA tienen formato inequivoco de credencial real
+ * El prompt llega por JSON en stdin (campo prompt_text) -- CLAUDE_USER_PROMPT
+ * nunca existio como variable de entorno real (confirmado contra
+ * code.claude.com/docs/en/hooks: UserPromptSubmit expone prompt_text via
+ * stdin, no env var). Bug real: este guard nunca vio el prompt real en
+ * produccion, `prompt` siempre era '' y el guard quedaba inerte pese a que
+ * el bloqueo (exit 2) si funciona para UserPromptSubmit cuando recibe datos.
+ *
+ * Los patrones de ALTA_CONFIANZA tienen formato inequivoco de credencial real
  * (sin lectura plausible como texto/codigo de ejemplo) y bloquean. El resto
  * (confianza media, riesgo de falso positivo mayor) solo advierte.
  */
 
-const prompt = process.env.CLAUDE_USER_PROMPT || '';
+const { leerEventoDeStdin } = require('./lib/hook-stdin');
+
+const prompt = process.env.CLAUDE_USER_PROMPT || leerEventoDeStdin().prompt_text || '';
 if (!prompt) process.exit(0);
 
 // Bloquean (exit 2): formato inequivoco, imposible de confundir con codigo
