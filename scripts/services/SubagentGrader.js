@@ -112,6 +112,7 @@ async function calificar({ output, agentType, disponibles }) {
   const respuesta = await chat(proveedor, mensajes, {
     system: PROMPT_SISTEMA,
     max_tokens: 512,
+    forzarJSON: true,
   });
 
   const grado = parsearGrado(respuesta.content);

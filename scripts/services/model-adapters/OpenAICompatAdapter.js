@@ -13,6 +13,13 @@ const PROVIDER_CONFIGS = Object.freeze({
     // $1/$6 por 1M tokens. gpt-4o-mini fue retirado (GPT-4o discontinuado
     // febrero 2026) y ya no es la opcion recomendada para proyectos nuevos.
     defaultModel: 'gpt-5.6-luna',
+    // Confirmado en vivo (2026-07-22): la API de OpenAI actual RECHAZA la
+    // peticion por completo si recibe max_tokens ("Unsupported parameter").
+    maxTokensParam: 'max_completion_tokens',
+    // Confirmado en vivo (2026-07-22): OpenAI ignora instrucciones de texto
+    // plano pidiendo "responde solo JSON" pero SI respeta el parametro
+    // estandar response_format:{type:"json_object"}.
+    soportaJSONMode: true,
   },
   deepseek: {
     name:         'deepseek',
@@ -21,6 +28,10 @@ const PROVIDER_CONFIGS = Object.freeze({
     // "deepseek-chat" se deprecha 2026-07-24 15:59 UTC (mapea a modo
     // no-thinking de deepseek-v4-flash) -- usar el nombre nuevo directamente.
     defaultModel: 'deepseek-v4-flash',
+    // No verificado contra fuente oficial si DeepSeek migro a
+    // max_completion_tokens (limite de uso de API alcanzado) -- se asume
+    // que sigue con el formato clasico max_tokens hasta confirmar lo contrario.
+    maxTokensParam: 'max_tokens',
   },
   kimi: {
     name:         'kimi',
@@ -29,8 +40,61 @@ const PROVIDER_CONFIGS = Object.freeze({
     // La serie moonshot-v1 cierra a nuevos usuarios y sunset completo
     // 2026-08-31 -- kimi-k3 (2026-07-16, 1M contexto) es el flagship vigente.
     defaultModel: 'kimi-k3',
+    // No verificado contra fuente oficial (mismo motivo que deepseek) --
+    // se asume formato clasico max_tokens hasta confirmar lo contrario.
+    maxTokensParam: 'max_tokens',
   },
 });
+
+/**
+ * Construye el body JSON de la peticion de chat completions.
+ *
+ * El nombre del parametro de limite de tokens de salida varia por proveedor
+ * (providerConfig.maxTokensParam, default 'max_tokens'): confirmado en vivo
+ * (2026-07-22) que la API de OpenAI actual RECHAZA la peticion por completo
+ * si recibe max_tokens ("Unsupported parameter"), no solo lo ignora -- por
+ * eso no se envian ambos nombres a la vez, hay que usar el correcto segun
+ * el proveedor real.
+ *
+ * options.forzarJSON + providerConfig.soportaJSONMode activa
+ * response_format:{type:"json_object"} -- solo para proveedores donde se
+ * confirmo explicitamente que lo soportan (evita fallar la llamada en
+ * proveedores no verificados que podrian no reconocer el parametro).
+ *
+ * options.system antepone un mensaje {role:"system", content} al array
+ * messages -- regresion real detectada en vivo (2026-07-22): este adapter
+ * nunca uso options.system, cualquier llamada con system prompt (ej.
+ * CrossVerifier.js, SubagentGrader.js) lo perdia silenciosamente sin error,
+ * ademas de romper response_format:json_object (OpenAI exige que la
+ * palabra "json" aparezca en algun mensaje para aceptar ese parametro).
+ *
+ * @param {Array}  messages - formato Messages API
+ * @param {Object} options - { model, max_tokens, forzarJSON, system }
+ * @param {Object} providerConfig - { defaultModel, maxTokensParam, soportaJSONMode }
+ * @returns {string} body JSON serializado
+ */
+function construirBodyOpenAICompat(messages, options = {}, providerConfig = {}) {
+  const model          = options.model || providerConfig.defaultModel || 'gpt-5.6-luna';
+  const maxOut         = options.max_tokens || 1024;
+  const maxTokensParam = providerConfig.maxTokensParam || 'max_tokens';
+
+  const mensajesFinales = options.system
+    ? [{ role: 'system', content: options.system }, ...messages]
+    : messages;
+
+  const body = {
+    model,
+    messages: mensajesFinales,
+    [maxTokensParam]: maxOut,
+    stream: false,
+  };
+
+  if (options.forzarJSON && providerConfig.soportaJSONMode) {
+    body.response_format = { type: 'json_object' };
+  }
+
+  return JSON.stringify(body);
+}
 
 async function chatOpenAICompat(messages, options = {}, providerConfig = {}) {
   const https = require('https');
@@ -38,14 +102,8 @@ async function chatOpenAICompat(messages, options = {}, providerConfig = {}) {
   const baseUrl = providerConfig.baseUrl || 'https://api.openai.com';
   const apiKey  = providerConfig.apiKey  || process.env.OPENAI_API_KEY || '';
   const model   = options.model || providerConfig.defaultModel || 'gpt-5.6-luna';
-  const maxOut  = options.max_tokens || 1024;
 
-  const body = JSON.stringify({
-    model,
-    messages,
-    max_tokens: maxOut,
-    stream: false,
-  });
+  const body = construirBodyOpenAICompat(messages, options, providerConfig);
 
   return new Promise((resolve, reject) => {
     const url     = new URL(`${baseUrl}/v1/chat/completions`);
@@ -86,4 +144,4 @@ async function chatOpenAICompat(messages, options = {}, providerConfig = {}) {
   });
 }
 
-module.exports = { chatOpenAICompat, PROVIDER_CONFIGS };
+module.exports = { chatOpenAICompat, PROVIDER_CONFIGS, construirBodyOpenAICompat };

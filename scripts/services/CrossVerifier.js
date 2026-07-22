@@ -71,6 +71,11 @@ async function verificar({ diff, tarea, proveedorActor = 'anthropic', disponible
   const respuesta = await chat(proveedor, mensajes, {
     system: PROMPT_SISTEMA,
     max_tokens: 1024,
+    // Mismo fix que SubagentGrader.js: OpenAI ignora instrucciones de texto
+    // plano pidiendo JSON -- forzarJSON activa response_format:json_object
+    // solo en proveedores que lo soportan confirmadamente (ver
+    // OpenAICompatAdapter.js PROVIDER_CONFIGS.soportaJSONMode).
+    forzarJSON: true,
   });
 
   const veredicto = parsearVeredicto(respuesta.content);

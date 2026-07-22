@@ -5,6 +5,16 @@ Versionado semantico: MAJOR.MINOR.PATCH.
 
 ## [Unreleased]
 
+### Corregido — 3 bugs reales en OpenAICompatAdapter.js (verificacion en vivo del grader)
+
+Al ejercitar `subagent-grader.js` con una llamada real (no simulada) a OpenAI para cerrar deuda tecnica pendiente, se encontraron y corrigieron 3 bugs reales en `scripts/services/model-adapters/OpenAICompatAdapter.js`:
+
+- **`max_tokens` rechazado por OpenAI**: la API actual de OpenAI RECHAZA la peticion por completo ("Unsupported parameter: 'max_tokens' is not supported with this model") si el body incluye `max_tokens` -- no lo ignora, falla la llamada entera. Agregado `maxTokensParam` por proveedor en `PROVIDER_CONFIGS` (`max_completion_tokens` para OpenAI, `max_tokens` para DeepSeek/Kimi -- estos ultimos dos no verificados contra fuente oficial por limite de uso de API, se asume que mantienen el formato clasico).
+- **`options.system` nunca se usaba**: el adapter ignoraba silenciosamente el parametro `system` en toda llamada -- afecta a `CrossVerifier.js` y `SubagentGrader.js`, ambos lo pasan explicitamente. Corregido anteponiendo un mensaje `{role: "system", content}` al array `messages`.
+- **OpenAI ignora instrucciones de texto plano pidiendo JSON**: confirmado en vivo que el modelo devuelve prosa libre pese a la instruccion explicita en el system prompt. Agregado `options.forzarJSON` + `providerConfig.soportaJSONMode` (activado solo para `openai`, confirmado que funciona con `response_format:{type:"json_object"}`) -- requiere ademas que la palabra "json" aparezca en algun mensaje, cumplido por el fix anterior de `system`.
+
+`CrossVerifier.js` y `SubagentGrader.js` actualizados para pasar `forzarJSON: true`. 9 tests nuevos en `OpenAICompatAdapter.js` cubriendo cada caso.
+
 ### Agregado — SubagentGrader.js + subagent-grader.js (Performance Outcomes)
 
 - **`scripts/services/SubagentGrader.js`** (nuevo): grader generico de calidad post-subagente via LLM-as-judge, patron "Performance Outcomes" del Claude Agent SDK (un juez separado evalua el trabajo del subagente contra una rubrica antes de aceptarlo, en vez de solo limitar cuantos corren en paralelo). Diferenciado de `CrossVerifier.js` (solo diffs de codigo de `code-reviewer`) y `subagent-review.js` (patrones via regex): este evalua CUALQUIER subagente por calidad general (completitud, coherencia, riesgos no mencionados). Alcance deliberadamente acotado: no requiere la tarea original con la que se lanzo el subagente (no confirmado si `SubagentStop` la expone, limite de investigacion de esta sesion) -- solo califica el output por si mismo.
