@@ -1713,13 +1713,13 @@ describe('detect-role.js + memory-index-stop.js (estado efimero de rol)', () => 
 describe('health-sync.js — checkSkills', () => {
   const { checkSkills } = require(path.join(BIN, 'health-sync.js'));
 
-  test('el repo real: 38 skills, todos con frontmatter valido', () => {
+  test('el repo real: 39 skills, todos con frontmatter valido', () => {
     // Regresion real detectada en esta sesion: checkSkills() dependia de una
     // tabla de skills en CLAUDE.md que ya no existe (routing via frontmatter
     // description) -- reportaba 36/38 skills como "huerfanos" falsamente.
     const r = checkSkills(REPO);
     assert.equal(r.ok, true, `no debe haber skills invalidos: ${JSON.stringify(r.invalid)}`);
-    assert.equal(r.count, 38);
+    assert.equal(r.count, 39);
     assert.deepEqual(r.invalid, []);
   });
 
@@ -2120,11 +2120,11 @@ describe('audit-market.js', () => {
     assert.ok(fs.existsSync(SCRIPT));
   });
 
-  test('--json produce un resumen valido con los 38 skills reales', () => {
+  test('--json produce un resumen valido con los 39 skills reales', () => {
     const r = runScript(SCRIPT, ['--json']);
     assert.equal(r.status, 0);
     const salida = JSON.parse(r.stdout);
-    assert.equal(salida.resumen.total, 38);
+    assert.equal(salida.resumen.total, 39);
     assert.ok(Array.isArray(salida.resultados));
   });
 

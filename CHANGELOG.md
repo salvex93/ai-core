@@ -3,6 +3,21 @@
 Registro de cambios por version. Formato basado en [Keep a Changelog](https://keepachangelog.com/es/1.0.0/).
 Versionado semantico: MAJOR.MINOR.PATCH.
 
+## [Unreleased]
+
+### Agregado
+
+- **`.claude/skills/performance-engineer/SKILL.md`** (nuevo): cubre cache de aplicacion (in-memory vs Redis segun escenario), CDN para assets estaticos, y pruebas de carga (autocannon para el stack Node.js nativo del proyecto). Brecha confirmada por auditoria: ni `database-ops` (pooling/indices/BD) ni `devops-infra` (observabilidad/IaC) ni `qa-engineer` (piramide de testing) cubrian estas tres responsabilidades. No requiere AGENT.md — es un skill conversacional de dominio, no cumple los tres criterios de autonomia/salida estructurada/recurrencia.
+- **`.claude/MCP_REGISTRY.md`** (nuevo): registro de evaluaciones de MCPs de terceros antes de instalacion, segun el protocolo de gobierno de MCPs. Primera entrada: `DeusData/codebase-memory-mcp` evaluado con veredicto EVALUAR (no instalar en esta pasada — binario nativo C fuera del stack Node.js declarado, instalador con riesgo de sobrescritura de hooks existentes segun issue upstream #1200, auditoria de seguridad de inputs parcial).
+
+### Corregido — regla SOLID de 300 lineas (3 archivos en violacion)
+
+- **`scripts/services/ModelRegistry.js`** (315 → 156 lineas): adapters de Anthropic, Gemini y OpenAI-compatible (OpenAI/DeepSeek/Kimi) extraidos a `scripts/services/model-adapters/`. El archivo raiz queda como orquestador de routing puro.
+- **`.claude/bin/aiops-score.js`** (343 → 131 lineas): las 6 funciones de scoring por dimension (routing, hooks, skills, drift, seguridad, agentes) extraidas a `.claude/bin/lib/aiops-scorers.js`. El archivo raiz queda como CLI de persistencia y reporte.
+- **`.claude/bin/memory-index.js`** (357 → 193 lineas): motor BM25 (tokenizacion, stemming, sinonimos, fragmentacion, indice invertido, scoring) extraido a `.claude/bin/lib/bm25-engine.js`. El archivo raiz queda como CLI de comandos `index`/`query`/`status`.
+- **`tests/harness.test.js`**: conteo de skills actualizado de 38 a 39 en los dos tests que verifican el estado real del repo (`checkSkills`, `--json` de `validate-globals`).
+- **`README.md`**: referencias a "38 skills" / "628 tests" actualizadas a 39 skills / 636 tests en las 6 menciones del documento.
+
 ## [3.13.0] — 2026-07-17
 
 ### Corregido — 10 bugs reales de regresion silenciosa
