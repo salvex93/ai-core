@@ -105,6 +105,12 @@ function buildHooksSection(bin) {
           { type: 'command', command: `node ${bin('subagent-guard.js')}` },
         ],
       },
+      {
+        matcher: 'mcp__.*',
+        hooks: [
+          { type: 'command', command: `node ${bin('circuit-breaker.js')} 2>&1 || true` },
+        ],
+      },
     ],
     PostToolUse: [
       {

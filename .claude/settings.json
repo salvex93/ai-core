@@ -200,6 +200,15 @@
             "command": "node \"C:/Users/arimac/Documents/ai-core/.claude/bin/subagent-guard.js\""
           }
         ]
+      },
+      {
+        "matcher": "mcp__.*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"C:/Users/arimac/Documents/ai-core/.claude/bin/circuit-breaker.js\" 2>&1 || true"
+          }
+        ]
       }
     ],
     "PostToolUse": [

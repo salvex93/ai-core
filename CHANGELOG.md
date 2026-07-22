@@ -5,6 +5,12 @@ Versionado semantico: MAJOR.MINOR.PATCH.
 
 ## [Unreleased]
 
+### Agregado — circuit-breaker.js (ASI08 — OWASP Agentic Top 10 2026)
+
+- **`.claude/bin/circuit-breaker.js`** (nuevo, `PreToolUse` matcher `mcp__.*`): cuenta fallos `mcp_failure` consecutivos y no reportados de una herramienta MCP dentro de una ventana de 5 minutos (via `EVENTS_QUEUE.json`, ya poblado por `capture-event.js` en `PostToolUseFailure`). Si supera el umbral (3), avisa (no bloquea de forma dura -- un MCP externo puede recuperarse) sugiriendo escalar al tier de costo inmediato superior en vez de reintentar la misma llamada condenada a fallar. Cierra el gap ASI08 (Cascading Agent Failures): antes, `PostToolUseFailure` solo registraba el evento sin ningun mecanismo que evitara reintentar la misma herramienta caida turno tras turno.
+
+Con esto quedan cerrados los 4 gaps de severidad alta/media detectados en la auditoria OWASP Top 10 for Agentic Applications 2026 de esta sesion: ASI05 (`code-exec-guard.js`), ASI03/ASI07 (`subagent-guard.js` corregido dentro del fix sistemico), ASI04 (`mcp-integrity-check.js`), ASI08 (`circuit-breaker.js`).
+
 ### Agregado — mcp-integrity-check.js (ASI04 — OWASP Agentic Top 10 2026)
 
 - **`.claude/bin/mcp-integrity-check.js`** (nuevo): verificacion de hash SHA-256 de los 2 servidores MCP propios del arnes (`gemini-bridge`, `anthropic-router`) contra un baseline persistido en `.claude/MCP_INTEGRITY_BASELINE.json`. Alcance deliberadamente acotado tras revisar el gap generico de la auditoria OWASP: ambos servidores son propios (no de terceros), ya auditables leyendo el codigo directamente -- el riesgo real de supply-chain de MCPs de terceros ya lo cubre `mcp-registry-navigator` antes de instalar cualquier servidor externo. Solo informa, nunca bloquea. Integrado a `health-check.js` (solo en modo standalone).
