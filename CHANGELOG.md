@@ -5,6 +5,12 @@ Versionado semantico: MAJOR.MINOR.PATCH.
 
 ## [Unreleased]
 
+### Corregido — agent-metrics.js nunca poblaba AGENT_METRICS.json
+
+- **`.claude/bin/agent-metrics.js`**: el hook `PostToolUse` invocaba `record --tool "$CLAUDE_TOOL_NAME"`, una variable de entorno que Claude Code nunca inyecta a procesos de hook tipo `command` — el nombre real de la herramienta llega exclusivamente por JSON en stdin (campo `tool_name`, confirmado contra `code.claude.com/docs/en/hooks`). El comando se expandia a `--tool ""` en cada ejecucion y el `2>/dev/null || true` del hook enmascaraba cualquier fallo, dejando `AGENT_METRICS.json` sin crearse nunca — `agent-report`/`agent-report-full` reportaban "sin datos de sesiones" desde que se implemento la metrica. Corregido: `record` ahora lee `tool_name` de stdin cuando no recibe `--tool` explicito, sin bloquear si stdin es una TTY sin datos.
+- **`.claude/bin/hooks-definition.js`**: comando del hook de `agent-metrics.js` en `PostToolUse` limpiado de la variable de entorno inexistente.
+- **`tests/harness.test.js`**: 2 tests nuevos de regresion — lectura de `tool_name` desde stdin JSON, y fallback a `"unknown"` sin bloquear cuando no hay stdin ni `--tool`.
+
 ### Agregado
 
 - **`.claude/skills/performance-engineer/SKILL.md`** (nuevo): cubre cache de aplicacion (in-memory vs Redis segun escenario), CDN para assets estaticos, y pruebas de carga (autocannon para el stack Node.js nativo del proyecto). Brecha confirmada por auditoria: ni `database-ops` (pooling/indices/BD) ni `devops-infra` (observabilidad/IaC) ni `qa-engineer` (piramide de testing) cubrian estas tres responsabilidades. No requiere AGENT.md — es un skill conversacional de dominio, no cumple los tres criterios de autonomia/salida estructurada/recurrencia.

@@ -222,7 +222,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node \"C:/Users/arimac/Documents/ai-core/.claude/bin/agent-metrics.js\" record --tool \"$CLAUDE_TOOL_NAME\" --status ok 2>/dev/null || true"
+            "command": "node \"C:/Users/arimac/Documents/ai-core/.claude/bin/agent-metrics.js\" record --status ok 2>/dev/null || true"
           }
         ]
       },

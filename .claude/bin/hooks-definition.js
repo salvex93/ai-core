@@ -124,7 +124,7 @@ function buildHooksSection(bin) {
       {
         matcher: 'Bash|Read|Write|Edit|Agent',
         hooks: [
-          { type: 'command', command: `node ${bin('agent-metrics.js')} record --tool "$CLAUDE_TOOL_NAME" --status ok 2>/dev/null || true` },
+          { type: 'command', command: `node ${bin('agent-metrics.js')} record --status ok 2>/dev/null || true` },
         ],
       },
       {

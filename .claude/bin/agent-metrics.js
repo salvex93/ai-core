@@ -5,8 +5,13 @@
  * Registra metricas por tool call en PostToolUse:
  *   - herramienta usada, duracion estimada, exito/fallo, tokens estimados
  *
+ * El nombre de la herramienta llega por stdin como JSON (campo tool_name),
+ * segun el contrato real de hooks de Claude Code -- no existe una variable
+ * de entorno equivalente. Ver docs.claude.com/en/docs/claude-code/hooks.
+ * --tool sigue soportado como override explicito (uso manual / tests).
+ *
  * Comandos:
- *   node agent-metrics.js record --tool <nombre> --status <ok|fail> --ms <duracion>
+ *   node agent-metrics.js record [--tool <nombre>] --status <ok|fail> --ms <duracion>
  *   node agent-metrics.js report          — resumen de la sesion actual
  *   node agent-metrics.js report --full   — todas las sesiones
  */
@@ -53,8 +58,19 @@ function estimateTokens(tool) {
 
 // ─── Comandos ─────────────────────────────────────────────────────────────────
 
-function cmdRecord(args) {
-  const tool   = args['--tool']   || process.env.CLAUDE_TOOL_NAME || 'unknown';
+function leerToolNameDeStdin() {
+  try {
+    const raw = fs.readFileSync(0, 'utf8');
+    if (!raw.trim()) return null;
+    const evento = JSON.parse(raw);
+    return evento.tool_name || null;
+  } catch {
+    return null;
+  }
+}
+
+function cmdRecord(args, toolDesdeStdin) {
+  const tool   = args['--tool'] || toolDesdeStdin || 'unknown';
   const status = args['--status'] || 'ok';
   const ms     = parseInt(args['--ms'] || '0', 10);
 
@@ -113,7 +129,15 @@ for (let i = 1; i < argv.length; i += 2) {
 }
 
 switch (cmd) {
-  case 'record': cmdRecord(args); break;
+  case 'record': {
+    // Solo leer stdin si no vino --tool explicito y hay datos reales entrantes
+    // (pipe/redireccion) -- nunca bloquear en una TTY interactiva sin input.
+    const toolDesdeStdin = !args['--tool'] && !process.stdin.isTTY
+      ? leerToolNameDeStdin()
+      : null;
+    cmdRecord(args, toolDesdeStdin);
+    break;
+  }
   case 'report': cmdReport(argv.includes('--full')); break;
   default:
     console.log('Uso: node agent-metrics.js [record --tool <t> --status <ok|fail> --ms <n>|report [--full]]');

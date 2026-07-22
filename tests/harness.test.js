@@ -1393,6 +1393,34 @@ describe('agent-metrics.js (observabilidad)', () => {
     assert.ok(r.stdout.includes('[metrics]'), 'debe incluir datos de sesiones');
   });
 
+  test('record: sin --tool, lee tool_name del JSON de stdin (contrato real de hooks Claude Code)', () => {
+    // Regresion real: el hook registrado en hooks-definition.js pasaba
+    // --tool "$CLAUDE_TOOL_NAME", una variable de entorno que Claude Code
+    // nunca inyecta -- el nombre real llega por stdin como JSON (tool_name).
+    // Sin este test, ese bug (AGENT_METRICS.json nunca se poblaba en produccion)
+    // pasaba desapercibido porque el test anterior siempre paso --tool explicito.
+    const evento = JSON.stringify({ session_id: 'x', hook_event_name: 'PostToolUse', tool_name: 'Edit' });
+    const r = spawnSync('node', [SCRIPT, 'record', '--status', 'ok'], {
+      encoding: 'utf8', cwd: REPO, input: evento,
+      env: { ...process.env, AI_CORE_TEST_MODE: '1' },
+    });
+    assert.equal(r.status, 0);
+    const data    = JSON.parse(fs.readFileSync(METRICS, 'utf8'));
+    const session = data.sessions[data.sessions.length - 1];
+    assert.equal(session.calls[session.calls.length - 1].tool, 'Edit');
+  });
+
+  test('record: sin --tool y sin stdin con datos, no bloquea y usa "unknown"', () => {
+    const r = spawnSync('node', [SCRIPT, 'record', '--status', 'ok'], {
+      encoding: 'utf8', cwd: REPO, input: '',
+      env: { ...process.env, AI_CORE_TEST_MODE: '1' },
+    });
+    assert.equal(r.status, 0);
+    const data    = JSON.parse(fs.readFileSync(METRICS, 'utf8'));
+    const session = data.sessions[data.sessions.length - 1];
+    assert.equal(session.calls[session.calls.length - 1].tool, 'unknown');
+  });
+
   test('agent-metrics registrado en PostToolUse de settings.json', () => {
     const settings  = JSON.parse(fs.readFileSync(SETTINGS, 'utf8'));
     const postHooks = settings.hooks?.PostToolUse || [];
