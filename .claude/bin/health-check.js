@@ -23,6 +23,7 @@ const REPORT_PATH = isStandalone
 
 const { checkDependencies, checkSkills, checkMcpServers } = require('./health-sync');
 const { buildSyncReport, buildBanner }                    = require('./health-report');
+const { verificarIntegridad }                             = require('./mcp-integrity-check');
 
 // -------------------------------------------------------------------
 // Check de path drift — autocorrige settings.json del anfitrion
@@ -139,6 +140,18 @@ async function main() {
   // Generar reporte en disco
   const report = buildSyncReport(results, meta);
   fs.writeFileSync(REPORT_PATH, report);
+
+  // ASI04 — supply-chain de los servidores MCP propios (gemini-bridge,
+  // anthropic-router). Solo informa, nunca bloquea.
+  if (isStandalone) {
+    try {
+      const integridad = verificarIntegridad();
+      if (!integridad.ok) {
+        process.stderr.write(`[MCP-INTEGRITY] ${integridad.cambios.length} cambio(s) detectado(s):\n`);
+        integridad.cambios.forEach(c => process.stderr.write(`  - ${c.server}: ${c.motivo}\n`));
+      }
+    } catch { /* verificacion best-effort, nunca bloquea el hook */ }
+  }
 
   // Banner para stderr (Claude Code lo muestra como output del hook)
   const issues = [

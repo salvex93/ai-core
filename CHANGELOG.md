@@ -5,6 +5,10 @@ Versionado semantico: MAJOR.MINOR.PATCH.
 
 ## [Unreleased]
 
+### Agregado — mcp-integrity-check.js (ASI04 — OWASP Agentic Top 10 2026)
+
+- **`.claude/bin/mcp-integrity-check.js`** (nuevo): verificacion de hash SHA-256 de los 2 servidores MCP propios del arnes (`gemini-bridge`, `anthropic-router`) contra un baseline persistido en `.claude/MCP_INTEGRITY_BASELINE.json`. Alcance deliberadamente acotado tras revisar el gap generico de la auditoria OWASP: ambos servidores son propios (no de terceros), ya auditables leyendo el codigo directamente -- el riesgo real de supply-chain de MCPs de terceros ya lo cubre `mcp-registry-navigator` antes de instalar cualquier servidor externo. Solo informa, nunca bloquea. Integrado a `health-check.js` (solo en modo standalone).
+
 ### Corregido — token-metrics.js nunca encontraba sesiones reales, y estimaba en vez de medir
 
 - **`tests/token-metrics.js`**: la ruta de sesiones (`~/.config/.claude/sessions` / `%APPDATA%/.claude/sessions`) nunca existio en esta maquina -- la ruta real confirmada es `~/.claude/projects/<proyecto-normalizado>/*.jsonl`. El script llevaba desde su implementacion reportando "sin datos" sin importar cuanto se usara el arnes. Ademas, reescrito para leer tokens REALES de `message.usage` (input_tokens, output_tokens, cache_read_input_tokens, cache_creation_input_tokens -- campos que Anthropic ya calcula) en vez de estimar 800 tokens/turno. Primera medicion real tras el fix: 98% de ahorro por prompt caching en las ultimas 3 sesiones (13.9M tokens reales facturados vs 637.7M leidos de cache).

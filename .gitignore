@@ -22,6 +22,7 @@ scripts/premium/
 .claude/TO_GEMINI.md
 .claude/TOKEN_METRICS.json
 .claude/AGENT_METRICS.json
+.claude/MCP_INTEGRITY_BASELINE.json
 .claude/models-cache.json
 .claude/CONTEXT_MAP.json
 .claude/EVENTS_QUEUE.json
