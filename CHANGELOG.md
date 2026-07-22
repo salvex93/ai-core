@@ -5,6 +5,10 @@ Versionado semantico: MAJOR.MINOR.PATCH.
 
 ## [Unreleased]
 
+### Verificado — subagent-guard.js: tool_input.subagent_type confirmado empiricamente
+
+Pendiente de la sesion anterior: no se pudo re-verificar contra fuente oficial el nombre exacto del campo `tool_input.subagent_type` para el evento `PreToolUse(Agent)` (limite de uso de API alcanzado a mitad de esa investigacion). Cerrado con verificacion empirica directa: instrumentado `subagent-guard.js` temporalmente para volcar el JSON crudo de stdin, lanzado un subagente real, confirmado que `tool_input` trae `{ description, prompt, subagent_type, model, run_in_background }` -- el nombre de campo usado en el codigo era correcto. Instrumentacion retirada tras la verificacion. Hallazgo adicional (no implementado, oportunidad futura): `tool_input.prompt` contiene la tarea original completa del subagente, lo cual permitiria a `SubagentGrader.js` evaluar cumplimiento de tarea y no solo calidad general -- requeriria capturar ese dato en `PreToolUse` y correlacionarlo con el `SubagentStop` correspondiente via `tool_use_id`/`agent_id`.
+
 ### Corregido — auditoria de secretos y test flaky en agent-metrics.js
 
 Auditoria de secretos hardcodeados (categoria no cubierta por la auditoria OWASP Agentic anterior): estado **SEGURO**, 0 hallazgos criticos. `.env` nunca aparecio en el historial de git (confirmado con `git log --all --diff-filter=A`), sin credenciales hardcodeadas en codigo fuente, sin logging de variables de entorno sensibles, sin API keys literales en `mcpServers` de `settings.json`. Unico hallazgo (severidad alta preventiva, no fuga confirmada): `.gitignore` no tenia el patron generico `.env*` (solo 4 variantes explicitas) ni patrones de credenciales comunes (`*.pem`, `*.key`, `*.p12`, `credentials.json`) -- ninguno existe hoy en el repo, pero faltaba la red de seguridad. Agregados ambos; confirmado que `.env.example` (placeholders, si debe versionarse) no queda excluido por el nuevo patron generico.

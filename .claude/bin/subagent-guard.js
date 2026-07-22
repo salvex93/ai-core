@@ -21,15 +21,11 @@
  * Uso: node subagent-guard.js (recibe el evento PreToolUse por stdin)
  *
  * CLAUDE_TOOL_INPUT_subagent_type y CLAUDE_SUBAGENT_TYPE nunca existieron
- * como variables de entorno reales (confirmado contra
- * code.claude.com/docs/en/hooks para PreToolUse general: el dato real llega
- * por stdin como tool_input.<param>). El parametro subagent_type es el que
- * la propia tool Agent/Task documenta para su invocacion -- se lee de
- * tool_input.subagent_type por analogia directa con tool_input.command ya
- * confirmado para Bash. NOTA: el nombre exacto de este campo especifico para
- * el Agent tool no se re-verifico contra la doc oficial en esta sesion
- * (limite de uso de API alcanzado a mitad de la investigacion) -- si un test
- * de integracion real muestra que el campo tiene otro nombre, corregir aqui.
+ * como variables de entorno reales -- el dato real llega por stdin como
+ * tool_input.subagent_type. Confirmado empiricamente (2026-07-22) capturando
+ * el JSON real de un evento PreToolUse(Agent) en esta misma instalacion:
+ * tool_input trae { description, prompt, subagent_type, model,
+ * run_in_background } -- subagent_type es exactamente el nombre esperado.
  */
 
 const fs     = require('fs');
