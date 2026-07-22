@@ -5,6 +5,14 @@ Versionado semantico: MAJOR.MINOR.PATCH.
 
 ## [Unreleased]
 
+### Corregido — CONTEXT_MAP.json versionado pese a estar en .gitignore
+
+- **`.claude/CONTEXT_MAP.json`**: versionado en git desde v2.6.3, pese a estar declarado en `.gitignore` desde una version posterior (`.gitignore` no afecta archivos ya trackeados). Causaba diff de timestamp/conteo en `git status` en cada sesion sin ningun cambio real de codigo. Sacado del tracking con `git rm --cached` — sigue en disco y se regenera normal con `npm run map`, ya no aparece como modificado salvo que se edite el `.gitignore` mismo.
+
+### Actualizado — MCP_REGISTRY.md
+
+- **`codebase-memory-mcp` (DeusData)**: veredicto actualizado de EVALUAR a DESCARTADO por decision explicita del usuario. Razon documentada: riesgo operativo concreto (issue upstream #1200, instalador puede sobrescribir `hooks-definition.js`), binario nativo C fuera del stack Node.js declarado, sin necesidad activa que lo justifique (vault BM25+ propio ya cubre memoria semantica), y auditoria de seguridad de inputs incompleta (`store/`/`discover/` sin revisar).
+
 ### Corregido — agent-metrics.js nunca poblaba AGENT_METRICS.json
 
 - **`.claude/bin/agent-metrics.js`**: el hook `PostToolUse` invocaba `record --tool "$CLAUDE_TOOL_NAME"`, una variable de entorno que Claude Code nunca inyecta a procesos de hook tipo `command` — el nombre real de la herramienta llega exclusivamente por JSON en stdin (campo `tool_name`, confirmado contra `code.claude.com/docs/en/hooks`). El comando se expandia a `--tool ""` en cada ejecucion y el `2>/dev/null || true` del hook enmascaraba cualquier fallo, dejando `AGENT_METRICS.json` sin crearse nunca — `agent-report`/`agent-report-full` reportaban "sin datos de sesiones" desde que se implemento la metrica. Corregido: `record` ahora lee `tool_name` de stdin cuando no recibe `--tool` explicito, sin bloquear si stdin es una TTY sin datos.
