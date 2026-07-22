@@ -78,20 +78,53 @@ const UMBRAL_ESCALADO_SONNET = 12_000;
 // Umbral para escalar Sonnet→Opus por complejidad de contexto
 const UMBRAL_ESCALADO_OPUS   = 60_000;
 
+// Proveedores no-Anthropic que pueden absorber una tarea delegable de tier
+// Haiku para ahorrar cuota de Claude. Claude es la unica constante del
+// arnes (siempre disponible) -- estos son variables segun que API keys
+// tenga configuradas cada usuario en su .env. Orden de preferencia: Gemini
+// (gratis) primero, luego los proveedores pagados. Ninguno excluye a otro
+// -- listProviders() ya marca available:false si falta la key, degradando
+// con gracia al proveedor siguiente o a Haiku si no hay ninguno configurado.
+const PROVEEDORES_DELEGABLES = Object.freeze(['gemini', 'openai', 'deepseek', 'kimi']);
+
+/**
+ * Determina si hay un proveedor no-Anthropic disponible para absorber una
+ * tarea delegable, en el orden de preferencia definido (gratis antes que
+ * pagado). Retorna null si ninguno esta disponible (fallback a Haiku).
+ *
+ * @param {Array<{provider: string, available: boolean}>} disponibles
+ * @returns {string|null}
+ */
+function seleccionarProveedorDelegable(disponibles) {
+  if (!Array.isArray(disponibles)) return null;
+  const candidato = PROVEEDORES_DELEGABLES
+    .map(nombre => disponibles.find(p => p.provider === nombre))
+    .find(p => p && p.available);
+  return candidato ? candidato.provider : null;
+}
+
 /**
  * Retorna el modelo adecuado para una herramienta y tamano de contexto dados.
  *
  * Jerarquia de costo (menor a mayor):
- *   Gemini (free) → Haiku → Sonnet → Opus
+ *   Gemini (free) → OpenAI (pagado, si Gemini no aplica) → Haiku → Sonnet → Opus
  *
  * Regla de oro: usar el modelo mas barato que pueda completar la tarea.
  * Gemini siempre tiene preferencia para lecturas y resumenes extensos.
+ * Claude es la unica constante del arnes -- Gemini/OpenAI son variables
+ * segun configuracion de cada usuario, degradando con gracia a Haiku si
+ * ninguno esta disponible (opciones.disponibles === undefined o vacio).
  *
  * @param {string} nombreHerramienta - nombre de la tool MCP
  * @param {number} [tokensContexto=0] - tokens estimados del contexto actual
- * @returns {{ modelo: string, tier: string, razon: string }}
+ * @param {Object} [opciones={}]
+ * @param {Array}  [opciones.disponibles] - override de listProviders(), habilita
+ *   el ahorro de cuota Claude para tareas delegables. Sin este parametro,
+ *   route() se comporta identico a antes de esta extension.
+ * @returns {{ modelo: string, tier: string, razon: string, proveedor?: string }}
  */
-function route(nombreHerramienta, tokensContexto = 0) {
+function route(nombreHerramienta, tokensContexto = 0, opciones = {}) {
+  const { disponibles } = opciones;
   // Verificador cross-model: no aplica jerarquia de costo Anthropic — se resuelve
   // por proveedor distinto al actor en CrossVerifier.js, no por este router.
   if (TIER_VERIFICADOR.has(nombreHerramienta)) {
@@ -170,6 +203,29 @@ function route(nombreHerramienta, tokensContexto = 0) {
         razon: `Contexto medio-alto (${tokensContexto} tokens) — Gemini free antes que Haiku`,
       };
     }
+    // Ahorro de cuota Claude: si el usuario tiene algun proveedor delegable
+    // configurado (opciones.disponibles), una tarea delegable simple no
+    // necesita gastar cuota de Anthropic en Haiku. Orden: Gemini (gratis)
+    // primero, luego OpenAI/DeepSeek/Kimi (pagados) en el orden de
+    // PROVEEDORES_DELEGABLES. Sin este parametro, cae directo a Haiku
+    // (comportamiento identico al de antes de esta extension).
+    const proveedorDelegable = seleccionarProveedorDelegable(disponibles);
+    if (proveedorDelegable === 'gemini') {
+      return {
+        modelo: MODELOS.GEMINI,
+        tier: 'gemini',
+        proveedor: 'gemini',
+        razon: `Transformacion simple, Gemini disponible (gratis) — ahorra cuota de Claude: ${nombreHerramienta}`,
+      };
+    }
+    if (proveedorDelegable) {
+      return {
+        modelo: null,
+        tier: proveedorDelegable,
+        proveedor: proveedorDelegable,
+        razon: `Transformacion simple, sin Gemini pero con ${proveedorDelegable} disponible — ahorra cuota de Claude: ${nombreHerramienta}`,
+      };
+    }
     return {
       modelo: MODELOS.HAIKU,
       tier: 'haiku',
@@ -224,4 +280,4 @@ function estimarCosto(modelo, tokensInput, tokensOutput, tokensCacheHit = 0) {
   };
 }
 
-module.exports = { route, estimarCosto, MODELOS, COSTO_POR_MODELO, TIER_VERIFICADOR };
+module.exports = { route, estimarCosto, seleccionarProveedorDelegable, MODELOS, COSTO_POR_MODELO, TIER_VERIFICADOR, PROVEEDORES_DELEGABLES };

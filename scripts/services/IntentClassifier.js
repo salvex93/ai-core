@@ -217,14 +217,23 @@ function clasificar(mensajeUsuario) {
  * }}
  */
 function clasificarConModelo(mensajeUsuario, tokensContexto = 0) {
-  const { route }   = require('./ModelRouter');
-  const intent      = clasificar(mensajeUsuario);
-  const { modelo, razon: razonModelo } = route(intent.herramienta, tokensContexto);
+  const { route }         = require('./ModelRouter');
+  const { listProviders } = require('./ModelRegistry');
+  const intent            = clasificar(mensajeUsuario);
+
+  // Pasar la disponibilidad real de proveedores habilita el ahorro de cuota
+  // Claude para tareas delegables (Gemini/OpenAI si estan configurados en
+  // .env) -- Claude sigue siendo la unica constante del arnes, este
+  // parametro solo agrega opciones, nunca las quita.
+  const { modelo, razon: razonModelo, proveedor } = route(intent.herramienta, tokensContexto, {
+    disponibles: listProviders(),
+  });
 
   return {
     rol:          intent.rol,
     herramienta:  intent.herramienta,
     modelo,
+    proveedor,
     confianza:    intent.confianza,
     razonIntent:  intent.razon,
     razonModelo,

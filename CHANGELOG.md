@@ -5,6 +5,15 @@ Versionado semantico: MAJOR.MINOR.PATCH.
 
 ## [Unreleased]
 
+### Agregado — ahorro real de cuota Claude via ModelRouter multi-proveedor
+
+Hasta ahora `ModelRouter.js` solo enrutaba entre Gemini y modelos Anthropic; OpenAI/DeepSeek/Kimi solo existian como jueces de verificacion (`CrossVerifier.js`, `SubagentGrader.js`), nunca como opcion real para tareas delegables de trabajo. Un usuario con Claude + Gemini + ChatGPT reales pagados no tenia forma de que el arnes usara ChatGPT para ahorrar cuota de Claude en tareas simples.
+
+- **`scripts/services/ModelRouter.js`**: `route()` acepta un tercer parametro opcional `{ disponibles }` (mismo patron que `CrossVerifier.seleccionarVerificador`/`SubagentGrader.seleccionarJuez`). Para tareas del tier Haiku (transformaciones simples, bajo volumen), si Gemini no aplica pero hay un proveedor delegable disponible (`PROVEEDORES_DELEGABLES`: `gemini`, `openai`, `deepseek`, `kimi`, en ese orden — gratis antes que pagados), se enruta ahi en vez de gastar cuota de Anthropic en Haiku. Sin el parametro (comportamiento default), `route()` es identico a antes de este cambio — degradacion con gracia total para quien solo tiene Claude.
+- **`scripts/services/IntentClassifier.js`**: `clasificarConModelo()` (consumida por `detect-role.js`) ahora pasa `listProviders()` real a `route()`, activando el ahorro de cuota en produccion, no solo en tests.
+- Claude sigue siendo la unica constante del arnes (nunca se enruta el chat principal, solo tareas delegadas/subagentes). DeepSeek y Kimi incluidos preparados en `PROVEEDORES_DELEGABLES` aunque el usuario actual no los tenga configurados — se activan solos si alguien agrega esas keys a su `.env`.
+- Verificado en vivo con Claude+Gemini+OpenAI reales: `reparar_error` enruta a Gemini (gratis) cuando esta disponible, y a OpenAI cuando Gemini no aplica pero OpenAI si — confirmado con y sin Gemini simulado.
+
 ### Agregado — SubagentGrader.js evalua cumplimiento de tarea, no solo calidad general
 
 Cierra la limitacion documentada en v3.14.0: "SubagentGrader.js no usa la tarea original". Verificado empiricamente (lanzando un subagente real e inspeccionando ambos eventos) que `tool_use_id` (PreToolUse) y `agent_id` (SubagentStop) son valores DISTINTOS y no correlacionan entre si -- pero `session_id`+`prompt_id` si son identicos en ambos eventos del mismo subagente.

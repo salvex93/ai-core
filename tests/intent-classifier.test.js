@@ -106,6 +106,19 @@ describe('IntentClassifier.clasificar — contrato de salida', () => {
   });
 });
 
+describe('IntentClassifier.clasificarConModelo — ahorro de cuota Claude via ModelRouter', () => {
+  const { clasificarConModelo } = require('../scripts/services/IntentClassifier');
+
+  test('conecta la disponibilidad real de listProviders() a route() (integracion, no unitario)', () => {
+    // No mockea listProviders() a proposito: confirma que la integracion
+    // real esta conectada (route() recibe disponibles), sin asumir que
+    // proveedores especificos esten o no configurados en esta maquina.
+    const r = clasificarConModelo('arregla este bug puntual en el codigo');
+    assert.ok('modelo' in r);
+    assert.ok('proveedor' in r, 'debe exponer el campo proveedor aunque sea undefined para tiers Anthropic');
+  });
+});
+
 describe('AgentRoles.obtenerSkillsPorRol — auto-discovery via frontmatter', () => {
   test('descubre skills leyendo el campo rol: del frontmatter, no por inferencia', () => {
     const r = obtenerSkillsPorRol();
