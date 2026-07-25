@@ -29,6 +29,9 @@ function runScript(scriptPath, args = [], env = {}) {
     // temporales de test, no fallos reales del harness.
     env: { ...process.env, AI_CORE_TEST_MODE: '1', ...env },
     cwd: REPO,
+    // Sin esto, salida JSON grande (ej. audit-market.js --json, ~14KB) se
+    // trunca en macOS/Node 20 antes del default de 1MB -- confirmado en CI.
+    maxBuffer: 10 * 1024 * 1024,
   });
   return result;
 }
@@ -644,7 +647,9 @@ describe('validate-globals.js — schema agentskills.io', () => {
   }
 
   function runValidate() {
-    return spawnSync('node', [SCRIPT, '--json'], { encoding: 'utf8', cwd: REPO });
+    // maxBuffer explicito: la salida --json de validate-globals.js se trunca
+    // en macOS/Node 20 antes del default de 1MB -- confirmado en CI.
+    return spawnSync('node', [SCRIPT, '--json'], { encoding: 'utf8', cwd: REPO, maxBuffer: 10 * 1024 * 1024 });
   }
 
   after(limpiar);
