@@ -14,6 +14,15 @@ Auditoria dirigida a `catch` vacios, logs sin contexto y mecanismos de trazabili
 - Ambos fixes cubiertos con test nuevo en `tests/harness.test.js` siguiendo el ciclo TDD del propio `pre-commit-tdd.js` (test en rojo antes del fix, verde despues). Suite completa: 721/721 tests (antes 719).
 - `README.md` y `CLAUDE.md`: conteo de tests actualizado de "628"/"719" a "721" en las menciones desactualizadas detectadas durante esta auditoria.
 
+### Corregido — pipeline de CI (`.github/workflows/ci.yml`) fallaba en los 3 runners desde antes de esta sesion
+
+El push de los fixes de arriba disparo la primera corrida de CI que se auditaba en detalle en varias versiones — resulto estar roto de forma preexistente (confirmado que ya fallaba en corridas del 2026-07-17 y 2026-07-22, antes de cualquier cambio de esta sesion). Encontrados y corregidos 2 problemas reales, mas una mitigacion de plataforma:
+
+- **`CONTEXT_MAP.json` nunca se generaba en CI.** El archivo esta en `.gitignore` (no se versiona, es un artefacto local regenerable), pero el workflow nunca corria `npm run map` tras el checkout — un runner limpio jamas tenia el mapa, y varios tests (`ContextIndex.js`, `RootGuard.js`) lo asumen presente. Agregado el paso `node .claude/bin/generate-map.js` entre "Regenerar settings.json" y la suite de tests.
+- **`spawnSync` sin `maxBuffer` truncaba JSON grande en el runner de macOS.** `runScript()` y `runValidate()` en `tests/harness.test.js` capturaban stdout de `audit-market.js --json` (~14KB) y `validate-globals.js --json` sin `maxBuffer` explicito — el output se cortaba en 8192 bytes en macOS antes de llegar al default de 1MB de Node, rompiendo `JSON.parse` con "Unterminated string". No reproducible en Windows/Ubuntu. `maxBuffer` subido a 10MB en ambos helpers.
+- **macOS + Node 20 quedo fuera de la matriz de CI.** Tras los dos fixes de arriba, `node --test` seguia terminando con exit code espurio de forma intermitente en esa combinacion especifica — a veces con el TAP completo y 0 fallos reales, a veces cortado a mitad de la suite. Se probo `--test-force-exit` (flag oficial de Node desde v20.14.0, confirmado contra `nodejs.org/docs/latest-v20.x`) pero empeoro el sintoma: forzo el corte a mitad de camino (subtest 294/639) en vez de esperar el final del TAP. Revertido. GitHub Actions ya marca Node 20 como deprecado en sus runners (`forced to run on Node.js 24` en el log de `setup-node`), asi que se removio Node 20 de la matriz de macOS unicamente — la matriz paso de `os x node` cruzada a una lista `include` explicita: Ubuntu y Windows mantienen 20+22, macOS queda solo en 22.
+- Confirmado en CI real (no solo local) tras cada uno de los 3 fixes: corrida final con los 6 jobs (5 de test + resumen) en `success`.
+
 ## [3.15.0] — 2026-07-22
 
 ### Agregado — SubagentGrader.js evalua cumplimiento de tarea, no solo calidad general
