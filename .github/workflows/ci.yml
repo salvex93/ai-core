@@ -32,6 +32,9 @@ jobs:
       - name: Regenerar settings.json (portabilidad local)
         run: node .claude/bin/setup-settings.js
 
+      - name: Regenerar CONTEXT_MAP.json (no versionado, .gitignore linea 38)
+        run: node .claude/bin/generate-map.js
+
       - name: Suite de tests del harness (342 assertions)
         run: node --test tests/harness.test.js
 
