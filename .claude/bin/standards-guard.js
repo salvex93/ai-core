@@ -47,6 +47,9 @@ const isCommitMsg = filePath.endsWith('COMMIT_EDITMSG');
 // cambio -- legitimamente usa viñetas extensas para listar varios cambios,
 // igual que un SKILL.md o un README; no debe medirse con el mismo limite.
 const isProsaConversacional = filePath.endsWith('TO_GEMINI.md');
+// Archivos de test pueden contener emojis como fixtures literales para
+// probar el propio detector (EMOJI_RE) -- no son prosa/codigo de produccion.
+const isArchivoDeTest = filePath.endsWith('.test.js') || /[\\/]tests?[\\/]/.test(filePath);
 
 if (!TEXT_EXTS.includes(ext) && !isCommitMsg) process.exit(0);
 
@@ -70,7 +73,7 @@ const violations = [];
 
 const EMOJI_RE = /[\u{1F300}-\u{1F9FF}]|[\u{2600}-\u{27BF}]|[\u{1FA00}-\u{1FAFF}]/u;
 
-if (EMOJI_RE.test(content)) {
+if (!isArchivoDeTest && EMOJI_RE.test(content)) {
   const lineNum = lines.findIndex(l => EMOJI_RE.test(l)) + 1;
   violations.push({
     rule:    'emoji-prohibido',
@@ -98,18 +101,10 @@ if (isProsaConversacional) {
 }
 
 // ---------------------------------------------------------------------------
-// 2. Co-Authored-By
+// 2. Co-Authored-By — solo aplica al mensaje de commit real (ver seccion 6).
+// Un chequeo generico sobre `content` marcaba falsos positivos en CLAUDE.md
+// y README.md, que documentan la regla citando la propia cadena prohibida.
 // ---------------------------------------------------------------------------
-
-if (/Co-Authored-By/i.test(content)) {
-  const lineNum = lines.findIndex(l => /Co-Authored-By/i.test(l)) + 1;
-  violations.push({
-    rule:    'co-authored-by',
-    sev:     'critica',
-    linea:   lineNum,
-    detalle: 'Co-Authored-By detectado — el commit no debe atribuirse a herramientas de IA',
-  });
-}
 
 // ---------------------------------------------------------------------------
 // 3. Archivo supera 300 lineas (solo .js .ts .py)

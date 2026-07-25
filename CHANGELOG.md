@@ -3,6 +3,32 @@
 Registro de cambios por version. Formato basado en [Keep a Changelog](https://keepachangelog.com/es/1.0.0/).
 Versionado semantico: MAJOR.MINOR.PATCH.
 
+## [3.15.2] — 2026-07-25
+
+### Corregido — falsos positivos de standards-guard.js sobre archivos de gobernanza y tests
+
+Auditoria de deuda tecnica documentada en sesiones previas encontro dos falsos positivos reales en `standards-guard.js` (hook `PostToolUse`, matcher `Write|Edit`):
+
+- El chequeo generico de `Co-Authored-By` (`/Co-Authored-By/i.test(content)`) corria sobre cualquier archivo `TEXT_EXTS`, no solo sobre mensajes de commit — coincidia con la cadena literal dentro de la propia oracion que la PROHIBE en `CLAUDE.md:324,348` y con la mencion documental en `README.md:298`, bloqueando ediciones legitimas de esos archivos con `exit 2`. Eliminado el chequeo generico; el chequeo especifico sobre `COMMIT_EDITMSG` (seccion 6 del script) ya cubria el caso real y queda intacto.
+- El regex de emoji pictografico (`EMOJI_RE`) marcaba como CRITICA el fixture de test con un emoji literal en `tests/harness/response-validator-js.test.js` (usado para verificar el propio detector `verificarEmojis()`), sin distinguir un literal de prueba de prosa/codigo real. Agregada excepcion para archivos bajo `tests/` o con sufijo `.test.js`.
+- Ambos fixes cubiertos con test nuevo (ciclo TDD rojo/verde con `pre-commit-tdd.js`): documentar la regla en un `.md` de gobernanza ya no bloquea, un commit real con la marca de atribucion sigue bloqueado, un fixture de emoji en `tests/` ya no bloquea, un emoji real en codigo de produccion sigue bloqueado.
+
+### Corregido — mensaje "ESTADO: OK" de validate-globals.js afirmaba conformidad total de forma incorrecta
+
+`validate-globals.js` calculaba `totalConformes` (status `CONFORME`, cero hallazgos de cualquier severidad) y el texto `ESTADO: OK/FALLO` (solo mira criticos/altos) de forma independiente. Un skill con hallazgos unicamente `media`/`baja` cae en status `ADVERTENCIA` — el exit code correctamente no bloquea CI por eso, pero el texto seguia imprimiendo "todos los skills son conformes con CLAUDE.md" aunque `totalConformes < totalSkills`. Agregada rama intermedia: si no hay criticos/altos pero `conformes < total`, el mensaje ahora dice explicitamente que hay advertencias pendientes en vez de afirmar conformidad total falsa. El exit code no cambio (por diseño, solo bloquea por critico/alto).
+
+### Cambiado — tests/harness.test.js (3480 lineas, 56 describe blocks) dividido en tests/harness/
+
+El archivo superaba en mas de 11x el limite de 300 lineas que el propio `standards-guard.js` exige para `.js/.ts/.py`. Dividido mecanicamente en 56 archivos bajo `tests/harness/<modulo>.test.js` (uno por describe block de nivel superior, mismo mapeo 1:1 a modulo auditado que ya tenia el archivo original) mas un `tests/harness/_shared.js` con los helpers comunes (`runScript`, `tmpFile`, `REPO`, `BIN`, `SKILLS`, `SETTINGS`). Verificado que el split es fiel al original: mismo conteo de `test(` (339) y mismo resultado de suite (643 tests, 57 suites) antes y despues del split. `package.json` (script `test`) y `.github/workflows/ci.yml` actualizados para incluir `tests/harness/*.test.js`. Ningun archivo del split supera 300 lineas (maximo: 168). Suite completa del repo: 725/725 tests (721 originales + 4 nuevos de esta sesion).
+
+### Corregido — documentacion de CLAUDE.md desincronizada con el estado real del ecosistema
+
+Auditoria de conformidad AAA (agente `aiops-auditor`) encontro dos brechas menores no bloqueantes:
+- CLAUDE.md mencionaba "38 skills" en dos lugares; el conteo real en disco es 39 (confirmado con `validate-globals.js --json`). Corregido en ambas menciones.
+- El Protocolo de Vigencia Tecnologica solo declaraba cobertura sobre `.claude/skills/` para el chequeo de `last_updated > 60 dias`, dejando `.claude/agents/` sin cobertura explicita (5 agentes en 51 dias al momento de la auditoria, el dato mas antiguo del sistema). Ampliado el alcance del protocolo para incluir `.claude/agents/` explicitamente.
+
+Veredicto final de la auditoria AAA: sin hallazgos criticos ni altos — 39/39 skills conformes, 725/725 tests, CONTEXT_MAP sincronizado, hooks criticos con manejo de errores explicito y documentacion honesta de bugs de produccion ya resueltos. Hallazgo adicional no corregido en esta sesion (fuera de alcance, requiere decision de gestion de dependencias): `@anthropic-ai/sdk` con 5 versiones minor de atraso (0.110.0 vs 0.115.0 disponible).
+
 ## [3.15.1] — 2026-07-24
 
 ### Corregido — dos fallos silenciosos detectados en auditoria de trazabilidad de errores

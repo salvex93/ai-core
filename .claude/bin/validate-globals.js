@@ -206,6 +206,8 @@ if (JSON_OUT) {
   console.log(`\nRESUMEN: ${totalConformes}/${totalSkills} conformes | ${totalCriticos} criticos | ${totalAltos} altos`);
   if (totalCriticos > 0 || totalAltos > 0) {
     console.log('ESTADO: FALLO — hay hallazgos criticos o altos que deben corregirse.');
+  } else if (totalConformes < totalSkills) {
+    console.log('ESTADO: OK — sin hallazgos criticos ni altos, pero hay advertencias (media/baja) pendientes.');
   } else {
     console.log('ESTADO: OK — todos los skills son conformes con CLAUDE.md.');
   }

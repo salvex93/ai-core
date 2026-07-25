@@ -1,0 +1,59 @@
+'use strict';
+
+const { test, describe, before, after } = require('node:test');
+const assert = require('node:assert/strict');
+const path   = require('node:path');
+const fs     = require('node:fs');
+const os     = require('node:os');
+const { spawnSync } = require('node:child_process');
+const { REPO, BIN, SKILLS, SETTINGS, runScript, tmpFile } = require('./_shared');
+
+describe('health-sync.js — checkSkills', () => {
+  const { checkSkills } = require(path.join(BIN, 'health-sync.js'));
+
+  test('el repo real: 39 skills, todos con frontmatter valido', () => {
+    // Regresion real detectada en esta sesion: checkSkills() dependia de una
+    // tabla de skills en CLAUDE.md que ya no existe (routing via frontmatter
+    // description) -- reportaba 36/38 skills como "huerfanos" falsamente.
+    const r = checkSkills(REPO);
+    assert.equal(r.ok, true, `no debe haber skills invalidos: ${JSON.stringify(r.invalid)}`);
+    assert.equal(r.count, 39);
+    assert.deepEqual(r.invalid, []);
+  });
+
+  test('detecta un skill con name que no coincide con la carpeta', () => {
+    const testDir = path.join(SKILLS, 'zz-test-health-sync-temp');
+    fs.mkdirSync(testDir, { recursive: true });
+    fs.writeFileSync(path.join(testDir, 'SKILL.md'), [
+      '---',
+      'name: nombre-incorrecto',
+      'description: skill de prueba para test unitario.',
+      '---',
+      '# prueba',
+    ].join('\n'));
+
+    const r = checkSkills(REPO);
+    fs.rmSync(testDir, { recursive: true, force: true });
+
+    assert.equal(r.ok, false);
+    assert.ok(r.invalid.includes('zz-test-health-sync-temp'));
+  });
+
+  test('detecta un skill sin description', () => {
+    const testDir = path.join(SKILLS, 'zz-test-health-sync-temp');
+    fs.mkdirSync(testDir, { recursive: true });
+    fs.writeFileSync(path.join(testDir, 'SKILL.md'), [
+      '---',
+      'name: zz-test-health-sync-temp',
+      'description:',
+      '---',
+      '# prueba',
+    ].join('\n'));
+
+    const r = checkSkills(REPO);
+    fs.rmSync(testDir, { recursive: true, force: true });
+
+    assert.equal(r.ok, false);
+    assert.ok(r.invalid.includes('zz-test-health-sync-temp'));
+  });
+});
