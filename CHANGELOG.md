@@ -5,6 +5,14 @@ Versionado semantico: MAJOR.MINOR.PATCH.
 
 ## [3.15.2] — 2026-07-25
 
+### Actualizado — @anthropic-ai/sdk 0.110.0 -> 0.115.0
+
+Verificado contra el CHANGELOG.md oficial del repositorio (`github.com/anthropics/anthropic-sdk-typescript`, via `gh api`, no un resumen de terceros) que las 5 versiones minor entre 0.110.0 y 0.115.0 son unicamente aditivas (Features/Bug Fixes), sin breaking changes en Messages API, streaming, tool use ni prompt caching. Cambios relevantes: 0.111.0 evalua permisos de tool use del lado servidor (`evaluated_permission`); 0.114.0 agrega el stop reason `model_context_window_exceeded`; 0.115.0 agrega un modelo nuevo (`claude-opus-5`) y eventos `tool_change`.
+
+Nota de vigencia: la entrada "add claude-opus-5 model" existe textualmente en el CHANGELOG oficial del SDK, pero no se pudo confirmar el detalle exacto (si es un identificador nuevo o un alias interno de un modelo ya conocido) contra `docs.anthropic.com` en esta sesion. No se referencia `claude-opus-5` en ningun skill ni en `ModelRegistry.js` — no se requiere accion adicional hasta verificarlo con fuente primaria completa.
+
+Confirmado empiricamente: suite completa 725/725 tests sin regresiones tras el upgrade, `validate-globals.js` 39/39 conformes.
+
 ### Corregido — falsos positivos de standards-guard.js sobre archivos de gobernanza y tests
 
 Auditoria de deuda tecnica documentada en sesiones previas encontro dos falsos positivos reales en `standards-guard.js` (hook `PostToolUse`, matcher `Write|Edit`):
