@@ -69,6 +69,16 @@ function buildHooksSection(bin) {
           { type: 'command', command: `node ${bin('process-guard.js')} capture node ${bin('capture-event.js')} --type hook_failure --tool bash 2>/dev/null || true` },
         ],
       },
+      {
+        // Espejo de PostToolUse (linea ~133): PostToolUse y PostToolUseFailure
+        // son mutuamente excluyentes, asi que sin esta entrada agent-metrics.js
+        // nunca recibia --status fail para el grupo generico -- totals.fail
+        // quedaba muerto por diseño y agent-report nunca reflejaba fallos reales.
+        matcher: 'Bash|Read|Write|Edit|Agent',
+        hooks: [
+          { type: 'command', command: `node ${bin('agent-metrics.js')} record --status fail 2>/dev/null || true` },
+        ],
+      },
     ],
     PreToolUse: [
       {

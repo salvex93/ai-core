@@ -1,5 +1,5 @@
 # session-2026-07-07-auditoria-y-bm25plus — wiki [general]
-> Generado: 2026-07-22 | Fragmentos: 10
+> Generado: 2026-07-24 | Fragmentos: 10
 
 # Sesión 2026-07-07 — Auditoría completa + BM25+ + Fable 5
 

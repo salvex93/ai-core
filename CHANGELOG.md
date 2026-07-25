@@ -3,6 +3,17 @@
 Registro de cambios por version. Formato basado en [Keep a Changelog](https://keepachangelog.com/es/1.0.0/).
 Versionado semantico: MAJOR.MINOR.PATCH.
 
+## [3.15.1] — 2026-07-24
+
+### Corregido — dos fallos silenciosos detectados en auditoria de trazabilidad de errores
+
+Auditoria dirigida a `catch` vacios, logs sin contexto y mecanismos de trazabilidad encontro dos fallos reales (no coneticos) en el harness.
+
+- **`.claude/bin/hooks-definition.js`**: el hook `PostToolUse` para el matcher generico (`Bash|Read|Write|Edit|Agent`) registraba `agent-metrics.js record --status ok` de forma incondicional, sin un hook espejo en `PostToolUseFailure` para el mismo grupo (solo existian entradas para matchers especificos de MCP y Bash). Resultado verificado en `.claude/AGENT_METRICS.json`: `totals.fail` permanecia siempre en 0, y `npm run agent-report` mostraba 100% de fiabilidad sin importar fallos reales de tool calls. Confirmado contra fuente primaria (`code.claude.com/docs/en/hooks`) que `PostToolUse` y `PostToolUseFailure` son mutuamente excluyentes por invocacion — se agrego la entrada espejo con `--status fail` en `PostToolUseFailure` para el mismo matcher generico, sin riesgo de doble conteo.
+- **`scripts/services/RootGuard.js`**: `_cargarRaizMapa()` descartaba con `catch (_) {}` cualquier candidato de `CONTEXT_MAP.json` con JSON invalido, sin loguear cual candidato ni por que. Si todos los candidatos existian pero estaban corruptos, el mensaje final era indistinguible de "archivo ausente" — se perdia la causa raiz real. Ahora el catch emite `console.warn` con la ruta del candidato y `e.message`; `_cargarRaizMapa` tambien acepta la lista de candidatos como parametro opcional para permitir test aislado con un archivo temporal corrupto real (sin libreria de mocking).
+- Ambos fixes cubiertos con test nuevo en `tests/harness.test.js` siguiendo el ciclo TDD del propio `pre-commit-tdd.js` (test en rojo antes del fix, verde despues). Suite completa: 721/721 tests (antes 719).
+- `README.md` y `CLAUDE.md`: conteo de tests actualizado de "628"/"719" a "721" en las menciones desactualizadas detectadas durante esta auditoria.
+
 ## [3.15.0] — 2026-07-22
 
 ### Agregado — SubagentGrader.js evalua cumplimiento de tarea, no solo calidad general

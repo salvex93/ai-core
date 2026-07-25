@@ -137,6 +137,15 @@
             "command": "node \"C:/Users/arimac/Documents/ai-core/.claude/bin/process-guard.js\" capture node \"C:/Users/arimac/Documents/ai-core/.claude/bin/capture-event.js\" --type hook_failure --tool bash 2>/dev/null || true"
           }
         ]
+      },
+      {
+        "matcher": "Bash|Read|Write|Edit|Agent",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"C:/Users/arimac/Documents/ai-core/.claude/bin/agent-metrics.js\" record --status fail 2>/dev/null || true"
+          }
+        ]
       }
     ],
     "PreToolUse": [

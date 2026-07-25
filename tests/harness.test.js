@@ -3154,7 +3154,7 @@ describe('ResponseValidator.js', () => {
 
 describe('RootGuard.js', () => {
   const SCRIPT = path.join(REPO, 'scripts', 'services', 'RootGuard.js');
-  const { verificar, assertNoMasivaSinMapa, estaBloqueado, escanearRaizLocal } = require(SCRIPT);
+  const { verificar, assertNoMasivaSinMapa, estaBloqueado, escanearRaizLocal, _cargarRaizMapa } = require(SCRIPT);
 
   test('verificar: no bloquea cuando cwd coincide con la raiz del mapa (repo real)', () => {
     const r = verificar();
@@ -3175,6 +3175,28 @@ describe('RootGuard.js', () => {
 
   test('escanearRaizLocal: retorna array vacio para directorio inexistente (no lanza)', () => {
     assert.deepEqual(escanearRaizLocal('/ruta/que/no/existe/jamas'), []);
+  });
+
+  test('_cargarRaizMapa: JSON corrupto distingue la causa raiz de "archivo ausente" (console.warn con candidato + mensaje)', () => {
+    const dirTmp = fs.mkdtempSync(path.join(os.tmpdir(), 'rootguard-test-'));
+    const candidatoCorrupto = path.join(dirTmp, '.claude', 'CONTEXT_MAP.json');
+    fs.mkdirSync(path.dirname(candidatoCorrupto), { recursive: true });
+    fs.writeFileSync(candidatoCorrupto, '{ json invalido sin cerrar', 'utf8');
+
+    const warnOriginal = console.warn;
+    const llamadas = [];
+    console.warn = (msg) => llamadas.push(msg);
+    try {
+      const raiz = _cargarRaizMapa([candidatoCorrupto]);
+      assert.equal(raiz, null, 'candidato corrupto no debe resolver una raiz');
+    } finally {
+      console.warn = warnOriginal;
+      fs.rmSync(dirTmp, { recursive: true, force: true });
+    }
+
+    assert.ok(llamadas.length > 0, 'debe loguear el candidato invalido');
+    assert.match(llamadas[0], /candidato invalido/);
+    assert.match(llamadas[0], new RegExp(candidatoCorrupto.replace(/\\/g, '\\\\')));
   });
 });
 
@@ -3370,5 +3392,19 @@ describe('hooks-definition.js', () => {
     assert.match(str, /subagent-review\.js/);
     assert.match(str, /cross-verify-gate\.js/);
     assert.match(str, /injection-guard\.js/);
+  });
+
+  test('agent-metrics.js registra --status fail en PostToolUseFailure para el mismo grupo generico que --status ok en PostToolUse', () => {
+    const hooks = buildHooksSection((s) => `"${s}"`);
+
+    const grupoGenerico = 'Bash|Read|Write|Edit|Agent';
+
+    const entradaOk = (hooks.PostToolUse || []).find(g => g.matcher === grupoGenerico);
+    assert.ok(entradaOk, 'PostToolUse debe tener una entrada para el matcher generico Bash|Read|Write|Edit|Agent');
+    assert.match(JSON.stringify(entradaOk), /agent-metrics\.js.*record --status ok/);
+
+    const entradaFail = (hooks.PostToolUseFailure || []).find(g => g.matcher === grupoGenerico);
+    assert.ok(entradaFail, 'PostToolUseFailure debe tener una entrada espejo para el matcher generico Bash|Read|Write|Edit|Agent');
+    assert.match(JSON.stringify(entradaFail), /agent-metrics\.js.*record --status fail/);
   });
 });

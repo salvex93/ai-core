@@ -24,9 +24,10 @@ function _hashRuta(rutaAbsoluta) {
 /**
  * Carga el primer CONTEXT_MAP valido y extrae la raiz del proyecto anfitrion.
  * Usa ruta absoluta estricta — descarta candidatos con JSON invalido o version ausente.
+ * @param {string[]} [candidatos] - lista de rutas a probar (default MAP_CANDIDATES; parametrizable para tests)
  */
-function _cargarRaizMapa() {
-  for (const candidato of MAP_CANDIDATES) {
+function _cargarRaizMapa(candidatos = MAP_CANDIDATES) {
+  for (const candidato of candidatos) {
     if (!fs.existsSync(candidato)) continue;
     try {
       const data = JSON.parse(fs.readFileSync(candidato, 'utf8'));
@@ -35,7 +36,11 @@ function _cargarRaizMapa() {
       const raiz = path.resolve(path.dirname(path.dirname(candidato)));
       _raizHash  = _hashRuta(raiz);
       return raiz;
-    } catch (_) {}
+    } catch (e) {
+      // JSON corrupto o ilegible -- se distingue de "archivo ausente" (continue de arriba)
+      // para que el operador vea la causa raiz real en vez de "mapa no encontrado".
+      console.warn(`[RootGuard] candidato invalido: ${candidato} — ${e.message}`);
+    }
   }
   return null;
 }
@@ -115,4 +120,4 @@ function estaBloqueado() {
   return _guardActivado;
 }
 
-module.exports = { verificar, assertNoMasivaSinMapa, estaBloqueado, escanearRaizLocal };
+module.exports = { verificar, assertNoMasivaSinMapa, estaBloqueado, escanearRaizLocal, _cargarRaizMapa };
