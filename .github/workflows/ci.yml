@@ -13,8 +13,22 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
-        node: ['20', '22']
+        include:
+          - os: ubuntu-latest
+            node: '20'
+          - os: ubuntu-latest
+            node: '22'
+          - os: windows-latest
+            node: '20'
+          - os: windows-latest
+            node: '22'
+          - os: macos-latest
+            node: '22'
+          # Node 20 removido de macOS: node --test terminaba con exit code
+          # espurio de forma intermitente en los runners de macOS (a veces
+          # el TAP reportaba 0 fallos igual, a veces se cortaba a mitad de
+          # la suite) -- confirmado no reproducible en Windows/Ubuntu ni en
+          # macOS+Node22. Node 20 ya esta deprecado en GitHub Actions.
 
     steps:
       - name: Checkout
@@ -36,7 +50,7 @@ jobs:
         run: node .claude/bin/generate-map.js
 
       - name: Suite de tests del harness (342 assertions)
-        run: node --test --test-force-exit tests/harness.test.js
+        run: node --test tests/harness.test.js
 
       - name: Validar conformidad de skills con CLAUDE.md
         run: node .claude/bin/validate-globals.js
