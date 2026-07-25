@@ -36,7 +36,7 @@ jobs:
         run: node .claude/bin/generate-map.js
 
       - name: Suite de tests del harness (342 assertions)
-        run: node --test tests/harness.test.js
+        run: node --test --test-force-exit tests/harness.test.js
 
       - name: Validar conformidad de skills con CLAUDE.md
         run: node .claude/bin/validate-globals.js
