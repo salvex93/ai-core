@@ -9,11 +9,24 @@ const { spawnSync } = require('node:child_process');
 const { REPO, BIN, SKILLS, SETTINGS, runScript, tmpFile } = require('./_shared');
 
 describe('memory-index.js (vault BM25)', () => {
-  const SCRIPT     = path.join(BIN, 'memory-index.js');
-  const VAULT      = path.join(REPO, '.claude', 'memory-vault');
-  const RAW        = path.join(VAULT, '.raw');
-  const WIKI       = path.join(VAULT, '.wiki');
-  const INDEX_FILE = path.join(VAULT, 'index.json');
+  const SCRIPT = path.join(BIN, 'memory-index.js');
+
+  // Vault aislado por proceso de test (directorio temporal, no el vault real
+  // del repo) -- evita condicion de carrera con otros archivos de test que
+  // tocan .claude/memory-vault/ concurrentemente (ej.
+  // memory-vault-prune-check-js.test.js), ya que node --test corre archivos
+  // en paralelo y ambos re-escanean/reescriben el mismo directorio compartido
+  // si usan la ruta real. AI_CORE_MEMORY_VAULT_PATH redirige memory-index.js
+  // a este vault temporal sin cambiar el comportamiento por defecto.
+  const VAULT_TMP  = fs.mkdtempSync(path.join(os.tmpdir(), 'memory-vault-'));
+  const RAW        = path.join(VAULT_TMP, '.raw');
+  const WIKI       = path.join(VAULT_TMP, '.wiki');
+  const INDEX_FILE = path.join(VAULT_TMP, 'index.json');
+  const ENV_VAULT  = { AI_CORE_MEMORY_VAULT_PATH: VAULT_TMP };
+
+  function runScriptVault(args) {
+    return runScript(SCRIPT, args, ENV_VAULT);
+  }
 
   const TEST_FILE = path.join(RAW, '_test-bm25.md');
   const TEST_CONTENT = [
@@ -37,18 +50,20 @@ describe('memory-index.js (vault BM25)', () => {
   });
 
   after(() => {
-    if (fs.existsSync(TEST_FILE))  fs.unlinkSync(TEST_FILE);
-    const wikiFile = path.join(WIKI, '_test-bm25.md');
-    if (fs.existsSync(wikiFile))   fs.unlinkSync(wikiFile);
-    if (fs.existsSync(INDEX_FILE)) fs.unlinkSync(INDEX_FILE);
+    fs.rmSync(VAULT_TMP, { recursive: true, force: true });
   });
 
   test('el script existe', () => {
     assert.ok(fs.existsSync(SCRIPT), 'memory-index.js debe existir en .claude/bin/');
   });
 
+  test('respeta AI_CORE_MEMORY_VAULT_PATH: opera sobre el vault temporal, no el real del repo', () => {
+    runScriptVault(['index']);
+    assert.ok(fs.existsSync(INDEX_FILE), 'debe crear index.json dentro del vault temporal, no en .claude/memory-vault/ real');
+  });
+
   test('cmd index: crea index.json y .wiki/ a partir de .raw/', () => {
-    const r = runScript(SCRIPT, ['index']);
+    const r = runScriptVault(['index']);
     assert.equal(r.status, 0, 'debe terminar con exit 0');
     assert.ok(fs.existsSync(INDEX_FILE), 'debe crear index.json');
     const idx = JSON.parse(fs.readFileSync(INDEX_FILE, 'utf8'));
@@ -57,14 +72,14 @@ describe('memory-index.js (vault BM25)', () => {
   });
 
   test('cmd query: retorna resultados relevantes con score BM25', () => {
-    const r = runScript(SCRIPT, ['query', 'vault memoria semantica']);
+    const r = runScriptVault(['query', 'vault memoria semantica']);
     assert.equal(r.status, 0);
     assert.ok(r.stdout.includes('score:'), 'debe mostrar scores BM25');
     assert.ok(r.stdout.includes('[memory]'), 'debe incluir prefijo [memory]');
   });
 
   test('cmd query: sin resultados para termino inexistente', () => {
-    const r = runScript(SCRIPT, ['query', 'xyzzy123nonexistent']);
+    const r = runScriptVault(['query', 'xyzzy123nonexistent']);
     assert.equal(r.status, 0);
     assert.ok(
       r.stdout.includes('sin resultados') || r.stdout.includes('score:'),
@@ -73,7 +88,7 @@ describe('memory-index.js (vault BM25)', () => {
   });
 
   test('cmd status: reporta estado del vault', () => {
-    const r = runScript(SCRIPT, ['status']);
+    const r = runScriptVault(['status']);
     assert.equal(r.status, 0);
     assert.ok(r.stdout.includes('.raw/'),  'debe reportar .raw/');
     assert.ok(r.stdout.includes('.wiki/'), 'debe reportar .wiki/');
@@ -131,7 +146,7 @@ describe('memory-index.js (vault BM25)', () => {
     before(() => {
       fs.mkdirSync(ROL_DIR, { recursive: true });
       fs.writeFileSync(ROL_FILE, ROL_CONTENT, 'utf8');
-      runScript(SCRIPT, ['index']);
+      runScriptVault(['index']);
     });
 
     after(() => {
@@ -141,7 +156,7 @@ describe('memory-index.js (vault BM25)', () => {
       if (fs.existsSync(ROL_DIR)) fs.rmSync(ROL_DIR, { recursive: true });
       const wikiRolDir = path.join(WIKI, 'auditor');
       if (fs.existsSync(wikiRolDir)) fs.rmSync(wikiRolDir, { recursive: true });
-      runScript(SCRIPT, ['index']);
+      runScriptVault(['index']);
     });
 
     test('cmd index: etiqueta cada fragmento con su rol de origen', () => {
@@ -151,25 +166,25 @@ describe('memory-index.js (vault BM25)', () => {
     });
 
     test('cmd query --rol=auditor: encuentra contenido del namespace auditor', () => {
-      const r = runScript(SCRIPT, ['query', 'vulnerabilidad inyeccion', '--rol=auditor']);
+      const r = runScriptVault(['query', 'vulnerabilidad inyeccion', '--rol=auditor']);
       assert.equal(r.status, 0);
       assert.ok(r.stdout.includes('_test-auditor'), 'debe encontrar el fragmento del namespace auditor');
     });
 
     test('cmd query --rol=coder: no filtra contenido de otro namespace (aislamiento)', () => {
-      const r = runScript(SCRIPT, ['query', 'vulnerabilidad inyeccion', '--rol=coder']);
+      const r = runScriptVault(['query', 'vulnerabilidad inyeccion', '--rol=coder']);
       assert.equal(r.status, 0);
       assert.ok(!r.stdout.includes('_test-auditor'), 'no debe filtrar contenido de auditor bajo rol coder');
     });
 
     test('cmd query sin --rol: busca cross-rol y encuentra el fragmento de auditor', () => {
-      const r = runScript(SCRIPT, ['query', 'vulnerabilidad inyeccion']);
+      const r = runScriptVault(['query', 'vulnerabilidad inyeccion']);
       assert.equal(r.status, 0);
       assert.ok(r.stdout.includes('_test-auditor'), 'sin filtro debe encontrar contenido de cualquier rol');
     });
 
     test('cmd status: reporta conteo de fragmentos por rol', () => {
-      const r = runScript(SCRIPT, ['status']);
+      const r = runScriptVault(['status']);
       assert.equal(r.status, 0);
       assert.ok(r.stdout.includes('auditor'), 'debe reportar el namespace auditor en el desglose');
     });

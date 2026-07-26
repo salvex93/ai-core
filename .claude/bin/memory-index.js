@@ -32,7 +32,9 @@ const path = require('node:path');
 const { fragmentar, buildIndex, bm25Score } = require('./lib/bm25-engine');
 
 const REPO  = path.resolve(__dirname, '..', '..');
-const VAULT = path.join(REPO, '.claude', 'memory-vault');
+// AI_CORE_MEMORY_VAULT_PATH permite operar sobre un vault temporal en tests
+// aislados -- sin ella, comportamiento identico (vault real del repo).
+const VAULT = process.env.AI_CORE_MEMORY_VAULT_PATH || path.join(REPO, '.claude', 'memory-vault');
 const RAW   = path.join(VAULT, '.raw');
 const WIKI  = path.join(VAULT, '.wiki');
 const INDEX = path.join(VAULT, 'index.json');

@@ -1,4 +1,4 @@
-# AI-CORE v3.17.3: Nucleo Multi-Agente Universal
+# AI-CORE v3.17.4: Nucleo Multi-Agente Universal
 
 `ai-core` es un nucleo de configuracion y comportamiento para agentes IA. Se usa como submodulo Git en un proyecto existente o como repositorio independiente. Define reglas globales, 39 skills especializados, 7 agentes autonomos, un orquestador Mixture-of-Agents (Gemini + DeepSeek + Claude) y un ciclo de mejora continua por uso, sin acoplarse al stack del proyecto anfitrion.
 
@@ -33,7 +33,7 @@ npm install
 npm run setup    # adapta settings.json a tu ruta exacta (cross-platform)
 
 # 3. Verificar que todo funciona
-npm test         # debe terminar: 741 pass, 0 fail
+npm test         # debe terminar: 742 pass, 0 fail
 
 # 4. Autenticar gh CLI para el issue-tracker (una sola vez por maquina)
 gh auth login    # GitHub.com -> HTTPS -> Login with a web browser
@@ -81,7 +81,7 @@ Repositorio independiente:
 npm run update
 ```
 
-Esto corre `git pull`, regenera `settings.json` (purga automaticamente cualquier hook de una version anterior que referencie un script eliminado o renombrado — el objeto de hooks se construye desde cero y sobreescribe el archivo completo, nunca mergea, con la definicion compartida en `hooks-definition.js`), corre los 741 tests, aplica migraciones de version, valida los 39 skills y los 7 agentes, y reporta que cambio. Si un test falla, el comando se detiene ahi.
+Esto corre `git pull`, regenera `settings.json` (purga automaticamente cualquier hook de una version anterior que referencie un script eliminado o renombrado — el objeto de hooks se construye desde cero y sobreescribe el archivo completo, nunca mergea, con la definicion compartida en `hooks-definition.js`), corre los 742 tests, aplica migraciones de version, valida los 39 skills y los 7 agentes, y reporta que cambio. Si un test falla, el comando se detiene ahi.
 
 Instalado como submodulo:
 
@@ -123,7 +123,7 @@ Si no esta autenticado, los eventos se acumulan en `.claude/EVENTS_QUEUE.json` y
 
 ```bash
 npm install                               # instalar dependencias (corre postinstall -> npm run setup)
-npm test                                  # 741 tests, Node nativo, sin deps externas
+npm test                                  # 742 tests, Node nativo, sin deps externas
 npm run setup                             # regenerar settings.json con rutas locales (ya corre solo via postinstall)
 npm run update                            # actualizacion one-command desde GitHub
 npm run validate-globals                  # auditar conformidad de los 39 skills (incluye schema agentskills.io)
@@ -149,6 +149,10 @@ npm run agent-report-full                 # historial de metricas de todas las s
 
 ## Que trae cada version
 
+### v3.17.4 — Test flaky de memory-index.js corregido (condicion de carrera entre archivos de test paralelos)
+
+`memory-index.js` ahora respeta `AI_CORE_MEMORY_VAULT_PATH` (opcional, mismo patron que `AI_CORE_EVENTS_QUEUE_PATH`) — sin ella, comportamiento identico. Los tests que antes escribian directamente sobre `.claude/memory-vault/` real (colisionando con otros archivos de test corriendo en paralelo, mas notorio en Windows) ahora operan sobre un directorio temporal aislado. Ver CHANGELOG.md para el diagnostico completo.
+
 ### v3.17.3 — CI reparado, deuda tecnica cerrada, auto-reparacion real, gobernanza de agentes
 
 Sesion larga de saneamiento integral. Cambios agrupados por tema (ver CHANGELOG.md para el detalle tecnico completo de cada version puntual, 3.15.2 a 3.17.3):
@@ -173,7 +177,7 @@ Auditoria de trazabilidad de errores detecto dos fallos silenciosos reales en el
 
 **`RootGuard.js` no distinguia JSON corrupto de archivo ausente.** `_cargarRaizMapa()` descartaba silenciosamente cualquier candidato de `CONTEXT_MAP.json` con `catch (_) {}`, sin loguear cual candidato fallo ni por que. Si ambos candidatos existian pero estaban corruptos, el operador solo veia "no se encontro el mapa" — indistinguible de ausencia real de archivo. Ahora el catch loguea `console.warn` con la ruta del candidato y `e.message`.
 
-**741 tests, 39 skills, 7 agentes.**
+**742 tests, 39 skills, 7 agentes.**
 
 ### v3.15.0 — Grader con tarea original y router multi-proveedor para ahorro de cuota Claude
 
@@ -522,7 +526,7 @@ New-Item -ItemType SymbolicLink -Path './CLAUDE.md' -Target 'C:/ruta/a/ai-core/C
 │   │   │   └── subagent-task-store.js Correlaciona PreToolUse/SubagentStop por session_id+prompt_id
 │   │   └── memory-vault-prune-check.js Hook Stop: avisa (sin borrar) cuando el vault supera 50 archivos
 │   └── skills/                  39 skills — enrutamiento via frontmatter description (agentskills.io), reglas en CLAUDE.md
-├── tests/                       741 tests — tests/harness/*.test.js (dividido por modulo) + archivos dedicados
+├── tests/                       742 tests — tests/harness/*.test.js (dividido por modulo) + archivos dedicados
 ├── .github/workflows/ci.yml     CI: Ubuntu/Windows Node 20+22, macOS solo Node 22
 ├── CLAUDE.md                    Autoridad unica: reglas globales, skills, enrutamiento
 ├── DEPRECATIONS.json            Contrato de migracion por version

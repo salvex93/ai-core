@@ -3,6 +3,18 @@
 Registro de cambios por version. Formato basado en [Keep a Changelog](https://keepachangelog.com/es/1.0.0/).
 Versionado semantico: MAJOR.MINOR.PATCH.
 
+## [3.17.4] — 2026-07-26
+
+### Corregido — test flaky de memory-index.js por condicion de carrera entre archivos de test paralelos
+
+El push de la version 3.17.3 (solo documentacion) disparo un fallo real en CI: `windows-latest` con Node 20 fallo `memory-index-js-vault-bm25.test.js` con 3 subtests rotos en "namespacing por rol" (`gh run view --log-failed` confirmo el fallo real, no se asumio que era el mismo problema anterior).
+
+**Causa raiz:** `memory-index.js` opera sobre `.claude/memory-vault/` real del repo (ruta hardcodeada), sin ninguna forma de aislarlo en tests. `node --test` ejecuta archivos de test en paralelo, y dos archivos distintos (`memory-index-js-vault-bm25.test.js` y `memory-vault-prune-check-js.test.js`) escriben/leen el mismo directorio compartido (`.raw/`) simultaneamente. `cmdIndex()` escanea TODO `.raw/` (todos los roles) en cada invocacion sin filtro -- si un test esta creando/borrando 55 archivos en `.raw/architect/` justo cuando el otro corre `index` (que tambien procesa esa carpeta), el escaneo puede toparse con archivos a mitad de escritura/borrado, mas notorio en Windows por su modelo de I/O.
+
+**Fix:** `memory-index.js` ahora respeta `AI_CORE_MEMORY_VAULT_PATH` (variable de entorno opcional, mismo patron que `AI_CORE_EVENTS_QUEUE_PATH` de `circuit-breaker.js`) -- sin ella, comportamiento identico al actual. `memory-index-js-vault-bm25.test.js` ahora opera sobre un directorio temporal propio via esa variable, eliminando la condicion de carrera de raiz sin importar cuantos archivos de test corran en paralelo en el futuro.
+
+Verificado: 5 corridas consecutivas de la suite completa sin fallos (antes reproducia intermitentemente).
+
 ## [3.17.3] — 2026-07-26
 
 ### Corregido — CI seguia roto tras el fix anterior (glob de shell no se expande en PowerShell)
