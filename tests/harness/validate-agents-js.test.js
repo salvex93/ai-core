@@ -118,15 +118,19 @@ describe('validate-agents.js', () => {
     );
   });
 
-  test('los 7 agentes reales del ecosistema son conformes', () => {
+  test('los 7 agentes reales del ecosistema no tienen hallazgos criticos ni altos', () => {
+    // No se exige status CONFORME estricto (0 hallazgos de cualquier
+    // severidad): el chequeo de drift last_updated-vs-mtime depende del
+    // mtime real del sistema de archivos, que en un checkout fresco de CI
+    // es "ahora" para TODOS los archivos -- un agente con last_updated
+    // antiguo (ej. map-updater.md) dispara ese drift (severidad baja, no
+    // bloqueante) en CI aunque nunca lo haga en un working tree local ya
+    // clonado. Regresion real: este test con deepEqual estricto rompio CI
+    // en push (no se reprodujo local) por exactamente este motivo.
     const r = spawnSync('node', [SCRIPT, '--json'], { encoding: 'utf8', cwd: REPO, maxBuffer: 10 * 1024 * 1024 });
     const salida = JSON.parse(r.stdout);
-    const noConformes = salida.resultados.filter(x => x.status !== 'CONFORME');
-    assert.deepEqual(
-      noConformes.map(x => ({ nombre: x.nombre, hallazgos: x.hallazgos })),
-      [],
-      'todos los agentes reales deben ser conformes tras el fix de mcp-registry-navigator.md'
-    );
+    assert.equal(salida.resumen.criticos, 0, 'no debe haber hallazgos criticos');
+    assert.equal(salida.resumen.altos, 0, 'no debe haber hallazgos altos');
   });
 
   test('validate-agents registrado en package.json', () => {

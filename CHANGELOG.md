@@ -3,6 +3,20 @@
 Registro de cambios por version. Formato basado en [Keep a Changelog](https://keepachangelog.com/es/1.0.0/).
 Versionado semantico: MAJOR.MINOR.PATCH.
 
+## [3.17.2] — 2026-07-26
+
+### Corregido — CI roto en el push anterior (test fragil dependiente de mtime del sistema de archivos)
+
+El commit `5a5d414` (vulnerabilidades npm audit) rompio los 6 checks de CI en las 3 plataformas (`gh run list` confirmo la corrida anterior en verde, la de este push en rojo -- causado por este cambio, no preexistente).
+
+**Causa raiz:** el test `tests/harness/validate-agents-js.test.js:121` ("los 7 agentes reales del ecosistema son conformes") exigia `status === 'CONFORME'` estricto (deepEqual con `[]` de no-conformes). El chequeo de drift `last_updated`-vs-`mtime` de `validate-agents.js` compara la fecha declarada contra el `mtime` real del archivo en disco -- en un checkout LOCAL ya clonado, el `mtime` refleja cuando se toco el archivo por ultima vez, pero en un checkout FRESCO de CI (`actions/checkout`), TODOS los archivos reciben `mtime` = "ahora del runner", sin importar cuando se commitearon. `map-updater.md` (`last_updated: 2026-06-04`, no tocado en las sesiones recientes) disparaba ese drift (severidad BAJA, no bloqueante por diseno) solo en CI, nunca en local -- el test rigido lo convertia en fallo duro.
+
+**Fix:** el test ahora valida `resumen.criticos === 0` y `resumen.altos === 0` (lo mismo que exige el exit code real del script para bloquear CI), no el status `CONFORME` estricto que depende del `mtime` del sistema de archivos. Verificado reproduciendo el escenario exacto: clon fresco a un directorio temporal (mismo efecto que un checkout de CI, `mtime` de "ahora" en todo el arbol), confirmando que el test viejo fallaba ahi y el nuevo pasa.
+
+**Patron reutilizable:** cualquier assertion sobre "0 hallazgos totales" en un script que compara `last_updated` contra `mtime` de disco es fragil ante checkouts frescos -- validar solo severidad critica/alta (lo que realmente bloquea), nunca el conteo total incluyendo severidad baja/media derivada de mtime.
+
+Suite completa: 741/741 tests. Verificado en un clon fresco simulando checkout de CI, no solo en el working tree local ya existente.
+
 ## [3.17.1] — 2026-07-26
 
 ### Corregido — 3 de 4 vulnerabilidades de npm audit (dependencias transitivas)
