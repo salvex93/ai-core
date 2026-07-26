@@ -3,7 +3,7 @@ name: llm-observability
 description: Especialista en observabilidad de sistemas LLM en produccion. Cubre instrumentacion con OpenTelemetry, dashboards de costo por operacion, alertas de degradacion de calidad, tracing de prompts y completions, y plataformas de observabilidad IA (Langfuse, Helicone, Phoenix). Activa al instrumentar un sistema que usa LLMs, disenar dashboards de costo/calidad, configurar alertas de degradacion o diagnosticar regresiones de calidad en produccion.
 origin: ai-core
 version: 1.1.4
-last_updated: 2026-07-17
+last_updated: 2026-07-26
 rol: auditor
 ---
 
@@ -44,7 +44,7 @@ Si MCP gemini-bridge no disponible → leer manualmente: `package.json`, `.env.e
 
 Si no hay instrumentacion activa, declararlo y proponer la estrategia minima viable antes de continuar.
 
-Si archivos de configuracion de observabilidad o logs superan 500 lineas o 50 KB, aplicar Regla 9:
+Si archivos de configuracion de observabilidad superan 200 lineas, o logs/errores superan 50 lineas, aplicar la regla GEMINI PRIMERO de CLAUDE.md (delegacion obligatoria al bridge):
 
 ```
 node scripts/mcp-gemini.js --mission "Analiza la configuracion de observabilidad e identifica: metricas sin umbral definido, llamadas LLM sin logging de tokens, ausencia de trace_id en los logs, y gaps entre la cobertura de observabilidad y los flujos criticos de negocio" --file <ruta> --format json
@@ -343,7 +343,7 @@ Verificar en orden antes de aprobar un PR que introduce o modifica un sistema LL
 ## Restricciones del Perfil
 
 Las Reglas Globales definidas en CLAUDE.md aplican sin excepcion a este perfil.
-> Reglas de sesion activas: CLAUDE.md > este skill. Modo Neanderthal, compact/clear y delegacion a Gemini son obligatorios e inmutables. Ver seccion 'Protocolo Zero-Token' en CLAUDE.md.
+> Reglas de sesion activas: CLAUDE.md > este skill. Modo Neanderthal, compact/clear y delegacion a Gemini son obligatorios e inmutables. Ver seccion 'Protocolo de Ahorro de Tokens' en CLAUDE.md.
 - Verificar revision legal documentada del DPA del proveedor antes de enviar prompts con PII a plataformas SaaS de observabilidad.
 - Verificar una estimacion de costo base calibrada contra la tarifa real del proveedor activo antes de configurar metricas de costo.
 - Prohibido implementar alertas sin umbrales numericos definidos. Una alerta sin umbral no es accionable.

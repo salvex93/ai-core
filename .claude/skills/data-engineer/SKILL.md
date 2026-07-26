@@ -3,7 +3,7 @@ name: data-engineer
 description: Especialista en ingenieria de datos. Cubre Medallion Architecture (Bronze/Silver/Gold), transformacion con dbt, orquestacion con Airflow/Dagster/Prefect, calidad de datos con Great Expectations y Soda, Data Contracts con openDataContract y linaje con OpenLineage. Agnostico al stack. Activa al disenar pipelines de ingesta, transformacion o exportacion de datos, modelar capas de un data warehouse o lakehouse, o establecer contratos de calidad entre productores y consumidores de datos.
 origin: ai-core
 version: 1.2.0
-last_updated: 2026-07-17
+last_updated: 2026-07-26
 rol: architect
 ---
 
@@ -44,7 +44,7 @@ Si MCP gemini-bridge no disponible → leer manualmente: `requirements.txt`, `.e
 
 Si ningun manifiesto o patron de datos esta disponible, declararlo y solicitar informacion antes de continuar.
 
-Si un DAG, modelo dbt o archivo de pipeline supera 500 lineas o 50 KB, aplicar Regla 9 antes de cargarlo:
+Si un DAG, modelo dbt o archivo de pipeline supera 200 lineas (o 50 lineas si es log/error), aplicar la regla GEMINI PRIMERO de CLAUDE.md (delegacion obligatoria al bridge) antes de cargarlo:
 
 ```
 node scripts/mcp-gemini.js --mission "Analiza el pipeline e identifica problemas criticos. Responde UNICAMENTE con un array JSON con la siguiente estructura exacta: [{\"archivo\": \"<ruta relativa>\", \"linea\": <numero>, \"categoria\": \"<dependencia_ciclica|sin_idempotencia|late_data_ausente|sin_test_calidad|join_sin_unicidad|sin_freshness>\", \"descripcion\": \"<descripcion tecnica del problema>\", \"severidad\": \"<alta|media|baja>\"}]. Si no hay problemas, responde con []." --file <ruta> --format json
@@ -416,7 +416,7 @@ Verificar en orden antes de aprobar un PR que introduce o modifica un pipeline d
 ## Restricciones del Perfil
 
 Las Reglas Globales definidas en CLAUDE.md aplican sin excepcion a este perfil.
-> Reglas de sesion activas: CLAUDE.md > este skill. Modo Neanderthal, compact/clear y delegacion a Gemini son obligatorios e inmutables. Ver seccion 'Protocolo Zero-Token' en CLAUDE.md.
+> Reglas de sesion activas: CLAUDE.md > este skill. Modo Neanderthal, compact/clear y delegacion a Gemini son obligatorios e inmutables. Ver seccion 'Protocolo de Ahorro de Tokens' en CLAUDE.md.
 - Verificar haber leido los manifiestos del anfitrion antes de emitir recomendaciones de orquestador, warehouse o motor de transformacion.
 - Verificar definir los SLAs de freshness y el propietario de dominio antes de disenar modelos de Gold.
 - Verificar notificar a los consumidores declarados antes de modificar el esquema de un dataset con Data Contract activo.

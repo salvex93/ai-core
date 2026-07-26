@@ -3,7 +3,7 @@ name: web-scraping-specialist
 description: Especialista en extraccion de datos desde plataformas web y aplicaciones retail. Herramientas 2026: Stagehand (IA-nativo), browser-use (Python/LLM-driven), Crawlee (Node.js profesional), Browserbase (headless cloud), Camoufox, curl-cffi. Estrategias por proveedor anti-bot: Cloudflare, Datadome, Imperva, PerimeterX. Session state pooling, storage state reutilizable, OCR con Google Vision y Tesseract, rotacion de proxies residenciales. Activa al extraer datos de plataformas sin API oficial, construir monitores de precios, implementar pipelines OCR, o disenar scrapers resilientes con evasion avanzada.
 origin: ai-core
 version: 2.1.0
-last_updated: 2026-07-17
+last_updated: 2026-07-26
 rol: architect
 ---
 
@@ -932,7 +932,7 @@ Antes de mergear cualquier scraper, verificar:
 ## Restricciones del Perfil
 
 Las Reglas Globales definidas en CLAUDE.md aplican sin excepcion. Adicionales:
-> Reglas de sesion activas: CLAUDE.md > este skill. Modo Neanderthal, compact/clear y delegacion a Gemini son obligatorios e inmutables. Ver seccion 'Protocolo Zero-Token' en CLAUDE.md.
+> Reglas de sesion activas: CLAUDE.md > este skill. Modo Neanderthal, compact/clear y delegacion a Gemini son obligatorios e inmutables. Ver seccion 'Protocolo de Ahorro de Tokens' en CLAUDE.md.
 - Verificar autorizacion explicita del propietario del sistema antes de implementar scraping de sitios que requieren autenticacion.
 - Verificar throttling puede ser considerado un ataque de denegacion de servicio antes de disenar un scraper sin rate limiting — el scraping.
 - Verificar base legal documentada (consentimiento, interes legitimo, contrato) antes de extraer, almacenar o procesar datos de usuarios finales.

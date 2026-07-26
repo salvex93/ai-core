@@ -3,7 +3,7 @@ name: memory-manager
 description: Gestiona la memoria semantica persistente del arnés ai-core via vault BM25+ (stemming español, boost por campo, query expansion de sinonimos de dominio). Indexa conocimiento en .claude/memory-vault/.raw/, sintetiza en .wiki/ y recupera contexto relevante antes de cada sesion. Resuelve el context rot entre sesiones sin depender de bases de datos externas — plain markdown, git-compatible. Activa al iniciar sesion para recuperar contexto previo, al cerrar sesion para indexar aprendizajes nuevos, o cuando se necesita recuperar informacion de sesiones anteriores.
 origin: ai-core
 version: 1.1.0
-last_updated: 2026-07-17
+last_updated: 2026-07-26
 rol: architect
 ---
 
@@ -160,11 +160,11 @@ El vault crece con el tiempo. Poda cuando `.raw/` supera 50 archivos.
 
 ## Integracion con el Sistema de Memoria Existente
 
-El vault BM25 coexiste con el sistema de memoria de Claude Code en `/home/cyber/.claude/projects/`:
+El vault BM25 coexiste con el sistema de memoria de Claude Code, ubicado en el directorio de configuracion de usuario del harness (`~/.claude/projects/<proyecto>/memory/` en Linux/macOS, `%USERPROFILE%\.claude\projects\<proyecto>\memory\` en Windows — la ruta exacta depende del SO, no asumir una fija):
 
 | Sistema | Proposito | Cuando usar |
 |---|---|---|
-| `/home/cyber/.claude/projects/.../memory/` | Memoria de Claude Code (tipos: user, feedback, project, reference) | Preferencias de usuario, estado de proyecto, referencias externas |
+| Memoria de Claude Code (`~/.claude/projects/<proyecto>/memory/`) | Memoria de Claude Code (tipos: user, feedback, project, reference) | Preferencias de usuario, estado de proyecto, referencias externas |
 | `.claude/memory-vault/.raw/` | Vault BM25 de ai-core | Artefactos de dev-loop, decisiones tecnicas, patrones de sesion |
 
 No duplicar entre sistemas. Si una entrada encaja en ambos, preferir el sistema de Claude Code para persistencia entre proyectos, y el vault para artefactos especificos de ai-core.

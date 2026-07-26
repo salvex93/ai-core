@@ -3,7 +3,7 @@ name: ai-integrations
 description: Especialista en integracion de LLMs en aplicaciones de produccion. Cubre diseno de features de IA, gestion de costos por token, prompt versioning, streaming, fallback entre proveedores y evaluacion de outputs. Agnostico al proveedor. Activa al integrar Claude, Gemini u otro LLM en un proyecto anfitrion, disenar endpoints de IA o gestionar costos de inferencia.
 origin: ai-core
 version: 2.5.0
-last_updated: 2026-07-17
+last_updated: 2026-07-26
 rol: architect
 ---
 
@@ -42,7 +42,7 @@ Retorna: stack detectado, dependencias IA, variables de entorno, convenciones de
 
 Si MCP gemini-bridge no disponible → leer manualmente: `package.json`, `.env.example`, `CLAUDE.md` local.
 
-Archivos de prompts > 500 lineas / 50 KB → Regla 9: `node scripts/mcp-gemini.js --mission "Analiza los prompts e identifica: instrucciones ambiguas, ausencia de restricciones de output, riesgo de prompt injection, tokens desperdiciados y oportunidades de optimizacion de costo" --file <ruta> --format json`
+Archivos de prompts > 200 lineas (regla GEMINI PRIMERO de CLAUDE.md) → GEMINI PRIMERO: `node scripts/mcp-gemini.js --mission "Analiza los prompts e identifica: instrucciones ambiguas, ausencia de restricciones de output, riesgo de prompt injection, tokens desperdiciados y oportunidades de optimizacion de costo" --file <ruta> --format json`
 
 ## Directiva de Interrupcion
 
@@ -319,8 +319,8 @@ Registrar en cada respuesta: `thinking_tokens_used`, `budget_remaining`, `step_c
 
 ## Restricciones del Perfil
 
-> Reglas de sesion activas: CLAUDE.md > este skill. Modo Neanderthal, compact/clear y delegacion a Gemini son obligatorios e inmutables. Ver seccion 'Protocolo Zero-Token' en CLAUDE.md.
+> Reglas de sesion activas: CLAUDE.md > este skill. Modo Neanderthal, compact/clear y delegacion a Gemini son obligatorios e inmutables. Ver seccion 'Protocolo de Ahorro de Tokens' en CLAUDE.md.
 - Verificar LLM Gateway intermedio antes de llamar SDK del proveedor desde capa de negocio.
-- Verificar pasar primero por Gemini Bridge antes de incluir archivos > 500 lineas en prompts.
+- Verificar pasar primero por Gemini Bridge antes de incluir archivos > 200 lineas en prompts.
 - Verificar ejecutar el conjunto de evaluacion documentado antes de desplegar cambios de prompt.
 - Asegurar que no se ejecuta: omitir logging de tokens en cualquier llamada LLM en produccion.

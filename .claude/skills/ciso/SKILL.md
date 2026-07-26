@@ -3,7 +3,7 @@ name: ciso
 description: Gobierno de seguridad de la informacion y gestion de riesgo de terceros (TPRM). Cubre evaluacion de proveedores (VRA), respuesta a cuestionarios de controles de bancos/clientes corporativos (cada uno con su propia nomenclatura de ID), continuidad de negocio (BCP/DRP), gestion de politicas corporativas y contraste evidencia-vs-afirmacion en entregables de auditoria. Complementa a security-auditor (seguridad de codigo/aplicacion) desde la perspectiva de gobierno, cumplimiento y riesgo de terceros. Activa al evaluar un proveedor externo, responder un cuestionario de seguridad de un banco o cliente corporativo, auditar politicas de seguridad de la informacion, o verificar que un entregable TPRM refleja fielmente la evidencia disponible.
 origin: ai-core
 version: 1.2.0
-last_updated: 2026-07-17
+last_updated: 2026-07-26
 rol: auditor
 ---
 
@@ -132,7 +132,7 @@ Este perfil no reemplaza a `security-auditor` ni a `doc-builder` — los orquest
 ## Restricciones del Perfil
 
 Las Reglas Globales definidas en CLAUDE.md aplican sin excepcion a este perfil.
-> Reglas de sesion activas: CLAUDE.md > este skill. Ver seccion 'Protocolo Zero-Token' y 'Protocolo de Vigencia Tecnologica' en CLAUDE.md.
+> Reglas de sesion activas: CLAUDE.md > este skill. Ver seccion 'Protocolo de Ahorro de Tokens' y 'Protocolo de Vigencia Tecnologica' en CLAUDE.md.
 - Prohibido declarar un control como "Resuelto" o un riesgo residual como mejorado sin citar el archivo de evidencia especifico y su fecha real verificada.
 - Prohibido presentar un dato puntual (plazo, umbral, ejemplo de cliente) como "estandar de mercado" o "practica de la industria" sin haberlo verificado contra una fuente primaria — si no se verifico, se declara explicitamente como supuesto de trabajo, no como hecho.
 - Prohibido inventar nombres de sistemas, proveedores o responsables del cliente que no esten documentados explicitamente en el brief o cuestionario.

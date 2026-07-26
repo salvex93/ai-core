@@ -3,7 +3,7 @@ name: multimodal-engineer
 description: Especialista en pipelines de procesamiento multimodal con LLMs. Cubre analisis de imagenes con Claude Opus 4.8 (vision 3.75MP) y Gemini 3.1 Pro (1M tokens), extraccion estructurada desde PDFs y documentos con Citations API, pipelines OCR semanticos, optimizacion de costo por token visual y arquitectura de sistemas que procesan entradas mixtas (texto + imagen + documento). Activa al construir pipelines que procesan imagenes o documentos, integrar vision en agentes, comparar capacidades multimodales entre Claude y Gemini, o disenar extraccion estructurada desde contratos, facturas o diagramas tecnicos.
 origin: ai-core
 version: 1.1.0
-last_updated: 2026-07-17
+last_updated: 2026-07-26
 rol: architect
 ---
 
@@ -215,28 +215,27 @@ def analizar_contrato_con_citas(ruta_pdf: str, pregunta: str) -> dict:
 ### Procesamiento de PDFs multi-pagina con Gemini 3.1 Pro
 
 ```python
-import google.generativeai as genai
-import pathlib
+from google import genai
 
 def analizar_documento_largo(ruta_pdf: str, instruccion: str) -> str:
-    genai.configure(api_key=os.environ["GEMINI_API_KEY"])
-    modelo = genai.GenerativeModel("gemini-3.1-pro")
+    client = genai.Client()
 
     # Subir el PDF — Gemini maneja la extraccion de paginas internamente
-    archivo = genai.upload_file(ruta_pdf, mime_type="application/pdf")
+    archivo = client.files.upload(path=ruta_pdf)
 
-    respuesta = modelo.generate_content([
-        archivo,
-        instruccion
-    ])
+    interaction = client.interactions.create(
+        model="gemini-3.1-pro-preview",
+        input=[archivo, instruccion],
+        generation_config={"thinking_level": "high"},
+    )
 
-    return respuesta.text
+    return interaction.output_text
 ```
 
 Reglas:
 - Gemini 3.1 Pro acepta PDFs hasta 1M tokens (aprox. 1000 paginas de texto denso).
-- Para documentos > 200 paginas con estructura compleja, usar `thinking_config: {"thinking_budget": 4000}` para mejorar la comprension de la estructura del documento.
-- El archivo subido via `genai.upload_file` expira en 48 horas — no confiar en persistencia.
+- Para documentos > 200 paginas con estructura compleja, usar `thinking_level: "high"` (ver `gemini-3-specialist` para el detalle de niveles) para mejorar la comprension de la estructura del documento.
+- El archivo subido via `client.files.upload` expira en 48 horas — no confiar en persistencia.
 
 ## Pipeline de Embeddings Multimodales
 
@@ -292,7 +291,7 @@ Verificar en orden antes de aprobar un PR que introduce o modifica un pipeline m
 ## Restricciones del Perfil
 
 Las Reglas Globales definidas en CLAUDE.md aplican sin excepcion a este perfil.
-> Reglas de sesion activas: CLAUDE.md > este skill. Modo Neanderthal, compact/clear y delegacion a Gemini son obligatorios e inmutables. Ver seccion 'Protocolo Zero-Token' en CLAUDE.md.
+> Reglas de sesion activas: CLAUDE.md > este skill. Modo Neanderthal, compact/clear y delegacion a Gemini son obligatorios e inmutables. Ver seccion 'Protocolo de Ahorro de Tokens' en CLAUDE.md.
 - Verificar normalizar al modelo — siempre calcular el costo de tokens antes de emitir codigo antes de recomendar enviar imagenes.
 - Verificar politica de privacidad documentada antes de usar vision para identificacion o reconocimiento de personas.
 - Asegurar que no se ejecuta: hardcodear rutas de archivo o URLs de imagenes en el codigo — siempre parametrizar.

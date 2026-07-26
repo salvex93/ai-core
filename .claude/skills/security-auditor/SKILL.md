@@ -3,7 +3,7 @@ name: security-auditor
 description: Security Auditor Universal. Especialista en seguridad de aplicaciones: auditoria de dependencias (CVEs), modelado de amenazas (STRIDE), headers de seguridad, gestion de secretos y OWASP Top 10. Agnostico al stack. Activa al auditar seguridad, revisar dependencias con CVEs, configurar politicas de seguridad HTTP o evaluar compliance.
 origin: ai-core
 version: 1.3.0
-last_updated: 2026-07-17
+last_updated: 2026-07-26
 rol: auditor
 ---
 
@@ -44,7 +44,7 @@ Si MCP gemini-bridge no disponible → leer manualmente: `package.json`, `.env.e
 
 Si ningun manifiesto esta disponible, declararlo explicitamente y solicitar la informacion antes de continuar.
 
-Si un archivo de codigo fuente a auditar supera 500 lineas o 50 KB, aplicar Regla 9 antes de cargarlo:
+Si un archivo de codigo fuente a auditar supera 200 lineas (o 50 lineas si es log/error), aplicar la regla GEMINI PRIMERO de CLAUDE.md (delegacion obligatoria al bridge) antes de cargarlo:
 
 ```
 node scripts/mcp-gemini.js --mission "Audita el archivo segun OWASP Top 10: detecta inyecciones, secretos hardcodeados, endpoints sin autenticacion, validacion ausente en entradas de usuario y exposicion de datos sensibles en logs o respuestas de error" --file <ruta> --format json
@@ -285,7 +285,7 @@ Verificar en orden antes de aprobar un PR. Un PR con observacion en cualquier pu
 ## Restricciones del Perfil
 
 Las Reglas Globales definidas en CLAUDE.md aplican sin excepcion a este perfil.
-> Reglas de sesion activas: CLAUDE.md > este skill. Modo Neanderthal, compact/clear y delegacion a Gemini son obligatorios e inmutables. Ver seccion 'Protocolo Zero-Token' en CLAUDE.md.
+> Reglas de sesion activas: CLAUDE.md > este skill. Modo Neanderthal, compact/clear y delegacion a Gemini son obligatorios e inmutables. Ver seccion 'Protocolo de Ahorro de Tokens' en CLAUDE.md.
 - Verificar haber leido los manifiestos del anfitrion antes de emitir recomendaciones de seguridad.
 - Ante la deteccion de un secreto real en el codigo, detener toda otra actividad y notificar al usuario de forma inmediata como primera accion.
 - Verificar justificacion documentada y aprobacion explicita antes de proponer reducir controles de seguridad existentes.

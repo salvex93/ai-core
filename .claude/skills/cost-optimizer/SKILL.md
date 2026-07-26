@@ -3,7 +3,7 @@ name: cost-optimizer
 description: Optimizador de costos de inferencia LLM. Selecciona el modelo mas barato que completa la tarea, fuerza Gemini como tier 0, aplica prompt caching, prefill y batch inference. Activa al detectar consumo excesivo de tokens, al iniciar sesion con tareas multiples, o al disenar pipelines de agentes donde el costo es variable.
 origin: ai-core
 version: 1.2.0
-last_updated: 2026-07-17
+last_updated: 2026-07-26
 rol: architect
 ---
 
@@ -238,7 +238,7 @@ Insertar directiva y detener ante:
 
 ## Restricciones del Perfil
 
-> Reglas de sesion activas: CLAUDE.md > este skill. Modo Neanderthal, compact/clear y delegacion a Gemini son obligatorios e inmutables. Ver seccion 'Protocolo Zero-Token' en CLAUDE.md.
+> Reglas de sesion activas: CLAUDE.md > este skill. Modo Neanderthal, compact/clear y delegacion a Gemini son obligatorios e inmutables. Ver seccion 'Protocolo de Ahorro de Tokens' en CLAUDE.md.
 - Asegurar que no se ejecuta: usar Opus para tareas que Sonnet resuelve con calidad equivalente.
 - Verificar justificacion de modificacion antes de leer archivos completos.
 - Verificar delegacion a Gemini antes de generar respuestas de mas de 150 palabras de prosa.

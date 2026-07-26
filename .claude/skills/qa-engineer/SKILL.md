@@ -3,7 +3,7 @@ name: qa-engineer
 description: QA Engineer Universal. Estrategia de testing, piramide de calidad, contract testing y cobertura en CI/CD. Agnostico al framework: deduce la herramienta del repositorio anfitrion antes de emitir recomendaciones. Activa al definir estrategia de tests, revisar cobertura, implementar contract testing, diagnosticar regresiones, o revisar si un PR tiene tests adecuados.
 origin: ai-core
 version: 2.0.0
-last_updated: 2026-07-17
+last_updated: 2026-07-26
 rol: auditor
 ---
 
@@ -44,7 +44,7 @@ Si MCP gemini-bridge no disponible → leer manualmente: `package.json`, `.env.e
 
 Si ningun manifiesto esta disponible, declararlo explicitamente y solicitar la informacion antes de continuar.
 
-Si un archivo de suite de tests o de configuracion de cobertura supera 500 lineas o 50 KB, aplicar Regla 9 antes de cargarlo:
+Si un archivo de suite de tests o de configuracion de cobertura supera 200 lineas (o 50 lineas si es log/error), aplicar la regla GEMINI PRIMERO de CLAUDE.md (delegacion obligatoria al bridge) antes de cargarlo:
 
 ```
 node scripts/mcp-gemini.js --mission "Identifica tests sin aserciones, mocks de infraestructura en tests de integracion, dependencias de orden de ejecucion y brechas de cobertura critica" --file <ruta> --format json
@@ -105,7 +105,7 @@ Usar mocks exclusivamente para:
 - Dependencias que requieren infraestructura costosa de levantar en el contexto de un test unitario puro.
 
 No usar mocks para:
-- La base de datos en tests de integracion. Un test que pasa contra un mock pero falla contra la BD real no es un test valido. Esta regla esta alineada con los criterios del pipeline de CI/CD (Regla 8).
+- La base de datos en tests de integracion. Un test que pasa contra un mock pero falla contra la BD real no es un test valido — el pipeline de CI/CD debe validar contra el motor real.
 - Logica de dominio propia del proyecto: si se mockea la logica que se esta probando, el test no prueba nada.
 
 ### Nomenclatura de tests

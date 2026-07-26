@@ -3,7 +3,7 @@ name: audio-voice-engineer
 description: Especialista en Voice AI y sistemas de audio real-time. Cubre streaming de audio, conversational interfaces nativas, Gemini 3.1 Flash Live API, APIs de speech-to-text/text-to-speech, latencia submilisegundo, y orquestacion de voice workflows. Activa al disenar interfaces de voz, implementar streaming de audio en produccion, o integrar modelos speech de Gemini.
 origin: ai-core
 version: 1.3.0
-last_updated: 2026-07-17
+last_updated: 2026-07-26
 rol: architect
 ---
 
@@ -225,7 +225,7 @@ config = {
 ## Restricciones del Perfil
 
 Las Reglas Globales definidas en CLAUDE.md aplican sin excepcion. Adicionales:
-> Reglas de sesion activas: CLAUDE.md > este skill. Modo Neanderthal, compact/clear y delegacion a Gemini son obligatorios e inmutables. Ver seccion 'Protocolo Zero-Token' en CLAUDE.md.
+> Reglas de sesion activas: CLAUDE.md > este skill. Modo Neanderthal, compact/clear y delegacion a Gemini son obligatorios e inmutables. Ver seccion 'Protocolo de Ahorro de Tokens' en CLAUDE.md.
 - Verificar especificar latencia objetivo y plan de medicion antes de disenar un voice system.
 - Verificar plan de migracion de clientes existentes antes de cambiar codec en produccion.
 - Prohibido recomendar `gemini-2.0-flash-live-001` o `gemini-2.5-flash-live-preview` — ambos apagados desde 2025-12-09, usar `gemini-3.1-flash-live-preview`.

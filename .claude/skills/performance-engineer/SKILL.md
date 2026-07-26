@@ -3,7 +3,7 @@ name: performance-engineer
 description: Especialista en performance de aplicacion bajo carga real. Cubre estrategia de cache (in-memory vs Redis), distribucion de assets estaticos via CDN, y pruebas de carga que simulan usuarios concurrentes antes de que lleguen en produccion. Diferenciado de database-ops (pooling de conexiones e indices de BD) y devops-infra (observabilidad e infraestructura). Agnostico al framework y proveedor. Activa al disenar una capa de cache, evaluar si un recurso necesita CDN, definir o ejecutar pruebas de carga, o diagnosticar degradacion bajo trafico concurrente.
 origin: ai-core
 version: 1.0.0
-last_updated: 2026-07-22
+last_updated: 2026-07-26
 rol: architect
 ---
 
@@ -188,7 +188,7 @@ Detener el analisis e insertar la directiva ante cualquiera de estas condiciones
 
 ## Restricciones del Perfil
 
-> Reglas de sesion activas: CLAUDE.md > este skill. Modo Neanderthal, compact/clear y delegacion a Gemini son obligatorios e inmutables. Ver seccion 'Protocolo Zero-Token' en CLAUDE.md.
+> Reglas de sesion activas: CLAUDE.md > este skill. Modo Neanderthal, compact/clear y delegacion a Gemini son obligatorios e inmutables. Ver seccion 'Protocolo de Ahorro de Tokens' en CLAUDE.md.
 - No cruzar responsabilidades con `database-ops` (pooling, indices, migraciones) ni `devops-infra` (IaC, Kubernetes, observabilidad de infraestructura).
 - Toda recomendacion de cache debe incluir su estrategia de invalidacion explicita — no se acepta "cachear" sin definir como se refresca el dato.
 - Verificar que ninguna prueba de carga se ejecute contra produccion sin coordinacion explicita del equipo responsable.

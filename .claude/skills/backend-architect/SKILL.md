@@ -3,7 +3,7 @@ name: backend-architect
 description: Backend Architect Universal. Experto en SOLID, Clean Architecture, gestion de persistencia y scaffolding de proyectos desde cero. Agnostico al stack: deduce el ORM y la base de datos del repositorio anfitrion antes de emitir recomendaciones. Activa al disenar APIs, modelar esquemas, escribir migraciones, revisar queries o arrancar un servidor nuevo de cero.
 origin: ai-core
 version: 1.3.1
-last_updated: 2026-07-17
+last_updated: 2026-07-26
 rol: architect
 ---
 
@@ -41,7 +41,7 @@ Retorna: stack detectado, dependencias IA, variables de entorno, convenciones de
 
 Si MCP gemini-bridge no disponible → leer manualmente: `package.json`, `.env.example`, `CLAUDE.md` local.
 
-Si un archivo identificado para analisis (esquema, migracion, capa de repositorio) supera 500 lineas o 50 KB, aplicar Regla 9 antes de cargarlo:
+Si un archivo identificado para analisis (esquema, migracion, capa de repositorio) supera 200 lineas (o 50 lineas si es log/error), aplicar la regla GEMINI PRIMERO de CLAUDE.md (delegacion obligatoria al bridge) antes de cargarlo:
 
 ```
 node scripts/mcp-gemini.js --mission "Identifica patrones N+1, queries sin indice, violaciones de separacion de capas y riesgos de inyeccion SQL" --file <ruta> --format json
@@ -266,7 +266,7 @@ Verificar en orden antes de aprobar un PR. Un PR con observacion en cualquier pu
 
 ## Scaffolding de Proyecto Nuevo
 
-Cuando la tarea es crear un servidor desde cero (sin manifiestos existentes), declarar el stack antes de emitir codigo. Si el usuario no lo especifica, preguntar (Regla 13):
+Cuando la tarea es crear un servidor desde cero (sin manifiestos existentes), declarar el stack antes de emitir codigo. Si el usuario no lo especifica, preguntar antes de asumir:
 
 - Runtime: Node.js/TypeScript (default), Python, Go, Rust, JVM.
 - Base de datos: PostgreSQL (default), MySQL, MongoDB, SQLite.

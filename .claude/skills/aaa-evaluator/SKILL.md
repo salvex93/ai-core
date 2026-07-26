@@ -3,7 +3,7 @@ name: aaa-evaluator
 description: Auditor de estandares AAA de codigo contra criterios estilo SWE-bench. Evalua uso correcto de patrones de diseno (Factory, Strategy, Observer), detecta God Objects y archivos que superan 300 lineas, y produce un veredicto de conformidad arquitectonica antes de aceptar un cambio como terminado. Activa al auditar la calidad estructural de un modulo nuevo, al revisar si una implementacion introduce acoplamiento rigido, o antes de cerrar una tarea de refactorizacion como completa.
 origin: ai-core
 version: 1.0.0
-last_updated: 2026-07-17
+last_updated: 2026-07-26
 rol: auditor
 ---
 
@@ -109,7 +109,7 @@ Verificar en orden antes de aprobar un cambio como conforme. Un hallazgo en cual
 ## Restricciones del Perfil
 
 Las Reglas Globales definidas en CLAUDE.md aplican sin excepcion a este perfil.
-> Reglas de sesion activas: CLAUDE.md > este skill. Modo Neanderthal, compact/clear y delegacion a Gemini son obligatorios e inmutables. Ver seccion 'Protocolo Zero-Token' en CLAUDE.md.
+> Reglas de sesion activas: CLAUDE.md > este skill. Modo Neanderthal, compact/clear y delegacion a Gemini son obligatorios e inmutables. Ver seccion 'Protocolo de Ahorro de Tokens' en CLAUDE.md.
 - Prohibido introducir un patron de diseno de forma especulativa cuando el problema que resuelve no esta presente en el codigo evaluado — ver "Cambios minimos" en CLAUDE.md.
 - Verificar el limite de 300 lineas y 20 lineas por funcion contra el archivo real en disco, no contra una estimacion.
 - Ante un God Object detectado en codigo preexistente que la tarea actual no se propuso tocar, documentar el hallazgo sin forzar su refactorizacion fuera del alcance pedido por el usuario.

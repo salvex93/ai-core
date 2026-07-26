@@ -3,7 +3,7 @@ name: claude-agent-sdk
 description: Especialista en construccion de agentes autonomos con el Claude Agent SDK (TypeScript/Python). Cubre herramientas integradas, hooks de ciclo de vida, subagentes, integracion MCP, OAuth 2.0 client flow (Authorization Code + PKCE) para servidores MCP remotos, gestion de permisos y sesiones. Activa al construir agentes personalizados, orquestar subagentes, integrar el Agent SDK en un proyecto anfitrion o disenar flujos de automatizacion con Claude.
 origin: ai-core
 version: 2.4.0
-last_updated: 2026-07-17
+last_updated: 2026-07-26
 rol: architect
 ---
 
@@ -44,7 +44,7 @@ Retorna: stack detectado, dependencias IA, variables de entorno, convenciones de
 
 Si MCP gemini-bridge no disponible → leer manualmente: `package.json`, `.env.example`, `CLAUDE.md` local.
 
-Archivos > 500 lineas / 50 KB → Regla 9: `node scripts/mcp-gemini.js --mission "Analiza la arquitectura del agente e identifica: herramientas registradas, flujo de decision, hooks activos, riesgos de bucle infinito, ausencia de condicion de parada y surface de inyeccion de prompt" --file <ruta> --format json`
+Archivos > 200 lineas (regla GEMINI PRIMERO de CLAUDE.md) → GEMINI PRIMERO: `node scripts/mcp-gemini.js --mission "Analiza la arquitectura del agente e identifica: herramientas registradas, flujo de decision, hooks activos, riesgos de bucle infinito, ausencia de condicion de parada y surface de inyeccion de prompt" --file <ruta> --format json`
 
 ## Directiva de Interrupcion
 
@@ -304,7 +304,7 @@ Patron de cost optimization en multi-agente: usar `claude-haiku-4-5` para sub-ta
 
 ## Restricciones del Perfil
 
-> Reglas de sesion activas: CLAUDE.md > este skill. Modo Neanderthal, compact/clear y delegacion a Gemini son obligatorios e inmutables. Ver seccion 'Protocolo Zero-Token' en CLAUDE.md.
+> Reglas de sesion activas: CLAUDE.md > este skill. Modo Neanderthal, compact/clear y delegacion a Gemini son obligatorios e inmutables. Ver seccion 'Protocolo de Ahorro de Tokens' en CLAUDE.md.
 - Verificar hook de confirmacion humana en el loop antes de construir agentes con herramientas destructivas.
 - Verificar aislamiento de permisos entre orquestador y subagentes antes de disenar multi-agente.
 - Asegurar que no se ejecuta: omitir la condicion de parada en agentes que ejecuten herramientas de escritura o eliminacion.

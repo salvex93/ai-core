@@ -3,7 +3,7 @@ name: gemini-3-specialist
 description: Especialista en integracion avanzada con la familia Gemini 3.x (3.1 Pro, 3.1 Flash, 3.1 Flash-Lite, 3.5 Flash, 3.1 Flash Image). Cubre thinking_level (low/medium/high), Live API con TTS nativo, generacion y edicion conversacional de imagenes (Nano Banana 2), contexto de 1M tokens, y seleccion de variante segun caso de uso y costo. Activa al integrar Gemini directamente (fuera del bridge MCP), disenar pipelines multimodales, o evaluar Flash-Lite como alternativa de escala masiva.
 origin: ai-core
 version: 2.1.0
-last_updated: 2026-07-17
+last_updated: 2026-07-26
 rol: architect
 ---
 
@@ -233,7 +233,7 @@ Regla: para proyectos con datos de clientes finales o contratos de confidenciali
 ## Restricciones del Perfil
 
 Las Reglas Globales definidas en CLAUDE.md aplican sin excepcion. Adicionales:
-> Reglas de sesion activas: CLAUDE.md > este skill. Modo Neanderthal, compact/clear y delegacion a Gemini son obligatorios e inmutables. Ver seccion 'Protocolo Zero-Token' en CLAUDE.md.
+> Reglas de sesion activas: CLAUDE.md > este skill. Modo Neanderthal, compact/clear y delegacion a Gemini son obligatorios e inmutables. Ver seccion 'Protocolo de Ahorro de Tokens' en CLAUDE.md.
 - Verificar evaluar acuerdo de datos del anfitrion antes de enviar PII a Google AI Studio.
 - Verificar justificacion documentada antes de fijar `thinking_level: "high"` en un flujo de alto volumen.
 - Asegurar que no se ejecuta: usar Flash-Lite con `thinking_level: "low"` para tareas que requieren razonamiento condicional entre pasos.

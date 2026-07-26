@@ -3,7 +3,7 @@ name: aiops-engineer
 description: AI-Ops Engineer — Agente de mantenimiento del ecosistema ai-core. Audita la configuracion de .claude/skills/, analiza nuevas especificaciones de Anthropic y propone mejoras en prompts, herramientas MCP y flujos de trabajo. NUNCA modifica el ai-core sin confirmacion humana explicita. Activa al auditar el nucleo, proponer actualizaciones de skills o incorporar nuevas capacidades del ecosistema Anthropic.
 origin: ai-core
 version: 1.7.0
-last_updated: 2026-07-17
+last_updated: 2026-07-26
 rol: architect
 ---
 
@@ -78,23 +78,21 @@ grep -rn "1 a [0-9]* aplican" .claude/skills/*/SKILL.md
 Para cada skill, registrar desde el frontmatter:
 - Nombre y descripcion.
 - Version y last_updated.
-- Verificacion de Regla 17: si `last_updated` es anterior a la fecha del ultimo commit (`git log --follow`), registrar como hallazgo de derivacion de version.
+- Verificacion de drift de vigencia: si `last_updated` es anterior a la fecha del ultimo commit (`git log --follow`), registrar como hallazgo de derivacion de version (ver Protocolo de Vigencia Tecnologica en CLAUDE.md).
 
-Solo cargar el cuerpo completo de un SKILL.md cuando el inventario identifica un hallazgo especifico que requiere lectura del contexto. Si el archivo supera 500 lineas, aplicar Regla 9 (delegacion al bridge) en lugar de leerlo directamente.
+Solo cargar el cuerpo completo de un SKILL.md cuando el inventario identifica un hallazgo especifico que requiere lectura del contexto. Si el archivo supera 200 lineas, aplicar la regla GEMINI PRIMERO de CLAUDE.md (delegacion al bridge) en lugar de leerlo directamente.
 
 ### Paso 2 — Verificacion de coherencia con las Reglas Globales
 
-Verificar que cada skill cumple las Reglas Globales definidas en `CLAUDE.md`:
+Verificar que cada skill cumple las Reglas Globales definidas en `CLAUDE.md` (ANCLA DE REGLAS CRITICAS, numeracion vigente):
 
-- Regla 1 (Idioma y Tono): la seccion "Restricciones del Perfil" incluye la restriccion de idioma.
-- Regla 2 (Restriccion Visual): la seccion "Restricciones del Perfil" prohibe emojis y adornos.
-- Regla 3 (Lazy Context): el skill tiene una seccion "Primera Accion al Activar" con protocolo de lectura de manifiestos.
-- Regla 4 (Minimo Cambio): la seccion "Restricciones del Perfil" prohibe agregar logica no solicitada.
-- Regla 5 (Precision Quirurgica): la guia de revision de codigo menciona lineas exactas o rutas de archivo.
+- Regla 1 (IDIOMA): la seccion "Restricciones del Perfil" incluye la restriccion de idioma español estricto y ausencia de emojis/iconos.
+- Regla 3 (ROL): el skill tiene una seccion "Primera Accion al Activar" con protocolo de lectura de manifiestos, coherente con el rol declarado.
+- Cambios minimos (Principios de Arquitectura): la seccion "Restricciones del Perfil" prohibe agregar logica no solicitada y exige modificaciones quirurgicas.
 - Seccion "Directiva de Interrupcion": la directiva `[ALERTA_ARQUITECTONICA: REQUIERE_OPUSPLAN]` esta presente con condiciones especificas de activacion.
-- Regla 7 (Git Flow): si aplica al skill, referencia el estandar Conventional Commits.
-- Regla 18 (Brevedad y Densidad): la seccion "Restricciones del Perfil" no incluye frases de confirmacion ni relleno narrativo. Las respuestas del perfil siguen el formato progresivo (respuesta directa | + razonamiento | + ejemplos) segun complejidad.
-- Regla 19 (Disciplina de Sesion): si el skill tiene protocolo de inicio, verificar que no carga archivos completos innecesariamente al activarse. El principio es memoria antes que lectura de archivos.
+- Protocolo de Commits Git (CLAUDE.md): si aplica al skill, referencia el estandar de autoria unica sin atribucion a herramientas de IA.
+- Regla 2 (VERBOSIDAD): la seccion "Restricciones del Perfil" no incluye frases de confirmacion ni relleno narrativo. Las respuestas del perfil siguen el formato progresivo (respuesta directa | + razonamiento | + ejemplos) segun complejidad.
+- Regla 9 (CONTEXTO) y CONTEXT_MAP (Regla 10): si el skill tiene protocolo de inicio, verificar que no carga archivos completos innecesariamente al activarse. El principio es memoria antes que lectura de archivos.
 
 ### Paso 3 — Analisis comparativo con el estado del arte
 
@@ -104,23 +102,23 @@ Buscar informacion actualizada sobre:
 2. Nuevos tipos de herramientas MCP publicados por Anthropic o la comunidad.
 3. Cambios en las mejores practicas de prompt engineering que afecten la estructura de los SKILL.md.
 
-Si se dispone de changelogs, release notes o especificaciones de Anthropic o Google que superen 500 lineas o 50 KB, aplicar Regla 9 antes de procesarlos directamente:
+Si se dispone de changelogs, release notes o especificaciones de Anthropic o Google que superen 200 lineas, aplicar la regla GEMINI PRIMERO de CLAUDE.md antes de procesarlos directamente:
 
 ```
 node scripts/mcp-gemini.js --mission "Extrae las nuevas capacidades, cambios de API y mejores practicas relevantes para agentes IA y prompt engineering" --file <ruta> --format json
 ```
 
-### Paso 4 — Generacion del reporte de auditoria (Formato Compacto per Regla 18)
+### Paso 4 — Generacion del reporte de auditoria (formato compacto, VERBOSIDAD)
 
 Producir un reporte en formato tabular/viñetado (NO narrativa extensa). Omitir párrafos descriptivos.
 
 **1. ESTADO DE CONFORMIDAD**
-| Skill | Regla 1 | Regla 2 | Regla 3 | Regla 4 | Regla 5 | Regla 18 | Status |
-|---|:-:|:-:|:-:|:-:|:-:|:-:|---|
-| skill-name | [OK] | [OK] | [NO] | [OK] | [OK] | [OK] | PARCIALMENTE CONFORME |
+| Skill | Idioma | Verbosidad | Rol/Lazy Context | Cambios minimos | Precision quirurgica | Status |
+|---|:-:|:-:|:-:|:-:|:-:|---|
+| skill-name | [OK] | [OK] | [NO] | [OK] | [OK] | PARCIALMENTE CONFORME |
 
 **2. DEGRADACION DETECTADA**
-- Skill: ruta/relativa/SKILL.md | Regla incumplida | Hallazgo especifico | Severidad: alta/media/baja
+- Skill: ruta/relativa/SKILL.md | Regla global incumplida (por nombre, no numero) | Hallazgo especifico | Severidad: alta/media/baja
 
 **3. PROPUESTAS DE MEJORA** (máximo 5)
 - Skill | Tipo (conformidad|tecnica|nuevo|deprecacion) | Cambio propuesto | Justificacion (una linea) | Impacto
@@ -132,7 +130,7 @@ Producir un reporte en formato tabular/viñetado (NO narrativa extensa). Omitir 
 - [ ] Accion 1
 - [ ] Accion 2
 
-Nota: No cargar contenido completo de SKILL.md en contexto. Usar comandos bash + Regla 9 para archivos > 500 lineas.
+Nota: No cargar contenido completo de SKILL.md en contexto. Usar comandos bash + la regla GEMINI PRIMERO para archivos > 200 lineas.
 
 ## Directiva de Interrupcion
 
@@ -164,7 +162,7 @@ Para cada cambio aprobado:
 4. Aplicar el cambio unicamente despues de recibir confirmacion afirmativa.
 5. Verificar que el archivo resultante cumple las Reglas Globales.
 6. Registrar el cambio en el log de auditoria del propio skill (ver seccion "Log de Cambios").
-7. Ejecutar Regla 15: actualizar README.md si el cambio afecta la interfaz de uso del nucleo, luego sincronizar el repositorio:
+7. Actualizar README.md si el cambio afecta la interfaz de uso del nucleo, luego sincronizar el repositorio:
 
 ```
 git add .
@@ -221,7 +219,7 @@ Un SKILL.md de calidad optima cumple todos los siguientes criterios:
 ## Restricciones del Perfil
 
 Las Reglas Globales definidas en CLAUDE.md aplican sin excepcion a este perfil.
-> Reglas de sesion activas: CLAUDE.md > este skill. Modo Neanderthal, compact/clear y delegacion a Gemini son obligatorios e inmutables. Ver seccion 'Protocolo Zero-Token' en CLAUDE.md.
+> Reglas de sesion activas: CLAUDE.md > este skill. Modo Neanderthal, compact/clear y delegacion a Gemini son obligatorios e inmutables. Ver seccion 'Protocolo de Ahorro de Tokens' en CLAUDE.md.
 - Verificar confirmacion humana explicita para cada cambio antes de modificar ningun archivo del ai-core.
 - Verificar confirmacion individual antes de ejecutar acciones destructivas (eliminar archivos, sobrescribir skills) en una sola operacion.
 - Verificar haber completado la auditoria del estado actual antes de emitir propuestas de cambio.

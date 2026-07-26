@@ -59,9 +59,12 @@ const REFERENCIA_INMUTABLE = 'Reglas de sesion activas: CLAUDE.md > este skill.'
 // Emojis pictograficos reales (excluye digitos y ASCII que Unicode clasifica como Emoji)
 const EMOJI_PICTOGRAFICO = /[\u{1F300}-\u{1F9FF}]|[\u{2600}-\u{27BF}]|[\u{1FA00}-\u{1FAFF}]/u;
 
+// Co-Authored-By se elimino de aqui: es una regla sobre COMMITS, no sobre el
+// contenido de un SKILL.md -- un skill que documenta la regla (ej. en su
+// seccion de Restricciones) mencionaba la cadena literal y disparaba un
+// falso positivo (mismo patron ya corregido en standards-guard.js).
 const VIOLACIONES = [
   { patron: EMOJI_PICTOGRAFICO,  desc: 'contiene emojis pictograficos (prohibido por CLAUDE.md)', sev: 'alta' },
-  { patron: /Co-Authored-By/i,   desc: 'menciona Co-Authored-By (prohibido en commits)',           sev: 'media' },
 ];
 
 // ─── Auditar un skill ─────────────────────────────────────────────────────────

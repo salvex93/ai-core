@@ -3,7 +3,7 @@ name: llm-evals
 description: Especialista en evaluacion sistematica de outputs de LLM. Cubre diseno de datasets de evaluacion, metricas automatizadas (faithfulness, answer relevancy, hallucination rate), LLM-as-judge, integracion de evals en CI/CD y frameworks de evaluacion (deepeval, promptfoo, RAGAS). Activa al disenar un pipeline de evals, detectar regresiones en calidad de outputs, evaluar cambios de modelo o prompt, o medir la calidad de un sistema RAG.
 origin: ai-core
 version: 1.2.3
-last_updated: 2026-07-17
+last_updated: 2026-07-26
 rol: auditor
 ---
 
@@ -43,7 +43,7 @@ Si MCP gemini-bridge no disponible → leer manualmente: `package.json`, `.env.e
 
 Si ningun framework ni dataset esta disponible, declararlo y proponer la estrategia de evaluacion minima viable antes de continuar.
 
-Si archivos de dataset superan 500 lineas o 50 KB, aplicar Regla 9:
+Si archivos de dataset superan 200 lineas, aplicar la regla GEMINI PRIMERO de CLAUDE.md (delegacion obligatoria al bridge):
 
 ```
 node scripts/mcp-gemini.js --mission "Analiza este dataset de evaluacion e identifica: distribucion de casos por categoria, casos sin ground truth definido, casos duplicados o contradictorios, y cobertura de los escenarios criticos del sistema" --file <ruta> --format json

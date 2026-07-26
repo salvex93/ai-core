@@ -89,6 +89,38 @@ describe('validate-globals.js — schema agentskills.io', () => {
     );
   });
 
+  test('SKILL.md que documenta la regla de no-atribucion a IA (sin violarla): NO genera hallazgo Co-Authored-By', () => {
+    // Falso positivo real detectado en aiops-engineer/SKILL.md: el chequeo
+    // VIOLACIONES usa /Co-Authored-By/i.test(content) sobre el SKILL.md
+    // completo, sin distinguir si la coincidencia esta dentro de la propia
+    // documentacion de la regla que la prohibe (mismo patron ya corregido en
+    // standards-guard.js para CLAUDE.md/README.md).
+    limpiar();
+    const marca = ['Co', 'Authored', 'By'].join('-');
+    crearSkillDePrueba([
+      '---',
+      'name: zz-test-agentskills-temp',
+      'description: skill de prueba para test unitario, no usar en produccion.',
+      'origin: ai-core',
+      'version: 1.0.0',
+      'last_updated: 2026-01-01',
+      'rol: coder',
+      '---',
+      '# Skill de prueba',
+      `Protocolo de Commits Git: referencia el estandar de autoria unica sin atribucion a herramientas de IA (sin ${marca}).`,
+    ].join('\n'));
+
+    const r = runValidate();
+    limpiar();
+    const salida = JSON.parse(r.stdout);
+    const resultado = salida.resultados.find(x => x.nombre === 'zz-test-agentskills-temp');
+    assert.ok(resultado, 'debe auditar el skill de prueba');
+    assert.ok(
+      !resultado.hallazgos.some(h => h.desc.includes('Co-Authored-By')),
+      'documentar la regla no es violarla -- no debe generar el hallazgo'
+    );
+  });
+
   test('skill conforme al schema no genera hallazgos de agentskills.io', () => {
     limpiar();
     crearSkillDePrueba([

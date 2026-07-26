@@ -3,7 +3,7 @@ name: prompt-engineer
 description: Especialista en arquitectura de prompts de produccion. Cubre diseno de system prompts, few-shot examples, chain-of-thought, prefill de respuesta, cache breakpoints estrategicos, output estructurado con JSON Schema, versionado de prompts y testing antes de despliegue. Complementa ai-integrations (integracion del LLM), llm-evals (medicion de calidad) y rag-specialist (contexto documental). Activa al disenar o refactorizar un system prompt, definir la estrategia de few-shot, implementar output estructurado o versionar prompts para produccion.
 origin: ai-core
 version: 1.9.0
-last_updated: 2026-07-17
+last_updated: 2026-07-26
 rol: architect
 ---
 
@@ -43,7 +43,7 @@ Retorna: stack detectado, dependencias IA, variables de entorno, convenciones de
 
 Si MCP gemini-bridge no disponible → leer manualmente: `package.json`, `.env.example`, `CLAUDE.md` local.
 
-Archivos de prompts > 500 lineas / 50 KB → Regla 9: `analizar_archivo(<ruta>, "Analiza el prompt e identifica: instrucciones ambiguas, ausencia de restricciones de output, riesgo de prompt injection, tokens desperdiciados, incoherencias entre rol declarado e instrucciones de ejecucion")`
+Archivos de prompts > 200 lineas (regla GEMINI PRIMERO de CLAUDE.md) → GEMINI PRIMERO: `analizar_archivo(<ruta>, "Analiza el prompt e identifica: instrucciones ambiguas, ausencia de restricciones de output, riesgo de prompt injection, tokens desperdiciados, incoherencias entre rol declarado e instrucciones de ejecucion")`
 
 ## Directiva de Interrupcion
 

@@ -3,7 +3,7 @@ name: claude-api
 description: Especialista en Claude API y Anthropic SDK (Python/TypeScript). Cubre prompt caching, extended thinking, tool use, streaming, Batch API, Files API, Citations API, modelos Fable 5/Opus/Sonnet/Haiku, migracion entre versiones de modelo y optimizacion de costo por token. Activa al escribir codigo que importa anthropic/@anthropic-ai/sdk, disenar pipelines con cache de prompts, implementar tool use nativo, o migrar entre versiones de Claude.
 origin: ai-core
 version: 1.2.0
-last_updated: 2026-07-17
+last_updated: 2026-07-26
 rol: coder
 ---
 
@@ -316,10 +316,9 @@ Activar ante:
 
 ## Restricciones del Perfil
 
-> Reglas de sesion activas: CLAUDE.md > este skill. Modo Neanderthal, compact/clear y delegacion a Gemini son obligatorios e inmutables. Ver seccion 'Protocolo Zero-Token' en CLAUDE.md.
-- Responder exclusivamente en espanol (Regla 1 de CLAUDE.md).
-- Mantener ausencia de emojis y adornos visuales (Regla 2 de CLAUDE.md).
-- Prohibido leer archivos completos sin consultar CONTEXT_MAP primero (Regla 3 de CLAUDE.md).
-- Prohibido agregar logica no solicitada (Regla 4 de CLAUDE.md).
+> Reglas de sesion activas: CLAUDE.md > este skill. Modo Neanderthal, compact/clear y delegacion a Gemini son obligatorios e inmutables. Ver seccion 'Protocolo de Ahorro de Tokens' en CLAUDE.md.
+- Responder exclusivamente en espanol, sin emojis ni adornos visuales (Regla 1 de CLAUDE.md — IDIOMA).
+- Prohibido leer archivos completos sin consultar CONTEXT_MAP primero (Regla 10 de CLAUDE.md — CONTEXT_MAP).
+- Prohibido agregar logica no solicitada (Principios de Arquitectura, "Cambios minimos" en CLAUDE.md).
 - Solo mostrar diffs o bloques minimos — nunca repetir codigo que el usuario ya tiene.
 - Siempre incluir `cache_control` en system prompts > 1024 tokens.

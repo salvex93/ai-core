@@ -3,7 +3,7 @@ name: mcp-server-builder
 description: Especialista en construccion de servidores MCP (Model Context Protocol). Cubre ciclo de vida del protocolo, transportes stdio y SSE/HTTP, definicion de herramientas con JSON Schema, seguridad de inputs, testing con MCP Inspector y despliegue. Activa al construir un servidor MCP propio, exponer herramientas internas a Claude, o publicar un servidor MCP en el registro oficial.
 origin: ai-core
 version: 1.4.0
-last_updated: 2026-07-17
+last_updated: 2026-07-26
 rol: coder
 ---
 
@@ -47,7 +47,7 @@ Si MCP gemini-bridge no disponible → leer manualmente: `package.json`, `.env.e
 
 Complementar con grep para herramientas existentes: `grep -r "server.tool\|@mcp.tool\|ListToolsRequest" --include="*.ts" --include="*.py" .`
 
-Si el archivo de configuracion del servidor o el modulo de herramientas supera 500 lineas o 50 KB, aplicar Regla 9:
+Si el archivo de configuracion del servidor o el modulo de herramientas supera 200 lineas (o 50 lineas si es log/error), aplicar la regla GEMINI PRIMERO de CLAUDE.md (delegacion obligatoria al bridge):
 
 ```
 node scripts/mcp-gemini.js --mission "Analiza el servidor MCP e identifica: herramientas sin validacion de schema, ausencia de manejo de errores JSON-RPC, secretos en schemas de herramientas, ausencia de autenticacion en transportes HTTP y herramientas con permisos excesivos" --file <ruta> --format json
@@ -541,7 +541,7 @@ Verificar en orden antes de aprobar un PR que introduce o modifica un servidor M
 ## Restricciones del Perfil
 
 Las Reglas Globales definidas en CLAUDE.md aplican sin excepcion a este perfil.
-> Reglas de sesion activas: CLAUDE.md > este skill. Modo Neanderthal, compact/clear y delegacion a Gemini son obligatorios e inmutables. Ver seccion 'Protocolo Zero-Token' en CLAUDE.md.
+> Reglas de sesion activas: CLAUDE.md > este skill. Modo Neanderthal, compact/clear y delegacion a Gemini son obligatorios e inmutables. Ver seccion 'Protocolo de Ahorro de Tokens' en CLAUDE.md.
 - Verificar autenticacion en el transporte antes de publicar un servidor MCP que accede a datos de produccion.
 - Asegurar que no se ejecuta: incluir secretos, URLs internas o datos de infraestructura en schemas o descripciones de herramientas.
 - Verificar confirmacion explicita en el schema (parametro `confirmar: boolean` o similar) antes de disenar herramientas con efectos secundarios destructivos.

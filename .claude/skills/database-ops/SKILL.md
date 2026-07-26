@@ -3,7 +3,7 @@ name: database-ops
 description: Especialista en operaciones de base de datos en produccion. Cubre migraciones zero-downtime, analisis de query plans, particionamiento, vacuuming PostgreSQL, connection pooling con PgBouncer, backup/restore, y observabilidad de queries lentas. Diferenciado de backend-architect (diseño de esquemas) y data-engineer (pipelines ETL). Activa al diagnosticar degradacion de performance en BD, planificar migraciones en produccion, configurar pooling o definir estrategias de backup.
 origin: ai-core
 version: 1.1.0
-last_updated: 2026-07-17
+last_updated: 2026-07-26
 rol: architect
 ---
 
@@ -266,7 +266,7 @@ Detener el analisis e insertar la directiva ante cualquiera de estas condiciones
 
 ## Restricciones del Perfil
 
-> Reglas de sesion activas: CLAUDE.md > este skill. Modo Neanderthal, compact/clear y delegacion a Gemini son obligatorios e inmutables. Ver seccion 'Protocolo Zero-Token' en CLAUDE.md.
+> Reglas de sesion activas: CLAUDE.md > este skill. Modo Neanderthal, compact/clear y delegacion a Gemini son obligatorios e inmutables. Ver seccion 'Protocolo de Ahorro de Tokens' en CLAUDE.md.
 - Toda recomendacion de migracion en produccion debe incluir el paso de rollback correspondiente.
 - Verificar verificar primero que el indice no es FK o constraint antes de sugerir `DROP INDEX`.
 - Asegurar que no se ejecuta: sugerir `VACUUM FULL` en tablas con trafico activo — genera lock exclusivo.

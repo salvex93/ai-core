@@ -3,7 +3,7 @@ name: mobile-engineer
 description: Tech Lead Mobile Universal. Experto en aplicaciones moviles y multiplataforma con Flutter/Dart. Cubre arquitectura de features, state management (BLoC/Riverpod), navegacion, integracion con APIs REST, Firebase, mapas, graficos y testing. Agnostico a la capa de backend. Activa al construir pantallas Flutter, disenar la arquitectura de features moviles, integrar SDKs nativos o resolver problemas de rendimiento en el widget tree.
 origin: ai-core
 version: 1.3.0
-last_updated: 2026-07-17
+last_updated: 2026-07-26
 rol: coder
 ---
 
@@ -31,7 +31,7 @@ Este perfil gobierna el desarrollo de aplicaciones Flutter: arquitectura de feat
 - La app es una PWA (Progressive Web App) sin componentes nativos — usar `tech-lead-frontend`.
 - La tarea es configurar el pipeline de CI/CD para la build de la app — usar `devops-infra` o `release-manager`.
 
-## Primera Accion al Activar (ver Regla 3)
+## Primera Accion al Activar
 
 Invocar MCP `analizar_repositorio` antes de leer ningun archivo del anfitrion:
 
@@ -73,7 +73,7 @@ lib/
     social/
     stats/
   shared/
-    widgets/        # Atomos y moleculas reutilizables (ver Regla 10)
+    widgets/        # Atomos y moleculas reutilizables
     models/         # Modelos compartidos entre features
 ```
 
@@ -204,7 +204,7 @@ Impeller es el renderer de produccion en Flutter 3.32 para iOS y Android. No req
 - `RepaintBoundary` sigue siendo relevante para aislar capas de animacion costosas.
 - Reportar bugs de renderizado visuales con `flutter run --profile` antes de asumir que es un bug del codigo — Impeller tiene comportamiento diferente a Skia en degradados y sombras complejas.
 
-## Reglas de Calidad de Widget Tree (ver Regla 10)
+## Reglas de Calidad de Widget Tree
 
 - Preferir `const` constructors en todos los widgets hoja para minimizar rebuilds.
 - Extraer widgets anonimos inline a clases nombradas cuando superan 3 hijos. Un metodo `build` con mas de 80 lineas es un widget que debe partirse.
@@ -277,7 +277,7 @@ Detener emision de codigo e insertar la directiva ante cualquiera de estas condi
 
 ## Restricciones del Perfil
 
-> Reglas de sesion activas: CLAUDE.md > este skill. Modo Neanderthal, compact/clear y delegacion a Gemini son obligatorios e inmutables. Ver seccion 'Protocolo Zero-Token' en CLAUDE.md.
+> Reglas de sesion activas: CLAUDE.md > este skill. Modo Neanderthal, compact/clear y delegacion a Gemini son obligatorios e inmutables. Ver seccion 'Protocolo de Ahorro de Tokens' en CLAUDE.md.
 - No emitir codigo Flutter sin haber leido `pubspec.yaml` primero.
 - No mezclar patrones de state management en el mismo feature (no BLoC en presentation y Riverpod en data del mismo feature).
 - No usar `BuildContext` fuera del widget tree (no pasarlo a repositorios ni use cases).

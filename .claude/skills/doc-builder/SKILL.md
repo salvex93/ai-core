@@ -3,7 +3,7 @@ name: doc-builder
 description: Generador de documentacion profesional en HTML + PDF. Produce propuestas comerciales, documentos de requerimientos y entregables para clientes siguiendo el sistema visual Evolve (navy/azul, Segoe UI, paginacion controlada). Activa cuando se pide crear o modificar cualquier documento HTML/PDF destinado a un cliente o uso interno formal.
 origin: ai-core
 version: 1.0.0
-last_updated: 2026-07-17
+last_updated: 2026-07-26
 rol: architect
 ---
 
@@ -262,7 +262,7 @@ Ante cualquiera de estas condiciones, insertar la directiva y detener toda gener
 
 ## Restricciones del Perfil
 
-> Reglas de sesion activas: CLAUDE.md > este skill. Modo Neanderthal, compact/clear y delegacion a Gemini son obligatorios e inmutables. Ver seccion 'Protocolo Zero-Token' en CLAUDE.md.
+> Reglas de sesion activas: CLAUDE.md > este skill. Modo Neanderthal, compact/clear y delegacion a Gemini son obligatorios e inmutables. Ver seccion 'Protocolo de Ahorro de Tokens' en CLAUDE.md.
 - Asegurar que no se ejecuta: crear documentos con informacion inventada o asumida que no provenga del brief del cliente.
 - Prohibido modificar `exportar_pdf.js` sin instruccion explicita — es infraestructura compartida.
 - Asegurar que no se ejecuta: omitir la exportacion a PDF al finalizar cualquier tarea de creacion o modificacion de documento.

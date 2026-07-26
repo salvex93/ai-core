@@ -3,7 +3,7 @@ name: rag-specialist
 description: Especialista en pipelines RAG y Mission Manager del LLM Routing Bridge. Cubre Hybrid Search (BM25+denso+RRF), Contextual Retrieval, re-ranking con cross-encoders y Files API como complemento del bridge. Activa al delegar analisis documental masivo, construir o mejorar pipelines RAG, o evaluar la calidad de recuperacion semantica.
 origin: ai-core
 version: 2.5.0
-last_updated: 2026-07-17
+last_updated: 2026-07-26
 rol: architect
 ---
 
@@ -13,14 +13,14 @@ Orquestador de contexto documental del ai-core. Responsabilidad primaria: formul
 
 ## Cuando Activar Este Perfil
 
-- Al analizar archivos > 500 lineas o 50 KB (Regla 9: delegacion obligatoria).
+- Al analizar archivos > 200 lineas (GEMINI PRIMERO: delegacion obligatoria).
 - Al construir o modificar un pipeline de ingestion, embedding, retrieval o generacion.
 - Al gestionar colecciones vectoriales: creacion, actualizacion de esquema, reingestion.
 - Al evaluar la calidad de recuperacion semantica de un pipeline existente.
 - Al diagnosticar alucinaciones o respuestas sin fuente identificada.
 - Al incorporar nuevos documentos al corpus documental del proyecto anfitrion.
 
-## Primera Accion al Activar (ver Regla 3)
+## Primera Accion al Activar
 
 Invocar MCP `analizar_repositorio` antes de leer ningun archivo del anfitrion:
 
@@ -57,7 +57,7 @@ Obtener la key en: https://aistudio.google.com/app/apikey
 
 ### Paso 2 — Redactar la Orden de Mision
 
-La orden describe el objetivo con precision tecnica (1-3 oraciones), especifica el tipo de salida (`json` o `markdown`) y define o referencia el schema exacto. Si es ambigua: Regla 13 antes de continuar.
+La orden describe el objetivo con precision tecnica (1-3 oraciones), especifica el tipo de salida (`json` o `markdown`) y define o referencia el schema exacto. Si es ambigua, preguntar antes de continuar.
 
 Plantilla de Orden de Mision:
 
@@ -227,7 +227,7 @@ No usar en flujos con restriccion de latencia estricta (<200ms end-to-end). Prio
 
 | Escenario | Herramienta recomendada |
 |---|---|
-| Analizar archivo por primera vez (extraccion estructural, mapa de dependencias) | LLM Routing Bridge (Regla 9) |
+| Analizar archivo por primera vez (extraccion estructural, mapa de dependencias) | LLM Routing Bridge (regla GEMINI PRIMERO de CLAUDE.md) |
 | Mismo documento consultado por multiples usuarios en paralelo | Files API (un upload, N referencias) |
 | Corpus de 50 documentos para ingestion RAG masiva | LLM Routing Bridge (multiples llamadas secuenciales) |
 | Documento de referencia que el LLM necesita en cada llamada del pipeline | Files API (`file_id` se almacena en el payload vectorial junto al `documento_id`) |
@@ -273,16 +273,19 @@ Gemini Embedding 2 (`gemini-embedding-2-preview`) soporta vectorizacion de multi
 ### Configuracion
 
 ```python
-from google.generativeai import embed_content
+from google import genai
+from google.genai import types
+
+client = genai.Client()
 
 # Texto + imagen simultaneamente
-response = embed_content(
-    model="models/gemini-embedding-2-preview",
-    content=[
-        {"text": "Descripcion de la imagen: [contenido]"},
+response = client.models.embed_content(
+    model="gemini-embedding-2-preview",
+    contents=[
+        "Descripcion de la imagen: [contenido]",
         {"inline_data": {"mime_type": "image/jpeg", "data": base64_encoded_image}}
     ],
-    embedding_dimension=512  # Flexibilidad: 128, 256, 384, 512, 768
+    config=types.EmbedContentConfig(output_dimensionality=512)  # Flexibilidad: 128, 256, 384, 512, 768
 )
 
 # Recuperacion cruzada: embeddings de texto vs PDFs
@@ -290,7 +293,7 @@ pdf_chunks_with_embeddings = [
     {
         "id": "pdf_001_chunk_5",
         "texto": "[contenido extraido del PDF]",
-        "embedding": embed_content(..., content=[{"pdf": pdf_file}]).embedding,
+        "embedding": client.models.embed_content(model="gemini-embedding-2-preview", contents=[pdf_file]).embeddings[0].values,
         "documento_tipo": "pdf"
     }
 ]

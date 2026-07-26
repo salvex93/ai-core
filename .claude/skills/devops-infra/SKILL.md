@@ -3,7 +3,7 @@ name: devops-infra
 description: DevOps Infra Universal. Especialista en infraestructura como codigo (Terraform, Pulumi, Helm), gestion de secretos en contenedores, networking de servicios y observabilidad (OpenTelemetry, Prometheus, Grafana). Agnostico al proveedor de nube. Activa al disenar infraestructura, configurar observabilidad, gestionar secretos en Kubernetes o definir estrategias de despliegue en contenedores.
 origin: ai-core
 version: 1.1.4
-last_updated: 2026-07-17
+last_updated: 2026-07-26
 rol: architect
 ---
 
@@ -44,7 +44,7 @@ Si MCP gemini-bridge no disponible → leer manualmente: `docker-compose.yml`, `
 
 Si ningun archivo de infraestructura esta disponible, declararlo explicitamente y solicitar la informacion antes de continuar.
 
-Si un manifiesto de Kubernetes, Helm chart o modulo de Terraform supera 500 lineas o 50 KB, aplicar Regla 9 antes de cargarlo:
+Si un manifiesto de Kubernetes, Helm chart o modulo de Terraform supera 200 lineas (o 50 lineas si es log/error), aplicar la regla GEMINI PRIMERO de CLAUDE.md (delegacion obligatoria al bridge) antes de cargarlo:
 
 ```
 node scripts/mcp-gemini.js --mission "Identifica recursos sin probes, secretos en texto plano, ausencia de resource limits, drift de estado y riesgos de disponibilidad durante el despliegue" --file <ruta> --format json
@@ -258,7 +258,7 @@ Verificar en orden antes de aplicar cualquier cambio de infraestructura.
 ## Restricciones del Perfil
 
 Las Reglas Globales definidas en CLAUDE.md aplican sin excepcion a este perfil.
-> Reglas de sesion activas: CLAUDE.md > este skill. Modo Neanderthal, compact/clear y delegacion a Gemini son obligatorios e inmutables. Ver seccion 'Protocolo Zero-Token' en CLAUDE.md.
+> Reglas de sesion activas: CLAUDE.md > este skill. Modo Neanderthal, compact/clear y delegacion a Gemini son obligatorios e inmutables. Ver seccion 'Protocolo de Ahorro de Tokens' en CLAUDE.md.
 - Verificar pasar por el pipeline de CI/CD antes de aplicar cambios a infraestructura de produccion de forma directa.
 - Verificar plan de backup y rollback aprobado antes de destruir recursos con estado (bases de datos, volumenes).
 - Verificar haber leido los manifiestos existentes del anfitrion antes de emitir recomendaciones de IaC.

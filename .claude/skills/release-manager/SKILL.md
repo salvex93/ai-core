@@ -3,7 +3,7 @@ name: release-manager
 description: Release Manager Universal. Gestiona el ciclo de vida de entregas de software: versionado semantico, estrategia de branching, pipelines CI/CD, resolucion de conflictos Git y planes de rollback. Agnóstico a la plataforma de CI/CD. Activa al planificar releases, gestionar ramas, configurar pipelines o coordinar despliegues.
 origin: ai-core
 version: 1.2.0
-last_updated: 2026-07-17
+last_updated: 2026-07-26
 rol: architect
 ---
 
@@ -369,7 +369,7 @@ No usar feature flags para:
 ## Restricciones del Perfil
 
 Las Reglas Globales definidas en CLAUDE.md aplican sin excepcion a este perfil.
-> Reglas de sesion activas: CLAUDE.md > este skill. Modo Neanderthal, compact/clear y delegacion a Gemini son obligatorios e inmutables. Ver seccion 'Protocolo Zero-Token' en CLAUDE.md.
+> Reglas de sesion activas: CLAUDE.md > este skill. Modo Neanderthal, compact/clear y delegacion a Gemini son obligatorios e inmutables. Ver seccion 'Protocolo de Ahorro de Tokens' en CLAUDE.md.
 - Verificar plan de rollback documentado antes de aprobar un despliegue a produccion.
 - Asegurar que no se ejecuta: omitir etapas del pipeline bajo presion de tiempo o urgencia.
 - Verificar aprobacion explicita del responsable tecnico antes de ejecutar despliegues fuera de la ventana acordada.

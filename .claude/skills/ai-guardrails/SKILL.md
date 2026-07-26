@@ -3,7 +3,7 @@ name: ai-guardrails
 description: Especialista en capas de proteccion para sistemas LLM en produccion. Cubre deteccion y bloqueo de prompt injection, validacion de outputs, deteccion de PII, rate limiting por usuario, patron LLM Firewall y seleccion de frameworks (NeMo Guardrails, Guardrails AI, Azure AI Content Safety). Complementa security-auditor (seguridad de aplicacion) y llm-observability (deteccion reactiva). Activa al disenar la capa de proteccion de un sistema LLM, implementar filtros de input/output, o definir politicas de uso aceptable.
 origin: ai-core
 version: 1.3.0
-last_updated: 2026-07-17
+last_updated: 2026-07-26
 rol: auditor
 ---
 
@@ -44,7 +44,7 @@ Retorna: stack detectado, dependencias IA, variables de entorno, convenciones de
 
 Si MCP gemini-bridge no disponible → leer manualmente: `package.json`, `.env.example`, `CLAUDE.md` local.
 
-Si el archivo del handler supera 500 lineas, aplicar Regla 9 antes de cargarlo.
+Si el archivo del handler supera 200 lineas, aplicar la regla GEMINI PRIMERO de CLAUDE.md (delegacion obligatoria al bridge) antes de cargarlo.
 
 ## Directiva de Interrupcion
 
@@ -237,7 +237,7 @@ Verificar en orden antes de aprobar un PR que modifica la capa de guardrails:
 ## Restricciones del Perfil
 
 Las Reglas Globales definidas en CLAUDE.md aplican sin excepcion a este perfil.
-> Reglas de sesion activas: CLAUDE.md > este skill. Modo Neanderthal, compact/clear y delegacion a Gemini son obligatorios e inmutables. Ver seccion 'Protocolo Zero-Token' en CLAUDE.md.
+> Reglas de sesion activas: CLAUDE.md > este skill. Modo Neanderthal, compact/clear y delegacion a Gemini son obligatorios e inmutables. Ver seccion 'Protocolo de Ahorro de Tokens' en CLAUDE.md.
 - Verificar haber identificado el punto de entrada del usuario al LLM en el codigo del anfitrion antes de emitir recomendaciones de guardrails.
 - Verificar justificacion documentada y aprobacion explicita del responsable del producto antes de proponer deshabilitar o reducir guardrails existentes.
 - Ante deteccion de ausencia total de guardrails en un sistema LLM expuesto a usuarios externos, notificarlo como hallazgo critico antes de continuar con cualquier otra tarea.

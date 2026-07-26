@@ -3,7 +3,7 @@ name: silent-failure-hunter
 description: Detecta fallos silenciosos en codigo Node.js y Python — catch vacios, excepciones tragadas, errores convertidos a null, logs sin contexto y propagacion rota. Activa al auditar manejo de errores, diagnosticar comportamiento inesperado sin trazas, o revisar resilencia de scrapers y agentes autonomos.
 origin: ai-core
 version: 1.1.0
-last_updated: 2026-07-17
+last_updated: 2026-07-26
 rol: auditor
 ---
 
@@ -247,7 +247,7 @@ Detener el analisis e insertar la directiva ante cualquiera de estas condiciones
 
 ## Restricciones del Perfil
 
-> Reglas de sesion activas: CLAUDE.md > este skill. Modo Neanderthal, compact/clear y delegacion a Gemini son obligatorios e inmutables. Ver seccion 'Protocolo Zero-Token' en CLAUDE.md.
+> Reglas de sesion activas: CLAUDE.md > este skill. Modo Neanderthal, compact/clear y delegacion a Gemini son obligatorios e inmutables. Ver seccion 'Protocolo de Ahorro de Tokens' en CLAUDE.md.
 - Solo reportar hallazgos con ruta y numero de linea exactos. Sin hallazgos especulativos.
 - No refactorizar codigo fuera del patron de manejo de errores.
 - Los patrones de fire-and-forget documentados con comentario explicito NO son hallazgos.

@@ -3,7 +3,7 @@ name: attack-surface-analyst
 description: Analista de superficie de ataque del propio producto en construccion. Analiza la exposicion publica de la propia infraestructura, detecta filtracion de informacion en repositorios y DNS, identifica endpoints y servicios expuestos no protegidos, y complementa a security-auditor desde perspectiva externa. Activa al auditar la superficie de ataque propia, detectar credenciales expuestas, mapear subdominios y servicios del producto, o construir herramientas de escaneo defensivo en Python.
 origin: ai-core
 version: 2.0.1
-last_updated: 2026-07-17
+last_updated: 2026-07-26
 rol: auditor
 ---
 
@@ -44,7 +44,7 @@ Si MCP gemini-bridge no disponible → leer manualmente: `package.json`, `.env.e
 
 Definir el alcance del analisis despues de revisar el output: solo enumeracion pasiva, o incluir verificacion activa sobre infraestructura propia.
 
-Si el archivo analizado supera 500 lineas o 50 KB, delegar al LLM Routing Bridge (ver Regla 9):
+Si el archivo analizado supera 200 lineas (o 50 lineas si es log/error), delegar al LLM Routing Bridge (ver regla GEMINI PRIMERO de CLAUDE.md):
 
 ```
 node scripts/mcp-gemini.js --mission "Extrae todos los dominios, endpoints y servicios externos referenciados en la configuracion" --file <ruta-al-archivo>
@@ -366,10 +366,10 @@ Todo analisis debe producir un reporte estructurado:
 ## Restricciones del Perfil
 
 Las Reglas Globales definidas en CLAUDE.md aplican sin excepcion a este perfil.
-> Reglas de sesion activas: CLAUDE.md > este skill. Modo Neanderthal, compact/clear y delegacion a Gemini son obligatorios e inmutables. Ver seccion 'Protocolo Zero-Token' en CLAUDE.md.
+> Reglas de sesion activas: CLAUDE.md > este skill. Modo Neanderthal, compact/clear y delegacion a Gemini son obligatorios e inmutables. Ver seccion 'Protocolo de Ahorro de Tokens' en CLAUDE.md.
 
 - Asegurar que no se ejecuta: planificar o generar codigo para analisis sobre infraestructura que no pertenezca al producto en construccion o que no cuente con autorizacion documentada.
 - Verificar contexto de autorizacion explicita antes de generar herramientas diseñadas para investigar individuos privados, competidores o terceros.
 - El scope de analisis es siempre el propio producto: dominios propios, repositorios propios, credenciales de la propia infraestructura.
-- Ante ambiguedad sobre si el objetivo es "propio" o "externo", activar Regla 13 (Duda Activa) antes de emitir cualquier plan o codigo.
+- Ante ambiguedad sobre si el objetivo es "propio" o "externo", preguntar antes de emitir cualquier plan o codigo — nunca asumir el scope.
 - Los scripts incluyen siempre manejo de rate limits y respetan los terminos de servicio de las fuentes consultadas.

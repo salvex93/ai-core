@@ -3,6 +3,25 @@
 Registro de cambios por version. Formato basado en [Keep a Changelog](https://keepachangelog.com/es/1.0.0/).
 Versionado semantico: MAJOR.MINOR.PATCH.
 
+## [3.16.1] — 2026-07-26
+
+### Agregado — circuit-breaker.js predictivo (distingue tasa de degradacion, no solo conteo)
+
+`circuit-breaker.js` solo contaba fallos dentro de una ventana de 5 minutos sin distinguir su distribucion temporal — "3 fallos en 30s" (degradacion aguda, el MCP probablemente sigue caido) y "3 fallos distribuidos en 5 min" (degradacion intermitente) disparaban el mismo aviso. `evaluarCircuito()` ahora retorna un campo `severidad` (`critico` si los fallos se concentran en los ultimos 60s, `aviso` en otro caso) y el mensaje de stderr escala en consecuencia. Filosofia sin cambios: nunca bloquea la llamada, solo escala la severidad del aviso (decision explicita — un MCP externo puede recuperarse solo). Cubierto con test nuevo (TDD): degradacion aguda vs lenta, circuito cerrado sin severidad, mensaje de stderr escalado via spawnSync con cola de eventos aislada (variable `AI_CORE_EVENTS_QUEUE_PATH` nueva para testear sin tocar la cola real).
+
+### Corregido — auditoria de contenido de los 39 skills (vigencia real, no solo last_updated)
+
+Auditoria pedida explicitamente por el usuario: mas alla de la fecha de `last_updated`, revisar si el contenido tecnico de cada skill sigue siendo correcto. Hallazgos reales corregidos:
+
+- **Referencia rota sistemica "Protocolo Zero-Token"**: 25 de 39 SKILL.md citaban una seccion de CLAUDE.md que no existe con ese nombre — el nombre real es "Protocolo de Ahorro de Tokens (Gestion de Cuota)". Corregido en los 25 archivos.
+- **Numeracion de reglas obsoleta**: 16 skills citaban "Regla N" (Regla 1, 2, 3, 4, 5, 7, 8, 9, 10, 13, 15, 17, 18, 19) correspondiente a una version anterior de CLAUDE.md ya renumerada — el ANCLA DE REGLAS CRITICAS vigente solo tiene 11 reglas. Cada cita se remapeo contra el contenido real de CLAUDE.md de hoy (por nombre de regla, no numero fragil) o se elimino si el concepto ya no existe como regla numerada. Incluyo un hallazgo mas profundo: 14 de esos skills citaban ademas un umbral de delegacion a Gemini de "500 lineas o 50 KB", cuando el umbral vigente en CLAUDE.md (regla GEMINI PRIMERO) es 200 lineas para archivos y 50 lineas para logs — corregido el umbral ademas del numero de regla.
+- **Ruta de sistema hardcodeada**: `memory-manager/SKILL.md` asumia una ruta Linux especifica (`/home/cyber/.claude/projects/...`) para el sistema de memoria de Claude Code. Corregido para ser agnostico al SO.
+- **SDK legacy de Gemini en ejemplos de codigo**: `multimodal-engineer` y `rag-specialist` usaban `google.generativeai` (import legacy) en vez de `from google import genai` (SDK vigente). La sintaxis de reemplazo (incluyendo `client.models.embed_content(...)` y la estructura `response.embeddings[0].values`) se verifico contra el codigo fuente oficial del SDK (`github.com/googleapis/python-genai`, via `gh api`), no por analogia.
+- **Falso positivo adicional descubierto**: el mismo patron de `Co-Authored-By` ya corregido en `standards-guard.js` (sesion anterior) tambien existia en `validate-globals.js:64` — un SKILL.md que documentaba la regla de no-atribucion a IA en commits disparaba el hallazgo. Eliminado el chequeo generico, igual que en `standards-guard.js`.
+- **Aclarada ambiguedad de la regla de 300 lineas**: CLAUDE.md ahora especifica que el limite de modularidad aplica a codigo (`.js/.ts/.py`), no a documentacion (`SKILL.md`/`AGENT.md`) — 12 skills superaban las 300 lineas legitimamente (perfiles de dominio completos), y `standards-guard.js` ya reflejaba esta distincion en codigo sin que el texto de CLAUDE.md lo declarara.
+
+Suite completa: 733/733 tests, 39/39 skills conformes.
+
 ## [3.16.0] — 2026-07-25
 
 ### Agregado — ciclo de auto-reparacion conectado (diagnostico + propuesta, sin auto-aplicar)
