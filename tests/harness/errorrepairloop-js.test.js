@@ -104,6 +104,84 @@ describe('ErrorRepairLoop.js', () => {
     assert.deepEqual(guard.checkpoints, []);
     assert.deepEqual(guard.historialErrores, []);
   });
+
+  test('ejecutarCicloReparacion: propaga el error del bridge si este no esta disponible (sin API key)', async () => {
+    // Regresion real: este modulo estaba disenado con 3 fases (deteccion,
+    // diagnostico, reparacion) pero solo la deteccion (capturarError) estaba
+    // conectada en produccion -- ejecutarCicloReparacion no tenia ningun
+    // caller. Al conectarlo, debe degradar con gracia si el bridge no puede
+    // completar (ej. sin ANTHROPIC_API_KEY), sin colgar el proceso.
+    //
+    // anthropic-bridge.js relee .env del disco en cada llamada (loadEnv()) Y
+    // ANTHROPIC_API_KEY puede estar seteada como variable de entorno real
+    // del sistema (no solo en .env) -- loadEnv() solo la setea si NO existe
+    // ya en process.env. La unica forma determinista de simular "sin API
+    // key" sin gastar tokens reales es renombrar .env Y borrar la variable
+    // del propio proceso, restaurando ambos en finally.
+    const ENV_PATH = path.join(REPO, '.env');
+    const ENV_BAK  = path.join(REPO, '.env.bak-test-tmp');
+    const habiaEnv = fs.existsSync(ENV_PATH);
+    if (habiaEnv) fs.renameSync(ENV_PATH, ENV_BAK);
+    const envPrevio = process.env.ANTHROPIC_API_KEY;
+    delete process.env.ANTHROPIC_API_KEY;
+    try {
+      delete require.cache[require.resolve(path.join(REPO, 'scripts', 'services', 'ErrorRepairLoop.js'))];
+      delete require.cache[require.resolve(path.join(REPO, 'scripts', 'anthropic-bridge.js'))];
+      const { ejecutarCicloReparacion } = require(path.join(REPO, 'scripts', 'services', 'ErrorRepairLoop.js'));
+      await assert.rejects(
+        () => ejecutarCicloReparacion({ error: new Error('ENOENT: falta el archivo'), herramienta: 'test' }),
+        /ANTHROPIC_API_KEY/
+      );
+    } finally {
+      if (envPrevio !== undefined) process.env.ANTHROPIC_API_KEY = envPrevio;
+      if (habiaEnv) fs.renameSync(ENV_BAK, ENV_PATH);
+    }
+  });
+});
+
+// ─── mcp-gemini.js — dispatch conecta ejecutarCicloReparacion en el catch ───
+
+describe('mcp-gemini.js — ciclo de reparacion conectado al catch de tools/call', () => {
+  const SCRIPT   = path.join(REPO, 'scripts', 'mcp-gemini.js');
+  const ENV_PATH = path.join(REPO, '.env');
+  const ENV_BAK  = path.join(REPO, '.env.bak-test-tmp2');
+
+  function llamarToolSinApiKey(name, args) {
+    // Sin .env real NI ANTHROPIC_API_KEY heredada del entorno del sistema,
+    // el ciclo de reparacion no puede completar -- verifica que el error
+    // original de la tool siempre llega intacto, con o sin bridge disponible.
+    const evento = JSON.stringify({ jsonrpc: '2.0', id: 1, method: 'tools/call', params: { name, arguments: args } }) + '\n';
+    const habiaEnv = fs.existsSync(ENV_PATH);
+    if (habiaEnv) fs.renameSync(ENV_PATH, ENV_BAK);
+    try {
+      const envSinKey = { ...process.env };
+      delete envSinKey.ANTHROPIC_API_KEY;
+      const r = spawnSync('node', [SCRIPT], { encoding: 'utf8', cwd: REPO, input: evento, env: envSinKey, timeout: 15000 });
+      const linea = r.stdout.trim().split('\n').find(Boolean);
+      return linea ? JSON.parse(linea) : null;
+    } finally {
+      if (habiaEnv) fs.renameSync(ENV_BAK, ENV_PATH);
+    }
+  }
+
+  test('tool que falla con error real: la respuesta de error incluye meta.clasificacion', () => {
+    // resumir_backlog con un directorio en vez de archivo fuerza un EISDIR
+    // real (fs.readFileSync sobre un directorio), sin necesidad de mocks.
+    const respuesta = llamarToolSinApiKey('resumir_backlog', { ruta_backlog: REPO });
+    assert.ok(respuesta, 'debe responder algo por stdout');
+    assert.ok(respuesta.error, 'debe ser una respuesta de error JSON-RPC');
+    assert.ok(respuesta.error.data, 'el error debe incluir data (meta de ErrorRepairLoop)');
+    assert.ok(respuesta.error.data.clasificacion, 'debe incluir la clasificacion del error original');
+  });
+
+  test('tool que falla y el ciclo de reparacion no puede completar (sin API key): el error original igual llega intacto', () => {
+    const respuesta = llamarToolSinApiKey('resumir_backlog', { ruta_backlog: REPO });
+    assert.ok(respuesta.error.message, 'el mensaje del error original de la tool no debe perderse');
+    assert.ok(
+      respuesta.error.data.reparacion === null || respuesta.error.data.reparacion?.fallo,
+      'si el ciclo de reparacion no pudo completar, debe reportarlo sin romper la respuesta de error original'
+    );
+  });
 });
 
 // Nota: pre-commit-tdd.js ya tiene cobertura completa en

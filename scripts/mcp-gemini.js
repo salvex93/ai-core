@@ -16,7 +16,7 @@
 'use strict';
 
 const readline = require('readline');
-const { capturarError } = require('./services/ErrorRepairLoop');
+const { capturarError, ejecutarCicloReparacion } = require('./services/ErrorRepairLoop');
 const { loadEnv, GEMINI_DEFAULT } = require('./services/GeminiApiClient');
 const {
   analizarArchivo,
@@ -109,6 +109,18 @@ function send(obj) {
   process.stdout.write(JSON.stringify(obj) + '\n');
 }
 
+// Propone diagnostico + fix (solo texto, nunca se aplica a disco) via el
+// ciclo AUDITOR/ARCHITECT. Un fallo aqui (sin API key, red, rate limit)
+// nunca debe ocultar el error original de la tool que fallo.
+async function intentarReparar(error, herramienta) {
+  try {
+    const { diagnostico, reparacion } = await ejecutarCicloReparacion({ error, herramienta });
+    return { diagnostico, propuesta: reparacion, fallo: false };
+  } catch (errorReparacion) {
+    return { fallo: true, motivo: errorReparacion.message };
+  }
+}
+
 async function dispatch(msg) {
   const { id, method, params } = msg;
 
@@ -152,6 +164,7 @@ async function dispatch(msg) {
       send({ jsonrpc: '2.0', id, result: { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] } });
     } catch (err) {
       const meta = capturarError(err, { herramienta: params?.name });
+      meta.reparacion = await intentarReparar(err, params?.name);
       send({ jsonrpc: '2.0', id, error: { code: -32603, message: err.message, data: meta } });
     }
     return;

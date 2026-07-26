@@ -1,21 +1,25 @@
 'use strict';
 
 /**
- * ErrorRepairLoop — Ciclo automatico de deteccion, diagnostico y reparacion de errores.
+ * ErrorRepairLoop — Ciclo de deteccion, diagnostico y propuesta de reparacion.
  *
  * Flujo:
  *   1. DETECCION  (este modulo): captura stderr + codigo de salida del shell
  *   2. DIAGNOSTICO (rol AUDITOR via Sonnet): analiza el error y produce un informe
- *   3. REPARACION  (rol ARCHITECT via Opus): genera la orden de correccion exacta
+ *   3. PROPUESTA  (rol ARCHITECT via Opus): genera el texto de correccion exacta
  *
- * Punto de inyeccion en el loop existente:
- *   mcp-gemini.js linea 444 — bloque catch del dispatcher tools/call
- *   Actualmente: send({ jsonrpc: '2.0', id, error: { code: -32603, message: err.message } })
- *   Con este modulo: llamar reparar(err, contexto) antes del send de error.
+ * Conectado en produccion en mcp-gemini.js (funcion intentarReparar, bloque
+ * catch del dispatcher tools/call): capturarError() clasifica de forma
+ * sincrona, ejecutarCicloReparacion() diagnostica y propone via el bridge.
  *
- * IMPORTANTE: este modulo NO hace llamadas a la API por si solo.
- * Exporta la logica de construccion de prompts y la interfaz estandar.
- * El bridge (anthropic-bridge.js) es quien ejecuta las llamadas reales.
+ * IMPORTANTE: la fase 3 solo GENERA TEXTO de reparacion (comando o codigo
+ * sugerido) — este modulo nunca escribe a disco ni ejecuta el fix propuesto.
+ * Aplicar la propuesta requiere confirmacion humana explicita (Gobierno de
+ * Agentes, regla 6 de CLAUDE.md; ver .claude/agents/self-healing-agent.md).
+ *
+ * Este modulo NO hace llamadas a la API por si solo. Exporta la logica de
+ * construccion de prompts y la interfaz estandar. El bridge
+ * (anthropic-bridge.js) es quien ejecuta las llamadas reales.
  */
 
 const { ROLES } = require('./AgentRoles');

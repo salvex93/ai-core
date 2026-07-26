@@ -3,6 +3,22 @@
 Registro de cambios por version. Formato basado en [Keep a Changelog](https://keepachangelog.com/es/1.0.0/).
 Versionado semantico: MAJOR.MINOR.PATCH.
 
+## [3.16.0] — 2026-07-25
+
+### Agregado — ciclo de auto-reparacion conectado (diagnostico + propuesta, sin auto-aplicar)
+
+Auditoria profunda (agente `aiops-auditor`, verificado de forma independiente linea por linea) encontro que `scripts/services/ErrorRepairLoop.js` estaba diseñado con 3 fases (deteccion/diagnostico/reparacion) pero solo la fase 1 (`capturarError`, clasificacion por regex) estaba conectada en produccion (`scripts/mcp-gemini.js:154`). La fase 2/3 (`ejecutarCicloReparacion`, diagnostico via AUDITOR + propuesta via ARCHITECT) no tenia ningun caller fuera de su propio test — el modulo simulaba tener auto-reparacion real sin ejecutarla nunca.
+
+- **`scripts/mcp-gemini.js`**: el bloque `catch` de `tools/call` ahora invoca `ejecutarCicloReparacion` (funcion nueva `intentarReparar`) tras clasificar el error. El resultado (diagnostico + propuesta de texto) se adjunta como `error.data.reparacion` en la respuesta JSON-RPC. Un fallo del ciclo de reparacion (sin `ANTHROPIC_API_KEY`, rate limit, red) nunca oculta ni retrasa el error original de la tool — se reporta como `{ fallo: true, motivo }`.
+- **La fase de reparacion solo GENERA TEXTO** (comando o codigo sugerido) — en ningun punto se escribe a disco ni se ejecuta el fix propuesto automaticamente. Aplicar la propuesta requiere confirmacion humana explicita, segun la regla 6 de Gobierno de Agentes de CLAUDE.md.
+- **`.claude/agents/self-healing-agent.md`** (nuevo): agente autonomo que recolecta errores repetidos de `EVENTS_QUEUE.json`, invoca el ciclo de diagnostico/propuesta, clasifica el riesgo de aplicacion (BAJO_RIESGO/ALTO_RIESGO, solo informativo) y produce un reporte consolidado — nunca aplica ningun fix por si solo. Cumple los 3 criterios de CLAUDE.md para justificar un agente nuevo (autonomia real, salida estructurada, recurrencia).
+- Comentario de cabecera de `ErrorRepairLoop.js` actualizado para reflejar el estado real conectado y la garantia de que nunca auto-aplica.
+- Cubierto con test nuevo (ciclo TDD real): rechazo determinista de `ejecutarCicloReparacion` sin API key (renombrando `.env` real y excluyendo la variable del entorno del proceso, sin gastar tokens — dos intentos previos de este test SI dispararon llamadas reales a la API por no considerar que `ANTHROPIC_API_KEY` puede estar seteada como variable de entorno del sistema ademas de en `.env`), y verificacion de que el error original de una tool siempre llega intacto al cliente MCP aunque el ciclo de reparacion falle. Suite completa: 728/728 tests.
+
+### Nota de auditoria — arquitectura de rate limiting/circuit breaker es reactiva, no predictiva (no corregido en esta sesion)
+
+La misma auditoria confirmo que `RateLimiter.js` y `circuit-breaker.js` reaccionan a fallos/consumo ya ocurridos (margen de seguridad estatico del 20%, ventana de conteo de fallos pasados) sin proyectar tendencia de degradacion antes de que ocurra. `circuit-breaker.js` tambien solo avisa por stderr, nunca bloquea la llamada ni reintenta con backoff (comportamiento documentado explicitamente en su propio comentario, no es un descuido). Verificado contra documentacion oficial de Anthropic (`code.claude.com/docs/en/hooks`, `platform.claude.com/docs/en/api/errors`) que el patron reactivo (retry con backoff en el SDK, sin circuit breaker predictivo built-in) es consistente con el estado del arte documentado oficialmente para 2026 — no es una brecha respecto al SDK, pero si es una limitacion real del arnes si se compara contra frameworks con checkpointing nativo (LangGraph). Queda como mejora futura, no ejecutada en esta sesion por estar fuera del alcance decidido.
+
 ## [3.15.2] — 2026-07-25
 
 ### Actualizado — @anthropic-ai/sdk 0.110.0 -> 0.115.0
