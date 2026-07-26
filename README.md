@@ -1,4 +1,4 @@
-# AI-CORE v3.15.1: Nucleo Multi-Agente Universal
+# AI-CORE v3.17.3: Nucleo Multi-Agente Universal
 
 `ai-core` es un nucleo de configuracion y comportamiento para agentes IA. Se usa como submodulo Git en un proyecto existente o como repositorio independiente. Define reglas globales, 39 skills especializados, 7 agentes autonomos, un orquestador Mixture-of-Agents (Gemini + DeepSeek + Claude) y un ciclo de mejora continua por uso, sin acoplarse al stack del proyecto anfitrion.
 
@@ -14,7 +14,7 @@ Funciona con Claude, Gemini, OpenAI, DeepSeek y Kimi via `ModelRegistry`. Agrega
 
 | Requisito | Version minima | Verificar |
 |---|---|---|
-| Node.js | >= 18.0.0 | `node --version` |
+| Node.js | >= 20.0.0 | `node --version` |
 | Claude Code CLI | cualquiera | `claude --version` |
 | Git | cualquiera | `git --version` |
 | gh CLI | cualquiera | `gh --version` |
@@ -33,7 +33,7 @@ npm install
 npm run setup    # adapta settings.json a tu ruta exacta (cross-platform)
 
 # 3. Verificar que todo funciona
-npm test         # debe terminar: 628 pass, 0 fail
+npm test         # debe terminar: 741 pass, 0 fail
 
 # 4. Autenticar gh CLI para el issue-tracker (una sola vez por maquina)
 gh auth login    # GitHub.com -> HTTPS -> Login with a web browser
@@ -128,6 +128,8 @@ npm run setup                             # regenerar settings.json con rutas lo
 npm run update                            # actualizacion one-command desde GitHub
 npm run validate-globals                  # auditar conformidad de los 39 skills (incluye schema agentskills.io)
 npm run validate-globals -- --fix-drift   # corregir last_updated desincronizado
+npm run validate-agents                   # auditar conformidad de los 7 agentes con CLAUDE.md
+npm run validate-agents -- --fix-drift    # corregir last_updated desincronizado en agentes
 npm run token-metrics                     # medir reduccion de consumo de tokens
 npm run dry-run                           # simular 5 turnos con calculo de costo
 npm run map                               # regenerar CONTEXT_MAP.json
@@ -146,6 +148,22 @@ npm run agent-report-full                 # historial de metricas de todas las s
 ---
 
 ## Que trae cada version
+
+### v3.17.3 — CI reparado, deuda tecnica cerrada, auto-reparacion real, gobernanza de agentes
+
+Sesion larga de saneamiento integral. Cambios agrupados por tema (ver CHANGELOG.md para el detalle tecnico completo de cada version puntual, 3.15.2 a 3.17.3):
+
+**Deuda tecnica de guards:** `standards-guard.js` ya no bloquea con falso positivo al documentar la regla de `Co-Authored-By` o al citar un emoji como fixture de test. `validate-globals.js` ya no afirma "todos los skills son conformes" cuando hay advertencias pendientes. `tests/harness.test.js` (3480 lineas) dividido en 56 archivos por modulo bajo `tests/harness/`.
+
+**Auto-reparacion real conectada:** `ErrorRepairLoop.js` estaba diseñado con 3 fases pero solo la deteccion tenia caller en produccion — conectado el diagnostico + propuesta de fix real (nunca se auto-aplica, requiere confirmacion humana). Nuevo agente `self-healing-agent.md`.
+
+**circuit-breaker.js predictivo:** distingue degradacion aguda (fallos concentrados en <60s) de degradacion lenta, sin cambiar la filosofia de nunca bloquear la llamada.
+
+**Gobernanza de skills y agentes:** auditoria de contenido (no solo fecha) de los 39 skills corrigio referencias rotas a CLAUDE.md, SDK legacy de Gemini en ejemplos de codigo, y numeracion de reglas obsoleta. Nuevo `validate-agents.js` — `.claude/agents/` no tenia ningun gate de conformidad, a diferencia de `.claude/skills/`.
+
+**Dependencias:** `@anthropic-ai/sdk` actualizado a 0.115.0 (verificado sin breaking changes contra el changelog oficial del SDK). 3 de 4 vulnerabilidades de `npm audit` resueltas — la restante (`@hono/node-server`, moderada) se dejo intencionalmente: el unico fix automatico degradaba `@modelcontextprotocol/sdk` a una version con una vulnerabilidad propia de severidad ALTA, y ninguna de las dos CVEs aplica en la practica (el proyecto usa solo stdio, no transporte HTTP).
+
+**CI reparado (dos causas independientes):** un test propio dependia del `mtime` del sistema de archivos, fallando solo en checkouts frescos (nunca en local). El step de tests del workflow usaba un patron de glob de shell que PowerShell (Windows) no expande igual que bash — corregido usando el descubrimiento automatico nativo de `node --test`, sin depender de ningun shell.
 
 ### v3.15.1 — Fallos silenciosos corregidos: agent-metrics.js y RootGuard.js
 
@@ -273,8 +291,8 @@ Skills reescritos con seccion "Cuando NO Activar Este Perfil" en todos, sistema 
 
 | Capa | Directorio | Que hace | Cuando se activa |
 |---|---|---|---|
-| Skills | `.claude/skills/` (38) | Perfil de comportamiento — como piensa Claude en un dominio | Claude lo adopta como rol dentro de la conversacion |
-| Agents | `.claude/agents/` (5+) | Loop autonomo que ejecuta una tarea completa sin intervencion | Claude Code lo lanza como subagente con contexto cero |
+| Skills | `.claude/skills/` (39) | Perfil de comportamiento — como piensa Claude en un dominio | Claude lo adopta como rol dentro de la conversacion |
+| Agents | `.claude/agents/` (7) | Loop autonomo que ejecuta una tarea completa sin intervencion | Claude Code lo lanza como subagente con contexto cero |
 
 Un skill se convierte en agente solo si cumple los tres criterios a la vez: autonomia real (sin interaccion por turno), salida estructurada verificable, y uso recurrente. Si falta uno, se queda como skill.
 
@@ -286,6 +304,7 @@ Un skill se convierte en agente solo si cumple los tres criterios a la vez: auto
 | `map-updater` | Regenera CONTEXT_MAP ante drift estructural del repo |
 | `issue-tracker` | Captura errores y gaps, los envia como issues a GitHub al cerrar sesion |
 | `mcp-registry-navigator` | Evalua servidores MCP de terceros antes de instalar (INSTALAR/EVALUAR/RECHAZAR) |
+| `self-healing-agent` | Diagnostica errores repetidos via el ciclo AUDITOR/ARCHITECT de ErrorRepairLoop.js y propone un fix — nunca lo aplica sin confirmacion humana |
 
 La lista completa de skills, sus triggers de activacion y la logica de enrutamiento por contexto viven unicamente en `CLAUDE.md`, seccion "Seleccion de Skills". No se duplica aqui a proposito — mantenerla en dos archivos es lo que produce drift.
 
@@ -295,7 +314,7 @@ La lista completa de skills, sus triggers de activacion y la logica de enrutamie
 
 **`process-guard.js`** — limita a 4 scripts del harness en paralelo, con timeout de 8s por proceso. Evita saturacion de memoria en sesiones largas.
 
-**`standards-guard.js`** — revisa en tiempo real cada archivo que Claude escribe: emojis en codigo, `Co-Authored-By`, archivos de mas de 300 lineas, funciones de mas de 20 lineas, secrets hardcodeados, commits que mencionan IA.
+**`standards-guard.js`** — revisa en tiempo real cada archivo que Claude escribe: emojis en codigo (excepto fixtures dentro de `tests/`), archivos de mas de 300 lineas, funciones de mas de 20 lineas, secrets hardcodeados. El chequeo de `Co-Authored-By`/menciones a IA aplica solo a `COMMIT_EDITMSG` — un chequeo generico anterior sobre cualquier archivo disparaba falso positivo al documentar la regla (ej. en este mismo README).
 
 **`git-queue-advisor.js`** — antes de cada `git push` muestra los eventos pendientes en cola; despues de cada `git pull` avisa si hay trabajo de harness pendiente. Nunca bloquea, solo informa.
 
@@ -346,8 +365,9 @@ Se dispara automaticamente en el hook `SubagentStop` cuando `code-reviewer` marc
 ### Herramientas de gobernanza
 
 - **`validate-globals.js`**: verifica que los 39 skills tengan la referencia inmutable a CLAUDE.md, las secciones obligatorias, `rol:` valido en frontmatter, ningun emoji, y conformidad con el schema abierto [agentskills.io](https://agentskills.io/specification) (`name` coincide con la carpeta, formato, limites de longitud). `--fix-drift` corrige `last_updated` desincronizado. Sale con exit 1 si hay hallazgos criticos o altos.
+- **`validate-agents.js`**: hermano de `validate-globals.js` para los 7 agentes de `.claude/agents/` — mismo criterio de referencia inmutable, copia literal de las 11 reglas del ANCLA (compartidas entre ambos validadores), emojis y drift de `last_updated`. Sale con exit 1 si hay hallazgos criticos o altos.
 - **`update.js`**: actualizacion cross-platform en un comando. Reporta version anterior vs nueva y si hay breaking changes que requieran accion manual.
-- **CI** (`.github/workflows/ci.yml`): corre tests y `validate-globals` en cada push a `main` y cada PR. Matriz: Ubuntu y Windows con Node 20/22, macOS solo con Node 22 (Node 20 removido de macOS por exit code espurio intermitente de `node --test` en esa combinacion especifica de runner — ver CHANGELOG v3.15.1).
+- **CI** (`.github/workflows/ci.yml`): corre tests y `validate-globals` en cada push a `main` y cada PR. Matriz: Ubuntu y Windows con Node 20/22, macOS solo con Node 22 (Node 20 removido de macOS por exit code espurio intermitente de `node --test` en esa combinacion especifica de runner). El step de tests usa `node --test` sin patrones de glob explicitos — descubrimiento automatico nativo, no depende de que el shell (PowerShell en Windows) expanda argumentos (ver CHANGELOG v3.17.3).
 
 ---
 
@@ -390,7 +410,7 @@ Categoria de `process-guard.js` propia (`moa`, no `intent`): `moa-context-gather
 - **Model Router** (`scripts/services/ModelRouter.js`): jerarquia Gemini free -> Haiku -> Sonnet -> Opus/Fable, con Gemini como prioridad para lecturas y resumenes. Incluye un tier separado para el Cross-Model Verifier que no sigue la jerarquia de costo Anthropic — delega la seleccion de proveedor a `CrossVerifier.seleccionarVerificador()`.
 - **Anthropic Bridge** (`scripts/anthropic-bridge.js`): prompt caching de 3 puntos, ventana deslizante de historial.
 - **Health-Check System**: autodiagnostico al inicio de sesion, detecta path drift y autocorrige.
-- **Error Repair Loop** (`scripts/services/ErrorRepairLoop.js`): ciclo deteccion -> diagnostico -> reparacion, con `LoopGuard` limitando intentos.
+- **Error Repair Loop** (`scripts/services/ErrorRepairLoop.js`): ciclo deteccion -> diagnostico -> propuesta de fix, con `LoopGuard` limitando intentos. Conectado en el catch de `mcp-gemini.js` — solo genera texto de propuesta, nunca escribe a disco ni aplica el fix sin confirmacion humana explicita.
 - **Syntax Check Hook**: `node --check` en cada `.js` editado.
 
 ### Stacks detectados automaticamente
@@ -455,7 +475,7 @@ New-Item -ItemType SymbolicLink -Path './CLAUDE.md' -Target 'C:/ruta/a/ai-core/C
 │   │   ├── TokenManager.js      Conteo y truncado de tokens (Gemini input/output, estimacion de mensajes)
 │   │   ├── GeminiApiClient.js   Cliente SDK de Gemini puro — auth, reintentos, parseo JSON, compactado
 │   │   ├── McpServerHandlers.js Las 5 herramientas MCP de mcp-gemini.js (logica de negocio, sin protocolo)
-│   │   └── ErrorRepairLoop.js   Ciclo deteccion->diagnostico->reparacion de errores
+│   │   └── ErrorRepairLoop.js   Ciclo deteccion->diagnostico->propuesta de fix, conectado en mcp-gemini.js — nunca auto-aplica, requiere confirmacion humana (ver self-healing-agent)
 │   ├── anthropic-bridge.js      Bridge Anthropic SDK con prompt caching (<static_context>) y Model Router
 │   ├── mcp-gemini.js            Servidor MCP stdio — shell JSON-RPC, delega a McpServerHandlers.js
 │   ├── mcp-anthropic.js         Servidor MCP stdio — bridge Anthropic como herramienta MCP
@@ -473,6 +493,7 @@ New-Item -ItemType SymbolicLink -Path './CLAUDE.md' -Target 'C:/ruta/a/ai-core/C
 │   │   ├── guard-read.js        Hook PreToolUse: bloquea Read de mas de 200 lineas
 │   │   ├── norm-harness.js      Setup: settings.json + permisos por stack + symlink CLAUDE.md
 │   │   ├── validate-globals.js  Auditor de conformidad de skills contra CLAUDE.md (incluye rol:)
+│   │   ├── validate-agents.js   Auditor de conformidad de agentes contra CLAUDE.md (hermano de validate-globals.js)
 │   │   ├── generate-map.js      Genera CONTEXT_MAP con seccion de stack detectado
 │   │   ├── security-check.js    Hook PostToolUse: escanea secretos/eval/catch vacio
 │   │   ├── standards-guard.js   Hook PostToolUse: bloquea (exit 2) emoji o prosa >150 palabras
@@ -505,7 +526,7 @@ New-Item -ItemType SymbolicLink -Path './CLAUDE.md' -Target 'C:/ruta/a/ai-core/C
 ├── .github/workflows/ci.yml     CI: Ubuntu/Windows Node 20+22, macOS solo Node 22
 ├── CLAUDE.md                    Autoridad unica: reglas globales, skills, enrutamiento
 ├── DEPRECATIONS.json            Contrato de migracion por version
-├── package.json                 v3.15.1, Node >= 18
+├── package.json                 v3.17.3, Node >= 20
 └── .env.example                 Plantilla de variables de entorno
 ```
 
@@ -537,6 +558,8 @@ provider: any
 loop: true|false
 ---
 ```
+
+Seccion "Restricciones" con la referencia inmutable a CLAUDE.md (`> Reglas de sesion activas: CLAUDE.md > este agente.`) — no copiar el texto de ninguna regla del ANCLA, solo referenciarla. `npm run validate-agents` debe terminar en 0 criticos y 0 altos.
 
 ### Agregar un proveedor de IA
 
