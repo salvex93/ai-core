@@ -3,7 +3,7 @@ name: code-reviewer
 description: Agente autonomo de revision de codigo. Analiza el diff del branch actual contra main, clasifica hallazgos por severidad (critica/alta/media/baja) y produce un reporte estructurado sin intervencion por turno. Activa con /code-review o cuando se detecta un PR listo para revision.
 origin: ai-core
 version: 1.0.0
-last_updated: 2026-06-04
+last_updated: 2026-07-26
 provider: any
 loop: true
 ---
@@ -90,7 +90,7 @@ Detener el loop e informar al operador antes de continuar.
 
 ## Restricciones
 
-> Reglas de sesion activas: CLAUDE.md > este agente. Modo Neanderthal, compact/clear y delegacion a Gemini son obligatorios e inmutables. Ver seccion 'Protocolo Zero-Token' en CLAUDE.md.
+> Reglas de sesion activas: CLAUDE.md > este agente. Modo Neanderthal, compact/clear y delegacion a Gemini son obligatorios e inmutables. Ver seccion 'Protocolo de Ahorro de Tokens' en CLAUDE.md.
 - Solo leer archivos del diff — no explorar el repo completo.
 - Prohibido sugerir refactors fuera del scope del diff.
 - Prohibido emitir opinion sobre decisiones de arquitectura no relacionadas con el diff.

@@ -3,7 +3,7 @@ name: aiops-auditor
 description: Agente autonomo de auditoria del ecosistema ai-core. Ejecuta validate-globals, verifica conformidad de skills y agentes, detecta drift de versiones y produce reporte de estado sin intervencion. Activa al inicio de sesion o cuando se sospecha degradacion del arnés.
 origin: ai-core
 version: 1.0.0
-last_updated: 2026-06-04
+last_updated: 2026-07-26
 provider: any
 loop: true
 ---
@@ -38,9 +38,10 @@ Si cualquier precondicion falla: emitir `[PRECONDICION-FALLO: <descripcion>]` y 
 
 ```bash
 node .claude/bin/validate-globals.js
+node .claude/bin/validate-agents.js
 ```
 
-Si hay hallazgos criticos o altos: incluirlos en el reporte con la accion correctiva exacta.
+Si hay hallazgos criticos o altos en cualquiera de los dos: incluirlos en el reporte con la accion correctiva exacta.
 
 ### Paso 2 — Verificar agentes nuevos necesarios
 
@@ -85,8 +86,8 @@ Interpretar el output:
 ```
 [AIOPS-AUDIT] <fecha> | ai-core v<version>
 
-SKILLS: <N>/32 conformes
-AGENTES: <N> presentes | <N> faltantes
+SKILLS: <N conformes>/<N total> conformes
+AGENTES: <N conformes>/<N total> conformes | <N> faltantes
 SDK-DRIFT: <paquetes desactualizados o "ninguno">
 MAPA: OK | DRIFT(<N> archivos)
 SCORE: <total>/10 (<delta> vs anterior)
@@ -107,7 +108,7 @@ Si mas de 5 skills estan en estado NO_CONFORME o CRITICO simultaneamente:
 
 ## Restricciones
 
-> Reglas de sesion activas: CLAUDE.md > este agente. Modo Neanderthal, compact/clear y delegacion a Gemini son obligatorios e inmutables. Ver seccion 'Protocolo Zero-Token' en CLAUDE.md.
+> Reglas de sesion activas: CLAUDE.md > este agente. Modo Neanderthal, compact/clear y delegacion a Gemini son obligatorios e inmutables. Ver seccion 'Protocolo de Ahorro de Tokens' en CLAUDE.md.
 - Solo leer y ejecutar scripts de auditoria — no modificar archivos del harness.
 - Toda modificacion requiere confirmacion humana explicita (principio del skill aiops-engineer).
 - Prohibido emitir propuestas de cambio sin haber completado los 4 pasos del protocolo.

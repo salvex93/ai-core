@@ -3,6 +3,25 @@
 Registro de cambios por version. Formato basado en [Keep a Changelog](https://keepachangelog.com/es/1.0.0/).
 Versionado semantico: MAJOR.MINOR.PATCH.
 
+## [3.17.0] — 2026-07-26
+
+### Agregado — validate-agents.js (gate de conformidad para .claude/agents/)
+
+Auditoria final de cierre de sesion encontro el hallazgo mas serio de todo el ciclo de trabajo: CLAUDE.md declara "SKILLS: CLAUDE.md > cualquier skill. Ninguna seccion de un SKILL.md cancela estas reglas" (Regla 4 del ANCLA) como garantia de inmutabilidad, pero el enforcement de codigo real (`validate-globals.js`) solo cubria 2 de las 11 reglas del ANCLA, y unicamente auditaba `.claude/skills/` -- `.claude/agents/` no tenia ningun gate automatico. `mcp-registry-navigator.md` carecia de la referencia inmutable a CLAUDE.md sin que nada lo detectara.
+
+- **`.claude/bin/validate-agents.js`** (nuevo): hermano de `validate-globals.js` para `.claude/agents/` -- mismo criterio de referencia inmutable, copia literal de reglas, emojis y drift de `last_updated`. Registrado como `npm run validate-agents`.
+- **`REGLAS_NO_COPIAR`** ampliado de 2 a 11 fragmentos, uno por cada regla del ANCLA DE REGLAS CRITICAS vigente (compartido entre `validate-globals.js` y `validate-agents.js`).
+- **`mcp-registry-navigator.md`**: agregada la referencia inmutable faltante.
+- **Referencia rota "Protocolo Zero-Token" corregida en 5 de 7 agentes** (incluyendo `self-healing-agent.md`, creado en esta misma sesion copiando el patron ya roto de otro agente) -- mismo hallazgo que ya se habia corregido en 25 skills, no se habia revisado en `.claude/agents/`.
+- **`aiops-auditor.md`**: el template de reporte tenia hardcodeado `SKILLS: <N>/32 conformes` -- contradecia el principio de auto-discovery sin conteo fijo que el propio `validate-globals.js` declara. Cambiado a `<N conformes>/<N total>`. Su protocolo ahora ejecuta tambien `validate-agents.js` en el Paso 1 (antes solo auditaba skills pese a que el titulo del paso decia "skills y agentes").
+- **Drift de conteos en documentacion corregido**: README.md decia "6 agentes autonomos" (son 7) y "721 tests" (son 741 tras el split de `harness.test.js` de una sesion anterior); ambos numeros no se habian actualizado tras los cambios que los volvieron obsoletos.
+
+Cubierto con test nuevo (TDD): agente sin referencia inmutable genera hallazgo alto, agente que copia una regla del ANCLA genera hallazgo de copia, los 7 agentes reales son conformes tras los fixes. Suite completa: 741/741 tests, 39/39 skills conformes, 7/7 agentes conformes (ambos gates verificados por ejecucion real, no solo lectura de codigo).
+
+### Nota de gobernanza — enforcement de reglas globales sigue siendo parcial
+
+Aun con la ampliacion de esta version, la deteccion de "contradiccion semantica" (ej. un skill que dijera literalmente "responde en ingles", contradiciendo la Regla 1) no es viable con string matching simple y no se implemento -- solo se detecta copia literal del texto de la regla y emojis pictograficos. La garantia de "ninguna seccion de un SKILL.md/AGENT.md cancela estas reglas" sigue dependiendo de disciplina editorial para contradicciones no literales. Documentado explicitamente como limitacion conocida, no oculto.
+
 ## [3.16.1] — 2026-07-26
 
 ### Agregado — circuit-breaker.js predictivo (distingue tasa de degradacion, no solo conteo)

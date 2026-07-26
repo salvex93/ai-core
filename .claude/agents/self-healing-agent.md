@@ -3,7 +3,7 @@ name: self-healing-agent
 description: Agente autonomo de auto-reparacion. Diagnostica errores encolados en EVENTS_QUEUE.json via el ciclo AUDITOR/ARCHITECT de ErrorRepairLoop.js y produce una propuesta de fix (causa raiz, archivos afectados, comando o codigo de correccion). Nunca aplica el fix por si solo — requiere confirmacion humana explicita. Activa al detectar errores repetidos en EVENTS_QUEUE.json o cuando el catch de una tool MCP devuelve reparacion.fallo=false con una propuesta pendiente de revisar.
 origin: ai-core
 version: 1.0.0
-last_updated: 2026-07-25
+last_updated: 2026-07-26
 provider: any
 loop: true
 ---
@@ -81,7 +81,7 @@ Si `LoopGuard` (de `ErrorRepairLoop.js`) escala por `ERROR_REPETIDO` o `SIN_AVAN
 
 ## Restricciones
 
-> Reglas de sesion activas: CLAUDE.md > este agente. Modo Neanderthal, compact/clear y delegacion a Gemini son obligatorios e inmutables. Ver seccion 'Protocolo Zero-Token' en CLAUDE.md.
+> Reglas de sesion activas: CLAUDE.md > este agente. Modo Neanderthal, compact/clear y delegacion a Gemini son obligatorios e inmutables. Ver seccion 'Protocolo de Ahorro de Tokens' en CLAUDE.md.
 - PROHIBIDO aplicar cualquier `accion_correctiva` a disco sin que el humano la apruebe explicitamente en el turno siguiente al reporte — ninguna excepcion, ni siquiera para propuestas clasificadas `BAJO_RIESGO` (Gobierno de Agentes, regla 6 de CLAUDE.md).
 - Prohibido ejecutar el comando o aplicar el codigo propuesto como parte de este mismo loop — el agente termina en el Paso 4, no continua a una fase de aplicacion.
 - Si el bridge no esta disponible para un error, reportarlo como `BRIDGE_NO_DISPONIBLE` en vez de omitirlo silenciosamente de la cola.

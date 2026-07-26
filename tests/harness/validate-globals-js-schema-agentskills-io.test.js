@@ -89,6 +89,46 @@ describe('validate-globals.js — schema agentskills.io', () => {
     );
   });
 
+  test('REGLAS_NO_COPIAR cubre las 11 reglas del ANCLA vigente (no solo 2)', () => {
+    // Hallazgo real de auditoria: REGLAS_NO_COPIAR solo cubria 2 de las 11
+    // reglas del ANCLA (Regla 3 y 9) -- las otras 9 no tenian deteccion de
+    // copia literal alguna, pese a que CLAUDE.md declara "ningun skill copia
+    // reglas globales" como garantia general (Regla 4).
+    // validate-globals.js corre como CLI (no exporta modulo) -- se cuenta el
+    // array por texto fuente en vez de requerirlo (evitaria ejecutar el CLI).
+    const src = fs.readFileSync(path.join(BIN, 'validate-globals.js'), 'utf8');
+    const match = src.match(/const REGLAS_NO_COPIAR = \[([\s\S]*?)\];/);
+    assert.ok(match, 'debe existir el array REGLAS_NO_COPIAR');
+    const entradas = match[1].split('\n').filter(l => l.trim().startsWith("'")).length;
+    assert.ok(entradas >= 11, `debe cubrir las 11 reglas del ANCLA, tiene ${entradas}`);
+  });
+
+  test('skill que copia literalmente una regla del ANCLA (ej. IDIOMA) genera hallazgo de copia', () => {
+    limpiar();
+    crearSkillDePrueba([
+      '---',
+      'name: zz-test-agentskills-temp',
+      'description: skill de prueba para test unitario, no usar en produccion.',
+      'origin: ai-core',
+      'version: 1.0.0',
+      'last_updated: 2026-01-01',
+      'rol: coder',
+      '---',
+      '# Skill de prueba',
+      'IDIOMA: Español estricto. Sin code-switch. Sin emojis ni iconos.',
+    ].join('\n'));
+
+    const r = runValidate();
+    limpiar();
+    const salida = JSON.parse(r.stdout);
+    const resultado = salida.resultados.find(x => x.nombre === 'zz-test-agentskills-temp');
+    assert.ok(resultado, 'debe auditar el skill de prueba');
+    assert.ok(
+      resultado.hallazgos.some(h => h.desc.includes('copia regla global')),
+      'debe detectar la copia literal de la regla IDIOMA'
+    );
+  });
+
   test('SKILL.md que documenta la regla de no-atribucion a IA (sin violarla): NO genera hallazgo Co-Authored-By', () => {
     // Falso positivo real detectado en aiops-engineer/SKILL.md: el chequeo
     // VIOLACIONES usa /Co-Authored-By/i.test(content) sobre el SKILL.md

@@ -1,6 +1,6 @@
 {
   "name": "ai-core",
-  "version": "3.16.1",
+  "version": "3.17.0",
   "description": "AI-CORE by salvex93. Nucleo Centralizado de Agentes para proyectos de desarrollo. Submodulo Git con reglas globales, skills y scripts de orquestacion.",
   "private": true,
   "scripts": {
@@ -16,6 +16,7 @@
     "token-metrics": "node tests/token-metrics.js",
     "setup": "node .claude/bin/setup-settings.js",
     "validate-globals": "node .claude/bin/validate-globals.js",
+    "validate-agents": "node .claude/bin/validate-agents.js",
     "audit-market": "node .claude/bin/audit-market.js",
     "score": "node .claude/bin/aiops-score.js",
     "score-report": "node .claude/bin/aiops-score.js --report",

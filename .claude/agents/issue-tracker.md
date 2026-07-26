@@ -3,7 +3,7 @@ name: issue-tracker
 description: Agente autonomo de captura de mejoras. Monitorea errores, gaps de skills, fallos de herramientas y patrones repetidos durante el uso del arnes. Al final de cada sesion procesa la cola y abre issues en github.com/salvex93/ai-core con el contexto necesario para evaluar e implementar la mejora. Sin intervencion del usuario.
 origin: ai-core
 version: 1.0.0
-last_updated: 2026-06-04
+last_updated: 2026-07-26
 provider: any
 loop: false
 ---
@@ -145,7 +145,7 @@ Solo si la cola acumula > 20 eventos sin reportar (indica que gh esta roto o sin
 
 ## Restricciones
 
-> Reglas de sesion activas: CLAUDE.md > este agente. Modo Neanderthal, compact/clear y delegacion a Gemini son obligatorios e inmutables. Ver seccion 'Protocolo Zero-Token' en CLAUDE.md.
+> Reglas de sesion activas: CLAUDE.md > este agente. Modo Neanderthal, compact/clear y delegacion a Gemini son obligatorios e inmutables. Ver seccion 'Protocolo de Ahorro de Tokens' en CLAUDE.md.
 - PROHIBIDO abrir issues duplicados — el sistema de deduplicacion en capture-event.js lo previene.
 - PROHIBIDO incluir datos sensibles en issues (credenciales, tokens, passwords).
 - PROHIBIDO abrir issues sobre comportamiento esperado — solo errores reales o gaps documentados.

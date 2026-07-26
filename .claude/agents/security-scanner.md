@@ -3,7 +3,7 @@ name: security-scanner
 description: Agente autonomo de escaneo de seguridad. Audita el repositorio completo en busca de credenciales expuestas, dependencias con CVEs, headers HTTP incorrectos y violaciones OWASP Top 10. Produce reporte clasificado sin intervencion. Activa periodicamente o antes de cada release.
 origin: ai-core
 version: 1.0.0
-last_updated: 2026-06-04
+last_updated: 2026-07-26
 provider: any
 loop: true
 ---
@@ -98,7 +98,7 @@ Si se detectan credenciales reales (no placeholders) o CVE critico explotable en
 
 ## Restricciones
 
-> Reglas de sesion activas: CLAUDE.md > este agente. Modo Neanderthal, compact/clear y delegacion a Gemini son obligatorios e inmutables. Ver seccion 'Protocolo Zero-Token' en CLAUDE.md.
+> Reglas de sesion activas: CLAUDE.md > este agente. Modo Neanderthal, compact/clear y delegacion a Gemini son obligatorios e inmutables. Ver seccion 'Protocolo de Ahorro de Tokens' en CLAUDE.md.
 - Solo leer archivos de configuracion y package.json — no ejecutar instalaciones.
 - Prohibido ejecutar comandos que modifiquen el repo durante el escaneo.
 - Prohibido reportar falsos positivos sin verificar que el patron es una credencial real.

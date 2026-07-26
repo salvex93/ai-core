@@ -3,7 +3,7 @@ name: mcp-registry-navigator
 description: Agente autonomo de evaluacion de servidores MCP de terceros. Dado un repositorio o nombre de MCP, ejecuta los 5 criterios de evaluacion (transporte, seguridad de inputs, mantenimiento, calidad de schema, riesgo operativo) y produce un reporte con decision INSTALAR / EVALUAR / RECHAZAR. Sin intervencion durante la evaluacion. Activa antes de agregar cualquier MCP externo a settings.json.
 origin: ai-core
 version: 1.0.0
-last_updated: 2026-07-06
+last_updated: 2026-07-26
 provider: any
 loop: false
 ---
@@ -59,6 +59,7 @@ ACCION RECOMENDADA:
 
 ## Restricciones Obligatorias
 
+> Reglas de sesion activas: CLAUDE.md > este agente. Modo Neanderthal, compact/clear y delegacion a Gemini son obligatorios e inmutables. Ver seccion 'Protocolo de Ahorro de Tokens' en CLAUDE.md.
 - NO modificar settings.json — solo recomendar. La escritura es responsabilidad del humano.
 - NO ejecutar codigo del MCP evaluado para testear comportamiento.
 - NO instalar paquetes npm durante la evaluacion.
