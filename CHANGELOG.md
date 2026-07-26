@@ -3,6 +3,17 @@
 Registro de cambios por version. Formato basado en [Keep a Changelog](https://keepachangelog.com/es/1.0.0/).
 Versionado semantico: MAJOR.MINOR.PATCH.
 
+## [3.17.1] — 2026-07-26
+
+### Corregido — 3 de 4 vulnerabilidades de npm audit (dependencias transitivas)
+
+`npm audit` reportaba 4 vulnerabilidades (1 low, 2 moderate, 1 high), todas en dependencias transitivas de `@modelcontextprotocol/sdk` -- ningun archivo propio del proyecto importa ese SDK directamente (`mcp-gemini.js`/`mcp-anthropic.js` implementan JSON-RPC sobre stdio manualmente, sin usar la libreria).
+
+- **`body-parser`** (DoS por limite de tamano mal manejado) y **`fast-uri`** (host confusion, severidad alta) corregidos sin breaking change via `npm audit fix`.
+- **`@hono/node-server`** (path traversal en `serve-static`, Windows, severidad moderada): el unico fix disponible es degradar `@modelcontextprotocol/sdk` de 1.29.0 a 1.24.3. Se investigo y esa version **introduce una vulnerabilidad de severidad ALTA propia** (`GHSA-345p-7cg4-v4c7`, cross-client data leak por reuso de transporte/servidor HTTP) confirmada contra el GitHub Advisory Database oficial -- degradar para arreglar la moderada empeoraba el problema. Ambas CVEs (la de Hono y la de cross-client leak) requieren especificamente transporte HTTP (`StreamableHTTPServerTransport`/`SSEServerTransport`) con multiples clientes concurrentes; el proyecto usa exclusivamente stdio, por lo que ninguna aplica en la practica. Decision: mantener `@modelcontextprotocol/sdk@^1.29.0` (evita la vulnerabilidad alta), aceptando conscientemente las 2 moderadas restantes de un componente no usado por codigo propio.
+
+Suite completa: 741/741 tests sin regresion, 39/39 skills conformes, 7/7 agentes conformes.
+
 ## [3.17.0] — 2026-07-26
 
 ### Agregado — validate-agents.js (gate de conformidad para .claude/agents/)
