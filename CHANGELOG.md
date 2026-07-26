@@ -3,6 +3,18 @@
 Registro de cambios por version. Formato basado en [Keep a Changelog](https://keepachangelog.com/es/1.0.0/).
 Versionado semantico: MAJOR.MINOR.PATCH.
 
+## [3.17.3] — 2026-07-26
+
+### Corregido — CI seguia roto tras el fix anterior (glob de shell no se expande en PowerShell)
+
+El fix de la version 3.17.2 (test fragil de `mtime`) era necesario pero no suficiente -- el push de ese fix (`f79c8c0`) siguio fallando en CI. Verificado con `gh run view --log-failed` (no se asumio que el primer fix bastaba): el error real era `Could not find 'D:\a\ai-core\ai-core\tests\harness\*.test.js'` en el runner de `windows-latest`.
+
+**Causa raiz:** `.github/workflows/ci.yml` ejecutaba `node --test tests/harness/*.test.js` como comando de shell directo. GitHub Actions usa PowerShell (`pwsh`) como shell por defecto en runners Windows, y PowerShell **no expande** el patron `*.test.js` como argumento a un ejecutable externo de la misma forma que bash -- el string literal `tests/harness/*.test.js` llegaba sin expandir a `node`, que no encontraba ningun archivo con ese nombre exacto. El mismo comando funciona en Ubuntu/macOS (bash si expande el glob antes de invocar node), lo que oculto el problema hasta el primer push que disparo el step en Windows con este patron.
+
+**Fix:** verificado contra la documentacion oficial de Node.js (`nodejs.org`/`doc/api/test.md`) que `node --test` **sin ningun argumento** ya descubre automaticamente todos los archivos `**/*.test.{cjs,mjs,js}` de forma recursiva desde el directorio actual, excluyendo `node_modules` por convencion del test runner -- no depende de que el shell expanda ningun glob. `package.json` (`"test"`) y el step de CI simplificados a `node --test` / `npm test`, sin patrones de archivo explicitos.
+
+Verificado: mismo resultado exacto (741 tests, 83 suites) con `node --test` sin argumentos que con los patrones explicitos anteriores, confirmando que el descubrimiento automatico cubre los mismos archivos sin depender del shell.
+
 ## [3.17.2] — 2026-07-26
 
 ### Corregido — CI roto en el push anterior (test fragil dependiente de mtime del sistema de archivos)
