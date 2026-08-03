@@ -9,7 +9,19 @@ const { spawnSync } = require('node:child_process');
 const { REPO, BIN, SKILLS, SETTINGS, runScript, tmpFile } = require('./_shared');
 
 describe('OpenAICompatAdapter.js — construccion del body de la peticion', () => {
-  const { construirBodyOpenAICompat, PROVIDER_CONFIGS } = require(path.join(REPO, 'scripts', 'services', 'model-adapters', 'OpenAICompatAdapter.js'));
+  const SCRIPT = path.join(REPO, 'scripts', 'services', 'model-adapters', 'OpenAICompatAdapter.js');
+  const { construirBodyOpenAICompat, PROVIDER_CONFIGS } = require(SCRIPT);
+
+  test('openai: comentario de pricing de gpt-5.6-luna coincide con el precio oficial verificado ($0.20/$1.20)', () => {
+    // Verificado 2026-08-03 contra developers.openai.com/api/docs/pricing --
+    // el comentario previo decia "$1/$6", desactualizado desde el recorte de
+    // precio de Luna del 2026-07-30 (OpenAI bajo Luna 80%).
+    const src = fs.readFileSync(SCRIPT, 'utf8');
+    assert.ok(
+      !/\$1\/\$6/.test(src),
+      'el comentario de pricing de gpt-5.6-luna sigue con el precio viejo "$1/$6" -- actualizar a $0.20/$1.20'
+    );
+  });
 
   test('openai: usa SOLO max_completion_tokens, nunca max_tokens', () => {
     // Regresion real detectada en verificacion en vivo (2026-07-22): la API

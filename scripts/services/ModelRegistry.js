@@ -7,10 +7,10 @@
  * Agregar un proveedor nuevo = agregar un adapter en scripts/services/model-adapters/.
  * Sin modificar la logica de routing.
  *
- * Proveedores soportados (nombres de modelo vigentes a 2026-07-17, ver
+ * Proveedores soportados (nombres de modelo vigentes a 2026-08-03, ver
  * cada adapter para el detalle de deprecaciones y fecha de verificacion):
  *   anthropic  — Claude Haiku 4.5 / Sonnet 5 / Opus 4.8 / Fable 5 via @anthropic-ai/sdk
- *   gemini     — Gemini 3.5 Flash / 3.1 Pro / 3.1 Flash-Lite via @google/generative-ai
+ *   gemini     — Gemini 3.6 Flash / 3.1 Pro / 3.5 Flash-Lite via @google/genai
  *   openai     — GPT-5.6 (Sol/Terra/Luna) via openai-compatible HTTP
  *   deepseek   — DeepSeek V4 (Flash/Pro) via openai-compatible HTTP (api.deepseek.com)
  *   kimi       — Kimi K3 via openai-compatible HTTP (api.moonshot.ai)

@@ -1,21 +1,22 @@
 'use strict';
 
 /**
- * Adapter Gemini — Gemini 3.5 Flash / 3.1 Pro / 3.1 Flash-Lite via @google/generative-ai.
+ * Adapter Gemini — Gemini 3.6 Flash / 3.1 Pro / 3.5 Flash-Lite via @google/genai
+ * (SDK unificado vigente, verificado 2026-08-03 — @google/generative-ai esta
+ * oficialmente deprecado por Google, repo renombrado a deprecated-generative-ai-js).
  */
 
 async function chatGemini(messages, options = {}) {
-  const { GoogleGenerativeAI } = require('@google/generative-ai');
-  const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+  const { GoogleGenAI } = require('@google/genai');
+  const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
-  // gemini-3.5-flash: default vigente a julio 2026 -- Google lo promovio a
-  // default de Gemini Enterprise por su balance velocidad/capacidad agentic.
+  // gemini-3.6-flash: default vigente 2026-08-03 -- reemplaza a 3.5-flash como
+  // Flash mas reciente, mejor pricing de output ($1.50/$7.50 vs $1.50/$9 por 1M).
   // Para tareas de alto volumen y bajo costo sin razonamiento complejo,
-  // gemini-3.1-flash-lite es mas barato ($0.25/$1.50 vs $1.50/$9 por 1M).
-  const model   = options.model || 'gemini-3.5-flash';
-  const genModel = genAI.getGenerativeModel({ model });
+  // gemini-3.5-flash-lite es mas barato ($0.30/$2.50 por 1M).
+  const model = options.model || 'gemini-3.6-flash';
 
-  // Convertir formato Messages API → Gemini contents
+  // Convertir formato Messages API → contents del SDK unificado
   const contents = messages
     .filter(m => m.role !== 'system')
     .map(m => ({
@@ -24,20 +25,20 @@ async function chatGemini(messages, options = {}) {
     }));
 
   const systemInstruction = messages.find(m => m.role === 'system')?.content;
-  if (systemInstruction) {
-    genModel.systemInstruction = { parts: [{ text: systemInstruction }] };
-  }
 
-  const result = await genModel.generateContent({ contents });
-  const text   = result.response.text();
+  const result = await ai.models.generateContent({
+    model,
+    contents,
+    ...(systemInstruction && { config: { systemInstruction } }),
+  });
 
   return {
-    content:  text,
+    content:  result.text,
     provider: 'gemini',
     model,
     usage: {
-      input_tokens:  result.response.usageMetadata?.promptTokenCount  || 0,
-      output_tokens: result.response.usageMetadata?.candidatesTokenCount || 0,
+      input_tokens:  result.usageMetadata?.promptTokenCount     || 0,
+      output_tokens: result.usageMetadata?.candidatesTokenCount || 0,
     },
   };
 }

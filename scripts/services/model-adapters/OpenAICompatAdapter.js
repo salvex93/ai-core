@@ -10,9 +10,17 @@ const PROVIDER_CONFIGS = Object.freeze({
     baseUrl:      'https://api.openai.com',
     apiKeyEnv:    'OPENAI_API_KEY',
     // GPT-5.6 Luna: tier mas barato de la familia GPT-5.6 (GA 2026-07-09),
-    // $1/$6 por 1M tokens. gpt-4o-mini fue retirado (GPT-4o discontinuado
+    // $0.20/$1.20 por 1M tokens (verificado 2026-08-03 contra
+    // developers.openai.com/api/docs/pricing -- OpenAI recorto el precio de
+    // Luna 80% el 2026-07-30). gpt-4o-mini fue retirado (GPT-4o discontinuado
     // febrero 2026) y ya no es la opcion recomendada para proyectos nuevos.
     defaultModel: 'gpt-5.6-luna',
+    // GPT-5.6 Sol: tier mas capaz de la familia, $5.00/$30.00 por 1M tokens
+    // (verificado 2026-08-03). Usar solo cuando la tarea amerita el modelo
+    // mas fuerte de OpenAI (ej. verificacion cross-model de diffs criticos
+    // en CrossVerifier.js) -- nunca como defaultModel de tareas delegables
+    // simples, seria pagar de mas por capacidad que no se necesita.
+    modeloVerificador: 'gpt-5.6-sol',
     // Confirmado en vivo (2026-07-22): la API de OpenAI actual RECHAZA la
     // peticion por completo si recibe max_tokens ("Unsupported parameter").
     maxTokensParam: 'max_completion_tokens',
