@@ -3,7 +3,7 @@ name: doc-builder
 description: Generador de documentacion profesional en HTML + PDF. Produce propuestas comerciales, documentos de requerimientos y entregables para clientes siguiendo el sistema visual Evolve (navy/azul, Segoe UI, paginacion controlada). Activa cuando se pide crear o modificar cualquier documento HTML/PDF destinado a un cliente o uso interno formal.
 origin: ai-core
 version: 1.0.0
-last_updated: 2026-07-26
+last_updated: 2026-08-03
 rol: architect
 ---
 
@@ -268,3 +268,48 @@ Ante cualquiera de estas condiciones, insertar la directiva y detener toda gener
 - Asegurar que no se ejecuta: omitir la exportacion a PDF al finalizar cualquier tarea de creacion o modificacion de documento.
 - Verificar antes validar que no se cortan en impresion A4 antes de usar tablas con mas de 6 columnas.
 - Las Reglas Globales de CLAUDE.md aplican sin excepcion a este perfil.
+
+## Modulo — Identidad Editorial, Anti-Plantilla y Gate de PDF
+
+### Principio fundamental
+
+Un documento que abre correctamente en el navegador pero se ve como una plantilla de propuesta descargada no cumple el objetivo. El listón es que un cliente reconozca el documento como hecho a medida para su marca y su caso, no como un tema generico de Bootstrap con el logo cambiado. Si no se puede declarar en una frase por que este documento se distingue de cualquier plantilla de propuesta de stock, no esta listo para exportar.
+
+### Identidad Editorial — declarar antes de codear
+
+Ningun documento HTML/PDF se codea sin declarar primero:
+
+```
+IDENTIDAD EDITORIAL:
+  Sistema visual: [Evolve navy/azul (default de este skill) | sistema visual de marca del cliente ya provisto | variante monocromatica para documento interno]
+  Densidad de contenido: [alta — informe tecnico con tablas densas | media — propuesta comercial estandar | baja — brief ejecutivo de una pagina por seccion]
+  Tono de portada: [corporativo serio, sin imagen — solo tipografia y acento de color | portada con imagen de producto/proyecto provista por el cliente | portada minimal solo con wordmark]
+  Referencia de tono: [una sola linea — ej. "documento que un banco recibiria de su propia area de cumplimiento, no de una agencia de marketing"]
+```
+
+Si el proyecto ya tiene un HTML de referencia (ver "Primera Accion al Activar"), la identidad editorial hereda su paleta y tipografia — no se declara un sistema visual paralelo solo porque el modulo lo permite.
+
+### Prohibido — patrones reconocibles de plantilla/demo
+
+- Portada con foto de stock generica (personas en oficina sonriendo, apreton de manos, skyline corporativo sin relacion al cliente).
+- Iconos de Font Awesome o Material Icons por defecto pegados junto a cada titulo de seccion sin proposito informativo — decoracion, no dato.
+- Paleta "tema de PDF gratuito de Canva": degradado azul-morado en la portada, tipografia display para el titulo del documento.
+- Tablas de precios con filas cebra (zebra striping) de color por defecto del framework CSS, sin alinear al sistema de tokens del documento.
+- Numeracion de secciones con emojis o simbolos decorativos en vez de `section-label` numerico tipografico.
+- Firma o cierre generico tipo "Gracias por su atencion" sin los datos de contacto y rol reales del consultor.
+
+### Gate de calidad medible (no solo estetico)
+
+| Metrica | Umbral | Verificacion |
+|---|---|---|
+| Paginacion sin cortes de tabla/card | 0 elementos de `.portal-table`, `.var-grid`, `.card-grid`, `.section` partidos entre paginas | Abrir el PDF generado pagina por pagina y confirmar contra la regla `page-break-inside: avoid` del CSS |
+| Contraste de texto sobre fondo de portada y badges | >= 4.5:1 para texto normal, >= 3:1 para texto grande (18px+/bold 14px+) | Verificar los pares de color reales (`--primary`/blanco, `--accent`/`--accent-light`) con un contrastador WCAG (ej. WebAIM Contrast Checker) antes de fijar el token |
+| Peso de archivo del PDF final | < 3MB para documentos de hasta 15 paginas sin imagenes de alta resolucion | `ls -la` sobre el PDF exportado, no el HTML fuente |
+| Huerfanas y viudas de parrafo | 0 parrafos con 1-2 lineas separadas de su bloque al cruzar pagina | Revision visual del PDF pagina por pagina; confirmar que `orphans: 3; widows: 3;` esta activo en el CSS de impresion |
+| Consistencia de numeracion de secciones | 100% de secciones con `section-label` correlativo sin saltos ni duplicados | Grep de `section-label` sobre el HTML final antes de exportar |
+
+### Vigencia — estandar mas reciente del dominio
+
+Verificado contra fuente oficial en esta tarea (`pptr.dev/api/puppeteer.pdfoptions`, dominio oficial del proyecto Puppeteer): `page.pdf()` expone la propiedad `tagged` (booleano, experimental, default `true` en la version documentada actualmente) para generar PDF etiquetado/accesible — es decir, Chrome ya adjunta estructura semantica (roles, alt text) al PDF exportado por defecto desde que esta opcion se activo, no solo un render plano de imagen de texto. Esto habilita lectores de pantalla sobre el PDF entregado sin herramienta adicional. Antes de desactivar `tagged` en `exportar_pdf.js` (ej. por peso de archivo), confirmar que el documento no requiere ese nivel de accesibilidad — desactivarlo es una regresion de capacidad, no una limpieza neutra.
+
+El resto del comportamiento fino de `page.pdf()` (compresion de imagenes, page ranges, headers/footers) esta documentado en la misma pagina oficial referenciada arriba; cualquier dato adicional sobre limites de tamano o comportamiento de compresion que no se haya verificado en esta pasada es orientativo, no verificado contra fuente oficial — confirmar en `pptr.dev` antes de escribirlo como definitivo en este skill.

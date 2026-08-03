@@ -3,7 +3,7 @@ name: ai-integrations
 description: Especialista en integracion de LLMs en aplicaciones de produccion. Cubre diseno de features de IA, gestion de costos por token, prompt versioning, streaming, fallback entre proveedores y evaluacion de outputs. Agnostico al proveedor. Activa al integrar Claude, Gemini u otro LLM en un proyecto anfitrion, disenar endpoints de IA o gestionar costos de inferencia.
 origin: ai-core
 version: 2.5.0
-last_updated: 2026-07-26
+last_updated: 2026-08-03
 rol: architect
 ---
 
@@ -324,3 +324,38 @@ Registrar en cada respuesta: `thinking_tokens_used`, `budget_remaining`, `step_c
 - Verificar pasar primero por Gemini Bridge antes de incluir archivos > 200 lineas en prompts.
 - Verificar ejecutar el conjunto de evaluacion documentado antes de desplegar cambios de prompt.
 - Asegurar que no se ejecuta: omitir logging de tokens en cualquier llamada LLM en produccion.
+
+## Modulo — Vanguardia Transversal en Integraciones de IA
+
+### IDENTIDAD DECLARADA ANTES DE EJECUTAR
+
+Antes de disenar o revisar cualquier feature de IA en produccion, completar en una linea:
+
+`IDENTIDAD INTEGRACION IA: Proveedor primario: [Claude | Gemini | OpenAI | multi-proveedor con fallback] | Patron de invocacion: [sincrono request-response | streaming | batch asincrono | agentic loop con tools] | Presupuesto por operacion: [monto o rango en USD/1K requests] | Tolerancia a fallo: [degradacion a respuesta cacheada | fallback a proveedor secundario | error explicito al usuario] | Referencia de contrato: [una linea: que garantiza el sistema al llamador cuando el LLM falla o alucina]`
+
+Sin esta declaracion no se escribe el primer endpoint, prompt de sistema ni contrato de tool.
+
+### PROHIBIDO — PATRONES RECONOCIBLES DE DEMO/PLANTILLA
+
+- Wrapper `try/catch` que solo relanza el error del SDK sin mapear a un tipo de fallo propio del dominio (timeout, rate limit, content filter, contexto excedido tratados como el mismo "Error generico").
+- Endpoint de chat que reenvia el mensaje del usuario directo al LLM sin capa de gateway, sin limite de historial y sin distincion entre input de usuario e instruccion de sistema — el patron tutorial de "tres lineas y ya tienes un chatbot".
+- Prompt de sistema con placeholder `Eres un asistente util` o variantes sin restriccion de dominio, sin ejemplo few-shot y sin instruccion de rechazo ante fuera de alcance.
+- Loguear unicamente el texto de la respuesta del LLM, sin tokens de entrada/salida, proveedor, modelo ni costo estimado — imposibilita cualquier auditoria posterior.
+- Streaming implementado solo para la demo feliz, sin manejo de cierre abrupto de conexion ni evento de error intercalado en el stream.
+- Fallback declarado en un comentario ("aqui iria el fallback a otro proveedor") pero nunca implementado ni testeado con el proveedor primario caido.
+
+### GATE DE CALIDAD MEDIBLE
+
+| Metrica | Umbral | Metodo de verificacion |
+|---|---|---|
+| Tasa de fallos no manejados (excepcion SDK sin mapear a tipo propio) | 0% en rutas criticas | Grep de bloques `catch`/`except` en modulos que llaman al LLM Gateway — todo bloque debe re-lanzar un tipo propio o registrar y degradar, nunca silenciar |
+| Cobertura de logging de tokens | 100% de llamadas al LLM | Auditoria de logs estructurados: cada `trace_id` de llamada LLM debe tener `tokens_entrada`, `tokens_salida` y `costo_usd_estimado` no nulos |
+| Tiempo de recuperacion ante caida de proveedor primario (circuit breaker a fallback) | <= 3 intentos o 3s de timeout acumulado, verificado con el proveedor primario deshabilitado en un entorno de prueba | Test de integracion que simula 429/5xx sostenido y mide si el fallback responde dentro del SLA declarado |
+| Tasa de conformidad de schema en outputs estructurados | >= 98% sobre golden dataset de al menos 50 casos | Ejecucion del set de evaluacion documentado (`llm-evals`) antes de cada promocion de prompt a produccion |
+| Deteccion de prompt injection en inputs de prueba conocidos | 100% de rechazo sobre corpus de casos adversariales documentado | Suite de tests con payloads de injection conocidos ejecutada en CI antes de merge |
+
+### VIGENCIA — ESTANDAR MAS RECIENTE DEL DOMINIO
+
+Verificado contra `platform.claude.com/docs` en esta tarea: la Claude API expone **Strict tool use** (`strict: true` en la definicion de la tool, documentado en `agents-and-tools/tool-use/strict-tool-use`) como mecanismo GA para garantizar que las llamadas de Claude a una tool cumplan exactamente el schema declarado, sin requerir cabecera beta — esto refuerza y actualiza la seccion "Evaluacion de Outputs" ya presente en este skill: preferir `strict: true` sobre validacion post-hoc con Zod/Pydantic como primera linea de defensa, no como sustituto total (la validacion post-hoc sigue siendo necesaria para reglas de negocio que el schema no expresa).
+
+Antes de fijar cualquier otro dato de vigencia no verificado en esta tarea (pricing exacto, limites de rate, disponibilidad de un modelo especifico en un proveedor cloud) — orientativo, no verificado contra fuente oficial en este modulo: confirmar contra `platform.claude.com/docs`, `ai.google.dev` o el changelog oficial del proveedor correspondiente antes de escribir el dato como si fuera definitivo.

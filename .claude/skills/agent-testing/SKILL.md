@@ -3,7 +3,7 @@ name: agent-testing
 description: Especialista en testing de comportamiento de agentes LLM. Cubre mock de herramientas MCP, verificacion de loops de agente (infinite loop detection, unnecessary tool call detection), testing de recovery ante fallos de tool use, metricas de eficiencia de agente (tool calls por tarea, tokens por decision) e integracion con promptfoo para eval de tool use. Activa al disenar tests para agentes con herramientas, verificar comportamiento de loops, o medir eficiencia de un agente en produccion.
 origin: ai-core
 version: 1.1.0
-last_updated: 2026-07-17
+last_updated: 2026-08-03
 rol: auditor
 ---
 
@@ -393,3 +393,46 @@ Insertar directiva y detener ante:
 - Ejecutar el inventario de herramientas del agente antes de proponer cualquier test.
 - Distinguir activamente entre dominio de este skill (loops, tool use) y el de `qa-engineer` (codigo) y `llm-evals` (calidad semantica).
 - Usar mocks para tests de correctness estructural — los LLMs reales se reservan para evals de calidad semantica.
+
+## Modulo — Deteccion Adversarial de Comportamiento Emergente en Agentes
+
+### Identidad declarada antes de ejecutar
+
+Antes de escribir cualquier test de este modulo, llenar:
+
+```
+IDENTIDAD AGENTE BAJO TEST:
+  Topologia: [single-agent con tools | multi-agente jerarquico (padre-subagentes) | multi-agente en malla (peer-to-peer) | pipeline secuencial de agentes]
+  Superficie de riesgo dominante: [tool con side effect destructivo | manejo de contenido externo no confiable | consumo de contexto/costo en produccion | decision de escalamiento a humano]
+  Senal de exito no negociable: [termina en N pasos | nunca ejecuta tool X sin confirmacion | nunca trata output de tool como instruccion nueva | degrada con gracia ante fallo parcial]
+  Metodo de observacion: [trace OTLP/OpenTelemetry | log estructurado de tool calls | golden trace snapshot | recorder de promptfoo]
+```
+
+Sin esta declaracion no hay caso de test valido — un test que no sabe cual es la senal de exito no negociable termina verificando solo que el agente "corrio", no que se comporto correctamente.
+
+### Prohibido — patrones reconocibles de test superficial en este dominio
+
+- Test que verifica unicamente `resultado is not None` como criterio de exito, sin inspeccionar la secuencia real de tool calls.
+- Mock de herramienta que siempre retorna el camino feliz — nunca inyecta timeout, respuesta vacia, JSON malformado o permiso denegado.
+- Test de "no supera N tool calls" sin verificar tambien que las tool calls ejecutadas son las correctas — un agente puede quedarse corto en llamadas y aun asi tomar la decision equivocada.
+- Golden trace congelado que nunca se regenera tras un cambio de modelo deliberado, quedando como fuente de falsos negativos permanentes.
+- Test que trata el contenido devuelto por una tool (archivo, pagina web, resultado de otro agente) como si fuera instruccion valida del sistema, sin verificar que el agente bajo test lo aisla correctamente — omite la superficie de prompt injection via tool output.
+- Suite de tests que solo cubre el camino donde todas las herramientas resuelven — cero cobertura de fallo parcial en workflows con subagentes paralelos (2 de 5 fallan, el padre debe seguir con los 3 restantes).
+
+### Gate de calidad medible
+
+| Metrica | Umbral | Verificacion |
+|---|---|---|
+| Tasa de terminacion sin timeout | 100% de las ejecuciones de test deben terminar (exito o fallo explicito) en <= limite de pasos declarado — cero ejecuciones colgadas | Contador de pasos instrumentado en el test harness, assert por ejecucion, no solo en agregado |
+| Cobertura de inyeccion de fallos | Cada herramienta con side effect tiene al menos 4 variantes de fallo cubiertas: timeout, rate limit, respuesta malformada, permiso denegado | Conteo de `@pytest.mark.parametrize` (o equivalente) por herramienta contra el inventario de tools del agente |
+| Tasa de deteccion de contenido no confiable | El agente no ejecuta como instruccion ninguna directiva embebida en el output de una tool, en un set de casos de prueba con injection conocida | Suite dedicada de casos con payload de injection en tool output, assert de que el comportamiento declarado del agente no cambia |
+| Reproducibilidad de golden trace | Divergencia de la secuencia de tools contra el golden trace <= 1 tool de diferencia entre ejecuciones identicas, salvo cambio de modelo declarado | Diff programatico de `expected_tool_sequence` contra `actual_sequence` en CI, no inspeccion manual |
+| Degradacion ante fallo parcial en paralelo | Con fallo forzado en <= 40% de subagentes paralelos, el padre completa la tarea con los resultados restantes en vez de abortar el workflow completo | Test que fuerza fallo en N de M subagentes y verifica que el padre retorna resultado parcial, no excepcion no manejada |
+
+### Vigencia — estandar mas reciente del dominio
+
+Verificado contra `promptfoo.dev/docs/red-team/agents/` en esta tarea: promptfoo expone evaluacion basada en trazas (OTLP/OpenTelemetry) con assertions especificas `trajectory:tool-used`, `trajectory:tool-args-match` y `trajectory:tool-sequence`, ademas de plugins de red-team orientados a agentes — `agentic:memory-poisoning`, `excessive-agency`, `tool-discovery` — que superan el alcance de simple seleccion de herramienta ya cubierto en este skill. Esto habilita testing de comportamiento adversarial (memory poisoning en agentes stateful, exceso de autoridad) sin escribir el harness de trazas desde cero.
+
+La documentacion oficial consultada no confirma capacidad nativa de deteccion de loops infinitos como plugin dedicado — donde este modulo o el resto del skill mencionen esa capacidad en promptfoo especificamente, tratarla como orientativo, no verificado contra fuente oficial, y mantener la deteccion de loops via el contador de pasos instrumentado ya definido en este archivo como mecanismo primario, no dependiente de promptfoo.
+
+Antes de adoptar `agentic:memory-poisoning`, `excessive-agency` o `tool-discovery` en un pipeline real: confirmar la version instalada de promptfoo soporta el plugin exacto (los nombres de plugin de red-team cambian entre releases) y no asumir por analogia con plugins de seguridad de aplicacion tradicional.

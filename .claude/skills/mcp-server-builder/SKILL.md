@@ -3,7 +3,7 @@ name: mcp-server-builder
 description: Especialista en construccion de servidores MCP (Model Context Protocol). Cubre ciclo de vida del protocolo, transportes stdio y SSE/HTTP, definicion de herramientas con JSON Schema, seguridad de inputs, testing con MCP Inspector y despliegue. Activa al construir un servidor MCP propio, exponer herramientas internas a Claude, o publicar un servidor MCP en el registro oficial.
 origin: ai-core
 version: 1.4.0
-last_updated: 2026-07-26
+last_updated: 2026-08-03
 rol: coder
 ---
 
@@ -546,3 +546,44 @@ Las Reglas Globales definidas en CLAUDE.md aplican sin excepcion a este perfil.
 - Asegurar que no se ejecuta: incluir secretos, URLs internas o datos de infraestructura en schemas o descripciones de herramientas.
 - Verificar confirmacion explicita en el schema (parametro `confirmar: boolean` o similar) antes de disenar herramientas con efectos secundarios destructivos.
 - Prohibido usar el transporte SSE legacy (`SSEServerTransport`) en nuevos servidores. Usar exclusivamente `StreamableHTTPServerTransport` para servidores remotos (especificacion MCP 2025-03-26).
+
+## Modulo — Vanguardia Transversal en Construccion de Servidores MCP
+
+### IDENTIDAD DECLARADA ANTES DE EJECUTAR
+
+Antes de generar el primer archivo de un servidor MCP nuevo, completar en una linea:
+
+`IDENTIDAD MCP: Dominio del servidor: [nombre real del sistema interno que expone, no "mi servidor"] | Transporte: [stdio para local/CLI | Streamable HTTP para remoto/multi-usuario] | Primitivas expuestas: [Tools | Resources | Prompts | combinacion, con lista real de nombres] | Superficie de confianza: [localhost sin red | red interna con auth | publico con OAuth 2.0] | Referencia de spec objetivo: [numero de version MCP contra el que se construye, ej. 2026-07-28]`
+
+Sin esta linea llenada con nombres reales (no placeholders tipo "mi_herramienta"), no se emite codigo del servidor.
+
+### PROHIBIDO — PATRONES RECONOCIBLES DE DEMO/PLANTILLA
+
+- El servidor "weather" o "calculadora" de los tutoriales oficiales del SDK, copiado como esqueleto sin adaptar nombre, dominio ni schema al sistema real que se esta exponiendo.
+- Una sola herramienta generica `ejecutar_accion(input: string)` que recibe un string libre y lo interpreta internamente, en vez de un schema tipado por operacion — evade el proposito de JSON Schema como contrato.
+- `console.log` o `print` para depuracion dejados en el transporte stdio, que corrompen el canal stdout reservado exclusivamente para JSON-RPC y rompen al cliente en produccion.
+- Nombre de servidor y de herramientas en ingles genérico de ejemplo (`my-server`, `tool_1`, `do_something`) que sobrevive del boilerplate hasta el commit final.
+- Registrar recursos (`server.resource`) que exponen el filesystem completo con un template `archivo://{ruta}` sin validacion de directorio permitido, replicando el ejemplo minimo de la documentacion tal cual, sin el guardado de path traversal que el propio skill ya exige.
+- Anotaciones de herramientas (`destructiveHint`, `readOnlyHint`) omitidas por completo porque el ejemplo de referencia tampoco las mostraba, en servidores donde si aplican.
+
+### GATE DE CALIDAD MEDIBLE (no solo estetico)
+
+| Metrica | Umbral | Metodo de verificacion |
+|---|---|---|
+| Cobertura de schema por herramienta | 100% de las herramientas registradas tienen `description` en la herramienta y en cada argumento de su `inputSchema` | Inspeccion manual con MCP Inspector (`npx @modelcontextprotocol/inspector`) — panel de "Tools", cada entrada sin campos vacios |
+| Latencia de respuesta de `tools/call` | p95 <= 300ms para herramientas que no dependen de I/O externo lento (red/DB remota se excluye del umbral pero debe medirse aparte) | Medir con el Inspector o un script que invoque la herramienta 50 veces y calcule p95 |
+| Errores JSON-RPC sin manejar | 0 excepciones no capturadas que lleguen al cliente como error de transporte generico en vez de error MCP con codigo y mensaje | Forzar inputs invalidos (fuera de rango, tipo incorrecto, recurso inexistente) contra cada herramienta via Inspector y confirmar que cada caso devuelve un error estructurado, no un crash del proceso |
+| Autenticacion en Streamable HTTP | 100% de los requests a `/mcp` sin `Authorization` valido responden 401 antes de tocar logica MCP | `curl -X POST http://localhost:3000/mcp` sin header, confirmar status 401 y que no se ejecuto ninguna herramienta (revisar logs) |
+| Secretos en superficie visible al modelo | 0 ocurrencias de patrones tipo credencial (`://.*:.*@`, `sk-`, `Bearer `) en schemas, descripciones de herramientas o nombres de recursos | `grep -rn "://.*:.*@\|api[_-]key\|password" --include="*.ts" --include="*.py"` sobre el modulo de definicion de herramientas |
+
+### VIGENCIA — ESTANDAR MAS RECIENTE DEL DOMINIO
+
+Verificado contra fuente oficial en esta tarea (`modelcontextprotocol.io/specification/2026-07-28/changelog`, changelog de la especificacion final 2026-07-28 respecto a 2025-11-25): la version 2026-07-28 ya referenciada en este skill sigue siendo la vigente. El changelog oficial confirma, ademas de lo ya documentado arriba en el skill, cambios que este modulo transversal debe reforzar como gate de vigencia:
+
+- El handshake `initialize`/`initialized` fue removido; cada request lleva su version de protocolo y capabilities en `_meta` (`io.modelcontextprotocol/protocolVersion`, `io.modelcontextprotocol/clientCapabilities`). Los servidores deben implementar el RPC `server/discover` para anunciar versiones y capacidades soportadas.
+- Todo resultado ahora requiere el campo `resultType` (`"complete"` o `"input_required"`); un servidor nuevo que omite este campo en sus resultados no es un servidor conforme a 2026-07-28, aunque funcione contra clientes tolerantes.
+- El patron Multi Round-Trip Requests (MRTR) reemplaza a las solicitudes iniciadas por el servidor (`roots/list`, `sampling/createMessage`, `elicitation/create`) via `InputRequiredResult`.
+- Roots, Sampling y Logging (la primitiva del protocolo, no el uso de stderr) quedan formalmente en estado Deprecated con ventana minima de 12 meses — coherente con lo que ya declara este skill.
+- El codigo de error por recurso no encontrado cambio de `-32002` a `-32602`, y existe una nueva politica de asignacion de rangos de error (`-32000` a `-32019` legacy de SDK, `-32020` a `-32099` reservado a la especificacion).
+
+Antes de escribir codigo nuevo contra `server/discover`, el `resultType` obligatorio o el patron MRTR, releer la seccion tecnica correspondiente del skill (arriba en este mismo archivo) para confirmar que no quedo desactualizada respecto a este hallazgo — si hay discrepancia entre el detalle ya escrito y lo verificado aqui, prevalece la fuente oficial consultada en esta tarea, no la version anterior del texto del skill.

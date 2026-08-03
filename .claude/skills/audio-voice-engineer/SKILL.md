@@ -3,7 +3,7 @@ name: audio-voice-engineer
 description: Especialista en Voice AI y sistemas de audio real-time. Cubre streaming de audio, conversational interfaces nativas, Gemini 3.1 Flash Live API, APIs de speech-to-text/text-to-speech, latencia submilisegundo, y orquestacion de voice workflows. Activa al disenar interfaces de voz, implementar streaming de audio en produccion, o integrar modelos speech de Gemini.
 origin: ai-core
 version: 1.3.0
-last_updated: 2026-07-26
+last_updated: 2026-08-03
 rol: architect
 ---
 
@@ -231,3 +231,40 @@ Las Reglas Globales definidas en CLAUDE.md aplican sin excepcion. Adicionales:
 - Prohibido recomendar `gemini-2.0-flash-live-001` o `gemini-2.5-flash-live-preview` — ambos apagados desde 2025-12-09, usar `gemini-3.1-flash-live-preview`.
 - Advertir explicitamente si el diseno requiere Affective Dialog: no soportado en `gemini-3.1-flash-live-preview` a la fecha de este skill (verificado 2026-07-10) — confirmar contra documentacion oficial antes de prometerlo.
 - Verificar streaming si duracion supera 60 segundos antes de serializar audio.
+
+## Modulo — Vanguardia Transversal en Voice AI y Audio Real-Time
+
+### 1. Identidad Declarada Antes de Ejecutar
+
+Antes de producir cualquier diseño o codigo de audio real-time, completar en una linea:
+
+`IDENTIDAD VOICE: Latencia objetivo end-to-end: [<150ms conversacional / <300ms asistido / sin restriccion dura] | Codec y sample rate: [PCM 16kHz raw / Opus 48kbps / Opus 128kbps / otro, justificar] | Modelo de voz y personalidad sonora: [nombre de voz + un rasgo prosodico deseado, ej. "Aoede, ritmo pausado sin urgencia"] | Politica de interrupcion (barge-in): [el usuario puede cortar al agente en cualquier momento / el agente termina la frase antes de ceder turno / hibrido con umbral de X ms] | Fallback si el modelo de audio nativo no responde en el timeout: [degradar a texto / reintentar una vez / colgar con mensaje de error]`
+
+Sin esta linea llenada con valores concretos (no genericos como "latencia baja" o "buena calidad"), no iniciar la implementacion.
+
+### 2. Prohibido — Patrones Reconocibles de Demo/Plantilla
+
+- Voz por defecto sin seleccion deliberada (dejar `voice_name` en el primer valor del enum del SDK sin evaluar alternativas ni justificar la eleccion).
+- Frase de bienvenida generica de demo tipo "Hola, soy tu asistente de IA, en que puedo ayudarte hoy" sin adaptar al dominio ni al system_instruction real del proyecto.
+- Manejo de interrupcion ausente o simulado con `sleep`/timeout fijo en vez de usar el barge-in nativo del protocolo full-duplex — sintoma clasico de haber copiado un ejemplo de texto-a-texto sin adaptarlo a audio bidireccional.
+- VAD (deteccion de actividad de voz) inexistente: enviar frames de silencio puro de forma continua en vez de recortar o marcar silencio, seniendo esto un desperdicio de ancho de banda reconocible al instante en cualquier trace de red.
+- Buffer de audio con tamano arbitrario copiado de un tutorial (ej. 4096 samples fijos) sin calcularlo contra la latencia objetivo declarada en el paso 1.
+- Manejo de reconexion ausente: cerrar y no reintentar el WebSocket ante un drop de red, dejando la sesion de voz muerta sin aviso al usuario.
+
+### 3. Gate de Calidad Medible (No Solo Estetico)
+
+| Metrica | Umbral | Metodo de verificacion |
+|---|---|---|
+| Latencia end-to-end (audio enviado -> audio de respuesta recibido) | <= 300ms p50, <= 500ms p99 en ruta critica conversacional | Instrumentar `timestamp_respuesta_recibida - timestamp_audio_enviado` en cliente real, no en entorno local sin red; medir con 10+ muestras |
+| Perdida de frames en sesion de 60s bajo red movil simulada | < 1% de frames perdidos | Prueba de carga con throttling de red (ej. perfil "Slow 4G" en herramienta de red) mientras se cuenta frames enviados vs recibidos |
+| Tiempo de recuperacion tras corte de conexion | <= 3s para restablecer sesion de audio activa | Forzar corte de socket en prueba controlada y medir tiempo hasta primer frame de audio post-reconexion |
+| Uso de ancho de banda por minuto de conversacion | <= 1MB/min con Opus 48kbps en mobile | Medir trafico real de la sesion con herramienta de captura de red (ej. panel Network o tcpdump) durante 60s de conversacion |
+| Concurrencia sin degradacion | Latencia p99 no aumenta > 20% con 10 sesiones simultaneas vs 1 sesion aislada | Prueba de carga con 10 clientes concurrentes de 60s cada uno, comparar p99 contra baseline de 1 cliente |
+
+### 4. Vigencia — Estandar Mas Reciente del Dominio
+
+Antes de escribir cualquier nombre de modelo, sample rate, pricing o limite de sesion en un diseno nuevo: verificar contra `ai.google.dev/gemini-api/docs/live` (Live API) o `ai.google.dev/gemini-api/docs/speech-generation` (TTS) — nunca contra un blog o comparativa de terceros.
+
+Verificado en esta tarea contra `ai.google.dev/gemini-api/docs/live`: la Live API confirma entrada de audio en PCM 16-bit 16kHz little-endian y salida en PCM 16-bit 24kHz little-endian, ademas de soporte de barge-in (el usuario puede interrumpir al modelo en cualquier momento) — consistente con lo ya documentado en este skill.
+
+Datos que la fuente consultada en esta pasada NO confirmo (duracion maxima de sesion Live, presencia de VAD nativo con detalle de implementacion, limites RPM/RPD exactos del tier gratuito de Live API): orientativo, no verificado contra fuente oficial en esta tarea — reverificar antes de comprometer un SLA o un limite de sesion en documentacion de cliente.

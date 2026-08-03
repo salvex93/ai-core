@@ -2,8 +2,8 @@
 name: ux-visual-designer
 description: Disenador UX/Visual AAA 2026. Cubre design systems desde cero (tokens W3C, componentes, documentacion), brand identity (logotipo, paleta, tipografia, iconografia), paradigmas visuales 2026 (glassmorphism, claymorphism, brutalismo, maximalismo, liquid glass, bento grid, spatial UI), motion design con principios Disney y Material Motion, accesibilidad visual WCAG 2.2 AA/AAA, diagramas de flujo UX, wireframes en texto/ASCII, especificaciones Figma-ready y handoff de diseno a codigo. Diferenciado de tech-lead-frontend (implementacion) — este skill gobierna las decisiones de diseno previas al codigo. Activa al disenar la identidad visual de un producto, crear un design system desde cero, definir la experiencia de usuario antes de implementar, auditar accesibilidad visual, o producir especificaciones de diseno para el equipo de frontend.
 origin: ai-core
-version: 2.0.0
-last_updated: 2026-07-17
+version: 2.1.0
+last_updated: 2026-08-03
 rol: architect
 ---
 
@@ -191,7 +191,7 @@ Reglas: tamano minimo interactivo 24px, area de toque 44x44px (WCAG 2.5.8 2026),
 
 ## Modulo 2 — Design System W3C 2026
 
-### Tokens W3C (estandar estabilizado Oct 2025)
+### Design Tokens DTCG (primera version estable 2025.10)
 
 ```json
 {
@@ -536,6 +536,32 @@ Un diseno que falla en cualquier punto no pasa al equipo de frontend.
 - [ ] Target size cumple WCAG 2.5.8 (minimo 24x24px, recomendado 44x44px).
 - [ ] Jerarquia tipografica verificada: una sola H1 por vista, sin saltar niveles.
 - [ ] Paradigma visual justificado por tipo de producto y publico objetivo.
+
+---
+
+## Modulo 7 — Vigencia del Estandar de Design Tokens
+
+### Verificar antes de usar, no asumir por analogia
+
+El nombre "Tokens W3C" es impreciso y no debe repetirse sin la aclaracion: la especificacion vive en el **Design Tokens Community Group (DTCG)**, un Community Group de W3C, no en el W3C Standards Track. Verificado contra fuente oficial 2026-08-03 (`w3.org/community/design-tokens`, `designtokens.org`): la especificacion alcanzo su primera version estable **2025.10** el 28 de octubre de 2025, respaldada por 24+ organizaciones (Adobe, Google, Meta, Figma). Sigue evolucionando como living draft en `designtokens.org/TR/drafts` — no esta congelada, y una version futura puede cambiar el formato de `$value`/`$type` usado en los ejemplos de este archivo.
+
+**Antes de declarar cualquier version o capacidad del spec de tokens como vigente:**
+- Confirmar contra `designtokens.org/tr/` (spec) o `w3.org/community/design-tokens` (anuncios), nunca solo contra un blog de terceros o un curso.
+- Si la version citada en este archivo (2025.10) ya fue reemplazada, actualizar el numero de version Y revisar si el formato JSON de ejemplo del Modulo 2 sigue siendo compatible antes de reusarlo — no asumir que un token nuevo sigue el mismo `$type` que la version anterior.
+
+### Prohibido — afirmaciones de vigencia sin verificar
+
+- Citar "estandar W3C" sin la aclaracion de Community Group vs Standards Track — confunde el nivel de formalidad real del spec ante un cliente o equipo tecnico.
+- Declarar que una herramienta (Figma, Style Dictionary, Tokens Studio) "soporta el spec DTCG" sin verificar la version exacta que soporta esa herramienta en el momento del proyecto — el soporte de tooling va detras del spec y varia por version.
+- Congelar el paradigma estetico (tabla de la Declaracion de Identidad Visual) o el vocabulario de motion como si fueran definitivos — son un punto de partida 2026, no un techo; un paradigma nuevo que aparezca despues de esta fecha se evalua con el mismo criterio anti-plantilla, no se descarta por no estar en la tabla.
+
+### Gate de vigencia — medible, no solo declarativo
+
+| Verificacion | Umbral | Metodo |
+|---|---|---|
+| Version de spec DTCG citada en handoff | Coincide con la version actual en `designtokens.org/tr/` al momento de la entrega | WebFetch a `designtokens.org/tr/` antes de finalizar el design system |
+| Antiguedad de la ultima verificacion de vigencia registrada en este archivo | <= 90 dias antes de iniciar un design system nuevo | Comparar fecha de este modulo contra la fecha del proyecto |
+| Herramienta de tokens propuesta al cliente | Confirmada como activa (ultimo commit/release < 12 meses) | Revisar changelog o releases del repositorio oficial de la herramienta |
 
 ---
 

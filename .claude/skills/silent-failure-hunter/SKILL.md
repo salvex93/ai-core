@@ -3,7 +3,7 @@ name: silent-failure-hunter
 description: Detecta fallos silenciosos en codigo Node.js y Python — catch vacios, excepciones tragadas, errores convertidos a null, logs sin contexto y propagacion rota. Activa al auditar manejo de errores, diagnosticar comportamiento inesperado sin trazas, o revisar resilencia de scrapers y agentes autonomos.
 origin: ai-core
 version: 1.1.0
-last_updated: 2026-07-26
+last_updated: 2026-08-03
 rol: auditor
 ---
 
@@ -252,3 +252,47 @@ Detener el analisis e insertar la directiva ante cualquiera de estas condiciones
 - No refactorizar codigo fuera del patron de manejo de errores.
 - Los patrones de fire-and-forget documentados con comentario explicito NO son hallazgos.
 - Las Reglas Globales del CLAUDE.md aplican sin excepcion.
+
+---
+
+## Modulo — Deteccion de Fallos Silenciosos en Tiempo de Ejecucion
+
+### Identidad declarada antes de auditar
+
+Ningun analisis de fallos silenciosos arranca sin declarar primero el contexto de riesgo del modulo auditado — un `catch` vacio en un script de migracion no tiene el mismo impacto que uno en un loop de agente autonomo que factura por llamada:
+
+```
+IDENTIDAD DE AUDITORIA:
+  Superficie: [loop autonomo con retry | pipeline de datos batch | endpoint HTTP sincrono | scraper con estado persistente | callback de MCP/tool use]
+  Costo del silencio: [perdida de dato irrecuperable | facturacion duplicada sin deteccion | corrupcion de estado compartido | falso positivo de exito reportado al operador]
+  Senal de deteccion disponible: [logs estructurados existentes | ninguna — hay que instrumentar primero | metricas/alertas ya configuradas | solo stdout sin persistencia]
+  Referencia de severidad: [una sola linea — ej. "este loop corre sin supervision humana 200 veces/dia, un catch vacio aqui equivale a 200 fallos invisibles diarios"]
+```
+
+Si el modulo ya tiene un `logger` estructurado declarado en otra parte del proyecto (ver seccion "Log correcto en este stack"), la auditoria se ancla a ese mismo formato — no se propone un logger paralelo.
+
+### Prohibido — patrones reconocibles de auditoria superficial
+
+- Marcar como "corregido" un `catch` que ahora hace `console.log(e)` en vez de `console.error(e)` — sigue sin ser log estructurado, solo cambio de metodo.
+- Envolver el `catch` vacio en un `logger.error('error')` generico sin `error.message`, `error.stack` ni contexto de la operacion — el hallazgo original persiste con otro disfraz.
+- Agregar `throw error` al final de un catch sin verificar que el caller inmediato tambien lo propaga o lo maneja — mueve el fallo silencioso una capa arriba en vez de resolverlo.
+- Reportar "0 hallazgos" porque el grep no matcheo variantes con espaciado o destructuring distinto (`catch ({message})`, `.catch(err=>{})` sin espacios) — el patron regex de la seccion "Primera Accion" es un piso, no un techo; un catch semanticamente vacio con logica trivial no-operativa (`catch (e) { return; }` sin log) sigue siendo el mismo hallazgo.
+- Declarar un fallback (`|| []`, `?? {}`) como "manejo de errores" cuando en realidad esta enmascarando un valor `undefined` que nunca debio llegar ahi — confundir defensividad con deteccion.
+- Cerrar la auditoria sin distinguir promesas realmente fire-and-forget documentadas de promesas flotantes por descuido — ambas se ven identicas en el grep, solo el comentario explicito las diferencia.
+
+### Gate de calidad medible
+
+| Metrica | Umbral | Metodo de verificacion |
+|---|---|---|
+| Catch vacios sin comentario explicativo | 0 en el modulo auditado | ESLint con regla `no-empty` (sin `allowEmptyCatch`) sobre el path objetivo, o el grep de la seccion "Primera Accion" con revision manual de cada match |
+| Promesas sin `.catch()` ni `await` dentro de `try` | 0 en rutas criticas (loops autonomos, callbacks de MCP) | ESLint con regla `no-floating-promises` de `@typescript-eslint` (requiere tipos) o grep dirigido por funcion async sin `await`/`.catch` en la linea de invocacion |
+| Errores relanzados sin `cause` cuando existe un error original disponible | 0 en bloques `catch` que hacen `throw new Error(...)` | Grep de `throw new Error\(` dentro de bloques `catch` sin `{ cause:` en la misma sentencia |
+| Logs de error sin campo de contexto estructurado (`stack`, `contexto`, `herramienta`) | 0 en modulos con `logger` ya adoptado en el proyecto | Inspeccion manual de cada `logger.error(` — confirmar que el objeto pasado tiene mas de un campo, no solo el mensaje |
+| Cobertura de test para el camino de error de cada funcion publica tocada | >= 1 test que fuerce el `catch` y verifique que el error se propaga o se loguea | `npm test` con reporte de cobertura de branches sobre el archivo modificado — el branch del `catch` debe aparecer ejecutado |
+
+### Vigencia — estandar mas reciente del dominio
+
+- `error.cause` (segundo argumento de `new Error(mensaje, { cause })`) es estable en Node.js desde la version 16.9.0 — verificado contra `nodejs.org/api/errors.html` en esta misma tarea. Preservar la causa original al relanzar un error ya no es un patron opcional, es la forma soportada nativamente por el runtime.
+- La regla `no-empty` de ESLint, con la opcion `allowEmptyCatch`, sigue activa y marcada como `recommended` en la version mas reciente auditada (v10.8.0) — verificado contra `eslint.org/docs/latest/rules/no-empty` en esta misma tarea. Un catch vacio sin comentario explicativo es detectable automaticamente en CI con esta regla, sin necesidad de grep manual.
+- La regla equivalente en el ecosistema TypeScript (`@typescript-eslint/no-floating-promises`) no fue verificada contra su fuente oficial en esta tarea — orientativo, verificar antes de uso si el proyecto anfitrion usa TypeScript y se va a exigir como gate de CI.
+- `diagnostics_channel` de Node.js aparece listado en la documentacion oficial como modulo para observabilidad estructurada, pero su API detallada no fue verificada linea por linea en esta tarea — orientativo, verificar antes de proponerlo como reemplazo del `logger` ya adoptado en el proyecto.

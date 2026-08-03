@@ -3,7 +3,7 @@ name: dev-loop
 description: Ciclo de desarrollo con validacion por fases. Impone 5 gates obligatorios antes de generar codigo — Spec, Design, Plan, Build, Review — eliminando el patron de 500 lineas sin validar. Basado en Superpowers (Jesse Vincent/obra) y agent-skills (Addy Osmani). Activa al iniciar cualquier tarea de implementacion nueva, al detectar que se va a generar codigo sin especificacion previa, o al retomar una tarea incompleta.
 origin: ai-core
 version: 1.0.0
-last_updated: 2026-07-17
+last_updated: 2026-08-03
 rol: coder
 ---
 
@@ -238,3 +238,44 @@ Restricciones adicionales:
 - No modificar archivos fuera del scope definido en el Plan.
 - No saltarse fases por presion de tiempo — si el tiempo es critico, reducir el scope en Fase 1, no eliminar fases.
 - Si el usuario pide saltarse fases explicitamente, documentar la decision y sus riesgos antes de proceder.
+
+---
+
+## Modulo — Gates de Vanguardia por Fase
+
+### Identidad del ciclo — declarar antes de abrir Fase 1
+
+Ningun ciclo arranca sin declarar el contrato de rigor que va a regir las cinco fases. Llenar en una linea antes de emitir el primer artefacto de Spec:
+
+```
+IDENTIDAD DE CICLO:
+  Criticidad de la tarea: [hotfix de produccion | feature de usuario | cambio de infraestructura/esquema | experimento/spike]
+  Nivel de evidencia exigido en Review: [smoke test manual | suite automatizada existente | suite + cobertura nueva | suite + verificacion en vivo con datos reales]
+  Quien aprueba cada gate: [silencio del usuario en 1 turno | confirmacion explicita | code-reviewer automatizado | ambos]
+  Tolerancia a rollback: [una linea — ej. "revertible con git revert sin downtime" o "requiere migracion irreversible, exige doble confirmacion"]
+```
+
+Si el proyecto anfitrion ya tiene un criterio de aprobacion documentado (CONTRIBUTING.md, plantilla de PR), la Identidad de Ciclo hereda ese criterio en vez de inventar uno paralelo.
+
+### Prohibido — patrones reconocibles de gate de plantilla
+
+- Artefacto de Spec que repite el pedido del usuario casi palabra por palabra sin extraer "Fuera de scope" ni "Riesgo" — el gate existe para forzar analisis, no para transcribir.
+- Design que solo enumera archivos a tocar sin declarar el contrato de interfaces — "voy a modificar X, Y, Z" no es una interfaz, es una lista de tareas disfrazada de diseño.
+- Plan con pasos del tipo "implementar la logica" o "hacer los cambios necesarios" sin ruta de archivo ni accion verificable — el paso no se puede marcar `[x]` con evidencia real.
+- Fase de Build que termina y pasa directo a "listo" sin que el artefacto de Review exista — saltarse Fase 5 porque "el codigo compila" es el mismo antipatron de 500 lineas sin validar que este skill existe para eliminar.
+- Marcar un hallazgo `[CRITICO]` o `[ALTO]` en Review y entregar de todos modos "porque no da tiempo" — el gate de severidad no es una sugerencia editorial.
+- Reabrir Fase 4 para un hallazgo que en realidad es de diseño (Design), solo para evitar el retroceso formal a Fase 2 — encubre la falla en vez de corregir la causa.
+
+### Gate de calidad medible por fase
+
+| Metrica | Umbral | Metodo de verificacion |
+|---|---|---|
+| Cobertura de pasos del Plan marcados con evidencia | 100% de los pasos `[x]` tienen referencia a archivo + linea o output de comando, no solo el checkbox marcado | Inspeccion del artefacto de Plan final contra el diff real (`git diff --stat`) |
+| Tests declarados en Plan vs tests ejecutados en Review | Igual numero — cero tests "prometidos" en Plan que no aparecen en el output de `npm test` de Review | Comparar el conteo de pasos `Agregar test:` del Plan contra el resultado de `npm test` citado en Review |
+| Hallazgos CRITICO/ALTO sin resolver al momento de entrega | 0 | Conteo explicito en la linea `Hallazgos:` del artefacto de Review — cualquier valor > 0 bloquea el cierre del ciclo |
+| Desviacion entre Design y Build | 0 cambios de interfaz sin actualizar el artefacto de Design | Diff textual entre la seccion `Interfaces / Tipos:` del Design y las firmas de funcion realmente implementadas |
+| Tiempo entre fases sin artefacto valido | 0 — ninguna fase produce codigo o el artefacto de la siguiente fase sin que la anterior tenga su artefacto completo en el historial de la sesion | Revision manual del orden de artefactos emitidos en la conversacion antes de declarar el ciclo cerrado |
+
+### Vigencia — estandar mas reciente del dominio
+
+Verificado en esta tarea contra fuente oficial primaria (`agentskills.io/specification`, especificacion abierta que gobierna el formato `SKILL.md` que usa este mismo arnes): la especificacion recomienda mantener el body completo de un `SKILL.md` bajo 5000 tokens al activarse y el archivo completo bajo 500 lineas, moviendo detalle a `references/` — esto es un limite de diseño del formato de skills, no de la metodologia de gates en si. No se encontro, contra fuente oficial verificable en el tiempo disponible de esta pasada, un estandar formal unico de la industria para "gates de validacion por fase" equivalente al usado aqui (el propio skill ya cita su origen en Superpowers de Jesse Vincent y agent-skills de Addy Osmani, ninguno de los dos un spec versionado con numero de release). Cualquier afirmacion futura sobre una version numerada o certificacion formal de una metodologia de gates de este tipo debe tratarse como orientativo, no verificado contra fuente oficial, hasta confirmarla independientemente.

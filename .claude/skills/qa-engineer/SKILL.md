@@ -253,3 +253,50 @@ Las Reglas Globales definidas en CLAUDE.md aplican sin excepcion a este perfil.
 - Leer los manifiestos del anfitrion antes de recomendar cualquier framework de testing.
 - Documentar la justificacion antes de proponer reduccion de cobertura.
 - Reservar mocks de BD exclusivamente para tests unitarios — nunca en tests de integracion.
+
+## Modulo — Estrategia de Testing de Vanguardia y Contract Testing Verificable
+
+### Principio fundamental
+
+Una suite de tests que pasa en verde pero no detecta una regresion real de contrato entre servicios no cumple el objetivo. El liston es que la piramide de testing sea una decision deliberada por capa de riesgo — no una plantilla de `it('deberia funcionar')` copiada del scaffold del framework. Si no se puede declarar en una frase que riesgo de negocio especifico cubre cada capa de la piramide, la estrategia no esta lista.
+
+### Identidad de testing — declarar antes de escribir la suite
+
+Igual que otros perfiles de este ecosistema exigen declarar una identidad antes de producir output, ninguna estrategia de testing se implementa sin declarar primero:
+
+```
+IDENTIDAD DE TESTING:
+  Perfil de riesgo: [transaccional/financiero — cero tolerancia a regresion | contenido/CRUD estandar | interno/herramienta de bajo impacto]
+  Contrato critico: [endpoint(s) o evento(s) consumidos por servicios externos, o "ninguno" si es monolito cerrado]
+  Punto de fallo historico: [una linea — que parte del sistema ya rompio produccion antes, o "sin incidente registrado"]
+  Gate de bloqueo de PR: [cobertura minima + contract test + que mas bloquea merge]
+```
+
+Si el proyecto no tiene un punto de fallo historico documentado, no inventar uno — declarar "sin incidente registrado" y proponer la primera capa de contract testing sobre el contrato de mayor riesgo detectado en el manifiesto del anfitrion.
+
+### Prohibido — patrones reconocibles de suite de plantilla
+
+- Tests que llaman la funcion pero no hacen ninguna asercion sobre el resultado (`expect(true).toBe(true)` o ausencia total de `expect`/`assert`), inflando cobertura sin verificar comportamiento.
+- Mock de la propia base de datos en un test etiquetado como "integracion" — el nombre promete lo que el mock no cumple.
+- Snapshot testing usado como sustituto de aserciones especificas (`expect(resultado).toMatchSnapshot()` sobre un objeto completo, sin que nadie revise el diff en cada PR).
+- Suite E2E que reconstruye toda la logica de negocio con datos hardcodeados en vez de usar factories, duplicando el acoplamiento que el contract testing deberia evitar.
+- Test de contrato que solo verifica el codigo de estado HTTP (`expect(res.status).toBe(200)`) sin validar el schema real del payload — no detecta un campo removido o renombrado.
+- `describe.skip` o `it.skip` acumulados sin ticket de seguimiento, tratados como "temporalmente desactivado" durante meses.
+
+### Gate de calidad medible
+
+| Metrica | Umbral | Metodo de verificacion |
+|---|---|---|
+| Cobertura de ramas en logica de negocio | >= 85% (ver tabla de umbrales por capa de este skill) | Reporte de cobertura del framework detectado (`--coverage` en Jest/Vitest, `pytest --cov`) sobre el directorio de dominio, no el proyecto completo |
+| Mutation score en modulos criticos de negocio | >= 60% de mutantes eliminados | Stryker (JS/TS) o `mutmut`/`cosmic-ray` (Python) ejecutado sobre el modulo, no sustituye a la cobertura de lineas — la complementa |
+| Tests de contrato desactualizados respecto al productor | 0 contratos con mas de 1 release de diferencia sin re-verificar | Pact Broker `can-i-deploy` en el pipeline de CI/CD, o verificacion manual de version de schema OpenAPI si no hay broker |
+| Flakiness de la suite | < 1% de reintentos exitosos sobre 20 ejecuciones consecutivas en CI | Ejecutar la suite completa 20 veces en el runner de CI y contar tests que fallan intermitentemente sin cambio de codigo |
+| Tiempo total de la suite unitaria | < 2 minutos en CI para dar feedback rapido al PR | Tiempo reportado por el job de CI (GitHub Actions, GitLab CI) para el step de tests unitarios |
+
+Ningun umbral de esta tabla sustituye los umbrales de cobertura por capa ya definidos en este skill — el mutation score y el flakiness son gates adicionales, no reemplazos.
+
+### Vigencia — estandar mas reciente del dominio
+
+Verificado contra fuente oficial en esta sesion: la especificacion OpenAPI vigente es la version 3.2.0, publicada el 2025-09-23 segun el blog oficial de la OpenAPI Initiative (`openapis.org/blog`) y el documento normativo en `spec.openapis.org/oas/v3.2.0.html`. Es una release menor sin cambios que rompan compatibilidad respecto a 3.1 — cualquier contract testing basado en validacion de schema OpenAPI puede seguir usando specs 3.1 existentes sin migracion obligatoria. Antes de fijar una version de spec como requisito de un contrato nuevo, confirmar contra ese dominio oficial si aplica una version mas reciente al momento de la implementacion.
+
+Sobre la version exacta de Pact/Pact Specification vigente para cada lenguaje (Pact JS, pact-python, Pact JVM) y el detalle de PactFlow como servicio de broker gestionado: orientativo, no verificado contra fuente oficial en esta sesion — confirmar version exacta en `docs.pact.io` antes de fijarla como dependencia en un `package.json` o manifiesto equivalente, en vez de asumir la version mencionada en blogs de terceros.

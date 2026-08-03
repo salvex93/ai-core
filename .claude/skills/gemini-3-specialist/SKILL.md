@@ -239,3 +239,51 @@ Las Reglas Globales definidas en CLAUDE.md aplican sin excepcion. Adicionales:
 - Asegurar que no se ejecuta: usar Flash-Lite con `thinking_level: "low"` para tareas que requieren razonamiento condicional entre pasos.
 - Verificar medir delta de calidad en un dataset de evaluacion representativo antes de subir de tier.
 - Prohibido usar `gemini-2.0-flash-live-001` o `gemini-2.5-flash-live-preview` — ambos apagados desde 2025-12-09; usar `gemini-3.1-flash-live-preview`.
+
+## Modulo — Vanguardia Transversal en Integracion Gemini 3.x
+
+### Principio fundamental
+
+Una integracion con Gemini 3.x que solo llama al endpoint con los parametros por defecto no cumple el objetivo. El listón es tratar cada llamada como una decision deliberada de variante, `thinking_level`, estrategia de cache y modalidad — no copiar el snippet de la documentacion oficial sin adaptarlo al caso de uso real del proyecto. Si no se puede declarar en una frase por que esta integracion usa Gemini 3.x de forma distinta a un ejemplo generico de `quickstart.py`, no esta lista.
+
+### Identidad declarada antes de ejecutar
+
+Ninguna integracion nueva con Gemini 3.x se codea sin declarar primero:
+
+```
+IDENTIDAD GEMINI 3.x:
+  Variante: [3.1-pro-preview | 3.6-flash | 3.5-flash-lite | 3.1-flash-live-preview | 3.1-flash-image-preview]
+  Thinking level: [low | medium | high] — justificacion en una linea de por que ese nivel y no otro
+  Modalidad de entrada/salida: [texto-a-texto | multimodal con imagen/audio/video | streaming Live API | generacion/edicion de imagen]
+  Estrategia de cache y volumen: [sin cache — bajo volumen | implicit caching por defecto | explicit caching con TTL fijo | batch con Semaphore]
+  Referencia de caso de uso: [una sola linea — ej. "clasificador de tickets de soporte, alto volumen, latencia tolerante a 2s"]
+```
+
+Si el proyecto ya tiene una variante y `thinking_level` fijados en `ModelRegistry.js` o equivalente, la identidad declarada aqui es una extension de esa configuracion existente — no un sistema paralelo de seleccion de modelo.
+
+### Prohibido — patrones reconocibles de demo/plantilla
+
+- Copiar el snippet de quickstart de `ai.google.dev` tal cual, con el modelo hardcodeado y sin `thinking_level` explicito.
+- Dejar `thinking_level` sin especificar en produccion de alto volumen, aceptando el default `"high"` de la API por omision en vez de una decision consciente.
+- Usar `gemini-3.1-pro-preview` para tareas de clasificacion simple o extraccion de bajo volumen — variante de razonamiento maximo aplicada a una tarea que Flash-Lite resuelve igual de bien a fraccion del costo.
+- Reintentar agresivamente ante error 429 (rate limit) en un loop cerrado sin backoff — genera bloqueo de cuota mas rapido que el error original.
+- Enviar el mismo contexto largo (system prompt, documento base) en cada llamada de una sesion repetitiva sin evaluar implicit o explicit caching — pagar tokens de input completos cuando gran parte del contenido es identico entre llamadas.
+- Function calling con nombres de funcion genericos (`doStuff`, `handleData`) o descripciones que solo repiten el nombre sin indicar cuando usarla.
+
+### Gate de calidad medible
+
+| Metrica | Umbral | Metodo de verificacion |
+|---|---|---|
+| Latencia p95 por llamada segun variante | Flash-Lite < 1.5s, 3.6 Flash < 3s, 3.1 Pro (`thinking_level: high`) < 12s | Medir con `performance.now()` o timestamp de request/response en al menos 20 llamadas reales, no una muestra unica |
+| Costo por 1000 interacciones en la variante seleccionada | Documentado contra la tabla de pricing vigente antes de deploy — sin esa comparacion escrita, no se aprueba el cambio de variante | Calculo manual: `(tokens_in * precio_in + tokens_out * precio_out) / 1e6 * 1000`, contra `ai.google.dev/gemini-api/docs/pricing` |
+| Tasa de error 429/500 en produccion | < 1% de requests en ventana de 24h | Logs estructurados con codigo de status, agregados por dia |
+| Hit rate de cache (si se implementa explicit caching) | > 50% de requests con contexto repetido deben impactar cache, o el cache no se justifica | Campo `cached_content_token_count` en la respuesta de la API, agregado por sesion |
+| Tokens minimos para activar cache | Verificar contra el umbral real de la variante antes de asumir que el cache aplica (ver bloque de vigencia) | Prueba con un request de tamano conocido, inspeccionar si `cachedContentTokenCount` aparece en la respuesta |
+
+### Vigencia — estandar mas reciente del dominio
+
+Verificado en esta tarea contra `ai.google.dev/gemini-api/docs/caching` (fuente oficial primaria, consultada 2026-08-03): implicit caching esta habilitado por defecto para todos los modelos Gemini 2.5 y posteriores (incluye la familia 3.x), sin necesidad de configuracion adicional — el ahorro de costo se aplica automaticamente cuando un request coincide con contenido ya cacheado. El umbral minimo de tokens para activar el cache **no es uniforme entre generaciones**: `gemini-3.5-flash` y `gemini-3.1-pro-preview` requieren minimo 4096 tokens de contexto repetido para que el cache se active, frente a 2048 tokens en la generacion 2.5 — no asumir por analogia que el umbral se mantuvo igual entre generaciones.
+
+Explicit caching (control manual de TTL y contenido cacheado) esta documentado para la API `generateContent`, pero la fuente oficial consultada indica explicitamente que **la Interactions API no soporta explicit caching, solo implicito** — si el proyecto usa `client.interactions.create()` como en los ejemplos de este skill, el unico mecanismo de cache disponible es el implicito automatico; explicit caching requeriria migrar esa llamada especifica a `generateContent`.
+
+Orientativo, no verificado contra fuente oficial en esta pasada: umbral minimo de tokens para cache en `gemini-3.6-flash` y `gemini-3.5-flash-lite` especificamente (la fuente consultada no menciono estas dos variantes por nombre) — verificar contra `ai.google.dev/gemini-api/docs/caching` antes de asumir que aplica el mismo umbral de 4096 tokens documentado para 3.5 Flash y 3.1 Pro Preview.

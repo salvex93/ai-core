@@ -243,3 +243,42 @@ Insertar directiva y detener ante:
 - Verificar justificacion de modificacion antes de leer archivos completos.
 - Verificar delegacion a Gemini antes de generar respuestas de mas de 150 palabras de prosa.
 - Asegurar que no se ejecuta: repetir codigo que el usuario ya tiene en contexto.
+
+---
+
+## Modulo — Verificacion de Vigencia de Precios y Mecanismos de Ahorro
+
+### IDENTIDAD DECLARADA ANTES DE EJECUTAR
+
+Antes de emitir cualquier recomendacion de costo o tier, completar en una linea:
+
+`IDENTIDAD COSTO: Modelo candidato: [Gemini Flash-Lite / Gemini Flash / Haiku / Sonnet / Opus] | Mecanismo de ahorro aplicable: [prompt caching / batch / prefill / ninguno] | Fuente de pricing verificada: [dominio oficial + fecha de consulta] | SLA de calidad del sistema destino: [ninguno / degradacion tolerada / degradacion NO tolerada]`
+
+Sin esta linea completa, prohibido escribir un numero de pricing, un tier o un porcentaje de ahorro en la respuesta — el numero se convierte en adorno sin verificacion, exactamente el fallo que este modulo existe para prevenir.
+
+### PROHIBIDO — PATRONES RECONOCIBLES DE RECOMENDACION SIN VERIFICAR
+
+- Citar un precio por Mtok de memoria porque "asi estaba la ultima vez que se reviso" sin confirmar `last_updated` del skill contra la fecha actual.
+- Recomendar downgrade de tier (Sonnet a Haiku, o cualquier salto a Gemini) solo porque el tier inferior es mas barato, sin evaluar si la tarea tiene SLA de calidad documentado.
+- Asumir que un modelo nuevo de la misma familia hereda el pricing o el free tier del modelo que reemplaza por analogia de nombre (ej. asumir que un "Lite" nuevo sigue el mismo numero de version que el "Flash" principal).
+- Recomendar Batch API para un pipeline con menos de 5 items o con dependencias secuenciales entre tareas — el ahorro de 50% no compensa la latencia de hasta 24h si el pipeline no puede tolerarla.
+- Reportar un porcentaje de ahorro de cache ("60-80%") como si aplicara de forma universal sin haber verificado `cache_read_input_tokens > 0` en la respuesta real de esa sesion.
+- Copiar la tabla de tiers de otro proyecto o sesion anterior sin volver a verificar que ningun modelo mencionado fue deprecado desde entonces.
+
+### GATE DE CALIDAD MEDIBLE
+
+| Metrica | Umbral | Metodo de verificacion |
+|---|---|---|
+| Antiguedad del dato de pricing citado | <= 60 dias desde la fecha de verificacion contra fuente oficial | Comparar fecha de la respuesta con el timestamp de verificacion registrado en la propia recomendacion |
+| Cache hit rate en sesion con contexto de sistema > 1.024 tokens | `cache_read_input_tokens` > 0 desde el segundo turno | Inspeccionar el campo `usage` de la respuesta real de la API, no asumir |
+| Ratio de tokens delegados a tier 0 (Gemini) vs tier pagado | >= 40% de las llamadas elegibles (lectura, resumen, extraccion simple) en tier 0 | `npm run token-metrics` sobre la sesion, columna de distribucion por proveedor |
+| Items por lote antes de usar Batch API | >= 5 items identicos sin dependencia secuencial | Conteo manual del pipeline propuesto antes de invocar la Batch API |
+| Reduccion de costo reportada tras cambio de tier o activacion de cache | Verificada con `npm run score` o calculo explicito (tokens_antes - tokens_despues) × precio_por_token, nunca una cifra generica sin el calculo mostrado | Adjuntar la formula con los numeros reales de la sesion, no solo el resultado |
+
+### VIGENCIA — ESTANDAR MAS RECIENTE DEL DOMINIO
+
+Verificado en esta tarea contra `platform.claude.com/docs/en/build-with-claude/prompt-caching` (fuente oficial Anthropic, consulta 2026-08-03): el cache de 1 hora ya no es una feature "solo beta" aislada — coexiste con el cache de 5 minutos por defecto y ambos TTL pueden mezclarse en la misma request (bloques de 1h declarados antes que los de 5m). El multiplicador de escritura confirmado es 1.25x para TTL de 5 minutos y 2.0x para TTL de 1 hora; la lectura de cache se mantiene en 0.1x del costo de input base. Existe ademas un mecanismo de pre-warming de cache con `max_tokens: 0` para calentar el cache antes de la primera respuesta real, no documentado previamente en este skill.
+
+Los minimos de tokens cacheables varian por familia de modelo (512 tokens en los modelos de la generacion mas reciente citados en la fuente, 1.024 en Sonnet 5/Haiku 4.5/Opus 4.8, hasta 4.096 en versiones Opus anteriores) — verificar el minimo exacto del modelo en uso antes de asumir que un bloque califica para cache, en vez de asumir el valor generico de 1.024 tokens que este mismo archivo usa como regla general.
+
+Pricing de la familia Gemini citado en otras secciones de este skill: orientativo, no re-verificado en esta tarea — confirmar contra `ai.google.dev/gemini-api/docs/pricing` antes de citarlo en una recomendacion nueva, siguiendo el mismo Protocolo de Vigencia Tecnologica de CLAUDE.md.

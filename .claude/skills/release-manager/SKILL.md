@@ -3,7 +3,7 @@ name: release-manager
 description: Release Manager Universal. Gestiona el ciclo de vida de entregas de software: versionado semantico, estrategia de branching, pipelines CI/CD, resolucion de conflictos Git y planes de rollback. Agnóstico a la plataforma de CI/CD. Activa al planificar releases, gestionar ramas, configurar pipelines o coordinar despliegues.
 origin: ai-core
 version: 1.2.0
-last_updated: 2026-07-26
+last_updated: 2026-08-03
 rol: architect
 ---
 
@@ -374,3 +374,48 @@ Las Reglas Globales definidas en CLAUDE.md aplican sin excepcion a este perfil.
 - Asegurar que no se ejecuta: omitir etapas del pipeline bajo presion de tiempo o urgencia.
 - Verificar aprobacion explicita del responsable tecnico antes de ejecutar despliegues fuera de la ventana acordada.
 - Verificar haber ejecutado el pipeline al menos una vez en el entorno objetivo antes de estimar tiempos de despliegue.
+
+---
+
+## Modulo — Vanguardia en Versionado, Branching y Rollback
+
+### Identidad de release — declarar antes de ejecutar
+
+Ningun plan de release, estrategia de branching o rollback se redacta sin declarar primero:
+
+```
+IDENTIDAD DE RELEASE:
+  Cadencia: [continua/trunk-based con flags | release por sprint | release por hito de negocio | release por demanda del cliente]
+  Estrategia de branching real: [Git Flow completo | GitHub Flow simplificado | trunk-based con feature flags | release train]
+  Tolerancia a riesgo del rollback: [cero downtime tolerado | ventana de mantenimiento aceptada | rollback manual asistido | rollback automatico por umbral]
+  Superficie de impacto: [una linea — ej. "API publica con contrato versionado, clientes externos dependen de compatibilidad hacia atras"]
+```
+
+Si el proyecto ya tiene una estrategia de branching declarada en secciones anteriores de este perfil (Git Flow estandar), esta identidad es la adaptacion a ese proyecto especifico — no un modelo paralelo. Un equipo unipersonal con trunk-based no necesita Git Flow completo; forzarlo es sobre-ingenieria de proceso.
+
+### Prohibido — patrones reconocibles de proceso generico sin pensar
+
+- Tag de version incrementado por convencion sin verificar el tipo real de cambio (subir MENOR porque "se siente como una version nueva", sin revisar si realmente rompe compatibilidad).
+- Rama `release/*` o `hotfix/*` creada y nunca sincronizada de vuelta a `develop`, dejando el proximo release sin el fix.
+- Mensaje de commit `fix: cambios varios` o `chore: ajustes` sin describir que se corrigio ni por que — Conventional Commits en la forma pero no en el fondo.
+- Plan de rollback que dice "revertir el deploy" sin comando exacto, sin tiempo esperado, y sin resolver que pasa con la migracion de base de datos ya aplicada.
+- CHANGELOG generado automaticamente del log de commits sin curar, mezclando `chore:`/`ci:` irrelevantes para el usuario final junto con cambios reales de producto.
+- Pipeline con etapa `approve` que en la practica siempre aprueba el mismo bot o el mismo usuario sin revision real — gate de aprobacion humana que dejo de ser humano.
+
+### Gate de calidad medible del proceso de release
+
+| Metrica | Umbral | Metodo de verificacion |
+|---|---|---|
+| Tiempo de rollback ejecutado | < 15 minutos desde deteccion del umbral hasta version anterior sirviendo trafico | Cronometrar en el ultimo rollback real o en simulacro de staging, no estimar de memoria |
+| Cobertura de CHANGELOG vs commits del release | 100% de commits `feat:`/`fix:`/`feat!:` reflejados en el CHANGELOG | Comparar `git log <tag-anterior>..<tag-nuevo> --oneline` contra las entradas del CHANGELOG |
+| Tasa de fallo del pipeline en `main` | < 5% de runs fallidos en los ultimos 30 dias | Historial de Actions/CI de la plataforma usada, filtrado por rama `main` |
+| Lead time de cambio | Medido desde merge a `main` hasta despliegue en produccion, con baseline propio del proyecto — sin umbral universal valido para todo equipo | DORA metrics del pipeline (`deploy_timestamp - merge_timestamp`) |
+| Migraciones sin metodo de reversion documentado | 0 por release | Revisar que cada archivo de migracion nuevo en el release tenga su `down`/rollback correspondiente antes de merge a `main` |
+
+### Vigencia — estandar mas reciente del dominio
+
+Verificado en esta tarea contra fuente oficial: la especificacion Semantic Versioning vigente es SemVer 2.0.0 (semver.org), sin revision posterior publicada — el formato `MAYOR.MENOR.PARCHE` de este perfil sigue siendo el estandar correcto, no requiere actualizacion.
+
+Verificado en esta tarea contra documentacion oficial de GitHub (docs.github.com): OpenID Connect (OIDC) para despliegues permite que un pipeline de CI/CD se autentique contra el proveedor de nube sin almacenar credenciales de larga duracion como secretos del repositorio — el pipeline solicita un token OIDC de corta vida por cada ejecucion, el proveedor de nube lo valida contra una relacion de confianza federada preconfigurada. Detalle tecnico verificado: los repositorios creados despues del 15 de julio de 2026 usan un formato de subject claim inmutable que incluye el ID del owner y el ID del repositorio, para prevenir problemas de reutilizacion de namespace. Aplica al pipeline CI/CD de este perfil: preferir OIDC sobre secretos estaticos de larga duracion (`AWS_ACCESS_KEY_ID`, tokens de service account) en las etapas `deploy:staging` y `deploy:production` cuando la plataforma de nube lo soporte.
+
+Cualquier otro dato de plataforma especifica (limites de Merge Queue por plan, pricing de runners, disponibilidad de OIDC en un proveedor de nube puntual distinto de AWS/GCP/PyPI) es orientativo, no verificado contra fuente oficial en esta tarea — confirmar contra la documentacion del proveedor correspondiente antes de escribirlo como hecho en un plan de release real.

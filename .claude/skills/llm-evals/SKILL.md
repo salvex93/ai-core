@@ -3,7 +3,7 @@ name: llm-evals
 description: Especialista en evaluacion sistematica de outputs de LLM. Cubre diseno de datasets de evaluacion, metricas automatizadas (faithfulness, answer relevancy, hallucination rate), LLM-as-judge, integracion de evals en CI/CD y frameworks de evaluacion (deepeval, promptfoo, RAGAS). Activa al disenar un pipeline de evals, detectar regresiones en calidad de outputs, evaluar cambios de modelo o prompt, o medir la calidad de un sistema RAG.
 origin: ai-core
 version: 1.2.3
-last_updated: 2026-07-26
+last_updated: 2026-08-03
 rol: auditor
 ---
 
@@ -402,3 +402,52 @@ Las Reglas Globales definidas en CLAUDE.md aplican sin excepcion a este perfil.
 - Documentar el proceso de revision humana antes de modificar el golden dataset.
 - Declarar el conflicto de interes y mitigarlo al usar el mismo modelo como generador y como juez LLM-as-judge.
 - Comparar las metricas del cambio contra la linea base del golden dataset antes de desplegar a produccion.
+
+## Modulo — Evaluacion de Vanguardia: Anti-Slop de Evals y Golden Datasets
+
+### Principio fundamental
+
+Un pipeline de evals que corre y produce un score no cumple el objetivo si ese score no discrimina calidad real. El listón es que cada metrica, cada item del golden dataset y cada umbral respondan a un fallo concreto que el sistema puede cometer — no a una plantilla de metricas copiada de un tutorial de framework sin verificar que mide algo que le importa a este sistema especifico. Si no se puede declarar en una frase que fallo real detecta cada metrica del pipeline, el eval no esta listo.
+
+### Identidad Eval — declarar antes de construir el pipeline
+
+Ningun pipeline de evals se construye sin declarar primero:
+
+```
+IDENTIDAD EVAL:
+  Tipo de output evaluado: [texto libre / resumen | JSON estructurado / extraccion | respuesta RAG con citas | clasificacion categorica | agente con tool use]
+  Modo de juicio: [determinista contra ground truth exacto | LLM-as-judge con rubrica propia | RAGAS/metricas de recuperacion | eval humana obligatoria]
+  Fallo critico que se quiere atrapar: [alucinacion factual | incumplimiento de formato/schema | perdida de matices legales/medicos | sesgo o lenguaje inseguro | regresion silenciosa tras cambio de prompt/modelo]
+  Referencia de rigor: [una sola linea — ej. "cada item del golden dataset debe sobrevivir el contraejemplo que un abogado senior usaria para objetar la respuesta"]
+```
+
+Si el sistema evaluado ya tiene un golden dataset existente, la identidad nueva es su extension — mismo criterio de rigor, no una taxonomia de metricas paralela e incompatible con el historico.
+
+### Prohibido — patrones reconocibles de eval de plantilla
+
+- Copiar el set de metricas RAGAS completo (faithfulness, answer_relevancy, context_precision, context_recall) sin verificar que el sistema evaluado es efectivamente RAG — aplicarlas a un sistema de clasificacion o generacion pura no mide nada.
+- LLM-as-judge con el mismo modelo y la misma temperatura que genero el output, sin declarar ni mitigar el conflicto de interes (el modelo tiende a puntuarse bien a si mismo).
+- Golden dataset de "casos felices" unicamente — sin un solo caso adversarial, edge case vacio/malformado o intento de prompt injection.
+- Prompt de juez LLM-as-judge sin ejemplos de calibracion (few-shot de un caso puntuado 1 y uno puntuado 5) — el juez sin anclas produce scores que no son reproducibles entre corridas.
+- Umbral de aprobacion copiado de un ejemplo de documentacion (ej. "0.8 porque el tutorial usaba 0.8") sin una corrida de referencia propia que justifique ese numero para este dataset.
+- Metrica de "correctitud" o "calidad" declarada sin definir que hechos, terminos o clausulas especificos se estan verificando — una rubrica vaga no es una metrica, es una opinion con numero.
+
+### Gate de calidad medible — eval del propio pipeline de evals
+
+Un pipeline de evals que no cumple estos umbrales no es confiable como gate de CI/CD, sin importar cuantas metricas reporte:
+
+| Metrica | Umbral | Verificacion |
+|---|---|---|
+| Cobertura de casos adversariales en el golden dataset | >= 15% del total de items son edge case, input malformado o intento de injection | Conteo de items por campo `categoria` en el dataset — no estimacion visual |
+| Concordancia LLM-as-judge vs revision humana | >= 0.75 de correlacion (Cohen's kappa o Spearman) sobre una muestra de al menos 30 items puntuados por ambos | Correr el juez y un revisor humano sobre la misma muestra, calcular correlacion con `scipy.stats.spearmanr` o equivalente |
+| Estabilidad del juez LLM-as-judge | Desviacion estandar del score < 0.05 al repetir el mismo caso 5 veces con `temperature=0` | Script de repeticion sobre 10 items del dataset, medir varianza |
+| Deteccion de regresion | El pipeline marca como fallo cualquier caida > 5 puntos porcentuales respecto a la corrida de referencia anterior, no solo respecto a un umbral absoluto fijo | Comparar `eval-results.json` de la corrida actual contra el artefacto de la corrida previa almacenado en CI |
+| Tiempo de ejecucion del gate en CI/CD | El paso de evals no bloquea el pipeline mas de 10 minutos para un dataset < 100 items usando llamadas sincronas; si lo supera, migrar a Batch API | Medicion directa del step de CI (`eval-results.xml` con timestamp de inicio/fin) |
+
+### Vigencia — estandar mas reciente del dominio
+
+Verificado contra fuente oficial en esta tarea: la documentacion actual de RAGAS (`docs.ragas.io/en/stable/concepts/metrics/`) organiza las metricas en tres capas — end-to-end, component-level y de negocio — y lista `FactualCorrectness` junto a `Faithfulness` y `LLMContextRecall` como metricas RAG de uso comun. Esto no reemplaza el set clasico ya documentado en este skill (faithfulness/answer_relevancy/context_precision/context_recall), pero indica que RAGAS ya no trata esas cuatro como el unico vocabulario oficial — al construir un pipeline nuevo, revisar `available_metrics/` antes de asumir que el set clasico es exhaustivo.
+
+Verificado contra fuente oficial en esta tarea: la documentacion de deepeval (`deepeval.com/docs/metrics-llm-evals`) confirma `G-Eval` como metrica de chain-of-thought para criterios custom (brand voice, rubricas de dominio) cuando ninguna metrica generica built-in cubre el caso — util para el `Fallo critico` declarado en la Identidad Eval cuando no es faithfulness ni formato, sino un criterio propio del negocio.
+
+Version exacta de paquete, changelog de release y pricing de plataformas SaaS mencionadas en este skill (Langfuse, Braintrust) — orientativo, no verificado contra fuente oficial en esta tarea. Confirmar version instalada y pricing vigente antes de fijar un numero en una propuesta o config de CI.

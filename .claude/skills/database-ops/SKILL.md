@@ -327,3 +327,46 @@ Detener el analisis e insertar la directiva ante cualquiera de estas condiciones
 - Asegurar que no se ejecuta: sugerir `VACUUM FULL` en tablas con trafico activo — genera lock exclusivo.
 - No cruzar responsabilidades con `backend-architect` (diseño de dominio) ni `data-engineer` (ETL/dbt).
 - Las Reglas Globales del CLAUDE.md aplican sin excepcion.
+
+## Modulo — Vanguardia en Operaciones de Base de Datos en Produccion
+
+### Identidad declarada antes de ejecutar
+
+Ninguna recomendacion de migracion, particionamiento o RLS se emite sin declarar primero:
+
+```
+IDENTIDAD DB-OPS:
+  Motor y version real: [PostgreSQL 15/16/17/18 | MySQL 8.x | otro — version confirmada del repositorio anfitrion, nunca asumida]
+  Escala del problema: [< 1M filas, no aplica tecnica de produccion | 1M-50M filas | > 50M filas o > 100GB, requiere particionamiento/sharding]
+  Tolerancia a downtime: [zero-downtime estricto, trafico 24/7 | ventana de mantenimiento acordada | entorno con trafico bajo, tolera locks breves]
+  Topologia de acceso: [instancia unica | primario-replica con lectura distribuida | multi-tenant con aislamiento por fila | pooling via PgBouncer/pgpool activo]
+```
+
+Si el repositorio anfitrion no declara el motor y version en `package.json`/`.env`, ejecutar primero el paso de "Primera Accion al Activar" de este mismo skill antes de llenar la identidad — nunca asumir PostgreSQL por defecto sin verificarlo.
+
+### Prohibido — patrones reconocibles de improvisacion en produccion
+
+- `ALTER TABLE ... ADD COLUMN ... NOT NULL DEFAULT` ejecutado a ciegas en una tabla grande sin verificar la version del motor (solo es no-bloqueante en PostgreSQL >= 11; en versiones o motores distintos reescribe la tabla completa).
+- Particionar por `RANGE (fecha)` sin automatizar la creacion de particiones futuras (`pg_partman` o job propio) — la particion "se llena" y la siguiente migracion es una emergencia en produccion, no una tarea planeada.
+- Politica RLS que cubre `SELECT` pero no declara politica para `INSERT`/`UPDATE`/`DELETE`, dejando esas operaciones denegadas por default silenciosamente o, peor, aplicando la misma politica de lectura sin verificar que el criterio de escritura es identico.
+- `pg_dump` corriendo como unica estrategia de backup sin WAL archiving — cualquier falla entre dos dumps diarios pierde datos sin punto de recuperacion intermedio.
+- Aumentar `default_pool_size` de PgBouncer como primera reaccion ante `cl_waiting > 0` sin revisar antes `pg_stat_activity` del lado del servidor — el cuello de botella puede estar en `max_connections` de Postgres, no en el pool.
+- Ejecutar una migracion de "alto riesgo" (tabla de la seccion correspondiente en este mismo archivo) en el mismo deploy que su paso de contract, en vez de separar expand y contract como exige el patron ya documentado arriba.
+
+### Gate de calidad medible — antes de aprobar cualquier cambio en produccion
+
+| Metrica | Umbral | Metodo de verificacion |
+|---|---|---|
+| Duracion de lock de la migracion | < 50ms en tablas con trafico activo (regla ya establecida en este skill) | `SET lock_timeout` explicito + revisar `log_lock_waits` en logs de Postgres tras ejecutar |
+| Dead tuples en tablas criticas post-vacuum | `dead_pct < 5%` tras `VACUUM ANALYZE` manual o autovacuum | Query contra `pg_stat_user_tables` (ya documentada arriba) antes y despues |
+| Query mas lenta de la ruta critica | `avg_ms < 100` en `pg_stat_statements` para endpoints de negocio principal | Query contra `pg_stat_statements` con `calls > 100`, revisar `avg_ms` |
+| Cobertura de politica RLS | 100% de operaciones (`SELECT`/`INSERT`/`UPDATE`/`DELETE`) con politica explicita en tablas multi-tenant | `SELECT polcmd FROM pg_policies WHERE tablename = 'x'` — cada comando relevante debe aparecer, ninguno implicito |
+| Backup verificado | Ultimo backup restaurable en < 24h de antiguedad | `pg_restore --list` ejecutado y exitoso sobre el dump mas reciente, no solo confirmar que el archivo existe |
+
+Ningun cambio se declara "listo para produccion" si una sola de estas metricas no fue verificada con el comando indicado — verla "verse bien" en un entorno de staging no reemplaza la medicion.
+
+### Vigencia — estandar mas reciente del dominio
+
+Verificado contra fuente oficial (`postgresql.org`, release notes 18.0) en esta misma tarea: PostgreSQL 18 introduce un subsistema de I/O asincrono (parametro `io_method`, valores `worker`/`io_uring`/`sync`) que permite emitir multiples solicitudes de I/O de forma concurrente en sequential scans, bitmap heap scans y vacuum, con mejoras de rendimiento reportadas de hasta 3x en esos escenarios. La misma version tambien congela proactivamente mas paginas durante vacuum regular (reduce overhead de freezing futuro) y anade `idle_replication_slot_timeout` para eliminar automaticamente replication slots inactivos que de otro modo acumulan bloat de WAL indefinidamente.
+
+Antes de recomendar `io_method = io_uring` o ajustar la estrategia de vacuum basada en esta feature, confirmar que la instancia real del proyecto corre PostgreSQL 18 o superior — estas capacidades no existen en versiones anteriores y no deben sugerirse como si aplicaran de forma universal. El resto de detalles de tuning fino de `io_method` (impacto exacto por tipo de workload, disponibilidad de `io_uring` segun sistema operativo) es orientativo, no verificado contra fuente oficial en esta pasada — confirmar en `postgresql.org/docs/18/runtime-config-resource.html` antes de aplicar en un caso concreto.

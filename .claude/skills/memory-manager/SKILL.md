@@ -3,7 +3,7 @@ name: memory-manager
 description: Gestiona la memoria semantica persistente del arnés ai-core via vault BM25+ (stemming español, boost por campo, query expansion de sinonimos de dominio). Indexa conocimiento en .claude/memory-vault/.raw/, sintetiza en .wiki/ y recupera contexto relevante antes de cada sesion. Resuelve el context rot entre sesiones sin depender de bases de datos externas — plain markdown, git-compatible. Activa al iniciar sesion para recuperar contexto previo, al cerrar sesion para indexar aprendizajes nuevos, o cuando se necesita recuperar informacion de sesiones anteriores.
 origin: ai-core
 version: 1.1.0
-last_updated: 2026-07-26
+last_updated: 2026-08-03
 rol: architect
 ---
 
@@ -183,3 +183,52 @@ Restricciones adicionales:
 - El indice debe regenerarse tras cada escritura en `.raw/` — un indice desactualizado es peor que no tenerlo.
 - Los archivos de `.raw/` son plain markdown git-compatible — no usar formatos propietarios.
 - La poda es responsabilidad del operador (Andrew) — el skill no elimina archivos sin confirmacion.
+
+---
+
+## Modulo — Interoperabilidad con Memory Tool Nativo (Anthropic)
+
+### Principio fundamental
+
+El vault BM25+ no es la unica capa de memoria persistente del ecosistema — es la que ai-core controla y audita directamente, sin depender de infraestructura del lado del proveedor. Antes de indexar o recuperar cualquier fragmento, el operador declara de que fuente proviene ese conocimiento y hacia que capa de memoria esta destinado. Si no se puede declarar en una frase por que esta entrada vive en `.raw/` y no en memoria de Claude Code o en el memory tool nativo de Anthropic (`memory_20250818`), la entrada no esta lista para indexarse.
+
+### Identidad de la entrada — declarar antes de indexar
+
+Igual que el Modulo 14 de `tech-lead-frontend` exige una `IDENTIDAD 3D:` antes de codear, ninguna entrada nueva se escribe en `.raw/` sin declarar primero:
+
+```
+IDENTIDAD DE ENTRADA:
+  Tipo de conocimiento: [decision arquitectonica | aprendizaje de sesion | artefacto dev-loop | feedback de usuario | contexto de proyecto]
+  Capa de destino: [vault BM25 (.raw/) | memoria de Claude Code (~/.claude/projects/.../memory/) | ninguna — es efimero]
+  Horizonte de vida: [permanente mientras el proyecto exista | expira en N dias | vale solo para esta sesion]
+  Motivo de persistencia en una linea: [ej. "decision de auth no derivable del codigo, se repetira en proximos proyectos con el mismo stack"]
+```
+
+Si la entrada no supera la pregunta de "capa de destino" con una respuesta especifica, no se indexa — se descarta como efimera segun la tabla de la seccion "Que guardar en el vault".
+
+### Prohibido — patrones reconocibles de indexacion sin criterio
+
+- Indexar el resultado crudo de un comando de diagnostico (`npm test`, `git log`, stack traces) como si fuera "aprendizaje" — eso es estado efimero, no conocimiento.
+- Crear una entrada nueva en `.raw/` que parafrasea informacion que ya vive en el CONTEXT_MAP o es derivable leyendo el codigo — duplicacion que infla el indice sin agregar recall.
+- Escribir una entrada de mas de 800 palabras esperando que BM25+ "ya la va a recortar" — el limite es de autoria, no de recuperacion.
+- Indexar feedback del usuario parafraseado en tercera persona ("el usuario prefiere X") en lugar de la restriccion operativa concreta que ese feedback implica.
+- Guardar una entrada sin campo `tags` o con tags genericos (`general`, `nota`, `misc`) que no aportan señal a la query expansion de sinonimos de dominio.
+- Duplicar la misma decision en `.raw/` y en la memoria de Claude Code simultaneamente "por si acaso" — la tabla de integracion ya resuelve cual capa usar, no es una decision de cobertura doble.
+
+### Gate de calidad medible
+
+| Metrica | Umbral | Metodo de verificacion |
+|---|---|---|
+| Precision del top-5 en query de prueba | El fragmento mas relevante conocido aparece en las primeras 5 posiciones | `node .claude/bin/memory-index.js query "<tema conocido>"` contra una entrada ya indexada de contenido verificado |
+| Score BM25 de una entrada recien indexada contra su propia query tematica | >= 2.0 (umbral de "contexto activo" ya definido en Protocolo de Recuperacion) | Ejecutar la query inmediatamente despues de indexar; si no supera 2.0, revisar `tags` y densidad de terminos clave del titulo |
+| Tamano de `.raw/` sin poda | < 50 archivos | `node .claude/bin/memory-index.js status` — el conteo ya lo reporta el comando existente |
+| Antiguedad del indice respecto al ultimo cambio en `.raw/` | 0 sesiones de desfase — el indice se regenera en el mismo Stop hook que escribio la entrada | Comparar timestamp de `index.json` contra el timestamp del archivo `.raw/` mas reciente |
+| Palabras por entrada nueva | <= 800 palabras (limite ya declarado en el formato de archivo) | Conteo de palabras del archivo `.md` antes de commitear a `.raw/` |
+
+### Vigencia — memory tool nativo de Anthropic
+
+Verificado contra fuente oficial (`platform.claude.com/docs/en/agents-and-tools/tool-use/memory-tool`) en esta misma tarea: Anthropic expone un memory tool nativo del lado de la Messages API, tipo `memory_20250818`, con disponibilidad general (sin header beta) en todos los modelos Claude 4 y posteriores. Es client-side: Claude solicita operaciones de archivo (`view`, `create`, `str_replace`, `insert`, `delete`, `rename`) bajo el prefijo `/memories`, y la aplicacion que lo invoca ejecuta esas operaciones contra su propio almacenamiento — Anthropic no aloja los archivos.
+
+Distincion operativa con el vault BM25+ de este skill: el memory tool nativo resuelve persistencia de estado para agentes que consumen la Messages API directamente (patron "notas de progreso para sobrevivir un reset de contexto"), sin busqueda semantica ni ranking — es lectura/escritura de archivos plana, la relevancia la decide Claude leyendo el directorio, no un algoritmo de scoring. El vault de ai-core resuelve un problema distinto: recuperacion rankeada por BM25+ con stemming en español y expansion de sinonimos de dominio, pensada para el harness de Claude Code (que no pasa por la Messages API cruda con ese parametro `tools`). Ambos pueden coexistir sin conflicto porque operan en capas distintas del stack — no son sustitutos uno del otro en este arnes.
+
+Orientativo, no verificado contra fuente oficial en esta tarea: si existe o no un limite de tamano de archivo individual o de directorio total impuesto por el propio protocolo del memory tool (mas alla del limite generico de 16.000 caracteres por vista de texto que documenta el `view`) — no asumir un techo especifico sin revisar la documentacion vigente antes de dimensionar una integracion que dependa de ese dato.

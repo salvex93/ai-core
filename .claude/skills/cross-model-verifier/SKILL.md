@@ -3,7 +3,7 @@ name: cross-model-verifier
 description: Verificacion ciega de diffs con un proveedor de IA distinto al que genero el cambio, para detectar regresiones que el mismo modelo actor no detecta sobre si mismo. Complementa code-reviewer (que corre con el mismo Claude que audita) y subagent-review.js (patrones textuales, sin llamada a otro proveedor). Se activa automaticamente via el hook SubagentStop cuando code-reviewer emite veredicto APROBADO — no requiere invocacion manual. Activa al revisar el mecanismo de verificacion cross-model, al diagnosticar por que un fix rompio algo ya validado, o al configurar proveedores adicionales (OPENAI_API_KEY, DEEPSEEK_API_KEY) en .env.
 origin: ai-core
 version: 1.0.0
-last_updated: 2026-07-17
+last_updated: 2026-08-03
 rol: auditor
 ---
 
@@ -81,3 +81,52 @@ El veredicto `APROBADO` original queda revertido a `REQUIERE_CAMBIOS` con los ha
 - El verificador no recibe el razonamiento del actor, solo diff + tarea — mantener el grading ciego.
 - Si el output del verificador no es JSON parseable, `CrossVerifier.parsearVeredicto()` falla cerrado (`pass: false`) — nunca asumir exito ante una respuesta ambigua.
 - El gate es best-effort: si no hay proveedor configurado, se omite sin bloquear la sesion ni el commit.
+
+---
+
+## Modulo — Vigencia Real de la Verificacion Cruzada
+
+### Principio fundamental
+
+Una verificacion cruzada que corre pero llama al mismo proveedor bajo un alias, o que degrada silenciosamente a un solo verificador cuando el operador cree que hay dos votando, no cumple el objetivo. El listón es que cada veredicto sea trazable a un proveedor real y distinto del actor, con la selección y el resultado del desempate auditables en el output — no una llamada a `ModelRegistry.chat()` con la ilusión de independencia.
+
+### Identidad de verificacion — declarar antes de invocar el gate
+
+Igual que el Modulo 2 de `tech-lead-frontend` exige una `IDENTIDAD:` visual antes de escribir CSS, ningun gate de verificacion cruzada se invoca sin declarar primero:
+
+```
+IDENTIDAD DE VERIFICACION:
+  Proveedor actor: [anthropic | openai | gemini | deepseek]
+  Verificador esperado: [primer proveedor distinto disponible segun PROVEEDORES_VERIFICADOR, o nombre explicito si se fuerza uno]
+  Modo: [verificar() single-pass | resolverConDesempate() 2-de-3 solo si la herramienta esta en TAREAS_CRITICAS_CON_DESEMPATE]
+  Umbral de confianza: [una linea — ej. "fix de bug aislado, single-pass basta" | "cambio de arquitectura multi-modulo, exige desempate 2-de-3"]
+```
+
+Si `.env` no tiene un segundo proveedor configurado (`OPENAI_API_KEY` o `DEEPSEEK_API_KEY`), la identidad debe declararlo explicito como `Verificador esperado: ninguno — gate se omite` en vez de asumir que la verificacion corrio.
+
+### Prohibido — patrones reconocibles de verificacion de plantilla
+
+- Verificador seleccionado sin comparar contra `proveedorActor` (el bug de "verificarme a mi mismo" que el propio `seleccionarVerificador()` ya bloquea en codigo, pero que un prompt manual mal escrito puede reintroducir al invocar `ModelRegistry.chat()` directo).
+- Tratar un `pass: false` no parseable como aprobacion por defecto — `parsearVeredicto()` ya falla cerrado; ningun wrapper nuevo debe revertir eso a `pass: true` ante ambiguedad.
+- Pasarle al verificador el razonamiento, plan o chain-of-thought del actor junto con el diff — rompe el grading ciego que es la razon de ser del patron Writer/Reviewer.
+- Activar `resolverConDesempate()` en tareas que no estan en `TAREAS_CRITICAS_CON_DESEMPATE` — cuadruplica costo sin beneficio medible en el 90% de cambios simples.
+- Reportar "verificacion cruzada" cuando el unico proveedor disponible es el mismo que genero el cambio — el gate debe fallar explicito (ver `seleccionarVerificador()`), nunca degradar en silencio a autoverificacion disfrazada de segunda opinion.
+- Ignorar el resultado del hook `SubagentStop` (`cross-verify-gate.js`) y declarar un fix cerrado solo porque `code-reviewer` dijo `APROBADO` — el veredicto no es definitivo hasta leer el output del gate.
+
+### Gate de calidad medible
+
+| Metrica | Umbral | Verificacion |
+|---|---|---|
+| Independencia de proveedor | Verificador != proveedorActor en el 100% de las llamadas | Inspeccionar el campo `proveedor` del retorno de `verificar()`/`resolverConDesempate()` contra el `proveedorActor` pasado |
+| Tasa de fallo cerrado ante output ambiguo | `parsearVeredicto()` retorna `pass: false` en el 100% de respuestas no-JSON del verificador | Test unitario con input corrupto/truncado, assert `pass === false` |
+| Cobertura de desempate en tareas criticas | `resolverConDesempate()` invoca un segundo proveedor en el 100% de los casos donde el primer verificador retorna `pass: false` sobre una tarea de `TAREAS_CRITICAS_CON_DESEMPATE` | Revisar `votos` en el retorno — debe listar 2 proveedores, no 1, cuando `desempate: true` |
+| Omision explicita vs silenciosa | El gate imprime el mensaje `[cross-verify] omitido` cuando no hay segundo proveedor, en el 100% de esos casos | `node .claude/bin/cross-verify-gate.js` con `.env` sin `OPENAI_API_KEY`/`DEEPSEEK_API_KEY`, grep del mensaje en stdout |
+| Latencia del gate sobre el flujo de commit | Gate manual completa en < 30s para un diff tipico (< 500 lineas) | Cronometrar `node .claude/bin/cross-verify-gate.js` con `time` o equivalente |
+
+### Vigencia — estandar mas reciente del dominio
+
+El hallazgo citado en este skill (arXiv 2505.17656, "Too Consistent to Detect: A Study of Self-Consistent Errors in LLMs") se reverifico contra el PDF fuente en `arxiv.org/pdf/2505.17656` en esta tarea: el paper confirma que los detectores basados en consistencia caen a AUROC <= 0.5 (peor que azar) sobre errores self-consistentes, y propone un "cross-model probe" que fusiona evidencia de un verificador externo — el mismo mecanismo que implementa `CrossVerifier.js`. Fuente primaria confirmada, dato vigente.
+
+Se verifico ademas contra `code.claude.com/docs/en/code-review` (dominio oficial Anthropic) que Code Review nativo de Claude Code (research preview, planes Team/Enterprise) ya despliega una flota de agentes en paralelo con un paso de verificacion que descarta falsos positivos antes de publicar hallazgos. La documentacion oficial confirma multi-agente y un paso de verificacion contra el comportamiento real del codigo, pero no confirma explicitamente que el verificador use un proveedor de IA distinto de Anthropic (cross-provider) — es multi-agente dentro de la infraestructura de Anthropic, no necesariamente cross-model en el sentido que exige este skill. Tratar este dato como orientativo respecto a si Code Review nativo reemplaza la necesidad de `CrossVerifier.js`: no verificado que sea equivalente, no asumir sustitucion sin confirmar el detalle con el proveedor.
+
+Antes de citar un nuevo pricing, limite o capacidad de `OPENAI_API_KEY`/`DEEPSEEK_API_KEY` como verificador en este modulo, confirmar contra la documentacion oficial de cada proveedor (`platform.openai.com`, `api-docs.deepseek.com`) en el momento del cambio — no interpolar por analogia con los valores ya vigentes en `ModelRegistry.js`.

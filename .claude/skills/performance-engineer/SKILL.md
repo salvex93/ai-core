@@ -3,7 +3,7 @@ name: performance-engineer
 description: Especialista en performance de aplicacion bajo carga real. Cubre estrategia de cache (in-memory vs Redis), distribucion de assets estaticos via CDN, y pruebas de carga que simulan usuarios concurrentes antes de que lleguen en produccion. Diferenciado de database-ops (pooling de conexiones e indices de BD) y devops-infra (observabilidad e infraestructura). Agnostico al framework y proveedor. Activa al disenar una capa de cache, evaluar si un recurso necesita CDN, definir o ejecutar pruebas de carga, o diagnosticar degradacion bajo trafico concurrente.
 origin: ai-core
 version: 1.0.0
-last_updated: 2026-07-26
+last_updated: 2026-08-03
 rol: architect
 ---
 
@@ -193,3 +193,42 @@ Detener el analisis e insertar la directiva ante cualquiera de estas condiciones
 - Toda recomendacion de cache debe incluir su estrategia de invalidacion explicita — no se acepta "cachear" sin definir como se refresca el dato.
 - Verificar que ninguna prueba de carga se ejecute contra produccion sin coordinacion explicita del equipo responsable.
 - Las Reglas Globales del CLAUDE.md aplican sin excepcion.
+
+## Modulo — Performance Bajo Carga Real: Cache, CDN y Load Testing en Produccion
+
+### 1. Identidad Declarada Antes de Ejecutar
+
+Antes de proponer o modificar cualquier estrategia de cache, CDN o prueba de carga, completar en una linea:
+
+`IDENTIDAD PERFORMANCE: Patron de trafico: [rafaga puntual / sostenido constante / picos predecibles por horario / picos impredecibles por viralidad] | Dato mas caro de recomputar: [una linea, ej. "join de 4 tablas para el dashboard de reportes"] | Tolerancia a dato obsoleto: [segundos / minutos / no tolera stale] | Objetivo numerico de esta tarea: [p99 en ms, o RPS objetivo, o ambos]`
+
+Sin esta linea llenada con valores reales del proyecto (no placeholders genericos), no se produce configuracion de TTL, regla de CDN ni script de carga — la estrategia de cache sin saber la tolerancia a stale del dato es una suposicion, no una decision.
+
+### 2. Prohibido — Patrones Reconocibles de Demo/Plantilla
+
+- TTL de `300` (5 minutos) copiado igual en todos los `cache.set()` del proyecto, sin relacionar el valor con la tasa de cambio real del dato que se cachea.
+- Script de carga que solo reporta el resumen de `autocannon`/`k6` en consola sin comparar contra un umbral y sin `process.exit(1)` — una prueba de carga que no puede fallar no es un gate, es un print.
+- `Cache-Control: no-cache` puesto por defecto en assets estaticos con hash en el nombre de archivo, perdiendo el cacheo agresivo que el propio versionado por hash ya hace seguro.
+- Prueba de carga con `connections` fijo en un solo valor (ej. 50) sin escalón progresivo — no identifica el punto de quiebre real, solo confirma que un numero arbitrario "no rompio nada hoy".
+- Cache-aside con clave que omite el tenant o el usuario (`catalogo` en vez de `catalogo:${tenantId}`) copiado de un ejemplo generico sin adaptar al modelo de datos multi-tenant del proyecto.
+- Recomendar Redis "porque es lo estandar" sin haber verificado antes si la aplicacion corre en una sola instancia — la seccion "Decision: in-memory vs Redis" de este mismo skill ya cubre por que eso es sobre-ingenieria.
+
+### 3. Gate de Calidad Medible (No Solo Estetico)
+
+| Metrica | Umbral | Metodo de verificacion |
+|---|---|---|
+| Latencia p99 bajo la concurrencia objetivo | Definida por el SLA del proyecto (ej. <= 500ms); si no hay SLA declarado, usar el umbral que ya trae el patron de este skill como piso, no como techo | Ejecutar el script de `autocannon`/`k6` y leer `resultado.latency.p99` o el `threshold` de k6 (`p(99)<300` como sintaxis de referencia) |
+| Tasa de error bajo carga sostenida | 0% de 5xx/timeouts en la concurrencia objetivo declarada en la identidad | Campo `errors`/`non2xx` del resultado de `autocannon`, o metrica `http_req_failed` de k6 |
+| Cache hit ratio en rutas marcadas como cacheables | >= 80% tras el periodo de calentamiento (primeros N requests iguales al TTL configurado) | Contador explicito de hits/misses en el propio cache (`cache.getStats()` en `node-cache`, o `INFO stats` de Redis) |
+| Tamaño de payload de assets servidos por CDN vs origen | Reduccion medible de bytes servidos por el proceso de aplicacion tras mover assets a CDN | Comparar logs de acceso del servidor de origen antes/despues del cambio, o el reporte de bandwidth del proveedor CDN |
+| Punto de quiebre identificado | Debe existir un numero concreto de conexiones concurrentes donde la latencia deja de ser lineal, no una suposicion | Barrido de `connections` (10/50/100/500) documentado con el valor de latencia en cada escalon |
+
+No se acepta un gate expresado como "deberia aguantar mas trafico" o "se ve mas rapido" — todo hallazgo de esta seccion se reporta con el numero medido, la herramienta usada y el umbral contra el que se comparo.
+
+### 4. Vigencia — Estandar Mas Reciente del Dominio
+
+Verificado en esta tarea contra `grafana.com/docs/k6/latest/release-notes/` (fuente oficial del proyecto): la version estable de k6 documentada actualmente es **1.7.1**, y la sintaxis de threshold vigente para percentiles sigue el formato `p(99)<300` sobre metricas como `http_req_duration` (confirmado contra `grafana.com/docs/k6/latest/using-k6/thresholds/`). No se verifico en esta pasada el detalle de changelog especifico de la 1.7.1 (metricas nuevas, breaking changes) — antes de fijar una version exacta en un `package.json` o pipeline de CI, releer el archivo de esa version puntual en `release-notes/`, no asumir por analogia con 1.0 o versiones previas.
+
+Para `autocannon` y `Artillery`: la vigencia de version/pricing de estas dos herramientas no se verifico contra fuente oficial en esta tarea — orientativo, no verificado contra fuente oficial. Confirmar version instalada real (`npm ls autocannon`) y el registro npm oficial antes de fijar un numero de version en documentacion o `package.json`.
+
+Para headers de cache HTTP (`Cache-Control: immutable`, `max-age`): la sintaxis usada en este skill corresponde a la especificacion HTTP vigente (RFC 9111, que obsoleta RFC 7234) — no se re-verifico el RFC exacto contra IETF en esta tarea puntual; orientativo, no verificado contra fuente oficial en esta pasada. Antes de auditar compliance estricto de headers, confirmar contra `www.rfc-editor.org` o `developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cache-Control`.

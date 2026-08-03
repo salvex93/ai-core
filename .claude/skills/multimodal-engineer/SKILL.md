@@ -3,7 +3,7 @@ name: multimodal-engineer
 description: Especialista en pipelines de procesamiento multimodal con LLMs. Cubre analisis de imagenes con Claude Opus 4.8 (vision 3.75MP) y Gemini 3.1 Pro (1M tokens), extraccion estructurada desde PDFs y documentos con Citations API, pipelines OCR semanticos, optimizacion de costo por token visual y arquitectura de sistemas que procesan entradas mixtas (texto + imagen + documento). Activa al construir pipelines que procesan imagenes o documentos, integrar vision en agentes, comparar capacidades multimodales entre Claude y Gemini, o disenar extraccion estructurada desde contratos, facturas o diagramas tecnicos.
 origin: ai-core
 version: 1.1.0
-last_updated: 2026-07-26
+last_updated: 2026-08-03
 rol: architect
 ---
 
@@ -297,3 +297,49 @@ Las Reglas Globales definidas en CLAUDE.md aplican sin excepcion a este perfil.
 - Asegurar que no se ejecuta: hardcodear rutas de archivo o URLs de imagenes en el codigo — siempre parametrizar.
 - No emitir codigo de extraccion estructurada que parsee texto libre del modelo — usar `tool_use` o Citations API para garantizar schema.
 - Si el pipeline procesa documentos de clientes, verificar que el proveedor LLM seleccionado tiene los acuerdos de procesamiento de datos requeridos por la jurisdiccion del cliente.
+
+## Modulo — Pipelines Multimodales de Vanguardia (Vision, Documentos, OCR)
+
+### Principio fundamental
+
+Un pipeline multimodal que extrae texto o campos pero ignora la estructura visual real del documento (tablas, firmas, sellos, diagramas con flechas, celdas fusionadas) no cumple el objetivo. El pipeline debe tratar la imagen o el documento como una fuente con estructura espacial propia — no como texto plano que llego por accidente en formato imagen. Si no se puede declarar en una frase por que este pipeline no va a fallar silenciosamente ante el primer documento fuera de plantilla, no esta listo.
+
+### Identidad multimodal — declarar antes de codear
+
+Igual que exige el resto del arnes para cualquier dominio con superficie de decision amplia, ningun pipeline de vision/documentos/OCR se codea sin declarar primero:
+
+```
+IDENTIDAD MULTIMODAL:
+  Tipo de entrada dominante: [foto/escaneo de camara con ruido | PDF nativo digital | PDF escaneado sin capa de texto | UI/screenshot | diagrama tecnico o plano]
+  Variabilidad estructural: [plantilla fija conocida | familia de plantillas con variantes | documento libre sin estructura previa]
+  Tolerancia a error: [cero tolerancia, requiere revision humana en dudas | tolerancia media, reintento automatico | tolerancia alta, mejor esfuerzo]
+  Fuente de verdad ante ambiguedad: [citar fragmento exacto via Citations API | marcar campo como incierto y detener | delegar a revision humana en cola]
+  Referencia de tono: [una sola linea — ej. "extraccion de factura que nunca inventa un total, prefiere fallar visible antes que adivinar"]
+```
+
+Si el proyecto ya tiene un pipeline multimodal previo documentado, esta identidad es su extension a la entrada nueva — mismo criterio de tolerancia a error y misma fuente de verdad, no un pipeline paralelo con reglas distintas.
+
+### Prohibido — patrones reconocibles de demo/plantilla
+
+- Prompt generico tipo "extrae la informacion de esta imagen" sin schema forzado — el modelo devuelve texto libre que despues se parsea con regex fragil.
+- Enviar la imagen en resolucion original sin normalizar ni justificar por que (fotos de camara de 12MB directo al modelo, sin verificar si el detalle es necesario para la tarea).
+- Tratar cualquier respuesta del modelo como verdad absoluta sin campo de confianza ni umbral de revision humana — el clasico "output = ground truth" de demo.
+- OCR de una sola pasada sin verificacion cruzada en documentos con impacto financiero o legal (facturas, contratos, ordenes de pago) — ningun humano ni segundo modelo revisa el resultado antes de usarse.
+- Pipeline que solo se probo con el PDF de ejemplo perfecto del dataset de demo — nunca con escaneo torcido, foto con sombra, tabla con celdas fusionadas o documento en un idioma distinto.
+- Reintentar indefinidamente contra el modelo cuando la extraccion falla, en vez de degradar a un estado explicito de "requiere revision humana".
+
+### Gate de calidad medible
+
+| Metrica | Umbral | Verificacion |
+|---|---|---|
+| Tasa de campos con confianza baja o ausente en output estructurado | <= 5% de los campos obligatorios del schema en el set de validacion | Comparar output contra dataset etiquetado manualmente, medir con script propio (no estimacion visual) |
+| Exact match en extraccion estructurada contra ground truth | >= 95% en campos criticos (totales, fechas, identificadores) sobre un set de al menos 50 documentos reales | Test automatizado que compara `tool_use.input` campo a campo contra el dataset de referencia |
+| Latencia por documento en pipeline batch | <= tiempo definido en el SLA del proyecto (ej. 5s p95 para flujo interactivo, sin techo fijo universal — depende del caso de uso) | Medir con timestamps antes/despues de la llamada al modelo, reportar p50/p95/p99 |
+| Costo por documento procesado | Documentado y calculado antes de produccion, no estimado post-hoc | Aplicar `calcular_tokens_imagen_claude` o el calculo equivalente de Gemini sobre el volumen real proyectado, contra pricing vigente verificado |
+| Cobertura de casos degradados en el set de pruebas | El set de validacion incluye al menos: escaneo torcido, imagen con baja iluminacion, documento con tabla de celdas fusionadas, documento en idioma distinto al esperado | Revisar el dataset de test manualmente, confirmar presencia de cada categoria antes de aprobar el PR |
+
+### Vigencia — estandar mas reciente del dominio
+
+Verificado en esta tarea contra fuente oficial `platform.claude.com/docs/en/docs/build-with-claude/pdf-support` (redirect confirmado desde `docs.anthropic.com`, mismo dominio del proveedor): el limite vigente de la Claude API para procesamiento de PDF es maximo 32 MB por request y maximo 600 paginas por request (reducido a 100 paginas si la ventana de contexto efectiva de la request es menor a 1M tokens). El PDF debe ser estandar, sin password ni cifrado. Para documentos grandes, la recomendacion oficial es subir via Files API y referenciar por `file_id` para mantener el payload de la request liviano — documentos densos (fuente pequena, tablas complejas, muchos graficos) pueden agotar la ventana de contexto antes de llegar al limite de paginas.
+
+Pricing exacto de Files API, limites de retencion del archivo subido mas alla de las 48 horas ya mencionadas en este skill, y el detalle de limites de Citations API sobre documentos multi-archivo no se verificaron de forma independiente en esta pasada — tratar como orientativo, verificar antes de uso contra `platform.claude.com` (Claude) y `ai.google.dev` (Gemini) antes de dimensionar un pipeline de produccion con esos parametros especificos.

@@ -263,3 +263,38 @@ Las Reglas Globales definidas en CLAUDE.md aplican sin excepcion. Adicionales:
 - Los pasos destructivos reciben checkpoint de estado antes de ejecutarse.
 - Todo workflow con mas de 3 pasos tiene condicion de terminacion explicitamente definida.
 - Subtareas de clasificacion o extraccion simple usan Haiku o Gemini — nunca Opus.
+
+## Modulo — Fan-Out Masivo, Checkpointing Durable y Recuperacion de Estado
+
+Antes de producir cualquier workflow multi-agente en este dominio, completar en una linea:
+
+IDENTIDAD ORQUESTACION: Topologia: [fan-out plano / fan-out con fan-in jerarquico / grafo condicional (DAG) / pipeline secuencial con checkpoints] | Store de estado: [Redis / PostgreSQL / archivo local / Temporal-managed] | Politica de fallo parcial: [umbral de exito minimo | reintento total | degradacion a subset] | Limite de concurrencia real: [numero segun cuota de API del proveedor mas restrictivo del workflow].
+
+Sin esa linea llenada con valores concretos (no placeholders), no se emite codigo de orquestacion — un workflow sin topologia y store declarados es indistinguible de un script con `asyncio.gather` suelto.
+
+## Prohibido — Patrones Reconocibles de Demo/Plantilla
+
+- Fan-out con `asyncio.gather(*tasks)` sin `Semaphore` ni limite de concurrencia, "porque total son pocas tareas" — el numero de tareas crece con el tiempo, el limite no se agrega despues.
+- Checkpoint que guarda `{"status": "done"}` sin el resultado real ni timestamp — un checkpoint que no permite reconstruir el estado no es checkpoint, es un log de que algo paso.
+- Retry infinito sin `max_intentos` ni distincion entre error transitorio (429, timeout) y error permanente (400, 401) — el "reintentar hasta que funcione" contra un error de validacion de schema quema cuota sin nunca poder tener exito.
+- Fan-in que asume que todos los resultados llegan en orden de finalizacion en vez de ordenar explicitamente por indice — produce resultados no deterministas cuando dos corridas del mismo workflow arrojan outputs en orden distinto.
+- "Orquestador" que es en realidad una cadena secuencial de llamadas awaited una tras otra sin paralelismo real ni checkpoint — se llama pipeline lineal, no orquestacion, y no debe presentarse como tal.
+- Manejo de fallos parciales que descarta silenciosamente los fallos sin loguear cuantos fueron ni cuales tareas eran, dejando que el consumidor del resultado final no tenga forma de auditar que fallo.
+
+## Gate de Calidad Medible — Workflow Multi-Agente
+
+| Metrica | Umbral | Metodo de verificacion |
+|---|---|---|
+| Tasa de reanudacion sin recomputo | >= 95% de los pasos ya completados NO se re-ejecutan tras un reinicio forzado del proceso | Matar el proceso a mitad de un fan-out de prueba (kill -9 o equivalente) y verificar en logs cuantos pasos se re-ejecutaron vs cuantos se cargaron desde checkpoint |
+| Concurrencia real vs limite declarado | Numero de llamadas simultaneas a la API <= limite de `Semaphore` declarado, medido en ventana de 1 segundo | Instrumentar contador atomico de llamadas activas y loguear el maximo observado durante la corrida completa |
+| Tiempo hasta deteccion de fallo parcial | <= 2x el timeout individual de una subtarea (no esperar a que fan-out completo termine para saber que un subgrupo fallo) | Inyectar un fallo deliberado en 1 de N subtareas y medir el timestamp del log de fallo vs timestamp de fin del fan-out completo |
+| Tasa de exito minima exigida antes de aceptar resultado global | Configurable, pero el codigo DEBE lanzar excepcion explicita si tasa_exito < umbral_minimo — 0% de casos de "fallo silencioso aceptado como exito" | Ejecutar fan-out con >50% de subtareas fallando deliberadamente y confirmar que el workflow no retorna como exitoso |
+| TTL de estado de checkpoint | Todo checkpoint con TTL explicito, verificado con comando nativo del store (`redis-cli TTL <clave>` o equivalente de expiracion en la tabla) | Ejecutar el comando de verificacion de TTL del store elegido contra una clave de checkpoint recien creada |
+
+## Vigencia — Estandar Mas Reciente del Dominio
+
+Verificado contra fuente oficial en esta tarea: `docs.temporal.io` (Temporal Workflow Execution / Workflow Versioning, consultado 2026-08-03) confirma que Temporal exige una estrategia de versionado explicita (Worker Versioning o Patching) para workflows de larga duracion que sobreviven multiples versiones de codigo del worker — el soporte del metodo experimental de Worker Versioning previo a 2025 se retira del servidor en marzo 2026. Cualquier diseno de checkpointing de larga duracion en este skill que mencione Temporal debe asumir Worker Versioning (o Patching) como mecanismo vigente, no el metodo experimental anterior.
+
+Tambien verificado: el Claude Agent SDK de Anthropic no provee durable execution ni persistencia de estado entre sesiones de forma nativa — esa capacidad queda del lado de Managed Agents o de una plataforma de orquestacion externa (Temporal, Prefect) construida encima. Antes de prometer "reanudacion automatica" usando solo el Agent SDK sin store externo, corregir la expectativa: el SDK aporta el loop de agente y subagentes, no la durabilidad.
+
+Pricing y limites de RPM/RPD de los proveedores de modelo referenciados en este skill (Gemini, Claude): orientativo, no verificado contra fuente oficial en esta tarea — confirmar en `ai.google.dev` y `anthropic.com` antes de dimensionar el `Semaphore` de un pipeline de alto volumen.

@@ -329,3 +329,50 @@ Detener emision de codigo e insertar la directiva ante cualquiera de estas condi
 - No usar `BuildContext` fuera del widget tree (no pasarlo a repositorios ni use cases).
 - No llamar `Navigator.push` directamente si el proyecto usa GoRouter o AutoRoute.
 - No instalar dependencias que dupliquen funcionalidad ya presente en `pubspec.yaml`.
+
+## Modulo — Vanguardia Transversal Mobile (Anti-Plantilla Flutter/Dart)
+
+### Principio fundamental
+
+Una app Flutter que compila y navega pero se siente como el `flutter create` default con features pegadas encima no cumple el objetivo. El listón es arquitectura, state management, persistencia y motion trabajando como un solo sistema deliberado para el dominio real del producto — no un scaffold con pantallas rellenadas. Si no se puede declarar en una frase por que esta app se distingue de cualquier tutorial de BLoC/Riverpod en YouTube, no esta lista.
+
+### Identidad declarada antes de ejecutar
+
+Ninguna pantalla o feature se codea sin declarar primero:
+
+```
+IDENTIDAD MOBILE:
+  Arquitectura de estado: [BLoC event-driven | Riverpod AsyncNotifier | Provider simple | GetX reactivo]
+  Fuente de verdad offline: [SQLite/Drift relacional | Isar NoSQL embebido | Hive clave-valor | solo memoria + red]
+  Lenguaje de movimiento: [transiciones Material 3 expressive | custom con Rive/Lottie | minimal sin motion | fisica con flutter_animate/spring]
+  Referencia de tono: [una sola linea — ej. "app de reservas deportivas que se siente instantanea incluso sin señal, como Notion offline"]
+```
+
+Si `ux-visual-designer` ya declaro una `IDENTIDAD:` visual para el proyecto, esta identidad mobile hereda paleta y tipografia — no crea un sistema visual paralelo, solo extiende las decisiones de estado/movimiento/persistencia que el diseño 2D no cubre.
+
+### Prohibido — patrones reconocibles de demo/plantilla
+
+- Contador de `flutter create` (`_counter++` en `setState`) sobreviviendo en cualquier forma reconocible dentro del codigo de produccion.
+- BottomNavigationBar con los 3-5 iconos default de Material (home/search/profile/settings) sin adaptar al dominio real de la app.
+- Pantalla de login con `TextFormField` + `ElevatedButton` apilados en `Column` sin jerarquia visual, validacion inline ni estado de carga — el "login tutorial de Udemy".
+- `ListView` de tarjetas identicas con avatar circular + titulo + subtitulo, sin diferenciacion visual segun el tipo de dato real que representan.
+- Splash screen con logo centrado sobre fondo solido y `CircularProgressIndicator` default debajo, sin transicion a la primera pantalla real.
+- Manejo de error mostrando el `Exception` crudo o `toString()` de un objeto Dart en un `Text` o `SnackBar` visible al usuario final.
+
+### Gate de calidad medible
+
+| Metrica | Umbral | Verificacion |
+|---|---|---|
+| Jank de frames en scroll/lista principal | 0 frames "janky" (> 16ms en 60Hz, > 8ms en 120Hz) en una sesion de scroll de 10s | `flutter run --profile` + DevTools Performance view, o `flutter test --track-widget-creation` con `traceAction` en integration test |
+| Rebuilds innecesarios de widgets en el arbol principal | Un cambio de estado en un BLoC/Notifier dispara rebuild solo en los widgets que consumen ese estado, no en el arbol completo | DevTools "Track widget rebuilds" activo, contar rebuilds antes/despues de la interaccion |
+| Tiempo hasta primer frame util (cold start) | < 2s en gama media Android (ej. Pixel 6a o equivalente) desde tap del icono hasta contenido interactivo | `flutter run --profile` + `Time to First Frame` reportado en consola, o `firebase_performance` en produccion |
+| Cobertura de tests sobre logica de negocio (BLoC/Notifier, use cases, repositorios) | >= 80% de lineas cubiertas en `lib/features/*/domain` y `presentation` (blocs/notifiers) | `flutter test --coverage` + `genhtml coverage/lcov.info` o `lcov --summary` |
+| Tamaño de build de release | APK/AAB de release no crece > 10% respecto al baseline sin justificacion documentada (asset nuevo, SDK nativo agregado) | `flutter build appbundle --release --analyze-size`, comparar contra build anterior registrado |
+
+### Vigencia — estandar mas reciente del dominio
+
+Verificado contra `docs.flutter.dev` en esta tarea: la version estable de Flutter documentada actualmente es la serie 3.44 (pagina de archivo de releases oficial, con fecha de actualizacion 2026-05-20) — orientativo, no verificado contra el numero de patch exacto ni contra un release note especifico fechado mas alla de esa pagina indice, confirmar version exacta con `flutter --version` en el entorno real antes de fijarla en CI o documentacion de release.
+
+Verificado contra `pub.dev` (registro oficial de paquetes Dart) en esta tarea: `riverpod`/`flutter_riverpod` tiene la version 3.x como major estable actual en el listado de pub.dev, lo cual reemplaza la referencia a "Riverpod 2.x+" que este mismo archivo documenta mas arriba (seccion de State Management) — antes de escribir codigo Riverpod nuevo, confirmar en `flutter pub outdated` si el proyecto anfitrion ya migro a 3.x o sigue en 2.x, porque `NotifierProvider`/`AsyncNotifier` mantienen la API pero el mecanismo de code-gen (`riverpod_generator`) y algunos imports cambiaron entre majors — orientativo, no verificado linea por linea del changelog contra el codigo de ejemplo de este archivo.
+
+No se verifico en esta tarea, por falta de tiempo disponible para research adicional, el estado de vigencia de Impeller mas alla de lo ya documentado en este mismo archivo (seccion Impeller/Flutter 3.32), ni el estado actual de Drift/Isar/Hive frente a alternativas mas nuevas de persistencia local — cualquier afirmacion sobre esos paquetes especificamente en este modulo se limita a lo ya presente en el resto del SKILL.md y no debe tratarse como reverificado hoy.

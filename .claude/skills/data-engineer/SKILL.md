@@ -3,7 +3,7 @@ name: data-engineer
 description: Especialista en ingenieria de datos. Cubre Medallion Architecture (Bronze/Silver/Gold), transformacion con dbt, orquestacion con Airflow/Dagster/Prefect, calidad de datos con Great Expectations y Soda, Data Contracts con openDataContract y linaje con OpenLineage. Agnostico al stack. Activa al disenar pipelines de ingesta, transformacion o exportacion de datos, modelar capas de un data warehouse o lakehouse, o establecer contratos de calidad entre productores y consumidores de datos.
 origin: ai-core
 version: 1.2.0
-last_updated: 2026-07-26
+last_updated: 2026-08-03
 rol: architect
 ---
 
@@ -421,3 +421,52 @@ Las Reglas Globales definidas en CLAUDE.md aplican sin excepcion a este perfil.
 - Verificar definir los SLAs de freshness y el propietario de dominio antes de disenar modelos de Gold.
 - Verificar notificar a los consumidores declarados antes de modificar el esquema de un dataset con Data Contract activo.
 - Asegurar que no se ejecuta: escribir tareas de pipeline que no sean idempotentes si operan sobre datos en produccion.
+
+## Modulo — Vanguardia Transversal en Pipelines de Datos
+
+### Principio fundamental
+
+Un pipeline que corre en verde pero fue copiado de un tutorial de Airflow o de un starter de dbt no cumple el objetivo. El liston es un pipeline que un ingeniero de datos senior reconoceria como disenado para el dominio de negocio real — nombres de dataset, granularidad, particionado y contrato de datos alineados al problema, no a la demo. Si no se puede declarar en una frase por que este pipeline se ve distinto al ejemplo `jaffle_shop` de dbt o al DAG `tutorial.py` de Airflow, no esta listo.
+
+### Identidad del pipeline — declarar antes de codear
+
+Ninguna capa Bronze/Silver/Gold, DAG o modelo dbt se codea sin declarar primero:
+
+```
+IDENTIDAD PIPELINE:
+  Dominio de negocio: [ventas/pedidos | finanzas/facturacion | producto/eventos de uso | logistica/inventario | otro — nombrar]
+  Granularidad del dato: [evento atomico | snapshot diario | transaccion | agregado pre-calculado]
+  Cadencia: [streaming/near-real-time | batch horario | batch diario | backfill historico unico]
+  Consumidor final: [dashboard BI | API de producto | modelo de ML | export regulatorio — nombrar el propietario real]
+  Referencia de tono: [una sola linea — ej. "libro mayor de facturacion donde cada fila debe reconciliar centavo a centavo con el ERP"]
+```
+
+Si `backend-architect` ya declaro el modelo de dominio del sistema transaccional origen, la identidad del pipeline hereda esa nomenclatura de entidades — no inventa nombres de tabla paralelos para el mismo concepto de negocio.
+
+### Prohibido — patrones reconocibles de demo/plantilla
+
+- Entidades de tutorial sin adaptar: `jaffle_shop` (customers/orders/payments de la demo oficial de dbt) usado como si fuera el dominio real del proyecto.
+- DAG `tutorial.py` o `example_dag` de Airflow con los task IDs `extract`/`transform`/`load` genericos, sin nombres de dominio ni logica real dentro de cada task.
+- Capa Silver que aplica `SELECT DISTINCT *` como estrategia de deduplicacion en vez de una clave de negocio explicita del Data Contract.
+- Modelo Gold llamado `final_table`, `output`, `report_v2` o cualquier nombre sin significado de dominio — sintoma de que se corto camino en el diseno dimensional.
+- Test de calidad unico y generico (`row_count > 0`) presentado como si fuera cobertura suficiente, sin tests de unicidad, no-nulos ni rango sobre los campos criticos del dominio.
+- Particionado por fecha de ingesta (`_loaded_at`) copiado del ejemplo del orquestador, cuando el dominio requiere particionar por fecha de negocio (`order_date`, `event_date`) para que el backfill sea correcto.
+
+### Gate de calidad medible (no solo estetico)
+
+| Metrica | Umbral | Verificacion |
+|---|---|---|
+| Cobertura de tests dbt en modelos Gold | 100% de modelos Gold con al menos `unique` + `not_null` en su clave primaria | `dbt test --select tag:gold` — cero tests faltantes en el YAML de schema |
+| Freshness real vs SLA declarado | Retraso <= el valor `delay` documentado en el Data Contract (ej. PT15M) | `dbt source freshness` o `soda scan` con check `freshness()`, comparado contra el YAML del contrato |
+| Duplicados en clave de negocio post-Silver | 0 filas duplicadas por clave declarada | `soda scan` con `duplicate_count(clave) = 0`, o query `GROUP BY clave HAVING COUNT(*) > 1` retornando vacio |
+| Tiempo de ejecucion del DAG/flow completo | Dentro de la ventana de SLA de cadencia declarada (ej. batch diario termina antes de 06:00 UTC) | Duracion registrada en el orquestador (Airflow Grid view / Dagster run duration) contra el `schedule` configurado |
+| Cobertura de linaje | 100% de datasets Gold con nodo de linaje visible en el backend OpenLineage/Marquez | Consulta a la API de Marquez o UI — cero datasets Gold huerfanos sin linaje registrado |
+
+### Vigencia — estandar mas reciente del dominio
+
+Verificado contra fuente oficial en esta tarea:
+
+- Airflow 3.3.0 (airflow.apache.org, release notes oficiales, publicado 2026-07-06) es la version estable mas reciente. Incorpora particionado de assets ampliado (`RollupMapper`/`FanOutMapper` many-to-one/one-to-many con ventanas de tiempo), un `task_state_store` para persistir estado entre reintentos, politicas de retry personalizables (retry solo ante excepciones especificas), soporte de Task SDK en Java y Go ademas de Python, y control de versionado de DAG Bundle via `rerun_with_latest_version` para decidir si un backfill usa el codigo mas reciente o el vigente al momento de la ejecucion original.
+- dbt Model Contracts y Model Versions (docs.getdbt.com/docs/mesh/govern) confirmados vigentes: `state:modified` en Slim CI ya detecta cambios en contratos de modelos versionados y falla el build si el cambio es potencialmente incompatible para consumidores downstream — reforzar esto en el flujo de CI antes de mergear un cambio de esquema en Gold.
+- OpenLineage: la iniciativa y el spec siguen activos (openlineage.io), pero el numero de version exacto mas reciente (linea 1.x) no se pudo fijar con certeza total en esta pasada — orientativo, verificar version exacta en `openlineage.io/docs/releases` antes de fijarla en documentacion o pipeline de produccion.
+- Cualquier version de Great Expectations, Soda Core, Dagster o Prefect citada fuera de esta seccion en el resto del skill debe reverificarse contra su changelog oficial antes de asumir vigencia — este modulo no revalida esas menciones previas, solo lo consultado explicitamente aqui.

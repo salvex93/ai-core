@@ -161,3 +161,38 @@ Las Reglas Globales definidas en CLAUDE.md aplican sin excepcion a este perfil.
 - Prohibido inventar nombres de sistemas, proveedores o responsables del cliente que no esten documentados explicitamente en el brief o cuestionario.
 - Lo no documentado por el cliente se declara "a definir en discovery" — prohibido inventar alcance de un control o dominio no evaluado.
 - Ante una discrepancia entre lo que un documento de estado/contexto afirma como existente y lo verificado en evidencia real, reportar la discrepancia de forma explicita antes de continuar con cualquier otra tarea sobre ese documento.
+
+## Modulo — Vanguardia Transversal en Gobierno, TPRM y Compliance
+
+### Identidad declarada antes de ejecutar
+
+Antes de producir cualquier entregable de este dominio (informe VRA, respuesta a cuestionario, politica, matriz de riesgo), llenar en una linea:
+
+`IDENTIDAD TPRM: Cliente/marco de referencia: [nombre del cliente o marco citado explicitamente en el brief] | Nomenclatura de control: [prefijo real del cuestionario de ESE cliente, nunca generico] | Nivel de riesgo inherente declarado: [Alto/Medio/Bajo segun criticidad del servicio] | Evidencia disponible al momento de escribir: [lista real de archivos, o "ninguna aportada"] | Verticalidad aplicable: [PCI-DSS / HIPAA / ninguna — solo si el brief lo confirma]`
+
+Sin esta linea completada con datos reales del caso, prohibido avanzar a redactar veredicto, politica o respuesta de control — completar con "no aportado por el cliente" en cualquier campo sin evidencia, nunca inventar el valor para llenar el formulario.
+
+### Prohibido — patrones reconocibles de entregable generico en TPRM/GRC
+
+- Matriz de riesgo con los tres niveles (Alto/Medio/Bajo) asignados de forma pareja o repetitiva sin justificacion diferenciada por dominio — patron reconocible de "se lleno la plantilla sin evaluar caso por caso".
+- Politica de contraseñas con los mismos valores de manual generico (8 caracteres, 90 dias, complejidad estandar) repetidos entregable tras entregable sin verificar si el cliente exige otro parametro — el numero "de manual" es la señal de que no se leyo el cuestionario real.
+- Respuesta de control con lenguaje aspiracional ("se cuenta con controles robustos", "se aplican mejores practicas de la industria") en vez de un hecho verificable con evidencia citada — es el equivalente TPRM del texto de relleno.
+- Cita de un marco de industria (ISO 27001, SOC 2, NIST) como si fuera el estandar del cliente evaluado, cuando el cuestionario real usa su propia nomenclatura de control no relacionada.
+- BCP/DRP con la misma estructura de secciones y RTO/RPO identicos entre proveedores distintos — senal de plantilla reciclada sin adaptar a la criticidad real de cada proveedor.
+- Hallazgo marcado "Resuelto" sustentado solo en la existencia de un archivo con nombre similar al control, sin haber verificado que el contenido cubre el control completo.
+
+### Gate de calidad medible
+
+| Metrica | Umbral | Metodo de verificacion |
+|---|---|---|
+| Cobertura de citacion de evidencia por hallazgo | 100% de los hallazgos marcados "Resuelto" o "Parcial" citan archivo especifico + fecha real extraida (no solo mtime de filesystem) | Revision manual del reporte: cada fila de la matriz de riesgo debe tener un valor no vacio en la columna evidencia |
+| Discrepancia documento-de-estado vs evidencia real | 0 discrepancias sin reportar entre lo que el documento de contexto afirma como "existente" y lo verificado en la carpeta de evidencia | Contraste 1 a 1 de cada afirmacion del documento de estado contra el archivo de evidencia citado, siguiendo el punto 88-95 de este SKILL |
+| Vigencia de politicas presentadas como evidencia | 100% de politicas citadas tienen fecha de aprobacion dentro del ciclo vigente exigido por el cliente | Extraer fecha de `docProps/core.xml` del `.docx` o metadata equivalente del PDF, no solo el nombre de archivo |
+| Verificacion de marco de industria citado | 100% de menciones a un marco externo (SIG, NIST SP 800-161, ISO 27036, PCI-DSS, HIPAA) llevan fuente primaria verificada en la misma sesion de escritura | Confirmar contra dominio oficial (`pcisecuritystandards.org`, `hhs.gov`, `csrc.nist.gov`, `sharedassessments.org`) antes de citar version o clausula exacta |
+| Diferenciacion de riesgo inherente entre proveedores del mismo lote | Maximo 1 nivel de riesgo inherente identico cada 3 proveedores evaluados en el mismo lote sin justificacion narrativa distinta por fila | Revision cruzada de la matriz de riesgo del lote completo antes de entregar |
+
+### Vigencia — estandar mas reciente del dominio
+
+Verificado en esta sesion contra fuente primaria oficial (`blog.pcisecuritystandards.org`): PCI DSS v4.0.1 es la version vigente unica del estandar — v4.0 fue retirada el 2024-12-31 y v4.0.1 no modifica la fecha de entrada en vigor de los requisitos "future-dated": 51 de los 64 requisitos nuevos de v4.x se volvieron obligatorios el 2025-03-31 (antes de esa fecha podian declararse "No Aplicable" via el Apendice C del SAQ). No hay version posterior anunciada por el Council a la fecha de esta verificacion.
+
+Cualquier otro dato de vigencia mencionado en este SKILL fuera de PCI-DSS (fechas HIPAA/HHS, revisiones de SIG, NIST SP 800-161, ISO 27036) permanece con el estado de verificacion ya declarado en la tabla "Marcos de referencia externos" de este archivo — orientativo, no verificado contra fuente oficial en esta sesion, reverificar antes de citar un detalle exacto en un entregable de cliente.

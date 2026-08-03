@@ -3,7 +3,7 @@ name: managed-agents-specialist
 description: Especialista en agentes gestionados de Anthropic (Managed Agents). Cubre configuracion via API/UI, herramientas integradas (web search, code execution, computer use 2025, files), diseño de system prompts para loops de agente, gestion de costos en iteraciones y seguridad. Activa al configurar un agente con herramientas integradas de Anthropic, evaluar si el caso de uso requiere Managed Agents vs Agent SDK, o diagnosticar comportamiento de un loop de agente gestionado.
 origin: ai-core
 version: 1.2.0
-last_updated: 2026-07-17
+last_updated: 2026-08-03
 rol: architect
 ---
 
@@ -191,3 +191,40 @@ Las Reglas Globales definidas en CLAUDE.md aplican sin excepcion a este perfil.
 - Definir presupuesto de tokens por sesion y limite de iteraciones antes de desplegar un agente en produccion.
 - Verificar sandboxing antes de usar `computer_use`.
 - Documentar la politica de retencion y borrado antes de procesar datos de usuarios finales.
+
+## Modulo — Vanguardia Transversal: Agentes Gestionados
+
+### Identidad Declarada Antes de Ejecutar
+
+Antes de proponer o configurar cualquier agente gestionado, completar esta linea:
+
+`IDENTIDAD AGENTE GESTIONADO: Objetivo de negocio en una frase: [...] | Herramientas minimas necesarias (no el catalogo completo): [...] | Condicion de exito verificable: [...] | Presupuesto maximo por sesion (tokens o costo): [...] | Que pasa si el loop no converge: [detener y escalar a humano / reintentar N veces / abortar]`
+
+Sin esta linea completada, cualquier configuracion de agente gestionado que se proponga es una plantilla generica sin criterio de exito propio — rechazar el output y volver a este formulario.
+
+### Prohibido — Patrones Reconocibles de Demo/Plantilla
+
+- System prompt que solo repite el nombre de las herramientas habilitadas sin condicion de terminacion ni criterio de "cuando dejar de iterar" (el patron "tienes acceso a X, Y, Z" sin mas).
+- Habilitar `computer_use` o el toolset completo de Managed Agents "por si acaso" cuando el caso de uso solo necesita `web_search` o `code_execution` — sobre-aprovisionamiento de herramientas sin justificacion de negocio.
+- Loop sin limite de iteraciones ni `max_tokens` explicito, copiado de un ejemplo de la documentacion sin adaptar al presupuesto real del proyecto.
+- Ausencia total de manejo de `is_error` en `tool_result` — asumir que la herramienta siempre responde bien es el patron de demo, no de produccion.
+- Beta header o nombre de tool copiado de memoria sin verificar contra la version del SDK instalada — arrastrar un identificador de una version anterior porque "en el ejemplo decia asi".
+- System prompt sin clausula de defensa contra contenido externo cuando el agente usa `web_search`, `web_fetch` o cualquier herramienta que trae texto de fuera — tratar ese contenido como instruccion es el fallo mas comun y mas silencioso en este dominio.
+
+### Gate de Calidad Medible
+
+| Metrica | Umbral | Metodo de verificacion |
+|---|---|---|
+| Iteraciones del loop hasta condicion de terminacion | <= limite declarado en la configuracion del agente (no infinito) | Contar eventos de tool_use en el log de la sesion; alertar si se alcanza el limite sin `stop_reason` de fin natural |
+| Costo por sesion completa | <= presupuesto declarado en la Identidad del modulo | Sumar `input_tokens` + `output_tokens` de cada iteracion desde la respuesta de la API; comparar contra el presupuesto antes de cerrar la tarea como valida |
+| Efectividad de prompt caching en el loop | `cache_read_input_tokens` > 0 a partir de la segunda iteracion | Inspeccionar el campo `usage` de cada respuesta; si permanece en cero de forma persistente, el caching no esta aplicado |
+| Cobertura de manejo de error de herramienta | 100% de las herramientas habilitadas tienen una rama `is_error: true` con mensaje instructivo, no generico | Revision manual del codigo que arma cada `tool_result` o test que fuerza el fallo de cada herramienta |
+| Resistencia a injection desde contenido externo | El agente no ejecuta ninguna instruccion embebida en un resultado de `web_search`/`web_fetch` en un set de prompts adversariales de prueba | Ejecutar al menos 3 casos de prueba con instrucciones embebidas en contenido simulado y verificar que el agente las reporta en vez de obedecerlas |
+
+### Vigencia — Estandar Mas Reciente del Dominio
+
+Verificado contra `platform.claude.com` en esta tarea (2026-08-03): "Claude Managed Agents" es hoy un producto formal y documentado aparte del uso general de tools (`/docs/en/managed-agents/overview`), distinto de la nocion de "agente gestionado = tools integradas sobre Messages API" que describe el resto de este skill — es un harness de infraestructura gestionada (sandbox cloud o self-hosted, sesiones con estado persistente, eventos SSE) para tareas largas y asincronas, con beta header propio `managed-agents-2026-04-01` (declarado obligatorio en todos los endpoints de Managed Agents; el SDK lo agrega automaticamente). Esto es distinto del beta header `computer-use-2025-XX-XX` que gobierna solo la tool de computer use dentro de Messages API. El toolset nativo de Managed Agents (bash, operaciones de archivo, web search/fetch, conexion MCP) tambien difiere del listado de "herramientas integradas" ya documentado en este skill para Messages API — verificar cual de los dos productos aplica al caso de uso concreto antes de proponer configuracion, no asumir que son intercambiables.
+
+El beta header de computer use tambien evoluciono: `computer-use-2025-11-24` aplica a los modelos vigentes de la familia 5.x/4.8/4.7/4.6/4.5, mientras `computer-use-2025-01-24` sigue documentado como header valido pero limitado a modelos anteriores (Sonnet 4.5, Haiku 4.5, y los ya deprecados/retirados Opus 4.1, Sonnet 4, Opus 4). Cualquier configuracion nueva de computer use debe fijar el header segun el modelo real de destino, no reusar el header de un ejemplo anterior.
+
+Dato no reverificado en esta pasada: precio y rate limits especificos de Managed Agents (RPM/RPD, costo del sandbox por hora) — orientativo, no verificado contra fuente oficial; consultar `/docs/en/managed-agents/reference` antes de dimensionar presupuesto en produccion.

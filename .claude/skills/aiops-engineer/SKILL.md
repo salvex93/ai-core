@@ -3,7 +3,7 @@ name: aiops-engineer
 description: AI-Ops Engineer — Agente de mantenimiento del ecosistema ai-core. Audita la configuracion de .claude/skills/, analiza nuevas especificaciones de Anthropic y propone mejoras en prompts, herramientas MCP y flujos de trabajo. NUNCA modifica el ai-core sin confirmacion humana explicita. Activa al auditar el nucleo, proponer actualizaciones de skills o incorporar nuevas capacidades del ecosistema Anthropic.
 origin: ai-core
 version: 1.7.0
-last_updated: 2026-07-26
+last_updated: 2026-08-03
 rol: architect
 ---
 
@@ -224,3 +224,38 @@ Las Reglas Globales definidas en CLAUDE.md aplican sin excepcion a este perfil.
 - Verificar confirmacion individual antes de ejecutar acciones destructivas (eliminar archivos, sobrescribir skills) en una sola operacion.
 - Verificar haber completado la auditoria del estado actual antes de emitir propuestas de cambio.
 - Referenciar las Reglas Globales por nombre. Toda la logica vive en CLAUDE.md.
+
+## Modulo — Auto-Auditoria del Nucleo, Anti-Fosilizacion de Skills
+
+### IDENTIDAD DECLARADA ANTES DE EJECUTAR
+
+Antes de emitir cualquier hallazgo o propuesta de auditoria, completar en una linea:
+
+`IDENTIDAD AUDITORIA: Alcance: [1 skill puntual | familia de skills | 39 skills completos] | Disparador: [rutina periodica | reporte de degradacion | nueva capacidad de proveedor | drift detectado por hook] | Severidad esperada: [informativa | requiere aprobacion | ALERTA_ARQUITECTONICA] | Fuente de verificacion: [una linea: doc oficial consultada o "sin verificacion externa, solo estructura interna"]`
+
+Sin esta linea completa, cualquier hallazgo de vigencia tecnologica que se redacte despues carece de trazabilidad sobre que fuente lo respalda.
+
+### PROHIBIDO — PATRONES RECONOCIBLES DE AUDITORIA SUPERFICIAL
+
+- Marcar un skill como "conforme" solo porque el frontmatter tiene los campos obligatorios, sin haber verificado el cuerpo contra las Reglas Globales vigentes de CLAUDE.md.
+- Reportar drift de vigencia citando un numero de version o pricing sin haber contrastado contra la fuente primaria del proveedor en esta misma sesion (afirmar de memoria que "el modelo X ya fue reemplazado" sin WebFetch/WebSearch al dominio oficial).
+- Proponer la creacion de un skill nuevo para una capacidad que ya existe en otro skill del ecosistema, por no haber corrido `grep` dirigido contra los 39 antes de proponer.
+- Copiar la seccion "Restricciones del Perfil" de otro skill sin adaptar las referencias a Reglas Globales por nombre — el boilerplate identico entre skills es en si mismo un hallazgo de degradacion, no una plantilla valida.
+- Emitir un reporte de auditoria narrativo en prosa en vez del formato tabular/viñetado obligatorio del Paso 4, bajo el argumento de que "es mas claro explicarlo".
+- Aprobar implicitamente una modificacion del nucleo por "el reporte fue aceptado en general", sin la confirmacion puntual por cambio que exige el Protocolo de Modificacion del Nucleo.
+
+### GATE DE CALIDAD MEDIBLE
+
+| Metrica | Umbral | Metodo de verificacion |
+|---|---|---|
+| Cobertura de secciones obligatorias por skill auditado | 5/5 secciones presentes (Cuando Activar, Primera Accion, Directiva de Interrupcion, Restricciones del Perfil, y su seccion de dominio) | `grep -l` de cada titulo de seccion contra el SKILL.md, no lectura completa |
+| Drift de `last_updated` vs ultimo commit real | 0 skills con `last_updated` anterior a `git log --follow -1 --format=%ad` sobre su propio archivo | Comparacion automatizada frontmatter vs `git log --follow`, igual que Paso 1 de este skill |
+| Cardinalidad de hallazgos de seguridad criticos sin resolver | 0 pendientes al cierre de la auditoria | Conteo de items marcados severidad "critica" en la seccion 2 del reporte que sigan sin accion en "Acciones Pendientes" |
+| Tasa de skills con boilerplate identico sin adaptar (copy-paste sin ajuste de dominio) | 0 casos detectados via diff estructural | `diff` entre la seccion "Restricciones del Perfil" de dos skills cualesquiera — similitud > 90% de texto no atribuible a herencia declarada es hallazgo |
+| Tiempo entre deteccion de nueva capacidad de proveedor y su verificacion contra fuente oficial | Verificacion en la misma sesion en que se propone el cambio, nunca diferida | Registro de la URL/fuente consultada en el propio reporte, seccion 4 "Nuevas Capacidades" |
+
+### VIGENCIA — ESTANDAR MAS RECIENTE DEL DOMINIO
+
+Verificado contra fuente oficial en esta tarea (`code.claude.com/docs/en/skills`, dominio oficial de Claude Code, consultado 2026-08-03): el listado de skills que Claude Code carga en contexto aplica un tope combinado de **1536 caracteres** para `description` + `when_to_use` en el frontmatter — el listado trunca ahi independientemente del presupuesto de sesion, y ese tope es configurable via el setting `skillListingMaxDescChars`. Este dato es especifico de Claude Code como harness y coexiste con (no reemplaza) el limite de 1024 caracteres de `description` que exige el estandar abierto agentskills.io citado en CLAUDE.md — son dos specs distintas con dos limites distintos, no una migracion de un numero al otro. El presupuesto real que Claude Code reserva para todo el listado de skills escala al 1% del context window del modelo activo, ajustable via `skillListingBudgetFraction` en `settings.json` (ya referenciado en CLAUDE.md) o la variable de entorno `SLASH_COMMAND_TOOL_CHAR_BUDGET`.
+
+Cualquier otro dato de vigencia que este skill deba incorporar en auditorias futuras (nuevas capacidades de Anthropic, cambios de pricing, deprecaciones de modelo) sigue el Protocolo de Vigencia Tecnologica de CLAUDE.md sin excepcion: fuente oficial primaria, verificacion del detalle exacto sin interpolar por analogia, y si no se pudo confirmar en el tiempo disponible, declarar explicitamente "orientativo, no verificado contra fuente oficial" en la linea correspondiente del reporte en vez de presentarlo como hecho cerrado.

@@ -3,7 +3,7 @@ name: claude-api
 description: Especialista en Claude API y Anthropic SDK (Python/TypeScript). Cubre prompt caching, extended thinking, tool use, streaming, Batch API, Files API, Citations API, modelos Fable 5/Opus/Sonnet/Haiku, migracion entre versiones de modelo y optimizacion de costo por token. Activa al escribir codigo que importa anthropic/@anthropic-ai/sdk, disenar pipelines con cache de prompts, implementar tool use nativo, o migrar entre versiones de Claude.
 origin: ai-core
 version: 1.2.0
-last_updated: 2026-07-26
+last_updated: 2026-08-03
 rol: coder
 ---
 
@@ -322,3 +322,48 @@ Activar ante:
 - Prohibido agregar logica no solicitada (Principios de Arquitectura, "Cambios minimos" en CLAUDE.md).
 - Solo mostrar diffs o bloques minimos — nunca repetir codigo que el usuario ya tiene.
 - Siempre incluir `cache_control` en system prompts > 1024 tokens.
+
+## Modulo — Vanguardia en Uso de Claude API y Anthropic SDK
+
+### Identidad declarada antes de ejecutar
+
+Ninguna llamada a la API se codea sin declarar primero el perfil de uso — determina modelo, cache, formato de salida y tolerancia a latencia:
+
+```
+IDENTIDAD CLAUDE API:
+  Naturaleza de la carga: [conversacional interactiva | batch masivo sin SLA | agente autonomo con tool loop | extraccion estructurada de documentos]
+  Modelo minimo suficiente: [Haiku 4.5 | Sonnet 5 | Opus 4.8 | Fable 5]
+  Estrategia de cache: [system prompt estatico > 1024 tokens con TTL 5m | contexto de sesion larga con TTL 1h | sin cache — payload cambia en cada llamada]
+  Tolerancia a latencia: [streaming obligatorio, usuario esperando | batch, resultado en horas | tool use con multiples turnos, latencia acumulada tolerable]
+```
+
+Si el proyecto ya tiene un patron de cache o seleccion de modelo declarado en otra parte del codigo (otro endpoint, otro pipeline), esta identidad es su extension — mismo criterio de costo, no un esquema paralelo de decision de modelo.
+
+### Prohibido — patrones reconocibles de integracion generica
+
+- Llamar `client.messages.create` con `model="claude-opus-4-8"` hardcodeado para tareas triviales (resumen corto, clasificacion binaria) solo porque "es el mejor modelo" — sin justificar por que Haiku o Sonnet no alcanzan.
+- System prompt largo (> 1024 tokens) repetido en cada llamada sin `cache_control` — el patron de tutorial que ignora costo de produccion.
+- Manejo de `tool_use` que asume un unico bloque de contenido en la respuesta, ignorando que `response.content` puede traer texto y tool_use mezclados en el mismo turno.
+- Loop de agente sin limite de iteraciones ni control de presupuesto de tokens — el "while True" copiado de un ejemplo de demo sin guard de salida.
+- Captura de excepciones de la API con `except Exception: pass` o equivalente, sin distinguir `RateLimitError`, `APIConnectionError` u `OverloadedError` — todas se tratan igual y se pierden señales de retry vs fallo definitivo.
+- `max_tokens` fijado al maximo del modelo "por si acaso", sin relacion con el output real esperado, inflando costo y latencia sin beneficio.
+
+### Gate de calidad medible
+
+| Metrica | Umbral | Metodo de verificacion |
+|---|---|---|
+| Cache hit rate en sesiones con system prompt repetido | >= 70% de las llamadas subsiguientes a la primera en la misma sesion | Inspeccionar `usage.cache_read_input_tokens` vs `usage.input_tokens` en la respuesta de cada llamada |
+| Cache breakpoints por request | <= 4 (limite duro de la API) | Contar bloques con `cache_control` en el payload antes de enviar — la API responde `400` al superar el limite |
+| Costo por request en tareas de bajo volumen | Modelo Haiku para inputs < 8k tokens sin razonamiento multi-paso — verificar que no se uso Sonnet/Opus por defecto | Revisar el campo `model` en el log de cada request contra el tamano real del contexto enviado |
+| Manejo de rate limit | 100% de las llamadas en produccion envueltas en retry con backoff exponencial ante `429`/`RateLimitError` | Grep de `try/except` o `try/catch` alrededor de cada `client.messages.create` en el codigo fuente |
+| Iteraciones de tool use por tarea | Limite explicito y verificable en codigo (ej. `MAX_ITERATIONS = 10`), nunca loop sin cota | Grep del loop de agente — debe existir una condicion de corte ademas de `stop_reason != "tool_use"` |
+
+### Vigencia — estandar mas reciente del dominio
+
+Verificado contra fuente oficial (`platform.claude.com/docs/en/build-with-claude/prompt-caching`) en esta misma tarea:
+
+- Limite duro de cache breakpoints: **4 por request**. Un quinto breakpoint explicito devuelve error `400` (sin espacio para cache automatico).
+- TTL de cache disponibles: **5 minutos** (default, sin costo adicional de configuracion — escritura a 1.25x el precio de input base) y **1 hora** (escritura a 2x el precio de input base, para sesiones de agente de ejecucion larga donde 5 minutos no alcanza entre pasos). Sintaxis: `"cache_control": {"type": "ephemeral", "ttl": "1h"}` vs `{"type": "ephemeral"}` (5m implicito).
+- Lectura de cache: **0.1x** el precio de input base — el ahorro real esta en maximizar cache reads, no solo en activar cache_control una vez.
+- El SKILL.md actual documenta TTL de 5 minutos como unica opcion — esto queda desactualizado por esta verificacion: la opcion de 1 hora existe y es preferible en pipelines de agente con pasos espaciados mas de 5 minutos entre si.
+- Pricing exacto por modelo (USD/MTok) no fue re-verificado linea por linea en esta pasada — orientativo, verificar contra `platform.claude.com/docs/en/about-claude/pricing` antes de escribir un numero de costo especifico en una propuesta o skill.

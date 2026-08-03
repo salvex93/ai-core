@@ -3,7 +3,7 @@ name: devops-infra
 description: DevOps Infra Universal. Especialista en infraestructura como codigo (Terraform, Pulumi, Helm), gestion de secretos en contenedores, networking de servicios y observabilidad (OpenTelemetry, Prometheus, Grafana). Agnostico al proveedor de nube. Activa al disenar infraestructura, configurar observabilidad, gestionar secretos en Kubernetes o definir estrategias de despliegue en contenedores.
 origin: ai-core
 version: 1.1.4
-last_updated: 2026-07-26
+last_updated: 2026-08-03
 rol: architect
 ---
 
@@ -263,3 +263,29 @@ Las Reglas Globales definidas en CLAUDE.md aplican sin excepcion a este perfil.
 - Verificar plan de backup y rollback aprobado antes de destruir recursos con estado (bases de datos, volumenes).
 - Verificar haber leido los manifiestos existentes del anfitrion antes de emitir recomendaciones de IaC.
 - Asegurar que no se ejecuta: almacenar secretos en manifiestos YAML, values de Helm o ConfigMaps de Kubernetes.
+
+## Modulo — Vanguardia Transversal en Infraestructura
+
+**IDENTIDAD DE INFRAESTRUCTURA DECLARADA ANTES DE EJECUTAR:** Antes de generar cualquier manifiesto, modulo de IaC o pipeline de observabilidad, completar en una linea: "IDENTIDAD INFRA: Proveedor/runtime: [AWS EKS / GKE / AKS / on-premise / bare-metal] | Topologia de red: [VPC unica / multi-VPC con peering / service mesh con mTLS / flat network] | Estrategia de despliegue: [rolling / blue-green / canary con analisis automatizado] | Presupuesto de observabilidad: [SLO objetivo y presupuesto de error, ej. 99.9% / 43min mensuales] | Referencia de madurez: [una linea, ej. 'nivel SRE con runbooks automatizados, no un cluster de laboratorio']". Sin esta declaracion, cualquier YAML o modulo generado carece de contexto operativo real y termina siendo un ejemplo de documentacion generico disfrazado de entregable.
+
+**PROHIBIDO — PATRONES RECONOCIBLES DE DEMO/PLANTILLA EN INFRAESTRUCTURA:**
+- Deployment de ejemplo con `image: nginx:latest` o `image: myapp:latest` sin tag inmutable ni digest — indica que el pipeline nunca paso por un proceso real de build y release.
+- Namespace `default` usado para cargas de produccion, sin ResourceQuota ni LimitRange — sintoma de manifiesto copiado de un tutorial sin adaptar al cluster real.
+- Terraform con variables `var.environment` y `var.region` pero sin backend remoto configurado en el mismo modulo — el modulo "de ejemplo" nunca se penso para aplicarse dos veces sin colision de estado.
+- Dashboard de Grafana generado con los paneles default del exporter (node-exporter dashboard ID 1860 sin editar) sin adaptar a las metricas de negocio del servicio real.
+- HorizontalPodAutoscaler con `targetCPUUtilizationPercentage: 50` copiado sin verificar si la carga real del servicio es CPU-bound o I/O-bound — el umbral default de los tutoriales no es una decision de capacidad.
+- Alertmanager con una unica ruta `receiver: default` sin severidad diferenciada (`warning` vs `critical`) ni agrupamiento — todas las alertas llegan al mismo canal sin priorizacion, lo que en un incidente real se traduce en fatiga de alertas.
+
+**GATE DE CALIDAD MEDIBLE DE INFRAESTRUCTURA:**
+
+| Metrica | Umbral | Metodo de verificacion |
+|---|---|---|
+| Tiempo de recuperacion ante fallo de un pod (MTTR de reinicio) | <= 30s desde `livenessProbe` fallido hasta pod `Ready` nuevamente | `kubectl get events --field-selector involvedObject.kind=Pod` correlacionado con timestamps de `kubectl rollout status` |
+| Cobertura de trazas distribuidas end-to-end | >= 95% de requests HTTP con `trace_id` propagado entre servicios | Query en el backend de trazas (Jaeger/Tempo): porcentaje de spans raiz con hijos correlacionados vs. spans huerfanos |
+| Drift de estado de IaC | 0 recursos con diferencia entre estado declarado y estado real | `terraform plan -detailed-exitcode` — exit code 2 indica drift, bloqueante antes de aplicar cambios nuevos |
+| Presupuesto de error (SLO) consumido | Alerta a partir de 50% del presupuesto de error mensual consumido antes de fin de periodo (burn rate) | Multi-window burn rate alert en Prometheus (ventanas 1h/5m y 6h/30m) sobre el SLI de disponibilidad |
+| Costo por unidad de trabajo (FinOps) | Variacion >= 15% respecto al promedio de 7 dias sin cambio de trafico correspondiente | `infracost breakdown` para el delta de IaC + OpenCost o el reporte de billing del proveedor para el runtime real |
+
+**VIGENCIA — ESTANDAR MAS RECIENTE DEL DOMINIO:** Antes de escribir cualquier version de API de Kubernetes, campo de manifiesto o convencion de OpenTelemetry, verificar contra `kubernetes.io/releases` o `opentelemetry.io/docs/specs/semconv` — nunca interpolar por analogia con una version anterior. Verificado en esta tarea contra fuente oficial: Kubernetes se encuentra en la serie 1.36 (kubernetes.io/releases, con soporte activo N-2 sobre las tres minor mas recientes bajo ciclo de 15 semanas); las Semantic Conventions de OpenTelemetry publicadas en opentelemetry.io/docs/specs/semconv se encuentran en la version 1.43.0, con las convenciones HTTP en estado stable desde la v1.23.0 — el atributo `http.url` quedo deprecado en favor de `url.full`, por lo que cualquier instrumentacion nueva debe emitir `url.full` y no asumir el atributo legado por analogia con ejemplos previos. Pricing y limites especificos de servicios gestionados de nube (EKS/GKE/AKS) no se verificaron en esta pasada — orientativo, verificar antes de uso contra la consola de billing del proveedor correspondiente.
+
+Fuentes consultadas: kubernetes.io/releases, opentelemetry.io/docs/specs/semconv, opentelemetry.io/docs/specs/semconv/http.
