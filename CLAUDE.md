@@ -216,12 +216,14 @@ Cuando se detecte una nueva capacidad (via `aiops-engineer` o documentacion):
 4. Ejecutar `npm test` y `npm run validate-globals` antes de commitear.
 5. Documentar en CHANGELOG.md con la version del SDK que habilita la capacidad.
 
-### Limites operativos Gemini free tier (verificado 2026-07-10)
+### Limites operativos Gemini free tier (verificado 2026-08-03)
 
 | Modelo | Free tier | Paid (in/out por 1M tokens) |
 |---|---|---|
-| gemini-3.1-flash-lite | Si | $0.25 / $1.50 |
-| gemini-3.5-flash | Si (gratuito en API) | $1.50 / $9.00 — ~5x mas caro que 3.1 Flash-Lite en paid, no es reemplazo 1:1 de bajo costo |
+| gemini-3.5-flash-lite | Si | $0.30 / $2.50 — reemplaza a 3.1 Flash-Lite como tier 0 mas barato de la familia 3.x |
+| gemini-3.1-flash-lite | Si | $0.25 / $1.50 — sigue vigente, no deprecado |
+| gemini-3.6-flash | Si (gratuito en API) | $1.50 / $7.50 — modelo Flash mas reciente, reemplaza a 3.5 Flash como tier general |
+| gemini-3.5-flash | Si (gratuito en API) | $1.50 / $9.00 — sigue vigente, no deprecado |
 | gemini-3.1-pro-preview | No disponible en tier gratuito | $2.00 / $12.00 |
 
 RPM/RPD exactos no reverificados en esta pasada — consultar `ai.google.dev/gemini-api/docs/rate-limits` antes de dimensionar un pipeline de alto volumen, los limites cambian por modelo y version.

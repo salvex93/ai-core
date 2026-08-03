@@ -1,9 +1,9 @@
 ---
 name: backend-architect
-description: Backend Architect Universal. Experto en SOLID, Clean Architecture, gestion de persistencia y scaffolding de proyectos desde cero. Agnostico al stack: deduce el ORM y la base de datos del repositorio anfitrion antes de emitir recomendaciones. Activa al disenar APIs, modelar esquemas, escribir migraciones, revisar queries o arrancar un servidor nuevo de cero.
+description: Backend Architect Universal. Experto en SOLID, Clean Architecture, gestion de persistencia, arquitectura event-driven (Kafka/RabbitMQ/SQS, patron Outbox, DLQ), WebSockets/Server-Sent Events y scaffolding de proyectos desde cero. Agnostico al stack: deduce el ORM y la base de datos del repositorio anfitrion antes de emitir recomendaciones. Activa al disenar APIs, modelar esquemas, escribir migraciones, revisar queries, implementar mensajeria asincrona o tiempo real, o arrancar un servidor nuevo de cero.
 origin: ai-core
-version: 1.3.1
-last_updated: 2026-07-26
+version: 1.5.0
+last_updated: 2026-08-03
 rol: architect
 ---
 
@@ -20,6 +20,8 @@ Este perfil gobierna las decisiones de arquitectura en la capa de servidor, pers
 - Al revisar queries con riesgo de N+1, locks, deadlocks o rendimiento degradado.
 - Al evaluar seguridad en la capa de servidor: autenticacion, autorizacion, validacion de entrada.
 - Al introducir o revisar patrones de arquitectura: SOLID, Clean Architecture, Hexagonal, CQRS.
+- Al disenar comunicacion asincrona entre servicios: colas de mensajes, event sourcing, pub/sub.
+- Al implementar comunicacion en tiempo real: WebSockets, Server-Sent Events, chat, notificaciones live.
 
 ## Cuando NO Activar Este Perfil
 
@@ -144,6 +146,73 @@ Todos los errores devuelven el mismo contrato independientemente del stack:
 
 El campo `campo` se usa unicamente en errores de validacion para indicar que campo fallo. Nunca exponer stack traces, mensajes internos del ORM ni rutas de archivos en respuestas de error en produccion.
 
+### Versionado de contrato publico
+
+Todo endpoint consumido por un cliente externo (app movil, frontend desacoplado, integracion de terceros) lleva version explicita desde el primer release — agregarla despues rompe a todos los consumidores existentes.
+
+| Estrategia | Formato | Cuando usar |
+|---|---|---|
+| Prefijo de ruta | `/v1/usuarios` | Default. Explicito, cacheable, facil de enrutar. |
+| Header custom | `Api-Version: 2026-08-03` | APIs con muchos endpoints donde versionar por fecha de release es mas manejable que por numero. |
+| Content negotiation | `Accept: application/vnd.empresa.v2+json` | APIs publicas con clientes de terceros que necesitan granularidad por recurso. |
+
+Regla: nunca eliminar una version publicada sin periodo de deprecacion anunciado (minimo 90 dias u lo que el contrato con el cliente exija). El endpoint deprecado responde con header `Deprecation: true` y `Sunset: <fecha>` antes de retirarse.
+
+### Idempotencia en operaciones de escritura
+
+Toda operacion `POST` que crea un recurso con efecto economico o irreversible (pagos, envio de notificaciones, creacion de pedidos) acepta una clave de idempotencia del cliente:
+
+```
+POST /pedidos
+Idempotency-Key: 7c9e6679-7425-40de-944b-e07fc1f90ae7
+```
+
+Patron de implementacion: la clave se guarda junto con la respuesta generada la primera vez. Si llega una segunda request con la misma clave, se devuelve la respuesta guardada sin re-ejecutar la operacion.
+
+```sql
+CREATE TABLE idempotency_keys (
+  clave uuid PRIMARY KEY,
+  respuesta_codigo integer NOT NULL,
+  respuesta_cuerpo jsonb NOT NULL,
+  creado_en timestamptz NOT NULL DEFAULT now()
+);
+```
+
+Sin `Idempotency-Key`, un reintento de red del cliente (timeout, retry automatico) puede duplicar el efecto de la operacion. `GET`, `PUT` y `DELETE` ya son idempotentes por definicion del metodo HTTP — este patron aplica especificamente a `POST`.
+
+### Paginacion
+
+| Tipo | Formato | Cuando usar |
+|---|---|---|
+| Offset/limit | `?limit=20&offset=40` | Datasets pequenos-medianos, UI con numeros de pagina. Degrada en rendimiento con offsets altos (el motor escanea y descarta filas). |
+| Cursor-based | `?limit=20&cursor=eyJpZCI6NDJ9` | Datasets grandes o de alto volumen de escritura — no se degrada con la profundidad, y es estable si se insertan filas nuevas durante la paginacion. |
+
+Contrato de respuesta paginada:
+
+```json
+{
+  "datos": [ ... ],
+  "paginacion": {
+    "siguiente_cursor": "eyJpZCI6NjJ9",
+    "tiene_siguiente": true,
+    "total": 384
+  }
+}
+```
+
+Regla de seleccion: cursor-based por defecto en cualquier listado que pueda superar 10.000 filas o que reciba escrituras concurrentes durante la lectura. Offset/limit solo en listados acotados y estables.
+
+### GraphQL — cuando se elige sobre REST
+
+GraphQL aplica cuando el cliente necesita componer datos de multiples recursos relacionados en una sola request (evitar over-fetching/under-fetching de REST) y el equipo puede mantener la complejidad adicional de resolvers y N+1 a nivel de campo.
+
+- Resolver N+1 con `DataLoader` (o equivalente del stack) — cada campo resuelto individualmente sin batching genera una query por item de una lista.
+- Limitar la profundidad de queries anidadas (`graphql-depth-limit` o equivalente) — sin limite, un cliente puede construir una query que fuerza un join exponencial.
+- Paginacion en GraphQL sigue el patron Relay Cursor Connections (`edges`, `node`, `pageInfo.hasNextPage`) como estandar de facto, no offset/limit.
+- El contrato de error universal (seccion anterior) no aplica igual en GraphQL: los errores van en el campo `errors` de la respuesta con `extensions.codigo`, no en el codigo de estado HTTP (que siempre es 200 salvo fallo de transporte).
+
+Si el proyecto no tiene ya GraphQL en el stack y la necesidad es CRUD simple sin composicion compleja de recursos, REST sigue siendo el default — GraphQL no es "REST mejorado", es una herramienta distinta con su propio costo operativo.
+
 ## Migraciones de Esquema
 
 ### Reglas inamovibles
@@ -198,6 +267,78 @@ Disenar en tercera forma normal (3FN) por defecto. La desnormalizacion solo se a
 ### Claves primarias
 
 Usar UUID generado por la aplicacion en tablas de dominio expuestas externamente o que se repliquen entre sistemas. Usar auto-incremento secuencial en tablas internas de alto volumen de insercion donde el rendimiento de escritura es critico.
+
+## Arquitectura Event-Driven y Mensajeria
+
+Aplica cuando dos o mas servicios necesitan comunicarse sin acoplamiento sincrono directo — el productor no espera respuesta del consumidor, y el consumidor puede caerse sin que el productor falle.
+
+### Seleccion de tecnologia
+
+| Necesidad | Herramienta | Cuando usar |
+|---|---|---|
+| Streaming de eventos de alto volumen, multiples consumidores del mismo evento | Kafka (o Redpanda como alternativa compatible) | Event sourcing, analitica en tiempo real, mas de 10k eventos/seg, se necesita replay del log |
+| Cola de trabajo tradicional, un consumidor procesa cada mensaje una vez | RabbitMQ o SQS | Tareas en background (envio de emails, procesamiento de imagenes), volumen moderado, no se necesita replay |
+| Cola gestionada sin operar infraestructura propia (stack AWS) | SQS + SNS (fan-out) | Equipo pequeno, ya esta en AWS, prioridad en cero mantenimiento sobre control fino |
+| Pub/sub simple entre servicios ya en el mismo proceso o red interna | Redis Pub/Sub o Streams | Notificaciones de baja latencia, no se requiere persistencia garantizada tras la entrega |
+
+No introducir una cola o broker si dos servicios pueden comunicarse via API sincrona sin que la latencia o el acoplamiento sean un problema real medido — mensajeria agrega complejidad operativa que solo se justifica cuando el acoplamiento sincrono ya es un problema.
+
+### Patron Outbox — consistencia entre BD y evento publicado
+
+Publicar un evento y escribir en la base de datos son dos operaciones que pueden fallar independientemente (el commit de BD triunfa pero el broker esta caido, o viceversa). El patron Outbox evita el estado inconsistente escribiendo el evento en la misma transaccion que el cambio de datos:
+
+```sql
+-- Misma transaccion: cambio de negocio + evento a publicar
+BEGIN;
+UPDATE pedidos SET estado = 'confirmado' WHERE id = $1;
+INSERT INTO outbox_eventos (tipo, payload, publicado)
+  VALUES ('pedido.confirmado', $2::jsonb, false);
+COMMIT;
+```
+
+Un proceso separado (poller o CDC via Debezium) lee `outbox_eventos` donde `publicado = false`, publica al broker, y marca `publicado = true`. El broker nunca se llama dentro de la transaccion de negocio.
+
+### Garantias de entrega y idempotencia del consumidor
+
+- **At-least-once** es la garantia realista por defecto — el mensaje puede llegar duplicado. El consumidor debe ser idempotente (mismo patron de `Idempotency-Key` que en HTTP: guardar el ID del mensaje procesado antes de aplicar el efecto).
+- **Dead Letter Queue (DLQ)** obligatoria en produccion: tras N reintentos fallidos, el mensaje se mueve a una cola separada para inspeccion manual, nunca se descarta silenciosamente ni bloquea la cola principal reintentando indefinidamente.
+- **Particionamiento de topics** (Kafka): la clave de particion determina el orden garantizado — eventos de la misma entidad (ej. mismo `pedido_id`) deben ir a la misma particion para preservar orden relativo.
+
+## Tiempo Real — WebSockets y Server-Sent Events
+
+| Patron | Direccion | Cuando usar |
+|---|---|---|
+| SSE (Server-Sent Events) | Servidor → cliente unicamente | Notificaciones, feeds de progreso, streaming de texto (LLM). Mas simple que WebSocket, reconexion automatica nativa del navegador via `EventSource`. |
+| WebSocket | Bidireccional | Chat, colaboracion en tiempo real, juegos, cualquier caso donde el cliente tambien emite eventos frecuentes al servidor. |
+| Polling / long-polling | Cliente → servidor en intervalos | Solo si SSE/WebSocket no son viables (proxy corporativo que los bloquea) — es el fallback, no el default. |
+
+### Escalado horizontal de WebSockets
+
+Un servidor de WebSocket mantiene conexiones con estado (`stateful`) — el balanceador de carga no puede repartir mensajes de una conexion entre instancias distintas del servidor sin un mecanismo de coordinacion:
+
+```
+Cliente A → conectado a Instancia 1
+Cliente B → conectado a Instancia 2
+Instancia 1 necesita notificar a B → no tiene la conexion de B abierta
+```
+
+Patron de solucion: **Redis Pub/Sub como bus entre instancias**. Cada instancia se suscribe a los canales relevantes; cuando un evento debe llegar a un cliente conectado a otra instancia, se publica en Redis y la instancia que tiene esa conexion abierta lo reenvia por su socket.
+
+```javascript
+// Instancia del servidor WebSocket — reenvio via Redis Pub/Sub
+redisSubscriber.subscribe('notificaciones');
+redisSubscriber.on('message', (canal, mensajeJson) => {
+  const { usuarioId, payload } = JSON.parse(mensajeJson);
+  const socket = conexionesLocales.get(usuarioId); // solo si esta conectado a ESTA instancia
+  if (socket) socket.send(JSON.stringify(payload));
+});
+```
+
+### Reconexion y backpressure en el cliente
+
+- El cliente implementa reconexion con backoff exponencial (nunca reintento inmediato en loop) y re-sincroniza estado tras reconectar (el servidor puede haber emitido eventos durante la desconexion).
+- Si el servidor emite mensajes mas rapido de lo que el cliente puede procesar, aplicar backpressure: buffer con limite maximo, descartando los mensajes mas antiguos si se supera (para datos de estado, donde el ultimo valor es el que importa) o pausando el productor (para datos donde cada mensaje importa, ej. transacciones).
+- Autenticacion de WebSocket: el token se valida en el handshake inicial (query param o header antes del upgrade), no despues de establecida la conexion.
 
 ## Seguridad en la Capa de Servidor
 
@@ -259,6 +400,7 @@ Verificar en orden antes de aprobar un PR. Un PR con observacion en cualquier pu
 
 1. Correctitud: el endpoint devuelve los datos y codigos de estado correctos en todos sus casos (exito, validacion, no encontrado, error interno).
 2. Seguridad: no hay inyeccion de consultas posible, no se exponen datos sensibles, la autorizacion esta verificada antes de la logica.
+2b. Contrato publico: version explicita en el endpoint, `POST` con efecto irreversible acepta `Idempotency-Key`, listados de alto volumen usan paginacion cursor-based.
 3. Migracion: si hay cambio de esquema, el metodo de reversion es correcto, la migracion es atomica y esta separada de la migracion de datos.
 4. Rendimiento: no hay N+1, los indices necesarios existen, las transacciones estan bien delimitadas.
 5. Consistencia: nomenclatura, estructura de error y convenios del proyecto anfitrion respetados.
@@ -514,6 +656,8 @@ calcularTotal_conDescuentoMayorAlPrecio_lanzaErrorDeValidacion
 ```
 
 ### Cobertura minima obligatoria para backend
+
+Objetivo AAA especifico de esta capa — el piso minimo orientativo agnostico de stack esta en `qa-engineer`. Usar esta tabla como meta; si el proyecto no puede alcanzarla aun, el minimo de `qa-engineer` es aceptable como punto de partida documentado.
 
 | Capa | Umbral |
 |---|---|

@@ -1,9 +1,9 @@
 ---
 name: mobile-engineer
-description: Tech Lead Mobile Universal. Experto en aplicaciones moviles y multiplataforma con Flutter/Dart. Cubre arquitectura de features, state management (BLoC/Riverpod), navegacion, integracion con APIs REST, Firebase, mapas, graficos y testing. Agnostico a la capa de backend. Activa al construir pantallas Flutter, disenar la arquitectura de features moviles, integrar SDKs nativos o resolver problemas de rendimiento en el widget tree.
+description: Tech Lead Mobile Universal. Experto en aplicaciones moviles y multiplataforma con Flutter/Dart. Cubre arquitectura de features, state management (BLoC/Riverpod), navegacion, integracion con APIs REST, Firebase, mapas, graficos, persistencia offline-first/sincronizacion y testing. Agnostico a la capa de backend. Activa al construir pantallas Flutter, disenar la arquitectura de features moviles, integrar SDKs nativos, implementar offline-first o resolver problemas de rendimiento en el widget tree.
 origin: ai-core
-version: 1.3.0
-last_updated: 2026-07-26
+version: 1.5.0
+last_updated: 2026-08-03
 rol: coder
 ---
 
@@ -22,6 +22,7 @@ Este perfil gobierna el desarrollo de aplicaciones Flutter: arquitectura de feat
 - Al generar codigo con build_runner: freezed, json_serializable, injectable.
 - Al configurar builds para Android (keystore, ProGuard) o iOS (info.plist, signing).
 - Al disenar la estrategia de testing: unit, widget e integration tests.
+- Al implementar persistencia offline-first, sincronizacion con backend o resolucion de conflictos de datos.
 
 
 ## Cuando NO Activar Este Perfil
@@ -170,19 +171,19 @@ Background handler debe ser funcion top-level (no metodo de clase). Solicitar pe
 ### Upload a AWS S3 (fotos/feed)
 No usar AWS Amplify (demasiado pesado). Usar `aws_s3_api` o llamada directa a presigned URL generada por el backend Node.js. El backend firma la URL con `@aws-sdk/s3-request-presigner`; el cliente Flutter hace PUT directo al bucket. Esto evita exponer credenciales AWS en el cliente.
 
-### IA en Edge con firebase_vertexai (Flutter 3.32+)
+### IA en Edge con firebase_ai (verificado 2026-08-03 — reemplaza a firebase_vertexai, deprecado desde Google I/O 2025)
 
 Para funcionalidades de IA en cliente (clasificacion de imagenes, embeddings locales, generacion de texto sin latencia de red):
 
 ```yaml
-# pubspec.yaml — SDK de IA en edge via Firebase
-firebase_vertexai: ^1.0.0  # Gemini en el dispositivo via Firebase App Check
+# pubspec.yaml — SDK de IA en edge via Firebase AI Logic
+firebase_ai: ^1.0.0  # Gemini en el dispositivo via Firebase App Check
 ```
 
 ```dart
 // Inicializar modelo Gemini en edge
-final modelo = FirebaseVertexAI.instance.generativeModel(
-  model: 'gemini-3.1-flash-lite',  // tier 0 — modelo ligero para edge
+final modelo = FirebaseAI.googleAI().generativeModel(
+  model: 'gemini-3.5-flash-lite',  // tier 0 — modelo ligero para edge
 );
 
 final respuesta = await modelo.generateContent([
@@ -191,8 +192,8 @@ final respuesta = await modelo.generateContent([
 ```
 
 Reglas de uso:
-- Requerir Firebase App Check activo antes de habilitar `firebase_vertexai` — evita abuso de cuota.
-- Usar `gemini-3.1-flash-lite` para edge (latencia minima, costo minimo — heredero del tier Lite, mas barato que la generacion 2.5). Reservar modelos mayores para el backend.
+- Requerir Firebase App Check activo antes de habilitar `firebase_ai` — evita abuso de cuota.
+- Usar `gemini-3.5-flash-lite` para edge (latencia minima, costo minimo — reemplaza a 3.1 Flash-Lite como tier 0 mas barato de la familia 3.x, verificado 2026-08-03). Reservar modelos mayores para el backend.
 - No enviar datos personales del usuario al modelo de edge sin consentimiento explicito — los datos pasan por Firebase.
 
 ### Impeller (Renderer por Defecto — Flutter 3.32)
@@ -228,6 +229,51 @@ class CacheFailure extends Failure { const CacheFailure(super.message); }
 ```
 
 Verificar conectividad con `connectivity_plus` antes de llamadas criticas. Mostrar SnackBar/Toast desde el BLoC listener, nunca desde el repositorio.
+
+## Offline-First y Sincronizacion
+
+Offline-first significa que la app funciona con la base de datos local como fuente de verdad inmediata, y sincroniza con el backend cuando hay red — no que "tolera" perder conexion temporalmente. La diferencia es arquitectonica: toda escritura va primero a local, nunca se bloquea esperando al servidor.
+
+### Base de datos local
+
+| Herramienta | Cuando usar |
+|---|---|
+| Drift (sobre SQLite) | Esquema relacional, queries complejas, se necesita SQL real y migraciones tipadas |
+| Isar | NoSQL embebido, mayor velocidad en escritura masiva, esquema mas flexible sin relaciones complejas |
+| Hive | Cache clave-valor simple, configuracion de usuario, no para el dataset principal sincronizado |
+
+### Patron de sincronizacion basico
+
+```dart
+// Cada registro local lleva metadata de sincronizacion
+class RegistroLocal {
+  final String id;
+  final DateTime actualizadoEn;
+  final EstadoSync estadoSync; // pendiente, sincronizado, conflicto
+  final int version; // incrementa en cada escritura local
+}
+
+// El repositorio escribe local primero, encola la sincronizacion
+Future<void> guardar(Registro registro) async {
+  await db.upsert(registro.copyWith(estadoSync: EstadoSync.pendiente));
+  await colaSync.encolar(registro.id); // procesado por un worker en background
+}
+```
+
+### Resolucion de conflictos
+
+Cuando el mismo registro cambio en local y en el servidor durante la desconexion, hay que decidir cual gana:
+
+| Estrategia | Cuando usar |
+|---|---|
+| Last-Write-Wins (por timestamp) | Datos donde perder el cambio mas antiguo es aceptable — preferencias de UI, configuracion simple |
+| Merge campo a campo | El registro tiene multiples campos independientes editados por separado — combinar sin perder ninguno |
+| CRDT (Conflict-free Replicated Data Type) | Colaboracion en tiempo real, contadores, listas compartidas donde ambas ediciones deben preservarse sin perdida |
+| Resolucion manual (mostrar ambas versiones al usuario) | El dato es critico y ninguna heuristica automatica es segura (ej. montos financieros, contenido creado por el usuario) |
+
+Regla: nunca aplicar Last-Write-Wins a datos financieros o irreversibles sin que el usuario lo apruebe explicitamente — usar resolucion manual o CRDT segun el caso.
+
+La Directiva de Interrupcion de este skill (mas abajo) sigue exigiendo pausa cuando el conflict resolution requerido es complejo (CRDT custom, merge de negocio no trivial) — este modulo da el vocabulario y las opciones, no reemplaza la revision arquitectonica en casos no triviales.
 
 ## Testing
 

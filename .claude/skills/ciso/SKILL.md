@@ -1,9 +1,9 @@
 ---
 name: ciso
-description: Gobierno de seguridad de la informacion y gestion de riesgo de terceros (TPRM). Cubre evaluacion de proveedores (VRA), respuesta a cuestionarios de controles de bancos/clientes corporativos (cada uno con su propia nomenclatura de ID), continuidad de negocio (BCP/DRP), gestion de politicas corporativas y contraste evidencia-vs-afirmacion en entregables de auditoria. Complementa a security-auditor (seguridad de codigo/aplicacion) desde la perspectiva de gobierno, cumplimiento y riesgo de terceros. Activa al evaluar un proveedor externo, responder un cuestionario de seguridad de un banco o cliente corporativo, auditar politicas de seguridad de la informacion, o verificar que un entregable TPRM refleja fielmente la evidencia disponible.
+description: Gobierno de seguridad de la informacion y gestion de riesgo de terceros (TPRM). Cubre evaluacion de proveedores (VRA), respuesta a cuestionarios de controles de bancos/clientes corporativos (cada uno con su propia nomenclatura de ID), continuidad de negocio (BCP/DRP), compliance vertical (PCI-DSS, HIPAA), gestion de politicas corporativas y contraste evidencia-vs-afirmacion en entregables de auditoria. Complementa a security-auditor (seguridad de codigo/aplicacion) desde la perspectiva de gobierno, cumplimiento y riesgo de terceros. Activa al evaluar un proveedor externo, responder un cuestionario de seguridad de un banco o cliente corporativo, auditar politicas de seguridad de la informacion, evaluar compliance PCI-DSS/HIPAA, o verificar que un entregable TPRM refleja fielmente la evidencia disponible.
 origin: ai-core
-version: 1.2.0
-last_updated: 2026-07-26
+version: 1.3.0
+last_updated: 2026-08-03
 rol: auditor
 ---
 
@@ -18,6 +18,7 @@ Este perfil gobierna la evaluacion de riesgo de terceros (Third-Party Risk Manag
 - Al auditar si los documentos de politica de un proveedor (seguridad de la informacion, contraseñas, IAM, BCP/DRP) estan vigentes y firmados.
 - Al contrastar un documento de estado/contexto de una iniciativa TPRM contra la carpeta de evidencia real, para detectar afirmaciones no respaldadas.
 - Al disenar o revisar el programa de gestion de incidentes, continuidad de negocio (BCP) o recuperacion ante desastres (DRP) de un proveedor o del propio producto.
+- Al evaluar compliance especifico de industria: PCI-DSS (procesamiento de tarjetas de pago) o HIPAA (datos de salud/PHI).
 - Al generar politicas corporativas de seguridad (contraseñas, uso aceptable, gestion de accesos, capacitacion) que deben cerrar controles especificos de un cuestionario.
 
 ## Cuando NO Activar Este Perfil
@@ -107,6 +108,28 @@ Al generar una politica corporativa para cerrar un control de cuestionario:
 - Un Plan de Continuidad de Negocio (BCP) vigente declara: version, fecha de ultima revision, RTO/RPO por proceso critico, roles del equipo de respuesta, arbol de escalamiento y ubicacion de respaldo/sitio alterno.
 - Un BCP con fecha de version anterior al ciclo de evaluacion exigido por el cliente es evidencia insuficiente aunque el contenido tecnico siga siendo valido — se requiere un acta de revision que confirme vigencia, no solo una nueva fecha de portada.
 - El Manual de Recuperacion ante Desastres (DRP) se evalua por separado del BCP: el BCP cubre continuidad operativa, el DRP cubre restauracion tecnica de infraestructura.
+
+## Compliance Vertical — PCI-DSS y HIPAA
+
+Requisitos especificos de industria, distintos de los marcos de gobierno generico (ISO 27001, SOC 2) que ya cubre el Ciclo TPRM. Se activan cuando el producto o el cliente evaluado procesa datos de pago o datos de salud, no por defecto.
+
+### PCI-DSS — procesamiento de tarjetas de pago
+
+Aplica si el producto almacena, procesa o transmite datos de titular de tarjeta (PAN, fecha de expiracion, codigo de seguridad).
+
+- **Nunca almacenar** el codigo de seguridad (CVV/CVC) tras la autorizacion, aunque este cifrado — es la regla mas estricta de PCI-DSS, sin excepcion contractual posible.
+- Tokenizacion del PAN: el producto no almacena el numero de tarjeta real, solo un token emitido por el procesador de pagos (Stripe, Braintree, etc.) — esto reduce drasticamente el alcance de auditoria PCI del proyecto (SAQ A en vez de SAQ D).
+- Determinar el nivel de merchant (1-4, segun volumen anual de transacciones) y el SAQ (Self-Assessment Questionnaire) correspondiente antes de asumir que se requiere una auditoria QSA completa — la mayoria de productos que delegan el cobro a un procesador externo caen en SAQ A, el mas simple.
+- Segmentacion de red: si algun sistema propio toca datos de tarjeta directamente (no delegado a un procesador), ese segmento requiere controles PCI completos aislados del resto de la infraestructura.
+
+### HIPAA — datos de salud (PHI)
+
+Aplica si el producto maneja Protected Health Information (PHI) de pacientes en EE.UU., o si el cliente evaluado es una entidad cubierta (proveedor de salud, aseguradora) o un Business Associate de una.
+
+- **Business Associate Agreement (BAA)**: obligatorio con cualquier proveedor tercero (hosting, servicio de IA, analytics) que procese PHI en nombre del producto. Sin BAA firmado, el proveedor no puede recibir PHI — esto incluye APIs de LLM: enviar PHI a un proveedor de IA sin BAA vigente es una violacion directa.
+- Controles tecnicos minimos: cifrado de PHI en reposo y transito, control de acceso basado en rol con el minimo privilegio necesario, log de auditoria de todo acceso a PHI (quien, cuando, que registro), capacidad de exportar/eliminar el historial de acceso a solicitud.
+- Notificacion de brecha: HIPAA exige notificar a los pacientes afectados y, en brechas de mas de 500 registros, al HHS (Department of Health and Human Services) — el plazo y el mecanismo son especificos de la regulacion, no un plazo generico de "notificacion de incidentes" corporativo.
+- Diferenciar PHI de datos de salud no regulados: un dato de salud auto-reportado por el usuario en una app de wellness sin relacion con un proveedor de salud cubierto puede no calificar como PHI bajo HIPAA — verificar el estatus de entidad cubierta antes de aplicar el marco completo, no asumirlo por el tipo de dato.
 
 ## Gestion de Incidentes
 

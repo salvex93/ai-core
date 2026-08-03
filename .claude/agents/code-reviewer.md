@@ -49,8 +49,11 @@ Para cada archivo en el diff, verificar:
 |---|---|---|
 | Seguridad | Credenciales, SQL injection, XSS, inputs sin validar | Critica |
 | Correctitud | Logica incorrecta, edge cases sin manejar, condiciones de carrera | Alta |
+| Conformidad arquitectonica | Funcion > 20 lineas (regla dura de CLAUDE.md, no negociable — ver `aaa-evaluator`) | Alta |
 | Rendimiento | N+1 queries, loops innecesarios, memoria no liberada | Media |
-| Estilo | Nombres poco claros, funciones > 20 lineas, comentarios redundantes | Baja |
+| Estilo | Nombres poco claros, comentarios redundantes | Baja |
+
+Nota: este code-review evalua correctitud funcional del diff. `aaa-evaluator` evalua conformidad arquitectonica del modulo completo (God Objects, patrones de diseno, limite de 300 lineas por archivo). Un hallazgo Bajo aqui puede ser bloqueante en `aaa-evaluator` — son ejes distintos, no jerarquicos.
 
 ### Paso 3 — Producir reporte
 

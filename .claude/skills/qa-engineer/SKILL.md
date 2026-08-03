@@ -2,8 +2,8 @@
 name: qa-engineer
 description: QA Engineer Universal. Estrategia de testing, piramide de calidad, contract testing y cobertura en CI/CD. Agnostico al framework: deduce la herramienta del repositorio anfitrion antes de emitir recomendaciones. Activa al definir estrategia de tests, revisar cobertura, implementar contract testing, diagnosticar regresiones, o revisar si un PR tiene tests adecuados.
 origin: ai-core
-version: 2.0.0
-last_updated: 2026-07-26
+version: 2.0.1
+last_updated: 2026-08-03
 rol: auditor
 ---
 
@@ -177,6 +177,8 @@ Usar la cobertura como indicador de brechas, no como objetivo en si mismo.
 | Configuracion e infraestructura | Sin umbral. Verificar via smoke tests en staging. |
 
 El umbral exacto se define en el `CLAUDE.md` local del anfitrion. Si no esta definido, usar los valores anteriores como punto de partida y proponerlos para su aprobacion.
+
+Esta tabla es el piso minimo orientativo, valido para cualquier stack. `backend-architect` y `tech-lead-frontend` definen umbrales mas altos para sus capas especificas (objetivo AAA) — no son valores en competencia: si el proyecto no declara un objetivo propio, el umbral de `qa-engineer` es el minimo aceptable y el de la especialidad correspondiente es la meta a perseguir.
 
 ## Testing de Features con LLM Integrado
 

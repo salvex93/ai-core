@@ -2,8 +2,8 @@
 name: workflow-orchestrator
 description: Especialista en orquestacion multi-agente y workflows de larga duracion. Fan-out/fan-in, retry con backoff exponencial, checkpointing de estado, coordinacion de subagentes heterogeneos y recuperacion ante fallos parciales. Activa al disenar workflows con multiples agentes paralelos, implementar pipelines con dependencias entre pasos, o garantizar durabilidad ante fallos transitorios.
 origin: ai-core
-version: 2.3.0
-last_updated: 2026-07-17
+version: 2.3.1
+last_updated: 2026-08-03
 rol: architect
 ---
 
@@ -164,7 +164,7 @@ Asignar el modelo mas barato que complete cada subtarea:
 
 ```python
 MODELO_POR_COMPLEJIDAD = {
-    "lectura_masiva":    "gemini-3.5-flash",          # Gemini free — archivos grandes
+    "lectura_masiva":    "gemini-3.6-flash",          # Gemini free — archivos grandes
     "clasificacion":     "claude-haiku-4-5-20251001",  # Haiku — transformacion simple
     "razonamiento":      "claude-sonnet-5",           # Sonnet — analisis y diagnostico
     "arquitectura":      "claude-fable-5",              # Fable 5 — diseno de sistema nuevo (razonamiento profundo sin tools)

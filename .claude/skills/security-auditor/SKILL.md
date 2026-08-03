@@ -2,8 +2,8 @@
 name: security-auditor
 description: Security Auditor Universal. Especialista en seguridad de aplicaciones: auditoria de dependencias (CVEs), modelado de amenazas (STRIDE), headers de seguridad, gestion de secretos y OWASP Top 10. Agnostico al stack. Activa al auditar seguridad, revisar dependencias con CVEs, configurar politicas de seguridad HTTP o evaluar compliance.
 origin: ai-core
-version: 1.3.0
-last_updated: 2026-07-26
+version: 1.4.0
+last_updated: 2026-08-03
 rol: auditor
 ---
 
@@ -13,7 +13,7 @@ Este perfil gobierna la seguridad de aplicaciones en todas las capas: dependenci
 
 ## Cuando Activar Este Perfil
 
-- Al auditar dependencias del proyecto en busca de CVEs conocidos.
+- Al auditar dependencias del proyecto en busca de CVEs conocidos o licencias de riesgo legal (copyleft, sin licencia declarada).
 - Al revisar la configuracion de headers de seguridad HTTP (CSP, HSTS, CORS, X-Frame-Options).
 - Al evaluar el manejo de secretos: deteccion de credenciales hardcodeadas, politicas de rotacion, almacenamiento seguro.
 - Al revisar la capa de autenticacion y autorizacion de una API.
@@ -88,6 +88,30 @@ Ante cualquiera de estas condiciones, insertar la directiva y detener. No emitir
 | Baja (CVSS < 4.0) | Registrar. Resolver de forma oportunista. |
 
 Una vulnerabilidad critica en una dependencia transitiva (no directa) requiere el mismo tratamiento que una directa si el vector de ataque es alcanzable desde el codigo del proyecto.
+
+### Licencias de Dependencias Open Source
+
+El riesgo de una dependencia no es solo tecnico (CVEs) — una licencia copyleft fuerte (GPL, AGPL) en una dependencia de un producto propietario puede obligar a liberar el codigo fuente propio, y una dependencia sin licencia declarada es un riesgo legal directo.
+
+```bash
+# Node.js — auditoria de licencias
+npx license-checker --summary --excludePrivatePackages
+
+# Python
+pip-licenses --format=markdown
+
+# Escaneo mas profundo con deteccion de compatibilidad (multi-stack)
+# FOSSA o ScanCode Toolkit para proyectos con dependencias mixtas o requisitos de compliance formal
+```
+
+| Categoria | Licencias tipicas | Riesgo en producto propietario |
+|---|---|---|
+| Permisiva — segura por defecto | MIT, Apache-2.0, BSD-2/3-Clause, ISC | Ninguno — uso, modificacion y distribucion libres, sin obligacion de liberar codigo propio |
+| Copyleft debil | LGPL, MPL-2.0 | Bajo si no se modifica la libreria directamente; revisar si se enlaza estaticamente |
+| Copyleft fuerte | GPL-2.0/3.0, AGPL-3.0 | Alto — puede obligar a liberar el codigo fuente del producto que la integra. AGPL ademas cubre uso via red (SaaS), no solo distribucion de binario |
+| Sin licencia declarada | (ninguna, o "UNLICENSED" en package.json que no es lo mismo que dominio publico) | Alto — sin licencia explicita, el default legal es todos los derechos reservados por el autor; no hay permiso de uso claro |
+
+Regla: bloquear en CI cualquier dependencia nueva con licencia copyleft fuerte o sin licencia declarada, salvo excepcion documentada y aprobada explicitamente (ej. la dependencia corre solo en tooling de desarrollo, nunca se distribuye con el producto).
 
 ## OWASP Top 10 — Verificacion por Capa
 

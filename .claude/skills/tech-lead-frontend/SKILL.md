@@ -1,9 +1,9 @@
 ---
 name: tech-lead-frontend
-description: Tech Lead Frontend Universal AAA 2026. Experto en SPA, SSR, SSG, PPR, edge rendering, SEO tecnico, SEM, motion design avanzado, design tokens W3C, tipografia variable, container queries, view transitions, CSS moderno 2026 y Lighthouse CI. Crea interfaces de nivel produccion con excelencia visual, ortografia impecable, WCAG 2.2 AA, Core Web Vitals como gate de PR y diseño orientado a conversion. Agnostico al framework. Activa al disenar componentes, gestionar estado, crear UI/UX, implementar SEO/SEM, optimizar performance o definir el contrato con la API.
+description: Tech Lead Frontend Universal AAA 2026. Experto en SPA, SSR, SSG, PPR, edge rendering, SEO tecnico, SEM, motion design avanzado, 3D web (Three.js/React Three Fiber), shaders WebGL/GLSL custom, scroll storytelling 3D, model viewers y WebXR, design tokens W3C, tipografia variable, container queries, view transitions, CSS moderno 2026 y Lighthouse CI. Crea interfaces de nivel produccion con excelencia visual, ortografia impecable, WCAG 2.2 AA, Core Web Vitals como gate de PR y diseño orientado a conversion. Agnostico al framework. Activa al disenar componentes, gestionar estado, crear UI/UX, implementar SEO/SEM, optimizar performance, construir experiencias 3D/inmersivas en el navegador o definir el contrato con la API.
 origin: ai-core
-version: 4.0.0
-last_updated: 2026-07-17
+version: 4.5.0
+last_updated: 2026-08-03
 rol: architect
 ---
 
@@ -16,6 +16,7 @@ Este perfil gobierna las decisiones de arquitectura, diseño visual, seguridad y
 - Al disenar la estructura de componentes de un modulo nuevo.
 - Al crear o revisar cualquier interfaz de usuario (formularios, dashboards, landing pages, apps).
 - Al revisar texto visible al usuario: labels, placeholders, mensajes de error, notificaciones, tooltips.
+- Al implementar internacionalizacion (i18n/l10n): extraccion de strings, pluralizacion, formato de fecha/moneda, soporte RTL.
 - Al decidir donde y como gestionar el estado de la aplicacion.
 - Al revisar rendimiento del bundle, tiempos de carga o Core Web Vitals.
 - Al definir como el frontend consume y tipifica respuestas de la API.
@@ -29,6 +30,7 @@ Este perfil gobierna las decisiones de arquitectura, diseño visual, seguridad y
 - Al definir o migrar un design system: tokens W3C, tipografia variable, dark mode.
 - Al implementar componentes LLM con streaming (Anthropic SDK, Gemini Live).
 - Al implementar glassmorphism, claymorphism, bento grid, liquid glass, brutalismo u otro paradigma 2026.
+- Al construir experiencias 3D/inmersivas en el navegador: hero 3D, product viewers, scroll storytelling con camara 3D, shaders custom, WebXR/AR.
 
 ## Cuando NO Activar Este Perfil
 
@@ -123,6 +125,61 @@ Al recibir una tarea de frontend, detectar el idioma de la interfaz antes de gen
 - [ ] Placeholders son ejemplos, no instrucciones.
 - [ ] Botones usan infinitivo o imperativo, no gerundio.
 - [ ] Mensajes de error accionables, no tecnicos.
+
+### Internacionalizacion Real de Producto (i18n/l10n)
+
+Lo anterior en este modulo cubre ortografia y tono dentro de un idioma. Esta seccion cubre la infraestructura para soportar multiples idiomas y locales en el mismo producto — no es opcional en cuanto el proyecto declara mas de un idioma en `CLAUDE.md` o en los archivos de traduccion existentes.
+
+**Extraccion de strings — nunca texto hardcodeado en componentes:**
+
+```tsx
+// PROHIBIDO — string hardcodeado, no traducible
+<button>Guardar cambios</button>
+
+// CORRECTO — clave de traduccion, el valor vive en el archivo de idioma
+<button>{t('cuenta.guardar_cambios')}</button>
+```
+
+| Framework | Libreria | Formato de archivo |
+|---|---|---|
+| React / Next.js | `next-intl` (App Router) o `react-i18next` | JSON por idioma, namespaced por seccion |
+| Vue / Nuxt | `vue-i18n` / `@nuxtjs/i18n` | JSON o YAML por idioma |
+| Svelte | `svelte-i18n` | JSON por idioma |
+| Flutter | `intl` + `.arb` (ARB format) | Ver `mobile-engineer` para el detalle de implementacion |
+
+**Pluralizacion — nunca concatenar numero + string singular:**
+
+```tsx
+// PROHIBIDO — no funciona en idiomas con reglas de plural distintas al ingles/español simple
+`${cantidad} ${cantidad === 1 ? 'producto' : 'productos'}`
+
+// CORRECTO — Intl.PluralRules o el helper de la libreria de i18n resuelve la regla real del idioma
+new Intl.PluralRules('es').select(cantidad); // 'one' | 'many' | 'other'
+t('carrito.productos', { count: cantidad }); // la libreria resuelve el plural correcto internamente
+```
+
+Idiomas como arabe o polaco tienen mas de dos formas de plural (singular/dual/plural/pocos/muchos) — el patron ternario `? :` de JavaScript nunca es correcto para i18n real.
+
+**Formato de fecha, moneda y numero — nunca construir el string manualmente:**
+
+```typescript
+new Intl.DateTimeFormat('es-MX', { dateStyle: 'long' }).format(fecha);
+new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(monto);
+new Intl.NumberFormat('de-DE').format(1234.5); // "1.234,5" — separadores distintos por locale
+```
+
+**RTL (Right-to-Left) — si el proyecto soporta arabe, hebreo u otro idioma RTL:**
+
+- Usar propiedades logicas de CSS (`margin-inline-start`, `padding-inline-end`) en vez de fisicas (`margin-left`, `padding-right`) — se invierten automaticamente con `dir="rtl"`.
+- El atributo `dir` se fija en `<html>` segun el idioma activo, no se simula solo con CSS de un contenedor interno.
+- Iconos direccionales (flechas de "siguiente/anterior") se espejan en RTL; iconos de marca o contenido (logos, fotos) no.
+
+### Lista de verificacion i18n en PR
+
+- [ ] Cero strings de texto visible hardcodeados en componentes — todo pasa por la capa de traduccion.
+- [ ] Pluralizacion usa `Intl.PluralRules` o el helper de la libreria, nunca un ternario manual.
+- [ ] Fechas, moneda y numeros usan `Intl.*` con el locale activo, nunca concatenacion manual de string.
+- [ ] Si el proyecto soporta RTL: propiedades logicas de CSS, `dir` en el elemento raiz, iconos direccionales espejados.
 
 ---
 
@@ -241,7 +298,7 @@ Al recibir una tarea de frontend, detectar el idioma de la interfaz antes de gen
 | React / Next.js 15+ | shadcn/ui + Radix UI | Lucide React | Motion (ex Framer Motion) v11+ |
 | Vue 3 / Nuxt 3+ | Nuxt UI v3 / PrimeVue | Iconify | VueUse Motion |
 | Svelte 5 / SvelteKit | shadcn-svelte | Lucide Svelte | Svelte transitions nativas |
-| Angular 18+ | Angular Material v18+ | Material Symbols | Angular Animations |
+| Angular 22+ | Angular Material v22+ | Material Symbols | Angular Animations |
 | Astro 5+ | Astro Islands + cualquiera | Astro Icons | GSAP / Motion One |
 | Sin framework / Vanilla | Tailwind CSS + Headless UI | Heroicons | CSS custom properties |
 
@@ -320,7 +377,7 @@ ProductoVista({ producto }) -> <article>...</article>
 ProductoContenedor({ id }) -> useProducto + ProductoVista
 ```
 
-Limite: 150 lineas por componente. Si supera, dividir antes de aprobar el PR.
+Limite: 150 lineas por componente — mas estricto que el limite general de 300 lineas de CLAUDE.md porque un componente de presentacion mezcla JSX/template, estilos y logica de UI en el mismo archivo; esa densidad hace que 150 lineas de componente equivalgan a mucho mas contenido real que 150 lineas de un modulo de logica pura. Si supera, dividir antes de aprobar el PR.
 
 ---
 
@@ -389,6 +446,8 @@ it('no tiene violaciones de accesibilidad', async () => {
 
 ### Cobertura minima
 
+Objetivo AAA especifico de frontend — el piso minimo orientativo agnostico de stack esta en `qa-engineer`. Usar esta tabla como meta; si el proyecto no puede alcanzarla aun, el minimo de `qa-engineer` es aceptable como punto de partida documentado.
+
 | Capa | Umbral |
 |---|---|
 | Hooks y composables con logica | 90% |
@@ -406,9 +465,41 @@ it('no tiene violaciones de accesibilidad', async () => {
 | SSR | Contenido dinamico con SEO o datos frescos por request. |
 | SSG | Contenido que cambia raramente. |
 | ISR | Contenido semi-estatico con revalidacion periodica. Next.js/Nuxt. |
-| PPR | Paginas con shell estatico + agujeros dinamicos aislados. Next.js 15+. |
+| PPR | Paginas con shell estatico + agujeros dinamicos aislados. Estable en Next.js 16+ via `cacheComponents` (reemplaza el flag `experimental.ppr`), verificado 2026-08-03. |
 | Edge SSR | Latencia minima global, personalización por region. Vercel Edge, Cloudflare Workers. |
 | Islands (Astro) | Mayoria de contenido estatico + islas interactivas hidratadas bajo demanda. |
+
+---
+
+## Modulo 7B — Build de Produccion y Source Maps
+
+### Regla de exposicion de source maps
+
+Prohibido publicar source maps (`.map`) en el bundle servido al cliente en produccion — exponen el codigo fuente original completo (rutas de archivo, logica de negocio, comentarios) a cualquier visitante que inspeccione el bundle.
+
+| Herramienta | Configuracion correcta en produccion |
+|---|---|
+| Vite | `build.sourcemap: 'hidden'` (genera `.map` para error-tracking, no lo referencia en el bundle publico) o `false` si no hay integracion de error-tracking |
+| Webpack | `devtool: 'hidden-source-map'` en `mode: 'production'` — nunca `'source-map'` a secas |
+| Next.js | `productionBrowserSourceMaps: false` (default) en `next.config.js` — no activar salvo que el `.map` se suba solo al proveedor de error-tracking y se excluya del deploy publico |
+| Rollup | `output.sourcemap: 'hidden'` |
+
+### Patron correcto: hidden source maps + error tracking
+
+```javascript
+// vite.config.js — genera el .map pero no lo referencia en el bundle publico
+export default {
+  build: { sourcemap: 'hidden' }
+};
+```
+
+El `.map` generado se sube unicamente al proveedor de error-tracking (Sentry, Datadog RUM) via su CLI de build, y se borra del directorio de salida antes de desplegar los assets estaticos. Nunca queda accesible en una ruta publica del sitio.
+
+### Verificacion antes de desplegar
+
+- [ ] `curl -I https://dominio.com/assets/main.js.map` devuelve 404, no 200.
+- [ ] El bundle minificado no contiene comentarios `//# sourceMappingURL=` que apunten a una ruta publica.
+- [ ] Minificacion activa (`terser`/`esbuild` en modo produccion) — variables renombradas, sin espacios ni comentarios de desarrollo.
 
 ---
 
@@ -424,6 +515,49 @@ Todo flujo que depende de datos remotos modela cuatro estados:
 3. Vacio      — diferente al estado de carga
 4. Con datos  — el caso exitoso
 ```
+
+---
+
+## Modulo 8B — Tiempo Real en el Cliente (WebSocket / SSE)
+
+Ver `backend-architect` para el diseno del servidor. Este modulo cubre el consumo desde el cliente.
+
+### SSE — consumo con reconexion nativa
+
+```typescript
+const eventos = new EventSource('/api/notificaciones/stream');
+eventos.onmessage = (evento) => {
+  const payload = JSON.parse(evento.data);
+  actualizarEstado(payload);
+};
+eventos.onerror = () => {
+  // EventSource reintenta la conexion automaticamente — no implementar backoff manual
+};
+```
+
+### WebSocket — patron de reconexion con backoff exponencial
+
+```typescript
+function conectarWebSocket(url: string, onMensaje: (data: unknown) => void) {
+  let intentos = 0;
+  let socket: WebSocket;
+
+  function conectar() {
+    socket = new WebSocket(url);
+    socket.onopen = () => { intentos = 0; };
+    socket.onmessage = (e) => onMensaje(JSON.parse(e.data));
+    socket.onclose = () => {
+      const espera = Math.min(1000 * 2 ** intentos, 30000);
+      intentos++;
+      setTimeout(conectar, espera);
+    };
+  }
+  conectar();
+  return () => socket.close();
+}
+```
+
+Al reconectar tras una desconexion, el cliente debe re-sincronizar estado (pedir el estado actual completo o los eventos perdidos) — no asumir que no se perdio nada durante el tiempo desconectado.
 
 ---
 
@@ -711,6 +845,159 @@ if (!prefersReduced) {
 
 ---
 
+## Modulo 14 — 3D Web, Shaders y Experiencias Inmersivas
+
+### Principio fundamental
+
+Una escena 3D que corre pero se ve generica no cumple el objetivo. El listón es el nivel Apple/Awwvards: geometria, iluminacion, movimiento de camara y timing de scroll trabajando como un solo sistema deliberado — no una libreria con sus defaults encendidos. Si no se puede declarar en una frase por que esta escena se ve distinta a cualquier demo de Three.js, no esta lista.
+
+### Identidad 3D — declarar antes de codear
+
+Igual que el Modulo 2 exige una `IDENTIDAD:` visual antes de escribir CSS, ninguna escena 3D se codea sin declarar primero:
+
+```
+IDENTIDAD 3D:
+  Geometria: [organica/procedural | solidos geometricos precisos | escaneo/fotogrametria | abstracto low-poly]
+  Paleta y luz: [estudio fotografico alto-contraste | atmosferico/volumetrico | neon/emisivo | monocromo con un acento]
+  Movimiento de camara: [orbit suave con easing | scroll-locked path | parallax de profundidad | estatico con objeto rotando]
+  Referencia de tono: [una sola linea — ej. "producto flotando en vacio de estudio, como un anuncio de reloj de lujo"]
+```
+
+Si `ux-visual-designer` ya declaro una `IDENTIDAD:` 2D para el proyecto, la identidad 3D es su extension al espacio — misma paleta, mismo lenguaje de movimiento, no un sistema visual paralelo.
+
+### Prohibido — patrones reconocibles de demo/plantilla
+
+- Esfera de particulas default sin proposito narrativo (el "particle sphere" de portfolio generico).
+- Torus knot, Suzanne (mono de Blender) o geometrias de ejemplo de Three.js sin transformar.
+- Post-processing con presets sin ajustar (bloom a maxima intensidad, vignette generico de `postprocessing`).
+- Modelo 3D iluminado solo con `ambientLight` — sin key light, sin sombras, se ve plano y falso.
+- Rotacion automatica infinita sin easing ni proposito (`mesh.rotation.y += 0.01` en el render loop, sin mas).
+- Skybox/HDRI de stock reconocible (los presets default de `@react-three/drei` Environment: `city`, `sunset`, `dawn` sin personalizar) usado como fondo final de produccion.
+
+### Stack recomendado 2026
+
+| Necesidad | Herramienta | Razon |
+|---|---|---|
+| Escenas 3D en React | React Three Fiber (R3F) + `@react-three/drei` | Declarativo, se integra con el arbol de componentes y el ciclo de vida de React. Estandar de facto 2026. |
+| Escenas 3D sin framework | Three.js directo | Control total del render loop cuando no hay React o se necesita máximo rendimiento. |
+| Física (colisiones, gravedad) | `@react-three/rapier` (R3F) o `cannon-es` | Rapier es mas rapido (WASM); usar solo si la escena requiere fisica real, no para efectos que se pueden fakear con easing. |
+| Post-processing | `@react-three/postprocessing` | Bloom, DoF, chromatic aberration — ajustar cada valor a la identidad declarada, nunca dejar el default. |
+| Shaders custom | GLSL + `THREE.ShaderMaterial`, o `@react-three/drei`'s `shaderMaterial` | Cuando el efecto no existe como material estandar: distorsion, gradientes generativos, disolucion, transiciones de pagina. |
+| Modelos 3D optimizados | `.glb`/`.gltf` comprimido con Draco o Meshopt | Nunca cargar `.obj`/`.fbx` sin comprimir en produccion — el peso de archivo mata el LCP. |
+| Scroll storytelling | GSAP ScrollTrigger controlando camara/uniforms de R3F, o `@react-three/drei`'s `ScrollControls` | Sincronizar el progreso de scroll con posicion de camara, no con posicion del DOM. |
+| Model viewer de producto | `@google/model-viewer` (web component, sin necesidad de R3F) o R3F custom si se necesita interaccion mas alla de orbit/zoom | `model-viewer` cubre el 80% de casos de e-commerce con AR incluido, sin escribir Three.js. |
+| WebXR / AR | `@react-three/xr` sobre WebXR API nativo | Solo si el proyecto confirma soporte de dispositivo objetivo — WebXR no esta disponible en todos los navegadores/dispositivos. |
+
+### Patron de escena base con identidad e iluminacion deliberada
+
+```tsx
+import { Canvas } from '@react-three/fiber';
+import { Environment, ContactShadows, PerspectiveCamera } from '@react-three/drei';
+
+function EscenaProducto({ children }: { children: React.ReactNode }) {
+  return (
+    <Canvas shadows dpr={[1, 2]} camera={{ fov: 35 }}>
+      {/* Key light — define la identidad de iluminacion, nunca solo ambient */}
+      <directionalLight
+        position={[4, 6, 4]}
+        intensity={2.2}
+        castShadow
+        shadow-mapSize={[2048, 2048]}
+      />
+      <ambientLight intensity={0.15} />
+      {/* HDRI custom subido al proyecto, no el preset default de drei */}
+      <Environment files="/hdri/estudio-custom.hdr" />
+      <ContactShadows position={[0, -1, 0]} opacity={0.5} blur={2.4} far={2} />
+      {children}
+    </Canvas>
+  );
+}
+```
+
+### Presupuesto de performance — gate obligatorio, no sugerencia
+
+Una escena 3D que no cumple estos umbrales en hardware medio se rechaza, sin importar que tan bien se vea en la maquina del desarrollador:
+
+| Metrica | Umbral | Verificacion |
+|---|---|---|
+| FPS en escena interactiva | >= 60fps en GPU integrada de gama media (ej. Intel Iris, Apple M1 base) | Chrome DevTools Performance panel, grabar 10s de interaccion real |
+| Peso de modelos 3D | < 5MB por modelo `.glb` comprimido (Draco/Meshopt) | `ls -la` sobre el asset final, no el original sin comprimir |
+| Draw calls por escena | < 100 en escenas con multiples objetos | `renderer.info.render.calls` en runtime |
+| Tiempo hasta interactivo de la escena | < 2s desde que el Canvas entra al viewport | Marcar con `performance.mark()` al primer frame renderizado |
+| Impacto en LCP de la pagina | La escena 3D no es el elemento de LCP, o si lo es, cumple el mismo umbral de 2.5s del Modulo 10 | Lighthouse con la escena en el viewport inicial |
+
+### Fallback obligatorio para dispositivos de gama baja
+
+Ninguna escena 3D se entrega sin un plan para hardware que no puede sostenerla. Detectar capacidad antes de montar el Canvas, no despues de que el usuario ya sufrio el frame drop:
+
+```tsx
+import { useEffect, useState } from 'react';
+
+function useCapacidad3D() {
+  const [nivel, setNivel] = useState<'completo' | 'reducido' | 'estatico'>('completo');
+
+  useEffect(() => {
+    const prefiereReducido = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const gl = document.createElement('canvas').getContext('webgl2');
+    const memoria = (navigator as any).deviceMemory ?? 8;
+
+    if (prefiereReducido || !gl) setNivel('estatico');
+    else if (memoria < 4) setNivel('reducido');
+  }, []);
+
+  return nivel;
+}
+
+// 'completo'   -> escena 3D full con post-processing
+// 'reducido'   -> misma escena, sin post-processing, sombras simplificadas, dpr fijo en 1
+// 'estatico'   -> imagen/video pre-renderizado de la escena como fallback, cero WebGL
+```
+
+`prefers-reduced-motion: reduce` es la misma señal que ya gobierna las animaciones CSS del Modulo 12 — la escena 3D respeta la preferencia del usuario igual que cualquier otra animacion.
+
+### Shaders custom — patron minimo
+
+```glsl
+// vertex.glsl — desplazamiento basado en ruido, controlado por uniform de scroll
+uniform float uProgreso;
+uniform float uTiempo;
+varying vec2 vUv;
+
+void main() {
+  vUv = uv;
+  vec3 pos = position;
+  pos.z += sin(pos.x * 4.0 + uTiempo) * uProgreso * 0.3;
+  gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);
+}
+```
+
+```tsx
+// Uniform sincronizado con scroll — no con setInterval ni valores fijos
+const uniforms = useMemo(() => ({
+  uProgreso: { value: 0 },
+  uTiempo: { value: 0 },
+}), []);
+
+useFrame((state) => {
+  uniforms.uTiempo.value = state.clock.elapsedTime;
+});
+```
+
+Regla: todo shader custom declara sus uniforms con nombres descriptivos (no `u1`, `u2`) y documenta en un comentario de una linea que efecto visual controla cada uno.
+
+### Checklist de verificacion — 3D/Inmersivo en PR
+
+- [ ] `IDENTIDAD 3D:` declarada y coherente con la identidad 2D del proyecto (si existe).
+- [ ] Cero patrones de la lista de prohibidos (particle sphere generico, torus knot, HDRI preset sin editar, ambient-only lighting).
+- [ ] Iluminacion con al menos una key light direccional/puntual ademas de ambient — nunca solo ambient.
+- [ ] Modelos `.glb`/`.gltf` comprimidos (Draco o Meshopt), peso verificado < 5MB por asset.
+- [ ] FPS medido en hardware de gama media, no solo en la maquina de desarrollo.
+- [ ] Fallback de 3 niveles implementado (completo/reducido/estatico) segun capacidad del dispositivo y `prefers-reduced-motion`.
+- [ ] La escena 3D no degrada el LCP de la pagina por debajo del umbral del Modulo 10.
+- [ ] Si hay scroll storytelling: el progreso de scroll controla camara/uniforms directamente, no clases CSS que disparan animaciones independientes.
+
+---
+
 ## Lista de Verificacion de Revision de PR — Frontend AAA
 
 Un PR con observacion en cualquier punto no se aprueba.
@@ -730,6 +1017,7 @@ Un PR con observacion en cualquier punto no se aprueba.
 - [ ] Diseno responsive verificado en movil, tablet y desktop.
 - [ ] Design tokens W3C usados — sin valores magicos de color, espaciado o duracion.
 - [ ] Paradigma visual declarado e implementado coherentemente (no slop).
+- [ ] Si hay contenido 3D/WebGL: `IDENTIDAD 3D:` declarada, fallback de 3 niveles implementado, FPS verificado en hardware de gama media (ver Modulo 14).
 
 **SEO y performance:**
 - [ ] `<title>` y `<meta name="description">` unicos por pagina.
@@ -743,6 +1031,7 @@ Un PR con observacion en cualquier punto no se aprueba.
 - [ ] URLs validadas antes de usarse en `href` o `src`.
 - [ ] Datos sensibles no en localStorage.
 - [ ] `npm audit` sin severidad alta o critica.
+- [ ] Source maps ocultos u omitidos en el build de produccion — sin `.map` accesible en ruta publica.
 
 **Calidad de codigo:**
 - [ ] Componentes < 150 lineas.
@@ -780,3 +1069,4 @@ Restricciones adicionales:
 - Design tokens W3C obligatorios — valores magicos bloquean el PR.
 - No omitir meta tags SEO en paginas publicas o landing pages.
 - Declarar la libreria de motion elegida y justificarla antes de escribir codigo de animacion.
+- Declarar la `IDENTIDAD 3D:` y verificar el presupuesto de performance antes de entregar cualquier escena Three.js/R3F o shader custom.

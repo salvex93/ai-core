@@ -1,9 +1,9 @@
 ---
 name: database-ops
-description: Especialista en operaciones de base de datos en produccion. Cubre migraciones zero-downtime, analisis de query plans, particionamiento, vacuuming PostgreSQL, connection pooling con PgBouncer, backup/restore, y observabilidad de queries lentas. Diferenciado de backend-architect (diseño de esquemas) y data-engineer (pipelines ETL). Activa al diagnosticar degradacion de performance en BD, planificar migraciones en produccion, configurar pooling o definir estrategias de backup.
+description: Especialista en operaciones de base de datos en produccion. Cubre migraciones zero-downtime, analisis de query plans, particionamiento, vacuuming PostgreSQL, connection pooling con PgBouncer, backup/restore, Row Level Security (RLS) para aislamiento multi-tenant, y observabilidad de queries lentas. Diferenciado de backend-architect (diseño de esquemas) y data-engineer (pipelines ETL). Activa al diagnosticar degradacion de performance en BD, planificar migraciones en produccion, configurar pooling, implementar RLS multi-tenant o definir estrategias de backup.
 origin: ai-core
-version: 1.1.0
-last_updated: 2026-07-26
+version: 1.2.0
+last_updated: 2026-08-03
 rol: architect
 ---
 
@@ -19,6 +19,7 @@ Responsabilidad unica: mantener bases de datos en produccion saludables, perform
 - Al definir estrategia de backup, punto de recuperacion (RPO) y tiempo de recuperacion (RTO).
 - Al auditar el uso de indices, bloat de tablas o configuracion de autovacuum.
 - Al escalar PostgreSQL: particionamiento, replicacion, sharding logico con Citus.
+- Al implementar aislamiento de datos multi-tenant a nivel de motor: Row Level Security (RLS).
 
 
 ## Cuando NO Activar Este Perfil
@@ -217,6 +218,60 @@ CREATE TABLE eventos_2026_06 PARTITION OF eventos
 ```
 
 Automatizar creacion de particiones futuras con `pg_partman` antes de llegar al borde de la particion activa.
+
+## Row Level Security (RLS)
+
+RLS restringe que filas puede ver o modificar cada rol/sesion directamente en el motor de base de datos — una segunda capa de defensa independiente de la autorizacion de aplicacion que ya cubre `backend-architect`. Util en multi-tenancy (aislar filas por `tenant_id`) y cuando mas de un servicio o rol de BD accede a la misma tabla sin pasar siempre por la misma capa de aplicacion.
+
+### Activacion y politica base (PostgreSQL)
+
+```sql
+ALTER TABLE documentos ENABLE ROW LEVEL SECURITY;
+-- FORCE aplica la politica incluso al propietario de la tabla (superusuarios quedan exentos por defecto)
+ALTER TABLE documentos FORCE ROW LEVEL SECURITY;
+
+-- Politica: cada tenant solo ve sus propias filas
+CREATE POLICY tenant_isolation ON documentos
+  USING (tenant_id = current_setting('app.current_tenant_id')::uuid);
+
+-- Politica separada para escritura, si el criterio de INSERT/UPDATE difiere del de lectura
+CREATE POLICY tenant_isolation_write ON documentos
+  FOR INSERT WITH CHECK (tenant_id = current_setting('app.current_tenant_id')::uuid);
+```
+
+El valor de `app.current_tenant_id` se fija por conexion/transaccion desde la capa de aplicacion antes de ejecutar la query:
+
+```sql
+SET LOCAL app.current_tenant_id = '3fa85f64-5717-4562-b3fc-2c963f66afa6';
+```
+
+### RLS vs filtrado en capa de aplicacion
+
+| Criterio | RLS (motor de BD) | Filtro en aplicacion (`WHERE tenant_id = ?` manual) |
+|---|---|---|
+| Riesgo si se olvida el filtro en un query nuevo | Ninguno — la politica aplica siempre | Alto — cada query nueva puede omitir el filtro por error humano |
+| Con `pool_mode = transaction` (PgBouncer) | Requiere fijar `current_setting` en cada transaccion, no por conexion persistente | No aplica, el filtro va en la query misma |
+| Auditoria | Politica centralizada, un solo lugar que revisar | Dispersa en cada repositorio/query |
+| Motores sin RLS nativo (MySQL, MongoDB) | No disponible — usar vistas filtradas o filtrado obligatorio en la capa de repositorio | Unica opcion |
+
+Regla: RLS complementa la autorizacion de aplicacion, no la sustituye. Si el motor no soporta RLS nativo, `backend-architect` debe garantizar que el repositorio nunca ejecuta una query sin el filtro de aislamiento.
+
+### Verificacion antes de aprobar RLS en produccion
+
+```sql
+-- Confirmar que la tabla tiene RLS activo y forzado
+SELECT relname, relrowsecurity, relforcerowsecurity
+FROM pg_class
+WHERE relname = 'documentos';
+
+-- Listar politicas activas por tabla
+SELECT polname, polcmd, qual FROM pg_policies WHERE tablename = 'documentos';
+```
+
+- [ ] `ENABLE ROW LEVEL SECURITY` y `FORCE ROW LEVEL SECURITY` ambos activos en tablas multi-tenant.
+- [ ] Existe al menos una politica por operacion relevante (`SELECT`, `INSERT`, `UPDATE`, `DELETE`) — sin politica, el default es denegar todo con RLS activo.
+- [ ] El valor de aislamiento (`tenant_id`, `user_id`) se fija con `SET LOCAL` dentro de la misma transaccion que ejecuta la query, nunca en una conexion persistente compartida entre tenants.
+- [ ] Probado con un usuario/rol que NO es superusuario ni propietario de la tabla — RLS no aplica a esos roles salvo `FORCE`.
 
 ## Observabilidad de Queries
 

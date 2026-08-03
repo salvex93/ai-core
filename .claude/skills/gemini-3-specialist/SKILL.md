@@ -1,9 +1,9 @@
 ---
 name: gemini-3-specialist
-description: Especialista en integracion avanzada con la familia Gemini 3.x (3.1 Pro, 3.1 Flash, 3.1 Flash-Lite, 3.5 Flash, 3.1 Flash Image). Cubre thinking_level (low/medium/high), Live API con TTS nativo, generacion y edicion conversacional de imagenes (Nano Banana 2), contexto de 1M tokens, y seleccion de variante segun caso de uso y costo. Activa al integrar Gemini directamente (fuera del bridge MCP), disenar pipelines multimodales, o evaluar Flash-Lite como alternativa de escala masiva.
+description: Especialista en integracion avanzada con la familia Gemini 3.x (3.1 Pro, 3.6 Flash, 3.5 Flash-Lite, 3.1 Flash Image). Cubre thinking_level (low/medium/high), Live API con TTS nativo, generacion y edicion conversacional de imagenes (Nano Banana 2), contexto de 1M tokens, y seleccion de variante segun caso de uso y costo. Activa al integrar Gemini directamente (fuera del bridge MCP), disenar pipelines multimodales, o evaluar Flash-Lite como alternativa de escala masiva.
 origin: ai-core
-version: 2.1.0
-last_updated: 2026-07-26
+version: 2.2.0
+last_updated: 2026-08-03
 rol: architect
 ---
 
@@ -17,7 +17,7 @@ Complementos activos: `audio-voice-engineer` (Live API y TTS), `rag-specialist` 
 
 - Al escribir codigo que importa `google-genai` (SDK vigente; sucesor de `google-generativeai`) o `@google/generative-ai`.
 - Al disenar pipelines multimodales con Gemini (audio + video + texto + imagen).
-- Al evaluar si usar Gemini 3.1 Flash-Lite para escala masiva (> 10k requests/dia a costo minimo).
+- Al evaluar si usar Gemini 3.5 Flash-Lite para escala masiva (> 10k requests/dia a costo minimo).
 - Al implementar `thinking_level` para controlar costo/calidad en tareas de razonamiento.
 - Al usar la Live API para conversacion en tiempo real o integracion audio-to-audio.
 - Al generar o editar imagenes con Gemini 3.1 Flash Image (Nano Banana 2) en un pipeline conversacional.
@@ -58,18 +58,18 @@ Insertar directiva y detener ante:
 
 El tier "Flash-Thinking" de la generacion 2.5 desaparecio como modelo separado: el razonamiento ahora es un parametro (`thinking_level`) configurable en cualquier modelo de la familia 3, no un modelo distinto.
 
-| Variante | Contexto | Thinking | Uso optimo | Costo relativo |
+| Variante | Contexto | Thinking | Uso optimo | Pricing paid (in/out por 1M tokens) |
 |---|---|---|---|---|
-| `gemini-3.1-pro-preview` | 1M tokens | `thinking_level` (low/medium/high) | Razonamiento complejo, corpus muy largos, benchmarks exigentes | Alto |
-| `gemini-3.5-flash` | 1M tokens | `thinking_level` (low/medium/high) | Tareas agenticas multi-step, coding, rinde por encima de 3.1 Pro en varios benchmarks | Medio-alto (~5x el costo de 3.1 Flash-Lite) |
-| `gemini-3.1-flash-live-preview` | — (streaming) | Si | Live API audio-to-audio, conversacion en tiempo real | Medio |
-| `gemini-3.1-flash-lite` | 1M tokens | `thinking_level` (low/medium/high, default low recomendado) | Alta escala, throughput masivo, costo minimo — heredero directo del tier Lite | Muy bajo |
+| `gemini-3.1-pro-preview` | 1M tokens | `thinking_level` (low/medium/high) | Razonamiento complejo, corpus muy largos, benchmarks exigentes | $2.00 / $12.00 |
+| `gemini-3.6-flash` | 1M tokens | `thinking_level` (low/medium/high) | Tareas agenticas multi-step, coding — modelo Flash mas reciente, reemplaza a 3.5 Flash como tier general | $1.50 / $7.50 |
+| `gemini-3.1-flash-live-preview` | — (streaming) | Si | Live API audio-to-audio, conversacion en tiempo real | Ver `audio-voice-engineer` |
+| `gemini-3.5-flash-lite` | 1M tokens | `thinking_level` (low/medium/high, default low recomendado) | Alta escala, throughput masivo, costo minimo — reemplaza a 3.1 Flash-Lite como tier 0 mas barato de la familia 3.x | $0.30 / $2.50 |
 
-Nota de verificacion: `gemini-3.5-pro` esta listado como "coming soon" en `deepmind.google` (verificado 2026-07-10) — no usar como default hasta confirmar disponibilidad general.
+Verificado 2026-08-03 contra `ai.google.dev/gemini-api/docs/pricing` y `/docs/models`. `gemini-3.1-flash-lite` ($0.25/$1.50) sigue disponible y vigente — no esta deprecado, pero 3.5 Flash-Lite es la opcion mas nueva dentro del mismo tier de costo. `gemini-3.5-flash` ($1.50/$9.00) tambien sigue disponible; 3.6 Flash lo mejora en pricing de output sin subir el de input.
 
 Regla de seleccion:
-1. Tarea de alto volumen con logica simple → `gemini-3.1-flash-lite` con `thinking_level: "low"`.
-2. Tarea agentica multi-step o coding con presupuesto medio → `gemini-3.5-flash`.
+1. Tarea de alto volumen con logica simple → `gemini-3.5-flash-lite` con `thinking_level: "low"` (o `gemini-3.1-flash-lite` si el proyecto ya lo tiene integrado y no requiere las mejoras de 3.5).
+2. Tarea agentica multi-step o coding con presupuesto medio → `gemini-3.6-flash`.
 3. Live API / audio-to-audio → `gemini-3.1-flash-live-preview` (ver `audio-voice-engineer` para detalle; Affective Dialog no soportado a la fecha).
 4. Corpus > 500MB o razonamiento muy complejo → `gemini-3.1-pro-preview` con `thinking_level: "high"`.
 5. Nunca subir de tier sin medir primero el delta de calidad/costo en un dataset de evaluacion. Ver `llm-evals` para diseno del dataset de evaluacion representativo.
@@ -112,9 +112,9 @@ Guia de `thinking_level` por tipo de tarea:
 - Razonamiento complejo, arquitectura, benchmarks exigentes: `high`.
 - **Si no se especifica `thinking_level`, la API usa `high` por defecto** — fijarlo explicitamente en produccion de alto volumen para evitar costo/latencia inesperados.
 
-## Gemini 3.1 Flash-Lite — Tier 0 de Alta Escala
+## Gemini 3.5 Flash-Lite — Tier 0 de Alta Escala
 
-Flash-Lite es la variante de costo minimo de la familia 3.1. Optimizado para throughput masivo con `thinking_level: "low"`. Candidato a reemplazar o complementar Haiku 4.5 en tier 1 del ai-core para tareas de clasificacion y extraccion de alto volumen.
+Flash-Lite es la variante de costo minimo de la familia 3.x. Optimizado para throughput masivo con `thinking_level: "low"`. Candidato a reemplazar o complementar Haiku 4.5 en tier 1 del ai-core para tareas de clasificacion y extraccion de alto volumen.
 
 ```python
 from google import genai
@@ -126,7 +126,7 @@ import asyncio
 
 async def clasificar(texto: str) -> str:
     interaction = await client.aio.interactions.create(
-        model="gemini-3.1-flash-lite",
+        model="gemini-3.5-flash-lite",
         input=texto,
         generation_config={"thinking_level": "low"},
     )
@@ -142,7 +142,7 @@ async def batch_clasificacion(textos: list[str]) -> list[str]:
     return await asyncio.gather(*[clasificar_con_limite(t) for t in textos])
 ```
 
-Diferencia critica vs 3.5 Flash: Flash-Lite en `thinking_level: "low"` prioriza latencia/costo. Si la tarea requiere razonamiento multi-step, usar `gemini-3.5-flash` o subir el nivel a `medium`/`high`.
+Diferencia critica vs 3.6 Flash: Flash-Lite en `thinking_level: "low"` prioriza latencia/costo. Si la tarea requiere razonamiento multi-step, usar `gemini-3.6-flash` o subir el nivel a `medium`/`high`. `gemini-3.1-flash-lite` sigue disponible como alternativa si el proyecto ya lo tiene integrado.
 
 ## Gemini 3.1 Pro — Contexto de 1M Tokens
 
@@ -218,7 +218,7 @@ Regla: para proyectos con datos de clientes finales o contratos de confidenciali
 
 ## Checklist de Integracion Gemini 3.x
 
-- [ ] Variante seleccionada es la mas barata que completa la tarea (Flash-Lite > 3.5 Flash > Pro).
+- [ ] Variante seleccionada es la mas barata que completa la tarea (Flash-Lite > 3.6 Flash > Pro).
 - [ ] `thinking_level` fijado explicitamente ("low"/"medium"/"high") — nunca dejar el default implicito ("high") en produccion de alto volumen.
 - [ ] No se combina `thinking_level` con `thinking_budget` en el mismo request (error 400).
 - [ ] GEMINI_API_KEY leida desde variable de entorno — prohibido hardcodear.
