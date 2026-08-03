@@ -18,7 +18,7 @@ const { GEMINI_DEFAULT, isRefusal, extractJson } = require('../scripts/services/
 
 describe('GeminiApiClient — constantes', () => {
   test('GEMINI_DEFAULT es el modelo esperado', () => {
-    assert.equal(GEMINI_DEFAULT, 'gemini-3.5-flash');
+    assert.equal(GEMINI_DEFAULT, 'gemini-3.6-flash');
   });
 });
 

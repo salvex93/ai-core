@@ -11,7 +11,7 @@
 const fs   = require('fs');
 const path = require('path');
 
-const GEMINI_DEFAULT      = 'gemini-3.5-flash';
+const GEMINI_DEFAULT      = 'gemini-3.6-flash';
 const MAX_RETRIES         = 2;
 const COMPACT_TOKEN_LIMIT = 1125; // ~1.500 tokens (1 token ≈ 0.75 palabras) — alineado con limite de output declarado en CLAUDE.md
 const MAX_COMPACT_ROUNDS  = 2;
@@ -30,18 +30,42 @@ function loadEnv() {
 }
 
 // Lazy-load del SDK — disponible en el primer getModel, no en el import
-let GoogleGenerativeAI;
+let GoogleGenAI;
 function getGenAI() {
-  if (!GoogleGenerativeAI) {
-    ({ GoogleGenerativeAI } = require('@google/generative-ai'));
+  if (!GoogleGenAI) {
+    ({ GoogleGenAI } = require('@google/genai'));
   }
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) throw new Error('GEMINI_API_KEY no configurada en .env');
-  return new GoogleGenerativeAI(apiKey);
+  return new GoogleGenAI({ apiKey });
 }
 
+// Shim de compatibilidad: expone .generateContent(prompt) con la misma forma
+// que el SDK viejo (result.response.text(), result.response.candidates) para
+// que McpServerHandlers.js no requiera cambios en su capa de consumo.
 function getModel(opts = {}) {
-  return getGenAI().getGenerativeModel({ model: GEMINI_DEFAULT, ...opts });
+  const ai = getGenAI();
+  const { model = GEMINI_DEFAULT, systemInstruction, tools } = opts;
+  return {
+    async generateContent(promptOrMessage) {
+      const contents = [{ role: 'user', parts: [{ text: promptOrMessage }] }];
+      const config = {
+        ...(systemInstruction && { systemInstruction }),
+        ...(tools && { tools }),
+      };
+      const result = await ai.models.generateContent({
+        model,
+        contents,
+        ...(Object.keys(config).length > 0 && { config }),
+      });
+      return {
+        response: {
+          text: () => result.text || '',
+          candidates: result.candidates,
+        },
+      };
+    },
+  };
 }
 
 // Rechaza respuestas que son negativas de Gemini o no tienen contenido real.
