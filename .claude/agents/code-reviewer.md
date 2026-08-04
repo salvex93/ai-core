@@ -3,7 +3,7 @@ name: code-reviewer
 description: Agente autonomo de revision de codigo. Analiza el diff del branch actual contra main, clasifica hallazgos por severidad (critica/alta/media/baja) y produce un reporte estructurado sin intervencion por turno. Activa con /code-review o cuando se detecta un PR listo para revision.
 origin: ai-core
 version: 1.0.0
-last_updated: 2026-07-26
+last_updated: 2026-08-04
 provider: any
 loop: true
 ---

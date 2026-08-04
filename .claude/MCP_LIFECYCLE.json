@@ -1,0 +1,17 @@
+{
+  "descripcion": "Ciclo de vida declarado de los servidores MCP propios de ai-core (gemini-bridge, anthropic-router). Estados posibles: Active, Deprecated, Removed. Deprecated exige fecha_deprecacion y reemplazo. Validado por mcp-lifecycle-check.js, consultado por aiops-auditor.",
+  "servidores": [
+    {
+      "name": "gemini-bridge",
+      "script": "scripts/mcp-gemini.js",
+      "estado": "Active",
+      "desde": "2026-06-01"
+    },
+    {
+      "name": "anthropic-router",
+      "script": "scripts/mcp-anthropic.js",
+      "estado": "Active",
+      "desde": "2026-06-01"
+    }
+  ]
+}

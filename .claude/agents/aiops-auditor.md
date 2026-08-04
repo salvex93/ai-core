@@ -3,7 +3,7 @@ name: aiops-auditor
 description: Agente autonomo de auditoria del ecosistema ai-core. Ejecuta validate-globals, verifica conformidad de skills y agentes, detecta drift de versiones y produce reporte de estado sin intervencion. Activa al inicio de sesion o cuando se sospecha degradacion del arnés.
 origin: ai-core
 version: 1.0.0
-last_updated: 2026-07-26
+last_updated: 2026-08-04
 provider: any
 loop: true
 ---
@@ -68,6 +68,14 @@ node .claude/bin/validate-map.js 2>&1 | head -5
 
 Si reporta drift >= 3 archivos y el mapa no se regenero automaticamente → hallazgo alto.
 
+### Paso 4b — Ciclo de vida de servidores MCP propios
+
+```bash
+node .claude/bin/mcp-lifecycle-check.js
+```
+
+Verifica que cada servidor MCP propio (`gemini-bridge`, `anthropic-router`) tenga un estado declarado (`Active`/`Deprecated`/`Removed`) valido en `.claude/MCP_LIFECYCLE.json`, y que todo servidor `Deprecated` declare `fecha_deprecacion` y `reemplazo`. Un servidor real sin entrada declarada, o `Deprecated` sin plan de reemplazo → hallazgo alto.
+
 ### Paso 5 — Scoring y delta
 
 ```bash
@@ -90,6 +98,7 @@ SKILLS: <N conformes>/<N total> conformes
 AGENTES: <N conformes>/<N total> conformes | <N> faltantes
 SDK-DRIFT: <paquetes desactualizados o "ninguno">
 MAPA: OK | DRIFT(<N> archivos)
+MCP-LIFECYCLE: OK | <N> hallazgos
 SCORE: <total>/10 (<delta> vs anterior)
 
 ACCIONES_REQUERIDAS:

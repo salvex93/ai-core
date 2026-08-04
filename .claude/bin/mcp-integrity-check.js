@@ -85,7 +85,7 @@ function verificarIntegridad() {
   return { ok: cambios.length === 0, cambios, primeraEjecucion: false };
 }
 
-module.exports = { verificarIntegridad };
+module.exports = { verificarIntegridad, SERVIDORES };
 
 if (require.main === module) {
   const r = verificarIntegridad();
