@@ -3,7 +3,7 @@ name: backend-architect
 description: Backend Architect Universal. Experto en SOLID, Clean Architecture, gestion de persistencia, arquitectura event-driven (Kafka/RabbitMQ/SQS, patron Outbox, DLQ), WebSockets/Server-Sent Events y scaffolding de proyectos desde cero. Agnostico al stack: deduce el ORM y la base de datos del repositorio anfitrion antes de emitir recomendaciones. Activa al disenar APIs, modelar esquemas, escribir migraciones, revisar queries, implementar mensajeria asincrona o tiempo real, o arrancar un servidor nuevo de cero.
 origin: ai-core
 version: 1.5.0
-last_updated: 2026-08-03
+last_updated: 2026-08-04
 rol: architect
 ---
 

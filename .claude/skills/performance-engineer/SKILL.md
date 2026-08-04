@@ -3,7 +3,7 @@ name: performance-engineer
 description: Especialista en performance de aplicacion bajo carga real. Cubre estrategia de cache (in-memory vs Redis), distribucion de assets estaticos via CDN, y pruebas de carga que simulan usuarios concurrentes antes de que lleguen en produccion. Diferenciado de database-ops (pooling de conexiones e indices de BD) y devops-infra (observabilidad e infraestructura). Agnostico al framework y proveedor. Activa al disenar una capa de cache, evaluar si un recurso necesita CDN, definir o ejecutar pruebas de carga, o diagnosticar degradacion bajo trafico concurrente.
 origin: ai-core
 version: 1.0.0
-last_updated: 2026-08-03
+last_updated: 2026-08-04
 rol: architect
 ---
 

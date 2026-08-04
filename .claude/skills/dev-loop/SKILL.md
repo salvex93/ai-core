@@ -3,7 +3,7 @@ name: dev-loop
 description: Ciclo de desarrollo con validacion por fases. Impone 5 gates obligatorios antes de generar codigo — Spec, Design, Plan, Build, Review — eliminando el patron de 500 lineas sin validar. Basado en Superpowers (Jesse Vincent/obra) y agent-skills (Addy Osmani). Activa al iniciar cualquier tarea de implementacion nueva, al detectar que se va a generar codigo sin especificacion previa, o al retomar una tarea incompleta.
 origin: ai-core
 version: 1.0.0
-last_updated: 2026-08-03
+last_updated: 2026-08-04
 rol: coder
 ---
 
