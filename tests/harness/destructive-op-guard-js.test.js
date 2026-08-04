@@ -112,4 +112,53 @@ describe('destructive-op-guard.js', () => {
     const r = spawnSync('node', [GUARD], { encoding: 'utf8', cwd: REPO, input: '' });
     assert.equal(r.status, 0);
   });
+
+  describe('mensaje real de git commit -- Co-Authored-By y menciones de IA', () => {
+    test('bloquea "git commit -m" cuyo mensaje real incluye Co-Authored-By', () => {
+      const r = run('git commit -m "fix: ajuste de config\n\nCo-Authored-By: Claude <noreply@anthropic.com>"');
+      assert.equal(r.status, 2);
+      assert.ok(r.stderr.includes('DESTRUCTIVE-OP-GUARD'));
+    });
+
+    test('bloquea "git commit -m" cuyo mensaje real menciona una herramienta de IA como autor', () => {
+      assert.equal(run('git commit -m "Generated with Claude Code"').status, 2);
+      assert.equal(run('git commit -m "cambios sugeridos por ChatGPT"').status, 2);
+    });
+
+    test('permite "git commit -m" cuyo mensaje real es normal, sin mencion de IA', () => {
+      assert.equal(run('git commit -m "fix: corrige el timeout del cliente HTTP"').status, 0);
+    });
+
+    test('NO bloquea "git commit -m" cuyo mensaje describe la regla como texto (no es autoria real)', () => {
+      // Mismo principio que el test de "texto descriptivo" de arriba, pero
+      // aplicado especificamente a Co-Authored-By/menciones de IA: un commit
+      // que documenta esta propia regla no debe autobloquearse.
+      const msg = 'docs: prohibir Co-Authored-By y menciones a Claude en mensajes de commit';
+      assert.equal(run(`git commit -m "${msg}"`).status, 0);
+    });
+
+    test('bloquea "git commit -F archivo.txt" si el ARCHIVO real referenciado contiene Co-Authored-By', () => {
+      const fs = require('node:fs');
+      const os = require('node:os');
+      const archivo = path.join(os.tmpdir(), `commit-msg-test-${process.pid}.txt`);
+      fs.writeFileSync(archivo, 'feat: nueva funcionalidad\n\nCo-Authored-By: Claude <noreply@anthropic.com>\n', 'utf8');
+      try {
+        assert.equal(run(`git commit -F ${archivo}`).status, 2);
+      } finally {
+        fs.rmSync(archivo, { force: true });
+      }
+    });
+
+    test('permite "git commit -F archivo.txt" si el archivo real no menciona IA', () => {
+      const fs = require('node:fs');
+      const os = require('node:os');
+      const archivo = path.join(os.tmpdir(), `commit-msg-test-ok-${process.pid}.txt`);
+      fs.writeFileSync(archivo, 'feat: nueva funcionalidad sin rastro de IA\n', 'utf8');
+      try {
+        assert.equal(run(`git commit -F ${archivo}`).status, 0);
+      } finally {
+        fs.rmSync(archivo, { force: true });
+      }
+    });
+  });
 });

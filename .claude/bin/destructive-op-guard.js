@@ -9,7 +9,11 @@
  * mecanismo de codigo la hacia cumplir. Este hook bloquea (exit 2) ANTES de
  * ejecutar si el comando coincide con un patron destructivo conocido
  * (borrado recursivo, force-push, reset/clean irreversible, DDL destructivo
- * de base de datos), mostrando el comando exacto y el motivo. El bloqueo en
+ * de base de datos, mensaje de commit con Co-Authored-By o atribucion de
+ * autoria a una IA -- este ultimo cierra un gap real: standards-guard.js ya
+ * bloqueaba esto pero solo si el mensaje se escribia primero a un archivo
+ * via Write/Edit, un "git commit -m/-F" directo por Bash no pasaba por
+ * ningun guard de contenido), mostrando el comando exacto y el motivo. El bloqueo en
  * si YA es la aprobacion requerida: Claude Code no reintenta un comando
  * bloqueado sin que el humano lo apruebe explicitamente en el turno
  * siguiente (los hooks PreToolUse no pueden pausar a mitad de tool call para
@@ -40,6 +44,34 @@ function leerComandoDeStdin() {
   }
 }
 
+/**
+ * Extrae el mensaje REAL que se va a commitear a partir de un comando
+ * "git commit ...", ya sea inline (-m "...") o via archivo (-F <ruta>).
+ * Este es el contenido que se inspecciona por Co-Authored-By/menciones de
+ * IA -- a diferencia de `cmd` (mas abajo), que enmascara ese mismo texto
+ * para que las REGLAS de comandos destructivos no se autobloqueen al
+ * describirlo en prosa.
+ *
+ * @param {string} cmdOriginal - comando de shell completo, sin enmascarar
+ * @returns {string} el mensaje real, o '' si no se pudo extraer
+ */
+function extraerMensajeCommit(cmdOriginal) {
+  if (!/\bgit\s+commit\b/.test(cmdOriginal)) return '';
+
+  const matchInline = cmdOriginal.match(/-m\s+(["'])((?:(?!\1).)*)\1/s);
+  if (matchInline) return matchInline[2];
+
+  const matchArchivo = cmdOriginal.match(/-F\s+(\S+)/);
+  if (matchArchivo) {
+    try {
+      return require('node:fs').readFileSync(matchArchivo[1], 'utf8');
+    } catch {
+      return '';
+    }
+  }
+  return '';
+}
+
 const cmdOriginal = process.env.CLAUDE_TOOL_INPUT_command
   || (!process.stdin.isTTY ? leerComandoDeStdin() : '');
 
@@ -54,6 +86,36 @@ const cmd = /\bgit\s+commit\b/.test(cmdOriginal)
   ? cmdOriginal.replace(/-m\s+(["'])(?:(?!\1).)*\1/gs, '-m "..."')
                .replace(/-F\s+\S+/g, '-F ...')
   : cmdOriginal;
+
+// Mensaje REAL de commit (no enmascarado) -- se inspecciona por separado del
+// loop de REGLAS porque necesita distinguir atribucion real de IA (bloquea)
+// de una mencion en prosa sobre esta misma regla, ej. un commit que la
+// documenta (no bloquea). CLAUDE.md: "PROHIBIDO incluir Co-Authored-By,
+// menciones a Claude, IA o herramientas externas en cualquier mensaje de
+// commit" -- standards-guard.js ya aplica esto cuando el mensaje se escribe
+// primero a un archivo via Write/Edit, pero un "git commit -m/-F" ejecutado
+// directo por Bash nunca pasaba por ese guard.
+const mensajeCommit = extraerMensajeCommit(cmdOriginal);
+if (mensajeCommit) {
+  // Co-Authored-By es un trailer de formato inequivoco (Nombre <email>) --
+  // nadie lo escribe como prosa casual, no necesita distincion de contexto.
+  const trailerCoAuthored = /^co-authored-by:\s*.+<.+>/im;
+  // Menciones de IA en CONTEXTO DE ATRIBUCION DE AUTORIA real (ej. "Generated
+  // with Claude", "sugerido por ChatGPT") -- deliberadamente mas estricto que
+  // una mencion neutra de la herramienta en prosa (ej. un commit que dice
+  // "prohibir menciones a Claude" esta hablando DE la regla, no atribuyendo
+  // autoria real, y no debe autobloquearse).
+  const atribucionIA = /(generated (with|by)|written (with|by)|co-authored|sugerido(s)? por|generado(s)? (con|por)|escrito(s)? (con|por))\s+(claude|anthropic|chatgpt|openai|gemini|copilot|gpt-\d)/i;
+
+  if (trailerCoAuthored.test(mensajeCommit) || atribucionIA.test(mensajeCommit)) {
+    process.stderr.write(
+      `[DESTRUCTIVE-OP-GUARD] BLOQUEADO (mensaje de commit con rastro de IA): "${mensajeCommit.slice(0, 200)}"\n` +
+      `Motivo: CLAUDE.md prohibe Co-Authored-By y menciones de autoria de IA en mensajes de commit -- el mensaje debe parecer escrito enteramente por el autor humano.\n` +
+      `Reescribe el mensaje sin esa atribucion antes de reintentar el commit.\n`
+    );
+    process.exit(2);
+  }
+}
 
 // Cada regla: patron que dispara el bloqueo + patron de excepcion (alternativa
 // ya segura que no debe bloquearse) + motivo mostrado al operador.
