@@ -1,4 +1,4 @@
-# AI-CORE v3.24.0: Nucleo Multi-Agente Universal
+# AI-CORE v3.25.0: Nucleo Multi-Agente Universal
 
 `ai-core` es un nucleo de configuracion y comportamiento para agentes IA. Se usa como submodulo Git en un proyecto existente o como repositorio independiente. Define reglas globales, 42 skills especializados, 7 agentes autonomos, un orquestador Mixture-of-Agents (Gemini + DeepSeek + Claude) y un ciclo de mejora continua por uso, sin acoplarse al stack del proyecto anfitrion.
 
@@ -150,6 +150,14 @@ npm run agent-report-full                 # historial de metricas de todas las s
 ---
 
 ## Que trae cada version
+
+### v3.25.0 — freno de mano real: git commit -m directo + 6 patrones de infraestructura
+
+El usuario pregunto si el arnes tiene frenos reales sobre sus propias acciones destructivas y si el rastro de autoria de IA en commits esta prevenido de verdad, no solo declarado. Auditoria confirmo: **cero commits reales del repo con ese rastro**, pero el guard que deberia prevenirlo (`standards-guard.js`) solo cubria el mensaje de commit cuando se escribia primero a un archivo -- un `git commit -m "..."` directo por Bash, el flujo mas comun, no pasaba por ningun guard de contenido. `destructive-op-guard.js` ahora extrae e inspecciona el mensaje real (inline o via `-F`) por separado de sus reglas de comandos.
+
+Ademas, research + verificacion cruzada independiente contra `kubernetes.io`, `developer.hashicorp.com/terraform`, `docs.docker.com` y `git-scm.com` agrego 6 patrones de infraestructura que el guard no cubria: `kubectl delete --all` sin `--dry-run`, `terraform destroy`/`apply -destroy` sin `-target`, `terraform apply -auto-approve`, `docker system prune --volumes`, `docker volume rm`, y `git push --delete`/`:rama` de una rama remota. Cada regla excluye explicitamente el caso legitimo correspondiente (namespace de dev con `--dry-run`, entorno de CI efimero, refspec normal como `HEAD:main`) para minimizar falsos positivos.
+
+**853 tests, 42 skills, 7 agentes.**
 
 ### v3.24.0 — sandboxing real de hooks propios y evals de conformidad de skills en CI
 

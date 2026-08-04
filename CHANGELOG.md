@@ -3,6 +3,28 @@
 Registro de cambios por version. Formato basado en [Keep a Changelog](https://keepachangelog.com/es/1.0.0/).
 Versionado semantico: MAJOR.MINOR.PATCH.
 
+## [3.25.0] — 2026-08-04
+
+### Corregido — gap real de enforcement: git commit -m directo no pasaba por ningun guard de contenido
+
+El usuario pregunto si el arnes tiene freno de mano suficiente sobre sus propias acciones (commits, push, comandos de infraestructura) y si el rastro de "esto lo genero una IA" en el repositorio esta realmente prevenido, no solo declarado en CLAUDE.md. Auditoria con evidencia (no de memoria) confirmo dos cosas: **no hay ningun commit real del historial del repo con Co-Authored-By o mencion de IA** (la sospecha del usuario no se confirmo en lo ya hecho), pero **el mecanismo preventivo tenia un agujero real**: `standards-guard.js` ya bloqueaba esto, pero solo cuando el mensaje de commit se escribia primero a un archivo via Write/Edit -- el flujo mas comun, `git commit -m "..."` o `-F <archivo>` ejecutado directo por Bash, nunca pasaba por ningun guard de contenido antes de ejecutarse.
+
+`destructive-op-guard.js` ahora extrae el mensaje real del commit (inline o via el archivo que `-F` referencia) y lo inspecciona por separado del comando ya enmascarado que usa para sus reglas de patrones destructivos -- distingue una atribucion real de autoria a una IA (bloquea) de una mencion en prosa sobre esta misma regla, ej. un commit que la documenta (no bloquea, mismo principio que ya existia para `rm -rf` citado como texto).
+
+### Agregado — destructive-op-guard.js: 6 patrones de infraestructura verificados contra fuente oficial
+
+Auditoria del propio guard confirmo que solo cubria `rm -rf`, `git push --force`, `git reset --hard`, `git clean -f`, `git branch -D` y `DROP TABLE`/`TRUNCATE` -- sin cobertura de comandos destructivos de infraestructura moderna. Workflow de research + verificacion cruzada independiente contra `kubernetes.io`, `developer.hashicorp.com/terraform`, `docs.docker.com` y `git-scm.com` (el research declaro explicitamente que no pudo verificar Cursor/Aider/LangGraph por agotamiento de presupuesto de busqueda de la sesion, en vez de inventar sus politicas):
+
+- **`kubectl delete --all`/`--all-namespaces`** sin `--dry-run` -- cita oficial: "may result in inconsistency or data loss".
+- **`terraform destroy`/`apply -destroy`** sin `-target`, y **`terraform apply -auto-approve`** -- HashiCorp recomienda `terraform plan -destroy` primero o acotar con `-target`; `-auto-approve` "skips interactive approval of the plan".
+- **`docker system prune --volumes`** (docker nunca borra volumenes por defecto, justamente para evitar perdida de datos) y **`docker volume rm`**.
+- **`git push --delete`/`-d`** de una rama remota, y la sintaxis antigua equivalente `git push origin :rama` -- excluye explicitamente refspecs normales como `git push origin HEAD:main` (el lado izquierdo del `:` debe estar vacio para ser un borrado).
+- **`DELETE FROM`/`UPDATE ... SET` sin `WHERE`** -- ancla al verbo DML destructivo (nunca a `SELECT`) y exige ausencia de `WHERE` en toda la sentencia, no solo al final, para no generar falsos positivos con el uso rutinario (`DELETE FROM tabla WHERE id = $1`).
+
+Cada regla documenta el caso legitimo que NO debe bloquear (namespace efimero de desarrollo, entorno de CI efimero, rama ya mergeada) segun el research de riesgo de falso positivo, sin implementar distincion de contexto que el propio patron textual no puede ofrecer con certeza (ej. no se intenta detectar si un namespace es "de produccion" por su nombre).
+
+**853 tests, 42 skills, 7 agentes.**
+
 ## [3.24.0] — 2026-08-04
 
 ### Agregado — sandboxing real de hooks propios (Node.js Permission Model) y evals de conformidad de skills en CI

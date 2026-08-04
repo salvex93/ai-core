@@ -8,12 +8,18 @@
  * Antes de este guard, esa regla era pura convencion en prosa -- ningun
  * mecanismo de codigo la hacia cumplir. Este hook bloquea (exit 2) ANTES de
  * ejecutar si el comando coincide con un patron destructivo conocido
- * (borrado recursivo, force-push, reset/clean irreversible, DDL destructivo
- * de base de datos, mensaje de commit con Co-Authored-By o atribucion de
- * autoria a una IA -- este ultimo cierra un gap real: standards-guard.js ya
- * bloqueaba esto pero solo si el mensaje se escribia primero a un archivo
- * via Write/Edit, un "git commit -m/-F" directo por Bash no pasaba por
- * ningun guard de contenido), mostrando el comando exacto y el motivo. El bloqueo en
+ * (borrado recursivo, force-push, reset/clean irreversible, DDL/DML
+ * destructivo de base de datos sin filtro, mensaje de commit con
+ * Co-Authored-By o atribucion de autoria a una IA -- este ultimo cierra un
+ * gap real: standards-guard.js ya bloqueaba esto pero solo si el mensaje se
+ * escribia primero a un archivo via Write/Edit, un "git commit -m/-F"
+ * directo por Bash no pasaba por ningun guard de contenido -- y comandos
+ * destructivos de infraestructura: kubectl delete --all sin --dry-run,
+ * terraform destroy/apply -destroy sin -target, terraform apply
+ * -auto-approve, docker system prune --volumes, docker volume rm, git push
+ * --delete de rama remota; sintaxis de cada uno verificada contra
+ * kubernetes.io, developer.hashicorp.com/terraform, docs.docker.com y
+ * git-scm.com), mostrando el comando exacto y el motivo. El bloqueo en
  * si YA es la aprobacion requerida: Claude Code no reintenta un comando
  * bloqueado sin que el humano lo apruebe explicitamente en el turno
  * siguiente (los hooks PreToolUse no pueden pausar a mitad de tool call para
@@ -22,8 +28,12 @@
  *
  * Deliberadamente conservador: solo bloquea patrones donde la alternativa
  * segura es inequivoca (--force-with-lease en vez de --force, git branch -d
- * en vez de -D). Ante duda, deja pasar -- falso negativo es preferible a
- * bloquear un flujo legitimo de forma constante.
+ * en vez de -D, --dry-run antes de kubectl delete --all, -target antes de
+ * terraform destroy). Ante duda, deja pasar -- falso negativo es preferible
+ * a bloquear un flujo legitimo de forma constante. git push --delete de una
+ * rama remota bloquea SIEMPRE (no distingue por nombre de rama): el riesgo
+ * real es borrar main/master por error de nombre, y ese es exactamente el
+ * caso donde la confirmacion humana explicita evita el dano irreversible.
  *
  * El comando llega por JSON en stdin (tool_input.command) -- mismo contrato
  * real de hooks confirmado contra code.claude.com/docs/en/hooks (ver
@@ -155,6 +165,54 @@ const REGLAS = [
     disparo: /\b(DROP\s+TABLE|TRUNCATE(\s+TABLE)?)\b/i,
     excepcion: /IF\s+EXISTS.*--\s*intencional|--\s*confirmado/i,
     motivo: 'elimina datos o estructura de tabla de forma irreversible sin backup verificado en el propio comando.',
+  },
+  {
+    nombre: 'kubectl delete --all',
+    disparo: /\bkubectl\s+delete\b.*(--all\b|--all-namespaces\b)/,
+    excepcion: /--dry-run/,
+    motivo: 'elimina todos los recursos del tipo/namespace indicado -- verificado contra kubernetes.io: "may result in inconsistency or data loss". Usar --dry-run=server primero para confirmar el alcance.',
+  },
+  {
+    nombre: 'terraform destroy',
+    disparo: /\bterraform\s+(destroy\b|apply\s+.*-destroy\b)/,
+    excepcion: /-target\b/,
+    motivo: 'destruye infraestructura viva -- HashiCorp recomienda "terraform plan -destroy" primero para revisar el alcance, o -target para acotar a un recurso especifico.',
+  },
+  {
+    nombre: 'terraform apply -auto-approve',
+    disparo: /\bterraform\s+apply\b.*-auto-approve\b/,
+    excepcion: null,
+    motivo: 'omite la revision interactiva del plan antes de aplicar -- HashiCorp advierte verificar que nada mas pueda cambiar la infraestructura fuera de este flujo.',
+  },
+  {
+    nombre: 'docker system prune --volumes',
+    disparo: /\bdocker\s+system\s+prune\b.*--volumes\b/,
+    excepcion: null,
+    motivo: 'borra volumenes anonimos ademas de contenedores/imagenes/redes -- docker no los borra por defecto justamente para evitar perdida de datos.',
+  },
+  {
+    nombre: 'docker volume rm',
+    disparo: /\bdocker\s+volume\s+rm\b/,
+    excepcion: null,
+    motivo: 'elimina un volumen de datos de forma irreversible -- confirmar que no contiene datos que no esten respaldados en otro lugar.',
+  },
+  {
+    nombre: 'git push --delete (borrado de rama remota)',
+    // Sintaxis moderna --delete/-d, y la antigua "origin :rama" (equivalentes
+    // segun git-scm.com) -- el lado izquierdo de ":" debe estar vacio para
+    // que sea un borrado; "origin HEAD:main" (refspec normal) no debe matchear.
+    disparo: /\bgit\s+push\s+\S+\s+(--delete\b|-d\b|:\S+)/,
+    excepcion: null,
+    motivo: 'elimina una rama del repositorio remoto -- confirmar que no es una rama protegida (main/master/develop) antes de reintentar.',
+  },
+  {
+    nombre: 'DELETE/UPDATE sin WHERE',
+    // Ancla al verbo DML destructivo (nunca a SELECT) y exige ausencia de
+    // WHERE en toda la sentencia, no solo al final -- evita el falso
+    // positivo de "DELETE FROM tabla WHERE id = $1" (uso rutinario).
+    disparo: /\b(DELETE\s+FROM\s+\S+|UPDATE\s+\S+\s+SET\s+.+?)(;|"|$)/i,
+    excepcion: /\bWHERE\b/i,
+    motivo: 'modifica o elimina filas sin condicion -- afecta la tabla completa. Agregar WHERE para acotar el alcance, o confirmar explicitamente si el alcance total es intencional.',
   },
 ];
 

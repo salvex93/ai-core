@@ -161,4 +161,75 @@ describe('destructive-op-guard.js', () => {
       }
     });
   });
+
+  describe('patrones de infraestructura (verificados contra kubernetes.io, developer.hashicorp.com, docs.docker.com, git-scm.com)', () => {
+    test('bloquea "kubectl delete --all" y "--all-namespaces" sin --dry-run', () => {
+      assert.equal(run('kubectl delete pods --all -n produccion').status, 2);
+      assert.equal(run('kubectl delete deployment --all-namespaces').status, 2);
+    });
+
+    test('permite "kubectl delete --all" cuando incluye --dry-run', () => {
+      assert.equal(run('kubectl delete pods --all --dry-run=server').status, 0);
+    });
+
+    test('permite "kubectl delete" de un recurso especifico por nombre', () => {
+      assert.equal(run('kubectl delete pod mi-pod-123').status, 0);
+    });
+
+    test('bloquea "terraform destroy" y "terraform apply -destroy" sin -target', () => {
+      assert.equal(run('terraform destroy').status, 2);
+      assert.equal(run('terraform apply -destroy').status, 2);
+    });
+
+    test('permite "terraform destroy -target" (alcance acotado a un recurso)', () => {
+      assert.equal(run('terraform destroy -target aws_instance.example').status, 0);
+    });
+
+    test('bloquea "terraform apply -auto-approve" (sin revision humana del plan)', () => {
+      assert.equal(run('terraform apply -auto-approve').status, 2);
+    });
+
+    test('permite "terraform plan -destroy" (solo genera el plan, no lo aplica)', () => {
+      assert.equal(run('terraform plan -destroy').status, 0);
+    });
+
+    test('bloquea "docker system prune -a --volumes"', () => {
+      assert.equal(run('docker system prune -a --volumes').status, 2);
+    });
+
+    test('permite "docker system prune" sin --volumes (nunca borra volumenes por defecto)', () => {
+      assert.equal(run('docker system prune -a').status, 0);
+      assert.equal(run('docker system prune').status, 0);
+    });
+
+    test('bloquea "docker volume rm"', () => {
+      assert.equal(run('docker volume rm mi_volumen_datos').status, 2);
+    });
+
+    test('bloquea "git push --delete"/"-d" de una rama remota y la sintaxis antigua ":rama"', () => {
+      assert.equal(run('git push origin --delete feature-vieja').status, 2);
+      assert.equal(run('git push origin -d feature-vieja').status, 2);
+      assert.equal(run('git push origin :feature-vieja').status, 2);
+    });
+
+    test('permite "git push origin HEAD:main" (push normal con refspec, no borrado)', () => {
+      // El lado izquierdo del ":" tiene contenido (HEAD) -- no es un borrado
+      // de rama remota, es la sintaxis normal de refspec origen:destino.
+      assert.equal(run('git push origin HEAD:main').status, 0);
+    });
+
+    test('bloquea "DELETE FROM" y "UPDATE ... SET" sin WHERE', () => {
+      assert.equal(run('psql -c "DELETE FROM usuarios"').status, 2);
+      assert.equal(run('psql -c "UPDATE usuarios SET activo = false"').status, 2);
+    });
+
+    test('permite "DELETE FROM"/"UPDATE" con WHERE (uso rutinario)', () => {
+      assert.equal(run('psql -c "DELETE FROM usuarios WHERE id = 1"').status, 0);
+      assert.equal(run('psql -c "UPDATE usuarios SET activo = false WHERE id = 1"').status, 0);
+    });
+
+    test('permite un SELECT (nunca debe activar una regla de verbo DML destructivo)', () => {
+      assert.equal(run('psql -c "SELECT COUNT(*) FROM usuarios"').status, 0);
+    });
+  });
 });
