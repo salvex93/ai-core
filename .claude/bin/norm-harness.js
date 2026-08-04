@@ -170,6 +170,54 @@ function ensureHostClaude(corePath, hostProjectDir, stackLabels) {
   console.log(`[+] CLAUDE.md del proyecto creado en ${claudeMdPath} — completar seccion Comandos y Estructura.`);
 }
 
+/**
+ * Asegura que el .gitignore del proyecto anfitrion excluya lo que no es
+ * codigo del propio proyecto: la carpeta ai-core/ (solo si NO esta
+ * registrada como submodulo git real -- un submodulo se versiona por diseno,
+ * ignorarlo rompe su tracking), assets de diseno/documentacion que se suben
+ * como referencia para construir el proyecto (no como parte del codigo), y
+ * archivos de entorno reales (.env, nunca .env.example, que es la plantilla
+ * que SI debe versionarse).
+ *
+ * Idempotente: no duplica entradas si el .gitignore ya las tiene, y preserva
+ * cualquier contenido previo del usuario.
+ */
+function ensureHostGitignore(hostProjectDir) {
+  const gitignorePath  = path.join(hostProjectDir, '.gitignore');
+  const gitmodulesPath = path.join(hostProjectDir, '.gitmodules');
+
+  const esSubmoduloReal = fs.existsSync(gitmodulesPath)
+    && /\[submodule\s+"ai-core"\]/.test(fs.readFileSync(gitmodulesPath, 'utf8'));
+
+  const entradasNuevas = [
+    ...(esSubmoduloReal ? [] : ['ai-core/']),
+    '# Assets de diseno/documentacion -- referencia para construir, no codigo',
+    '*.png',
+    '*.jpg',
+    '*.jpeg',
+    '*.gif',
+    '*.fig',
+    '*.sketch',
+    '# Variables de entorno reales -- la plantilla de ejemplo si se versiona',
+    '.env',
+    '.env.local',
+    '.env.*.local',
+  ];
+
+  const existente = fs.existsSync(gitignorePath) ? fs.readFileSync(gitignorePath, 'utf8') : '';
+  const lineasExistentes = new Set(existente.split('\n').map((l) => l.trim()));
+
+  const aAgregar = entradasNuevas.filter((e) => e.startsWith('#') || !lineasExistentes.has(e));
+  if (aAgregar.length === 0) return;
+
+  const separador = existente && !existente.endsWith('\n') ? '\n' : '';
+  const encabezado = existente ? '' : '';
+  const bloque = `${separador}${encabezado}\n# --- ai-core: no-desarrollo (auto-gestionado por norm-harness.js) ---\n${aAgregar.join('\n')}\n`;
+
+  fs.writeFileSync(gitignorePath, existente + bloque, 'utf8');
+  console.log(`[+] .gitignore actualizado (${aAgregar.filter(e => !e.startsWith('#')).length} entradas nuevas) → ${gitignorePath}`);
+}
+
 function ensureHostSettings(corePath, hostProjectDir) {
   // Solo actua si el harness se ejecuta desde un proyecto anfitrion (no desde ai-core mismo)
   if (hostProjectDir === corePath) return;
@@ -210,6 +258,7 @@ function ensureHostSettings(corePath, hostProjectDir) {
 try {
   sanitizeEnvironment();
   normalizeSymlinks();
+  if (projectDir !== CORE_PATH) ensureHostGitignore(projectDir);
   ensureHostSettings(CORE_PATH, projectDir);
   // purgeSessions(); — deshabilitado: borra historial de sesiones sin confirmación
   console.log(`[SUCCESS] AI-CORE v${version} | Entorno Blindado por salvex93.`);

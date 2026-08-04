@@ -69,6 +69,62 @@ describe('norm-harness.js', () => {
 
     assert.ok(!fs.existsSync(path.join(tmpHost, 'SECURITY_CHANGES_v2.4.0.md')), 'debe eliminar el archivo legacy conocido');
   });
+
+  describe('.gitignore del proyecto anfitrion', () => {
+    test('crea .gitignore con ai-core/, assets de diseno y .env (nunca .env.example) si no existe', () => {
+      tmpHost = crearProyectoAnfitrionTemporal();
+      spawnSync('node', [SCRIPT], { encoding: 'utf8', cwd: tmpHost });
+
+      const gitignorePath = path.join(tmpHost, '.gitignore');
+      assert.ok(fs.existsSync(gitignorePath), 'debe crear .gitignore si no existia');
+
+      const contenido = fs.readFileSync(gitignorePath, 'utf8');
+      assert.match(contenido, /^ai-core\/$/m, 'debe ignorar ai-core/ cuando no es un submodulo git real');
+      assert.match(contenido, /\*\.png/);
+      assert.match(contenido, /^\.env$/m);
+      assert.doesNotMatch(contenido, /\.env\.example/, 'jamas debe ignorar .env.example, solo .env real');
+    });
+
+    test('NO ignora ai-core/ si ya esta registrado como submodulo real en .gitmodules', () => {
+      tmpHost = crearProyectoAnfitrionTemporal();
+      fs.writeFileSync(
+        path.join(tmpHost, '.gitmodules'),
+        '[submodule "ai-core"]\n\tpath = ai-core\n\turl = https://github.com/salvex93/ai-core.git\n'
+      );
+
+      spawnSync('node', [SCRIPT], { encoding: 'utf8', cwd: tmpHost });
+
+      const gitignorePath = path.join(tmpHost, '.gitignore');
+      const contenido = fs.existsSync(gitignorePath) ? fs.readFileSync(gitignorePath, 'utf8') : '';
+      assert.doesNotMatch(contenido, /^ai-core\/$/m, 'un submodulo real nunca debe ignorarse -- romperia su tracking');
+    });
+
+    test('no duplica entradas si .gitignore ya tiene ai-core/ o los patrones de assets', () => {
+      tmpHost = crearProyectoAnfitrionTemporal();
+      fs.writeFileSync(path.join(tmpHost, '.gitignore'), 'ai-core/\nnode_modules/\n*.png\n');
+
+      spawnSync('node', [SCRIPT], { encoding: 'utf8', cwd: tmpHost });
+
+      const contenido = fs.readFileSync(path.join(tmpHost, '.gitignore'), 'utf8');
+      const ocurrenciasAiCore = (contenido.match(/^ai-core\/$/gm) || []).length;
+      const ocurrenciasPng    = (contenido.match(/^\*\.png$/gm) || []).length;
+      assert.equal(ocurrenciasAiCore, 1, 'no debe duplicar la entrada ai-core/');
+      assert.equal(ocurrenciasPng, 1, 'no debe duplicar el patron *.png');
+      assert.match(contenido, /node_modules\//, 'debe preservar entradas ya existentes del usuario');
+    });
+
+    test('agrega los patrones nuevos preservando el contenido existente del usuario', () => {
+      tmpHost = crearProyectoAnfitrionTemporal();
+      fs.writeFileSync(path.join(tmpHost, '.gitignore'), '# comentario del usuario\ndist/\n');
+
+      spawnSync('node', [SCRIPT], { encoding: 'utf8', cwd: tmpHost });
+
+      const contenido = fs.readFileSync(path.join(tmpHost, '.gitignore'), 'utf8');
+      assert.match(contenido, /# comentario del usuario/, 'no debe borrar contenido previo del usuario');
+      assert.match(contenido, /dist\//);
+      assert.match(contenido, /^ai-core\/$/m);
+    });
+  });
 });
 
 // ─── ContextIndex.js ──────────────────────────────────────────────────────────
