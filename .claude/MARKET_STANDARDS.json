@@ -65,6 +65,24 @@
       "sources": ["orientativo, no verificado contra fuente primaria en esta pasada -- pendiente de primera verificacion real (patrones de arquitectura de backend, event-driven, WebSockets)"],
       "skills": ["backend-architect"]
     },
+    "backend-languages-go-rust-java": {
+      "verified": "2026-08-04",
+      "sources": [
+        "go.dev/doc/devel/release (Go 1.26.0)",
+        "go.dev/doc/go1.22 (enhanced routing net/http.ServeMux)",
+        "go.dev/doc/go1.25 (WaitGroup.Go)",
+        "github.com/gin-gonic/gin/releases (Gin v1.12.0)",
+        "blog.rust-lang.org/2026/07/09/Rust-1.97.0 (Rust 1.97.1)",
+        "github.com/tokio-rs/axum/releases (Axum 0.8.9)",
+        "tokio.rs/blog/2025-01-01-announcing-axum-0-8-0 (sintaxis path params {id})",
+        "docs.rs/tokio/latest/tokio/sync/struct.Semaphore.html (orden acquire_owned antes de spawn)",
+        "spring.io/projects/spring-boot (Spring Boot 4.1.0)",
+        "docs.spring.io/spring-boot/system-requirements.html (Java 17-26)",
+        "github.com/spring-projects/spring-boot/wiki/Spring-Boot-4.0-Migration-Guide (remocion de @MockBean)",
+        "oracle.com/java/technologies/java-se-support-roadmap.html (JDK 25 LTS)"
+      ],
+      "skills": ["backend-architect"]
+    },
     "mobile-flutter": {
       "verified": "2026-07-15",
       "sources": ["orientativo, no verificado contra fuente primaria en esta pasada -- pendiente de primera verificacion real (flutter.dev, developer.android.com, developer.apple.com para requisitos moviles)"],

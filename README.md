@@ -1,4 +1,4 @@
-# AI-CORE v3.22.0: Nucleo Multi-Agente Universal
+# AI-CORE v3.23.0: Nucleo Multi-Agente Universal
 
 `ai-core` es un nucleo de configuracion y comportamiento para agentes IA. Se usa como submodulo Git en un proyecto existente o como repositorio independiente. Define reglas globales, 42 skills especializados, 7 agentes autonomos, un orquestador Mixture-of-Agents (Gemini + DeepSeek + Claude) y un ciclo de mejora continua por uso, sin acoplarse al stack del proyecto anfitrion.
 
@@ -150,6 +150,16 @@ npm run agent-report-full                 # historial de metricas de todas las s
 ---
 
 ## Que trae cada version
+
+### v3.23.0 — backend-architect: codigo real en Go, Rust y Java/JVM
+
+Cierra la brecha de lenguajes de backend que quedo pendiente en la v3.22.0: `backend-architect` se declaraba agnostico al stack pero Go, Rust y Java/JVM solo aparecian como nombres en tablas, sin un solo bloque de codigo. Se agrega API REST, concurrencia idiomatica y testing para los 3 lenguajes de mayor uso real en backend (PHP, Ruby y .NET quedan fuera por decision de producto), cada uno verificado contra fuente oficial con Workflow multi-agente (research + verificacion cruzada independiente, sin confiar en las citas del propio research).
+
+Go 1.26.0: `net/http` con el enhanced routing de Go 1.22 y Gin v1.12.0; concurrencia con `WaitGroup.Go()` (Go 1.25+, hallazgo de la verificacion cruzada que el research original no habia detectado). Rust 1.97.1 con Axum 0.8.9: la verificacion cruzada encontro un defecto real de orden en el patron de concurrencia con `Semaphore` (el permiso debe adquirirse antes de `tokio::spawn`, no dentro) que el research inicial (que hubo que relanzar por devolver un stub vacio) tenia invertido. Java con Spring Boot 4.1.0: la verificacion cruzada confirmo que `@MockBean` fue removido en Spring Boot 4.0 (no solo deprecado) en favor de `@MockitoBean` -- el codigo de testing original no habria compilado contra la version que el propio research recomendaba.
+
+Registrado en `MARKET_STANDARDS.json` (dominio nuevo `backend-languages-go-rust-java`). `backend-architect` sube a v1.6.0.
+
+**817 tests, 42 skills, 7 agentes.**
 
 ### v3.22.0 — cloud-deployment-specialist: despliegue real en 9 proveedores de nube/hosting
 

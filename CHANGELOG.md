@@ -3,6 +3,22 @@
 Registro de cambios por version. Formato basado en [Keep a Changelog](https://keepachangelog.com/es/1.0.0/).
 Versionado semantico: MAJOR.MINOR.PATCH.
 
+## [3.23.0] — 2026-08-04
+
+### Agregado — backend-architect: codigo real en Go, Rust y Java/JVM
+
+Cierra la brecha de lenguajes de backend documentada en la sesion anterior (ver v3.22.0): `backend-architect` se declaraba "agnostico al stack" pero Go, Rust y Java/JVM solo aparecian como nombres en tablas de decision, sin un solo bloque de codigo ejecutable. Se prioriza el mismo alcance decidido con el usuario: los 3 lenguajes de mayor uso real en backend, con API REST, concurrencia idiomatica y testing, cada uno con su framework de referencia. PHP, Ruby y .NET quedan fuera de este alcance por decision de producto.
+
+Research y verificacion cruzada independiente contra fuente oficial de cada lenguaje (Workflow multi-agente: research + verify por separado, sin confiar en las citas del propio research):
+
+- **Go 1.26.0** (`go.dev/doc/devel/release`): API REST minima con `net/http` estandar usando el enhanced routing de `ServeMux` (sintaxis `"METODO /ruta"` y wildcards `{id}`, disponible desde Go 1.22) y version con Gin v1.12.0. Concurrencia con worker pool via semaforo de channel buffereado, usando `WaitGroup.Go()` (metodo nativo desde Go 1.25 que reemplaza el trio manual `Add`/`go func`/`defer Done`, eliminando una clase de bug de conteo desincronizado — hallazgo de la verificacion cruzada, el research original no lo habia detectado). Testing con `testing` + `testify` y `net/http/httptest`.
+- **Rust 1.97.1** (`blog.rust-lang.org`) con **Axum 0.8.9** (`github.com/tokio-rs/axum/releases`): API REST con extractors `Json`/`Path`, tipo de error custom implementando `IntoResponse`, y la sintaxis de path params `{id}` que reemplazo a `:id` desde Axum 0.8.0 (`tokio.rs/blog/2025-01-01-announcing-axum-0-8-0`). El research inicial fallo (devolvio un stub vacio) y se relanzo; la verificacion cruzada del segundo intento encontro un defecto real en el patron de concurrencia con `tokio::sync::Semaphore`: el permiso debe adquirirse **antes** de `tokio::spawn` y moverse con `async move`, no dentro de la tarea spawneada — el orden original invertia el proposito del semaforo (dejaba spawnear sin limite). Testing con `tower::ServiceExt::oneshot` sobre el `Router` completo, patron confirmado en los examples oficiales del repo.
+- **Java/JVM con Spring Boot 4.1.0** (`spring.io/projects/spring-boot`, Java 17-26 segun `docs.spring.io/spring-boot/system-requirements.html`): API REST con `@RestController`, `@Valid`, `@RestControllerAdvice` para el contrato de error centralizado, y Spring Data JPA. Concurrencia con virtual threads (`Executors.newVirtualThreadPerTaskExecutor()`, JEP 444, estable desde JDK 21). Testing con JUnit 5 + Mockito y `@WebMvcTest`/`MockMvc` — la verificacion cruzada encontro que `@MockBean` fue **removido en Spring Boot 4.0** (no solo deprecado, como lo presentaba el research original) en favor de `@MockitoBean`, confirmado contra la guia oficial de migracion de Spring Boot; el codigo de ejemplo original no habria compilado contra la version que el propio research recomendaba.
+
+Registrado en `MARKET_STANDARDS.json` (dominio nuevo `backend-languages-go-rust-java`) desde su creacion. `backend-architect` sube a v1.6.0.
+
+**817 tests, 42 skills, 7 agentes.**
+
 ## [3.22.0] — 2026-08-04
 
 ### Agregado — cloud-deployment-specialist: despliegue real en 9 proveedores de nube/hosting
