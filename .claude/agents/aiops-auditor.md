@@ -76,6 +76,14 @@ node .claude/bin/mcp-lifecycle-check.js
 
 Verifica que cada servidor MCP propio (`gemini-bridge`, `anthropic-router`) tenga un estado declarado (`Active`/`Deprecated`/`Removed`) valido en `.claude/MCP_LIFECYCLE.json`, y que todo servidor `Deprecated` declare `fecha_deprecacion` y `reemplazo`. Un servidor real sin entrada declarada, o `Deprecated` sin plan de reemplazo → hallazgo alto.
 
+### Paso 4c — Vigencia de mercado de los 41 skills
+
+```bash
+node .claude/bin/audit-market.js --stale-days 45
+```
+
+Reporte completo (no `--only-stale`, este paso es la auditoria profunda, no el chequeo silencioso de cada sesion). Cualquier skill en `SIN_DOMINIO_REGISTRADO` → hallazgo alto (el radar de vigencia tiene un punto ciego real). Cualquier skill en `STALE_MERCADO` (dominio sin re-verificar hace 45+ dias) → hallazgo medio, listar para research de re-verificacion en la proxima sesion de mantenimiento. `DRIFT_VS_MERCADO` → hallazgo alto, el contenido del skill es anterior a la ultima verificacion conocida de su dominio.
+
 ### Paso 5 — Scoring y delta
 
 ```bash
@@ -99,6 +107,7 @@ AGENTES: <N conformes>/<N total> conformes | <N> faltantes
 SDK-DRIFT: <paquetes desactualizados o "ninguno">
 MAPA: OK | DRIFT(<N> archivos)
 MCP-LIFECYCLE: OK | <N> hallazgos
+VIGENCIA-MERCADO: OK | <N> stale | <N> drift | <N> sin dominio
 SCORE: <total>/10 (<delta> vs anterior)
 
 ACCIONES_REQUERIDAS:

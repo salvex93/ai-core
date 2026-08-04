@@ -3,6 +3,24 @@
 Registro de cambios por version. Formato basado en [Keep a Changelog](https://keepachangelog.com/es/1.0.0/).
 Versionado semantico: MAJOR.MINOR.PATCH.
 
+## [3.21.0] — 2026-08-04
+
+### Corregido — audit-market.js/MARKET_STANDARDS.json tenia un punto ciego real de cobertura
+
+El usuario pregunto si el arnes esta "fit con lo ultimo del mercado" y como mantenerlo asi de forma continua. Revision del mecanismo de vigilancia ya existente (`audit-market.js` + `MARKET_STANDARDS.json`, que compara `last_updated` de cada skill contra la fecha de verificacion registrada de su dominio tecnico) encontro que 20 de 41 skills -- incluidos los 3 nuevos de la v3.20.0 (`app-store-publisher`, `saas-product-architect`, `qa-engineer` con su modulo de QA destructivo) -- no estaban registrados en ningun dominio: el radar no los vigilaba en absoluto.
+
+Registrados los 20 skills faltantes en dominios nuevos o existentes, con honestidad de fecha: `app-distribution-stores`, `saas-business-architecture` y `qa-destructive-testing` llevan la fecha y las fuentes reales verificadas en la v3.20.0; `mcp-protocol` lleva la fecha real del release candidate MCP 2026-07-28; los dominios sin verificacion activa en esta pasada (`backend-architecture-generic`, `mobile-flutter`, `performance-load-testing`, `seo-sem-marketing`, `doc-generation`, `web-scraping`, `multimodal-voice`) quedan marcados explicitamente "orientativo, no verificado contra fuente primaria en esta pasada" en vez de simular una verificacion que no ocurrio; los 7 skills de gobernanza interna del propio arnes (`aaa-evaluator`, `aiops-engineer`, `cost-optimizer`, `cross-model-verifier`, `dev-loop`, `memory-manager`, `silent-failure-hunter`) se agrupan en `ai-core-internal-governance` porque su vigencia se mide contra el propio codigo del repo, no contra un estandar de mercado externo.
+
+Resultado: `audit-market.js` ahora audita el 100% de los skills (0 sin dominio, 0 con drift, 0 stale con umbral de 45 dias).
+
+### Agregado — audit-market.js --only-stale, integrado al Protocolo de Arranque
+
+Nuevo flag `--only-stale`: silencioso (stdout vacio, exit 0) si no hay ningun hallazgo de `STALE_MERCADO`/`DRIFT_VS_MERCADO`/`SIN_DOMINIO_REGISTRADO`; con hallazgos, una linea compacta por skill afectado. Disenado especificamente para correr en cada sesion sin agregar ruido -- integrado como paso 5 del Protocolo de Arranque en CLAUDE.md.
+
+`aiops-auditor.md` suma el paso 4c: reporte completo (no `--only-stale`) con umbral de 45 dias para la auditoria profunda periodica, distinto del chequeo silencioso de cada sesion.
+
+**809 tests, 41 skills, 7 agentes.**
+
 ## [3.20.0] — 2026-08-04
 
 ### Agregado — cierre de 7 gaps menores del benchmark contra Anthropic/OpenAI/Google ADK/open source

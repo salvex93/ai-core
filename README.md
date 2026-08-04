@@ -1,4 +1,4 @@
-# AI-CORE v3.20.0: Nucleo Multi-Agente Universal
+# AI-CORE v3.21.0: Nucleo Multi-Agente Universal
 
 `ai-core` es un nucleo de configuracion y comportamiento para agentes IA. Se usa como submodulo Git en un proyecto existente o como repositorio independiente. Define reglas globales, 41 skills especializados, 7 agentes autonomos, un orquestador Mixture-of-Agents (Gemini + DeepSeek + Claude) y un ciclo de mejora continua por uso, sin acoplarse al stack del proyecto anfitrion.
 
@@ -134,6 +134,7 @@ npm run token-metrics                     # medir reduccion de consumo de tokens
 npm run dry-run                           # simular 5 turnos con calculo de costo
 npm run map                               # regenerar CONTEXT_MAP.json
 npm run audit-market                      # auditar vigencia de skills vs. dominios en MARKET_STANDARDS.json
+npm run audit-market -- --only-stale      # silencioso salvo hallazgo -- usado en el Protocolo de Arranque de cada sesion
 npm run score                             # scoring 0-10 por 6 dimensiones del arnes
 npm run score-report                      # historial completo de scores con delta
 npm run migrate                           # aplicar migraciones de version manualmente
@@ -149,6 +150,14 @@ npm run agent-report-full                 # historial de metricas de todas las s
 ---
 
 ## Que trae cada version
+
+### v3.21.0 — Radar de vigencia de mercado cierra su propio punto ciego
+
+`audit-market.js`/`MARKET_STANDARDS.json` (mecanismo de deteccion de drift de vigencia contra fuente oficial por skill) tenia un punto ciego real: 20 de 41 skills, incluidos los 3 nuevos de la version anterior (`app-store-publisher`, `saas-product-architect`, `qa-engineer` con su modulo de QA destructivo), no estaban registrados en ningun dominio -- el radar no los vigilaba en absoluto. Los 41 skills quedan ahora registrados (0 sin dominio, 0 con drift), con fecha honesta por dominio: los 3 verificados activamente en la sesion anterior llevan fecha y fuente real; el resto queda marcado explicitamente "orientativo, no verificado contra fuente primaria en esta pasada" en vez de simular una verificacion que no ocurrio.
+
+Nuevo flag `--only-stale` (silencioso si no hay hallazgos) integrado como paso 5 del Protocolo de Arranque de CLAUDE.md -- corre en la primera respuesta de cada sesion sin agregar ruido cuando todo esta al dia. `aiops-auditor.md` suma el paso 4c (reporte completo con umbral de 45 dias) para la auditoria profunda periodica.
+
+**809 tests, 41 skills, 7 agentes.**
 
 ### v3.20.0 — Gaps de benchmark cerrados (sandboxing/evals diferidos por decision explicita) y QA destructivo
 
@@ -575,7 +584,7 @@ New-Item -ItemType SymbolicLink -Path './CLAUDE.md' -Target 'C:/ruta/a/ai-core/C
 ├── .github/workflows/ci.yml     CI: Ubuntu/Windows Node 20+22, macOS solo Node 22
 ├── CLAUDE.md                    Autoridad unica: reglas globales, skills, enrutamiento
 ├── DEPRECATIONS.json            Contrato de migracion por version
-├── package.json                 v3.20.0, Node >= 20
+├── package.json                 v3.21.0, Node >= 20
 └── .env.example                 Plantilla de variables de entorno
 ```
 

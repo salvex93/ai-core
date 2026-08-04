@@ -16,6 +16,7 @@
  *   node .claude/bin/audit-market.js --json
  *   node .claude/bin/audit-market.js --skill ciso
  *   node .claude/bin/audit-market.js --stale-days 90
+ *   node .claude/bin/audit-market.js --only-stale   # silencioso si no hay hallazgos, para el Protocolo de Arranque
  */
 
 'use strict';
@@ -26,7 +27,8 @@ const path = require('node:path');
 const REPO       = path.resolve(__dirname, '..', '..');
 const SKILLS     = path.join(REPO, '.claude', 'skills');
 const STANDARDS  = path.join(REPO, '.claude', 'MARKET_STANDARDS.json');
-const JSON_OUT   = process.argv.includes('--json');
+const JSON_OUT     = process.argv.includes('--json');
+const ONLY_STALE   = process.argv.includes('--only-stale');
 const HOY        = new Date().toISOString().slice(0, 10);
 
 function argValor(flag, defecto) {
@@ -122,7 +124,16 @@ const conDrift = resultados.filter(r => r.status === 'DRIFT_VS_MERCADO');
 const stale     = resultados.filter(r => r.status === 'STALE_MERCADO');
 const sinDominio = resultados.filter(r => r.status === 'SIN_DOMINIO_REGISTRADO');
 
-if (JSON_OUT) {
+if (ONLY_STALE) {
+  // Modo silencioso para el Protocolo de Arranque: sin hallazgos, sin
+  // output -- evita ruido en cada sesion. Con hallazgos, una linea
+  // compacta por skill afectado (drift, stale, o sin dominio registrado).
+  const hallazgos = [...conDrift, ...stale, ...sinDominio];
+  if (hallazgos.length > 0) {
+    console.log(`[AUDIT-MARKET] ${hallazgos.length} hallazgo(s) de vigencia:`);
+    hallazgos.forEach(r => console.log(`  - ${r.skill}: ${r.status}${r.dominios.length ? ` (${r.dominios.join(', ')})` : ''}`));
+  }
+} else if (JSON_OUT) {
   console.log(JSON.stringify({ resultados, resumen: {
     total: resultados.length,
     drift: conDrift.length,

@@ -39,6 +39,66 @@
       "verified": "2026-07-15",
       "sources": ["docs.getdbt.com (Model Contracts)", "airflow.apache.org (Airflow 3.0)", "databricks.com (Medallion Architecture)", "postgresql.org/support/security (CVE-2025-12819)"],
       "skills": ["data-engineer", "database-ops"]
+    },
+    "app-distribution-stores": {
+      "verified": "2026-08-04",
+      "sources": ["developer.apple.com/news/?id=ueeok6yw", "support.google.com/googleplay/android-developer/answer/11926878", "azure.microsoft.com/en-us/products/artifact-signing", "learn.microsoft.com/en-us/windows/apps/publish/whats-new-individual-developer"],
+      "skills": ["app-store-publisher"]
+    },
+    "saas-business-architecture": {
+      "verified": "2026-08-04",
+      "sources": ["docs.aws.amazon.com/whitepapers (SaaS Tenant Isolation Strategies)", "learn.microsoft.com/azure/architecture/guide/multitenant (tenancy models, domain names, throttling pattern)", "docs.stripe.com/billing/subscriptions", "workos.com/docs (RBAC/SSO B2B)", "lemonsqueezy.com/blog/2026-update"],
+      "skills": ["saas-product-architect"]
+    },
+    "qa-destructive-testing": {
+      "verified": "2026-08-04",
+      "sources": ["owasp.org (WSTG)", "principlesofchaos.org", "cncf.io/projects (Chaos Mesh/LitmusChaos: Incubating)", "go.dev (fuzzing GA desde Go 1.18)", "openapis.org/blog (OpenAPI 3.2.0)"],
+      "skills": ["qa-engineer"]
+    },
+    "backend-architecture-generic": {
+      "verified": "2026-07-15",
+      "sources": ["orientativo, no verificado contra fuente primaria en esta pasada -- pendiente de primera verificacion real (patrones de arquitectura de backend, event-driven, WebSockets)"],
+      "skills": ["backend-architect"]
+    },
+    "mobile-flutter": {
+      "verified": "2026-07-15",
+      "sources": ["orientativo, no verificado contra fuente primaria en esta pasada -- pendiente de primera verificacion real (flutter.dev, developer.android.com, developer.apple.com para requisitos moviles)"],
+      "skills": ["mobile-engineer"]
+    },
+    "mcp-protocol": {
+      "verified": "2026-07-28",
+      "sources": ["modelcontextprotocol.io/changelog (release candidate 2026-07-28, protocolo stateless)"],
+      "skills": ["mcp-server-builder", "mcp-registry-navigator"]
+    },
+    "ai-core-internal-governance": {
+      "verified": "2026-08-04",
+      "sources": ["no aplica fuente externa -- son skills que gobiernan el propio arnes ai-core (aaa-evaluator, aiops-engineer, cost-optimizer, cross-model-verifier, dev-loop, memory-manager, silent-failure-hunter), su vigencia se mide contra el propio codigo del repo, no contra un estandar de mercado externo"],
+      "skills": ["aaa-evaluator", "aiops-engineer", "cost-optimizer", "cross-model-verifier", "dev-loop", "memory-manager", "silent-failure-hunter"]
+    },
+    "multimodal-voice": {
+      "verified": "2026-07-10",
+      "sources": ["orientativo, verificado parcialmente en sesiones previas (ver last_updated historico de audio-voice-engineer/multimodal-engineer) -- no re-verificado en esta pasada"],
+      "skills": ["audio-voice-engineer", "multimodal-engineer"]
+    },
+    "performance-load-testing": {
+      "verified": "2026-07-15",
+      "sources": ["orientativo, no verificado contra fuente primaria en esta pasada -- pendiente de primera verificacion real (autocannon, k6, CDN providers)"],
+      "skills": ["performance-engineer"]
+    },
+    "seo-sem-marketing": {
+      "verified": "2026-07-15",
+      "sources": ["orientativo, no verificado contra fuente primaria en esta pasada -- pendiente de primera verificacion real (Google Ads, GA4, Core Web Vitals)"],
+      "skills": ["seo-sem-specialist"]
+    },
+    "doc-generation": {
+      "verified": "2026-07-15",
+      "sources": ["orientativo, no verificado contra fuente primaria en esta pasada -- pendiente de primera verificacion real (Puppeteer, generacion de PDF)"],
+      "skills": ["doc-builder"]
+    },
+    "web-scraping": {
+      "verified": "2026-07-15",
+      "sources": ["orientativo, no verificado contra fuente primaria en esta pasada -- pendiente de primera verificacion real (Stagehand, Crawlee, Browserbase, proveedores anti-bot)"],
+      "skills": ["web-scraping-specialist"]
     }
   }
 }

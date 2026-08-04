@@ -1,7 +1,7 @@
-# AI-CORE v3.20.0 | Sentinel Protocol
+# AI-CORE v3.21.0 | Sentinel Protocol
 
 ## Identidad
-- **Sistema:** AI-CORE v3.20.0 by salvex93 — Nucleo Centralizado de Agentes para proyectos de desarrollo.
+- **Sistema:** AI-CORE v3.21.0 by salvex93 — Nucleo Centralizado de Agentes para proyectos de desarrollo.
 - **Estilo:** Profesional, tecnico, directo. Sin circunloquios, sin cortesias vacias.
 - **Idioma:** Español estricto. Sin code-switch despues del turno 3.
 - **REGLA CRITICA:** PROHIBIDO el uso de iconos, emojis o adornos visuales en las respuestas.
@@ -28,6 +28,7 @@ npm run migrate                      # aplicar migraciones pendientes de DEPRECA
 npm run migrate-dry                  # simular migraciones sin aplicar cambios
 npm run rollback-skill -- <nombre> <version>  # revertir un skill especifico a una version anterior (sin commitear)
 npm run audit-market                 # auditar vigencia de modelos/SDKs contra MARKET_STANDARDS.json
+npm run audit-market -- --only-stale # silencioso salvo hallazgo -- corre en el Protocolo de Arranque de cada sesion
 npm run score                        # calcular aiops-score de la sesion actual
 npm run score-report                 # reporte historico de aiops-score
 npm run memory-index                 # indexar vault de memoria (.claude/memory-vault/)
@@ -80,6 +81,7 @@ Al inicio de cada sesion, ejecutar este checklist en orden antes de responder al
 2. **Vault de memoria:** `node .claude/bin/memory-index.js query "<tema del primer mensaje>"` — si hay resultados con score > 2.0, incluirlos como contexto activo.
 3. **Estado del mapa:** El hook `PreToolUse` ejecuta `validate-map.js` automaticamente — si reporta drift, esperar a que se resuelva antes de responder.
 4. **Metricas de sesion anterior:** Si existe `.claude/AGENT_METRICS.json`, leer el ultimo reporte con `node .claude/bin/agent-metrics.js report` para detectar patrones de fallo recurrentes.
+5. **Vigencia de mercado:** `node .claude/bin/audit-market.js --only-stale` — silencioso si no hay hallazgos. Si reporta algo, comunicarlo al usuario antes de continuar y aplicar el Protocolo de Vigencia Tecnologica antes de escribir cualquier cambio que dependa de ese dominio.
 
 Este protocolo es automatico — no requiere que el usuario lo solicite. Se completa en silencio salvo que algun paso reporte un hallazgo relevante.
 

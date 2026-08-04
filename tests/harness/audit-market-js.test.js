@@ -36,6 +36,23 @@ describe('audit-market.js', () => {
     const despues = fs.statSync(path.join(REPO, '.claude', 'MARKET_STANDARDS.json')).mtimeMs;
     assert.equal(antes, despues, 'audit-market.js es de solo lectura, nunca debe modificar MARKET_STANDARDS.json');
   });
+
+  test('--only-stale con todo OK no imprime nada (silencioso para el Protocolo de Arranque)', () => {
+    // Gap real: el protocolo de arranque de CLAUDE.md necesita correr esto en
+    // cada sesion sin agregar ruido cuando no hay hallazgos -- --only-stale
+    // sale con stdout vacio y exit 0 si no hay ningun STALE_MERCADO/DRIFT_VS_MERCADO.
+    const r = runScript(SCRIPT, ['--only-stale']);
+    assert.equal(r.status, 0);
+    assert.equal(r.stdout.trim(), '');
+  });
+
+  test('--only-stale con un dominio STALE si imprime el hallazgo', () => {
+    // Fuerza un dominio viejo via --stale-days 0 -- cualquier dominio con
+    // "verified" distinto de hoy dispara STALE_MERCADO con ese umbral.
+    const r = runScript(SCRIPT, ['--only-stale', '--stale-days', '0']);
+    assert.equal(r.status, 0);
+    assert.match(r.stdout, /STALE_MERCADO|DRIFT_VS_MERCADO/);
+  });
 });
 
 // ─── norm-harness.js ──────────────────────────────────────────────────────────
