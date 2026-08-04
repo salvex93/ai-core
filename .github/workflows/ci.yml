@@ -90,7 +90,7 @@ jobs:
           path: ~/.promptfoo/cache
           key: promptfoo-${{ runner.os }}-${{ hashFiles('.claude/evals/**') }}
 
-      - name: Correr evals de skills (piloto: security-auditor)
+      - name: 'Correr evals de skills (piloto: security-auditor)'
         if: steps.cambios.outputs.evals == 'true'
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
