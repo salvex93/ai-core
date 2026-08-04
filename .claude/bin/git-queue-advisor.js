@@ -20,7 +20,7 @@ const fs   = require('fs');
 const path = require('path');
 
 const CORE_PATH  = path.resolve(__dirname, '../..');
-const QUEUE_PATH = path.join(CORE_PATH, '.claude', 'EVENTS_QUEUE.json');
+const QUEUE_PATH = process.env.AI_CORE_EVENTS_QUEUE_PATH || path.join(CORE_PATH, '.claude', 'EVENTS_QUEUE.json');
 
 // Los eventos de capture-event.js no tienen campo "sev" -- la severidad real
 // se deriva de "type", igual que ISSUE_META en issue-reporter.js (no se

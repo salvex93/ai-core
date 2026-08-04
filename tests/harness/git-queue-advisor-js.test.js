@@ -9,19 +9,26 @@ const { spawnSync } = require('node:child_process');
 const { REPO, BIN, SKILLS, SETTINGS, runScript, tmpFile } = require('./_shared');
 
 describe('git-queue-advisor.js', () => {
-  const SCRIPT     = path.join(BIN, 'git-queue-advisor.js');
-  const QUEUE_PATH = path.join(REPO, '.claude', 'EVENTS_QUEUE.json');
+  const SCRIPT = path.join(BIN, 'git-queue-advisor.js');
+  // Cola aislada por proceso de test -- EVENTS_QUEUE.json esta en .gitignore
+  // y NUNCA existe en un checkout fresco de CI hasta que un hook real lo
+  // crea. El bug real (reproducido en CI, no local): este test asumia que
+  // el archivo real del repo siempre existia y hacia readFileSync directo
+  // en el before(), sin el mismo guard existsSync que ya tienen todos los
+  // scripts reales que leen esta cola -- lanzaba ENOENT y cancelaba el
+  // resto de la suite en checkouts frescos (windows-latest/CI).
+  const QUEUE_PATH = path.join(os.tmpdir(), `git-queue-advisor-${process.pid}.json`);
+  const QUEUE_ENV  = { AI_CORE_EVENTS_QUEUE_PATH: QUEUE_PATH };
 
-  function leerCola() { return JSON.parse(fs.readFileSync(QUEUE_PATH, 'utf8')); }
   function escribirCola(eventos) { fs.writeFileSync(QUEUE_PATH, JSON.stringify(eventos, null, 2)); }
 
-  let colaOriginal;
-  before(() => { colaOriginal = leerCola(); });
-  after(() => { escribirCola(colaOriginal); });
+  after(() => {
+    fs.rmSync(QUEUE_PATH, { force: true });
+  });
 
   test('sale con 0 sin output si no hay eventos pendientes', () => {
     escribirCola([{ id: '1', type: 'harness_error', tool: 'x', error: 'y', reported: true }]);
-    const r = runScript(SCRIPT, ['push']);
+    const r = runScript(SCRIPT, ['push'], QUEUE_ENV);
     assert.equal(r.status, 0);
     assert.equal(r.stderr, '');
   });
@@ -30,7 +37,7 @@ describe('git-queue-advisor.js', () => {
     escribirCola([
       { id: '1', type: 'mcp_failure', tool: 'gemini-bridge', error: 'quota exceeded', reported: false },
     ]);
-    const r = runScript(SCRIPT, ['push']);
+    const r = runScript(SCRIPT, ['push'], QUEUE_ENV);
     assert.equal(r.status, 0);
     assert.match(r.stderr, /ALTA\s*\|\s*gemini-bridge/);
   });
@@ -40,7 +47,7 @@ describe('git-queue-advisor.js', () => {
       { id: '1', type: 'skill_gap', tool: 'n/a', error: 'sin skill para esto', reported: false },
       { id: '2', type: 'pattern', tool: 'n/a', error: 'tarea repetida', reported: false },
     ]);
-    const r = runScript(SCRIPT, ['push']);
+    const r = runScript(SCRIPT, ['push'], QUEUE_ENV);
     assert.equal(r.status, 0);
     assert.match(r.stderr, /MEDIA/);
     assert.match(r.stderr, /BAJA/);
@@ -48,18 +55,18 @@ describe('git-queue-advisor.js', () => {
 
   test('modo pull: usa el banner [POST-PULL]', () => {
     escribirCola([{ id: '1', type: 'harness_error', tool: 'x', error: 'fallo', reported: false }]);
-    const r = runScript(SCRIPT, ['pull']);
+    const r = runScript(SCRIPT, ['pull'], QUEUE_ENV);
     assert.match(r.stderr, /\[POST-PULL\]/);
   });
 
   test('nunca bloquea (siempre exit 0) aunque haya eventos criticos', () => {
     escribirCola([{ id: '1', type: 'harness_error', tool: 'x', error: 'fallo grave', reported: false }]);
-    const r = runScript(SCRIPT, ['push']);
+    const r = runScript(SCRIPT, ['push'], QUEUE_ENV);
     assert.equal(r.status, 0, 'git-queue-advisor solo informa, nunca bloquea push/pull');
   });
 
   test('sin modo detectado (ni argv ni CLAUDE_TOOL_INPUT_command): sale con 0', () => {
-    const r = runScript(SCRIPT, []);
+    const r = runScript(SCRIPT, [], QUEUE_ENV);
     assert.equal(r.status, 0);
   });
 
@@ -69,7 +76,7 @@ describe('git-queue-advisor.js', () => {
     // caller futuro que invoque sin el argumento posicional.
     escribirCola([{ id: '1', type: 'harness_error', tool: 'x', error: 'fallo', reported: false }]);
     const evento = JSON.stringify({ tool_input: { command: 'git push origin main' } });
-    const r = spawnSync('node', [SCRIPT], { encoding: 'utf8', cwd: REPO, input: evento });
+    const r = spawnSync('node', [SCRIPT], { encoding: 'utf8', cwd: REPO, input: evento, env: { ...process.env, ...QUEUE_ENV } });
     assert.equal(r.status, 0);
     assert.match(r.stderr, /\[GIT-QUEUE\]|ALTA|MEDIA|BAJA/, 'debe detectar modo push leyendo desde stdin');
   });
