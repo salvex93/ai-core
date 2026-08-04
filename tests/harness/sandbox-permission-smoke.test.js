@@ -19,7 +19,10 @@ const ES_POSIX = process.platform !== 'win32';
 
 describe('sandboxing de hooks propios — Node.js Permission Model (smoke test)', { skip: !ES_POSIX && 'solo aplica en POSIX -- ver hooks-definition.js' }, () => {
   test('code-exec-guard.js con --allow-fs-read del directorio correcto: corre y bloquea normalmente', () => {
-    const evento = JSON.stringify({ tool_input: { file_path: 'src/algo.js', content: 'eval(x)' } });
+    // RIESGO_EJECUCION_JS exige un caracter antes de "eval(" que no sea /'"
+    // (para no marcar falsos positivos en imports/strings) -- "eval(x)" al
+    // inicio absoluto del string no matchea por diseño del propio patron.
+    const evento = JSON.stringify({ tool_input: { file_path: 'src/algo.js', content: 'const y = eval(x);' } });
     const dirBin = path.join(BIN, '*');
 
     const r = spawnSync('node', [
@@ -33,7 +36,7 @@ describe('sandboxing de hooks propios — Node.js Permission Model (smoke test)'
   });
 
   test('code-exec-guard.js SIN --allow-fs-read: falla de forma controlada (EPERM), no silenciosa', () => {
-    const evento = JSON.stringify({ tool_input: { file_path: 'src/algo.js', content: 'eval(x)' } });
+    const evento = JSON.stringify({ tool_input: { file_path: 'src/algo.js', content: 'const y = eval(x);' } });
 
     // --permission sin ningun --allow-fs-read: todo acceso a filesystem queda
     // denegado por defecto (comportamiento documentado de Node.js Permission
