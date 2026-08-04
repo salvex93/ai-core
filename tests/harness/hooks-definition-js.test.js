@@ -122,4 +122,75 @@ describe('hooks-definition.js', () => {
       }
     });
   });
+
+  describe('sandboxing ampliado: los 28 hooks restantes registrados en buildHooksSection', () => {
+    // Los 32 hooks reales registrados en buildHooksSection, menos process-guard.js
+    // (wrapper de otros hooks, no se sandboxea a si mismo -- ver mas abajo) y
+    // git-queue-advisor.js (necesita red real para gh/git remoto, fuera de
+    // alcance de fs-read/fs-write puros de esta ronda).
+    const HOOKS_CON_SANDBOX = [
+      'destructive-op-guard.js', 'code-exec-guard.js', 'secrets-guard.js', 'injection-guard.js',
+      'agent-metrics.js', 'aiops-score.js', 'bash-verbosity-guard.js', 'capture-event.js',
+      'circuit-breaker.js', 'cross-verify-gate.js', 'dependency-tracer.js', 'detect-role.js',
+      'detox.js', 'diff-map-trigger.js', 'guard-read.js', 'health-check.js', 'issue-reporter.js',
+      'memory-index-stop.js', 'memory-vault-prune-check.js', 'moa-context-gatherer.js',
+      'ponytail-check.js', 'pre-commit-tdd.js', 'security-check.js', 'session-summary.js',
+      'standards-guard.js', 'subagent-grader.js', 'subagent-guard.js', 'subagent-review.js',
+      'syntax-check.js', 'validate-map.js',
+    ];
+
+    test(`los ${HOOKS_CON_SANDBOX.length} hooks propios usan --permission en POSIX`, () => {
+      const original = process.platform;
+      Object.defineProperty(process, 'platform', { value: 'linux' });
+      try {
+        delete require.cache[require.resolve(path.join(BIN, 'hooks-definition.js'))];
+        const { buildHooksSection: build } = require(path.join(BIN, 'hooks-definition.js'));
+        const hooks = build((s) => `"/repo/.claude/bin/${s}"`);
+        const str = JSON.stringify(hooks);
+
+        for (const hook of HOOKS_CON_SANDBOX) {
+          const escapado = hook.replace(/\./g, '\\.');
+          assert.match(str, new RegExp(`--permission[^]*?${escapado}`), `${hook} debe invocarse con --permission en POSIX`);
+        }
+      } finally {
+        Object.defineProperty(process, 'platform', { value: original });
+        delete require.cache[require.resolve(path.join(BIN, 'hooks-definition.js'))];
+      }
+    });
+
+    test('process-guard.js (wrapper) no se sandboxea a si mismo, pero el hook que envuelve si', () => {
+      const original = process.platform;
+      Object.defineProperty(process, 'platform', { value: 'linux' });
+      try {
+        delete require.cache[require.resolve(path.join(BIN, 'hooks-definition.js'))];
+        const { buildHooksSection: build } = require(path.join(BIN, 'hooks-definition.js'));
+        const hooks = build((s) => `"/repo/.claude/bin/${s}"`);
+        const preToolUseStr = JSON.stringify(hooks.PreToolUse);
+
+        // process-guard.js siempre arranca con "node <ruta-process-guard>" plano
+        assert.match(preToolUseStr, /"node \\"\/repo\/\.claude\/bin\/process-guard\.js\\" health node --permission/);
+      } finally {
+        Object.defineProperty(process, 'platform', { value: original });
+        delete require.cache[require.resolve(path.join(BIN, 'hooks-definition.js'))];
+      }
+    });
+
+    test('en Windows, ninguno de los 28 hooks nuevos usa --permission', () => {
+      const original = process.platform;
+      Object.defineProperty(process, 'platform', { value: 'win32' });
+      try {
+        delete require.cache[require.resolve(path.join(BIN, 'hooks-definition.js'))];
+        const { buildHooksSection: build } = require(path.join(BIN, 'hooks-definition.js'));
+        const hooks = build((s) => `"/repo/.claude/bin/${s}"`);
+        const str = JSON.stringify(hooks);
+
+        assert.doesNotMatch(str, /--permission/);
+        assert.match(str, /agent-metrics\.js/);
+        assert.match(str, /standards-guard\.js/);
+      } finally {
+        Object.defineProperty(process, 'platform', { value: original });
+        delete require.cache[require.resolve(path.join(BIN, 'hooks-definition.js'))];
+      }
+    });
+  });
 });

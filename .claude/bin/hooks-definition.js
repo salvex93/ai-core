@@ -40,11 +40,12 @@
 function nodeConPermiso(script, permisos = {}, platform = process.platform) {
   if (platform === 'win32') return `node ${script}`;
 
-  const { fsRead = [], fsWrite = [] } = permisos;
+  const { fsRead = [], fsWrite = [], childProcess = false } = permisos;
   const flags = [
     '--permission',
     ...fsRead.map((p) => `--allow-fs-read=${p}`),
     ...fsWrite.map((p) => `--allow-fs-write=${p}`),
+    ...(childProcess ? ['--allow-child-process'] : []),
   ];
   return `node ${flags.join(' ')} ${script}`;
 }
@@ -62,46 +63,55 @@ function globDir(dirCitado) {
 }
 
 function buildHooksSection(bin) {
-  // Rutas de --allow-fs-read/--allow-fs-write confirmadas en el spike de esta
-  // sesion para los 4 hooks prioritarios (destructive-op-guard.js no necesita
-  // ninguna: solo lee stdin, un file descriptor ya abierto que el Permission
-  // Model no restringe). "$TMPDIR" con fallback a /tmp es donde guard-report.js
-  // escribe el JSONL de telemetria (os.tmpdir()) salvo que
-  // AI_CORE_GUARD_REPORT_PATH lo redirija -- no acotarlo mas sin verificar esa
-  // variable en runtime.
-  const dirBin   = globDir(bin(''));
-  const dirTmp   = '"${TMPDIR:-/tmp}/*"';
-  const soloRead = { fsRead: [dirBin] };
-  const readYWrite = { fsRead: [dirBin], fsWrite: [dirTmp] };
+  // Rutas de --allow-fs-read/--allow-fs-write auditadas hook por hook (leyendo
+  // que cada uno realmente hace, no por analogia): todos los hooks propios
+  // viven en .claude/bin/ y su unico require relativo real es ./lib/* dentro
+  // del mismo directorio -- el glob de una sola profundidad (dirBin) ya cubre
+  // eso. "$TMPDIR" con fallback a /tmp es donde guard-report.js y varios
+  // locks (process-guard.js) escriben, salvo que una env var los redirija.
+  // dirRepo cubre lecturas/escrituras a archivos propios del repo fuera de
+  // .claude/bin/ (ej. .claude/AGENT_METRICS.json, .claude/EVENTS_QUEUE.json,
+  // .claude/moa_context.md, CONTEXT_MAP.json) que varios hooks leen/escriben.
+  const dirBin  = globDir(bin(''));
+  const dirTmp  = '"${TMPDIR:-/tmp}/*"';
+  const dirRepo = '"${PWD}/**"';
+
+  const soloRead      = { fsRead: [dirBin] };
+  const readYWrite    = { fsRead: [dirBin], fsWrite: [dirTmp] };
+  const repoReadWrite = { fsRead: [dirBin, dirRepo], fsWrite: [dirRepo, dirTmp] };
+  // git status/diff/log/rev-parse/ls-files -- ningun hook de esta lista
+  // ejecuta escritura via git (commit/push/reset quedan bloqueados aparte por
+  // destructive-op-guard.js, que corre ANTES en la misma cadena de PreToolUse).
+  const repoConGit = { fsRead: [dirBin, dirRepo], fsWrite: [dirRepo, dirTmp], childProcess: true };
 
   return {
     UserPromptSubmit: [
       {
         hooks: [
-          { type: 'command', command: `node ${bin('process-guard.js')} intent node ${bin('detect-role.js')} 2>/dev/null || true` },
+          { type: 'command', command: `node ${bin('process-guard.js')} intent ${nodeConPermiso(bin('detect-role.js'), soloRead)} 2>/dev/null || true` },
           { type: 'command', command: `${nodeConPermiso(bin('secrets-guard.js'), readYWrite)} 2>/dev/null || true` },
-          { type: 'command', command: `node ${bin('process-guard.js')} moa node ${bin('moa-context-gatherer.js')} 2>/dev/null || true` },
+          { type: 'command', command: `node ${bin('process-guard.js')} moa ${nodeConPermiso(bin('moa-context-gatherer.js'), repoReadWrite)} 2>/dev/null || true` },
         ],
       },
     ],
     Stop: [
       {
         hooks: [
-          { type: 'command', command: `node ${bin('session-summary.js')} 2>/dev/null || true` },
-          { type: 'command', command: `node ${bin('process-guard.js')} capture node ${bin('issue-reporter.js')} 2>/dev/null || true` },
-          { type: 'command', command: `node ${bin('aiops-score.js')} 2>/dev/null || true` },
-          { type: 'command', command: `node ${bin('memory-index-stop.js')} 2>/dev/null || true` },
-          { type: 'command', command: `node ${bin('memory-vault-prune-check.js')} 2>/dev/null || true` },
+          { type: 'command', command: `${nodeConPermiso(bin('session-summary.js'), repoConGit)} 2>/dev/null || true` },
+          { type: 'command', command: `node ${bin('process-guard.js')} capture ${nodeConPermiso(bin('issue-reporter.js'), repoConGit)} 2>/dev/null || true` },
+          { type: 'command', command: `${nodeConPermiso(bin('aiops-score.js'), repoConGit)} 2>/dev/null || true` },
+          { type: 'command', command: `${nodeConPermiso(bin('memory-index-stop.js'), repoConGit)} 2>/dev/null || true` },
+          { type: 'command', command: `${nodeConPermiso(bin('memory-vault-prune-check.js'), repoReadWrite)} 2>/dev/null || true` },
         ],
       },
     ],
     SubagentStop: [
       {
         hooks: [
-          { type: 'command', command: `node ${bin('subagent-review.js')} 2>/dev/null || true` },
-          { type: 'command', command: `node ${bin('cross-verify-gate.js')} 2>/dev/null || true` },
+          { type: 'command', command: `${nodeConPermiso(bin('subagent-review.js'), soloRead)} 2>/dev/null || true` },
+          { type: 'command', command: `${nodeConPermiso(bin('cross-verify-gate.js'), repoConGit)} 2>/dev/null || true` },
           { type: 'command', command: `${nodeConPermiso(bin('injection-guard.js'), readYWrite)} 2>/dev/null || true` },
-          { type: 'command', command: `node ${bin('subagent-grader.js')} 2>/dev/null || true` },
+          { type: 'command', command: `${nodeConPermiso(bin('subagent-grader.js'), soloRead)} 2>/dev/null || true` },
         ],
       },
     ],
@@ -109,19 +119,19 @@ function buildHooksSection(bin) {
       {
         matcher: 'mcp__gemini-bridge__*',
         hooks: [
-          { type: 'command', command: `echo "[MCP-FAIL] gemini-bridge fallo — usar tier Claude segun jerarquia de costo" >&2 && node ${bin('process-guard.js')} capture node ${bin('capture-event.js')} --type mcp_failure --tool gemini-bridge 2>/dev/null || true` },
+          { type: 'command', command: `echo "[MCP-FAIL] gemini-bridge fallo — usar tier Claude segun jerarquia de costo" >&2 && node ${bin('process-guard.js')} capture ${nodeConPermiso(bin('capture-event.js'), repoReadWrite)} --type mcp_failure --tool gemini-bridge 2>/dev/null || true` },
         ],
       },
       {
         matcher: 'mcp__anthropic-router__*',
         hooks: [
-          { type: 'command', command: `node ${bin('process-guard.js')} capture node ${bin('capture-event.js')} --type mcp_failure --tool anthropic-router 2>/dev/null || true` },
+          { type: 'command', command: `node ${bin('process-guard.js')} capture ${nodeConPermiso(bin('capture-event.js'), repoReadWrite)} --type mcp_failure --tool anthropic-router 2>/dev/null || true` },
         ],
       },
       {
         matcher: 'Bash',
         hooks: [
-          { type: 'command', command: `node ${bin('process-guard.js')} capture node ${bin('capture-event.js')} --type hook_failure --tool bash 2>/dev/null || true` },
+          { type: 'command', command: `node ${bin('process-guard.js')} capture ${nodeConPermiso(bin('capture-event.js'), repoReadWrite)} --type hook_failure --tool bash 2>/dev/null || true` },
         ],
       },
       {
@@ -131,7 +141,7 @@ function buildHooksSection(bin) {
         // quedaba muerto por diseño y agent-report nunca reflejaba fallos reales.
         matcher: 'Bash|Read|Write|Edit|Agent',
         hooks: [
-          { type: 'command', command: `node ${bin('agent-metrics.js')} record --status fail 2>/dev/null || true` },
+          { type: 'command', command: `${nodeConPermiso(bin('agent-metrics.js'), repoReadWrite)} record --status fail 2>/dev/null || true` },
         ],
       },
     ],
@@ -145,37 +155,37 @@ function buildHooksSection(bin) {
       {
         matcher: 'Bash',
         hooks: [
-          { type: 'command', command: `node ${bin('process-guard.js')} health node ${bin('health-check.js')} 2>&1 || true` },
-          { type: 'command', command: `node ${bin('process-guard.js')} map node ${bin('validate-map.js')} 2>/dev/null || true` },
-          { type: 'command', command: `node ${bin('bash-verbosity-guard.js')}` },
+          { type: 'command', command: `node ${bin('process-guard.js')} health ${nodeConPermiso(bin('health-check.js'), repoConGit)} 2>&1 || true` },
+          { type: 'command', command: `node ${bin('process-guard.js')} map ${nodeConPermiso(bin('validate-map.js'), repoConGit)} 2>/dev/null || true` },
+          { type: 'command', command: nodeConPermiso(bin('bash-verbosity-guard.js'), soloRead) },
           { type: 'command', command: nodeConPermiso(bin('destructive-op-guard.js')) },
         ],
       },
       {
         matcher: 'Read',
         hooks: [
-          { type: 'command', command: `node ${bin('guard-read.js')} "$CLAUDE_TOOL_INPUT_file_path" 2>/dev/null || true` },
+          { type: 'command', command: `${nodeConPermiso(bin('guard-read.js'), repoReadWrite)} "$CLAUDE_TOOL_INPUT_file_path" 2>/dev/null || true` },
         ],
       },
       {
         matcher: 'Write|Edit',
         hooks: [
-          { type: 'command', command: `node ${bin('ponytail-check.js')} 2>/dev/null || true` },
-          { type: 'command', command: `node ${bin('dependency-tracer.js')} "$CLAUDE_TOOL_INPUT_file_path" 2>/dev/null || true` },
-          { type: 'command', command: `node ${bin('pre-commit-tdd.js')} "$CLAUDE_TOOL_INPUT_file_path"` },
+          { type: 'command', command: `${nodeConPermiso(bin('ponytail-check.js'), soloRead)} 2>/dev/null || true` },
+          { type: 'command', command: `${nodeConPermiso(bin('dependency-tracer.js'), repoReadWrite)} "$CLAUDE_TOOL_INPUT_file_path" 2>/dev/null || true` },
+          { type: 'command', command: `${nodeConPermiso(bin('pre-commit-tdd.js'), repoConGit)} "$CLAUDE_TOOL_INPUT_file_path"` },
           { type: 'command', command: nodeConPermiso(bin('code-exec-guard.js'), soloRead) },
         ],
       },
       {
         matcher: 'Agent',
         hooks: [
-          { type: 'command', command: `node ${bin('subagent-guard.js')}` },
+          { type: 'command', command: nodeConPermiso(bin('subagent-guard.js'), readYWrite) },
         ],
       },
       {
         matcher: 'mcp__.*',
         hooks: [
-          { type: 'command', command: `node ${bin('circuit-breaker.js')} 2>&1 || true` },
+          { type: 'command', command: `${nodeConPermiso(bin('circuit-breaker.js'), repoReadWrite)} 2>&1 || true` },
         ],
       },
     ],
@@ -192,23 +202,23 @@ function buildHooksSection(bin) {
         // conoce) — ningun otro hook cubre este momento especifico.
         matcher: 'Bash(git commit*)|Bash(git push*)',
         hooks: [
-          { type: 'command', command: `node ${bin('process-guard.js')} map node ${bin('diff-map-trigger.js')} 2>/dev/null || true` },
+          { type: 'command', command: `node ${bin('process-guard.js')} map ${nodeConPermiso(bin('diff-map-trigger.js'), repoConGit)} 2>/dev/null || true` },
         ],
       },
       {
         matcher: 'Bash|Read|Write|Edit|Agent',
         hooks: [
-          { type: 'command', command: `node ${bin('agent-metrics.js')} record --status ok 2>/dev/null || true` },
+          { type: 'command', command: `${nodeConPermiso(bin('agent-metrics.js'), repoReadWrite)} record --status ok 2>/dev/null || true` },
         ],
       },
       {
         matcher: 'Write|Edit',
         hooks: [
-          { type: 'command', command: `node ${bin('process-guard.js')} lint node ${bin('detox.js')} 2>/dev/null || true` },
-          { type: 'command', command: `node ${bin('syntax-check.js')} "$CLAUDE_TOOL_INPUT_file_path" 2>/dev/null || true` },
-          { type: 'command', command: `node ${bin('process-guard.js')} lint node ${bin('standards-guard.js')} "$CLAUDE_TOOL_INPUT_file_path"` },
-          { type: 'command', command: `node ${bin('process-guard.js')} map node ${bin('diff-map-trigger.js')} 2>/dev/null || true` },
-          { type: 'command', command: `node ${bin('process-guard.js')} lint node ${bin('security-check.js')} "$CLAUDE_TOOL_INPUT_file_path" 2>/dev/null || true` },
+          { type: 'command', command: `node ${bin('process-guard.js')} lint ${nodeConPermiso(bin('detox.js'), repoConGit)} 2>/dev/null || true` },
+          { type: 'command', command: `${nodeConPermiso(bin('syntax-check.js'), soloRead)} "$CLAUDE_TOOL_INPUT_file_path" 2>/dev/null || true` },
+          { type: 'command', command: `node ${bin('process-guard.js')} lint ${nodeConPermiso(bin('standards-guard.js'), repoConGit)} "$CLAUDE_TOOL_INPUT_file_path"` },
+          { type: 'command', command: `node ${bin('process-guard.js')} map ${nodeConPermiso(bin('diff-map-trigger.js'), repoConGit)} 2>/dev/null || true` },
+          { type: 'command', command: `node ${bin('process-guard.js')} lint ${nodeConPermiso(bin('security-check.js'), soloRead)} "$CLAUDE_TOOL_INPUT_file_path" 2>/dev/null || true` },
         ],
       },
     ],
