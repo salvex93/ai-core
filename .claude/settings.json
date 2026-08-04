@@ -172,6 +172,10 @@
           {
             "type": "command",
             "command": "node \"C:/Users/arimac/Documents/ai-core/.claude/bin/bash-verbosity-guard.js\""
+          },
+          {
+            "type": "command",
+            "command": "node \"C:/Users/arimac/Documents/ai-core/.claude/bin/destructive-op-guard.js\""
           }
         ]
       },

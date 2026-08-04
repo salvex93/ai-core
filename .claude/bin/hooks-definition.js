@@ -93,6 +93,7 @@ function buildHooksSection(bin) {
           { type: 'command', command: `node ${bin('process-guard.js')} health node ${bin('health-check.js')} 2>&1 || true` },
           { type: 'command', command: `node ${bin('process-guard.js')} map node ${bin('validate-map.js')} 2>/dev/null || true` },
           { type: 'command', command: `node ${bin('bash-verbosity-guard.js')}` },
+          { type: 'command', command: `node ${bin('destructive-op-guard.js')}` },
         ],
       },
       {

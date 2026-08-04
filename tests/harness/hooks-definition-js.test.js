@@ -25,6 +25,7 @@ describe('hooks-definition.js', () => {
     assert.match(str, /MARCADOR-subagent-guard\.js/);
     assert.match(str, /MARCADOR-bash-verbosity-guard\.js/);
     assert.match(str, /MARCADOR-memory-vault-prune-check\.js/);
+    assert.match(str, /MARCADOR-destructive-op-guard\.js/);
   });
 
   test('SubagentStop incluye los 3 guards de validacion de output', () => {
