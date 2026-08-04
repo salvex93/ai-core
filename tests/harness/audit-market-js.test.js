@@ -15,11 +15,11 @@ describe('audit-market.js', () => {
     assert.ok(fs.existsSync(SCRIPT));
   });
 
-  test('--json produce un resumen valido con los 39 skills reales', () => {
+  test('--json produce un resumen valido con los 40 skills reales', () => {
     const r = runScript(SCRIPT, ['--json']);
     assert.equal(r.status, 0);
     const salida = JSON.parse(r.stdout);
-    assert.equal(salida.resumen.total, 39);
+    assert.equal(salida.resumen.total, 40);
     assert.ok(Array.isArray(salida.resultados));
   });
 
