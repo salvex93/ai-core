@@ -6,20 +6,22 @@ const path   = require('node:path');
 const fs     = require('node:fs');
 const os     = require('node:os');
 const { spawnSync } = require('node:child_process');
-const { REPO, BIN, SKILLS, SETTINGS, runScript, tmpFile } = require('./_shared');
+const { REPO, BIN, SKILLS, SETTINGS, runScript } = require('./_shared');
 
 describe('mcp-integrity-check.js', () => {
+  // Aislado en directorio temporal propio (mismo patron que AI_CORE_MEMORY_VAULT_PATH
+  // en memory-index.js) -- evita colision con otros archivos de test paralelos que
+  // tocan el mismo baseline via health-check.js -> verificarIntegridad(). Se usa
+  // process.pid (unico por proceso de test) en vez de Date.now() para evitar la
+  // misma clase de colision que este fix resuelve.
+  const BASELINE_PATH = path.join(os.tmpdir(), `mcp-integrity-baseline-${process.pid}.json`);
+  process.env.AI_CORE_MCP_BASELINE_PATH = BASELINE_PATH;
+  delete require.cache[require.resolve(path.join(BIN, 'mcp-integrity-check.js'))];
   const { verificarIntegridad } = require(path.join(BIN, 'mcp-integrity-check.js'));
-  const BASELINE_PATH = path.join(REPO, '.claude', 'MCP_INTEGRITY_BASELINE.json');
-  let baselinePrevio;
-
-  before(() => {
-    baselinePrevio = fs.existsSync(BASELINE_PATH) ? fs.readFileSync(BASELINE_PATH, 'utf8') : null;
-  });
 
   after(() => {
-    if (baselinePrevio !== null) fs.writeFileSync(BASELINE_PATH, baselinePrevio, 'utf8');
-    else fs.rmSync(BASELINE_PATH, { force: true });
+    fs.rmSync(BASELINE_PATH, { force: true });
+    delete process.env.AI_CORE_MCP_BASELINE_PATH;
   });
 
   test('el script existe', () => {

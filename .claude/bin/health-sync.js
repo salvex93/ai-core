@@ -71,13 +71,32 @@ function checkDependencies(root) {
 function checkSkills(root) {
   const skillsDir = path.join(root, '.claude', 'skills');
 
-  const inDisk = fs.readdirSync(skillsDir).filter(d =>
-    fs.statSync(path.join(skillsDir, d)).isDirectory() &&
-    fs.existsSync(path.join(skillsDir, d, 'SKILL.md'))
-  );
+  // statSync (no existsSync) porque tambien filtra archivos sueltos en
+  // skillsDir -- pero un directorio puede desaparecer entre el readdirSync
+  // y este stat (otro proceso lo crea/borra dinamicamente para su propio
+  // test, ej. health-sync-js-checkskills.test.js), asi que el ENOENT se
+  // trata igual que "no es directorio": se excluye, no se propaga.
+  const inDisk = fs.readdirSync(skillsDir).filter(d => {
+    try {
+      return fs.statSync(path.join(skillsDir, d)).isDirectory() &&
+        fs.existsSync(path.join(skillsDir, d, 'SKILL.md'));
+    } catch {
+      return false;
+    }
+  });
 
+  // presentes: skills que siguieron existiendo hasta este punto -- si uno
+  // desaparecio entre el filtro de arriba y este read (mismo TOCTOU), se
+  // excluye del conteo en vez de propagar el ENOENT.
+  const presentes = [];
   const invalid = inDisk.filter(nombre => {
-    const content   = fs.readFileSync(path.join(skillsDir, nombre, 'SKILL.md'), 'utf8');
+    let content;
+    try {
+      content = fs.readFileSync(path.join(skillsDir, nombre, 'SKILL.md'), 'utf8');
+    } catch {
+      return false;
+    }
+    presentes.push(nombre);
     // \s* (no [ \t]*) cruzaria la linea si el valor esta vacio, dejando que
     // .+ capture contenido de la SIGUIENTE linea del frontmatter (ej. "---")
     // en vez de fallar el match como corresponde a un valor vacio.
@@ -90,7 +109,7 @@ function checkSkills(root) {
 
   return {
     ok:    invalid.length === 0,
-    count: inDisk.length,
+    count: presentes.length,
     invalid,
   };
 }

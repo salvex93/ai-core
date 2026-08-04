@@ -37,18 +37,30 @@ describe('subagent-grader.js (hook SubagentStop)', () => {
     // funciones puras del store: PreToolUse guarda, SubagentStop recupera,
     // por la misma clave session_id+prompt_id (confirmado empiricamente
     // que tool_use_id/agent_id NO sirven para esto).
+    //
+    // Aislado con AI_CORE_SUBAGENT_LOCK_DIR propio: sin esto, el lock que
+    // este test escribe queda huerfano en el directorio real compartido
+    // (os.tmpdir()/ai-core-locks/subagents) porque este archivo no tiene
+    // motivo para limpiarlo el mismo test, y locks acumulados de corridas
+    // previas hacian que corridas futuras de la suite superaran
+    // MAX_PARALLEL y bloquearan un spawn que deberia pasar limpio.
     const { recuperarTarea } = require(path.join(BIN, 'lib', 'subagent-task-store'));
-    const GUARD = path.join(BIN, 'subagent-guard.js');
+    const GUARD    = path.join(BIN, 'subagent-guard.js');
+    const LOCK_DIR = path.join(os.tmpdir(), `ai-core-locks-test-grader-${process.pid}`, 'subagents');
 
-    const sessionId = `test-e2e-${Date.now()}`;
-    const promptId  = `prompt-e2e-${Date.now()}`;
+    const sessionId = `test-e2e-${process.pid}`;
+    const promptId  = `prompt-e2e-${process.pid}`;
     const eventoPre = JSON.stringify({
       session_id: sessionId,
       prompt_id: promptId,
       tool_input: { subagent_type: 'Explore', prompt: 'tarea real de prueba end-to-end' },
     });
 
-    const rGuard = spawnSync('node', [GUARD], { encoding: 'utf8', cwd: REPO, input: eventoPre });
+    const rGuard = spawnSync('node', [GUARD], {
+      encoding: 'utf8', cwd: REPO, input: eventoPre,
+      env: { ...process.env, AI_CORE_SUBAGENT_LOCK_DIR: LOCK_DIR },
+    });
+    fs.rmSync(LOCK_DIR, { recursive: true, force: true });
     assert.equal(rGuard.status, 0, 'subagent-guard.js no debe bloquear un spawn normal');
 
     const tareaRecuperada = recuperarTarea(sessionId, promptId);

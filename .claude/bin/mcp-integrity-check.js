@@ -23,7 +23,8 @@ const path   = require('path');
 const crypto = require('crypto');
 
 const REPO         = path.resolve(__dirname, '..', '..');
-const BASELINE_PATH = path.join(REPO, '.claude', 'MCP_INTEGRITY_BASELINE.json');
+// AI_CORE_MCP_BASELINE_PATH permite operar sobre un baseline temporal en tests
+const BASELINE_PATH = process.env.AI_CORE_MCP_BASELINE_PATH || path.join(REPO, '.claude', 'MCP_INTEGRITY_BASELINE.json');
 
 const SERVIDORES = [
   { name: 'gemini-bridge',    script: path.join(REPO, 'scripts', 'mcp-gemini.js') },

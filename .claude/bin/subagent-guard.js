@@ -44,7 +44,11 @@ const { guardarTarea } = require('./lib/subagent-task-store');
 const MAX_PARALLEL = 3;        // alineado con la regla de CLAUDE.md; ajustar ahi tambien si cambia
 const TIMEOUT_MS   = 2 * 60 * 1000; // 2 min — ventana de "lanzados recientemente", no timeout de ejecucion
 
-const LOCK_DIR = path.join(require('os').tmpdir(), 'ai-core-locks', 'subagents');
+// AI_CORE_SUBAGENT_LOCK_DIR permite operar sobre un directorio de locks
+// temporal en tests -- sin ella, el directorio real es compartido a nivel
+// de sistema operativo a proposito (asi el limite de MAX_PARALLEL cuenta
+// subagentes lanzados por cualquier proceso, no solo por sesion).
+const LOCK_DIR = process.env.AI_CORE_SUBAGENT_LOCK_DIR || path.join(require('os').tmpdir(), 'ai-core-locks', 'subagents');
 
 const evento = leerEventoDeStdin();
 

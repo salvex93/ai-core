@@ -32,7 +32,9 @@ const path = require('path');
 const { leerEventoDeStdin } = require('./lib/hook-stdin');
 
 const CORE_PATH  = path.resolve(__dirname, '../..');
-const QUEUE_PATH = path.join(CORE_PATH, '.claude', 'EVENTS_QUEUE.json');
+// AI_CORE_EVENTS_QUEUE_PATH permite operar sobre una cola temporal en tests
+// (mismo patron ya usado por circuit-breaker.js para el lado de lectura)
+const QUEUE_PATH = process.env.AI_CORE_EVENTS_QUEUE_PATH || path.join(CORE_PATH, '.claude', 'EVENTS_QUEUE.json');
 const MAX_EVENTS = 50; // evitar que la cola crezca indefinidamente
 
 // ---------------------------------------------------------------------------
