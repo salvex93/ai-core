@@ -107,7 +107,7 @@ async function llamarLLM(operacion: string, prompt: PromptRequest): Promise<LLMR
   return tracer.startActiveSpan(`llm.${operacion}`, async (span) => {
     // Atributos semanticos estandar para LLM (OpenTelemetry GenAI semantic conventions)
     span.setAttributes({
-      'gen_ai.system': 'anthropic',
+      'gen_ai.provider.name': 'anthropic',
       'gen_ai.request.model': prompt.modelo ?? 'claude-sonnet-5',
       'gen_ai.request.max_tokens': prompt.maxTokens ?? 1024,
       'gen_ai.operation.name': operacion,
@@ -137,6 +137,8 @@ async function llamarLLM(operacion: string, prompt: PromptRequest): Promise<LLMR
 ```
 
 Los atributos usan el esquema `gen_ai.*` de las OpenTelemetry GenAI Semantic Conventions. Este esquema permite que herramientas como Phoenix y Grafana interpreten automaticamente las trazas como llamadas LLM sin configuracion adicional.
+
+**Vigencia verificada 2026-08-04** (`github.com/open-telemetry/semantic-conventions-genai`, `github.com/open-telemetry/semantic-conventions/releases`): `gen_ai.system` fue renombrado a `gen_ai.provider.name` en semantic-conventions v1.37.0 -- el nombre viejo queda deprecado, no eliminado. El contenido GenAI completo se movio de repositorio en v1.42.0 (junio 2026). Muchas librerias de instrumentacion en produccion todavia emiten `gen_ai.system` por no haber migrado -- si se integra con un backend de terceros (Phoenix, Grafana, Langfuse), confirmar cual de los dos nombres espera esa version especifica antes de asumir compatibilidad automatica.
 
 ## Integracion con Langfuse
 
