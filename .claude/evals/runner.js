@@ -11,12 +11,17 @@
  * corridas repetidas dentro del mismo entorno).
  *
  * El juez de las assertions llm-rubric se fija en el propio
- * promptfooconfig.yaml de cada skill (formato nativo "google:<modelo>", los
+ * promptfooconfig.yaml de cada skill (formato nativo "proveedor:modelo", los
  * custom providers file:// de promptfoo NO son aceptados como grading
  * provider -- verificado contra promptfoo.dev/docs/configuration/expected-
- * outputs/model-graded/llm-rubric/ antes de escribir este runner). Usa
- * GEMINI_API_KEY (ya declarada en el proyecto), que promptfoo acepta como
- * alias de GOOGLE_API_KEY para el prefijo "google:".
+ * outputs/model-graded/llm-rubric/ antes de escribir este runner). Diseño
+ * original con "google:gemini-3.5-flash" (GEMINI_API_KEY, tier 0 gratuito) --
+ * cambiado a "openai:chat:gpt-5.6-luna" (OPENAI_API_KEY) tras 2 corridas
+ * reales con timeout de 5 minutos en cola por saturacion de la API de Gemini
+ * (confirmado en el log de error de promptfoo, no un problema de diseño del
+ * eval). Fallback autorizado explicitamente por el usuario como protocolo de
+ * emergencia -- revertir a Gemini cuando su disponibilidad se normalice,
+ * siguiendo la jerarquia de costo de CLAUDE.md (Gemini free tier primero).
  *
  * Uso: node .claude/evals/runner.js <ruta-a-promptfooconfig.yaml>
  */

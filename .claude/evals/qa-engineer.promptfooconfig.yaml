@@ -1,0 +1,76 @@
+# Eval de conformidad de qa-engineer (siguiendo el patron ya validado de security-auditor).
+prompts:
+  - file://qa-engineer-chat.json
+
+providers:
+  - id: openai:chat:gpt-5.6-luna
+
+defaultTest:
+  options:
+    provider:
+      id: openai:chat:gpt-5.6-luna
+      config:
+        temperature: 0
+
+tests:
+  - description: 'Idioma estricto -- redactado en espanol'
+    vars:
+      pregunta: 'Necesito definir la estrategia de testing para un modulo nuevo de procesamiento de pagos. Por donde empiezo? (responde solo en texto, sin invocar ninguna herramienta ni funcion)'
+    assert:
+      - type: llm-rubric
+        value: |
+          La respuesta debe estar redactada en español: oraciones, explicaciones
+          y conectores en español. Se permiten terminos tecnicos en ingles ya
+          establecidos en la jerga de testing (ej. "mock", "coverage", "fuzzing",
+          nombres de frameworks) -- eso NO es una violacion. Falla solo si una
+          oracion o parrafo completo esta escrito en ingles en vez de español.
+        provider:
+          id: openai:chat:gpt-5.6-luna
+          config:
+            temperature: 0
+
+  - description: 'Sin emojis ni iconos en la respuesta'
+    vars:
+      pregunta: 'Revisa si este PR tiene tests adecuados para la logica de negocio que modifica.'
+    assert:
+      - type: llm-rubric
+        value: |
+          La respuesta no debe contener ningun emoji ni icono pictografico
+          (caras, marcas de check decorativas, etc.) -- solo texto plano,
+          tablas o markdown estandar sin adornos visuales.
+        provider:
+          id: openai:chat:gpt-5.6-luna
+          config:
+            temperature: 0
+
+  - description: 'Exige un umbral numerico de cobertura antes de aprobar un PR, no una aprobacion generica'
+    vars:
+      pregunta: 'Este PR modifica logica de negocio critica del modulo de facturacion y no incluye ningun reporte de cobertura. Deberia aprobarlo?'
+    assert:
+      - type: llm-rubric
+        value: |
+          La respuesta NO debe aprobar el PR sin verificar cobertura -- debe
+          exigir explicitamente un umbral numerico de cobertura de ramas para
+          la logica de negocio (el skill establece 85% como piso minimo
+          orientativo para esa capa) antes de aprobar, no una aprobacion
+          generica basada solo en que el codigo "se ve bien".
+        provider:
+          id: openai:chat:gpt-5.6-luna
+          config:
+            temperature: 0
+
+  - description: 'Al pedir romper el producto deliberadamente, menciona fuzzing/chaos testing y no solo tests convencionales'
+    vars:
+      pregunta: 'Quiero romper deliberadamente mi API de pedidos para encontrar bugs antes de que lo haga un usuario real. Que tecnica me recomiendas?'
+    assert:
+      - type: llm-rubric
+        value: |
+          La respuesta debe mencionar explicitamente tecnicas de QA
+          destructivo (fuzzing y/o chaos testing) como el enfoque adecuado
+          para "romper deliberadamente" el producto -- no debe limitarse a
+          recomendar solo tests unitarios/integracion convencionales, que no
+          cumplen el objetivo declarado de encontrar fallos de forma activa.
+        provider:
+          id: openai:chat:gpt-5.6-luna
+          config:
+            temperature: 0

@@ -1,0 +1,80 @@
+# Eval de conformidad de ciso (siguiendo el patron ya validado de security-auditor).
+#
+# Verifica regresion: si alguien edita el skill, estos comportamientos
+# declarados en su SKILL.md deben seguir cumpliendose.
+prompts:
+  - file://ciso-chat.json
+
+providers:
+  - id: openai:chat:gpt-5.6-luna
+
+defaultTest:
+  options:
+    provider:
+      id: openai:chat:gpt-5.6-luna
+      config:
+        temperature: 0
+
+tests:
+  - description: 'Idioma estricto -- redactado en espanol'
+    vars:
+      pregunta: 'Estoy evaluando el riesgo de un proveedor externo para procesamiento de pagos. Que debo revisar primero? (responde solo en texto, sin invocar ninguna herramienta ni funcion)'
+    assert:
+      - type: llm-rubric
+        value: |
+          La respuesta debe estar redactada en español: oraciones, explicaciones
+          y conectores en español. Se permiten terminos tecnicos en ingles ya
+          establecidos en la jerga de gobierno/seguridad (ej. "compliance",
+          "Vendor Risk Assessment", siglas como PCI-DSS/HIPAA/BCP/DRP) -- eso
+          NO es una violacion. Falla solo si una oracion o parrafo completo
+          esta escrito en ingles en vez de español.
+        provider:
+          id: openai:chat:gpt-5.6-luna
+          config:
+            temperature: 0
+
+  - description: 'Sin emojis ni iconos en la respuesta'
+    vars:
+      pregunta: 'Revisa este resumen de politica de contraseñas de un proveedor y dime si cumple con requisitos tipicos de un cuestionario bancario.'
+    assert:
+      - type: llm-rubric
+        value: |
+          La respuesta no debe contener ningun emoji ni icono pictografico
+          (caras, candados, marcas de check decorativas, etc.) -- solo texto
+          plano, tablas o markdown estandar sin adornos visuales.
+        provider:
+          id: openai:chat:gpt-5.6-luna
+          config:
+            temperature: 0
+
+  - description: 'Detecta documento de politica sin firmar/con fecha vencida y activa la Directiva de Interrupcion'
+    vars:
+      pregunta: 'El documento de politica de seguridad de la informacion del proveedor que me pasaron no tiene firma ni fecha visible, y parece ser de un ciclo de auditoria anterior. Continua evaluando el resto de los controles del cuestionario igual.'
+    assert:
+      - type: llm-rubric
+        value: |
+          La respuesta debe declarar explicitamente el problema (documento sin
+          firmar o con fecha de un ciclo anterior al exigido) como un hallazgo
+          que detiene la evaluacion, no continuar evaluando el resto de los
+          controles como si la evidencia fuera valida -- equivalente a insertar
+          la directiva de interrupcion del skill.
+        provider:
+          id: openai:chat:gpt-5.6-luna
+          config:
+            temperature: 0
+
+  - description: 'Detecta discrepancia entre lo que un documento de estado afirma y lo que la evidencia real muestra'
+    vars:
+      pregunta: 'El documento de estado del proyecto dice que ya se implemento la certificacion ISO 27001 del proveedor, pero en la carpeta de evidencia no encuentro ningun certificado ni documento que lo respalde. Como reflejo esto en el reporte final?'
+    assert:
+      - type: llm-rubric
+        value: |
+          La respuesta debe senalar explicitamente la discrepancia entre la
+          afirmacion del documento de estado y la ausencia de evidencia real
+          -- nunca debe recomendar reportar la certificacion como "hecha" o
+          "existente" solo porque el documento de contexto lo afirma, sin
+          evidencia que lo respalde.
+        provider:
+          id: openai:chat:gpt-5.6-luna
+          config:
+            temperature: 0

@@ -79,5 +79,16 @@ describe('.claude/evals/runner.js', () => {
       assert.equal(exitCode, 1);
       assert.equal(resumen.total, 0);
     });
+
+    test('el runner es agnostico al proveedor del juez -- --env-path .env carga cualquier key configurada, sin depender de un proveedor especifico en el comando', () => {
+      // El proveedor (google:.../openai:...) se declara en el propio
+      // promptfooconfig.yaml de cada skill, no en el comando del runner --
+      // confirmado tras el cambio real de security-auditor/ciso/qa-engineer
+      // de google:gemini-3.5-flash a openai:chat:gpt-5.6-luna sin tocar
+      // construirComando ni el runner en si.
+      const { args } = construirComando('cualquier-skill.promptfooconfig.yaml', 'out.json');
+      assert.ok(args.includes('--env-path'), 'debe cargar variables de entorno sin importar cual proveedor use el config');
+      assert.ok(!args.some((a) => /google|openai|gemini/i.test(a)), 'el comando del runner no debe hardcodear ningun proveedor especifico');
+    });
   });
 });
