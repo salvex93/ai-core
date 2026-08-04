@@ -1,4 +1,4 @@
-# AI-CORE v3.26.0: Nucleo Multi-Agente Universal
+# AI-CORE v3.27.0: Nucleo Multi-Agente Universal
 
 `ai-core` es un nucleo de configuracion y comportamiento para agentes IA. Se usa como submodulo Git en un proyecto existente o como repositorio independiente. Define reglas globales, 42 skills especializados, 7 agentes autonomos, un orquestador Mixture-of-Agents (Gemini + DeepSeek + Claude) y un ciclo de mejora continua por uso, sin acoplarse al stack del proyecto anfitrion.
 
@@ -150,6 +150,12 @@ npm run agent-report-full                 # historial de metricas de todas las s
 ---
 
 ## Que trae cada version
+
+### v3.27.0 — evals expandidos de 3 a 8 skills de mayor riesgo
+
+Continuacion del piloto de evals: se agregan `ai-guardrails`, `devops-infra`, `database-ops`, `cloud-deployment-specialist` y `backend-architect` (sumados a `security-auditor`, `ciso`, `qa-engineer`), priorizados por riesgo real si su comportamiento degrada. Cada eval verifica idioma, ausencia de emojis, y 2 casos especificos de la Directiva de Interrupcion de cada skill. Un ajuste de calibracion real: la rubrica de `ai-guardrails` fallo en su primera corrida por exigir terminologia textual exacta -- corregida para evaluar el comportamiento real.
+
+**864 tests, 42 skills, 7 agentes.**
 
 ### v3.26.0 — backend-architect: codigo real en .NET, PHP y Ruby
 

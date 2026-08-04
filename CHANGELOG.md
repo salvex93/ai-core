@@ -3,6 +3,18 @@
 Registro de cambios por version. Formato basado en [Keep a Changelog](https://keepachangelog.com/es/1.0.0/).
 Versionado semantico: MAJOR.MINOR.PATCH.
 
+## [3.27.0] — 2026-08-04
+
+### Agregado — evals expandidos de 3 a 8 skills (los de mayor riesgo si degradan)
+
+Continuacion de v3.24.0 (piloto con 1 skill, `security-auditor`) y su expansion a 3 (`ciso`, `qa-engineer`). Se agregan 5 skills mas priorizados por riesgo real si su comportamiento degrada silenciosamente: `ai-guardrails` (proteccion de sistemas LLM en produccion), `devops-infra` (infraestructura/despliegues), `database-ops` (operaciones de base de datos en produccion), `cloud-deployment-specialist` (despliegues a los 9 proveedores de nube), y `backend-architect` (arquitectura de API/persistencia).
+
+Cada eval sigue el mismo patron: idioma estricto, ausencia de emojis, y 2 casos especificos de la Directiva de Interrupcion propia de cada skill (ej. `database-ops` verificando que un `DROP TABLE` sin backup verificado se detenga en vez de ejecutarse; `cloud-deployment-specialist` verificando que una migracion de proveedor con trafico real en produccion pida un plan aprobado). Un ajuste real de calibracion: el caso de `ai-guardrails` sobre deshabilitar guardrails en produccion fallo en su primera corrida porque la rubrica exigia el nombre textual "directiva de interrupcion" -- corregido para evaluar el comportamiento real (detener y pedir confirmacion), no la terminologia exacta.
+
+Job de CI actualizado para correr los 8 evals (todos con `openai:chat:gpt-5.6-luna` como juez, mismo fallback de emergencia autorizado en v3.24.0).
+
+**864 tests, 42 skills, 7 agentes.**
+
 ## [3.26.0] — 2026-08-04
 
 ### Agregado — backend-architect: codigo real en .NET, PHP y Ruby

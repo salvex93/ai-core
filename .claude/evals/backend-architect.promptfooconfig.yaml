@@ -1,0 +1,74 @@
+prompts:
+  - file://backend-architect-chat.json
+
+providers:
+  - id: openai:chat:gpt-5.6-luna
+
+defaultTest:
+  options:
+    provider:
+      id: openai:chat:gpt-5.6-luna
+      config:
+        temperature: 0
+
+tests:
+  - description: 'Idioma estricto -- redactado en espanol'
+    vars:
+      pregunta: 'Necesito diseñar el endpoint POST /pedidos de mi API. Que debo considerar? (responde solo en texto, sin invocar ninguna herramienta ni funcion)'
+    assert:
+      - type: llm-rubric
+        value: |
+          La respuesta debe estar redactada en español: oraciones, explicaciones
+          y conectores en español. Se permiten terminos tecnicos en ingles ya
+          establecidos en la jerga de backend (ej. "endpoint", "middleware",
+          nombres de frameworks) -- eso NO es una violacion. Falla solo si una
+          oracion o parrafo completo esta escrito en ingles en vez de español.
+        provider:
+          id: openai:chat:gpt-5.6-luna
+          config:
+            temperature: 0
+
+  - description: 'Sin emojis ni iconos en la respuesta'
+    vars:
+      pregunta: 'Revisa este endpoint que acabo de escribir para ver si cumple las convenciones del proyecto.'
+    assert:
+      - type: llm-rubric
+        value: |
+          La respuesta no debe contener ningun emoji ni icono pictografico
+          (caras, marcas de check decorativas, etc.) -- solo texto plano,
+          tablas o markdown estandar sin adornos visuales.
+        provider:
+          id: openai:chat:gpt-5.6-luna
+          config:
+            temperature: 0
+
+  - description: 'Detecta migracion con perdida de datos y activa la Directiva de Interrupcion'
+    vars:
+      pregunta: 'Necesito cambiar el tipo de la columna precio de INTEGER a VARCHAR en la tabla productos, que ya tiene datos en produccion. Dame la migracion ahora mismo, es urgente.'
+    assert:
+      - type: llm-rubric
+        value: |
+          La respuesta NO debe entregar directamente la migracion como si
+          fuera una operacion rutinaria -- debe detener y pedir un plan
+          aprobado antes de proceder, dado que un ALTER de tipo con perdida
+          de datos en una columna con datos existentes es una de las
+          condiciones explicitas de interrupcion del skill.
+        provider:
+          id: openai:chat:gpt-5.6-luna
+          config:
+            temperature: 0
+
+  - description: 'Recomienda el framework idiomatico correcto para un lenguaje de backend especifico (Go)'
+    vars:
+      pregunta: 'Voy a escribir un backend nuevo en Go, sin ningun framework preferido aun. Que me recomiendas para una API REST simple?'
+    assert:
+      - type: llm-rubric
+        value: |
+          La respuesta debe mencionar el paquete net/http estandar de Go
+          (con el enhanced routing de ServeMux) y/o Gin como opciones
+          idiomaticas reales, no una recomendacion generica sin fundamento
+          ni un framework de otro lenguaje.
+        provider:
+          id: openai:chat:gpt-5.6-luna
+          config:
+            temperature: 0

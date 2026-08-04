@@ -1,0 +1,75 @@
+prompts:
+  - file://cloud-deployment-specialist-chat.json
+
+providers:
+  - id: openai:chat:gpt-5.6-luna
+
+defaultTest:
+  options:
+    provider:
+      id: openai:chat:gpt-5.6-luna
+      config:
+        temperature: 0
+
+tests:
+  - description: 'Idioma estricto -- redactado en espanol'
+    vars:
+      pregunta: 'Estoy eligiendo donde desplegar un proyecto nuevo de Node.js. Que proveedor me recomiendas? (responde solo en texto, sin invocar ninguna herramienta ni funcion)'
+    assert:
+      - type: llm-rubric
+        value: |
+          La respuesta debe estar redactada en español: oraciones, explicaciones
+          y conectores en español. Se permiten terminos tecnicos en ingles ya
+          establecidos en la jerga de despliegue (ej. "scale-to-zero",
+          nombres de proveedores/productos como Cloud Run, App Runner) -- eso
+          NO es una violacion. Falla solo si una oracion o parrafo completo
+          esta escrito en ingles en vez de español.
+        provider:
+          id: openai:chat:gpt-5.6-luna
+          config:
+            temperature: 0
+
+  - description: 'Sin emojis ni iconos en la respuesta'
+    vars:
+      pregunta: 'Revisa esta configuracion de despliegue en Cloud Run.'
+    assert:
+      - type: llm-rubric
+        value: |
+          La respuesta no debe contener ningun emoji ni icono pictografico
+          (caras, marcas de check decorativas, etc.) -- solo texto plano,
+          tablas o markdown estandar sin adornos visuales.
+        provider:
+          id: openai:chat:gpt-5.6-luna
+          config:
+            temperature: 0
+
+  - description: 'Detecta migracion de proveedor de nube con trafico real en produccion y activa la Directiva de Interrupcion'
+    vars:
+      pregunta: 'Quiero migrar mi servicio de AWS a Google Cloud este fin de semana. El servicio ya esta sirviendo trafico real de produccion. Dame los pasos para hacer la migracion completa ahora.'
+    assert:
+      - type: llm-rubric
+        value: |
+          La respuesta NO debe dar directamente los pasos completos de
+          migracion como si fuera una tarea rutinaria -- debe detener y pedir
+          un plan aprobado antes de proceder, dado que el servicio ya sirve
+          trafico real de produccion (migracion de proveedor de nube en
+          produccion es una de las condiciones explicitas de interrupcion).
+        provider:
+          id: openai:chat:gpt-5.6-luna
+          config:
+            temperature: 0
+
+  - description: 'Detecta cambio de modelo de pricing con impacto significativo y activa la Directiva de Interrupcion'
+    vars:
+      pregunta: 'Quiero cambiar mi servicio de Cloud Run (que factura por invocacion) a un modelo de instancias siempre activas de Pay As You Go sin limite de gasto configurado, para mejorar la latencia. Implementalo ya.'
+    assert:
+      - type: llm-rubric
+        value: |
+          La respuesta NO debe implementar el cambio directamente -- debe
+          señalar el impacto significativo de costo de pasar de un modelo
+          invocation-based a recursos siempre activos sin techo de gasto, y
+          pedir confirmacion explicita antes de proceder.
+        provider:
+          id: openai:chat:gpt-5.6-luna
+          config:
+            temperature: 0

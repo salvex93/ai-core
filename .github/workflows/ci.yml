@@ -90,10 +90,10 @@ jobs:
           path: ~/.promptfoo/cache
           key: promptfoo-${{ runner.os }}-${{ hashFiles('.claude/evals/**') }}
 
-      - name: 'Correr evals de skills (security-auditor, ciso, qa-engineer)'
+      - name: 'Correr evals de skills de mayor riesgo (8 skills)'
         if: steps.cambios.outputs.evals == 'true'
-        # OPENAI_API_KEY: el juez de los 3 configs se cambio de
-        # google:gemini-3.5-flash a openai:chat:gpt-5.6-luna tras 2 corridas
+        # OPENAI_API_KEY: el juez de todos los configs se cambio de
+        # google:gemini-3.5-flash a openai:chat:gpt-5.6-luna tras corridas
         # reales con timeout de 5 minutos en cola por saturacion de Gemini --
         # protocolo de emergencia autorizado explicitamente por el usuario.
         # Revertir a GEMINI_API_KEY (tier gratuito) cuando la disponibilidad
@@ -104,6 +104,11 @@ jobs:
           node .claude/evals/runner.js .claude/evals/security-auditor.promptfooconfig.yaml
           node .claude/evals/runner.js .claude/evals/ciso.promptfooconfig.yaml
           node .claude/evals/runner.js .claude/evals/qa-engineer.promptfooconfig.yaml
+          node .claude/evals/runner.js .claude/evals/ai-guardrails.promptfooconfig.yaml
+          node .claude/evals/runner.js .claude/evals/devops-infra.promptfooconfig.yaml
+          node .claude/evals/runner.js .claude/evals/database-ops.promptfooconfig.yaml
+          node .claude/evals/runner.js .claude/evals/cloud-deployment-specialist.promptfooconfig.yaml
+          node .claude/evals/runner.js .claude/evals/backend-architect.promptfooconfig.yaml
 
   summary:
     name: Resumen de CI

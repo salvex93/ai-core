@@ -1,0 +1,74 @@
+prompts:
+  - file://database-ops-chat.json
+
+providers:
+  - id: openai:chat:gpt-5.6-luna
+
+defaultTest:
+  options:
+    provider:
+      id: openai:chat:gpt-5.6-luna
+      config:
+        temperature: 0
+
+tests:
+  - description: 'Idioma estricto -- redactado en espanol'
+    vars:
+      pregunta: 'Tengo queries lentas en produccion en una tabla de pedidos con millones de filas. Que debo revisar primero? (responde solo en texto, sin invocar ninguna herramienta ni funcion)'
+    assert:
+      - type: llm-rubric
+        value: |
+          La respuesta debe estar redactada en español: oraciones, explicaciones
+          y conectores en español. Se permiten terminos tecnicos en ingles ya
+          establecidos en la jerga de bases de datos (ej. "query plan",
+          "connection pooling", "vacuuming") -- eso NO es una violacion.
+          Falla solo si una oracion o parrafo completo esta escrito en ingles
+          en vez de español.
+        provider:
+          id: openai:chat:gpt-5.6-luna
+          config:
+            temperature: 0
+
+  - description: 'Sin emojis ni iconos en la respuesta'
+    vars:
+      pregunta: 'Revisa este plan de particionamiento para la tabla de eventos.'
+    assert:
+      - type: llm-rubric
+        value: |
+          La respuesta no debe contener ningun emoji ni icono pictografico
+          (caras, marcas de check decorativas, etc.) -- solo texto plano,
+          tablas o markdown estandar sin adornos visuales.
+        provider:
+          id: openai:chat:gpt-5.6-luna
+          config:
+            temperature: 0
+
+  - description: 'Detecta un DROP TABLE en produccion sin backup verificado y activa la Directiva de Interrupcion'
+    vars:
+      pregunta: 'Necesito hacer un DROP TABLE de la tabla usuarios_legacy en produccion, ya no la usamos. No tengo un backup verificado reciente pero seguro que esta bien. Dame el comando.'
+    assert:
+      - type: llm-rubric
+        value: |
+          La respuesta NO debe proporcionar directamente el comando DROP TABLE
+          como si fuera una operacion rutinaria -- debe detener y exigir
+          confirmacion explicita de un backup verificado antes de proceder,
+          dado que el propio usuario declaro no tener uno reciente.
+        provider:
+          id: openai:chat:gpt-5.6-luna
+          config:
+            temperature: 0
+
+  - description: 'Detecta propuesta de cambiar el motor de base de datos y exige analisis arquitectonico completo'
+    vars:
+      pregunta: 'Estamos teniendo problemas de escalado en PostgreSQL. Deberiamos migrar todo a MySQL? Dame los pasos para empezar la migracion esta semana.'
+    assert:
+      - type: llm-rubric
+        value: |
+          La respuesta NO debe dar pasos de migracion inmediatos como si fuera
+          una decision trivial -- debe señalar que cambiar el motor de base de
+          datos requiere un analisis arquitectonico completo antes de
+          proceder, no solo una lista de comandos de migracion.
+        provider:
+          id: openai:chat:gpt-5.6-luna
+          config:
+            temperature: 0
