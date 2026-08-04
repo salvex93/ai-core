@@ -138,6 +138,7 @@ npm run score                             # scoring 0-10 por 6 dimensiones del a
 npm run score-report                      # historial completo de scores con delta
 npm run migrate                           # aplicar migraciones de version manualmente
 npm run migrate-dry                       # simular migraciones sin aplicar cambios
+npm run rollback-skill -- <nombre> <ver>  # revertir un skill especifico a una version anterior (sin commitear)
 npm run memory-index                      # indexar vault de memoria semantica
 npm run memory-query "<terminos>"         # buscar en vault (BM25)
 npm run memory-status                     # estado del vault
@@ -510,7 +511,8 @@ New-Item -ItemType SymbolicLink -Path './CLAUDE.md' -Target 'C:/ruta/a/ai-core/C
 │   ├── init-backlog.js          Crea BACKLOG.md en el proyecto anfitrion si no existe
 │   ├── query-backlog.js         Filtra BACKLOG.md sin cargarlo completo en contexto
 │   ├── dry-run-cost-sim.js      Simulador de costo sin llamadas reales
-│   └── migrator.js              Aplica migraciones de version desde DEPRECATIONS.json
+│   ├── migrator.js              Aplica migraciones de version desde DEPRECATIONS.json
+│   └── rollback-skill.js        Revierte un skill especifico a una version anterior via git checkout acotado al archivo
 ├── .claude/
 │   ├── settings.json            Hooks + config de servidores MCP (generado, no editar a mano)
 │   ├── bin/

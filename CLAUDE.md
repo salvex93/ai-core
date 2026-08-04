@@ -26,6 +26,7 @@ npm run dry-run                      # simular 5 turnos con calculo de costo/aho
 npm run map                          # regenerar CONTEXT_MAP.json
 npm run migrate                      # aplicar migraciones pendientes de DEPRECATIONS.json
 npm run migrate-dry                  # simular migraciones sin aplicar cambios
+npm run rollback-skill -- <nombre> <version>  # revertir un skill especifico a una version anterior (sin commitear)
 npm run audit-market                 # auditar vigencia de modelos/SDKs contra MARKET_STANDARDS.json
 npm run score                        # calcular aiops-score de la sesion actual
 npm run score-report                 # reporte historico de aiops-score

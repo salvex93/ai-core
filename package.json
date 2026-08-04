@@ -22,6 +22,7 @@
     "score-report": "node .claude/bin/aiops-score.js --report",
     "migrate": "node scripts/migrator.js",
     "migrate-dry": "node scripts/migrator.js --dry-run",
+    "rollback-skill": "node scripts/rollback-skill.js",
     "update": "node scripts/update.js",
     "memory-index": "node .claude/bin/memory-index.js index",
     "memory-query": "node .claude/bin/memory-index.js query",
