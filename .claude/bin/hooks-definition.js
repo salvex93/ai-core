@@ -21,25 +21,28 @@
 /**
  * Envuelve la invocacion de un hook propio con el Node.js Permission Model
  * (--permission, estable desde v22.13.0, aisla fs/child_process/red por
- * proceso) cuando corre en POSIX. En Windows se ejecuta igual que antes, sin
- * aislar: el spike de esta sesion encontro diferencias reales de
- * comportamiento de glob de --allow-fs-read entre shells de Windows (Git Bash
- * vs PowerShell con ** recursivo), sin verificacion equivalente aun para
- * cmd.exe -- hasta investigar ese matiz, el sandboxing queda acotado a
- * Linux/macOS, donde el comportamiento de glob del propio shell es uniforme.
- * settings.json se genera y se ejecuta en la misma maquina (nunca se
- * distribuye entre equipos), asi que leer la plataforma en build-time es
- * seguro.
+ * proceso). Universal en las 3 plataformas: un spike anterior encontro que
+ * el glob de --allow-fs-read se comportaba distinto entre Git Bash y
+ * PowerShell en Windows, y quedo excluido de esa plataforma hasta
+ * verificar el shell real que Claude Code invoca por defecto -- confirmado
+ * en una sesion posterior contra cmd.exe real (el shell por defecto de
+ * Windows sin configuracion adicional, mismo comportamiento de
+ * spawnSync/exec de Node sin shell explicito): la misma sintaxis de glob
+ * (una estrella y recursivo con **) funciona igual que en POSIX, incluyendo
+ * --allow-child-process para los hooks que invocan git. settings.json se
+ * genera y se ejecuta en la misma maquina (nunca se distribuye entre
+ * equipos), asi que el flag de --permission siempre aplica sin logica
+ * condicional por plataforma.
  *
  * @param {string} script - ruta ya resuelta y citada del hook (salida de bin())
  * @param {{fsRead?: string[], fsWrite?: string[]}} permisos - patrones de
  *   ruta ya resueltos y citados (mismo formato que bin(), sin comillas extra)
- * @param {string} [platform] - process.platform o equivalente inyectable para tests
+ * @param {string} [platform] - process.platform, no usado hoy pero se
+ *   mantiene inyectable para tests y por si un shell nuevo (ej. si Claude
+ *   Code cambia su invocacion por defecto en Windows) requiere excepcion futura.
  * @returns {string} invocacion "node ..." lista para usar como command
  */
 function nodeConPermiso(script, permisos = {}, platform = process.platform) {
-  if (platform === 'win32') return `node ${script}`;
-
   const { fsRead = [], fsWrite = [], childProcess = false } = permisos;
   const flags = [
     '--permission',

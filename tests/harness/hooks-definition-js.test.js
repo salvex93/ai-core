@@ -71,12 +71,12 @@ describe('hooks-definition.js', () => {
       assert.match(cmd, /^node --permission --allow-fs-read="\/repo\/\.claude\/bin\/\*" "\/repo\/\.claude\/bin\/code-exec-guard\.js"$/);
     });
 
-    test('en win32 devuelve el comando node plano, sin --permission', () => {
+    test('en win32 tambien activa el Permission Model -- confirmado en cmd.exe real (spike de esta sesion)', () => {
       const cmd = nodeConPermiso('"/repo/.claude/bin/destructive-op-guard.js"', {
         fsRead: ['"/repo/.claude/bin/*"'],
       }, 'win32');
 
-      assert.equal(cmd, 'node "/repo/.claude/bin/destructive-op-guard.js"');
+      assert.equal(cmd, 'node --permission --allow-fs-read="/repo/.claude/bin/*" "/repo/.claude/bin/destructive-op-guard.js"');
     });
 
     test('sin permisos declarados, en POSIX solo agrega el flag --permission', () => {
@@ -105,17 +105,19 @@ describe('hooks-definition.js', () => {
       }
     });
 
-    test('en Windows, los mismos 4 hooks corren sin --permission (comando node plano)', () => {
+    test('en Windows (win32), los mismos 4 hooks TAMBIEN usan --permission (confirmado en cmd.exe real)', () => {
       const original = process.platform;
       Object.defineProperty(process, 'platform', { value: 'win32' });
       try {
         delete require.cache[require.resolve(path.join(BIN, 'hooks-definition.js'))];
         const { buildHooksSection: build } = require(path.join(BIN, 'hooks-definition.js'));
         const hooks = build((s) => `"/repo/.claude/bin/${s}"`);
-        const preToolUseStr = JSON.stringify(hooks.PreToolUse);
+        const str = JSON.stringify(hooks);
 
-        assert.match(preToolUseStr, /destructive-op-guard\.js/);
-        assert.doesNotMatch(preToolUseStr, /--permission/);
+        assert.match(str, /--permission.*destructive-op-guard\.js/);
+        assert.match(str, /--permission.*code-exec-guard\.js/);
+        assert.match(str, /--permission.*secrets-guard\.js/);
+        assert.match(str, /--permission.*injection-guard\.js/);
       } finally {
         Object.defineProperty(process, 'platform', { value: original });
         delete require.cache[require.resolve(path.join(BIN, 'hooks-definition.js'))];
@@ -139,24 +141,26 @@ describe('hooks-definition.js', () => {
       'syntax-check.js', 'validate-map.js',
     ];
 
-    test(`los ${HOOKS_CON_SANDBOX.length} hooks propios usan --permission en POSIX`, () => {
-      const original = process.platform;
-      Object.defineProperty(process, 'platform', { value: 'linux' });
-      try {
-        delete require.cache[require.resolve(path.join(BIN, 'hooks-definition.js'))];
-        const { buildHooksSection: build } = require(path.join(BIN, 'hooks-definition.js'));
-        const hooks = build((s) => `"/repo/.claude/bin/${s}"`);
-        const str = JSON.stringify(hooks);
+    for (const plataforma of ['linux', 'darwin', 'win32']) {
+      test(`los ${HOOKS_CON_SANDBOX.length} hooks propios usan --permission en ${plataforma} (confirmado en cmd.exe real para win32)`, () => {
+        const original = process.platform;
+        Object.defineProperty(process, 'platform', { value: plataforma });
+        try {
+          delete require.cache[require.resolve(path.join(BIN, 'hooks-definition.js'))];
+          const { buildHooksSection: build } = require(path.join(BIN, 'hooks-definition.js'));
+          const hooks = build((s) => `"/repo/.claude/bin/${s}"`);
+          const str = JSON.stringify(hooks);
 
-        for (const hook of HOOKS_CON_SANDBOX) {
-          const escapado = hook.replace(/\./g, '\\.');
-          assert.match(str, new RegExp(`--permission[^]*?${escapado}`), `${hook} debe invocarse con --permission en POSIX`);
+          for (const hook of HOOKS_CON_SANDBOX) {
+            const escapado = hook.replace(/\./g, '\\.');
+            assert.match(str, new RegExp(`--permission[^]*?${escapado}`), `${hook} debe invocarse con --permission en ${plataforma}`);
+          }
+        } finally {
+          Object.defineProperty(process, 'platform', { value: original });
+          delete require.cache[require.resolve(path.join(BIN, 'hooks-definition.js'))];
         }
-      } finally {
-        Object.defineProperty(process, 'platform', { value: original });
-        delete require.cache[require.resolve(path.join(BIN, 'hooks-definition.js'))];
-      }
-    });
+      });
+    }
 
     test('process-guard.js (wrapper) no se sandboxea a si mismo, pero el hook que envuelve si', () => {
       const original = process.platform;
@@ -175,18 +179,25 @@ describe('hooks-definition.js', () => {
       }
     });
 
-    test('en Windows, ninguno de los 28 hooks nuevos usa --permission', () => {
+    test('git-queue-advisor.js queda deliberadamente sin --permission (necesita red real hacia el remoto de git)', () => {
       const original = process.platform;
-      Object.defineProperty(process, 'platform', { value: 'win32' });
+      Object.defineProperty(process, 'platform', { value: 'linux' });
       try {
         delete require.cache[require.resolve(path.join(BIN, 'hooks-definition.js'))];
         const { buildHooksSection: build } = require(path.join(BIN, 'hooks-definition.js'));
         const hooks = build((s) => `"/repo/.claude/bin/${s}"`);
-        const str = JSON.stringify(hooks);
 
-        assert.doesNotMatch(str, /--permission/);
-        assert.match(str, /agent-metrics\.js/);
-        assert.match(str, /standards-guard\.js/);
+        const comandosGitQueue = [
+          ...hooks.PreToolUse.flatMap((g) => g.hooks),
+          ...hooks.PostToolUse.flatMap((g) => g.hooks),
+        ]
+          .map((h) => h.command)
+          .filter((c) => c.includes('git-queue-advisor.js'));
+
+        assert.ok(comandosGitQueue.length >= 2, 'debe encontrar las invocaciones de git-queue-advisor.js (push y pull)');
+        for (const cmd of comandosGitQueue) {
+          assert.doesNotMatch(cmd, /--permission/, `git-queue-advisor.js no debe sandboxearse: "${cmd}"`);
+        }
       } finally {
         Object.defineProperty(process, 'platform', { value: original });
         delete require.cache[require.resolve(path.join(BIN, 'hooks-definition.js'))];
