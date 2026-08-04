@@ -18,13 +18,68 @@
  *   .claude/bin/ a su ruta absoluta citada (ej. `"${path}"`).
  * @returns {object} seccion "hooks" completa para settings.json
  */
+/**
+ * Envuelve la invocacion de un hook propio con el Node.js Permission Model
+ * (--permission, estable desde v22.13.0, aisla fs/child_process/red por
+ * proceso) cuando corre en POSIX. En Windows se ejecuta igual que antes, sin
+ * aislar: el spike de esta sesion encontro diferencias reales de
+ * comportamiento de glob de --allow-fs-read entre shells de Windows (Git Bash
+ * vs PowerShell con ** recursivo), sin verificacion equivalente aun para
+ * cmd.exe -- hasta investigar ese matiz, el sandboxing queda acotado a
+ * Linux/macOS, donde el comportamiento de glob del propio shell es uniforme.
+ * settings.json se genera y se ejecuta en la misma maquina (nunca se
+ * distribuye entre equipos), asi que leer la plataforma en build-time es
+ * seguro.
+ *
+ * @param {string} script - ruta ya resuelta y citada del hook (salida de bin())
+ * @param {{fsRead?: string[], fsWrite?: string[]}} permisos - patrones de
+ *   ruta ya resueltos y citados (mismo formato que bin(), sin comillas extra)
+ * @param {string} [platform] - process.platform o equivalente inyectable para tests
+ * @returns {string} invocacion "node ..." lista para usar como command
+ */
+function nodeConPermiso(script, permisos = {}, platform = process.platform) {
+  if (platform === 'win32') return `node ${script}`;
+
+  const { fsRead = [], fsWrite = [] } = permisos;
+  const flags = [
+    '--permission',
+    ...fsRead.map((p) => `--allow-fs-read=${p}`),
+    ...fsWrite.map((p) => `--allow-fs-write=${p}`),
+  ];
+  return `node ${flags.join(' ')} ${script}`;
+}
+
+/**
+ * Convierte la ruta citada de un directorio (salida de bin('')) en un glob
+ * de una sola profundidad ("dir/*") para --allow-fs-read, preservando las
+ * comillas envolventes que bin() ya agrega.
+ *
+ * @param {string} dirCitado - ej. `"/repo/.claude/bin"`
+ * @returns {string} ej. `"/repo/.claude/bin/*"`
+ */
+function globDir(dirCitado) {
+  return dirCitado.replace(/\/?"$/, '/*"');
+}
+
 function buildHooksSection(bin) {
+  // Rutas de --allow-fs-read/--allow-fs-write confirmadas en el spike de esta
+  // sesion para los 4 hooks prioritarios (destructive-op-guard.js no necesita
+  // ninguna: solo lee stdin, un file descriptor ya abierto que el Permission
+  // Model no restringe). "$TMPDIR" con fallback a /tmp es donde guard-report.js
+  // escribe el JSONL de telemetria (os.tmpdir()) salvo que
+  // AI_CORE_GUARD_REPORT_PATH lo redirija -- no acotarlo mas sin verificar esa
+  // variable en runtime.
+  const dirBin   = globDir(bin(''));
+  const dirTmp   = '"${TMPDIR:-/tmp}/*"';
+  const soloRead = { fsRead: [dirBin] };
+  const readYWrite = { fsRead: [dirBin], fsWrite: [dirTmp] };
+
   return {
     UserPromptSubmit: [
       {
         hooks: [
           { type: 'command', command: `node ${bin('process-guard.js')} intent node ${bin('detect-role.js')} 2>/dev/null || true` },
-          { type: 'command', command: `node ${bin('secrets-guard.js')} 2>/dev/null || true` },
+          { type: 'command', command: `${nodeConPermiso(bin('secrets-guard.js'), readYWrite)} 2>/dev/null || true` },
           { type: 'command', command: `node ${bin('process-guard.js')} moa node ${bin('moa-context-gatherer.js')} 2>/dev/null || true` },
         ],
       },
@@ -45,7 +100,7 @@ function buildHooksSection(bin) {
         hooks: [
           { type: 'command', command: `node ${bin('subagent-review.js')} 2>/dev/null || true` },
           { type: 'command', command: `node ${bin('cross-verify-gate.js')} 2>/dev/null || true` },
-          { type: 'command', command: `node ${bin('injection-guard.js')} 2>/dev/null || true` },
+          { type: 'command', command: `${nodeConPermiso(bin('injection-guard.js'), readYWrite)} 2>/dev/null || true` },
           { type: 'command', command: `node ${bin('subagent-grader.js')} 2>/dev/null || true` },
         ],
       },
@@ -93,7 +148,7 @@ function buildHooksSection(bin) {
           { type: 'command', command: `node ${bin('process-guard.js')} health node ${bin('health-check.js')} 2>&1 || true` },
           { type: 'command', command: `node ${bin('process-guard.js')} map node ${bin('validate-map.js')} 2>/dev/null || true` },
           { type: 'command', command: `node ${bin('bash-verbosity-guard.js')}` },
-          { type: 'command', command: `node ${bin('destructive-op-guard.js')}` },
+          { type: 'command', command: nodeConPermiso(bin('destructive-op-guard.js')) },
         ],
       },
       {
@@ -108,7 +163,7 @@ function buildHooksSection(bin) {
           { type: 'command', command: `node ${bin('ponytail-check.js')} 2>/dev/null || true` },
           { type: 'command', command: `node ${bin('dependency-tracer.js')} "$CLAUDE_TOOL_INPUT_file_path" 2>/dev/null || true` },
           { type: 'command', command: `node ${bin('pre-commit-tdd.js')} "$CLAUDE_TOOL_INPUT_file_path"` },
-          { type: 'command', command: `node ${bin('code-exec-guard.js')}` },
+          { type: 'command', command: nodeConPermiso(bin('code-exec-guard.js'), soloRead) },
         ],
       },
       {
@@ -160,4 +215,4 @@ function buildHooksSection(bin) {
   };
 }
 
-module.exports = { buildHooksSection };
+module.exports = { buildHooksSection, nodeConPermiso };

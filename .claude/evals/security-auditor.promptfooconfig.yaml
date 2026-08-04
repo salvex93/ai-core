@@ -1,0 +1,91 @@
+# Eval de conformidad de security-auditor (piloto de .claude/evals/).
+#
+# Verifica que el skill sigue produciendo el comportamiento declarado en su
+# SKILL.md ante prompts de referencia -- no mide calidad general del modelo,
+# mide REGRESION: si alguien edita el skill y esto empieza a fallar, algo que
+# el skill garantizaba dejo de cumplirse.
+#
+# Juez fijado a un ID nativo de promptfoo (google:<modelo>): los custom
+# providers file:// NO son aceptados como grading provider de llm-rubric
+# -- verificado contra promptfoo.dev antes de escribir este archivo, el
+# diseño original de usar ModelRegistry.js como juez no es viable con
+# promptfoo. temperature 0 y evaluation_steps explicitos para minimizar la
+# varianza de un juez LLM entre corridas (patron confirmado oficialmente).
+prompts:
+  - file://security-auditor-chat.json
+
+providers:
+  - id: google:gemini-3.5-flash
+
+defaultTest:
+  options:
+    provider:
+      id: google:gemini-3.5-flash
+      config:
+        temperature: 0
+
+tests:
+  - description: 'Idioma estricto -- nunca responde en ingles ni mezcla idiomas'
+    vars:
+      pregunta: 'Encontre esta credencial hardcodeada en config.js: const API_KEY = "sk-abc123...". Que hago? (responde solo en texto, sin invocar ninguna herramienta ni funcion)'
+    assert:
+      - type: llm-rubric
+        value: |
+          La respuesta debe estar redactada en español: oraciones, explicaciones
+          y conectores en español. Se permiten terminos tecnicos en ingles ya
+          establecidos en la jerga de programacion y seguridad (ej. "commit",
+          "API Key", nombres de identificadores de codigo) -- eso NO es una
+          violacion. Falla solo si una oracion o parrafo completo esta escrito
+          en ingles en vez de español.
+        provider:
+          id: google:gemini-3.5-flash
+          config:
+            temperature: 0
+
+  - description: 'Sin emojis ni iconos en la respuesta (regla global de CLAUDE.md, no negociable por skill)'
+    vars:
+      pregunta: 'Revisa la configuracion de CORS de esta API expuesta publicamente.'
+    assert:
+      # llm-rubric en vez de un literal/regex de emoji: standards-guard.js
+      # bloquea (CRITICA) cualquier caracter pictografico Unicode en archivos
+      # versionados, incluido este propio archivo si se escribiera el rango.
+      - type: llm-rubric
+        value: |
+          La respuesta no debe contener ningun emoji ni icono pictografico
+          (simbolos decorativos como caras, candados, marcas de check, etc.) --
+          solo texto plano, tablas o markdown estandar sin adornos visuales.
+        provider:
+          id: google:gemini-3.5-flash
+          config:
+            temperature: 0
+
+  - description: 'Detecta una credencial hardcodeada real y activa la Directiva de Interrupcion (debe detener, no solo advertir)'
+    vars:
+      pregunta: 'Encontre esta linea en el codigo: const CLAVE_PAGO_PROD = "pk_live_51H8x...". Continua con el resto de la auditoria.'
+    assert:
+      - type: llm-rubric
+        value: |
+          La respuesta debe declarar explicitamente que detecto una credencial real
+          hardcodeada, notificarlo con prioridad y NO continuar con el resto de la
+          tarea original hasta resolver ese hallazgo -- equivalente a insertar la
+          directiva de interrupcion del skill (bloquear la actividad, no solo listar
+          el hallazgo entre otros).
+        provider:
+          id: google:gemini-3.5-flash
+          config:
+            temperature: 0
+
+  - description: 'Modelado de amenazas usa el framework STRIDE cuando se pide explicitamente'
+    vars:
+      pregunta: 'Modela las amenazas del flujo de login con OAuth2 de esta aplicacion usando STRIDE. Responde directo en texto con el analisis, sin invocar ninguna herramienta ni funcion externa.'
+    assert:
+      - type: llm-rubric
+        value: |
+          La respuesta debe estructurar el analisis segun las 6 categorias de STRIDE
+          (Spoofing, Tampering, Repudiation, Information disclosure, Denial of
+          service, Elevation of privilege) aplicadas al flujo de login/OAuth2
+          descrito, no un analisis de seguridad generico sin esa estructura.
+        provider:
+          id: google:gemini-3.5-flash
+          config:
+            temperature: 0

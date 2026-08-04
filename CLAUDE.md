@@ -36,6 +36,7 @@ npm run memory-query                 # busqueda BM25+ en el vault de memoria
 npm run memory-status                # estado del indice de memoria
 npm run agent-report                 # metricas de uso de subagentes
 npm run agent-report-full            # metricas de uso de subagentes, detalle completo
+npm run eval-skills                  # correr evals de conformidad de skills (promptfoo, piloto: security-auditor)
 npm run init-backlog                 # inicializar BACKLOG.md en el proyecto anfitrion
 npm run query-backlog                # consultar estado del backlog
 ```

@@ -3,6 +3,30 @@
 Registro de cambios por version. Formato basado en [Keep a Changelog](https://keepachangelog.com/es/1.0.0/).
 Versionado semantico: MAJOR.MINOR.PATCH.
 
+## [3.24.0] — 2026-08-04
+
+### Agregado — sandboxing real de hooks propios (Node.js Permission Model) y evals de conformidad de skills en CI
+
+Cierra las 2 brechas serias del benchmark que quedaron diferidas explicitamente en v3.20.0 ("sandboxing real de ejecucion de codigo" y "evals automatizados reproducibles en CI"). Ambas requirieron diseño con research verificado y aprobacion humana explicita antes de construir, siguiendo el Protocolo de Vigencia Tecnologica y Human-in-the-loop de CLAUDE.md.
+
+**Sandboxing de hooks propios**: los 4 hooks con mayor superficie de riesgo (`destructive-op-guard.js`, `code-exec-guard.js`, `secrets-guard.js`, `injection-guard.js`) ahora corren bajo el Node.js Permission Model (`node --permission`, estable desde v22.13.0) en Linux/macOS, con permisos minimos declarados explicitamente por hook (`--allow-fs-read`/`--allow-fs-write` acotados, ninguno usa `--allow-child-process`). vm2 se descarto por 5 CVEs criticos de sandbox escape con RCE confirmado; worker_threads se descarto como mecanismo de seguridad (solo aisla el heap V8, comparte filesystem/red con el proceso padre).
+
+Requisito real: el Permission Model exige Node >= 22.13.0 -- **Node 20 se removio de toda la matrix de CI**, `engines.node` sube a `>=22.13.0`.
+
+Hallazgo no anticipado del spike: el glob de `--allow-fs-read` se comporto de forma distinta entre Git Bash y PowerShell en Windows (`**` recursivo fallo en Bash, `*` simple funciono en PowerShell) -- sin verificacion equivalente para `cmd.exe`. Por decision explicita del usuario, **el sandboxing queda activo solo en POSIX** (`process.platform !== 'win32'`); en Windows los hooks corren igual que antes, sin aislar, hasta investigar ese matiz con mas profundidad. `hooks-definition.js` expone `nodeConPermiso()` para esto.
+
+**Evals de conformidad de skills**: nuevo directorio `.claude/evals/` con `promptfooconfig.yaml` por skill (piloto: `security-auditor`) y `runner.js` propio. Usa `promptfoo` (CLI Node, MIT, sin infraestructura hospedada) via `npx`, con el juez fijado a un ID nativo (`google:gemini-3.5-flash`, usa `GEMINI_API_KEY` ya declarada) -- el diseño original de enrutar el juicio a traves de `ModelRegistry.js` no es viable: los custom providers `file://` de promptfoo no son aceptados como grading provider de `llm-rubric`, solo IDs nativos (verificado contra `promptfoo.dev` antes de escribir el runner).
+
+Dato de gobernanza comunicado antes de adoptar la dependencia: **promptfoo fue adquirido por OpenAI en marzo de 2026** -- sigue MIT/open source (confirmado en fuente oficial de ambos lados), pero el roadmap ya no es independiente. El usuario confirmo proceder con esta dependencia de forma consciente.
+
+El piloto real (4 casos: idioma estricto, ausencia de emojis, activacion de la Directiva de Interrupcion ante credencial hardcodeada, uso de STRIDE en modelado de amenazas) encontro 2 defectos reales de diseño del propio eval, no del skill: (1) `prompts: [file://SKILL.md]` enviaba el markdown crudo como prompt sin interpolar la pregunta del usuario -- corregido con un archivo de chat `role: system`/`role: user` y `{{pregunta}}`; (2) el modelo intento invocar una `functionCall` inexistente (`system:dir_list`) al ver la instruccion de "Primera Accion al Activar: invocar MCP" del skill fuera del contexto real de Claude Code -- corregido pidiendo explicitamente texto plano sin herramientas en el prompt de test. Tras ambas correcciones, el piloto es reproducible (4/4 con respuesta cacheada).
+
+Job `skill-evals` en `ci.yml`: dispara solo en `pull_request` con `dorny/paths-filter@v4` acotado a `.claude/skills/**`/`.claude/evals/**`, cache de `actions/cache@v4` sobre `~/.promptfoo/cache`, y `continue-on-error: true` durante el periodo de calibracion de thresholds -- se vuelve bloqueante solo cuando el usuario confirme que el juez no produce falsos positivos recurrentes. Requiere que el usuario configure el secret `GEMINI_API_KEY` en GitHub (primer secret que usa este repo en CI, no configurado aun).
+
+**Limite declarado del radar de vigencia**: `audit-market.js`/`MARKET_STANDARDS.json` solo vigila `.claude/skills/*` -- el sandboxing de hooks y el runner de evals son infraestructura propia de `ai-core`, no skills, y quedan **fuera de la cobertura del radar**. Su vigencia (versiones de Node, estado de promptfoo) debe revisarse manualmente en sesiones futuras; no se fuerzo un registro artificial en `MARKET_STANDARDS.json` para simular una cobertura que el mecanismo actual no ofrece.
+
+**832 tests, 42 skills, 7 agentes.**
+
 ## [3.23.0] — 2026-08-04
 
 ### Agregado — backend-architect: codigo real en Go, Rust y Java/JVM

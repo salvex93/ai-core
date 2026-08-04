@@ -15,20 +15,15 @@ jobs:
       matrix:
         include:
           - os: ubuntu-latest
-            node: '20'
-          - os: ubuntu-latest
             node: '22'
-          - os: windows-latest
-            node: '20'
           - os: windows-latest
             node: '22'
           - os: macos-latest
             node: '22'
-          # Node 20 removido de macOS: node --test terminaba con exit code
-          # espurio de forma intermitente en los runners de macOS (a veces
-          # el TAP reportaba 0 fallos igual, a veces se cortaba a mitad de
-          # la suite) -- confirmado no reproducible en Windows/Ubuntu ni en
-          # macOS+Node22. Node 20 ya esta deprecado en GitHub Actions.
+          # Node 20 removido de toda la matrix: el sandboxing de hooks propios
+          # (Node.js Permission Model, --permission) requiere Node >= 22.13.0,
+          # ya no existe estable en la rama 20.x. macOS ya excluia Node 20
+          # desde antes por flakiness intermitente de node --test.
 
     steps:
       - name: Checkout
@@ -54,6 +49,52 @@ jobs:
 
       - name: Validar conformidad de skills con CLAUDE.md
         run: node .claude/bin/validate-globals.js
+
+  skill-evals:
+    name: Evals de conformidad de skills (piloto)
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    # No bloqueante durante el periodo de calibracion de thresholds (Fase 2 del
+    # diseno de esta sesion) -- ver .claude/evals/. Remover continue-on-error
+    # solo cuando el usuario confirme que el juez LLM no produce falsos
+    # positivos recurrentes tras 1-2 semanas de datos reales de PRs.
+    continue-on-error: true
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Detectar si cambiaron skills o evals
+        id: cambios
+        uses: dorny/paths-filter@v4
+        with:
+          filters: |
+            evals:
+              - '.claude/skills/**'
+              - '.claude/evals/**'
+
+      - name: Setup Node.js 22
+        if: steps.cambios.outputs.evals == 'true'
+        uses: actions/setup-node@v7
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Instalar dependencias
+        if: steps.cambios.outputs.evals == 'true'
+        run: npm install
+
+      - name: Cache de promptfoo (evita re-pagar llamadas identicas al juez)
+        if: steps.cambios.outputs.evals == 'true'
+        uses: actions/cache@v4
+        with:
+          path: ~/.promptfoo/cache
+          key: promptfoo-${{ runner.os }}-${{ hashFiles('.claude/evals/**') }}
+
+      - name: Correr evals de skills (piloto: security-auditor)
+        if: steps.cambios.outputs.evals == 'true'
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: node .claude/evals/runner.js .claude/evals/security-auditor.promptfooconfig.yaml
 
   summary:
     name: Resumen de CI

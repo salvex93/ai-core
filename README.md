@@ -1,4 +1,4 @@
-# AI-CORE v3.23.0: Nucleo Multi-Agente Universal
+# AI-CORE v3.24.0: Nucleo Multi-Agente Universal
 
 `ai-core` es un nucleo de configuracion y comportamiento para agentes IA. Se usa como submodulo Git en un proyecto existente o como repositorio independiente. Define reglas globales, 42 skills especializados, 7 agentes autonomos, un orquestador Mixture-of-Agents (Gemini + DeepSeek + Claude) y un ciclo de mejora continua por uso, sin acoplarse al stack del proyecto anfitrion.
 
@@ -150,6 +150,16 @@ npm run agent-report-full                 # historial de metricas de todas las s
 ---
 
 ## Que trae cada version
+
+### v3.24.0 — sandboxing real de hooks propios y evals de conformidad de skills en CI
+
+Cierra las 2 brechas serias del benchmark diferidas explicitamente en v3.20.0. Sandboxing: los 4 hooks de mayor riesgo (`destructive-op-guard.js`, `code-exec-guard.js`, `secrets-guard.js`, `injection-guard.js`) corren bajo el Node.js Permission Model (`node --permission`, Node >= 22.13.0) en Linux/macOS, con permisos minimos declarados por hook -- vm2 descartado por 5 CVEs criticos de sandbox escape, worker_threads descartado como mecanismo de seguridad. Node 20 sale de la matrix de CI. En Windows el sandboxing queda desactivado por ahora: el spike encontro comportamiento de glob distinto entre Git Bash y PowerShell, sin verificar aun para `cmd.exe`.
+
+Evals: `.claude/evals/` con un `promptfooconfig.yaml` piloto para `security-auditor` y un `runner.js` propio, usando `promptfoo` (adquirido por OpenAI en marzo 2026, sigue MIT -- dato comunicado y aceptado antes de adoptar la dependencia) con `google:gemini-3.5-flash` como juez. El piloto real encontro y corrigio 2 defectos de diseño del propio eval (interpolacion de prompt rota, invocacion de tool inexistente fuera de contexto) antes de ser reproducible. Job `skill-evals` en CI, no bloqueante, solo en PRs que tocan skills/evals.
+
+Limite declarado con honestidad: el radar de vigencia (`audit-market.js`) solo cubre skills, no esta infraestructura nueva -- su revision de vigencia queda manual para sesiones futuras.
+
+**832 tests, 42 skills, 7 agentes.**
 
 ### v3.23.0 — backend-architect: codigo real en Go, Rust y Java/JVM
 
