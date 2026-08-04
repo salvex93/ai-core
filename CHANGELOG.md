@@ -3,6 +3,35 @@
 Registro de cambios por version. Formato basado en [Keep a Changelog](https://keepachangelog.com/es/1.0.0/).
 Versionado semantico: MAJOR.MINOR.PATCH.
 
+## [3.19.0] — 2026-08-04
+
+### Corregido — atributo OTel obsoleto en llm-observability
+
+`gen_ai.system` fue renombrado a `gen_ai.provider.name` en semantic-conventions v1.37.0 (nombre viejo deprecado, no eliminado) -- confirmado contra `github.com/open-telemetry/semantic-conventions-genai` y el changelog de releases del repo oficial. El contenido GenAI completo se movio de repositorio en v1.42.0 (junio 2026). Detectado via deep research comparando ai-core contra convenciones de observabilidad de referencia (Anthropic Claude Code/Agent SDK, OpenAI Agents SDK, Google ADK/Gemini, frameworks open source).
+
+### Agregado — 2 skills nuevos: app-store-publisher y saas-product-architect
+
+Dos brechas de dominio confirmadas con auditoria exhaustiva (grep sobre los 39 skills existentes, sin muestreo) antes de escribir contenido nuevo -- ningun skill cubria publicacion en tiendas de apps ni arquitectura de negocio SaaS, mas alla de fragmentos tecnicos dispersos.
+
+**`app-store-publisher`** (via research contra fuentes oficiales de cada plataforma):
+- Apple App Store: cuentas, certificados/provisioning profiles, distincion entre notarizacion macOS (Developer ID) y notarizacion iOS/iPadOS (Alternative Distribution/DMA) -- son procesos distintos que no deben confundirse, SDK minimo iOS/Xcode 26 vigente desde 28-abr-2026.
+- Google Play Store: Play App Signing (modelo de dos claves upload/app signing key), AAB obligatorio desde agosto 2021, target API level 36 (Android 16) obligatorio desde 31-ago-2026 con cita textual verificada.
+- Microsoft Store: MSIX vs MSI/EXE, opciones de firma (gratis via Store, Azure Artifact Signing, certificado OV/EV) -- Azure Artifact Signing confirmado con disponibilidad general desde enero 2026 (antes "Trusted Signing"), verificado independientemente contra 2 fuentes oficiales de Microsoft ademas del research del workflow.
+- Electron vs Tauri para empaquetar apps web como desktop nativo: tabla comparativa, firma/notarizacion por plataforma, ausencia de MSIX nativo en ambos frameworks.
+
+**`saas-product-architect`** (via research contra AWS/Microsoft Learn/Stripe/Paddle/WorkOS/AICPA):
+- 3 estrategias de multi-tenancy (silo/pool/bridge) con criterio de decision de Microsoft Learn, referenciando (no repitiendo) la seccion RLS ya existente en `database-ops`.
+- Billing: Merchant of Record de Stripe/Paddle/Lemon Squeezy, webhooks criticos con idempotencia, dunning management, comportamiento verificado de trials en estado `paused` sin metodo de pago (incluye el evento `entitlements.active_entitlement_summary.updated`, dato nuevo no cubierto por ningun reporte de investigacion, verificado por el agente de sintesis contra `docs.stripe.com` en la misma tarea).
+- RBAC de producto y entitlements por plan, distinguidos explicitamente de feature flags de despliegue (`release-manager`).
+- Provisioning de tenant, white-labeling con dominio custom (incluye riesgo de dangling DNS/subdomain takeover y su mitigacion), rate limiting por plan.
+- Metricas de negocio (MRR/churn/NRR/LTV/CAC, con el ratio LTV:CAC 3:1 marcado explicitamente como heuristica de mercado de David Skok, no estandar regulatorio) y compliance B2B (SOC 2 Tipo I/II vs ISO 27001, referenciando `ciso` para PCI-DSS/HIPAA sin repetirlo).
+- ToS/Privacy Policy/DPA marcados en todo momento como orientacion estructural, nunca como asesoria legal formal.
+- Verificacion adicional fuera del research original: estado operativo de Lemon Squeezy en 2026 tras su adquisicion por Stripe en 2024 -- confirmado que sigue operando de forma autonoma sin fecha de discontinuacion anunciada (`lemonsqueezy.com/blog/2026-update`), dato que el workflow de investigacion dejo pendiente de verificar.
+
+Ambos skills siguen el patron de vanguardia (identidad+prohibidos+gate+vigencia) y agregan Directiva de Interrupcion con `REQUIERE_OPUSPLAN` para operaciones de alto riesgo del dominio (rotacion de keys de firma en produccion, migracion de modelo de tenancy o plataforma de billing con datos activos). Conteo de skills actualizado de 39 a 41 en CLAUDE.md, README.md y los tests que lo asumian fijo.
+
+**762 tests, 41 skills.**
+
 ## [3.18.0] — 2026-08-03
 
 ### Corregido — GeminiApiClient.js seguia en el SDK deprecado tras la migracion de GeminiAdapter.js

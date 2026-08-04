@@ -1,6 +1,6 @@
-# AI-CORE v3.18.0: Nucleo Multi-Agente Universal
+# AI-CORE v3.19.0: Nucleo Multi-Agente Universal
 
-`ai-core` es un nucleo de configuracion y comportamiento para agentes IA. Se usa como submodulo Git en un proyecto existente o como repositorio independiente. Define reglas globales, 40 skills especializados, 7 agentes autonomos, un orquestador Mixture-of-Agents (Gemini + DeepSeek + Claude) y un ciclo de mejora continua por uso, sin acoplarse al stack del proyecto anfitrion.
+`ai-core` es un nucleo de configuracion y comportamiento para agentes IA. Se usa como submodulo Git en un proyecto existente o como repositorio independiente. Define reglas globales, 41 skills especializados, 7 agentes autonomos, un orquestador Mixture-of-Agents (Gemini + DeepSeek + Claude) y un ciclo de mejora continua por uso, sin acoplarse al stack del proyecto anfitrion.
 
 `CLAUDE.md` es la unica fuente de verdad de reglas y enrutamiento de skills. Los skills lo referencian, no lo copian: si una regla cambia ahi, se propaga sin tocar ningun SKILL.md.
 
@@ -81,7 +81,7 @@ Repositorio independiente:
 npm run update
 ```
 
-Esto corre `git pull`, regenera `settings.json` (purga automaticamente cualquier hook de una version anterior que referencie un script eliminado o renombrado — el objeto de hooks se construye desde cero y sobreescribe el archivo completo, nunca mergea, con la definicion compartida en `hooks-definition.js`), corre los 754 tests, aplica migraciones de version, valida los 40 skills y los 7 agentes, y reporta que cambio. Si un test falla, el comando se detiene ahi.
+Esto corre `git pull`, regenera `settings.json` (purga automaticamente cualquier hook de una version anterior que referencie un script eliminado o renombrado — el objeto de hooks se construye desde cero y sobreescribe el archivo completo, nunca mergea, con la definicion compartida en `hooks-definition.js`), corre los 754 tests, aplica migraciones de version, valida los 41 skills y los 7 agentes, y reporta que cambio. Si un test falla, el comando se detiene ahi.
 
 Instalado como submodulo:
 
@@ -126,7 +126,7 @@ npm install                               # instalar dependencias (corre postins
 npm test                                  # 754 tests, Node nativo, sin deps externas
 npm run setup                             # regenerar settings.json con rutas locales (ya corre solo via postinstall)
 npm run update                            # actualizacion one-command desde GitHub
-npm run validate-globals                  # auditar conformidad de los 40 skills (incluye schema agentskills.io)
+npm run validate-globals                  # auditar conformidad de los 41 skills (incluye schema agentskills.io)
 npm run validate-globals -- --fix-drift   # corregir last_updated desincronizado
 npm run validate-agents                   # auditar conformidad de los 7 agentes con CLAUDE.md
 npm run validate-agents -- --fix-drift    # corregir last_updated desincronizado en agentes
@@ -148,6 +148,18 @@ npm run agent-report-full                 # historial de metricas de todas las s
 ---
 
 ## Que trae cada version
+
+### v3.19.0 — 2 skills nuevos: app-store-publisher y saas-product-architect
+
+Brechas de dominio confirmadas con auditoria exhaustiva (grep sobre los 39 skills existentes, sin muestreo) antes de escribir contenido nuevo, via research contra fuentes oficiales de cada ecosistema.
+
+**`app-store-publisher`** — ningun skill cubria empaquetado/firma/submission a tiendas de apps (solo 4 comandos sueltos de `flutter build` sin firma en `mobile-engineer`; Microsoft Store, MSIX, IPA, notarizacion, Electron, Tauri: ausencia total confirmada). Cubre Apple App Store (certificados, distincion entre notarizacion macOS/Developer ID y notarizacion iOS/Alternative Distribution que no debe confundirse, SDK minimo iOS 26 desde 28-abr-2026), Google Play Store (Play App Signing de dos claves, AAB obligatorio desde 2021, target API level 36 desde 31-ago-2026), Microsoft Store (MSIX vs MSI/EXE, Azure Artifact Signing -- confirmado GA desde enero 2026, renombrado de Trusted Signing, verificado independientemente contra 2 fuentes oficiales), y Electron vs Tauri para empaquetar apps web como desktop nativo.
+
+**`saas-product-architect`** — 4 de 10 temas de negocio SaaS con ausencia total confirmada (billing/suscripciones, onboarding+RBAC+trials de producto, provisioning automatico de tenant, white-labeling); el resto disperso en otros skills sin conectar al dominio de negocio. Cubre las 3 estrategias de multi-tenancy (silo/pool/bridge, con criterio de decision de Microsoft Learn), billing con Stripe/Paddle/Lemon Squeezy (Merchant of Record, webhooks, idempotencia, dunning, comportamiento verificado de trials en `paused`), RBAC de producto y entitlements por plan (distinguido explicitamente de feature flags de despliegue), provisioning de tenant, white-labeling con dominio custom (incluye riesgo de dangling DNS/subdomain takeover), metricas de negocio (MRR/churn/NRR/LTV/CAC) y compliance B2B (SOC 2 vs ISO 27001, ToS/Privacy Policy/DPA propios -- marcados explicitamente como orientacion estructural, no asesoria legal).
+
+Ambos skills referencian en vez de duplicar contenido ya existente en el arnes (RLS multi-tenant de `database-ops`, feature flags tecnicos de `release-manager`, PCI-DSS/HIPAA de `ciso`). Cada dato de vigencia (deadline de plataforma, nombre de servicio, version de herramienta) queda marcado como verificado con fuente o explicitamente orientativo -- ninguno se presenta como hecho confirmado sin cita.
+
+**762 tests, 41 skills.**
 
 ### v3.18.0 — SDK Gemini migrado por completo, modulo de vanguardia en los 39 skills, 4 causas raiz de flakiness cerradas
 
@@ -380,7 +392,7 @@ Se dispara automaticamente en el hook `SubagentStop` cuando `code-reviewer` marc
 
 ### Herramientas de gobernanza
 
-- **`validate-globals.js`**: verifica que los 40 skills tengan la referencia inmutable a CLAUDE.md, las secciones obligatorias, `rol:` valido en frontmatter, ningun emoji, y conformidad con el schema abierto [agentskills.io](https://agentskills.io/specification) (`name` coincide con la carpeta, formato, limites de longitud). `--fix-drift` corrige `last_updated` desincronizado. Sale con exit 1 si hay hallazgos criticos o altos.
+- **`validate-globals.js`**: verifica que los 41 skills tengan la referencia inmutable a CLAUDE.md, las secciones obligatorias, `rol:` valido en frontmatter, ningun emoji, y conformidad con el schema abierto [agentskills.io](https://agentskills.io/specification) (`name` coincide con la carpeta, formato, limites de longitud). `--fix-drift` corrige `last_updated` desincronizado. Sale con exit 1 si hay hallazgos criticos o altos.
 - **`validate-agents.js`**: hermano de `validate-globals.js` para los 7 agentes de `.claude/agents/` — mismo criterio de referencia inmutable, copia literal de las 11 reglas del ANCLA (compartidas entre ambos validadores), emojis y drift de `last_updated`. Sale con exit 1 si hay hallazgos criticos o altos.
 - **`update.js`**: actualizacion cross-platform en un comando. Reporta version anterior vs nueva y si hay breaking changes que requieran accion manual.
 - **CI** (`.github/workflows/ci.yml`): corre tests y `validate-globals` en cada push a `main` y cada PR. Matriz: Ubuntu y Windows con Node 20/22, macOS solo con Node 22 (Node 20 removido de macOS por exit code espurio intermitente de `node --test` en esa combinacion especifica de runner). El step de tests usa `node --test` sin patrones de glob explicitos — descubrimiento automatico nativo, no depende de que el shell (PowerShell en Windows) expanda argumentos (ver CHANGELOG v3.17.3).
@@ -537,12 +549,12 @@ New-Item -ItemType SymbolicLink -Path './CLAUDE.md' -Target 'C:/ruta/a/ai-core/C
 │   │   │   ├── bm25-engine.js        Motor BM25 de memory-index.js (tokenizacion, indice invertido)
 │   │   │   └── subagent-task-store.js Correlaciona PreToolUse/SubagentStop por session_id+prompt_id
 │   │   └── memory-vault-prune-check.js Hook Stop: avisa (sin borrar) cuando el vault supera 50 archivos
-│   └── skills/                  40 skills — enrutamiento via frontmatter description (agentskills.io), reglas en CLAUDE.md
+│   └── skills/                  41 skills — enrutamiento via frontmatter description (agentskills.io), reglas en CLAUDE.md
 ├── tests/                       754 tests — tests/harness/*.test.js (dividido por modulo) + archivos dedicados
 ├── .github/workflows/ci.yml     CI: Ubuntu/Windows Node 20+22, macOS solo Node 22
 ├── CLAUDE.md                    Autoridad unica: reglas globales, skills, enrutamiento
 ├── DEPRECATIONS.json            Contrato de migracion por version
-├── package.json                 v3.18.0, Node >= 20
+├── package.json                 v3.19.0, Node >= 20
 └── .env.example                 Plantilla de variables de entorno
 ```
 
