@@ -11,7 +11,13 @@ const { REPO, BIN, SKILLS, SETTINGS, runScript, tmpFile } = require('./_shared')
 describe('validate-agents.js', () => {
   const SCRIPT  = path.join(BIN, 'validate-agents.js');
   const AGENTS  = path.join(REPO, '.claude', 'agents');
-  const TEST_AGENT = path.join(AGENTS, 'zz-test-agent-temp.md');
+  // Nombre unico por proceso de test -- sin esto, dos archivos de test
+  // paralelos que crean/borran el mismo zz-test-agent-temp.md dentro de
+  // .claude/agents/ real colisionan entre si (mismo patron de flakiness ya
+  // resuelto en health-sync-js-checkskills.test.js y
+  // validate-globals-js-schema-agentskills-io.test.js).
+  const NOMBRE_AGENTE = `zz-test-agent-temp-${process.pid}`;
+  const TEST_AGENT = path.join(AGENTS, `${NOMBRE_AGENTE}.md`);
 
   function crearAgenteDePrueba(contenido) {
     fs.writeFileSync(TEST_AGENT, contenido, 'utf8');
@@ -40,7 +46,7 @@ describe('validate-agents.js', () => {
     const hoy = new Date().toISOString().slice(0, 10);
     crearAgenteDePrueba([
       '---',
-      'name: zz-test-agent-temp',
+      `name: ${NOMBRE_AGENTE}`,
       'origin: ai-core',
       'version: 1.0.0',
       `last_updated: ${hoy}`,
@@ -55,7 +61,7 @@ describe('validate-agents.js', () => {
     const r = runValidate();
     limpiar();
     const salida = JSON.parse(r.stdout);
-    const resultado = salida.resultados.find(x => x.nombre === 'zz-test-agent-temp');
+    const resultado = salida.resultados.find(x => x.nombre === NOMBRE_AGENTE);
     assert.ok(resultado, 'debe auditar el agente de prueba');
     assert.equal(resultado.status, 'CONFORME');
   });
@@ -67,7 +73,7 @@ describe('validate-agents.js', () => {
     limpiar();
     crearAgenteDePrueba([
       '---',
-      'name: zz-test-agent-temp',
+      `name: ${NOMBRE_AGENTE}`,
       'origin: ai-core',
       'version: 1.0.0',
       'last_updated: 2026-01-01',
@@ -82,7 +88,7 @@ describe('validate-agents.js', () => {
     const r = runValidate();
     limpiar();
     const salida = JSON.parse(r.stdout);
-    const resultado = salida.resultados.find(x => x.nombre === 'zz-test-agent-temp');
+    const resultado = salida.resultados.find(x => x.nombre === NOMBRE_AGENTE);
     assert.ok(resultado, 'debe auditar el agente de prueba');
     assert.ok(
       resultado.hallazgos.some(h => h.desc.includes('referencia inmutable')),
@@ -94,7 +100,7 @@ describe('validate-agents.js', () => {
     limpiar();
     crearAgenteDePrueba([
       '---',
-      'name: zz-test-agent-temp',
+      `name: ${NOMBRE_AGENTE}`,
       'origin: ai-core',
       'version: 1.0.0',
       'last_updated: 2026-01-01',
@@ -110,7 +116,7 @@ describe('validate-agents.js', () => {
     const r = runValidate();
     limpiar();
     const salida = JSON.parse(r.stdout);
-    const resultado = salida.resultados.find(x => x.nombre === 'zz-test-agent-temp');
+    const resultado = salida.resultados.find(x => x.nombre === NOMBRE_AGENTE);
     assert.ok(resultado, 'debe auditar el agente de prueba');
     assert.ok(
       resultado.hallazgos.some(h => h.desc.includes('copia regla global')),

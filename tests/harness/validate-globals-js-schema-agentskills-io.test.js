@@ -10,7 +10,12 @@ const { REPO, BIN, SKILLS, SETTINGS, runScript, tmpFile } = require('./_shared')
 
 describe('validate-globals.js — schema agentskills.io', () => {
   const SCRIPT   = path.join(BIN, 'validate-globals.js');
-  const TEST_DIR = path.join(SKILLS, 'zz-test-agentskills-temp');
+  // Nombre unico por proceso de test -- sin esto, dos archivos de test
+  // paralelos que crean/borran el mismo directorio dentro de .claude/skills/
+  // real colisionan entre si (mismo patron de flakiness ya resuelto en
+  // health-sync-js-checkskills.test.js y validate-agents-js.test.js).
+  const NOMBRE_SKILL = `zz-test-agentskills-temp-${process.pid}`;
+  const TEST_DIR = path.join(SKILLS, NOMBRE_SKILL);
 
   function crearSkillDePrueba(frontmatter) {
     fs.mkdirSync(TEST_DIR, { recursive: true });
@@ -46,7 +51,7 @@ describe('validate-globals.js — schema agentskills.io', () => {
     const r = runValidate();
     limpiar();
     const salida = JSON.parse(r.stdout);
-    const resultado = salida.resultados.find(x => x.nombre === 'zz-test-agentskills-temp');
+    const resultado = salida.resultados.find(x => x.nombre === NOMBRE_SKILL);
     assert.ok(resultado, 'debe auditar el skill de prueba');
     assert.ok(
       resultado.hallazgos.some(h => h.desc.includes('no coincide con la carpeta')),
@@ -58,7 +63,7 @@ describe('validate-globals.js — schema agentskills.io', () => {
     limpiar();
     crearSkillDePrueba([
       '---',
-      'name: zz-test-agentskills-temp',
+      `name: ${NOMBRE_SKILL}`,
       'description: skill de prueba para test unitario, no usar en produccion.',
       'origin: ai-core',
       'version: 1.0.0',
@@ -72,8 +77,8 @@ describe('validate-globals.js — schema agentskills.io', () => {
     fs.writeFileSync(
       path.join(TEST_DIR, 'SKILL.md'),
       fs.readFileSync(path.join(TEST_DIR, 'SKILL.md'), 'utf8').replace(
-        'name: zz-test-agentskills-temp',
-        'name: zz--test-agentskills-temp'
+        `name: ${NOMBRE_SKILL}`,
+        `name: zz--${NOMBRE_SKILL}`
       ),
       'utf8'
     );
@@ -81,7 +86,7 @@ describe('validate-globals.js — schema agentskills.io', () => {
     const r = runValidate();
     limpiar();
     const salida = JSON.parse(r.stdout);
-    const resultado = salida.resultados.find(x => x.nombre === 'zz-test-agentskills-temp');
+    const resultado = salida.resultados.find(x => x.nombre === NOMBRE_SKILL);
     assert.ok(resultado, 'debe auditar el skill de prueba');
     assert.ok(
       resultado.hallazgos.some(h => h.desc.includes('no cumple el formato')),
@@ -107,7 +112,7 @@ describe('validate-globals.js — schema agentskills.io', () => {
     limpiar();
     crearSkillDePrueba([
       '---',
-      'name: zz-test-agentskills-temp',
+      `name: ${NOMBRE_SKILL}`,
       'description: skill de prueba para test unitario, no usar en produccion.',
       'origin: ai-core',
       'version: 1.0.0',
@@ -121,7 +126,7 @@ describe('validate-globals.js — schema agentskills.io', () => {
     const r = runValidate();
     limpiar();
     const salida = JSON.parse(r.stdout);
-    const resultado = salida.resultados.find(x => x.nombre === 'zz-test-agentskills-temp');
+    const resultado = salida.resultados.find(x => x.nombre === NOMBRE_SKILL);
     assert.ok(resultado, 'debe auditar el skill de prueba');
     assert.ok(
       resultado.hallazgos.some(h => h.desc.includes('copia regla global')),
@@ -139,7 +144,7 @@ describe('validate-globals.js — schema agentskills.io', () => {
     const marca = ['Co', 'Authored', 'By'].join('-');
     crearSkillDePrueba([
       '---',
-      'name: zz-test-agentskills-temp',
+      `name: ${NOMBRE_SKILL}`,
       'description: skill de prueba para test unitario, no usar en produccion.',
       'origin: ai-core',
       'version: 1.0.0',
@@ -153,7 +158,7 @@ describe('validate-globals.js — schema agentskills.io', () => {
     const r = runValidate();
     limpiar();
     const salida = JSON.parse(r.stdout);
-    const resultado = salida.resultados.find(x => x.nombre === 'zz-test-agentskills-temp');
+    const resultado = salida.resultados.find(x => x.nombre === NOMBRE_SKILL);
     assert.ok(resultado, 'debe auditar el skill de prueba');
     assert.ok(
       !resultado.hallazgos.some(h => h.desc.includes('Co-Authored-By')),
@@ -165,7 +170,7 @@ describe('validate-globals.js — schema agentskills.io', () => {
     limpiar();
     crearSkillDePrueba([
       '---',
-      'name: zz-test-agentskills-temp',
+      `name: ${NOMBRE_SKILL}`,
       'description: skill de prueba para test unitario, no usar en produccion.',
       'origin: ai-core',
       'version: 1.0.0',
@@ -178,7 +183,7 @@ describe('validate-globals.js — schema agentskills.io', () => {
     const r = runValidate();
     limpiar();
     const salida = JSON.parse(r.stdout);
-    const resultado = salida.resultados.find(x => x.nombre === 'zz-test-agentskills-temp');
+    const resultado = salida.resultados.find(x => x.nombre === NOMBRE_SKILL);
     assert.ok(resultado, 'debe auditar el skill de prueba');
     assert.ok(
       !resultado.hallazgos.some(h => h.desc.startsWith('agentskills.io:')),
@@ -194,7 +199,7 @@ describe('validate-globals.js — schema agentskills.io', () => {
     limpiar();
     crearSkillDePrueba([
       '---',
-      'name: zz-test-agentskills-temp',
+      `name: ${NOMBRE_SKILL}`,
       'description: skill de prueba para test unitario, no usar en produccion.',
       'origin: ai-core',
       'version: 1.0.0',
