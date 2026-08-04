@@ -1,4 +1,4 @@
-# AI-CORE v3.25.0: Nucleo Multi-Agente Universal
+# AI-CORE v3.26.0: Nucleo Multi-Agente Universal
 
 `ai-core` es un nucleo de configuracion y comportamiento para agentes IA. Se usa como submodulo Git en un proyecto existente o como repositorio independiente. Define reglas globales, 42 skills especializados, 7 agentes autonomos, un orquestador Mixture-of-Agents (Gemini + DeepSeek + Claude) y un ciclo de mejora continua por uso, sin acoplarse al stack del proyecto anfitrion.
 
@@ -150,6 +150,16 @@ npm run agent-report-full                 # historial de metricas de todas las s
 ---
 
 ## Que trae cada version
+
+### v3.26.0 — backend-architect: codigo real en .NET, PHP y Ruby
+
+Cierra la brecha de lenguajes de backend que quedaba fuera de alcance desde v3.23.0. Se agregan los 3 lenguajes restantes de mayor uso empresarial real, con research + verificacion cruzada contra fuente oficial de cada framework: ASP.NET Core 10 (Minimal APIs, validacion nativa con `AddValidation()`, EF Core), Laravel 13.x (la verificacion cruzada confirmo que `routes/api.php` ya no existe por defecto desde Laravel 11, y que `Octane::concurrently()` requiere especificamente Swoole, no FrankenPHP/RoadRunner), y Rails 8.1 en modo `--api` (Solid Queue como adapter por defecto desde Rails 8.0, Minitest confirmado como framework oficial sobre RSpec).
+
+La verificacion cruzada encontro y corrigio 2 defectos reales antes de publicar: una cita sobre-afirmada de `TypedResults.ServerSentEvents` en .NET que no se reproducia en la URL puntual citada, y un bloque de test muerto en el ejemplo Minitest de Ruby. El research de PHP tambien detecto y descarto por si mismo una alucinacion de una herramienta intermedia (un metodo Carbon inexistente).
+
+`backend-architect` sube a v1.7.0, ahora con 6 lenguajes de backend cubiertos con codigo real (Go, Rust, Java, .NET, PHP, Ruby) ademas de Node.js/TypeScript y Python.
+
+**864 tests, 42 skills, 7 agentes.**
 
 ### v3.25.0 — freno de mano real: git commit -m directo + 6 patrones de infraestructura
 

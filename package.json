@@ -1,6 +1,6 @@
 {
   "name": "ai-core",
-  "version": "3.25.0",
+  "version": "3.26.0",
   "description": "AI-CORE by salvex93. Nucleo Centralizado de Agentes para proyectos de desarrollo. Submodulo Git con reglas globales, skills y scripts de orquestacion.",
   "private": true,
   "scripts": {

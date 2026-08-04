@@ -65,7 +65,7 @@
       "sources": ["orientativo, no verificado contra fuente primaria en esta pasada -- pendiente de primera verificacion real (patrones de arquitectura de backend, event-driven, WebSockets)"],
       "skills": ["backend-architect"]
     },
-    "backend-languages-go-rust-java": {
+    "backend-languages-multi": {
       "verified": "2026-08-04",
       "sources": [
         "go.dev/doc/devel/release (Go 1.26.0)",
@@ -79,7 +79,20 @@
         "spring.io/projects/spring-boot (Spring Boot 4.1.0)",
         "docs.spring.io/spring-boot/system-requirements.html (Java 17-26)",
         "github.com/spring-projects/spring-boot/wiki/Spring-Boot-4.0-Migration-Guide (remocion de @MockBean)",
-        "oracle.com/java/technologies/java-se-support-roadmap.html (JDK 25 LTS)"
+        "oracle.com/java/technologies/java-se-support-roadmap.html (JDK 25 LTS)",
+        "learn.microsoft.com/dotnet/core/releases-and-support (.NET 10 LTS)",
+        "learn.microsoft.com/aspnet/core/fundamentals/minimal-apis (AddValidation, ASP.NET Core 10)",
+        "learn.microsoft.com/aspnet/core/test/integration-tests (WebApplicationFactory)",
+        "php.net/releases/index.php (PHP 8.4.24)",
+        "laravel.com/docs/13.x/releases (Laravel 13.x, PHP minimo 8.3)",
+        "laravel.com/docs/13.x/routing (install:api, routes/api.php)",
+        "laravel.com/docs/13.x/errors (bootstrap/app.php withExceptions)",
+        "laravel.com/docs/13.x/octane (Concurrent Tasks requiere Swoole)",
+        "ruby-lang.org/en/downloads (Ruby 4.0.6)",
+        "guides.rubyonrails.org (Rails 8.1.3.1)",
+        "guides.rubyonrails.org/api_app.html (ActionController::API, params.expect)",
+        "guides.rubyonrails.org/active_job_basics.html (Solid Queue default desde Rails 8.0)",
+        "guides.rubyonrails.org/testing.html (Minitest default, no RSpec)"
       ],
       "skills": ["backend-architect"]
     },

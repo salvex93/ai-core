@@ -3,6 +3,20 @@
 Registro de cambios por version. Formato basado en [Keep a Changelog](https://keepachangelog.com/es/1.0.0/).
 Versionado semantico: MAJOR.MINOR.PATCH.
 
+## [3.26.0] — 2026-08-04
+
+### Agregado — backend-architect: codigo real en .NET, PHP y Ruby
+
+Cierra la brecha de lenguajes de backend que quedaba explicitamente fuera de alcance desde v3.23.0 (Go/Rust/Java): se agregan los 3 lenguajes de backend restantes de mayor uso empresarial real, con el mismo patron de research + verificacion cruzada independiente contra fuente oficial.
+
+- **.NET/C# con ASP.NET Core 10** (`learn.microsoft.com/dotnet`): Minimal APIs con `builder.Services.AddValidation()` (validacion nativa con DataAnnotations, reemplaza FluentValidation para casos simples), Entity Framework Core, concurrencia con `SemaphoreSlim` + `Task.WhenAll`, testing con xUnit y `WebApplicationFactory<Program>`. La verificacion cruzada encontro que la cita de `TypedResults.ServerSentEvents` como "fetch directo confirmado" no se reproducia en la URL puntual citada — marcado explicitamente como no confirmado por esa fuente especifica en vez de mantener la sobre-afirmacion.
+- **PHP con Laravel 13.x** (`laravel.com/docs`, PHP minimo 8.3): la verificacion cruzada confirmo un cambio estructural real -- `routes/api.php` ya no existe por defecto desde Laravel 11 (requiere `php artisan install:api`), y el manejo de excepciones se centralizo en `bootstrap/app.php` via `->withExceptions()`, ya no en `app/Exceptions/Handler.php`. Concurrencia via Laravel Queues (background) y Octane (Swoole/FrankenPHP/RoadRunner) -- `Octane::concurrently()` confirmado que requiere especificamente Swoole, no funciona con FrankenPHP/RoadRunner. El research detecto y descarto por si mismo una alucinacion de una herramienta intermedia (un metodo Carbon inexistente `->plus()`) antes de que llegara al codigo final.
+- **Ruby con Rails 8.1 en modo `--api`** (`guides.rubyonrails.org`): `ActionController::API`, `params.expect` para strong parameters, Solid Queue como adapter por defecto de ActiveJob desde Rails 8.0 (sin Redis). Confirmado que Minitest es el framework de testing oficial por defecto (RSpec es popular en la comunidad pero no aparece en la documentacion oficial, declarado como tal). La verificacion cruzada encontro un bloque de test muerto en el ejemplo Minitest original (assertion vacia sin invocar el metodo bajo prueba) y se corrigio antes de publicar.
+
+Registrado en `MARKET_STANDARDS.json`: el dominio `backend-languages-go-rust-java` se renombra a `backend-languages-multi` para reflejar la cobertura de 6 lenguajes. `backend-architect` sube a v1.7.0.
+
+**864 tests, 42 skills, 7 agentes.**
+
 ## [3.25.0] — 2026-08-04
 
 ### Corregido — gap real de enforcement: git commit -m directo no pasaba por ningun guard de contenido
