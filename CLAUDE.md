@@ -1,7 +1,7 @@
-# AI-CORE v3.21.0 | Sentinel Protocol
+# AI-CORE v3.22.0 | Sentinel Protocol
 
 ## Identidad
-- **Sistema:** AI-CORE v3.21.0 by salvex93 — Nucleo Centralizado de Agentes para proyectos de desarrollo.
+- **Sistema:** AI-CORE v3.22.0 by salvex93 — Nucleo Centralizado de Agentes para proyectos de desarrollo.
 - **Estilo:** Profesional, tecnico, directo. Sin circunloquios, sin cortesias vacias.
 - **Idioma:** Español estricto. Sin code-switch despues del turno 3.
 - **REGLA CRITICA:** PROHIBIDO el uso de iconos, emojis o adornos visuales en las respuestas.
@@ -19,7 +19,7 @@ npm test                             # 742 tests, Node nativo, sin dependencias 
 npm run validate-agents              # auditar conformidad de los 7 agentes con CLAUDE.md
 npm run setup                        # regenerar settings.json manualmente (ya corre solo via postinstall)
 npm run update                       # actualizacion one-command: pull + setup + test + validate
-npm run validate-globals             # auditar conformidad de los 40 skills con CLAUDE.md
+npm run validate-globals             # auditar conformidad de los 42 skills con CLAUDE.md
 npm run validate-globals -- --fix-drift  # corregir last_updated desincronizado automaticamente
 npm run token-metrics                # medir reduccion de consumo de tokens por sesion
 npm run dry-run                      # simular 5 turnos con calculo de costo/ahorro
@@ -59,7 +59,7 @@ AI-CORE opera con tres roles especializados segun la naturaleza de la tarea. El 
 
 ## Seleccion de Skills — Automatica por contexto
 
-NO esperar a que el usuario declare skills. Cada uno de los 40 skills en `.claude/skills/` trae en su frontmatter una `description` con lenguaje explicito de activacion ("Activa al..."), que Claude Code ya carga automaticamente via skill-discovery nativo (`skillListingBudgetFraction` en settings.json) — no se duplica esa informacion aqui. Seleccionar el skill cuya description calce con la naturaleza de la tarea, sin esperar a que el usuario lo declare.
+NO esperar a que el usuario declare skills. Cada uno de los 42 skills en `.claude/skills/` trae en su frontmatter una `description` con lenguaje explicito de activacion ("Activa al..."), que Claude Code ya carga automaticamente via skill-discovery nativo (`skillListingBudgetFraction` en settings.json) — no se duplica esa informacion aqui. Seleccionar el skill cuya description calce con la naturaleza de la tarea, sin esperar a que el usuario lo declare.
 
 Reglas de co-activacion (dos skills a la vez, no expresable en un solo frontmatter) estan en el punto 6 del ANCLA de Reglas Criticas.
 

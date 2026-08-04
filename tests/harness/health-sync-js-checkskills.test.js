@@ -11,13 +11,13 @@ const { REPO, BIN, SKILLS, SETTINGS, runScript, tmpFile } = require('./_shared')
 describe('health-sync.js — checkSkills', () => {
   const { checkSkills } = require(path.join(BIN, 'health-sync.js'));
 
-  test('el repo real: 41 skills, todos con frontmatter valido', () => {
+  test('el repo real: 42 skills, todos con frontmatter valido', () => {
     // Regresion real detectada en esta sesion: checkSkills() dependia de una
     // tabla de skills en CLAUDE.md que ya no existe (routing via frontmatter
     // description) -- reportaba 36/38 skills como "huerfanos" falsamente.
     const r = checkSkills(REPO);
     assert.equal(r.ok, true, `no debe haber skills invalidos: ${JSON.stringify(r.invalid)}`);
-    assert.equal(r.count, 41);
+    assert.equal(r.count, 42);
     assert.deepEqual(r.invalid, []);
   });
 

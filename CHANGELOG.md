@@ -3,6 +3,25 @@
 Registro de cambios por version. Formato basado en [Keep a Changelog](https://keepachangelog.com/es/1.0.0/).
 Versionado semantico: MAJOR.MINOR.PATCH.
 
+## [3.22.0] — 2026-08-04
+
+### Agregado — cloud-deployment-specialist: despliegue real en 9 proveedores de nube/hosting
+
+El usuario pregunto si el conjunto de skills "da el ancho" en cualquier lenguaje de programacion y cualquier proveedor de nube (AWS, Firebase, Google, DigitalOcean, etc.). Auditoria con evidencia (no de memoria) confirmo que NO: `backend-architect` y `devops-infra` declaran ser "agnosticos al stack"/"agnosticos al proveedor de nube" en su description, pero el contenido tecnico ejecutable real esta concentrado en Node.js/TypeScript + Python (parcial, solo en testing) + PostgreSQL + Flutter + AWS/GCP genericos sin ejemplos concretos de ningun proveedor especifico. Go, Rust, Java, PHP, Ruby y .NET aparecen solo como nombres en tablas de decision, sin un solo bloque de codigo real en ningun skill de los 41 existentes. Proveedores modernos (DigitalOcean, Cloudflare Workers/Pages, Vercel, Railway, Render, Fly.io) tenian cero menciones en `devops-infra`, que ademas excluye explicitamente el modelo "VPS + Docker Compose sin Kubernetes/IaC" de su alcance -- justo donde operan esos proveedores.
+
+Se prioriza primero la brecha de proveedores de nube sobre la de lenguajes de backend (queda documentada para una proxima sesion). Skill nuevo `cloud-deployment-specialist`, complementario a `devops-infra` (que se mantiene IaC/Kubernetes generico, sin duplicarse), con comandos CLI reales verificados contra fuente oficial de cada proveedor:
+
+- **AWS**: App Runner confirmado **cerrado a clientes nuevos** (verificado independientemente con fetch directo propio contra `docs.aws.amazon.com/apprunner/latest/dg/apprunner-availability-change.html`, ademas del research del workflow) -- AWS recomienda migrar a **ECS Express Mode**, con la sintaxis exacta del comando `aws ecs create-express-gateway-service` confirmada contra la misma fuente oficial (el workflow la habia dejado como "no reverificada", la verificacion independiente confirmo la sintaxis textual completa) y el procedimiento real de migracion blue/green con DNS weighted routing.
+- **Google Cloud**: Cloud Run (`gcloud run deploy --source`, scale-to-zero confirmado, free tier de 180k vCPU-s/360k GiB-s/2M requests) y Firebase Hosting (`firebase deploy --only hosting,functions`).
+- **Azure**: Container Apps (`az containerapp up`, scale-to-zero confirmado, free tier identico a Cloud Run) vs App Service (sin scale-to-zero real salvo tier limitado).
+- **DigitalOcean**: App Platform (`doctl apps create`, pricing hibrido de tiers fijos) y Droplets.
+- **Cloudflare**: Workers (`wrangler deploy`, V8 isolates sin cold start tradicional, scale-to-zero por diseno, limites de free tier verificados) y Pages.
+- **Vercel, Railway, Render, Fly.io**: comandos reales de cada uno, con el estado real de scale-to-zero marcado explicitamente como "no verificado contra fuente oficial" en los 3 casos donde ninguna fuente primaria lo confirma -- sin asumir por analogia con Cloud Run/Container Apps, tal como exige el Protocolo de Vigencia Tecnologica de CLAUDE.md. Inconsistencia real detectada en la propia documentacion oficial de Railway ($1 credito mensual vs $5 grant unico) preservada y remarcada en la tabla comparativa final, no resuelta implicitamente.
+
+Registrado en `MARKET_STANDARDS.json` (dominio `cloud-provider-deployment`) desde su creacion -- el radar de vigencia arreglado en v3.21.0 cubre el skill nuevo sin punto ciego.
+
+**817 tests, 42 skills, 7 agentes.**
+
 ## [3.21.0] — 2026-08-04
 
 ### Corregido — audit-market.js/MARKET_STANDARDS.json tenia un punto ciego real de cobertura

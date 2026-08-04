@@ -55,6 +55,11 @@
       "sources": ["owasp.org (WSTG)", "principlesofchaos.org", "cncf.io/projects (Chaos Mesh/LitmusChaos: Incubating)", "go.dev (fuzzing GA desde Go 1.18)", "openapis.org/blog (OpenAPI 3.2.0)"],
       "skills": ["qa-engineer"]
     },
+    "cloud-provider-deployment": {
+      "verified": "2026-08-04",
+      "sources": ["docs.aws.amazon.com/apprunner (cerrado a clientes nuevos, verificado con fetch directo propio)", "docs.cloud.google.com/sdk/gcloud/reference/run/deploy", "learn.microsoft.com/en-us/azure/container-apps", "docs.digitalocean.com/products/app-platform", "developers.cloudflare.com/workers", "vercel.com/docs", "docs.railway.com", "render.com/docs", "fly.io/docs"],
+      "skills": ["cloud-deployment-specialist"]
+    },
     "backend-architecture-generic": {
       "verified": "2026-07-15",
       "sources": ["orientativo, no verificado contra fuente primaria en esta pasada -- pendiente de primera verificacion real (patrones de arquitectura de backend, event-driven, WebSockets)"],
