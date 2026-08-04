@@ -36,6 +36,20 @@ describe('CrossVerifier.js (verificacion cross-model)', () => {
     );
   });
 
+  test('seleccionarVerificador: usa kimi si es el unico proveedor distinto disponible', () => {
+    // ModelRegistry.js y ModelRouter.js ya soportan kimi (adapter completo,
+    // PROVEEDORES_DELEGABLES) -- CrossVerifier.js lo omitia de
+    // PROVEEDORES_VERIFICADOR, dejando sin verificador cross-model a un
+    // usuario que solo configuro KIMI_API_KEY (sin OpenAI/DeepSeek/Gemini).
+    const disponibles = [
+      { provider: 'anthropic', available: true },
+      { provider: 'kimi',      available: true },
+    ];
+    const elegido = seleccionarVerificador('anthropic', disponibles);
+    assert.equal(elegido, 'kimi');
+    assert.ok(PROVEEDORES_VERIFICADOR.includes('kimi'), 'kimi debe estar en la lista de proveedores validos como verificador');
+  });
+
   test('parsearVeredicto: camino feliz — JSON valido con pass true', () => {
     const veredicto = parsearVeredicto('{"pass": true, "hallazgos": []}');
     assert.equal(veredicto.pass, true);

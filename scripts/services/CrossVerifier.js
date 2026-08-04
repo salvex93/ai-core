@@ -15,8 +15,12 @@ const ModelRegistry = require('./ModelRegistry');
 const { parsearJSONFailClosed } = ModelRegistry;
 const { PROVIDER_CONFIGS } = require('./model-adapters/OpenAICompatAdapter');
 
-// Proveedores validos como verificador, en orden de preferencia (mas barato primero)
-const PROVEEDORES_VERIFICADOR = Object.freeze(['deepseek', 'openai', 'gemini']);
+// Proveedores validos como verificador, en orden de preferencia (mas barato primero).
+// kimi agregado: ModelRegistry.js/ModelRouter.js ya lo soportan completo
+// (adapter, PROVEEDORES_DELEGABLES) pero quedaba fuera de esta lista -- un
+// usuario que solo configura KIMI_API_KEY (sin OpenAI/DeepSeek/Gemini) se
+// quedaba sin verificador cross-model pese a tener un proveedor disponible.
+const PROVEEDORES_VERIFICADOR = Object.freeze(['deepseek', 'openai', 'kimi', 'gemini']);
 
 // Herramientas que el router (ModelRouter.js) ya clasifica como criticas --
 // unicas candidatas a desempate automatico 2-de-3. Una tarea simple nunca
