@@ -550,7 +550,8 @@ New-Item -ItemType SymbolicLink -Path './CLAUDE.md' -Target 'C:/ruta/a/ai-core/C
 │   │   │   ├── risky-code-patterns.js Patrones de ejecucion arbitraria compartidos con code-exec-guard.js
 │   │   │   ├── aiops-scorers.js      Las 6 funciones de scoring de aiops-score.js
 │   │   │   ├── bm25-engine.js        Motor BM25 de memory-index.js (tokenizacion, indice invertido)
-│   │   │   └── subagent-task-store.js Correlaciona PreToolUse/SubagentStop por session_id+prompt_id
+│   │   │   ├── subagent-task-store.js Correlaciona PreToolUse/SubagentStop por session_id+prompt_id
+│   │   │   └── guard-report.js       Esquema tipado {guard,verdict,severity} en JSONL, opt-in por guard (secrets-guard, injection-guard, pre-commit-tdd)
 │   │   └── memory-vault-prune-check.js Hook Stop: avisa (sin borrar) cuando el vault supera 50 archivos
 │   └── skills/                  41 skills — enrutamiento via frontmatter description (agentskills.io), reglas en CLAUDE.md
 ├── tests/                       754 tests — tests/harness/*.test.js (dividido por modulo) + archivos dedicados

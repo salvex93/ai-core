@@ -17,6 +17,7 @@
  */
 
 const { leerEventoDeStdin } = require('./lib/hook-stdin');
+const { emitirReporte }     = require('./lib/guard-report');
 
 const prompt = process.env.CLAUDE_USER_PROMPT || leerEventoDeStdin().prompt_text || '';
 if (!prompt) process.exit(0);
@@ -46,10 +47,14 @@ if (bloqueantes.length > 0) {
   process.stderr.write('[secrets-guard] BLOQUEADO: credencial de alta confianza detectada en el mensaje:\n');
   bloqueantes.forEach(({ etiqueta }) => process.stderr.write(`  - ${etiqueta}\n`));
   process.stderr.write('Usar variables de entorno en lugar de pegar credenciales directamente. Reescribe el mensaje sin la credencial.\n');
+  emitirReporte({ guard: 'secrets-guard', verdict: 'blocked', severity: 'critica', hallazgos: bloqueantes.map(b => b.etiqueta) });
   process.exit(2);
 }
 
-if (advertencias.length === 0) process.exit(0);
+if (advertencias.length === 0) {
+  emitirReporte({ guard: 'secrets-guard', verdict: 'ok', severity: 'baja' });
+  process.exit(0);
+}
 
 process.stdout.write('\n[secrets-guard] AVISO: posible credencial detectada en el mensaje:\n');
 advertencias.forEach(({ etiqueta }) => {
@@ -57,3 +62,4 @@ advertencias.forEach(({ etiqueta }) => {
 });
 process.stdout.write('  Usar variables de entorno en lugar de pegar credenciales directamente.\n\n');
 // Confianza media — solo advierte, no bloquea el flujo
+emitirReporte({ guard: 'secrets-guard', verdict: 'warn', severity: 'media', hallazgos: advertencias.map(a => a.etiqueta) });

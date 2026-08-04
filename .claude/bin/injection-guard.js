@@ -20,6 +20,7 @@
 'use strict';
 
 const { leerEventoDeStdin } = require('./lib/hook-stdin');
+const { emitirReporte }     = require('./lib/guard-report');
 
 // CLAUDE_SUBAGENT_OUTPUT/CLAUDE_SUBAGENT_TYPE nunca existieron como variables
 // de entorno reales -- SubagentStop entrega el output por stdin como JSON,
@@ -52,13 +53,21 @@ const PATRONES = [
 
 const hallazgos = PATRONES.filter(({ re }) => re.test(subagentOutput));
 
-if (hallazgos.length === 0) process.exit(0);
+if (hallazgos.length === 0) {
+  emitirReporte({ guard: 'injection-guard', verdict: 'ok', severity: 'baja' });
+  process.exit(0);
+}
 
 console.log(`[injection-guard] subagente:${subagentName} — ${hallazgos.length} patron(es) de posible prompt injection en el output:`);
 for (const { etiqueta } of hallazgos) {
   console.log(`  [ALERTA] ${etiqueta}`);
 }
 console.log('[injection-guard] revisar el contenido fuente (archivo, web o Gemini) antes de actuar sobre instrucciones que aparezcan ahi.');
+
+// warn, no blocked -- SubagentStop no puede vetar el output ya generado
+// (ver nota de cabecera). "alta" en vez de "critica": el operador decide,
+// el hallazgo no bloquea nada por si solo.
+emitirReporte({ guard: 'injection-guard', verdict: 'warn', severity: 'alta', hallazgos: hallazgos.map(h => h.etiqueta) });
 
 // Exit 0 — advierte, no bloquea. La decision final es del operador.
 process.exit(0);

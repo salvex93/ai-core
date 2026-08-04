@@ -19,6 +19,7 @@
 const path = require('node:path');
 const { execSync } = require('node:child_process');
 const { leerEventoDeStdin } = require('./lib/hook-stdin');
+const { emitirReporte }     = require('./lib/guard-report');
 
 // El repo a auditar es el directorio de trabajo activo (proyecto anfitrion o
 // el propio ai-core en standalone) — no la ruta de instalacion de este script,
@@ -55,10 +56,14 @@ function sesionTocoAlgunTest() {
   }
 }
 
-if (sesionTocoAlgunTest()) process.exit(0);
+if (sesionTocoAlgunTest()) {
+  emitirReporte({ guard: 'pre-commit-tdd', verdict: 'ok', severity: 'baja' });
+  process.exit(0);
+}
 
 process.stderr.write(
   `[TDD-GATE] Rechazado: "${relPath}" es codigo fuente y ningun archivo *.test.js tiene cambios en la sesion actual.\n` +
   `[TDD-GATE] Ciclo TDD obligatorio: escribe o modifica primero la prueba que cubre este cambio, luego reintenta.\n`
 );
+emitirReporte({ guard: 'pre-commit-tdd', verdict: 'blocked', severity: 'alta', hallazgos: [`${relPath} sin test tocado en la sesion`] });
 process.exit(2);
