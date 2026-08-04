@@ -3,6 +3,30 @@
 Registro de cambios por version. Formato basado en [Keep a Changelog](https://keepachangelog.com/es/1.0.0/).
 Versionado semantico: MAJOR.MINOR.PATCH.
 
+## [3.20.0] — 2026-08-04
+
+### Agregado — cierre de 7 gaps menores del benchmark contra Anthropic/OpenAI/Google ADK/open source
+
+Deep research previo (memoria `feedback-gaps-benchmark-arneses-aaa`) identifico 9 gaps priorizados comparando ai-core contra Claude Code/Agent SDK, OpenAI Agents SDK, Google ADK/Gemini y frameworks open source (LangGraph/CrewAI/MCP). Los 2 gaps serios (sandboxing real de ejecucion de codigo, evals automatizados reproducibles en CI) quedan diferidos por decision explicita del usuario -- son diseno de arquitectura nueva, no una extension quirurgica de una sesion. Los 7 gaps menores se cerraron en esta version:
+
+- **`destructive-op-guard.js`** (hook `PreToolUse`, matcher `Bash`) -- enforcement real de human-in-the-loop para operaciones destructivas, hasta ahora solo convencion en prosa de CLAUDE.md. Bloquea con exit 2, antes de ejecutar: `rm -rf`, `git push --force`, `git reset --hard`, `git clean -f`, `git branch -D`, `DROP TABLE`/`TRUNCATE` sin filtro. Verificado en vivo: el primer intento de commitear este cambio se auto-bloqueo porque el mensaje de commit describia los patrones como texto -- corregido para descartar el contenido citado del mensaje cuando el comando raiz es un `git commit`.
+- **`scripts/rollback-skill.js`** -- revierte un skill especifico a una version anterior (busca en el historial de git del archivo el commit donde `version:` coincide) via `git checkout <hash> -- <archivo>` acotado, sin afectar el resto del repo. Registrado como `npm run rollback-skill`.
+- **`lib/guard-report.js`** -- esquema tipado comun `{guard, verdict, severity, hallazgos, timestamp}` en JSONL, adoptado (opt-in, sin cambiar comportamiento existente) por `secrets-guard.js`, `injection-guard.js` y `pre-commit-tdd.js`. Verificado en vivo contra el archivo real de reporte de la propia sesion.
+- **`.claude/MCP_LIFECYCLE.json` + `mcp-lifecycle-check.js`** -- ciclo de vida formal Active/Deprecated/Removed para los servidores MCP propios (`gemini-bridge`, `anthropic-router`), alineado con la politica de deprecacion de la spec MCP 2026-07-28. Reutiliza la lista de servidores de `mcp-integrity-check.js` como fuente unica de verdad. Integrado como paso 4b del protocolo de `aiops-auditor`.
+- **Checkpointing de `ModelDispatcher.js`**: evaluado y descartado con justificacion tecnica documentada -- `executeMoATask` ya usa `Promise.allSettled` (nunca rechaza, degrada con gracia) y su unico caller real (`moa-context-gatherer.js`) se re-invoca desde cero en cada turno de conversacion. No hay progreso parcial entre 2 llamadas HTTP de un hook de un turno que valga la pena preservar entre crashes.
+- **2 tests con flakiness residual aislados**: `validate-agents-js.test.js` y `validate-globals-js-schema-agentskills-io.test.js` usaban nombre fijo (`zz-test-agent-temp.md`, `zz-test-agentskills-temp/`) dentro de `.claude/agents/`/`.claude/skills/` reales -- ahora usan `process.pid`, mismo patron ya aplicado a los 4 archivos de la v3.18.0.
+
+### Agregado — QA destructivo en qa-engineer (fuzzing, chaos testing, historial de fallos)
+
+Modulo nuevo via research verificado contra fuentes oficiales (owasp.org, ISTQB, principlesofchaos.org, cncf.io, go.dev, docs oficiales de Schemathesis/Hypothesis/fast-check/Atheris/Jazzer):
+
+- **Fuzzing de inputs** agnostico al stack: fuzzing guiado por schema OpenAPI (Schemathesis, RESTler) para APIs, property-based testing (Hypothesis, fast-check) para funciones puras, `go test -fuzz` (GA desde Go 1.18, confirmado contra go.dev) para Go nativo.
+- **Chaos testing de infraestructura**, distinguido explicitamente de fuzzing (capas distintas: input de aplicacion vs infraestructura de sistema distribuido). Chaos Mesh y LitmusChaos confirmados en estado CNCF **Incubating** (no Graduated) contra `cncf.io/projects`, verificado independientemente ademas del research del workflow. Incluye criterio explicito de cuando NO aplica (monolito sin dependencias distribuidas).
+- **Adversarial testing de UI/API**: Boundary Value Analysis y Equivalence Partitioning (origen formal ISTQB) como checklist sistematico, mas pruebas de carga (k6) con metricas concretas de ruptura (p99, error rate, memory leak via soak test).
+- **`BUGS_HISTORY.json`** (vive en el proyecto anfitrion, no en ai-core) -- historial persistente de bugs consultado antes de cada sesion de QA destructivo para no reintroducir un bug reparado y priorizar fuzzing/chaos hacia los componentes con mayor densidad historica de fallos. Formalizado el patron bug-encontrado-test-de-regresion-antes-del-fix-test-permanece-en-la-suite.
+
+**807 tests, 41 skills, 7 agentes.**
+
 ## [3.19.0] — 2026-08-04
 
 ### Corregido — atributo OTel obsoleto en llm-observability

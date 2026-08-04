@@ -1,4 +1,4 @@
-# AI-CORE v3.19.0: Nucleo Multi-Agente Universal
+# AI-CORE v3.20.0: Nucleo Multi-Agente Universal
 
 `ai-core` es un nucleo de configuracion y comportamiento para agentes IA. Se usa como submodulo Git en un proyecto existente o como repositorio independiente. Define reglas globales, 41 skills especializados, 7 agentes autonomos, un orquestador Mixture-of-Agents (Gemini + DeepSeek + Claude) y un ciclo de mejora continua por uso, sin acoplarse al stack del proyecto anfitrion.
 
@@ -149,6 +149,22 @@ npm run agent-report-full                 # historial de metricas de todas las s
 ---
 
 ## Que trae cada version
+
+### v3.20.0 — Gaps de benchmark cerrados (sandboxing/evals diferidos por decision explicita) y QA destructivo
+
+Deep research comparando ai-core contra Anthropic Claude Code/Agent SDK, OpenAI Agents SDK, Google ADK/Gemini y frameworks open source identifico 9 gaps priorizados. De los 2 series (sandboxing real de ejecucion, evals reproducibles en CI) quedan diferidos por decision explicita del usuario -- ameritan diseno de arquitectura propio, no una extension quirurgica. Los 7 gaps menores mas 2 tests de flakiness residual se cerraron en esta version:
+
+- **`destructive-op-guard.js`** — enforcement real de human-in-the-loop (antes solo convencion en prosa): bloquea `rm -rf`, `git push --force`, `git reset --hard`, `git clean -f`, `git branch -D`, `DROP TABLE`/`TRUNCATE` sin filtro, antes de ejecutar.
+- **`rollback-skill.js`** — revierte un skill especifico a una version anterior via git checkout acotado al archivo, sin afectar el resto del repo.
+- **`lib/guard-report.js`** — esquema tipado `{guard, verdict, severity}` en JSONL, adoptado por `secrets-guard.js`, `injection-guard.js` y `pre-commit-tdd.js` (opt-in, no cambia el comportamiento existente).
+- **`MCP_LIFECYCLE.json` + `mcp-lifecycle-check.js`** — ciclo de vida formal Active/Deprecated/Removed para los servidores MCP propios, integrado al protocolo de `aiops-auditor`.
+- Checkpointing de `ModelDispatcher.js` evaluado y descartado con justificacion tecnica: el diseno ya usa `Promise.allSettled` y se re-invoca por turno, no hay progreso parcial que valga la pena preservar.
+- Fix del atributo OTel obsoleto `gen_ai.system` -> `gen_ai.provider.name` en `llm-observability` (semantic-conventions v1.37.0).
+- Los 2 ultimos tests con patron de flakiness residual (estado compartido en disco sin nombre unico por proceso) quedaron aislados.
+
+**QA destructivo en `qa-engineer`** — modulo nuevo via research verificado contra fuentes oficiales (OWASP, ISTQB, principlesofchaos.org, cncf.io, go.dev): fuzzing de inputs guiado por schema/property-based/Go nativo segun la superficie detectada, chaos testing de infraestructura distinguido explicitamente de fuzzing (Chaos Mesh/LitmusChaos confirmados en estado CNCF Incubating, no Graduated), adversarial testing de UI/API con BVA/EP sistematico, y el mecanismo central pedido: `BUGS_HISTORY.json` en el proyecto anfitrion que se consulta antes de cada sesion de QA destructivo y el patron bug-encontrado-test-de-regresion-antes-del-fix.
+
+**807 tests, 41 skills, 7 agentes.**
 
 ### v3.19.0 — 2 skills nuevos: app-store-publisher y saas-product-architect
 
@@ -559,7 +575,7 @@ New-Item -ItemType SymbolicLink -Path './CLAUDE.md' -Target 'C:/ruta/a/ai-core/C
 ├── .github/workflows/ci.yml     CI: Ubuntu/Windows Node 20+22, macOS solo Node 22
 ├── CLAUDE.md                    Autoridad unica: reglas globales, skills, enrutamiento
 ├── DEPRECATIONS.json            Contrato de migracion por version
-├── package.json                 v3.19.0, Node >= 20
+├── package.json                 v3.20.0, Node >= 20
 └── .env.example                 Plantilla de variables de entorno
 ```
 
