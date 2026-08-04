@@ -3,6 +3,37 @@
 Registro de cambios por version. Formato basado en [Keep a Changelog](https://keepachangelog.com/es/1.0.0/).
 Versionado semantico: MAJOR.MINOR.PATCH.
 
+## [3.18.0] — 2026-08-03
+
+### Corregido — GeminiApiClient.js seguia en el SDK deprecado tras la migracion de GeminiAdapter.js
+
+La migracion de `@google/generative-ai` (deprecado, repo renombrado a `deprecated-generative-ai-js`) a `@google/genai` se aplico en `GeminiAdapter.js` pero no en `GeminiApiClient.js` -- el cliente real que consume el bridge MCP (`scripts/mcp-gemini.js` via `McpServerHandlers.js`), que CLAUDE.md exige como tier 0 obligatorio. `package.json` ya habia eliminado la dependencia vieja, asi que `GeminiApiClient.js` fallaba en runtime con `Cannot find module '@google/generative-ai'` -- reproducido en vivo antes del fix. Se agrego un shim de compatibilidad interno (`getModel()` expone `.generateContent()` con la misma forma `result.response.text()`/`result.response.candidates` del SDK viejo) para no tener que tocar `McpServerHandlers.js`. `GEMINI_DEFAULT` sincronizado a `gemini-3.6-flash`. Verificado con llamada real (`callWithRetry` y `buscarWeb` con Google Search grounding, ambos contra la API real de Google).
+
+### Agregado — migracion de SDK Gemini y consenso multi-IA en CrossVerifier
+
+`GeminiAdapter.js` migrado a `@google/genai` (API `ai.models.generateContent`), default actualizado de `gemini-3.5-flash` a `gemini-3.6-flash` en `ModelRouter.js` y el adapter. `CrossVerifier.js` suma `resolverConDesempate()`: consenso automatico 2-de-3 para tareas criticas (`auditar_seguridad_critica`, `disenar_sistema`, `refactorizar_arquitectura`) cuando el primer verificador rechaza -- busca un tercer proveedor distinto y degrada con gracia al veredicto unico si no hay uno disponible. Bug real detectado y corregido en la implementacion antes de cerrarla: la formula inicial (`primerVeredicto.pass && segundoVeredicto.pass`) nunca podia revertir un rechazo inicial. `CrossVerifier` ahora fuerza `gpt-5.6-sol` (el modelo mas capaz, no el default barato) al verificar diffs. Pricing de `gpt-5.6-luna` corregido en `OpenAICompatAdapter.js` (`$0.20/$1.20` real vs `$1/$6` desactualizado, OpenAI recorto el precio el 2026-07-30).
+
+### Agregado — modulo de vanguardia transversal en los 39 skills
+
+Cada skill (excepto `tech-lead-frontend`, que ya lo tenia desde el Modulo 14 "3D Web, Shaders y Experiencias Inmersivas") recibe un modulo nuevo con 4 partes propias de su dominio: identidad declarada antes de ejecutar, lista de patrones prohibidos especificos y reconocibles del dominio (no genericos), gate de calidad medible con umbrales numericos y metodo de verificacion, y bloque de vigencia verificado contra fuente oficial en la tarea (o marcado explicitamente como orientativo cuando no se pudo verificar). `ux-visual-designer` completo su bloque de vigencia faltante, corrigiendo ademas la denominacion imprecisa "Tokens W3C" -- la especificacion vive en el Design Tokens Community Group (DTCG), no en el W3C Standards Track (verificado contra `w3.org/community/design-tokens` y `designtokens.org`, primera version estable 2025.10). Auditoria de calidad post-generacion sobre los 8 skills con mayor riesgo de solape confirmo: sin duplicacion literal, sin contradiccion de umbrales, vigencia siempre marcada correctamente.
+
+Auditoria de gaps/conflictos/vigencia previa a este bloque (11 skills + CLAUDE.md): sourcemaps de produccion, RLS, API senior (versionado/idempotencia/paginacion cursor/GraphQL vs REST), event-driven con Outbox/DLQ, WebSockets/SSE con Redis Pub/Sub, i18n real, offline-first/sync, PCI-DSS/HIPAA, licencias OSS. Vigencia verificada contra fuente oficial: `firebase_vertexai` deprecado a favor de `firebase_ai`, Angular 22 estable, Next.js PPR estable via `cacheComponents` en Next.js 16.
+
+### Corregido — 4 causas raiz reales de flakiness en tests de hooks (condicion de carrera sobre estado compartido en disco)
+
+Investigacion de causa raiz (no solo confirmar que era intermitente, pendiente documentado desde v3.17.4) de 4 tests que fallaban de forma no determinista solo en la suite completa, nunca aislados:
+
+- **`capture-event.js`** hacia `read -> modify -> write` no atomico sobre `EVENTS_QUEUE.json` real sin variable de entorno de override, a diferencia de `circuit-breaker.js` que ya respetaba `AI_CORE_EVENTS_QUEUE_PATH` para el lado de lectura. Dos procesos escribiendo el archivo real en paralelo (dos tests del mismo describe, o un test y el uso real de la sesion) perdian eventos por pisado de escritura. Ahora `capture-event.js` respeta `AI_CORE_EVENTS_QUEUE_PATH`.
+- **`mcp-integrity-check.js`** tenia `BASELINE_PATH` hardcodeado sin override -- mismo patron de bug ya resuelto para `memory-index.js` en v3.17.4. Colisionaba con `health-check.js`, que invoca `verificarIntegridad()` internamente y comparte el mismo archivo real. Ahora respeta `AI_CORE_MCP_BASELINE_PATH`.
+- **`subagent-guard.js`** usa `LOCK_DIR` compartido a nivel de sistema operativo por diseno (para que el limite de `MAX_PARALLEL` cuente subagentes lanzados por cualquier proceso). El test de "supera `MAX_PARALLEL`" corria contra ese mismo directorio real, contaminado por uso real concurrente del Agent tool durante la sesion que ejecuta los tests. Ahora respeta `AI_CORE_SUBAGENT_LOCK_DIR` (opcional, solo para tests -- el comportamiento de produccion no cambia).
+- **`health-check.js`** fallaba de forma mas profunda: `checkSkills()` (`health-sync.js`) hacia `readdirSync` seguido de `statSync` sobre `.claude/skills/` real sin manejo de excepcion -- si otro archivo de test (`health-sync-js-checkskills.test.js`, `validate-globals-js-schema-agentskills-io.test.js`) crea y borra un directorio de skill temporal en la ventana entre ambas llamadas (TOCTOU real, confirmado con log de stack trace instrumentado), `statSync` lanzaba `ENOENT` no capturado, que el `main().catch(() => process.exit(0))` externo de `health-check.js` silenciaba sin loguear -- el hook salia con exit 0 pero sin emitir el banner esperado. `checkSkills()` ahora tolera que un directorio listado desaparezca antes del stat o del read del `SKILL.md`, excluyendolo del conteo en vez de propagar la excepcion.
+
+Verificado: 15 corridas consecutivas de la suite completa sin fallos (antes reproducia en aproximadamente 40% de las corridas). Bajo contencion de recursos artificialmente extrema (6 suites completas en paralelo simultaneo, muy por encima de cualquier uso real) persisten fallos de baja frecuencia en otros tests que dependen del mismo patron de estado compartido en disco -- documentado como deuda tecnica conocida, no bloqueante para uso normal de `npm test`.
+
+### Pendiente
+
+Patron de "estado compartido en disco sin aislamiento por test" identificado como una clase de bug transversal, no agotada por este fix: `tests/harness/validate-agents-js.test.js` y `tests/harness/validate-globals-js-schema-agentskills-io.test.js` siguen creando/borrando entradas reales en `.claude/agents/`/`.claude/skills/` sin nombre unico por proceso -- de bajo riesgo practico (ventana sincrona sin operacion async intermedia, sin fallo reproducido hasta la fecha) pero mismo patron de fondo. Evaluar en una proxima sesion si conviene aislarlos preventivamente o esperar a que un fallo real lo justifique.
+
 ## [3.17.4] — 2026-07-26
 
 ### Corregido — test flaky de memory-index.js por condicion de carrera entre archivos de test paralelos

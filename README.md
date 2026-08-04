@@ -1,4 +1,4 @@
-# AI-CORE v3.17.4: Nucleo Multi-Agente Universal
+# AI-CORE v3.18.0: Nucleo Multi-Agente Universal
 
 `ai-core` es un nucleo de configuracion y comportamiento para agentes IA. Se usa como submodulo Git en un proyecto existente o como repositorio independiente. Define reglas globales, 39 skills especializados, 7 agentes autonomos, un orquestador Mixture-of-Agents (Gemini + DeepSeek + Claude) y un ciclo de mejora continua por uso, sin acoplarse al stack del proyecto anfitrion.
 
@@ -33,7 +33,7 @@ npm install
 npm run setup    # adapta settings.json a tu ruta exacta (cross-platform)
 
 # 3. Verificar que todo funciona
-npm test         # debe terminar: 742 pass, 0 fail
+npm test         # debe terminar: 754 pass, 0 fail
 
 # 4. Autenticar gh CLI para el issue-tracker (una sola vez por maquina)
 gh auth login    # GitHub.com -> HTTPS -> Login with a web browser
@@ -81,7 +81,7 @@ Repositorio independiente:
 npm run update
 ```
 
-Esto corre `git pull`, regenera `settings.json` (purga automaticamente cualquier hook de una version anterior que referencie un script eliminado o renombrado — el objeto de hooks se construye desde cero y sobreescribe el archivo completo, nunca mergea, con la definicion compartida en `hooks-definition.js`), corre los 742 tests, aplica migraciones de version, valida los 39 skills y los 7 agentes, y reporta que cambio. Si un test falla, el comando se detiene ahi.
+Esto corre `git pull`, regenera `settings.json` (purga automaticamente cualquier hook de una version anterior que referencie un script eliminado o renombrado — el objeto de hooks se construye desde cero y sobreescribe el archivo completo, nunca mergea, con la definicion compartida en `hooks-definition.js`), corre los 754 tests, aplica migraciones de version, valida los 39 skills y los 7 agentes, y reporta que cambio. Si un test falla, el comando se detiene ahi.
 
 Instalado como submodulo:
 
@@ -123,7 +123,7 @@ Si no esta autenticado, los eventos se acumulan en `.claude/EVENTS_QUEUE.json` y
 
 ```bash
 npm install                               # instalar dependencias (corre postinstall -> npm run setup)
-npm test                                  # 742 tests, Node nativo, sin deps externas
+npm test                                  # 754 tests, Node nativo, sin deps externas
 npm run setup                             # regenerar settings.json con rutas locales (ya corre solo via postinstall)
 npm run update                            # actualizacion one-command desde GitHub
 npm run validate-globals                  # auditar conformidad de los 39 skills (incluye schema agentskills.io)
@@ -148,6 +148,18 @@ npm run agent-report-full                 # historial de metricas de todas las s
 ---
 
 ## Que trae cada version
+
+### v3.18.0 — SDK Gemini migrado por completo, modulo de vanguardia en los 39 skills, 4 causas raiz de flakiness cerradas
+
+**Bridge MCP Gemini reparado.** La migracion de `@google/generative-ai` (deprecado) a `@google/genai` se habia aplicado en `GeminiAdapter.js` pero no en `GeminiApiClient.js` — el cliente real detras del bridge MCP (tier 0 obligatorio). Rompia en runtime con `Cannot find module`, reproducido en vivo antes del fix. Shim de compatibilidad interno evita tocar `McpServerHandlers.js`. `GEMINI_DEFAULT` sincronizado a `gemini-3.6-flash` en todo el arnes.
+
+**Consenso multi-IA en `CrossVerifier.js`.** `resolverConDesempate()` — 2-de-3 automatico para tareas criticas (`auditar_seguridad_critica`, `disenar_sistema`, `refactorizar_arquitectura`) cuando el primer verificador rechaza, con degradacion con gracia si no hay tercer proveedor. Fuerza `gpt-5.6-sol` (no el default barato) al verificar diffs.
+
+**Modulo de vanguardia transversal en los 39 skills.** Cada skill (`tech-lead-frontend` ya lo tenia desde el Modulo 14 3D Web) recibe: identidad de dominio declarada antes de ejecutar, lista de patrones prohibidos especificos y reconocibles (no genericos), gate de calidad medible con umbrales numericos verificables, y bloque de vigencia contra fuente oficial (o marcado explicito de "orientativo" cuando no se pudo verificar). Ver CHANGELOG.md para el detalle de gaps cerrados y vigencia verificada por skill.
+
+**4 causas raiz reales de flakiness en tests de hooks cerradas** (`capture-event.js`, `mcp-integrity-check.js`, `subagent-guard.js`, `health-check.js`) — todas por el mismo patron de fondo: estado compartido en disco (cola de eventos, baseline de integridad MCP, locks de subagentes, listado de skills) sin aislamiento por proceso de test, agravado en un caso por un TOCTOU real (`readdirSync` + `statSync` sobre un directorio que otro test borra en la ventana intermedia). Variables de entorno nuevas para aislar en tests: `AI_CORE_EVENTS_QUEUE_PATH`, `AI_CORE_MCP_BASELINE_PATH`, `AI_CORE_SUBAGENT_LOCK_DIR` (mismo patron que `AI_CORE_MEMORY_VAULT_PATH` de v3.17.4) — sin ellas, comportamiento identico al actual. Verificado: 15 corridas consecutivas de la suite completa sin fallos.
+
+**754 tests, 39 skills.**
 
 ### v3.17.4 — Test flaky de memory-index.js corregido (condicion de carrera entre archivos de test paralelos)
 
@@ -469,7 +481,7 @@ New-Item -ItemType SymbolicLink -Path './CLAUDE.md' -Target 'C:/ruta/a/ai-core/C
 │   │   ├── ModelDispatcher.js   Router MoA entre proveedores (Command/Port): executeMoATask fan-out/fan-in
 │   │   ├── model-adapters/      Adapters extraidos de ModelRegistry.js (SOLID, <300 lineas c/u)
 │   │   │   ├── AnthropicAdapter.js    Claude Haiku/Sonnet/Opus/Fable via @anthropic-ai/sdk
-│   │   │   ├── GeminiAdapter.js       Gemini 3.5/3.1 via @google/generative-ai
+│   │   │   ├── GeminiAdapter.js       Gemini 3.6/3.1 via @google/genai
 │   │   │   └── OpenAICompatAdapter.js OpenAI/DeepSeek/Kimi — maxTokensParam y soportaJSONMode por proveedor
 │   │   ├── CrossVerifier.js     Verificacion ciega de diffs con proveedor distinto al actor (code-reviewer)
 │   │   ├── SubagentGrader.js    Grader generico de calidad post-subagente via LLM-as-judge (Performance Outcomes)
@@ -526,11 +538,11 @@ New-Item -ItemType SymbolicLink -Path './CLAUDE.md' -Target 'C:/ruta/a/ai-core/C
 │   │   │   └── subagent-task-store.js Correlaciona PreToolUse/SubagentStop por session_id+prompt_id
 │   │   └── memory-vault-prune-check.js Hook Stop: avisa (sin borrar) cuando el vault supera 50 archivos
 │   └── skills/                  39 skills — enrutamiento via frontmatter description (agentskills.io), reglas en CLAUDE.md
-├── tests/                       742 tests — tests/harness/*.test.js (dividido por modulo) + archivos dedicados
+├── tests/                       754 tests — tests/harness/*.test.js (dividido por modulo) + archivos dedicados
 ├── .github/workflows/ci.yml     CI: Ubuntu/Windows Node 20+22, macOS solo Node 22
 ├── CLAUDE.md                    Autoridad unica: reglas globales, skills, enrutamiento
 ├── DEPRECATIONS.json            Contrato de migracion por version
-├── package.json                 v3.17.3, Node >= 20
+├── package.json                 v3.18.0, Node >= 20
 └── .env.example                 Plantilla de variables de entorno
 ```
 
@@ -597,7 +609,7 @@ node .claude/bin/capture-event.js \
 | [MCP Blog](https://blog.modelcontextprotocol.io/) | Release candidates y cambios de protocolo | Mensual |
 | [MCP Spec Changelog](https://modelcontextprotocol.io/changelog) | Transportes, primitivas, politica de deprecacion | Mensual |
 | [npm: @anthropic-ai/sdk](https://www.npmjs.com/package/@anthropic-ai/sdk) | Versiones, breaking changes | Por release |
-| [npm: @google/generative-ai](https://www.npmjs.com/package/@google/generative-ai) | Versiones de Gemini, cambios de API | Por release |
+| [npm: @google/genai](https://www.npmjs.com/package/@google/genai) | Versiones de Gemini, cambios de API | Por release |
 
 Cuando aparezca una capacidad nueva: `npm outdated` para ver si el SDK ya la trae, `npm run update` si hay version nueva, revisar si afecta hooks o `settings.json`, y documentar en `CHANGELOG.md` con la version que la habilita. El detalle del proceso de verificacion (fuentes aceptadas, orden de pasos, alcance de la actualizacion) vive en `CLAUDE.md`, seccion "Protocolo de Vigencia Tecnologica" — no se duplica aqui.
 
@@ -606,7 +618,7 @@ El agente `aiops-auditor` detecta drift de SDK y skills faltantes. Lanzarlo cuan
 ### Variables de entorno — referencia rapida
 
 ```bash
-GEMINI_API_KEY     # Gemini 3.5 Flash / 3.1 Flash-Lite, gratuito, tier 0. Tambien worker ContextGathering de MoA
+GEMINI_API_KEY     # Gemini 3.6 Flash / 3.1 Flash-Lite, gratuito, tier 0. Tambien worker ContextGathering de MoA
 ANTHROPIC_API_KEY  # Claude Haiku/Sonnet/Opus/Fable
 OPENAI_API_KEY     # GPT-5.6 (Sol/Terra/Luna) — opcional, tambien verificador cross-model
 DEEPSEEK_API_KEY   # DeepSeek V4 (Flash/Pro) — opcional, verificador cross-model y worker SyntaxDrafting de MoA
