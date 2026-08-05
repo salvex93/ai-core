@@ -38,6 +38,8 @@ El tier gratuito real de Gemini es 20 requests/min; cada eval consume ~8 (4 caso
 
 Causa real de un `MALFORMED_FUNCTION_CALL` intermitente descubierta al reconfirmar `qa-engineer`: 136 casos de los 42 evals no tenian la clausula `(responde solo en texto, sin invocar ninguna herramienta ni funcion)` que ya protegia a otros casos — sin ella, Gemini interpretaba la instruccion textual "invocar MCP X" del propio SKILL.md como una function-call real y la devolvia malformada, dejando el output vacio. Agregada la clausula a los 136 casos faltantes.
 
+`GEMINI_API_KEY` configurado como GitHub Secret del repositorio (via `gh secret set`) — el `.env` local nunca estuvo conectado al CI, asi que el revert del juez de evals no tenia efecto real en GitHub Actions hasta este paso. Documentado en README.md ("GitHub Secrets para el job de evals en CI") para que no se repita el gap.
+
 ### Corregido — vault de memoria
 
 `memory-vault-prune-check.js` y su test escribian sobre `.claude/memory-vault/.raw/architect/` real del proyecto para simular el umbral de poda; si el hook `Stop` corria mientras esos archivos de test existian, los sintetizaba a `.wiki/architect/` real, dejando residuos huerfanos (ocurrido varias veces en sesiones previas). Aislado con `AI_CORE_MEMORY_VAULT_PATH` (mismo patron que `memory-index.js`), test movido a `os.tmpdir()`.

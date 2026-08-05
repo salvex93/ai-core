@@ -108,6 +108,21 @@ KIMI_API_KEY=      # opcional, Kimi K3, 1M de contexto
 
 Sin la clave, el proveedor simplemente no se usa, no hay errores. `OPENAI_API_KEY` y `DEEPSEEK_API_KEY` cumplen doble funcion: proveedor de costo bajo y verificador cross-model independiente de Claude (ver seccion Cross-Model Verifier mas abajo). `DEEPSEEK_API_KEY` tiene ademas un tercer uso: worker `SyntaxDrafting` del orquestador MoA (ver seccion Arquitectura Multi-Agente). Sin `GEMINI_API_KEY` y `DEEPSEEK_API_KEY` simultaneamente, el fan-out MoA no se activa — el guard de disponibilidad lo salta sin error.
 
+### GitHub Secrets para el job de evals en CI
+
+El `.env` local es independiente de los secrets de GitHub Actions — configurar una clave en `.env` no la hace disponible en el CI. El job "Correr evals de skills de mayor riesgo" (`.github/workflows/ci.yml`) necesita `GEMINI_API_KEY` como GitHub Secret del repositorio:
+
+```bash
+# Configurar (una vez, requiere permisos de administrador del repo):
+gh secret set GEMINI_API_KEY --repo <owner>/<repo>
+# pega el valor cuando lo pida, o usa < archivo / variable de entorno
+
+# Verificar que quedo registrado (nunca muestra el valor):
+gh secret list --repo <owner>/<repo>
+```
+
+Sin este secret, el job de evals falla o se salta en cada corrida de CI, independientemente de que `.env` local este completo.
+
 ### Verificar que el issue-tracker esta activo
 
 ```bash
