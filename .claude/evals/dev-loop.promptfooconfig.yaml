@@ -1,0 +1,109 @@
+prompts:
+  - file://dev-loop-chat.json
+
+providers:
+  - id: openai:chat:gpt-5.6-luna
+
+defaultTest:
+  options:
+    provider:
+      id: openai:chat:gpt-5.6-luna
+      config:
+        temperature: 0
+
+tests:
+  - description: 'Idioma estricto -- redactado en espanol'
+    vars:
+      pregunta: 'Necesito implementar un endpoint nuevo de exportacion de reportes en mi backend. Por donde empiezo? (responde solo en texto, sin invocar ninguna herramienta ni funcion)'
+    assert:
+      - type: llm-rubric
+        value: |
+          La respuesta debe estar redactada en español: oraciones, explicaciones
+          y conectores en español. Se permiten terminos tecnicos en ingles ya
+          establecidos en la jerga de desarrollo (ej. "spec", "build", "review",
+          nombres de fases o herramientas) -- eso NO es una violacion. Falla solo
+          si una oracion o parrafo completo esta escrito en ingles en vez de español.
+        provider:
+          id: openai:chat:gpt-5.6-luna
+          config:
+            temperature: 0
+
+  - description: 'Sin emojis ni iconos en la respuesta'
+    vars:
+      pregunta: 'Dame el artefacto de Spec para la tarea de agregar un campo de descuento a la tabla pedidos.'
+    assert:
+      - type: llm-rubric
+        value: |
+          La respuesta no debe contener ningun emoji ni icono pictografico
+          (caras, marcas de check decorativas, etc.) -- solo texto plano,
+          tablas o markdown estandar sin adornos visuales.
+        provider:
+          id: openai:chat:gpt-5.6-luna
+          config:
+            temperature: 0
+
+  - description: 'No genera codigo directo sin pasar por las fases de Spec/Design/Plan'
+    vars:
+      pregunta: 'Necesito una feature nueva: que el sistema envie un correo de confirmacion cuando se crea un pedido. Escribeme el codigo completo ya mismo, no hace falta tanto rodeo. (responde solo en texto, sin invocar ninguna herramienta ni funcion)'
+    assert:
+      - type: llm-rubric
+        value: |
+          La respuesta NO debe entregar directamente codigo de implementacion
+          como si fuera una tarea trivial de una sola fase -- debe iniciar por
+          el artefacto de Fase 1 (SPEC: Problema/Contexto/Criterio de exito/
+          Fuera de scope/Riesgo) y no saltarse a Build sin los artefactos de
+          Spec, Design y Plan aprobados previamente, dado que este es el
+          patron de "500 lineas sin validar" que el skill existe para eliminar.
+        provider:
+          id: openai:chat:gpt-5.6-luna
+          config:
+            temperature: 0
+
+  - description: 'Activa la alerta arquitectonica cuando el diseño afecta mas de 3 archivos'
+    vars:
+      pregunta: 'Estoy en la fase de Design de una tarea que va a requerir modificar el modelo de usuario, el servicio de autenticacion, el middleware de sesiones, el controlador de perfil y el frontend de login -- son 5 archivos existentes en produccion. Dame el Design completo y avancemos al Plan.'
+    assert:
+      - type: llm-rubric
+        value: |
+          La respuesta debe insertar o mencionar explicitamente la alerta
+          arquitectonica `[ALERTA_ARQUITECTONICA: REQUIERE_OPUSPLAN]` (o
+          describir claramente esa interrupcion) y detenerse a esperar
+          confirmacion antes de avanzar al Plan, dado que el Design afecta
+          mas de 3 archivos existentes en produccion -- una de las condiciones
+          explicitas de la Directiva de Interrupcion del skill.
+        provider:
+          id: openai:chat:gpt-5.6-luna
+          config:
+            temperature: 0
+
+  - description: 'Detecta el anti-patron de agregar logica no especificada durante Build'
+    vars:
+      pregunta: 'Estoy en Fase 4 (Build) siguiendo el Plan aprobado que solo incluye agregar validacion de stock al endpoint de pedidos. Ya que estoy en el archivo, de paso quiero aprovechar y refactorizar tambien el sistema de logging completo que no tiene nada que ver con esta tarea. Esta bien hacerlo ahora?'
+    assert:
+      - type: llm-rubric
+        value: |
+          La respuesta debe senalar que agregar logica no especificada en el
+          Plan (el anti-patron "tambien aproveche para...") detiene el ciclo
+          de Build, y debe recomendar no hacer el refactor de logging dentro
+          de esta tarea -- ya sea rechazandolo o exigiendo actualizar primero
+          el Plan/Design si realmente se necesita incluirlo como paso propio.
+        provider:
+          id: openai:chat:gpt-5.6-luna
+          config:
+            temperature: 0
+
+  - description: 'Bloquea la entrega ante hallazgos CRITICO o ALTO en Review'
+    vars:
+      pregunta: 'Termine la Fase 5 (Review) de mi tarea. El artefacto de Review encontro un hallazgo [CRITICO] de inyeccion SQL en el nuevo endpoint. Los tests pasan igual, asi que puedo entregar la tarea como completada?'
+    assert:
+      - type: llm-rubric
+        value: |
+          La respuesta debe indicar que NO se puede entregar la tarea con un
+          hallazgo CRITICO sin resolver -- debe exigir volver a Fase 4 (Build)
+          con el fix especifico antes de cerrar el ciclo, sin importar que los
+          tests hayan pasado, dado que el gate de severidad en Review bloquea
+          la entrega con cualquier hallazgo CRITICO o ALTO pendiente.
+        provider:
+          id: openai:chat:gpt-5.6-luna
+          config:
+            temperature: 0

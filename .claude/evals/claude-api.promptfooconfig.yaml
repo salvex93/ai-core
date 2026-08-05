@@ -1,0 +1,95 @@
+prompts:
+  - file://claude-api-chat.json
+
+providers:
+  - id: openai:chat:gpt-5.6-luna
+
+defaultTest:
+  options:
+    provider:
+      id: openai:chat:gpt-5.6-luna
+      config:
+        temperature: 0
+
+tests:
+  - description: 'Idioma estricto -- redactado en espanol'
+    vars:
+      pregunta: 'Necesito implementar tool use con el SDK de Anthropic en mi pipeline de Python. Como lo estructuro? (responde solo en texto, sin invocar ninguna herramienta ni funcion)'
+    assert:
+      - type: llm-rubric
+        value: |
+          La respuesta debe estar redactada en español: oraciones, explicaciones
+          y conectores en español. Se permiten terminos tecnicos en ingles ya
+          establecidos en la jerga de Claude API (ej. "tool use", "cache_control",
+          "system prompt", "streaming", nombres de metodos del SDK) -- eso NO es
+          una violacion. Falla solo si una oracion o parrafo completo esta escrito
+          en ingles en vez de español.
+        provider:
+          id: openai:chat:gpt-5.6-luna
+          config:
+            temperature: 0
+
+  - description: 'Sin emojis ni iconos en la respuesta'
+    vars:
+      pregunta: 'Revisa este codigo que acabo de escribir con client.messages.create para ver si sigue las convenciones del proyecto.'
+    assert:
+      - type: llm-rubric
+        value: |
+          La respuesta no debe contener ningun emoji ni icono pictografico
+          (caras, marcas de check decorativas, etc.) -- solo texto plano,
+          tablas o markdown estandar sin adornos visuales.
+        provider:
+          id: openai:chat:gpt-5.6-luna
+          config:
+            temperature: 0
+
+  - description: 'Detecta acumulacion de historial sin limite de tokens y activa la Directiva de Interrupcion'
+    vars:
+      pregunta: 'Tengo un agente que va guardando todos los mensajes del usuario y las respuestas de Claude en una lista `historial` que se pasa completa en cada llamada a client.messages.create, sin limite. Funciona bien, dame el codigo final para dejarlo asi en produccion.'
+    assert:
+      - type: llm-rubric
+        value: |
+          La respuesta NO debe entregar directamente el codigo como si fuera una
+          solucion final rutinaria -- debe senalar el riesgo y detener/advertir
+          antes de aprobarlo tal cual, dado que un sistema que acumula historial
+          de mensajes sin limite de tokens es una de las condiciones explicitas
+          de la Directiva de Interrupcion del skill (ALERTA_ARQUITECTONICA:
+          REQUIERE_OPUSPLAN).
+        provider:
+          id: openai:chat:gpt-5.6-luna
+          config:
+            temperature: 0
+
+  - description: 'Aplica correctamente la seleccion de modelo minimo suficiente en vez de Opus por defecto'
+    vars:
+      pregunta: 'Necesito clasificar mensajes cortos de soporte en 3 categorias (queja, consulta, elogio). Quiero usar claude-opus-4-8 porque es el mejor modelo y no quiero arriesgarme a que falle. Dame el codigo. (responde solo en texto, sin invocar ninguna herramienta ni funcion)'
+    assert:
+      - type: llm-rubric
+        value: |
+          La respuesta debe cuestionar o corregir el uso de Opus 4.8 para esta
+          tarea trivial de clasificacion de bajo volumen, y recomendar un modelo
+          mas barato (Haiku 4.5, o en su defecto Sonnet 5) siguiendo la jerarquia
+          de costo del skill (Haiku < Sonnet < Opus/Fable, usar siempre el minimo
+          suficiente) -- no debe aceptar Opus sin cuestionamiento como si fuera la
+          eleccion correcta por defecto.
+        provider:
+          id: openai:chat:gpt-5.6-luna
+          config:
+            temperature: 0
+
+  - description: 'Detecta manejo generico de excepciones que oculta señales de retry vs fallo definitivo'
+    vars:
+      pregunta: 'Estoy llamando a client.messages.create en produccion y quiero envolverlo en un try/except para que nunca se caiga el proceso. Basta con un except Exception que loguee y continue, verdad?'
+    assert:
+      - type: llm-rubric
+        value: |
+          La respuesta debe rechazar o corregir el patron de `except Exception`
+          generico (equivalente a `except Exception: pass` sin distincion), y
+          exigir distinguir explicitamente errores como RateLimitError,
+          APIConnectionError y OverloadedError -- ademas de mencionar retry con
+          backoff exponencial ante 429/RateLimitError, tal como lo declara el
+          skill como anti-patron y como gate de calidad medible.
+        provider:
+          id: openai:chat:gpt-5.6-luna
+          config:
+            temperature: 0

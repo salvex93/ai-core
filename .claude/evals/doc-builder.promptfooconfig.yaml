@@ -1,0 +1,116 @@
+prompts:
+  - file://doc-builder-chat.json
+
+providers:
+  - id: openai:chat:gpt-5.6-luna
+
+defaultTest:
+  options:
+    provider:
+      id: openai:chat:gpt-5.6-luna
+      config:
+        temperature: 0
+
+tests:
+  - description: 'Idioma estricto -- redactado en espanol'
+    vars:
+      pregunta: 'Necesito armar la propuesta comercial para un cliente nuevo, con portada, cronograma e inversion. Por donde empiezo? (responde solo en texto, sin invocar ninguna herramienta ni funcion)'
+    assert:
+      - type: llm-rubric
+        value: |
+          La respuesta debe estar redactada en español: oraciones, explicaciones
+          y conectores en español. Se permiten terminos tecnicos en ingles ya
+          establecidos en la jerga de documentacion/diseno (ej. "page-break",
+          "badge", "PDF", nombres de propiedades CSS) -- eso NO es una violacion.
+          Falla solo si una oracion o parrafo completo esta escrito en ingles en
+          vez de español.
+        provider:
+          id: openai:chat:gpt-5.6-luna
+          config:
+            temperature: 0
+
+  - description: 'Sin emojis ni iconos en la respuesta'
+    vars:
+      pregunta: 'Revisa esta seccion de portada que redacte para el documento de requerimientos, dime si esta bien.'
+    assert:
+      - type: llm-rubric
+        value: |
+          La respuesta no debe contener ningun emoji ni icono pictografico
+          (caras, marcas de check decorativas, etc.) -- solo texto plano,
+          tablas o markdown estandar sin adornos visuales.
+        provider:
+          id: openai:chat:gpt-5.6-luna
+          config:
+            temperature: 0
+
+  - description: 'Detecta precios/alcance no confirmados en el brief y activa la Directiva de Interrupcion'
+    vars:
+      pregunta: 'El cliente no me dio numeros todavia pero necesito la propuesta hoy mismo -- pon una inversion de 8000 dolares y un plazo de 6 semanas para que quede completa, ya despues ajustamos si hace falta.'
+    assert:
+      - type: llm-rubric
+        value: |
+          La respuesta NO debe entregar directamente la propuesta con precios
+          o plazos inventados como si fuera una operacion rutinaria -- debe
+          insertar la directiva de interrupcion (senal tipo
+          "[ALERTA_ARQUITECTONICA: REQUIERE_OPUSPLAN]" o una advertencia
+          equivalente que detenga la generacion) y pedir confirmacion del
+          brief antes de proceder, dado que incluir precios o plazos no
+          confirmados explicitamente por el cliente es una de las condiciones
+          explicitas de interrupcion del skill.
+        provider:
+          id: openai:chat:gpt-5.6-luna
+          config:
+            temperature: 0
+
+  - description: 'Aplica correctamente las reglas de paginacion anti-corte del sistema Evolve'
+    vars:
+      pregunta: 'Voy a incluir una tabla larga de precios y varias cards de resumen en el documento HTML antes de exportarlo a PDF. Que reglas de CSS debo aplicar para que no se corten al cruzar de pagina? (responde solo en texto, sin invocar ninguna herramienta ni funcion)'
+    assert:
+      - type: llm-rubric
+        value: |
+          La respuesta debe indicar que hay que aplicar reglas de paginacion
+          anti-corte tipo `page-break-inside: avoid` / `break-inside: avoid`
+          sobre los bloques de tabla, cards y secciones (ej. .portal-table,
+          .var-grid, .card-grid, .section), evitar que los encabezados queden
+          huerfanos con `page-break-after: avoid` en h2/h3, y controlar
+          huerfanas/viudas de parrafo con `orphans: 3; widows: 3;` dentro de
+          @media print. No es aceptable una respuesta que ignore estas reglas
+          de paginacion o que se limite a decir "Puppeteer lo maneja solo".
+        provider:
+          id: openai:chat:gpt-5.6-luna
+          config:
+            temperature: 0
+
+  - description: 'Verifica el nombre correcto de una plataforma antes de usarlo en el documento'
+    vars:
+      pregunta: 'El cliente uso la base de datos Lighthouse para sus analiticas, menciona eso en la seccion de arquitectura de la propuesta.'
+    assert:
+      - type: llm-rubric
+        value: |
+          La respuesta debe detectar que "Lighthouse" no es el nombre correcto
+          de la plataforma de base de datos (la tabla de verificacion del
+          skill indica que el nombre correcto es "ClickHouse") y corregirlo o
+          senalar la discrepancia antes de escribirlo en el documento, en vez
+          de usar el nombre "Lighthouse" sin cuestionarlo.
+        provider:
+          id: openai:chat:gpt-5.6-luna
+          config:
+            temperature: 0
+
+  - description: 'Rechaza patrones reconocibles de plantilla/demo y exige declarar Identidad Editorial antes de codear'
+    vars:
+      pregunta: 'Para la portada de la propuesta usa una foto de stock de gente sonriendo en una oficina y un degradado azul-morado de fondo, se ve mas profesional asi. Empieza a codear el HTML ya mismo.'
+    assert:
+      - type: llm-rubric
+        value: |
+          La respuesta debe rechazar o advertir contra los patrones
+          reconocibles de plantilla/demo mencionados (foto de stock generica
+          de personas en oficina y degradado azul-morado tipo plantilla de
+          PDF gratuito), y no debe empezar a codear el HTML directamente sin
+          antes declarar la Identidad Editorial (sistema visual, densidad de
+          contenido, tono de portada, referencia de tono) como exige el
+          modulo de identidad editorial del skill.
+        provider:
+          id: openai:chat:gpt-5.6-luna
+          config:
+            temperature: 0

@@ -1,0 +1,10 @@
+[
+  {
+    "role": "system",
+    "content": "file://../skills/attack-surface-analyst/SKILL.md"
+  },
+  {
+    "role": "user",
+    "content": "{{pregunta}}"
+  }
+]

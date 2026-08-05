@@ -1,0 +1,108 @@
+prompts:
+  - file://data-engineer-chat.json
+
+providers:
+  - id: openai:chat:gpt-5.6-luna
+
+defaultTest:
+  vars:
+    skill_content: file://../skills/data-engineer/SKILL.md
+  options:
+    provider:
+      id: openai:chat:gpt-5.6-luna
+      config:
+        temperature: 0
+
+tests:
+  - description: 'Idioma estricto -- redactado en espanol'
+    vars:
+      pregunta: 'Necesito diseñar la capa Silver de mi pipeline de pedidos. Que debo considerar? (responde solo en texto, sin invocar ninguna herramienta ni funcion)'
+    assert:
+      - type: llm-rubric
+        value: |
+          La respuesta debe estar redactada en español: oraciones, explicaciones
+          y conectores en español. Se permiten terminos tecnicos en ingles ya
+          establecidos en la jerga de data engineering (ej. "pipeline", "backfill",
+          "freshness", nombres de herramientas como dbt/Airflow/Dagster) -- eso NO
+          es una violacion. Falla solo si una oracion o parrafo completo esta
+          escrito en ingles en vez de español.
+        provider:
+          id: openai:chat:gpt-5.6-luna
+          config:
+            temperature: 0
+
+  - description: 'Sin emojis ni iconos en la respuesta'
+    vars:
+      pregunta: 'Revisa este modelo dbt que acabo de escribir para ver si cumple las convenciones de calidad de datos del proyecto.'
+    assert:
+      - type: llm-rubric
+        value: |
+          La respuesta no debe contener ningun emoji ni icono pictografico
+          (caras, marcas de check decorativas, etc.) -- solo texto plano,
+          tablas o markdown estandar sin adornos visuales.
+        provider:
+          id: openai:chat:gpt-5.6-luna
+          config:
+            temperature: 0
+
+  - description: 'Detecta cambio de esquema con Data Contract activo y activa la Directiva de Interrupcion'
+    vars:
+      pregunta: 'Necesito eliminar la columna total_usd de la tabla fct_pedidos en Gold y reemplazarla por total_centavos, esta tabla tiene un Data Contract activo con el equipo de BI. Dame el cambio ahora mismo, es urgente.'
+    assert:
+      - type: llm-rubric
+        value: |
+          La respuesta NO debe entregar directamente el cambio de esquema como
+          si fuera una operacion rutinaria -- debe detener y pedir un plan
+          aprobado (y mencionar la necesidad de notificar a los consumidores
+          declarados en el Data Contract) antes de proceder, dado que modificar
+          el esquema de una tabla con consumidores en un Data Contract activo
+          es una de las condiciones explicitas de interrupcion del skill.
+        provider:
+          id: openai:chat:gpt-5.6-luna
+          config:
+            temperature: 0
+
+  - description: 'Aplica correctamente la estrategia de deduplicacion en la capa Silver'
+    vars:
+      pregunta: 'Tengo datos duplicados llegando a mi capa Silver desde la fuente CRM de clientes. Estaba pensando en usar SELECT DISTINCT * o quedarme con el ultimo por timestamp. Cual es la forma correcta de deduplicar? (responde solo en texto, sin invocar ninguna herramienta ni funcion)'
+    assert:
+      - type: llm-rubric
+        value: |
+          La respuesta debe señalar que SELECT DISTINCT * y usar row_number()
+          sobre timestamps como unica estrategia no son la forma correcta de
+          deduplicar en Silver, y debe indicar que la deduplicacion debe usar
+          una clave de negocio definida en el Data Contract del productor.
+        provider:
+          id: openai:chat:gpt-5.6-luna
+          config:
+            temperature: 0
+
+  - description: 'Recomienda el orquestador correcto segun el contexto del proyecto (greenfield con dbt)'
+    vars:
+      pregunta: 'Estoy arrancando un proyecto de datos greenfield, todavia no tengo orquestador elegido, pero ya se que voy a usar dbt intensivamente para las transformaciones. Que orquestador me recomiendas?'
+    assert:
+      - type: llm-rubric
+        value: |
+          La respuesta debe recomendar Dagster para este escenario (proyecto
+          greenfield con uso intensivo de dbt, modelo asset-centric alineado
+          con los modelos dbt), no Airflow como default generico sin
+          justificar el contexto.
+        provider:
+          id: openai:chat:gpt-5.6-luna
+          config:
+            temperature: 0
+
+  - description: 'Exige idempotencia en tareas de carga sobre datos de produccion'
+    vars:
+      pregunta: 'Voy a escribir la tarea de carga de mi DAG de Airflow que inserta los pedidos transformados en la tabla de produccion. Puedo simplemente usar un INSERT normal para que sea mas rapido? (responde solo en texto, sin invocar ninguna herramienta ni funcion)'
+    assert:
+      - type: llm-rubric
+        value: |
+          La respuesta debe rechazar el INSERT simple sin verificacion de
+          duplicados y exigir que la carga sea idempotente usando MERGE/UPSERT
+          o INSERT OVERWRITE, explicando que ejecutar la tarea dos veces con
+          el mismo rango de fechas debe producir el mismo resultado.
+        provider:
+          id: openai:chat:gpt-5.6-luna
+          config:
+            temperature: 0

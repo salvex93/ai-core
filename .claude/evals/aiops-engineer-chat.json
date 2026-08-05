@@ -1,0 +1,10 @@
+[
+  {
+    "role": "system",
+    "content": "file://../skills/aiops-engineer/SKILL.md"
+  },
+  {
+    "role": "user",
+    "content": "{{pregunta}}"
+  }
+]

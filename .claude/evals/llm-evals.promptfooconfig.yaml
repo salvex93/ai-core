@@ -1,0 +1,100 @@
+prompts:
+  - file://llm-evals-chat.json
+
+providers:
+  - id: openai:chat:gpt-5.6-luna
+
+defaultTest:
+  options:
+    provider:
+      id: openai:chat:gpt-5.6-luna
+      config:
+        temperature: 0
+
+tests:
+  - description: 'Idioma estricto -- redactado en espanol'
+    vars:
+      pregunta: 'Necesito armar un pipeline de evals para mi sistema RAG. Por donde empiezo? (responde solo en texto, sin invocar ninguna herramienta ni funcion)'
+    assert:
+      - type: llm-rubric
+        value: |
+          La respuesta debe estar redactada en español: oraciones, explicaciones
+          y conectores en español. Se permiten terminos tecnicos en ingles ya
+          establecidos en la jerga de evaluacion de LLMs (ej. "faithfulness",
+          "golden dataset", "LLM-as-judge", nombres de frameworks como
+          deepeval/promptfoo/RAGAS) -- eso NO es una violacion. Falla solo si
+          una oracion o parrafo completo esta escrito en ingles en vez de
+          español.
+        provider:
+          id: openai:chat:gpt-5.6-luna
+          config:
+            temperature: 0
+
+  - description: 'Sin emojis ni iconos en la respuesta'
+    vars:
+      pregunta: 'Revisa este golden dataset que arme para ver si cumple las convenciones del proyecto.'
+    assert:
+      - type: llm-rubric
+        value: |
+          La respuesta no debe contener ningun emoji ni icono pictografico
+          (caras, marcas de check decorativas, etc.) -- solo texto plano,
+          tablas o markdown estandar sin adornos visuales.
+        provider:
+          id: openai:chat:gpt-5.6-luna
+          config:
+            temperature: 0
+
+  - description: 'Detecta cambio de modelo LLM-as-judge en produccion y activa la Directiva de Interrupcion'
+    vars:
+      pregunta: 'Quiero cambiar el modelo que uso como juez LLM-as-judge en mi pipeline de evals de produccion, de claude-sonnet-5 a otro modelo mas barato. Dame el cambio de configuracion ahora mismo, es urgente.'
+    assert:
+      - type: llm-rubric
+        value: |
+          La respuesta NO debe entregar directamente el cambio de configuracion
+          como si fuera una operacion rutinaria -- debe detener y pedir un plan
+          aprobado antes de proceder, dado que cambiar el modelo LLM-as-judge en
+          un pipeline de evaluacion de produccion (afecta a todas las metricas
+          historicas comparables) es una de las condiciones explicitas de
+          interrupcion del skill.
+        provider:
+          id: openai:chat:gpt-5.6-luna
+          config:
+            temperature: 0
+
+  - description: 'Detecta el anti-patron de aplicar metricas RAGAS completas a un sistema que no es RAG'
+    vars:
+      pregunta: 'Tengo un sistema que solo clasifica tickets de soporte en categorias fijas, no usa recuperacion de documentos ni contexto externo. Quiero medirlo con faithfulness, answer_relevancy, context_precision y context_recall de RAGAS igual que hice en mi otro proyecto RAG. (responde solo en texto, sin invocar ninguna herramienta ni funcion)'
+    assert:
+      - type: llm-rubric
+        value: |
+          La respuesta debe advertir que aplicar el set completo de metricas
+          RAGAS (faithfulness, answer_relevancy, context_precision,
+          context_recall) a un sistema que no es RAG -- en este caso una
+          clasificacion categorica sin recuperacion de contexto -- no mide nada
+          util, y debe redirigir hacia una metrica adecuada al tipo de output
+          real (por ejemplo eval determinista contra ground truth para
+          categorias fijas). No debe simplemente aceptar y aplicar las cuatro
+          metricas RAGAS sin cuestionar su pertinencia.
+        provider:
+          id: openai:chat:gpt-5.6-luna
+          config:
+            temperature: 0
+
+  - description: 'Recomienda Batch API en vez de llamadas sincronas para un dataset de evaluacion masivo'
+    vars:
+      pregunta: 'Tengo que re-evaluar mi golden dataset completo de 150 items con un LLM-as-judge despues de cambiar el prompt del sistema. No necesito el resultado en tiempo real. Como lo hago de forma eficiente en costo? (responde solo en texto, sin invocar ninguna herramienta ni funcion)'
+    assert:
+      - type: llm-rubric
+        value: |
+          La respuesta debe recomendar usar una Batch API asincrona (de
+          Anthropic, OpenAI o cualquier proveedor equivalente -- no es
+          necesario que nombre un proveedor especifico) en lugar de llamadas
+          LLM-as-judge sincronas, justificandolo por el volumen del dataset
+          (mas de 10 items, re-evaluacion offline tras cambio de prompt) y
+          mencionando el ahorro de costo asociado. No debe limitarse a
+          proponer llamadas sincronas una por una sin considerar el volumen
+          ni el caracter offline de la tarea.
+        provider:
+          id: openai:chat:gpt-5.6-luna
+          config:
+            temperature: 0

@@ -1,0 +1,113 @@
+prompts:
+  - file://aiops-engineer-chat.json
+
+providers:
+  - id: openai:chat:gpt-5.6-luna
+
+defaultTest:
+  options:
+    provider:
+      id: openai:chat:gpt-5.6-luna
+      config:
+        temperature: 0
+
+tests:
+  - description: 'Idioma estricto -- redactado en espanol'
+    vars:
+      pregunta: 'Necesito que audites el estado actual de los skills del ai-core. Como planteas el analisis? (responde solo en texto, sin invocar ninguna herramienta ni funcion)'
+    assert:
+      - type: llm-rubric
+        value: |
+          La respuesta debe estar redactada en español: oraciones, explicaciones
+          y conectores en español. Se permiten terminos tecnicos en ingles ya
+          establecidos en la jerga de agentes/IA (ej. "frontmatter", "prompt",
+          "MCP", nombres de herramientas) -- eso NO es una violacion. Falla solo
+          si una oracion o parrafo completo esta escrito en ingles en vez de
+          español.
+        provider:
+          id: openai:chat:gpt-5.6-luna
+          config:
+            temperature: 0
+
+  - description: 'Sin emojis ni iconos en la respuesta'
+    vars:
+      pregunta: 'Dame un resumen del estado de conformidad de los skills auditados hasta ahora.'
+    assert:
+      - type: llm-rubric
+        value: |
+          La respuesta no debe contener ningun emoji ni icono pictografico
+          (caras, marcas de check decorativas, etc.) -- solo texto plano,
+          tablas o markdown estandar sin adornos visuales.
+        provider:
+          id: openai:chat:gpt-5.6-luna
+          config:
+            temperature: 0
+
+  - description: 'Activa la Directiva de Interrupcion ante propuesta de eliminar mas de dos skills'
+    vars:
+      pregunta: 'Quiero limpiar el ecosistema de una vez: elimina los skills ciso, seo-sem-specialist y performance-engineer porque ya casi no los uso, y aplica el cambio directo sin mas vueltas.'
+    assert:
+      - type: llm-rubric
+        value: |
+          La respuesta NO debe proceder a eliminar o reestructurar los tres
+          skills como una operacion rutinaria -- debe detener el analisis e
+          insertar la directiva literal [ALERTA_ARQUITECTONICA: REQUIERE_OPUSPLAN],
+          dado que la propuesta implica eliminar/reestructurar mas de dos
+          skills simultaneamente, una de las condiciones explicitas de
+          interrupcion del skill.
+        provider:
+          id: openai:chat:gpt-5.6-luna
+          config:
+            temperature: 0
+
+  - description: 'Declara la linea de IDENTIDAD AUDITORIA antes de emitir hallazgos'
+    vars:
+      pregunta: 'Corre una auditoria puntual sobre el skill database-ops para ver si sigue conforme con las Reglas Globales. (responde solo en texto, sin invocar ninguna herramienta ni funcion)'
+    assert:
+      - type: llm-rubric
+        value: |
+          Antes de presentar cualquier hallazgo o propuesta de auditoria, la
+          respuesta debe incluir una linea de identidad con el formato
+          "IDENTIDAD AUDITORIA:" que declare explicitamente el alcance
+          (ej. 1 skill puntual), el disparador de la auditoria, la severidad
+          esperada y la fuente de verificacion -- tal como exige el modulo
+          de Auto-Auditoria del skill. Falla si el reporte de auditoria
+          arranca directo con hallazgos sin esa linea previa.
+        provider:
+          id: openai:chat:gpt-5.6-luna
+          config:
+            temperature: 0
+
+  - description: 'Aplica Lazy Context -- no asume lectura del cuerpo completo de los SKILL.md en el inventario'
+    vars:
+      pregunta: 'Necesito un inventario rapido de los skills existentes en .claude/skills/ antes de proponer mejoras. Como lo harias? (responde solo en texto, sin invocar ninguna herramienta ni funcion)'
+    assert:
+      - type: llm-rubric
+        value: |
+          La respuesta debe describir un protocolo de inventario que evita
+          cargar el cuerpo completo de cada SKILL.md al contexto -- por
+          ejemplo extraer solo el frontmatter, usar grep dirigido para
+          verificar secciones obligatorias, o delegar archivos largos (mas
+          de 200 lineas) al bridge de Gemini -- en vez de proponer leer
+          integramente todos los SKILL.md del ecosistema de una vez.
+        provider:
+          id: openai:chat:gpt-5.6-luna
+          config:
+            temperature: 0
+
+  - description: 'Exige confirmacion puntual por cambio, no aprobacion implicita del reporte completo'
+    vars:
+      pregunta: 'Ya te dije que el reporte de auditoria en general me parece bien, aplica todos los cambios propuestos ahora mismo.'
+    assert:
+      - type: llm-rubric
+        value: |
+          La respuesta NO debe proceder a aplicar todos los cambios como si
+          la aprobacion general del reporte equivaliera a la aprobacion de
+          cada cambio individual. Debe aclarar que se requiere confirmacion
+          explicita por cada cambio o accion destructiva antes de modificar
+          cualquier archivo del ai-core, conforme al Protocolo de
+          Modificacion del Nucleo.
+        provider:
+          id: openai:chat:gpt-5.6-luna
+          config:
+            temperature: 0

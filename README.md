@@ -1,4 +1,4 @@
-# AI-CORE v3.27.0: Nucleo Multi-Agente Universal
+# AI-CORE v3.28.0: Nucleo Multi-Agente Universal
 
 `ai-core` es un nucleo de configuracion y comportamiento para agentes IA. Se usa como submodulo Git en un proyecto existente o como repositorio independiente. Define reglas globales, 42 skills especializados, 7 agentes autonomos, un orquestador Mixture-of-Agents (Gemini + DeepSeek + Claude) y un ciclo de mejora continua por uso, sin acoplarse al stack del proyecto anfitrion.
 
@@ -33,7 +33,7 @@ npm install
 npm run setup    # adapta settings.json a tu ruta exacta (cross-platform)
 
 # 3. Verificar que todo funciona
-npm test         # debe terminar: 754 pass, 0 fail
+npm test         # debe terminar: 869 pass, 0 fail
 
 # 4. Autenticar gh CLI para el issue-tracker (una sola vez por maquina)
 gh auth login    # GitHub.com -> HTTPS -> Login with a web browser
@@ -123,7 +123,7 @@ Si no esta autenticado, los eventos se acumulan en `.claude/EVENTS_QUEUE.json` y
 
 ```bash
 npm install                               # instalar dependencias (corre postinstall -> npm run setup)
-npm test                                  # 754 tests, Node nativo, sin deps externas
+npm test                                  # 869 tests, Node nativo, sin deps externas
 npm run setup                             # regenerar settings.json con rutas locales (ya corre solo via postinstall)
 npm run update                            # actualizacion one-command desde GitHub
 npm run validate-globals                  # auditar conformidad de los 42 skills (incluye schema agentskills.io)
@@ -145,11 +145,22 @@ npm run memory-query "<terminos>"         # buscar en vault (BM25)
 npm run memory-status                     # estado del vault
 npm run agent-report                      # resumen de metricas de la sesion actual
 npm run agent-report-full                 # historial de metricas de todas las sesiones
+npm run eval-skills                       # correr los 42 evals de conformidad de skills (promptfoo)
 ```
 
 ---
 
 ## Que trae cada version
+
+### v3.28.0 — evals completos en los 42 skills, gaps reales de conformidad corregidos
+
+Cierre del piloto de evals: se generan y verifican los 34 evals faltantes (los 8 previos ya cubrian `security-auditor`, `ciso`, `qa-engineer`, `ai-guardrails`, `devops-infra`, `database-ops`, `cloud-deployment-specialist`, `backend-architect`). Cada eval nuevo sigue el mismo patron (idioma, ausencia de emojis, 2-4 casos especificos de dominio derivados literalmente del SKILL.md real, juez `openai:chat:gpt-5.6-luna`).
+
+La corrida real de los evals nuevos encontro 7 gaps de conformidad reales (no defectos del test) en skills existentes, corregidos con un ajuste quirurgico al SKILL.md y re-verificados: `aiops-engineer` y `claude-api` no emitian su propio marcador `[ALERTA_ARQUITECTONICA: REQUIERE_OPUSPLAN]` en casos que la Directiva de Interrupcion exige explicitamente; `claude-api` ademas aprobaba codigo de produccion en el mismo turno que la alerta; `app-store-publisher` entregaba un comando sensible de rotacion de keystore sin esperar confirmacion humana; `audio-voice-engineer` omitia advertir sobre un modelo Live API apagado mencionado por el usuario; `release-manager` no vinculaba `feat:` con su incremento de version MENOR; `seo-sem-specialist` rechazaba tecnicas black-hat sin redirigir a alternativas white-hat; `agent-testing` invadia territorio de `llm-evals` al disenar tests de faithfulness semantica.
+
+Fix de infraestructura reusable: `tech-lead-frontend` y `web-scraping-specialist` tienen SKILL.md con JSX/f-strings con llaves dobles literales que el motor Nunjucks de promptfoo interpretaba como variables de template, rompiendo el eval antes de invocar al modelo. Se agrego `.claude/evals/prompt-loader.js`, que arma el prompt de chat leyendo el SKILL.md por filesystem y envolviendolo en un bloque `{% raw %}...{% endraw %}` -- Nunjucks preserva el contenido literal sin re-interpretarlo. `npm run eval-skills` ahora corre los 42 evals en secuencia via `.claude/evals/run-all.js` (antes apuntaba solo a `security-auditor` como piloto).
+
+**869 tests, 42 skills con eval de conformidad, 7 agentes.**
 
 ### v3.27.0 — evals expandidos de 3 a 8 skills de mayor riesgo
 

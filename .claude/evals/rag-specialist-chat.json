@@ -1,0 +1,4 @@
+[
+  { "role": "system", "content": "file://../skills/rag-specialist/SKILL.md" },
+  { "role": "user", "content": "{{pregunta}}" }
+]

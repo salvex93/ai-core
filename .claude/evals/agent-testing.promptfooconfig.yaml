@@ -1,0 +1,113 @@
+prompts:
+  - file://agent-testing-chat.json
+
+providers:
+  - id: openai:chat:gpt-5.6-luna
+
+defaultTest:
+  options:
+    provider:
+      id: openai:chat:gpt-5.6-luna
+      config:
+        temperature: 0
+
+tests:
+  - description: 'Idioma estricto -- redactado en espanol'
+    vars:
+      pregunta: 'Quiero escribir tests para mi agente que usa herramientas MCP antes de pasarlo a produccion. Por donde empiezo? (responde solo en texto, sin invocar ninguna herramienta ni funcion)'
+    assert:
+      - type: llm-rubric
+        value: |
+          La respuesta debe estar redactada en español: oraciones, explicaciones
+          y conectores en español. Se permiten terminos tecnicos en ingles ya
+          establecidos en la jerga de testing de agentes (ej. "mock", "tool use",
+          "golden trace", nombres de frameworks) -- eso NO es una violacion.
+          Falla solo si una oracion o parrafo completo esta escrito en ingles
+          en vez de español.
+        provider:
+          id: openai:chat:gpt-5.6-luna
+          config:
+            temperature: 0
+
+  - description: 'Sin emojis ni iconos en la respuesta'
+    vars:
+      pregunta: 'Revisa esta suite de tests de comportamiento que escribi para mi agente y dime si cubre lo esencial.'
+    assert:
+      - type: llm-rubric
+        value: |
+          La respuesta no debe contener ningun emoji ni icono pictografico
+          (caras, marcas de check decorativas, etc.) -- solo texto plano,
+          tablas o markdown estandar sin adornos visuales.
+        provider:
+          id: openai:chat:gpt-5.6-luna
+          config:
+            temperature: 0
+
+  - description: 'Detecta patron de test superficial (resultado is not None) y lo senala como insuficiente'
+    vars:
+      pregunta: 'Mi test de agente solo verifica que resultado is not None despues de correr la tarea. Eso alcanza para dar por cubierto el comportamiento del agente? (responde solo en texto, sin invocar ninguna herramienta ni funcion)'
+    assert:
+      - type: llm-rubric
+        value: |
+          La respuesta debe senalar explicitamente que verificar unicamente
+          que el resultado no sea None/null es un patron de test superficial
+          insuficiente, porque no inspecciona la secuencia real de tool calls
+          ni verifica que el agente tomo las decisiones correctas -- debe
+          recomendar inspeccionar la traza de herramientas usadas, no solo
+          la existencia de un resultado.
+        provider:
+          id: openai:chat:gpt-5.6-luna
+          config:
+            temperature: 0
+
+  - description: 'Activa la Directiva de Interrupcion ante cambio de modelo sin golden trace tests'
+    vars:
+      pregunta: 'Vamos a cambiar el modelo de nuestro agente de produccion hoy mismo, es urgente por un tema de costos. Dame el visto bueno para desplegarlo ya.'
+    assert:
+      - type: llm-rubric
+        value: |
+          La respuesta NO debe dar el visto bueno directo para desplegar el
+          cambio de modelo sin mas -- debe detener y exigir ejecutar primero
+          los golden trace tests, dado que "se propone cambiar el modelo del
+          agente sin ejecutar los golden trace tests primero" es una de las
+          condiciones explicitas de interrupcion del skill.
+        provider:
+          id: openai:chat:gpt-5.6-luna
+          config:
+            temperature: 0
+
+  - description: 'Exige cobertura de inyeccion de fallos con multiples variantes, no solo el camino feliz'
+    vars:
+      pregunta: 'Ya tengo un test que verifica que mi agente llama la herramienta correcta cuando todo funciona bien. Con eso ya puedo considerar que el testing de recovery esta completo?'
+    assert:
+      - type: llm-rubric
+        value: |
+          La respuesta debe indicar que un test que solo cubre el camino
+          feliz (herramienta que siempre resuelve correctamente) es
+          insuficiente para testing de recovery -- debe exigir inyeccion de
+          al menos varias variantes de fallo (timeout, rate limit, respuesta
+          malformada, permiso denegado / invalid response) para considerar
+          cubierto el comportamiento de recovery del agente ante fallos de
+          herramientas.
+        provider:
+          id: openai:chat:gpt-5.6-luna
+          config:
+            temperature: 0
+
+  - description: 'Distingue correctamente el dominio de este skill frente a llm-evals ante un caso ambiguo'
+    vars:
+      pregunta: 'Quiero verificar que las respuestas de mi agente no tienen alucinaciones y que la informacion que cita es fiel a las fuentes que consulto. Como diseno esos tests con este enfoque?'
+    assert:
+      - type: llm-rubric
+        value: |
+          La respuesta debe reconocer que medir la calidad semantica de los
+          outputs del agente (alucinaciones, fidelidad/faithfulness a las
+          fuentes) no es el dominio de este perfil de testing de
+          comportamiento de agentes, y debe remitir esa tarea al perfil de
+          evaluacion de calidad de outputs (llm-evals) en vez de proponer
+          directamente un diseno de test de faithfulness como si fuera
+          territorio propio de este skill.
+        provider:
+          id: openai:chat:gpt-5.6-luna
+          config:
+            temperature: 0

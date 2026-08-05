@@ -1,6 +1,6 @@
 [
   {
-    "ts": "2026-07-24T23:40:37.914Z",
+    "ts": "2026-08-05T00:11:51.384Z",
     "total": 10,
     "dimensiones": {
       "routing": {
@@ -30,7 +30,7 @@
     }
   },
   {
-    "ts": "2026-07-24T23:41:06.989Z",
+    "ts": "2026-08-05T00:11:52.188Z",
     "total": 10,
     "dimensiones": {
       "routing": {
@@ -60,7 +60,7 @@
     }
   },
   {
-    "ts": "2026-07-24T23:41:07.173Z",
+    "ts": "2026-08-05T00:11:52.491Z",
     "total": 10,
     "dimensiones": {
       "routing": {
@@ -90,7 +90,7 @@
     }
   },
   {
-    "ts": "2026-07-24T23:41:07.332Z",
+    "ts": "2026-08-05T00:11:53.300Z",
     "total": 10,
     "dimensiones": {
       "routing": {
@@ -120,7 +120,7 @@
     }
   },
   {
-    "ts": "2026-07-24T23:41:07.527Z",
+    "ts": "2026-08-05T00:11:53.849Z",
     "total": 10,
     "dimensiones": {
       "routing": {
@@ -150,7 +150,7 @@
     }
   },
   {
-    "ts": "2026-07-24T23:41:07.672Z",
+    "ts": "2026-08-05T00:13:02.936Z",
     "total": 10,
     "dimensiones": {
       "routing": {
@@ -180,7 +180,7 @@
     }
   },
   {
-    "ts": "2026-07-24T23:41:26.684Z",
+    "ts": "2026-08-05T00:13:03.941Z",
     "total": 10,
     "dimensiones": {
       "routing": {
@@ -210,7 +210,7 @@
     }
   },
   {
-    "ts": "2026-07-24T23:45:25.695Z",
+    "ts": "2026-08-05T00:13:04.338Z",
     "total": 10,
     "dimensiones": {
       "routing": {
@@ -226,10 +226,8 @@
         "detalles": []
       },
       "drift": {
-        "score": 9,
-        "detalles": [
-          "Version del mapa (3.15.0) != package.json (3.15.1)"
-        ]
+        "score": 10,
+        "detalles": []
       },
       "seguridad": {
         "score": 10,
@@ -242,7 +240,7 @@
     }
   },
   {
-    "ts": "2026-07-24T23:45:25.867Z",
+    "ts": "2026-08-05T00:13:05.149Z",
     "total": 10,
     "dimensiones": {
       "routing": {
@@ -258,10 +256,8 @@
         "detalles": []
       },
       "drift": {
-        "score": 9,
-        "detalles": [
-          "Version del mapa (3.15.0) != package.json (3.15.1)"
-        ]
+        "score": 10,
+        "detalles": []
       },
       "seguridad": {
         "score": 10,
@@ -274,7 +270,7 @@
     }
   },
   {
-    "ts": "2026-07-24T23:45:25.975Z",
+    "ts": "2026-08-05T00:13:05.486Z",
     "total": 10,
     "dimensiones": {
       "routing": {
@@ -290,10 +286,8 @@
         "detalles": []
       },
       "drift": {
-        "score": 9,
-        "detalles": [
-          "Version del mapa (3.15.0) != package.json (3.15.1)"
-        ]
+        "score": 10,
+        "detalles": []
       },
       "seguridad": {
         "score": 10,
@@ -306,39 +300,7 @@
     }
   },
   {
-    "ts": "2026-07-24T23:45:26.145Z",
-    "total": 10,
-    "dimensiones": {
-      "routing": {
-        "score": 10,
-        "detalles": []
-      },
-      "hooks": {
-        "score": 10,
-        "detalles": []
-      },
-      "skills": {
-        "score": 10,
-        "detalles": []
-      },
-      "drift": {
-        "score": 9,
-        "detalles": [
-          "Version del mapa (3.15.0) != package.json (3.15.1)"
-        ]
-      },
-      "seguridad": {
-        "score": 10,
-        "detalles": []
-      },
-      "agentes": {
-        "score": 10,
-        "detalles": []
-      }
-    }
-  },
-  {
-    "ts": "2026-07-24T23:45:26.273Z",
+    "ts": "2026-08-05T00:16:22.373Z",
     "total": 10,
     "dimensiones": {
       "routing": {
@@ -356,7 +318,7 @@
       "drift": {
         "score": 9,
         "detalles": [
-          "Version del mapa (3.15.0) != package.json (3.15.1)"
+          "Version del mapa (3.27.0) != package.json (3.28.0)"
         ]
       },
       "seguridad": {
@@ -370,7 +332,7 @@
     }
   },
   {
-    "ts": "2026-07-24T23:45:47.093Z",
+    "ts": "2026-08-05T00:16:22.962Z",
     "total": 10,
     "dimensiones": {
       "routing": {
@@ -388,7 +350,7 @@
       "drift": {
         "score": 9,
         "detalles": [
-          "Version del mapa (3.15.0) != package.json (3.15.1)"
+          "Version del mapa (3.27.0) != package.json (3.28.0)"
         ]
       },
       "seguridad": {
@@ -402,7 +364,7 @@
     }
   },
   {
-    "ts": "2026-07-24T23:45:47.254Z",
+    "ts": "2026-08-05T00:16:23.476Z",
     "total": 10,
     "dimensiones": {
       "routing": {
@@ -420,7 +382,7 @@
       "drift": {
         "score": 9,
         "detalles": [
-          "Version del mapa (3.15.0) != package.json (3.15.1)"
+          "Version del mapa (3.27.0) != package.json (3.28.0)"
         ]
       },
       "seguridad": {
@@ -434,7 +396,7 @@
     }
   },
   {
-    "ts": "2026-07-24T23:45:47.365Z",
+    "ts": "2026-08-05T00:16:24.461Z",
     "total": 10,
     "dimensiones": {
       "routing": {
@@ -452,7 +414,7 @@
       "drift": {
         "score": 9,
         "detalles": [
-          "Version del mapa (3.15.0) != package.json (3.15.1)"
+          "Version del mapa (3.27.0) != package.json (3.28.0)"
         ]
       },
       "seguridad": {
@@ -466,7 +428,7 @@
     }
   },
   {
-    "ts": "2026-07-24T23:45:47.522Z",
+    "ts": "2026-08-05T00:16:25.089Z",
     "total": 10,
     "dimensiones": {
       "routing": {
@@ -484,7 +446,7 @@
       "drift": {
         "score": 9,
         "detalles": [
-          "Version del mapa (3.15.0) != package.json (3.15.1)"
+          "Version del mapa (3.27.0) != package.json (3.28.0)"
         ]
       },
       "seguridad": {
@@ -498,263 +460,7 @@
     }
   },
   {
-    "ts": "2026-07-24T23:45:47.638Z",
-    "total": 10,
-    "dimensiones": {
-      "routing": {
-        "score": 10,
-        "detalles": []
-      },
-      "hooks": {
-        "score": 10,
-        "detalles": []
-      },
-      "skills": {
-        "score": 10,
-        "detalles": []
-      },
-      "drift": {
-        "score": 9,
-        "detalles": [
-          "Version del mapa (3.15.0) != package.json (3.15.1)"
-        ]
-      },
-      "seguridad": {
-        "score": 10,
-        "detalles": []
-      },
-      "agentes": {
-        "score": 10,
-        "detalles": []
-      }
-    }
-  },
-  {
-    "ts": "2026-07-24T23:46:09.080Z",
-    "total": 10,
-    "dimensiones": {
-      "routing": {
-        "score": 10,
-        "detalles": []
-      },
-      "hooks": {
-        "score": 10,
-        "detalles": []
-      },
-      "skills": {
-        "score": 10,
-        "detalles": []
-      },
-      "drift": {
-        "score": 9,
-        "detalles": [
-          "Version del mapa (3.15.0) != package.json (3.15.1)"
-        ]
-      },
-      "seguridad": {
-        "score": 10,
-        "detalles": []
-      },
-      "agentes": {
-        "score": 10,
-        "detalles": []
-      }
-    }
-  },
-  {
-    "ts": "2026-07-24T23:46:09.195Z",
-    "total": 10,
-    "dimensiones": {
-      "routing": {
-        "score": 10,
-        "detalles": []
-      },
-      "hooks": {
-        "score": 10,
-        "detalles": []
-      },
-      "skills": {
-        "score": 10,
-        "detalles": []
-      },
-      "drift": {
-        "score": 9,
-        "detalles": [
-          "Version del mapa (3.15.0) != package.json (3.15.1)"
-        ]
-      },
-      "seguridad": {
-        "score": 10,
-        "detalles": []
-      },
-      "agentes": {
-        "score": 10,
-        "detalles": []
-      }
-    }
-  },
-  {
-    "ts": "2026-07-25T04:55:20.439Z",
-    "total": 10,
-    "dimensiones": {
-      "routing": {
-        "score": 10,
-        "detalles": []
-      },
-      "hooks": {
-        "score": 10,
-        "detalles": []
-      },
-      "skills": {
-        "score": 10,
-        "detalles": []
-      },
-      "drift": {
-        "score": 9,
-        "detalles": [
-          "Version del mapa (3.15.0) != package.json (3.15.1)"
-        ]
-      },
-      "seguridad": {
-        "score": 10,
-        "detalles": []
-      },
-      "agentes": {
-        "score": 10,
-        "detalles": []
-      }
-    }
-  },
-  {
-    "ts": "2026-07-25T17:57:28.654Z",
-    "total": 10,
-    "dimensiones": {
-      "routing": {
-        "score": 10,
-        "detalles": []
-      },
-      "hooks": {
-        "score": 10,
-        "detalles": []
-      },
-      "skills": {
-        "score": 10,
-        "detalles": []
-      },
-      "drift": {
-        "score": 9,
-        "detalles": [
-          "Version del mapa (3.15.0) != package.json (3.15.1)"
-        ]
-      },
-      "seguridad": {
-        "score": 10,
-        "detalles": []
-      },
-      "agentes": {
-        "score": 10,
-        "detalles": []
-      }
-    }
-  },
-  {
-    "ts": "2026-07-25T17:57:28.771Z",
-    "total": 10,
-    "dimensiones": {
-      "routing": {
-        "score": 10,
-        "detalles": []
-      },
-      "hooks": {
-        "score": 10,
-        "detalles": []
-      },
-      "skills": {
-        "score": 10,
-        "detalles": []
-      },
-      "drift": {
-        "score": 9,
-        "detalles": [
-          "Version del mapa (3.15.0) != package.json (3.15.1)"
-        ]
-      },
-      "seguridad": {
-        "score": 10,
-        "detalles": []
-      },
-      "agentes": {
-        "score": 10,
-        "detalles": []
-      }
-    }
-  },
-  {
-    "ts": "2026-07-25T17:57:48.397Z",
-    "total": 10,
-    "dimensiones": {
-      "routing": {
-        "score": 10,
-        "detalles": []
-      },
-      "hooks": {
-        "score": 10,
-        "detalles": []
-      },
-      "skills": {
-        "score": 10,
-        "detalles": []
-      },
-      "drift": {
-        "score": 9,
-        "detalles": [
-          "Version del mapa (3.15.0) != package.json (3.15.1)"
-        ]
-      },
-      "seguridad": {
-        "score": 10,
-        "detalles": []
-      },
-      "agentes": {
-        "score": 10,
-        "detalles": []
-      }
-    }
-  },
-  {
-    "ts": "2026-07-25T17:57:48.539Z",
-    "total": 10,
-    "dimensiones": {
-      "routing": {
-        "score": 10,
-        "detalles": []
-      },
-      "hooks": {
-        "score": 10,
-        "detalles": []
-      },
-      "skills": {
-        "score": 10,
-        "detalles": []
-      },
-      "drift": {
-        "score": 9,
-        "detalles": [
-          "Version del mapa (3.15.0) != package.json (3.15.1)"
-        ]
-      },
-      "seguridad": {
-        "score": 10,
-        "detalles": []
-      },
-      "agentes": {
-        "score": 10,
-        "detalles": []
-      }
-    }
-  },
-  {
-    "ts": "2026-07-25T17:57:59.446Z",
+    "ts": "2026-08-05T00:16:41.592Z",
     "total": 10,
     "dimensiones": {
       "routing": {
@@ -784,7 +490,7 @@
     }
   },
   {
-    "ts": "2026-07-25T17:58:10.643Z",
+    "ts": "2026-08-05T00:16:42.399Z",
     "total": 10,
     "dimensiones": {
       "routing": {
@@ -814,7 +520,7 @@
     }
   },
   {
-    "ts": "2026-07-25T17:58:10.837Z",
+    "ts": "2026-08-05T00:16:43.320Z",
     "total": 10,
     "dimensiones": {
       "routing": {
@@ -844,7 +550,7 @@
     }
   },
   {
-    "ts": "2026-07-25T17:58:10.941Z",
+    "ts": "2026-08-05T00:16:43.997Z",
     "total": 10,
     "dimensiones": {
       "routing": {
@@ -874,7 +580,7 @@
     }
   },
   {
-    "ts": "2026-07-25T17:58:11.121Z",
+    "ts": "2026-08-05T00:16:45.570Z",
     "total": 10,
     "dimensiones": {
       "routing": {
@@ -904,7 +610,277 @@
     }
   },
   {
-    "ts": "2026-07-25T17:58:11.266Z",
+    "ts": "2026-08-05T00:17:05.111Z",
+    "total": 10,
+    "dimensiones": {
+      "routing": {
+        "score": 10,
+        "detalles": []
+      },
+      "hooks": {
+        "score": 10,
+        "detalles": []
+      },
+      "skills": {
+        "score": 10,
+        "detalles": []
+      },
+      "drift": {
+        "score": 10,
+        "detalles": []
+      },
+      "seguridad": {
+        "score": 10,
+        "detalles": []
+      },
+      "agentes": {
+        "score": 10,
+        "detalles": []
+      }
+    }
+  },
+  {
+    "ts": "2026-08-05T00:17:05.789Z",
+    "total": 10,
+    "dimensiones": {
+      "routing": {
+        "score": 10,
+        "detalles": []
+      },
+      "hooks": {
+        "score": 10,
+        "detalles": []
+      },
+      "skills": {
+        "score": 10,
+        "detalles": []
+      },
+      "drift": {
+        "score": 10,
+        "detalles": []
+      },
+      "seguridad": {
+        "score": 10,
+        "detalles": []
+      },
+      "agentes": {
+        "score": 10,
+        "detalles": []
+      }
+    }
+  },
+  {
+    "ts": "2026-08-05T00:17:06.141Z",
+    "total": 10,
+    "dimensiones": {
+      "routing": {
+        "score": 10,
+        "detalles": []
+      },
+      "hooks": {
+        "score": 10,
+        "detalles": []
+      },
+      "skills": {
+        "score": 10,
+        "detalles": []
+      },
+      "drift": {
+        "score": 10,
+        "detalles": []
+      },
+      "seguridad": {
+        "score": 10,
+        "detalles": []
+      },
+      "agentes": {
+        "score": 10,
+        "detalles": []
+      }
+    }
+  },
+  {
+    "ts": "2026-08-05T00:17:06.885Z",
+    "total": 10,
+    "dimensiones": {
+      "routing": {
+        "score": 10,
+        "detalles": []
+      },
+      "hooks": {
+        "score": 10,
+        "detalles": []
+      },
+      "skills": {
+        "score": 10,
+        "detalles": []
+      },
+      "drift": {
+        "score": 10,
+        "detalles": []
+      },
+      "seguridad": {
+        "score": 10,
+        "detalles": []
+      },
+      "agentes": {
+        "score": 10,
+        "detalles": []
+      }
+    }
+  },
+  {
+    "ts": "2026-08-05T00:17:07.483Z",
+    "total": 10,
+    "dimensiones": {
+      "routing": {
+        "score": 10,
+        "detalles": []
+      },
+      "hooks": {
+        "score": 10,
+        "detalles": []
+      },
+      "skills": {
+        "score": 10,
+        "detalles": []
+      },
+      "drift": {
+        "score": 10,
+        "detalles": []
+      },
+      "seguridad": {
+        "score": 10,
+        "detalles": []
+      },
+      "agentes": {
+        "score": 10,
+        "detalles": []
+      }
+    }
+  },
+  {
+    "ts": "2026-08-05T00:17:30.778Z",
+    "total": 10,
+    "dimensiones": {
+      "routing": {
+        "score": 10,
+        "detalles": []
+      },
+      "hooks": {
+        "score": 10,
+        "detalles": []
+      },
+      "skills": {
+        "score": 10,
+        "detalles": []
+      },
+      "drift": {
+        "score": 10,
+        "detalles": []
+      },
+      "seguridad": {
+        "score": 10,
+        "detalles": []
+      },
+      "agentes": {
+        "score": 10,
+        "detalles": []
+      }
+    }
+  },
+  {
+    "ts": "2026-08-05T00:17:31.493Z",
+    "total": 10,
+    "dimensiones": {
+      "routing": {
+        "score": 10,
+        "detalles": []
+      },
+      "hooks": {
+        "score": 10,
+        "detalles": []
+      },
+      "skills": {
+        "score": 10,
+        "detalles": []
+      },
+      "drift": {
+        "score": 10,
+        "detalles": []
+      },
+      "seguridad": {
+        "score": 10,
+        "detalles": []
+      },
+      "agentes": {
+        "score": 10,
+        "detalles": []
+      }
+    }
+  },
+  {
+    "ts": "2026-08-05T00:17:31.910Z",
+    "total": 10,
+    "dimensiones": {
+      "routing": {
+        "score": 10,
+        "detalles": []
+      },
+      "hooks": {
+        "score": 10,
+        "detalles": []
+      },
+      "skills": {
+        "score": 10,
+        "detalles": []
+      },
+      "drift": {
+        "score": 10,
+        "detalles": []
+      },
+      "seguridad": {
+        "score": 10,
+        "detalles": []
+      },
+      "agentes": {
+        "score": 10,
+        "detalles": []
+      }
+    }
+  },
+  {
+    "ts": "2026-08-05T00:17:33.184Z",
+    "total": 10,
+    "dimensiones": {
+      "routing": {
+        "score": 10,
+        "detalles": []
+      },
+      "hooks": {
+        "score": 10,
+        "detalles": []
+      },
+      "skills": {
+        "score": 10,
+        "detalles": []
+      },
+      "drift": {
+        "score": 10,
+        "detalles": []
+      },
+      "seguridad": {
+        "score": 10,
+        "detalles": []
+      },
+      "agentes": {
+        "score": 10,
+        "detalles": []
+      }
+    }
+  },
+  {
+    "ts": "2026-08-05T00:17:33.566Z",
     "total": 10,
     "dimensiones": {
       "routing": {

@@ -1,0 +1,114 @@
+prompts:
+  - file://cross-model-verifier-chat.json
+
+providers:
+  - id: openai:chat:gpt-5.6-luna
+
+defaultTest:
+  options:
+    provider:
+      id: openai:chat:gpt-5.6-luna
+      config:
+        temperature: 0
+
+tests:
+  - description: 'Idioma estricto -- redactado en espanol'
+    vars:
+      pregunta: 'Acabamos de configurar OPENAI_API_KEY en el .env para tener un segundo proveedor. Explicame como funciona la verificacion cruzada de diffs a partir de ahora. (responde solo en texto, sin invocar ninguna herramienta ni funcion)'
+    assert:
+      - type: llm-rubric
+        value: |
+          La respuesta debe estar redactada en español: oraciones, explicaciones
+          y conectores en español. Se permiten terminos tecnicos en ingles ya
+          establecidos en la jerga del dominio (ej. "gate", "diff", "grading
+          ciego", nombres de funciones o variables del codigo) -- eso NO es una
+          violacion. Falla solo si una oracion o parrafo completo esta escrito
+          en ingles en vez de español.
+        provider:
+          id: openai:chat:gpt-5.6-luna
+          config:
+            temperature: 0
+
+  - description: 'Sin emojis ni iconos en la respuesta'
+    vars:
+      pregunta: 'El hook SubagentStop acaba de correr cross-verify-gate.js despues de que code-reviewer marco un cambio como APROBADO. Resumeme que deberia revisar antes de dar el fix por cerrado.'
+    assert:
+      - type: llm-rubric
+        value: |
+          La respuesta no debe contener ningun emoji ni icono pictografico
+          (caras, marcas de check decorativas, etc.) -- solo texto plano,
+          tablas o markdown estandar sin adornos visuales.
+        provider:
+          id: openai:chat:gpt-5.6-luna
+          config:
+            temperature: 0
+
+  - description: 'Exige verificador distinto al proveedor actor, nunca autoverificacion disfrazada'
+    vars:
+      pregunta: 'Solo tengo ANTHROPIC_API_KEY configurada en .env, ningun otro proveedor. El cambio lo genero Claude (anthropic). Puedo simplemente llamar de nuevo a Claude como verificador cruzado para no bloquear el commit? (responde solo en texto, sin invocar ninguna herramienta ni funcion)'
+    assert:
+      - type: llm-rubric
+        value: |
+          La respuesta debe rechazar usar el mismo proveedor (anthropic) como
+          verificador de su propio cambio -- debe indicar que se necesita un
+          proveedor distinto (ej. openai, deepseek o gemini) y que si ninguno
+          esta disponible el gate debe fallar explicito u omitirse (mensaje
+          tipo "[cross-verify] omitido"), nunca degradar en silencio a
+          autoverificacion con el mismo proveedor que genero el cambio. No es
+          obligatorio que cite la lista completa de proveedores candidatos ni
+          el nombre exacto de la funcion interna -- basta con que el
+          comportamiento descrito sea correcto.
+        provider:
+          id: openai:chat:gpt-5.6-luna
+          config:
+            temperature: 0
+
+  - description: 'Falla cerrado (pass: false) ante un veredicto del verificador no parseable como JSON'
+    vars:
+      pregunta: 'El verificador cruzado devolvio una respuesta rara, texto truncado que no es JSON valido. Como debe interpretarse eso -- se asume que el diff paso la verificacion ya que no hay error explicito, o que fallo?'
+    assert:
+      - type: llm-rubric
+        value: |
+          La respuesta debe indicar que parsearVeredicto() falla cerrado ante
+          un output no parseable, es decir retorna pass: false -- nunca debe
+          sugerir que una respuesta ambigua o no-JSON del verificador se trate
+          como aprobacion (pass: true) por defecto.
+        provider:
+          id: openai:chat:gpt-5.6-luna
+          config:
+            temperature: 0
+
+  - description: 'Mantiene el grading ciego -- nunca envia el razonamiento o plan del actor al verificador'
+    vars:
+      pregunta: 'Para que el verificador cruzado entienda mejor el cambio y no tenga falsos positivos, deberiamos pasarle tambien el chain-of-thought y el plan original que uso el modelo que genero el fix, ademas del diff. Buena idea?'
+    assert:
+      - type: llm-rubric
+        value: |
+          La respuesta debe rechazar esa idea explicitamente -- el verificador
+          debe recibir SOLO el diff y la tarea original, nunca el razonamiento,
+          plan o chain-of-thought de quien hizo el cambio, porque eso rompe el
+          grading ciego que es la razon de ser del patron Writer/Reviewer.
+        provider:
+          id: openai:chat:gpt-5.6-luna
+          config:
+            temperature: 0
+
+  - description: 'Activa la Directiva de Interrupcion cuando el verificador revierte un veredicto APROBADO'
+    vars:
+      pregunta: 'code-reviewer marco el cambio como APROBADO, pero cross-verify-gate.js acaba de retornar pass: false sobre ese mismo veredicto. Ya podemos dar la tarea por cerrada y seguir con el commit? (responde solo en texto, sin invocar ninguna herramienta ni funcion)'
+    assert:
+      - type: llm-rubric
+        value: |
+          La respuesta NO debe dar la tarea por cerrada -- debe indicar que el
+          veredicto APROBADO original queda revertido a REQUIERE_CAMBIOS (o
+          equivalente: bloqueado, no cerrado, pendiente de revision) y que se
+          debe detener el cierre para revisar y resolver los hallazgos del
+          verificador antes de continuar con el commit. No es obligatorio que
+          cite textualmente el string "[ALERTA_ARQUITECTONICA:
+          REQUIERE_OPUSPLAN]" ni la palabra "operador" -- basta con que
+          transmita con claridad que el cierre queda detenido hasta revisar
+          los hallazgos.
+        provider:
+          id: openai:chat:gpt-5.6-luna
+          config:
+            temperature: 0

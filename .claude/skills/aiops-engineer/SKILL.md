@@ -3,7 +3,7 @@ name: aiops-engineer
 description: AI-Ops Engineer — Agente de mantenimiento del ecosistema ai-core. Audita la configuracion de .claude/skills/, analiza nuevas especificaciones de Anthropic y propone mejoras en prompts, herramientas MCP y flujos de trabajo. NUNCA modifica el ai-core sin confirmacion humana explicita. Activa al auditar el nucleo, proponer actualizaciones de skills o incorporar nuevas capacidades del ecosistema Anthropic.
 origin: ai-core
 version: 1.7.0
-last_updated: 2026-08-04
+last_updated: 2026-08-05
 rol: architect
 ---
 
@@ -143,6 +143,8 @@ Este perfil se activa principalmente para proponer mejoras, no para implementarl
 ```
 [ALERTA_ARQUITECTONICA: REQUIERE_OPUSPLAN]
 ```
+
+El marcador anterior se inserta de forma literal en la respuesta, ademas de la explicacion en prosa — nunca se omite ni se reemplaza por una descripcion equivalente.
 
 ## Protocolo de Modificacion del Nucleo
 

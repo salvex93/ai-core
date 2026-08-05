@@ -1,0 +1,10 @@
+[
+  {
+    "role": "system",
+    "content": "file://../skills/claude-api/SKILL.md"
+  },
+  {
+    "role": "user",
+    "content": "{{pregunta}}"
+  }
+]

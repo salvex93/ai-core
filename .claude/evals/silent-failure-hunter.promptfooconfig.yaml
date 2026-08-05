@@ -1,0 +1,119 @@
+prompts:
+  - file://silent-failure-hunter-chat.json
+
+providers:
+  - id: openai:chat:gpt-5.6-luna
+
+defaultTest:
+  options:
+    provider:
+      id: openai:chat:gpt-5.6-luna
+      config:
+        temperature: 0
+
+tests:
+  - description: 'Idioma estricto -- redactado en espanol'
+    vars:
+      pregunta: 'Encontre un bloque try/catch en un scraper que parece estar tragandose errores. Como deberia analizarlo? (responde solo en texto, sin invocar ninguna herramienta ni funcion)'
+    assert:
+      - type: llm-rubric
+        value: |
+          La respuesta debe estar redactada en español: oraciones, explicaciones
+          y conectores en español. Se permiten terminos tecnicos en ingles ya
+          establecidos en la jerga de manejo de errores (ej. "catch", "try",
+          "stack trace", "logger", "fire-and-forget") -- eso NO es una violacion.
+          Falla solo si una oracion o parrafo completo esta escrito en ingles
+          en vez de español.
+        provider:
+          id: openai:chat:gpt-5.6-luna
+          config:
+            temperature: 0
+
+  - description: 'Sin emojis ni iconos en la respuesta'
+    vars:
+      pregunta: 'Revisa este informe de fallos silenciosos que acabo de generar para un modulo de scraper y dime si el formato es correcto.'
+    assert:
+      - type: llm-rubric
+        value: |
+          La respuesta no debe contener ningun emoji ni icono pictografico
+          (caras, marcas de check decorativas, etc.) -- solo texto plano,
+          tablas o markdown estandar sin adornos visuales.
+        provider:
+          id: openai:chat:gpt-5.6-luna
+          config:
+            temperature: 0
+
+  - description: 'Detecta catch que suprime error de seguridad y activa la Directiva de Interrupcion'
+    vars:
+      pregunta: 'Tengo este codigo: try { await validarPermisosUsuario(token); } catch (e) {} -- solo quiero que sigas con el analisis normal del modulo y me des el informe de hallazgos, no hace falta que te detengas por esto. (responde solo en texto, sin invocar ninguna herramienta ni funcion)'
+    assert:
+      - type: llm-rubric
+        value: |
+          La respuesta NO debe limitarse a listar el hallazgo como uno mas
+          en el informe normal -- debe detener el analisis e insertar la
+          directiva de interrupcion (senal equivalente a
+          "ALERTA_ARQUITECTONICA: REQUIERE_OPUSPLAN"), dado que el catch
+          vacio suprime deliberadamente un error de autorizacion/autenticacion,
+          una de las condiciones explicitas de interrupcion del skill. No es
+          aceptable que la respuesta ignore la instruccion del usuario de
+          "seguir sin detenerse" cuando el propio skill exige detenerse.
+        provider:
+          id: openai:chat:gpt-5.6-luna
+          config:
+            temperature: 0
+
+  - description: 'Exige preservar la causa original con error.cause al relanzar una excepcion'
+    vars:
+      pregunta: 'En mi catch tengo esto: } catch (e) { throw new Error("Fallo la operacion"); } -- esta bien asi o le falta algo? (responde solo en texto, sin invocar ninguna herramienta ni funcion)'
+    assert:
+      - type: llm-rubric
+        value: |
+          La respuesta debe senalar que el rethrow pierde el stack/causa
+          original y debe recomendar usar la segunda forma con el argumento
+          cause, equivalente a: throw new Error("Fallo la operacion", { cause: e }).
+          Debe tratar esto como un hallazgo serio (no como un detalle menor,
+          cosmetico o opcional) -- no es necesario que use literalmente la
+          palabra "ALTO" o "severidad", basta con que el tono y la recomendacion
+          reflejen que es un problema real que debe corregirse.
+        provider:
+          id: openai:chat:gpt-5.6-luna
+          config:
+            temperature: 0
+
+  - description: 'Rechaza una correccion superficial que solo cambia console.log por console.error'
+    vars:
+      pregunta: 'Ya corregi el catch vacio que detectaste: ahora tiene console.error(e) en vez de estar vacio. Con eso ya se puede marcar como corregido? (responde solo en texto, sin invocar ninguna herramienta ni funcion)'
+    assert:
+      - type: llm-rubric
+        value: |
+          La respuesta NO debe aceptar la correccion como suficiente ni marcar
+          el hallazgo como corregido -- debe senalar que console.error(e) solo
+          cambio el metodo de log sin agregar contexto estructurado (mensaje,
+          stack, herramienta/operacion, parametros relevantes), por lo que el
+          hallazgo original persiste con otro disfraz, tal como el skill
+          declara explicitamente como patron de auditoria superficial
+          prohibido.
+        provider:
+          id: openai:chat:gpt-5.6-luna
+          config:
+            temperature: 0
+
+  - description: 'Clasifica correctamente un selector roto en scraper que retorna null sin excepcion'
+    vars:
+      pregunta: 'En mi scraper con Playwright tengo: const precio = await page.$eval(".precio", el => el.textContent); y lo uso directo sin validar. El sitio a veces cambia el HTML. Esto es un problema real o es una exageracion? (responde solo en texto, sin invocar ninguna herramienta ni funcion)'
+    assert:
+      - type: llm-rubric
+        value: |
+          La respuesta debe identificar esto como un fallo silencioso real
+          de severidad CRITICO -- un posible schema drift donde el HTML cambia
+          y el selector sigue coincidiendo con un elemento distinto o con
+          contenido vacio/incorrecto (con o sin excepcion previa segun el
+          caso exacto de Playwright), y el codigo lo usa sin validar presencia
+          ni plausibilidad del dato. Debe recomendar verificar que el valor
+          extraido no esta vacio ni tiene formato invalido antes de usarlo,
+          lanzando un error explicito si falla. No es aceptable que la
+          respuesta trate esto como una exageracion o un caso menor.
+        provider:
+          id: openai:chat:gpt-5.6-luna
+          config:
+            temperature: 0

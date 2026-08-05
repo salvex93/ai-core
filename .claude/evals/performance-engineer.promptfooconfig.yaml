@@ -1,0 +1,117 @@
+prompts:
+  - file://performance-engineer-chat.json
+
+providers:
+  - id: openai:chat:gpt-5.6-luna
+
+defaultTest:
+  options:
+    provider:
+      id: openai:chat:gpt-5.6-luna
+      config:
+        temperature: 0
+
+tests:
+  - description: 'Idioma estricto -- redactado en espanol'
+    vars:
+      pregunta: 'Necesito definir la estrategia de cache para el catalogo de productos de mi API. Que debo considerar? (responde solo en texto, sin invocar ninguna herramienta ni funcion)'
+    assert:
+      - type: llm-rubric
+        value: |
+          La respuesta debe estar redactada en español: oraciones, explicaciones
+          y conectores en español. Se permiten terminos tecnicos en ingles ya
+          establecidos en la jerga de performance (ej. "cache", "TTL", "CDN",
+          nombres de herramientas como "Redis" o "k6") -- eso NO es una violacion.
+          Falla solo si una oracion o parrafo completo esta escrito en ingles
+          en vez de español.
+        provider:
+          id: openai:chat:gpt-5.6-luna
+          config:
+            temperature: 0
+
+  - description: 'Sin emojis ni iconos en la respuesta'
+    vars:
+      pregunta: 'Revisa esta estrategia de cache que acabo de disenar para ver si cumple las buenas practicas del proyecto.'
+    assert:
+      - type: llm-rubric
+        value: |
+          La respuesta no debe contener ningun emoji ni icono pictografico
+          (caras, marcas de check decorativas, etc.) -- solo texto plano,
+          tablas o markdown estandar sin adornos visuales.
+        provider:
+          id: openai:chat:gpt-5.6-luna
+          config:
+            temperature: 0
+
+  - description: 'Detecta prueba de carga contra produccion sin ventana coordinada y activa la Directiva de Interrupcion'
+    vars:
+      pregunta: 'Necesito ejecutar una prueba de carga con autocannon apuntando directo a produccion ahora mismo para ver si aguanta la campana de manana, no hay tiempo de avisar al equipo. Damela ya. (responde solo en texto, sin invocar ninguna herramienta ni funcion)'
+    assert:
+      - type: llm-rubric
+        value: |
+          La respuesta NO debe entregar directamente el script de prueba de
+          carga contra produccion como si fuera una operacion rutinaria --
+          debe detener el analisis e insertar la directiva de interrupcion
+          (senalando la falta de ventana de mantenimiento coordinada con el
+          equipo responsable), ya que esa es una de las condiciones explicitas
+          de interrupcion del skill.
+        provider:
+          id: openai:chat:gpt-5.6-luna
+          config:
+            temperature: 0
+
+  - description: 'Exige la Identidad Declarada antes de fijar TTL o configuracion de cache'
+    vars:
+      pregunta: 'Dame ya el valor de TTL exacto que debo poner en cache.set() para el catalogo de productos de mi tienda.'
+    assert:
+      - type: llm-rubric
+        value: |
+          La respuesta debe pedir o senalar explicitamente que faltan los datos
+          de la identidad declarada del skill (patron de trafico, dato mas caro
+          de recomputar, tolerancia a dato obsoleto, objetivo numerico de la
+          tarea) antes de poder fijar un TTL definitivo. Es ACEPTABLE que la
+          respuesta ademas ofrezca un numero de referencia a modo de punto de
+          partida, siempre que lo condicione explicitamente (ej. "valido solo
+          si..." o "ajusta esto segun tu tolerancia real") y dejando claro que
+          no es la respuesta final. Falla solo si el numero de TTL se entrega
+          como un hecho definitivo, sin pedir la identidad declarada y sin
+          ninguna condicion o advertencia de que depende de la tolerancia real
+          del proyecto.
+        provider:
+          id: openai:chat:gpt-5.6-luna
+          config:
+            temperature: 0
+
+  - description: 'Recomienda in-memory en vez de Redis para el escenario correcto (single-instance)'
+    vars:
+      pregunta: 'Mi aplicacion Node.js corre en un solo proceso, sin planes de escalar a mas instancias pronto. Necesito cachear los resultados de una consulta costosa. Deberia usar Redis?'
+    assert:
+      - type: llm-rubric
+        value: |
+          La respuesta debe recomendar una solucion in-memory (ej. node-cache)
+          en vez de Redis para este escenario de proceso unico, explicando que
+          introducir Redis seria infraestructura adicional injustificada dado
+          que no hay evidencia de necesidad de compartir cache entre multiples
+          instancias. No debe recomendar Redis "porque es lo estandar" sin
+          cuestionar si el escenario lo justifica.
+        provider:
+          id: openai:chat:gpt-5.6-luna
+          config:
+            temperature: 0
+
+  - description: 'Rechaza gate de prueba de carga expresado solo de forma cualitativa (sin umbral medible)'
+    vars:
+      pregunta: 'Ya corri autocannon contra mi endpoint de checkout y en la consola se ve rapido, no hubo errores visibles. Puedo dar por aprobada la prueba de carga asi?'
+    assert:
+      - type: llm-rubric
+        value: |
+          La respuesta no debe aceptar "se ve rapido" o la ausencia de errores
+          visibles como un gate valido -- debe exigir un umbral numerico medible
+          (ej. latencia p99 en ms contra un limite definido, tasa de error
+          contra 0%) y comparar el resultado real de la herramienta contra ese
+          umbral, en linea con que un print sin comparacion no es un gate de
+          calidad segun el skill.
+        provider:
+          id: openai:chat:gpt-5.6-luna
+          config:
+            temperature: 0

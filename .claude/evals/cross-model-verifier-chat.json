@@ -1,0 +1,4 @@
+[
+  { "role": "system", "content": "file://../skills/cross-model-verifier/SKILL.md" },
+  { "role": "user", "content": "{{pregunta}}" }
+]

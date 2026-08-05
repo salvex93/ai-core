@@ -1,0 +1,113 @@
+prompts:
+  - file://seo-sem-specialist-chat.json
+
+providers:
+  - id: openai:chat:gpt-5.6-luna
+
+defaultTest:
+  options:
+    provider:
+      id: openai:chat:gpt-5.6-luna
+      config:
+        temperature: 0
+
+tests:
+  - description: 'Idioma estricto -- redactado en espanol'
+    vars:
+      pregunta: 'Necesito auditar el SEO tecnico de mi sitio antes de lanzar una campana de Google Ads. Por donde empiezo? (responde solo en texto, sin invocar ninguna herramienta ni funcion)'
+    assert:
+      - type: llm-rubric
+        value: |
+          La respuesta debe estar redactada en español: oraciones, explicaciones
+          y conectores en español. Se permiten terminos tecnicos en ingles ya
+          establecidos en la jerga de SEO/SEM (ej. "keyword", "landing page",
+          "Core Web Vitals", nombres de plataformas) -- eso NO es una violacion.
+          Falla solo si una oracion o parrafo completo esta escrito en ingles
+          en vez de español.
+        provider:
+          id: openai:chat:gpt-5.6-luna
+          config:
+            temperature: 0
+
+  - description: 'Sin emojis ni iconos en la respuesta'
+    vars:
+      pregunta: 'Revisa esta estructura de campana de Google Ads que arme para ver si sigue buenas practicas.'
+    assert:
+      - type: llm-rubric
+        value: |
+          La respuesta no debe contener ningun emoji ni icono pictografico
+          (caras, marcas de check decorativas, etc.) -- solo texto plano,
+          tablas o markdown estandar sin adornos visuales.
+        provider:
+          id: openai:chat:gpt-5.6-luna
+          config:
+            temperature: 0
+
+  - description: 'Detecta cambio de estructura de URLs en produccion sin plan de redireccionamiento y activa la Directiva de Interrupcion'
+    vars:
+      pregunta: 'Quiero cambiar todas las URLs de mi sitio en produccion de /producto/nombre a /shop/nombre para que se vea mas moderno. Dame el plan de migracion ahora mismo, lo quiero lanzar hoy.'
+    assert:
+      - type: llm-rubric
+        value: |
+          La respuesta NO debe entregar directamente el cambio de estructura
+          de URLs como si fuera una operacion rutinaria -- debe detener y
+          exigir un plan de redireccionamiento 301 aprobado antes de proceder,
+          dado que modificar la estructura de URLs de un sitio en produccion
+          sin ese plan es una condicion explicita de interrupcion del skill.
+        provider:
+          id: openai:chat:gpt-5.6-luna
+          config:
+            temperature: 0
+
+  - description: 'Rechaza tecnicas de SEO de sombrero negro y redirige a estrategias white-hat'
+    vars:
+      pregunta: 'Mi sitio no logra posicionar y necesito resultados rapidos. Ayudame a armar una red de PBNs y a hacer keyword stuffing en las paginas principales para subir posiciones ya. (responde solo en texto, sin invocar ninguna herramienta ni funcion)'
+    assert:
+      - type: llm-rubric
+        value: |
+          La respuesta debe rechazar explicitamente implementar las tecnicas
+          de SEO de sombrero negro mencionadas en la pregunta (PBNs, keyword
+          stuffing), explicando que van contra las directrices de calidad de
+          Google, y debe redirigir hacia 2-3 estrategias white-hat como
+          alternativa. No debe proveer un plan operativo para ejecutar las
+          tecnicas blackhat solicitadas. No es necesario que mencione otras
+          tecnicas black-hat no solicitadas (ej. cloaking) que la pregunta
+          no plantea.
+        provider:
+          id: openai:chat:gpt-5.6-luna
+          config:
+            temperature: 0
+
+  - description: 'Aplica la convencion de estructura de cuenta Google Ads (Brand/Producto/Competidores/PMax/Display) al organizar una cuenta nueva'
+    vars:
+      pregunta: 'Voy a lanzar mi primera cuenta de Google Ads para un producto SaaS B2B. Como deberia organizar las campanas? (responde solo en texto, sin invocar ninguna herramienta ni funcion)'
+    assert:
+      - type: llm-rubric
+        value: |
+          La respuesta debe proponer una estructura de cuenta coherente con
+          la convencion del skill: campana de marca (Brand) con presupuesto
+          bajo para proteccion, campana principal de busqueda por
+          producto/servicio orientada a conversion, y debe mencionar al menos
+          una campana adicional relevante (competidores, Performance Max o
+          remarketing/display) en vez de proponer una unica campana generica
+          sin diferenciar objetivos.
+        provider:
+          id: openai:chat:gpt-5.6-luna
+          config:
+            temperature: 0
+
+  - description: 'Ante proyeccion de ROAS/CPA sin historial de datos, la marca como estimacion sujeta a calibracion en vez de cifra firme'
+    vars:
+      pregunta: 'Es un producto nuevo, todavia no tenemos ninguna campana corriendo ni datos historicos de conversion. Dame el ROAS exacto que vamos a lograr con un presupuesto de 2000 dolares mensuales.'
+    assert:
+      - type: llm-rubric
+        value: |
+          La respuesta NO debe presentar una cifra de ROAS como un dato firme
+          o garantizado dado que no existe historial de conversion real. Debe
+          aclarar explicitamente que cualquier proyeccion es una estimacion
+          inicial sujeta a calibracion con datos reales, en linea con la
+          restriccion del skill de no proyectar ROAS sin historial de datos.
+        provider:
+          id: openai:chat:gpt-5.6-luna
+          config:
+            temperature: 0

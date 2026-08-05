@@ -3,7 +3,7 @@ name: release-manager
 description: Release Manager Universal. Gestiona el ciclo de vida de entregas de software: versionado semantico, estrategia de branching, pipelines CI/CD, resolucion de conflictos Git y planes de rollback. Agnóstico a la plataforma de CI/CD. Activa al planificar releases, gestionar ramas, configurar pipelines o coordinar despliegues.
 origin: ai-core
 version: 1.2.0
-last_updated: 2026-08-04
+last_updated: 2026-08-05
 rol: architect
 ---
 
@@ -181,6 +181,8 @@ El tipo de prefijo sigue la especificacion Conventional Commits (ingles, estanda
 | `refactor:` | Sin cambio | Refactorizacion sin cambio funcional observable |
 | `perf:` | PARCHE | Mejora de rendimiento sin cambio de comportamiento |
 | `ci:` | Sin cambio | Cambios en el pipeline de CI/CD |
+
+Al dar un ejemplo o explicar el uso de un prefijo, mencionar siempre de forma explicita el tipo de incremento de version que corresponde (MAYOR/MENOR/PARCHE/sin cambio) segun la tabla anterior, no solo el formato del mensaje.
 
 Ejemplos correctos:
 

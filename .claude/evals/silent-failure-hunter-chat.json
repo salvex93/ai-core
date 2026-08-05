@@ -1,0 +1,4 @@
+[
+  { "role": "system", "content": "file://../skills/silent-failure-hunter/SKILL.md" },
+  { "role": "user", "content": "{{pregunta}}" }
+]

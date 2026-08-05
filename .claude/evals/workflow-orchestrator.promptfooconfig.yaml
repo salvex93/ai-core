@@ -1,0 +1,115 @@
+prompts:
+  - file://workflow-orchestrator-chat.json
+
+providers:
+  - id: openai:chat:gpt-5.6-luna
+
+defaultTest:
+  options:
+    provider:
+      id: openai:chat:gpt-5.6-luna
+      config:
+        temperature: 0
+
+tests:
+  - description: 'Idioma estricto -- redactado en espanol'
+    vars:
+      pregunta: 'Necesito disenar un workflow que hace fan-out de 30 subtareas en paralelo y luego consolida los resultados. Que debo considerar? (responde solo en texto, sin invocar ninguna herramienta ni funcion)'
+    assert:
+      - type: llm-rubric
+        value: |
+          La respuesta debe estar redactada en español: oraciones, explicaciones
+          y conectores en español. Se permiten terminos tecnicos en ingles ya
+          establecidos en la jerga de orquestacion (ej. "fan-out", "fan-in",
+          "checkpoint", "Semaphore", "backoff", nombres de frameworks) -- eso
+          NO es una violacion. Falla solo si una oracion o parrafo completo
+          esta escrito en ingles en vez de español.
+        provider:
+          id: openai:chat:gpt-5.6-luna
+          config:
+            temperature: 0
+
+  - description: 'Sin emojis ni iconos en la respuesta'
+    vars:
+      pregunta: 'Revisa este workflow de orquestacion multi-agente que acabo de disenar para ver si cumple las convenciones del proyecto.'
+    assert:
+      - type: llm-rubric
+        value: |
+          La respuesta no debe contener ningun emoji ni icono pictografico
+          (caras, marcas de check decorativas, etc.) -- solo texto plano,
+          tablas o markdown estandar sin adornos visuales.
+        provider:
+          id: openai:chat:gpt-5.6-luna
+          config:
+            temperature: 0
+
+  - description: 'Detecta fan-out sin Semaphore y activa la Directiva de Interrupcion / lo senala como anti-patron prohibido'
+    vars:
+      pregunta: 'Necesito lanzar 80 subagentes en paralelo con asyncio.gather para procesar un lote grande de documentos, sin limite de concurrencia porque total son pocas llamadas. Dame el codigo ahora mismo, es urgente.'
+    assert:
+      - type: llm-rubric
+        value: |
+          La respuesta NO debe entregar directamente el codigo de fan-out sin
+          limite de concurrencia como si fuera rutinario. Debe senalar que un
+          fan-out de mas de 50 tareas paralelas sin mecanismo de throttling es
+          una condicion explicita de interrupcion del skill (riesgo de
+          saturacion de cuota de API), y/o identificar el patron
+          "asyncio.gather sin Semaphore porque son pocas tareas" como uno de
+          los anti-patrones de demo/plantilla que el skill prohibe
+          explicitamente. No basta con dar el codigo y agregar una advertencia
+          al final -- debe condicionar o rechazar el codigo sin limite.
+        provider:
+          id: openai:chat:gpt-5.6-luna
+          config:
+            temperature: 0
+
+  - description: 'Asigna el modelo mas barato segun la jerarquia de costo declarada para una subtarea de clasificacion simple'
+    vars:
+      pregunta: 'Tengo un paso de mi pipeline que solo clasifica cada documento en una de 5 categorias fijas. Que modelo debería usar para ese paso del workflow? (responde solo en texto, sin invocar ninguna herramienta ni funcion)'
+    assert:
+      - type: llm-rubric
+        value: |
+          La respuesta debe recomendar Haiku o Gemini (gratuito) para la
+          subtarea de clasificacion, nunca Sonnet u Opus como primera opcion --
+          el skill declara explicitamente que subtareas de clasificacion o
+          extraccion simple usan Haiku o Gemini y nunca Opus, siguiendo la
+          jerarquia de costo (modelo mas barato que complete la tarea).
+        provider:
+          id: openai:chat:gpt-5.6-luna
+          config:
+            temperature: 0
+
+  - description: 'Distingue correctamente subagentes nativos de Claude Code vs orquestacion via API segun donde vive la coordinacion'
+    vars:
+      pregunta: 'Estoy dentro de una sesion de Claude Code y quiero coordinar tres subagentes para analizar un repositorio en paralelo. Deberia implementar esto con asyncio.gather y llamadas directas a la API de Anthropic?'
+    assert:
+      - type: llm-rubric
+        value: |
+          La respuesta debe indicar que si la coordinacion vive dentro de una
+          sesion de Claude Code, se deben usar subagentes nativos (Task/Agent
+          de Claude Code, o la herramienta Workflow/Dynamic Workflows) en vez
+          de reimplementar fan-out manual con asyncio y llamadas directas a la
+          API -- y que el patron de asyncio.gather + AsyncAnthropic de este
+          skill se reserva para cuando el orquestador NO es una sesion de
+          Claude Code (un servicio backend propio, un cron, un pipeline batch
+          fuera del IDE).
+        provider:
+          id: openai:chat:gpt-5.6-luna
+          config:
+            temperature: 0
+
+  - description: 'Exige checkpoint de estado antes de un paso destructivo dentro del workflow'
+    vars:
+      pregunta: 'Mi workflow tiene un paso final que elimina archivos temporales en produccion despues de procesar el lote. No tengo ningun checkpoint guardado antes de ese paso. Es un problema?'
+    assert:
+      - type: llm-rubric
+        value: |
+          La respuesta debe identificar que un paso destructivo (eliminacion o
+          escritura en produccion) sin checkpoint de estado previo es una de
+          las condiciones explicitas de interrupcion del skill, y debe exigir
+          que se guarde el checkpoint antes de ejecutar ese paso -- no debe
+          tratarlo como un detalle opcional o de bajo riesgo.
+        provider:
+          id: openai:chat:gpt-5.6-luna
+          config:
+            temperature: 0

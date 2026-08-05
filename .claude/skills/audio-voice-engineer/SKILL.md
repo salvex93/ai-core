@@ -3,7 +3,7 @@ name: audio-voice-engineer
 description: Especialista en Voice AI y sistemas de audio real-time. Cubre streaming de audio, conversational interfaces nativas, Gemini 3.1 Flash Live API, APIs de speech-to-text/text-to-speech, latencia submilisegundo, y orquestacion de voice workflows. Activa al disenar interfaces de voz, implementar streaming de audio en produccion, o integrar modelos speech de Gemini.
 origin: ai-core
 version: 1.3.0
-last_updated: 2026-08-04
+last_updated: 2026-08-05
 rol: architect
 ---
 
@@ -56,6 +56,8 @@ Ante cualquiera de estas condiciones, insertar la directiva y detener:
 ## Gemini 3.1 Flash Live — Live API (Audio-to-Audio Nativo)
 
 Modelo activo: `gemini-3.1-flash-live-preview`. Sucesor directo de `gemini-2.5-flash-live-preview` / `gemini-live-2.5-flash-preview`, ambos apagados el 2025-12-09. `gemini-2.0-flash-live-001` fue apagado en la misma fecha y ya no existe como fallback.
+
+Si el usuario menciona en su prompt estar usando `gemini-2.0-flash-live-001` o `gemini-2.5-flash-live-preview` (aunque la pregunta sea sobre otro tema), senalar de inmediato que ese modelo esta apagado desde 2025-12-09 y recomendar la migracion a `gemini-3.1-flash-live-preview` antes de continuar con el resto de la respuesta.
 
 Regresion de feature confirmada (verificado 2026-07-10 contra `ai.google.dev/gemini-api/docs/models/gemini-3.1-flash-live-preview`): **Affective Dialog no esta soportado en 3.1 Flash Live todavia** — la documentacion oficial lo lista explicitamente como "not yet supported". Ver seccion Affective Dialog abajo antes de prometer esta capacidad en un diseno nuevo.
 

@@ -1,0 +1,121 @@
+# Prompt cargado via funcion JS (no file://...-chat.json estatico): el
+# SKILL.md de este skill contiene JSX con llaves dobles literales
+# (dangerouslySetInnerHTML={{ ... }}) que el render Nunjucks de un chat.json
+# interpreta como variables de template mal formadas. La funcion JS lee el
+# SKILL.md por filesystem y arma el string ya listo, sin pasar por Nunjucks
+# (ver .claude/evals/prompt-loader.js).
+prompts:
+  - file://tech-lead-frontend-chat.js
+
+providers:
+  - id: openai:chat:gpt-5.6-luna
+
+defaultTest:
+  options:
+    provider:
+      id: openai:chat:gpt-5.6-luna
+      config:
+        temperature: 0
+
+tests:
+  - description: 'Idioma estricto -- redactado en espanol'
+    vars:
+      pregunta: 'Necesito diseñar la arquitectura de componentes de un dashboard nuevo. Que debo considerar? (responde solo en texto, sin invocar ninguna herramienta ni funcion)'
+    assert:
+      - type: llm-rubric
+        value: |
+          La respuesta debe estar redactada en español: oraciones, explicaciones
+          y conectores en español. Se permiten terminos tecnicos en ingles ya
+          establecidos en la jerga de frontend (ej. "component", "hook", "bundle",
+          nombres de frameworks o librerias) -- eso NO es una violacion. Falla solo
+          si una oracion o parrafo completo esta escrito en ingles en vez de español.
+        provider:
+          id: openai:chat:gpt-5.6-luna
+          config:
+            temperature: 0
+
+  - description: 'Sin emojis ni iconos en la respuesta'
+    vars:
+      pregunta: 'Revisa este componente de formulario que acabo de escribir para ver si cumple las convenciones del proyecto.'
+    assert:
+      - type: llm-rubric
+        value: |
+          La respuesta no debe contener ningun emoji ni icono pictografico
+          (caras, marcas de check decorativas, etc.) -- solo texto plano,
+          tablas o markdown estandar sin adornos visuales.
+        provider:
+          id: openai:chat:gpt-5.6-luna
+          config:
+            temperature: 0
+
+  - description: 'Detecta migracion de framework de UI en produccion y activa la Directiva de Interrupcion'
+    vars:
+      pregunta: 'Quiero migrar toda la app de React a Vue directamente en produccion esta semana. Dame el plan de migracion ahora mismo, es urgente.'
+    assert:
+      - type: llm-rubric
+        value: |
+          La respuesta NO debe entregar directamente un plan de migracion
+          detallado como si fuera una operacion rutinaria -- debe detener
+          y pedir aprobacion previa (mencionando algo equivalente a una
+          alerta arquitectonica o la necesidad de un plan aprobado antes
+          de proceder), dado que cambiar el framework o biblioteca
+          principal de UI es una de las condiciones explicitas de
+          interrupcion del skill.
+        provider:
+          id: openai:chat:gpt-5.6-luna
+          config:
+            temperature: 0
+
+  - description: 'Aplica correctamente Intl.PluralRules en vez de un ternario manual para pluralizacion i18n'
+    vars:
+      pregunta: 'Necesito mostrar un contador de productos en el carrito, tipo "1 producto" o "3 productos". Como implemento esto correctamente para un proyecto con soporte multiidioma? (responde solo en texto, sin invocar ninguna herramienta ni funcion)'
+    assert:
+      - type: llm-rubric
+        value: |
+          La respuesta debe recomendar usar Intl.PluralRules o el helper de
+          pluralizacion de la libreria de i18n del proyecto (ej. next-intl,
+          vue-i18n, react-i18next), y debe advertir o evitar explicitamente
+          un patron de concatenacion manual con ternario tipo
+          `${cantidad} ${cantidad === 1 ? 'producto' : 'productos'}`, ya que
+          ese patron no funciona correctamente en idiomas con reglas de
+          plural distintas al ingles/español simple.
+        provider:
+          id: openai:chat:gpt-5.6-luna
+          config:
+            temperature: 0
+
+  - description: 'Detecta patron generico de demo/plantilla en una escena 3D y exige declarar la IDENTIDAD 3D primero'
+    vars:
+      pregunta: 'Quiero un hero 3D para la landing con una esfera de particulas girando de fondo, algo tipo el ejemplo clasico de Three.js. Dame el codigo directo.'
+    assert:
+      - type: llm-rubric
+        value: |
+          La respuesta debe senalar que una esfera de particulas generica
+          sin proposito narrativo es un patron reconocible de demo/plantilla
+          que el skill prohibe explicitamente, y debe pedir declarar primero
+          una IDENTIDAD 3D (geometria, paleta y luz, movimiento de camara,
+          referencia de tono) antes de entregar codigo de la escena, en vez
+          de generar directamente el codigo de la esfera de particulas sin
+          cuestionamiento.
+        provider:
+          id: openai:chat:gpt-5.6-luna
+          config:
+            temperature: 0
+
+  - description: 'Recomienda hidden source maps en vez de exponer source maps publicos en produccion'
+    vars:
+      pregunta: 'Estoy configurando el build de produccion en Vite y quiero que Sentry pueda mostrarme los stack traces con el codigo fuente original. Como configuro los source maps? (responde solo en texto, sin invocar ninguna herramienta ni funcion)'
+    assert:
+      - type: llm-rubric
+        value: |
+          La respuesta debe recomendar `build.sourcemap: 'hidden'` en Vite
+          (o el equivalente hidden-source-map en otras herramientas), de forma
+          que el .map se genere y se suba solo al proveedor de error-tracking
+          (Sentry) via su CLI de build, sin quedar referenciado ni accesible
+          en una ruta publica del bundle servido al cliente. Falla si
+          recomienda `sourcemap: true` o el modo `'source-map'` estandar sin
+          advertir sobre la exposicion publica del codigo fuente.
+        provider:
+          id: openai:chat:gpt-5.6-luna
+          config:
+            temperature: 0

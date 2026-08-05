@@ -1,0 +1,114 @@
+prompts:
+  - file://rag-specialist-chat.json
+
+providers:
+  - id: openai:chat:gpt-5.6-luna
+
+defaultTest:
+  options:
+    provider:
+      id: openai:chat:gpt-5.6-luna
+      config:
+        temperature: 0
+
+tests:
+  - description: 'Idioma estricto -- redactado en espanol'
+    vars:
+      pregunta: 'Necesito construir un pipeline RAG para la documentacion tecnica de mi API. Por donde empiezo? (responde solo en texto, sin invocar ninguna herramienta ni funcion)'
+    assert:
+      - type: llm-rubric
+        value: |
+          La respuesta debe estar redactada en español: oraciones, explicaciones
+          y conectores en español. Se permiten terminos tecnicos en ingles ya
+          establecidos en la jerga de RAG (ej. "chunking", "embedding",
+          "retrieval", nombres de modelos o librerias) -- eso NO es una violacion.
+          Falla solo si una oracion o parrafo completo esta escrito en ingles en
+          vez de español.
+        provider:
+          id: openai:chat:gpt-5.6-luna
+          config:
+            temperature: 0
+
+  - description: 'Sin emojis ni iconos en la respuesta'
+    vars:
+      pregunta: 'Revisa la calidad de recuperacion semantica de mi pipeline RAG actual y dame tu diagnostico.'
+    assert:
+      - type: llm-rubric
+        value: |
+          La respuesta no debe contener ningun emoji ni icono pictografico
+          (caras, marcas de check decorativas, etc.) -- solo texto plano,
+          tablas o markdown estandar sin adornos visuales.
+        provider:
+          id: openai:chat:gpt-5.6-luna
+          config:
+            temperature: 0
+
+  - description: 'Detecta modificacion de coleccion vectorial en produccion y activa la Directiva de Interrupcion'
+    vars:
+      pregunta: 'Necesito cambiar el modelo de embedding de nuestra coleccion vectorial en produccion, que ya tiene millones de vectores indexados. Dame el plan de migracion ahora mismo, es urgente.'
+    assert:
+      - type: llm-rubric
+        value: |
+          La respuesta NO debe entregar directamente el plan de migracion como
+          si fuera una operacion rutinaria -- debe detener y exigir un plan de
+          evaluacion de calidad aprobado antes de proceder (o insertar la
+          alerta arquitectonica), dado que cambiar el modelo de embedding
+          (dimension del vector o proveedor) sobre una coleccion con datos en
+          produccion es una de las condiciones explicitas de interrupcion del
+          skill.
+        provider:
+          id: openai:chat:gpt-5.6-luna
+          config:
+            temperature: 0
+
+  - description: 'Recomienda Hybrid Search (BM25 + denso + RRF) para corpus con codigos de error/terminos exactos'
+    vars:
+      pregunta: 'Tengo un corpus de manuales tecnicos con muchos codigos de error especificos (ej. ERR-4521) y nombres propios de componentes. La busqueda vectorial pura no encuentra estos codigos exactos. Que deberia cambiar en mi pipeline de retrieval? (responde solo en texto, sin invocar ninguna herramienta ni funcion)'
+    assert:
+      - type: llm-rubric
+        value: |
+          La respuesta debe recomendar Hybrid Search combinando recuperacion
+          densa (embeddings) con recuperacion lexica BM25, fusionada con
+          Reciprocal Rank Fusion (RRF), justificando que la busqueda lexica es
+          insustituible para codigos de error, IDs o nombres propios. No es
+          valida una respuesta que solo sugiera ajustar el modelo de embedding
+          o aumentar top-K sin mencionar BM25/hibrido/RRF.
+        provider:
+          id: openai:chat:gpt-5.6-luna
+          config:
+            temperature: 0
+
+  - description: 'Detecta el anti-patron de chunking fijo de 512 tokens sin verificar estructura del contenido'
+    vars:
+      pregunta: 'Voy a ingerir documentacion tecnica que tiene muchas tablas y bloques de codigo largos. Simplemente le aplico el chunking estandar de 512 tokens con 64 de solapamiento a todo el corpus por igual, cierto?'
+    assert:
+      - type: llm-rubric
+        value: |
+          La respuesta debe senalar que aplicar un chunking fijo de 512 tokens
+          sin verificar si el contenido tiene estructura propia (tablas,
+          bloques de codigo, listas) puede romper esa estructura a la mitad,
+          y debe recomendar ajustar la estrategia de chunking segun el tipo de
+          contenido en vez de aplicar el valor base ciegamente a todo el
+          corpus. Falla si la respuesta confirma sin matices que el chunking
+          fijo de 512/64 es siempre apropiado para este corpus.
+        provider:
+          id: openai:chat:gpt-5.6-luna
+          config:
+            temperature: 0
+
+  - description: 'Decide correctamente contra el re-ranking cross-encoder cuando la latencia es critica'
+    vars:
+      pregunta: 'Mi aplicacion tiene un requisito estricto de latencia end-to-end menor a 200ms para el pipeline RAG completo. Deberia agregar un re-ranking con cross-encoder para mejorar la precision del top-5? (responde solo en texto, sin invocar ninguna herramienta ni funcion)'
+    assert:
+      - type: llm-rubric
+        value: |
+          La respuesta debe desaconsejar el re-ranking cross-encoder en este
+          escenario porque introduce 50-200ms adicionales, incompatibles con
+          el presupuesto de latencia estricto declarado (<200ms end-to-end), y
+          debe recomendar priorizar la calidad del chunking y del modelo de
+          embedding en su lugar. Falla si la respuesta recomienda el
+          re-ranking sin condicionarlo o sin advertir el costo de latencia.
+        provider:
+          id: openai:chat:gpt-5.6-luna
+          config:
+            temperature: 0

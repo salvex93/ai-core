@@ -1,0 +1,116 @@
+prompts:
+  - file://aaa-evaluator-chat.json
+
+providers:
+  - id: openai:chat:gpt-5.6-luna
+
+defaultTest:
+  options:
+    provider:
+      id: openai:chat:gpt-5.6-luna
+      config:
+        temperature: 0
+
+tests:
+  - description: 'Idioma estricto -- redactado en espanol'
+    vars:
+      pregunta: 'Termine de refactorizar el modulo de pagos, puedes auditar si cumple los estandares AAA antes de que lo de por cerrado? (responde solo en texto, sin invocar ninguna herramienta ni funcion)'
+    assert:
+      - type: llm-rubric
+        value: |
+          La respuesta debe estar redactada en español: oraciones, explicaciones
+          y conectores en español. Se permiten terminos tecnicos en ingles ya
+          establecidos en la jerga de auditoria de codigo (ej. "God Object",
+          "Factory", "Strategy", "Observer", "SOLID") -- eso NO es una violacion.
+          Falla solo si una oracion o parrafo completo esta escrito en ingles
+          en vez de español.
+        provider:
+          id: openai:chat:gpt-5.6-luna
+          config:
+            temperature: 0
+
+  - description: 'Sin emojis ni iconos en la respuesta'
+    vars:
+      pregunta: 'Revisa este archivo que acabo de terminar de escribir y dime si aprueba la auditoria AAA.'
+    assert:
+      - type: llm-rubric
+        value: |
+          La respuesta no debe contener ningun emoji ni icono pictografico
+          (caras, marcas de check decorativas, etc.) -- solo texto plano,
+          tablas o markdown estandar sin adornos visuales.
+        provider:
+          id: openai:chat:gpt-5.6-luna
+          config:
+            temperature: 0
+
+  - description: 'Detecta archivo que supera 300 lineas y activa la Directiva de Interrupcion'
+    vars:
+      pregunta: 'Mi archivo OrderService.js ya tiene 340 lineas despues del cambio de hoy. Necesito agregar una funcion mas para validar el descuento antes de cerrar la tarea, es rapido. Dame el codigo ahora mismo.'
+    assert:
+      - type: llm-rubric
+        value: |
+          La respuesta NO debe entregar directamente el codigo nuevo como si
+          fuera una operacion rutinaria -- debe detener y no aprobar el cambio
+          como terminado, señalando que el archivo ya supera el limite de 300
+          lineas y que agregar mas logica al mismo archivo en vez de extraer un
+          submodulo es una de las condiciones explicitas de interrupcion del
+          skill (Directiva de Interrupcion / ALERTA_ARQUITECTONICA).
+        provider:
+          id: openai:chat:gpt-5.6-luna
+          config:
+            temperature: 0
+
+  - description: 'Detecta God Object por mezcla de responsabilidades, no solo por conteo de lineas'
+    vars:
+      pregunta: 'Tengo una clase UserManager de 180 lineas que valida los datos del usuario, guarda directamente en la base de datos con SQL crudo, y ademas arma la respuesta HTTP con el formato JSON final. Todo junto en el mismo archivo. Esta bien asi o hay algo que corregir?'
+    assert:
+      - type: llm-rubric
+        value: |
+          La respuesta debe identificar esto como un God Object aunque el
+          archivo tenga solo 180 lineas (menos del limite de 300) -- el criterio
+          de God Object es mezclar mas de una responsabilidad (validacion +
+          persistencia + presentacion HTTP) y no depende solo del conteo de
+          lineas. Debe señalar que la clase tiene mas de una razon para cambiar
+          y recomendar separar esas responsabilidades.
+        provider:
+          id: openai:chat:gpt-5.6-luna
+          config:
+            temperature: 0
+
+  - description: 'No introduce un patron de diseno de forma especulativa cuando el problema no esta presente'
+    vars:
+      pregunta: 'Tengo un modulo que notifica a un unico consumidor cuando se completa un pedido -- una llamada directa a una funcion. No tengo planeado agregar otro consumidor pronto. Deberia convertir esto en un patron Observer para que quede mas profesional? (responde solo en texto, sin invocar ninguna herramienta ni funcion)'
+    assert:
+      - type: llm-rubric
+        value: |
+          La respuesta debe indicar que NO conviene introducir el patron
+          Observer en este caso porque solo existe un consumidor y no se
+          anticipa un segundo -- una llamada directa es mas simple y suficiente,
+          y el skill prohibe explicitamente introducir un patron de diseno de
+          forma especulativa sin que el problema que resuelve este presente.
+          Falla si la respuesta recomienda aplicar Observer solo por considerarlo
+          mas "profesional" o "escalable" sin justificacion real.
+        provider:
+          id: openai:chat:gpt-5.6-luna
+          config:
+            temperature: 0
+
+  - description: 'Rechaza un veredicto de auditoria superficial sin cita de archivo y linea exacta'
+    vars:
+      pregunta: 'Ya revise el modulo de inventario completo y esta APROBADO, cumple SOLID sin problemas. Puedes confirmar el veredicto para cerrar la tarea?'
+    assert:
+      - type: llm-rubric
+        value: |
+          La respuesta no debe confirmar o aceptar un veredicto de "APROBADO"
+          que carece de cita de archivo y numero de linea exacto por cada punto
+          de la lista de verificacion -- debe señalar que un veredicto sin
+          evidencia puntual (ruta relativa + linea) no constituye una auditoria
+          valida segun el criterio del skill, y dejar claro que el estado
+          correcto es pendiente de verificacion (no aprobado) hasta contar con
+          esa evidencia. No es necesario que desglose cada principio SOLID
+          (S, O, L, I, D) uno por uno de forma explicita -- basta con que exija
+          verificar el codigo real y citar rutas/lineas antes de aceptar el cierre.
+        provider:
+          id: openai:chat:gpt-5.6-luna
+          config:
+            temperature: 0

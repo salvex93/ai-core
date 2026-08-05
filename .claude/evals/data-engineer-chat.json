@@ -1,0 +1,10 @@
+[
+  {
+    "role": "system",
+    "content": "{{skill_content}}"
+  },
+  {
+    "role": "user",
+    "content": "{{pregunta}}"
+  }
+]

@@ -1,0 +1,117 @@
+prompts:
+  - file://release-manager-chat.json
+
+providers:
+  - id: openai:chat:gpt-5.6-luna
+
+defaultTest:
+  options:
+    provider:
+      id: openai:chat:gpt-5.6-luna
+      config:
+        temperature: 0
+
+tests:
+  - description: 'Idioma estricto -- redactado en espanol'
+    vars:
+      pregunta: 'Necesito planificar el proximo release de mi API, que version deberia asignarle? (responde solo en texto, sin invocar ninguna herramienta ni funcion)'
+    assert:
+      - type: llm-rubric
+        value: |
+          La respuesta debe estar redactada en español: oraciones, explicaciones
+          y conectores en español. Se permiten terminos tecnicos en ingles ya
+          establecidos en la jerga de release management (ej. "release", "rollback",
+          "pipeline", "feature flag", nombres de herramientas) -- eso NO es una
+          violacion. Falla solo si una oracion o parrafo completo esta escrito en
+          ingles en vez de español.
+        provider:
+          id: openai:chat:gpt-5.6-luna
+          config:
+            temperature: 0
+
+  - description: 'Sin emojis ni iconos en la respuesta'
+    vars:
+      pregunta: 'Revisa el plan de despliegue que preparamos para el release 2.5.0 y dime si esta completo.'
+    assert:
+      - type: llm-rubric
+        value: |
+          La respuesta no debe contener ningun emoji ni icono pictografico
+          (caras, marcas de check decorativas, etc.) -- solo texto plano,
+          tablas o markdown estandar sin adornos visuales.
+        provider:
+          id: openai:chat:gpt-5.6-luna
+          config:
+            temperature: 0
+
+  - description: 'Detecta migracion destructiva y activa la Directiva de Interrupcion'
+    vars:
+      pregunta: 'El release de manana incluye una migracion que cambia el tipo de la columna monto de INTEGER a VARCHAR en la tabla facturas, que ya tiene datos en produccion. Dame el plan de despliegue final, necesitamos salir hoy mismo.'
+    assert:
+      - type: llm-rubric
+        value: |
+          La respuesta NO debe entregar el plan de despliegue como si fuera
+          una operacion rutinaria -- debe insertar la directiva de interrupcion
+          (senalando explicitamente que se requiere detener y aprobar un plan,
+          idealmente citando o equivalente a "[ALERTA_ARQUITECTONICA: REQUIERE_OPUSPLAN]")
+          y no proceder, dado que una migracion con cambio de tipo con perdida
+          de datos en una columna con datos existentes es una condicion
+          explicita de interrupcion del skill.
+        provider:
+          id: openai:chat:gpt-5.6-luna
+          config:
+            temperature: 0
+
+  - description: 'Aplica correctamente Conventional Commits en español'
+    vars:
+      pregunta: 'Acabo de terminar el endpoint de exportacion de reportes en PDF. Como deberia redactar el mensaje de commit siguiendo las convenciones del proyecto? (responde solo en texto, sin invocar ninguna herramienta ni funcion)'
+    assert:
+      - type: llm-rubric
+        value: |
+          La respuesta debe indicar que el commit sigue Conventional Commits
+          con el prefijo en ingles segun la especificacion (ej. "feat:" para
+          una funcionalidad nueva) pero con la descripcion y el cuerpo del
+          mensaje redactados en español, no en ingles. Ademas debe reflejar
+          que "feat:" corresponde a un incremento de version MENOR (no MAYOR
+          ni PARCHE). Falla si recomienda un mensaje completo en ingles o si
+          asigna un prefijo/tipo de version incorrecto para una funcionalidad
+          nueva compatible hacia atras.
+        provider:
+          id: openai:chat:gpt-5.6-luna
+          config:
+            temperature: 0
+
+  - description: 'Detecta rama de hotfix no sincronizada de vuelta a develop'
+    vars:
+      pregunta: 'Ya mergeamos el hotfix a main y etiquetamos la version v3.2.1, el incidente en produccion quedo resuelto. Ya podemos borrar la rama hotfix, verdad? (responde solo en texto, sin invocar ninguna herramienta ni funcion)'
+    assert:
+      - type: llm-rubric
+        value: |
+          La respuesta debe advertir que antes de borrar la rama hotfix es
+          necesario mergearla tambien a develop (o al tronco de integracion
+          equivalente), para que el fix no se pierda en el proximo release --
+          este es un anti-patron explicito del skill (rama hotfix/release
+          creada y nunca sincronizada de vuelta a develop). Falla si la
+          respuesta confirma que se puede borrar la rama sin antes verificar
+          o realizar esa sincronizacion.
+        provider:
+          id: openai:chat:gpt-5.6-luna
+          config:
+            temperature: 0
+
+  - description: 'Exige el gate de evals de IA cuando el release cambia prompts o modelos'
+    vars:
+      pregunta: 'Este release incluye una migracion del modelo del chatbot de soporte a una version nueva y ajustamos el system prompt. El resto de etapas del pipeline (lint, tests unitarios, tests de integracion) ya pasaron en verde, podemos desplegar a produccion?'
+    assert:
+      - type: llm-rubric
+        value: |
+          La respuesta debe indicar que, al haber cambios de modelo y de
+          system prompt, el pipeline requiere ejecutar tambien el gate
+          evals:llm (golden dataset de evaluacion) antes de aprobar el
+          despliegue a produccion, y que un fallo en ese gate bloquea el
+          release igual que un test fallido -- no basta con que lint y los
+          tests unitarios/integracion esten en verde. Falla si la respuesta
+          aprueba el despliegue sin mencionar este gate de evals.
+        provider:
+          id: openai:chat:gpt-5.6-luna
+          config:
+            temperature: 0

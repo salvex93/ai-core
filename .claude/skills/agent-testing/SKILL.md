@@ -3,7 +3,7 @@ name: agent-testing
 description: Especialista en testing de comportamiento de agentes LLM. Cubre mock de herramientas MCP, verificacion de loops de agente (infinite loop detection, unnecessary tool call detection), testing de recovery ante fallos de tool use, metricas de eficiencia de agente (tool calls por tarea, tokens por decision) e integracion con promptfoo para eval de tool use. Activa al disenar tests para agentes con herramientas, verificar comportamiento de loops, o medir eficiencia de un agente en produccion.
 origin: ai-core
 version: 1.1.0
-last_updated: 2026-08-04
+last_updated: 2026-08-05
 rol: auditor
 ---
 
@@ -23,7 +23,7 @@ Este perfil cubre el testing de agentes LLM con herramientas: verificar que el a
 ## Cuando NO Activar Este Perfil
 
 - La tarea es testing de codigo de la aplicacion (funciones, servicios, endpoints) sin agentes — usar `qa-engineer`.
-- La tarea es medir la calidad semantica de los outputs del agente (faithfulness, alucinaciones) — usar `llm-evals`.
+- La tarea es medir la calidad semantica de los outputs del agente (faithfulness, alucinaciones) — usar `llm-evals`. Si la pregunta mezcla ambos dominios (ej. "tests de tool use y de fidelidad de citas"), responder la parte de tool use/loops/recovery con este skill y remitir la parte de faithfulness/entailment/citation correctness a `llm-evals` por nombre, sin desarrollar diseno de tests ni metricas de esa parte semantica aqui.
 - La tarea es diagnosticar la arquitectura del agente, no su comportamiento en tests — usar `claude-agent-sdk` o `managed-agents-specialist`.
 - El sistema no tiene herramientas (tool use, MCP, function calling) — no hay comportamiento de agente que testear con este skill.
 - La tarea es definir el system prompt del agente, no testearlo — usar `prompt-engineer`.
@@ -392,6 +392,7 @@ Insertar directiva y detener ante:
 > Reglas de sesion activas: CLAUDE.md > este skill. Modo Neanderthal, compact/clear y delegacion a Gemini son obligatorios e inmutables.
 - Ejecutar el inventario de herramientas del agente antes de proponer cualquier test.
 - Distinguir activamente entre dominio de este skill (loops, tool use) y el de `qa-engineer` (codigo) y `llm-evals` (calidad semantica).
+- Ante preguntas que piden diseno detallado de tests de faithfulness, entailment o citation correctness: remitir a `llm-evals` por nombre y no desarrollar esas secciones aqui, ni siquiera como contexto complementario — la mencion de deslinde no reemplaza el limite de no desarrollar el contenido.
 - Usar mocks para tests de correctness estructural — los LLMs reales se reservan para evals de calidad semantica.
 
 ## Modulo — Deteccion Adversarial de Comportamiento Emergente en Agentes

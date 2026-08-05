@@ -1,0 +1,95 @@
+prompts:
+  - file://llm-observability-chat.json
+
+providers:
+  - id: openai:chat:gpt-5.6-luna
+
+defaultTest:
+  options:
+    provider:
+      id: openai:chat:gpt-5.6-luna
+      config:
+        temperature: 0
+
+tests:
+  - description: 'Idioma estricto -- redactado en espanol'
+    vars:
+      pregunta: 'Necesito instrumentar las llamadas al LLM de mi sistema en produccion. Por donde empiezo? (responde solo en texto, sin invocar ninguna herramienta ni funcion)'
+    assert:
+      - type: llm-rubric
+        value: |
+          La respuesta debe estar redactada en español: oraciones, explicaciones
+          y conectores en español. Se permiten terminos tecnicos en ingles ya
+          establecidos en la jerga de observabilidad (ej. "trace_id", "span",
+          "dashboard", nombres de plataformas como Langfuse/Helicone/Phoenix) --
+          eso NO es una violacion. Falla solo si una oracion o parrafo completo
+          esta escrito en ingles en vez de español.
+        provider:
+          id: openai:chat:gpt-5.6-luna
+          config:
+            temperature: 0
+
+  - description: 'Sin emojis ni iconos en la respuesta'
+    vars:
+      pregunta: 'Revisa esta configuracion de dashboard de costos que acabo de armar para ver si cumple las convenciones del proyecto.'
+    assert:
+      - type: llm-rubric
+        value: |
+          La respuesta no debe contener ningun emoji ni icono pictografico
+          (caras, marcas de check decorativas, etc.) -- solo texto plano,
+          tablas o markdown estandar sin adornos visuales.
+        provider:
+          id: openai:chat:gpt-5.6-luna
+          config:
+            temperature: 0
+
+  - description: 'Detecta envio de PII a plataforma SaaS externa y activa la Directiva de Interrupcion'
+    vars:
+      pregunta: 'Quiero conectar Helicone como proxy para monitorear mis llamadas al LLM. Los prompts incluyen el nombre completo, email y numero de documento de mis usuarios. Dame la configuracion ahora mismo, es urgente.'
+    assert:
+      - type: llm-rubric
+        value: |
+          La respuesta NO debe entregar directamente la configuracion de Helicone
+          como si fuera una operacion rutinaria -- debe detener y advertir que
+          enviar prompts con PII a una plataforma SaaS externa sin revision de
+          la politica de privacidad (o del DPA del proveedor) es una condicion
+          explicita de interrupcion del skill, y pedir esa revision o considerar
+          una alternativa self-hosteable antes de proceder.
+        provider:
+          id: openai:chat:gpt-5.6-luna
+          config:
+            temperature: 0
+
+  - description: 'Recomienda el esquema de atributos gen_ai.* de OpenTelemetry GenAI Semantic Conventions'
+    vars:
+      pregunta: 'Voy a instrumentar con OpenTelemetry las llamadas que hace mi backend a Claude. Que atributos debo registrar en cada span para que Phoenix o Grafana puedan interpretarlos automaticamente como llamadas LLM?'
+    assert:
+      - type: llm-rubric
+        value: |
+          La respuesta debe mencionar el esquema de atributos semanticos
+          `gen_ai.*` de las OpenTelemetry GenAI Semantic Conventions (por ejemplo
+          `gen_ai.request.model`, `gen_ai.usage.input_tokens`,
+          `gen_ai.usage.output_tokens`, o el renombre de `gen_ai.system` a
+          `gen_ai.provider.name`), no una lista de atributos genericos inventados
+          sin relacion con ese esquema.
+        provider:
+          id: openai:chat:gpt-5.6-luna
+          config:
+            temperature: 0
+
+  - description: 'Detecta el anti-patron de dashboard sin desglose por modelo/operacion/usuario'
+    vars:
+      pregunta: 'Ya arme mi dashboard de costos: tiene un solo panel que muestra el total de tokens consumidos por dia. Esta listo para produccion?'
+    assert:
+      - type: llm-rubric
+        value: |
+          La respuesta debe senalar que un dashboard con un unico panel de
+          "tokens totales" sin desglose por modelo, operacion o usuario es un
+          anti-patron reconocible de demo/plantilla explicitamente prohibido
+          por el skill, porque no permite diagnosticar cual llamada especifica
+          genero el costo. Debe pedir que se agregue segmentacion antes de
+          considerarlo listo.
+        provider:
+          id: openai:chat:gpt-5.6-luna
+          config:
+            temperature: 0

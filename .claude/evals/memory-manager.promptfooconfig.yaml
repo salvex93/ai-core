@@ -1,0 +1,96 @@
+prompts:
+  - file://memory-manager-chat.json
+
+providers:
+  - id: openai:chat:gpt-5.6-luna
+
+defaultTest:
+  options:
+    provider:
+      id: openai:chat:gpt-5.6-luna
+      config:
+        temperature: 0
+
+tests:
+  - description: 'Idioma estricto -- redactado en espanol'
+    vars:
+      pregunta: 'Quiero guardar en el vault de memoria la decision que tomamos sobre el manejo de tokens JWT. Como lo hago? (responde solo en texto, sin invocar ninguna herramienta ni funcion)'
+    assert:
+      - type: llm-rubric
+        value: |
+          La respuesta debe estar redactada en español: oraciones, explicaciones
+          y conectores en español. Se permiten terminos tecnicos en ingles ya
+          establecidos en la jerga de memoria/indexacion (ej. "score", "index",
+          "BM25", nombres de comandos) -- eso NO es una violacion. Falla solo si
+          una oracion o parrafo completo esta escrito en ingles en vez de español.
+        provider:
+          id: openai:chat:gpt-5.6-luna
+          config:
+            temperature: 0
+
+  - description: 'Sin emojis ni iconos en la respuesta'
+    vars:
+      pregunta: 'Revisa el estado del indice del vault de memoria y dime si esta desactualizado.'
+    assert:
+      - type: llm-rubric
+        value: |
+          La respuesta no debe contener ningun emoji ni icono pictografico
+          (caras, marcas de check decorativas, etc.) -- solo texto plano,
+          tablas o markdown estandar sin adornos visuales.
+        provider:
+          id: openai:chat:gpt-5.6-luna
+          config:
+            temperature: 0
+
+  - description: 'Detecta vault con mas de 50 archivos sin poda y activa la Directiva de Interrupcion'
+    vars:
+      pregunta: 'El vault de memoria en .raw/ ya tiene 63 archivos y no se ha podado nunca. Necesito indexar una entrada nueva ahora mismo, hazlo directo.'
+    assert:
+      - type: llm-rubric
+        value: |
+          La respuesta NO debe proceder a indexar la entrada nueva como si
+          fuera una operacion rutinaria -- debe insertar la directiva de
+          interrupcion (senalando el marcador tipo
+          "[ALERTA_ARQUITECTONICA: REQUIERE_OPUSPLAN]" o su equivalente
+          explicito) y detenerse, dado que superar 50 archivos en .raw/ sin
+          poda reciente es una de las condiciones explicitas de interrupcion
+          del skill.
+        provider:
+          id: openai:chat:gpt-5.6-luna
+          config:
+            temperature: 0
+
+  - description: 'Aplica correctamente el umbral de relevancia BM25 al interpretar un score de recuperacion'
+    vars:
+      pregunta: 'Ejecute una consulta al vault sobre "autenticacion JWT tokens" y el resultado mas relevante dio score 0.8. Debo incluir eso como contexto activo antes de responder?'
+    assert:
+      - type: llm-rubric
+        value: |
+          La respuesta debe aplicar correctamente el umbral de relevancia
+          declarado por el skill: un score de 0.8 cae en el rango 0.5-2.0,
+          por lo tanto NO debe incluirse como contexto activo de forma
+          automatica -- solo esta disponible si el usuario pregunta
+          explicitamente sobre ese tema. La respuesta no debe tratar el
+          score 0.8 como si superara el umbral de 2.0 requerido para
+          contexto activo.
+        provider:
+          id: openai:chat:gpt-5.6-luna
+          config:
+            temperature: 0
+
+  - description: 'Detecta el anti-patron de indexar output crudo de diagnostico como si fuera aprendizaje'
+    vars:
+      pregunta: 'Acabo de correr npm test y me arrojo un stack trace largo de un fallo en un test. Quiero indexar ese stack trace completo en .raw/ como aprendizaje de la sesion. Genera la entrada.'
+    assert:
+      - type: llm-rubric
+        value: |
+          La respuesta debe senalar que indexar el resultado crudo de un
+          comando de diagnostico (stack trace de npm test) como si fuera
+          "aprendizaje" es un anti-patron explicitamente prohibido por el
+          skill -- es estado efimero, no conocimiento persistente. No debe
+          generar directamente la entrada .raw/ con el stack trace crudo
+          sin señalar esta objecion primero.
+        provider:
+          id: openai:chat:gpt-5.6-luna
+          config:
+            temperature: 0

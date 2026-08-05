@@ -1,0 +1,95 @@
+prompts:
+  - file://cost-optimizer-chat.json
+
+providers:
+  - id: openai:chat:gpt-5.6-luna
+
+defaultTest:
+  options:
+    provider:
+      id: openai:chat:gpt-5.6-luna
+      config:
+        temperature: 0
+
+tests:
+  - description: 'Idioma estricto -- redactado en espanol'
+    vars:
+      pregunta: 'Tengo un pipeline de agentes que hace 20 llamadas LLM secuenciales y el costo se disparo este mes. Que deberia revisar primero? (responde solo en texto, sin invocar ninguna herramienta ni funcion)'
+    assert:
+      - type: llm-rubric
+        value: |
+          La respuesta debe estar redactada en español: oraciones, explicaciones
+          y conectores en español. Se permiten terminos tecnicos en ingles ya
+          establecidos en la jerga de optimizacion de costos LLM (ej. "prompt
+          caching", "batch inference", "tier", nombres de modelos) -- eso NO es
+          una violacion. Falla solo si una oracion o parrafo completo esta
+          escrito en ingles en vez de español.
+        provider:
+          id: openai:chat:gpt-5.6-luna
+          config:
+            temperature: 0
+
+  - description: 'Sin emojis ni iconos en la respuesta'
+    vars:
+      pregunta: 'Revisa mi estrategia de seleccion de modelos para ver si estoy desperdiciando presupuesto en algun tier.'
+    assert:
+      - type: llm-rubric
+        value: |
+          La respuesta no debe contener ningun emoji ni icono pictografico
+          (caras, marcas de check decorativas, etc.) -- solo texto plano,
+          tablas o markdown estandar sin adornos visuales.
+        provider:
+          id: openai:chat:gpt-5.6-luna
+          config:
+            temperature: 0
+
+  - description: 'Exige la linea de identidad de costo antes de citar cualquier pricing o tier'
+    vars:
+      pregunta: 'Dame ya el precio por millon de tokens de Gemini Flash-Lite y confirmame que puedo migrar mi pipeline de Sonnet a Haiku para ahorrar costo. (responde solo en texto, sin invocar ninguna herramienta ni funcion)'
+    assert:
+      - type: llm-rubric
+        value: |
+          La respuesta NO debe entregar directamente un numero de pricing, un
+          tier o un porcentaje de ahorro sin antes completar la linea de
+          identidad declarada ("IDENTIDAD COSTO: Modelo candidato... Mecanismo
+          de ahorro aplicable... Fuente de pricing verificada... SLA de
+          calidad del sistema destino..."). Citar un precio o recomendar un
+          downgrade de tier sin esa linea previa, o sin evaluar si el sistema
+          destino tiene SLA de calidad documentado, es una falla.
+        provider:
+          id: openai:chat:gpt-5.6-luna
+          config:
+            temperature: 0
+
+  - description: 'Rechaza Batch API para un lote pequeno o con dependencias secuenciales'
+    vars:
+      pregunta: 'Tengo que generar tests para 3 funciones que dependen unas de otras (el test de la segunda usa el resultado de la primera). Deberia usar la Batch API de Anthropic para ahorrar 50%? (responde solo en texto, sin invocar ninguna herramienta ni funcion)'
+    assert:
+      - type: llm-rubric
+        value: |
+          La respuesta debe desaconsejar el uso de Batch API en este caso,
+          señalando explicitamente al menos una de las dos razones: (1) son
+          menos de 5 items y el overhead de setup no justifica el ahorro, y/o
+          (2) las tareas tienen dependencias secuenciales entre si, lo cual
+          es incompatible con Batch API. Falla si recomienda Batch API sin
+          mencionar estas restricciones.
+        provider:
+          id: openai:chat:gpt-5.6-luna
+          config:
+            temperature: 0
+
+  - description: 'Aplica la jerarquia de tiers correctamente ante una tarea de clasificacion masiva'
+    vars:
+      pregunta: 'Necesito clasificar 15.000 tickets de soporte al dia en categorias simples (bug, consulta, queja). Que modelo uso?'
+    assert:
+      - type: llm-rubric
+        value: |
+          La respuesta debe recomendar Gemini como tier 0 (Flash-Lite u otro
+          modelo Gemini gratuito/economico de esa familia) para este volumen
+          masivo de clasificacion simple, en vez de saltar directamente a un
+          modelo pagado de mayor costo (Sonnet u Opus) sin justificar por que
+          el tier inferior no bastaria.
+        provider:
+          id: openai:chat:gpt-5.6-luna
+          config:
+            temperature: 0

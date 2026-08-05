@@ -1,0 +1,99 @@
+prompts:
+  - file://saas-product-architect-chat.json
+
+providers:
+  - id: openai:chat:gpt-5.6-luna
+
+defaultTest:
+  options:
+    provider:
+      id: openai:chat:gpt-5.6-luna
+      config:
+        temperature: 0
+
+tests:
+  - description: 'Idioma estricto -- redactado en espanol'
+    vars:
+      pregunta: 'Estoy por lanzar mi SaaS B2B y necesito definir el modelo de pricing. Que opciones tengo? (responde solo en texto, sin invocar ninguna herramienta ni funcion)'
+    assert:
+      - type: llm-rubric
+        value: |
+          La respuesta debe estar redactada en español: oraciones, explicaciones
+          y conectores en español. Se permiten terminos tecnicos en ingles ya
+          establecidos en la jerga de producto SaaS (ej. "billing", "churn",
+          "entitlements", nombres de plataformas como Stripe/Paddle) -- eso NO
+          es una violacion. Falla solo si una oracion o parrafo completo esta
+          escrito en ingles en vez de español.
+        provider:
+          id: openai:chat:gpt-5.6-luna
+          config:
+            temperature: 0
+
+  - description: 'Sin emojis ni iconos en la respuesta'
+    vars:
+      pregunta: 'Revisa la matriz de entitlements por plan que acabo de definir para mi SaaS, quiero saber si esta bien estructurada.'
+    assert:
+      - type: llm-rubric
+        value: |
+          La respuesta no debe contener ningun emoji ni icono pictografico
+          (caras, marcas de check decorativas, etc.) -- solo texto plano,
+          tablas o markdown estandar sin adornos visuales.
+        provider:
+          id: openai:chat:gpt-5.6-luna
+          config:
+            temperature: 0
+
+  - description: 'Detecta migracion de modelo de tenancy en produccion y activa la Directiva de Interrupcion'
+    vars:
+      pregunta: 'Mi SaaS ya tiene tenants activos en un modelo pool compartido, pero ahora quiero migrar todo a silo (stack dedicado por cliente) porque un cliente grande lo esta pidiendo. Dame el plan de migracion ahora mismo, necesito avanzar hoy.'
+    assert:
+      - type: llm-rubric
+        value: |
+          La respuesta NO debe entregar directamente un plan de migracion como
+          si fuera una operacion rutinaria -- debe detener el diseno e insertar
+          la directiva de interrupcion (senalando el riesgo de migracion de
+          datos en caliente, downtime o perdida de aislamiento durante la
+          transicion), dado que migrar el modelo de tenancy de un SaaS ya en
+          produccion con tenants activos es una de las condiciones explicitas
+          de interrupcion del skill.
+        provider:
+          id: openai:chat:gpt-5.6-luna
+          config:
+            temperature: 0
+
+  - description: 'Detecta el anti-patron de confundir feature flag de despliegue con entitlement de plan pagado'
+    vars:
+      pregunta: 'Tengo una feature nueva que solo deberian poder usar los clientes del plan Enterprise. Pense en simplemente activarla con un feature flag para todos los tenants una vez que termine el rollout gradual. Te parece bien ese enfoque?'
+    assert:
+      - type: llm-rubric
+        value: |
+          La respuesta debe senalar explicitamente que este es un anti-patron:
+          un feature flag es una tecnica de release (rollout gradual, kill
+          switch) y no debe usarse para controlar el acceso pagado por plan.
+          Debe recomendar una capa de entitlements centralizada y consultable
+          por API que decida si el tenant tiene derecho a la feature, separada
+          del mecanismo de flag de despliegue. Falla si la respuesta acepta
+          activar la feature para todos los tenants via flag sin distinguir
+          ambas capas.
+        provider:
+          id: openai:chat:gpt-5.6-luna
+          config:
+            temperature: 0
+
+  - description: 'Exige declarar tenancy/pricing/mercado objetivo antes de disenar en un escenario ambiguo'
+    vars:
+      pregunta: 'Quiero armar la arquitectura de mi SaaS desde cero. Disename ya el pipeline de provisioning de tenants nuevos.'
+    assert:
+      - type: llm-rubric
+        value: |
+          La respuesta NO debe saltar directo a disenar el pipeline de
+          provisioning sin antes exigir o al menos preguntar explicitamente
+          por las tres decisiones previas declaradas como obligatorias en el
+          skill: modelo de tenancy (silo/pool/bridge), modelo de pricing
+          (flat/per-seat/usage-based/hibrido) y mercado objetivo (B2B vs B2C).
+          Falla si la respuesta disena el provisioning directamente asumiendo
+          estas decisiones sin declararlas o sin pedirselas al usuario primero.
+        provider:
+          id: openai:chat:gpt-5.6-luna
+          config:
+            temperature: 0

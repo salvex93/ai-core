@@ -1,0 +1,106 @@
+prompts:
+  - file://ux-visual-designer-chat.json
+
+providers:
+  - id: openai:chat:gpt-5.6-luna
+
+defaultTest:
+  options:
+    provider:
+      id: openai:chat:gpt-5.6-luna
+      config:
+        temperature: 0
+
+tests:
+  - description: 'Idioma estricto -- redactado en espanol'
+    vars:
+      pregunta: 'Necesito definir la identidad visual de mi SaaS nuevo. Por donde empiezo? (responde solo en texto, sin invocar ninguna herramienta ni funcion)'
+    assert:
+      - type: llm-rubric
+        value: |
+          La respuesta debe estar redactada en español: oraciones, explicaciones
+          y conectores en español. Se permiten terminos tecnicos en ingles ya
+          establecidos en la jerga de diseno UX/visual (ej. "design system",
+          "wireframe", "handoff", nombres de paradigmas o librerias) -- eso NO
+          es una violacion. Falla solo si una oracion o parrafo completo esta
+          escrito en ingles en vez de español.
+        provider:
+          id: openai:chat:gpt-5.6-luna
+          config:
+            temperature: 0
+
+  - description: 'Sin emojis ni iconos en la respuesta'
+    vars:
+      pregunta: 'Revisa la paleta de colores que elegi para mi landing page y dime si esta bien.'
+    assert:
+      - type: llm-rubric
+        value: |
+          La respuesta no debe contener ningun emoji ni icono pictografico
+          (caras, marcas de check decorativas, etc.) -- solo texto plano,
+          tablas o markdown estandar sin adornos visuales.
+        provider:
+          id: openai:chat:gpt-5.6-luna
+          config:
+            temperature: 0
+
+  - description: 'Detecta rediseno de marca en produccion y activa la Directiva de Interrupcion'
+    vars:
+      pregunta: 'Quiero cambiar por completo la paleta de colores y la tipografia del design system de mi app, que ya esta en produccion con miles de usuarios activos. Dame los tokens nuevos ahora mismo, es urgente.'
+    assert:
+      - type: llm-rubric
+        value: |
+          La respuesta NO debe entregar directamente los tokens nuevos como si
+          fuera una operacion rutinaria -- debe insertar la directiva de
+          interrupcion (senalando la necesidad de un plan aprobado, por ejemplo
+          via una alerta arquitectonica o mencion explicita de detenerse antes
+          de proceder), dado que cambiar paleta o tipografia de un design
+          system ya implementado en produccion es una de las condiciones
+          explicitas de interrupcion del skill.
+        provider:
+          id: openai:chat:gpt-5.6-luna
+          config:
+            temperature: 0
+
+  - description: 'Declara identidad visual obligatoria y evita el patron slop por defecto'
+    vars:
+      pregunta: 'Necesito el diseno visual para un dashboard SaaS B2B nuevo. Dame la paleta y la tipografia que deberia usar.'
+    assert:
+      - type: llm-rubric
+        value: |
+          La respuesta es aceptable en cualquiera de estos dos caminos:
+          (A) declara explicitamente un paradigma estetico especifico (por
+          ejemplo glassmorphism, claymorphism, bento-grid, brutalismo-digital,
+          u otro paradigma nombrado del skill) en vez de usar adjetivos vagos
+          como "moderno" o "limpio"; o
+          (B) antes de comprometer paleta/tipografia, hace exploracion guiada
+          pidiendo el brief minimo necesario (publico objetivo, contexto de
+          uso, restricciones de marca, licencias tipograficas, etc.) -- este
+          camino es igual de valido porque el skill exige brief antes de
+          fijar identidad visual, tal como en el caso de exploracion guiada.
+          Falla SOLO si la respuesta entrega directamente el patron de slop
+          generico sin justificacion: card con sombra sutil + tipografia
+          Inter + gradiente violeta/azul + border-radius de 8px, presentado
+          como si fuera una decision de diseno valida sin paradigma nombrado
+          ni pedido de contexto previo.
+        provider:
+          id: openai:chat:gpt-5.6-luna
+          config:
+            temperature: 0
+
+  - description: 'No implementa codigo -- deriva la implementacion a tech-lead-frontend'
+    vars:
+      pregunta: 'Ya definimos el design system. Ahora escribeme el codigo React completo del componente Button con todos sus estados.'
+    assert:
+      - type: llm-rubric
+        value: |
+          La respuesta no debe entregar un componente de codigo React completo
+          y funcional como si fuera su responsabilidad -- debe aclarar que este
+          perfil solo produce especificaciones, tokens y wireframes, y que la
+          implementacion en codigo corresponde al skill tech-lead-frontend (o
+          equivalente de implementacion), ofreciendo en su lugar la
+          especificacion de handoff del componente (variantes, tamanos,
+          estados, tokens requeridos).
+        provider:
+          id: openai:chat:gpt-5.6-luna
+          config:
+            temperature: 0

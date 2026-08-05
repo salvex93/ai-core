@@ -1,0 +1,4 @@
+[
+  { "role": "system", "content": "file://../skills/multimodal-engineer/SKILL.md" },
+  { "role": "user", "content": "{{pregunta}}" }
+]

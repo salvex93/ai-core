@@ -3,6 +3,36 @@
 Registro de cambios por version. Formato basado en [Keep a Changelog](https://keepachangelog.com/es/1.0.0/).
 Versionado semantico: MAJOR.MINOR.PATCH.
 
+## [3.28.0] — 2026-08-05
+
+### Agregado — evals completos: los 34 skills restantes cubiertos (42/42)
+
+Cierre del piloto de evals iniciado en v3.24.0. Se generan y verifican con `promptfoo` real (juez `openai:chat:gpt-5.6-luna`) los 34 evals faltantes, siguiendo el mismo patron de los 8 existentes: idioma estricto, ausencia de emojis, y 2-4 casos de dominio derivados literalmente de comportamientos declarados en cada SKILL.md (nunca inventados).
+
+### Corregido — 7 gaps reales de conformidad detectados por los evals nuevos
+
+La corrida real (no simulada) de los 34 evals nuevos encontro comportamientos que contradicen lo que el propio SKILL.md de cada skill declara, corregidos con un ajuste quirurgico y re-verificados hasta aprobar:
+
+- `aiops-engineer` y `claude-api`: ante condiciones que su propia Directiva de Interrupcion exige, el modelo actuaba correctamente en prosa pero omitia el marcador literal `[ALERTA_ARQUITECTONICA: REQUIERE_OPUSPLAN]`. Se aclaro en ambos SKILL.md que el marcador se inserta siempre de forma literal, ademas de la explicacion en prosa, nunca en su reemplazo.
+- `claude-api` (segundo gap): tras emitir la alerta, igual entregaba el codigo como "implementacion final" en el mismo turno. Se aclaro que emitir la alerta implica detenerse -- prohibido aprobar la solucion completa en el mismo turno que la alerta.
+- `app-store-publisher`: entregaba el comando de rotacion de keystore (`keytool -genkeypair`) sin esperar confirmacion humana explicita ante perdida de upload key en produccion. Corregido para exigir la confirmacion antes de entregar el comando.
+- `audio-voice-engineer`: no advertia que un modelo Live API mencionado por el usuario (`gemini-2.5-flash-live-preview`) esta apagado desde 2025-12-09, pese a que el propio skill ya documentaba esa prohibicion en otra seccion. Corregido para que la advertencia se dispare ante cualquier mencion del usuario a un modelo apagado, no solo cuando el skill lo recomienda por iniciativa propia.
+- `release-manager`: no vinculaba espontaneamente el prefijo `feat:` de Conventional Commits con su incremento de version MENOR, pese a que el propio skill ya tenia esa tabla de mapeo. Corregido para mencionarlo explicitamente al dar ejemplos.
+- `seo-sem-specialist`: rechazaba tecnicas black-hat (PBNs, keyword stuffing) sin redirigir a alternativas white-hat equivalentes. Corregido para ofrecer 2-3 alternativas legitimas tras el rechazo.
+- `agent-testing`: invadia el dominio de `llm-evals` al desarrollar en detalle el diseno de tests de faithfulness/alucinaciones semanticas, pese a mencionar al inicio que ese territorio corresponde al otro skill. Corregido para limitarse a remitir a `llm-evals` sin desarrollar el diseno completo.
+
+### Agregado — `.claude/evals/prompt-loader.js`: fix de infraestructura para SKILL.md con codigo JSX/f-strings
+
+`tech-lead-frontend` y `web-scraping-specialist` tienen SKILL.md con bloques de codigo real (JSX con `dangerouslySetInnerHTML={{ ... }}`, f-strings de Python con JS embebido) cuyas llaves dobles literales el motor Nunjucks de promptfoo interpretaba como variables de template mal formadas, rompiendo el eval con un error de parseo antes de invocar al modelo (confirmado en runtime contra promptfoo 0.122.0 -- la doc oficial no aclara que una prompt function en JS tambien pasa su output por Nunjucks).
+
+Se agrego `prompt-loader.js`: lee el SKILL.md por filesystem y envuelve su contenido completo en un unico bloque `{% raw %}...{% endraw %}` -- confirmado con una llamada real a `nunjucks.renderString()` que preserva el contenido literal sin reinterpretarlo. Los `*-chat.json` estaticos de esos 2 skills se reemplazaron por `*-chat.js` (prompt function que usa el loader).
+
+### Cambiado — `npm run eval-skills` corre los 42 evals en secuencia
+
+Antes apuntaba unicamente a `security-auditor.promptfooconfig.yaml` (piloto original). Se agrego `.claude/evals/run-all.js`, que itera sobre todos los `*.promptfooconfig.yaml` de `.claude/evals/` en secuencia (no paralelo, para no saturar el rate limit del juez) y reporta un resumen consolidado de aprobados/fallidos.
+
+**869 tests, 42 skills con eval de conformidad (42/42), 7 agentes.**
+
 ## [3.27.0] — 2026-08-04
 
 ### Agregado — evals expandidos de 3 a 8 skills (los de mayor riesgo si degradan)

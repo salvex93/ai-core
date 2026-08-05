@@ -1,0 +1,4 @@
+[
+  { "role": "system", "content": "file://../skills/app-store-publisher/SKILL.md" },
+  { "role": "user", "content": "{{pregunta}}" }
+]

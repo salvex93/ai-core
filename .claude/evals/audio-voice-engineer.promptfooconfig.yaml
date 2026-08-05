@@ -1,0 +1,102 @@
+prompts:
+  - file://audio-voice-engineer-chat.json
+
+providers:
+  - id: openai:chat:gpt-5.6-luna
+
+defaultTest:
+  options:
+    provider:
+      id: openai:chat:gpt-5.6-luna
+      config:
+        temperature: 0
+
+tests:
+  - description: 'Idioma estricto -- redactado en espanol'
+    vars:
+      pregunta: 'Necesito montar un sistema de voz conversacional con streaming bidireccional. Por donde empiezo? (responde solo en texto, sin invocar ninguna herramienta ni funcion)'
+    assert:
+      - type: llm-rubric
+        value: |
+          La respuesta debe estar redactada en español: oraciones, explicaciones
+          y conectores en español. Se permiten terminos tecnicos en ingles ya
+          establecidos en la jerga de audio/voice AI (ej. "streaming", "buffer",
+          "codec", "barge-in", nombres de modelos o SDKs) -- eso NO es una
+          violacion. Falla solo si una oracion o parrafo completo esta escrito
+          en ingles en vez de español.
+        provider:
+          id: openai:chat:gpt-5.6-luna
+          config:
+            temperature: 0
+
+  - description: 'Sin emojis ni iconos en la respuesta'
+    vars:
+      pregunta: 'Revisa este diseno de pipeline de audio real-time que acabo de armar para ver si cumple las convenciones del proyecto.'
+    assert:
+      - type: llm-rubric
+        value: |
+          La respuesta no debe contener ningun emoji ni icono pictografico
+          (caras, marcas de check decorativas, etc.) -- solo texto plano,
+          tablas o markdown estandar sin adornos visuales.
+        provider:
+          id: openai:chat:gpt-5.6-luna
+          config:
+            temperature: 0
+
+  - description: 'Rechaza modelo Live API apagado y activa la Directiva de Interrupcion ante cambio de codec en produccion'
+    vars:
+      pregunta: 'Tengo un voice agent en produccion con usuarios activos conectados usando gemini-2.5-flash-live-preview. Quiero cambiar el codec de audio de PCM a Opus ahora mismo sin plan de migracion, dame el codigo directo.'
+    assert:
+      - type: llm-rubric
+        value: |
+          La respuesta NO debe recomendar ni dar por valido el uso de
+          gemini-2.5-flash-live-preview (modelo apagado desde 2025-12-09) --
+          debe senalar que esta deprecado y que el modelo vigente es
+          gemini-3.1-flash-live-preview. Ademas, la respuesta NO debe entregar
+          directamente el cambio de codec como una operacion rutinaria --
+          debe detener y exigir un plan de migracion, dado que un cambio de
+          codec que afecta clientes en produccion con usuarios activos
+          conectados es una condicion explicita de la Directiva de
+          Interrupcion del skill (idealmente mencionando o senalando la
+          necesidad de un plan aprobado, ej. via la alerta arquitectonica).
+        provider:
+          id: openai:chat:gpt-5.6-luna
+          config:
+            temperature: 0
+
+  - description: 'Advierte la regresion de Affective Dialog en gemini-3.1-flash-live-preview en vez de prometerla'
+    vars:
+      pregunta: 'Quiero que mi asistente de voz con Gemini Live API detecte automaticamente si el usuario habla con frustracion o urgencia por su tono de voz, y ajuste su respuesta. Es posible con el modelo actual? (responde solo en texto, sin invocar ninguna herramienta ni funcion)'
+    assert:
+      - type: llm-rubric
+        value: |
+          La respuesta debe advertir explicitamente que Affective Dialog
+          (deteccion automatica del tono emocional de entrada del usuario)
+          NO esta soportado todavia en gemini-3.1-flash-live-preview, el
+          modelo vigente -- no debe prometer esta capacidad como disponible
+          hoy. Idealmente debe mencionar una alternativa razonable (ej.
+          clasificar el tono con una llamada de texto liviana antes del turno
+          de audio, o los audio tags expresivos de TTS para la salida) en vez
+          de simplemente negar la posibilidad sin mas contexto.
+        provider:
+          id: openai:chat:gpt-5.6-luna
+          config:
+            temperature: 0
+
+  - description: 'Selecciona el codec correcto para audio en produccion mobile'
+    vars:
+      pregunta: 'Estoy disenando el pipeline de audio de una app movil que hara llamadas de voz con el agente. El ancho de banda del usuario es limitado y variable. Que codec de audio me recomiendas usar en produccion?'
+    assert:
+      - type: llm-rubric
+        value: |
+          La respuesta debe recomendar Opus (idealmente en el rango de
+          48-64kbps para mobile, o mencionar Opus 128kbps para conversacion
+          natural con mas ancho de banda) como codec adecuado para produccion
+          mobile con ancho de banda limitado, en vez de recomendar PCM sin
+          comprimir o FLAC, que el skill reserva para studio quality o
+          preservacion historica y no para mobile con restriccion de ancho
+          de banda.
+        provider:
+          id: openai:chat:gpt-5.6-luna
+          config:
+            temperature: 0

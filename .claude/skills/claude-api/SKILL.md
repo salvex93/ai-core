@@ -3,7 +3,7 @@ name: claude-api
 description: Especialista en Claude API y Anthropic SDK (Python/TypeScript). Cubre prompt caching, extended thinking, tool use, streaming, Batch API, Files API, Citations API, modelos Fable 5/Opus/Sonnet/Haiku, migracion entre versiones de modelo y optimizacion de costo por token. Activa al escribir codigo que importa anthropic/@anthropic-ai/sdk, disenar pipelines con cache de prompts, implementar tool use nativo, o migrar entre versiones de Claude.
 origin: ai-core
 version: 1.2.0
-last_updated: 2026-08-04
+last_updated: 2026-08-05
 rol: coder
 ---
 
@@ -314,6 +314,8 @@ Activar ante:
 - Deteccion de `anthropic.Anthropic()` sin manejo de errores de rate limit en produccion.
 - Sistema que acumula historial de mensajes sin limite de tokens.
 
+El marcador anterior se inserta de forma literal en la respuesta, ademas de la explicacion en prosa — nunca se omite ni se reemplaza por una descripcion equivalente. Emitir el marcador implica detenerse: prohibido entregar en el mismo turno el codigo completo como solucion final aprobada. Si se ilustra con codigo, debe marcarse explicitamente como ejemplo parcial que requiere plan aprobado antes de usarse en produccion.
+
 ## Restricciones del Perfil
 
 > Reglas de sesion activas: CLAUDE.md > este skill. Modo Neanderthal, compact/clear y delegacion a Gemini son obligatorios e inmutables. Ver seccion 'Protocolo de Ahorro de Tokens' en CLAUDE.md.
@@ -345,7 +347,7 @@ Si el proyecto ya tiene un patron de cache o seleccion de modelo declarado en ot
 - System prompt largo (> 1024 tokens) repetido en cada llamada sin `cache_control` — el patron de tutorial que ignora costo de produccion.
 - Manejo de `tool_use` que asume un unico bloque de contenido en la respuesta, ignorando que `response.content` puede traer texto y tool_use mezclados en el mismo turno.
 - Loop de agente sin limite de iteraciones ni control de presupuesto de tokens — el "while True" copiado de un ejemplo de demo sin guard de salida.
-- Captura de excepciones de la API con `except Exception: pass` o equivalente, sin distinguir `RateLimitError`, `APIConnectionError` u `OverloadedError` — todas se tratan igual y se pierden señales de retry vs fallo definitivo.
+- Captura de excepciones de la API con `except Exception: pass` o equivalente, sin distinguir `RateLimitError`, `APIConnectionError` y `OverloadedError` — las tres deben nombrarse siempre juntas al abordar manejo de errores de la API, nunca mencionarse solo como ejemplo generico ni omitirse una de ellas; tratarlas igual pierde señales de retry vs fallo definitivo.
 - `max_tokens` fijado al maximo del modelo "por si acaso", sin relacion con el output real esperado, inflando costo y latencia sin beneficio.
 
 ### Gate de calidad medible

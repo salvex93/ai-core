@@ -1,0 +1,4 @@
+[
+  { "role": "system", "content": "file://../skills/llm-observability/SKILL.md" },
+  { "role": "user", "content": "{{pregunta}}" }
+]

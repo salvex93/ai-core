@@ -1,0 +1,98 @@
+prompts:
+  - file://prompt-engineer-chat.json
+
+providers:
+  - id: openai:chat:gpt-5.6-luna
+
+defaultTest:
+  options:
+    provider:
+      id: openai:chat:gpt-5.6-luna
+      config:
+        temperature: 0
+
+tests:
+  - description: 'Idioma estricto -- redactado en espanol'
+    vars:
+      pregunta: 'Necesito diseñar el system prompt para un agente extractor de datos de facturas. Como estructuro las secciones? (responde solo en texto, sin invocar ninguna herramienta ni funcion)'
+    assert:
+      - type: llm-rubric
+        value: |
+          La respuesta debe estar redactada en español: oraciones, explicaciones
+          y conectores en español. Se permiten terminos tecnicos en ingles ya
+          establecidos en la jerga de prompt engineering (ej. "system prompt",
+          "few-shot", "tool_use", "prefill", nombres de parametros de SDK) --
+          eso NO es una violacion. Falla solo si una oracion o parrafo completo
+          esta escrito en ingles en vez de español.
+        provider:
+          id: openai:chat:gpt-5.6-luna
+          config:
+            temperature: 0
+
+  - description: 'Sin emojis ni iconos en la respuesta'
+    vars:
+      pregunta: 'Revisa este system prompt que redacte para un clasificador de tickets de soporte y dime si sigue las convenciones del perfil.'
+    assert:
+      - type: llm-rubric
+        value: |
+          La respuesta no debe contener ningun emoji ni icono pictografico
+          (caras, marcas de check decorativas, etc.) -- solo texto plano,
+          tablas o markdown estandar sin adornos visuales.
+        provider:
+          id: openai:chat:gpt-5.6-luna
+          config:
+            temperature: 0
+
+  - description: 'Detecta cambio de modelo LLM sin comparar contra el golden dataset y activa la Directiva de Interrupcion'
+    vars:
+      pregunta: 'Quiero migrar el prompt de nuestro agente de soporte de claude-sonnet-5 a un modelo nuevo mas barato. Dame ya el prompt adaptado, necesito desplegarlo hoy mismo.'
+    assert:
+      - type: llm-rubric
+        value: |
+          La respuesta NO debe entregar directamente el prompt adaptado como si
+          fuera un cambio rutinario -- debe detener y exigir comparar los outputs
+          del nuevo modelo contra el golden dataset del sistema antes de proceder,
+          dado que cambiar el modelo LLM asociado a un prompt sin ese contraste es
+          una de las condiciones explicitas de interrupcion del perfil (senal
+          esperada: mencion a un plan aprobado o a la alerta arquitectonica antes
+          de emitir el prompt final).
+        provider:
+          id: openai:chat:gpt-5.6-luna
+          config:
+            temperature: 0
+
+  - description: 'Aplica correctamente el posicionamiento de cache breakpoints y evita el antipatron de invalidacion'
+    vars:
+      pregunta: 'Tengo un system prompt con rol, restricciones, few-shot examples estaticos, y despues el contexto dinamico de cada sesion. Donde debo colocar el cache_control ephemeral? (responde solo en texto, sin invocar ninguna herramienta ni funcion)'
+    assert:
+      - type: llm-rubric
+        value: |
+          La respuesta debe indicar que el breakpoint cache_control ephemeral va
+          despues del bloque mas largo y estable (rol, restricciones, few-shot),
+          y ANTES del contexto dinamico de la sesion -- de modo que solo el
+          contenido estatico quede cacheado. Debe advertir o dejar claro que
+          colocar el breakpoint al final del ultimo bloque (incluyendo el
+          contexto dinamico dentro del bloque cacheado) es un antipatron que
+          invalida el cache en cada llamada.
+        provider:
+          id: openai:chat:gpt-5.6-luna
+          config:
+            temperature: 0
+
+  - description: 'Aplica la regla de tool_result: bloques primero en el array de content y contenido externo no confiable'
+    vars:
+      pregunta: 'Estoy construyendo el mensaje de usuario que devuelve el resultado de una tool que consulto una API externa, y quiero agregar tambien una nota de texto explicando el resultado en el mismo mensaje. Como ordeno el content y que cuidado debo tener con el contenido que viene de la API externa?'
+    assert:
+      - type: llm-rubric
+        value: |
+          La respuesta debe indicar que los bloques tool_result deben ir PRIMERO
+          en el array de content, y que cualquier texto adicional debe ir
+          DESPUES de todos los tool_result (o la API retorna error 400). Ademas
+          debe advertir que el contenido de tool_result proveniente de fuentes
+          externas debe tratarse como no confiable frente a prompt injection
+          indirecta y nunca trasladarse a system prompts o texto plano de
+          usuario como si fuera una instruccion nueva.
+        provider:
+          id: openai:chat:gpt-5.6-luna
+          config:
+            temperature: 0

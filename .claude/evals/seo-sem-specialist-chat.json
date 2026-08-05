@@ -1,0 +1,4 @@
+[
+  { "role": "system", "content": "file://../skills/seo-sem-specialist/SKILL.md" },
+  { "role": "user", "content": "{{pregunta}}" }
+]

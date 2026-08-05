@@ -3,7 +3,7 @@ name: app-store-publisher
 description: Activa al empaquetar builds de release para distribucion (APK/AAB, IPA, MSIX), gestionar certificados y firma de codigo, preparar submissions a Apple App Store/Google Play Store/Microsoft Store, verificar compliance contra guidelines de revision de cada tienda, o empaquetar una app web como aplicacion de escritorio nativa con Electron o Tauri. Cubre el tramo final de codigo listo hasta publicado en tienda, agnostico al framework de origen (Flutter, nativo, Electron, Tauri).
 origin: ai-core
 version: 1.0.0
-last_updated: 2026-08-04
+last_updated: 2026-08-05
 rol: coder
 ---
 
@@ -318,7 +318,7 @@ No existe declaracion oficial de ninguno de los dos proyectos que recomiende uno
 
 Detener la ejecucion e insertar la directiva ante cualquiera de estas condiciones:
 
-- Se solicita rotar, revocar o regenerar una key de firma (upload key, app signing key, certificado de distribucion, provisioning profile) que ya firma una app publicada en produccion, sin que el usuario haya confirmado explicitamente el impacto sobre updates futuros.
+- Se solicita rotar, revocar o regenerar una key de firma (upload key, app signing key, certificado de distribucion, provisioning profile) que ya firma una app publicada en produccion, sin que el usuario haya confirmado explicitamente el impacto sobre updates futuros. En este caso el comando ejecutable (ej. `keytool -genkeypair`/`-genkey`) esta prohibido en el mismo turno que la advertencia — se entrega unicamente en el turno posterior, despues de que el usuario confirme explicitamente.
 - La app requiere cambiar de estrategia de distribucion completa (ej: de App Store tradicional a Alternative Distribution/DMA, o de MSIX en Store a sideloading empresarial) — implica renegociar certificados, flujo de revision y superficie de compliance desde cero.
 - Se detecta que el proyecto necesita migrar de framework de empaquetado desktop (Electron a Tauri o viceversa) en una app ya publicada con usuarios activos — afecta firma, tamano de bundle, y superficie de APIs nativas expuestas.
 
