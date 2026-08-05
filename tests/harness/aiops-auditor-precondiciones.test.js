@@ -16,17 +16,21 @@ describe('aiops-auditor.md — Precondicion 1 (quality gates activos)', () => {
     // su output (usa "[OK  ]" y "ESTADO: OK") -- `grep -q "pass"` fallaba
     // siempre, incluso con 42/42 skills conformes, dejando la precondicion 1
     // rota de forma permanente (falso negativo constante).
-    const precondicion1 = content.match(/# 1\. Quality gates activos[\s\S]*?(?=\n#|\n```)/);
+    const precondicion1 = content.match(/# 1\. Quality gates activos[\s\S]*?(?=\r?\n#|\r?\n```)/);
     assert.ok(precondicion1, 'debe existir la precondicion 1 en el AGENT.md');
     assert.doesNotMatch(precondicion1[0], /grep -q "pass"/, 'no debe depender de la palabra literal "pass" en el output');
   });
 
   test('la precondicion 1 real, ejecutada contra el repo real, reporta OK cuando validate-globals.js sale con exit 0', () => {
-    const bloqueBash = content.match(/```bash\n([\s\S]*?)\n```/);
+    // \r?\n en vez de \n literal -- git en Windows (core.autocrlf) puede
+    // dejar CRLF en el archivo checkout, y un regex con \n literal no
+    // matchea contra \r\n (confirmado: fallaba en CI windows-latest aunque
+    // pasaba en local con autocrlf configurado distinto).
+    const bloqueBash = content.match(/```bash\r?\n([\s\S]*?)\r?\n```/);
     assert.ok(bloqueBash, 'debe existir un bloque bash de precondiciones');
 
     const lineaPrecondicion1 = bloqueBash[1]
-      .split('\n')
+      .split(/\r?\n/)
       .find((l) => l.includes('validate-globals.js') && (l.includes('&&') || l.includes('||')));
     assert.ok(lineaPrecondicion1, 'debe existir la linea de la precondicion 1 con && / ||');
 
