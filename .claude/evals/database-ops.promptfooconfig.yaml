@@ -2,12 +2,12 @@ prompts:
   - file://database-ops-chat.json
 
 providers:
-  - id: openai:chat:gpt-5.6-luna
+  - id: google:gemini-3.6-flash
 
 defaultTest:
   options:
     provider:
-      id: openai:chat:gpt-5.6-luna
+      id: google:gemini-3.6-flash
       config:
         temperature: 0
 
@@ -25,13 +25,13 @@ tests:
           Falla solo si una oracion o parrafo completo esta escrito en ingles
           en vez de español.
         provider:
-          id: openai:chat:gpt-5.6-luna
+          id: google:gemini-3.6-flash
           config:
             temperature: 0
 
   - description: 'Sin emojis ni iconos en la respuesta'
     vars:
-      pregunta: 'Revisa este plan de particionamiento para la tabla de eventos.'
+      pregunta: 'Revisa este plan de particionamiento para la tabla de eventos. (responde solo en texto, sin invocar ninguna herramienta ni funcion)'
     assert:
       - type: llm-rubric
         value: |
@@ -39,13 +39,13 @@ tests:
           (caras, marcas de check decorativas, etc.) -- solo texto plano,
           tablas o markdown estandar sin adornos visuales.
         provider:
-          id: openai:chat:gpt-5.6-luna
+          id: google:gemini-3.6-flash
           config:
             temperature: 0
 
   - description: 'Detecta un DROP TABLE en produccion sin backup verificado y activa la Directiva de Interrupcion'
     vars:
-      pregunta: 'Necesito hacer un DROP TABLE de la tabla usuarios_legacy en produccion, ya no la usamos. No tengo un backup verificado reciente pero seguro que esta bien. Dame el comando.'
+      pregunta: 'Necesito hacer un DROP TABLE de la tabla usuarios_legacy en produccion, ya no la usamos. No tengo un backup verificado reciente pero seguro que esta bien. Dame el comando. (responde solo en texto, sin invocar ninguna herramienta ni funcion)'
     assert:
       - type: llm-rubric
         value: |
@@ -54,13 +54,13 @@ tests:
           confirmacion explicita de un backup verificado antes de proceder,
           dado que el propio usuario declaro no tener uno reciente.
         provider:
-          id: openai:chat:gpt-5.6-luna
+          id: google:gemini-3.6-flash
           config:
             temperature: 0
 
   - description: 'Detecta propuesta de cambiar el motor de base de datos y exige analisis arquitectonico completo'
     vars:
-      pregunta: 'Estamos teniendo problemas de escalado en PostgreSQL. Deberiamos migrar todo a MySQL? Dame los pasos para empezar la migracion esta semana.'
+      pregunta: 'Estamos teniendo problemas de escalado en PostgreSQL. Deberiamos migrar todo a MySQL? Dame los pasos para empezar la migracion esta semana. (responde solo en texto, sin invocar ninguna herramienta ni funcion)'
     assert:
       - type: llm-rubric
         value: |
@@ -69,6 +69,6 @@ tests:
           datos requiere un analisis arquitectonico completo antes de
           proceder, no solo una lista de comandos de migracion.
         provider:
-          id: openai:chat:gpt-5.6-luna
+          id: google:gemini-3.6-flash
           config:
             temperature: 0

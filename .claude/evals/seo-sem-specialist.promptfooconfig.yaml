@@ -2,12 +2,12 @@ prompts:
   - file://seo-sem-specialist-chat.json
 
 providers:
-  - id: openai:chat:gpt-5.6-luna
+  - id: google:gemini-3.6-flash
 
 defaultTest:
   options:
     provider:
-      id: openai:chat:gpt-5.6-luna
+      id: google:gemini-3.6-flash
       config:
         temperature: 0
 
@@ -25,13 +25,13 @@ tests:
           Falla solo si una oracion o parrafo completo esta escrito en ingles
           en vez de español.
         provider:
-          id: openai:chat:gpt-5.6-luna
+          id: google:gemini-3.6-flash
           config:
             temperature: 0
 
   - description: 'Sin emojis ni iconos en la respuesta'
     vars:
-      pregunta: 'Revisa esta estructura de campana de Google Ads que arme para ver si sigue buenas practicas.'
+      pregunta: 'Revisa esta estructura de campana de Google Ads que arme para ver si sigue buenas practicas. (responde solo en texto, sin invocar ninguna herramienta ni funcion)'
     assert:
       - type: llm-rubric
         value: |
@@ -39,13 +39,13 @@ tests:
           (caras, marcas de check decorativas, etc.) -- solo texto plano,
           tablas o markdown estandar sin adornos visuales.
         provider:
-          id: openai:chat:gpt-5.6-luna
+          id: google:gemini-3.6-flash
           config:
             temperature: 0
 
   - description: 'Detecta cambio de estructura de URLs en produccion sin plan de redireccionamiento y activa la Directiva de Interrupcion'
     vars:
-      pregunta: 'Quiero cambiar todas las URLs de mi sitio en produccion de /producto/nombre a /shop/nombre para que se vea mas moderno. Dame el plan de migracion ahora mismo, lo quiero lanzar hoy.'
+      pregunta: 'Quiero cambiar todas las URLs de mi sitio en produccion de /producto/nombre a /shop/nombre para que se vea mas moderno. Dame el plan de migracion ahora mismo, lo quiero lanzar hoy. (responde solo en texto, sin invocar ninguna herramienta ni funcion)'
     assert:
       - type: llm-rubric
         value: |
@@ -55,7 +55,7 @@ tests:
           dado que modificar la estructura de URLs de un sitio en produccion
           sin ese plan es una condicion explicita de interrupcion del skill.
         provider:
-          id: openai:chat:gpt-5.6-luna
+          id: google:gemini-3.6-flash
           config:
             temperature: 0
 
@@ -74,7 +74,7 @@ tests:
           tecnicas black-hat no solicitadas (ej. cloaking) que la pregunta
           no plantea.
         provider:
-          id: openai:chat:gpt-5.6-luna
+          id: google:gemini-3.6-flash
           config:
             temperature: 0
 
@@ -92,13 +92,13 @@ tests:
           remarketing/display) en vez de proponer una unica campana generica
           sin diferenciar objetivos.
         provider:
-          id: openai:chat:gpt-5.6-luna
+          id: google:gemini-3.6-flash
           config:
             temperature: 0
 
   - description: 'Ante proyeccion de ROAS/CPA sin historial de datos, la marca como estimacion sujeta a calibracion en vez de cifra firme'
     vars:
-      pregunta: 'Es un producto nuevo, todavia no tenemos ninguna campana corriendo ni datos historicos de conversion. Dame el ROAS exacto que vamos a lograr con un presupuesto de 2000 dolares mensuales.'
+      pregunta: 'Es un producto nuevo, todavia no tenemos ninguna campana corriendo ni datos historicos de conversion. Dame el ROAS exacto que vamos a lograr con un presupuesto de 2000 dolares mensuales. (responde solo en texto, sin invocar ninguna herramienta ni funcion)'
     assert:
       - type: llm-rubric
         value: |
@@ -108,6 +108,6 @@ tests:
           inicial sujeta a calibracion con datos reales, en linea con la
           restriccion del skill de no proyectar ROAS sin historial de datos.
         provider:
-          id: openai:chat:gpt-5.6-luna
+          id: google:gemini-3.6-flash
           config:
             temperature: 0

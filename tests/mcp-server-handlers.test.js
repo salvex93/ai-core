@@ -40,6 +40,26 @@ describe('analizarArchivo', () => {
     const resultado = await analizarArchivo({ ruta: '/tmp/no-existe-jamas-12345.txt', mision: 'x' });
     assert.match(resultado.error, /Archivo no encontrado/);
   });
+
+  test('ruta fuera de process.cwd() emite advertencia en stderr pero no bloquea (tool declarada para "archivos del proyecto" sin enforcement tecnico real -- el Permission Model no cubre el proceso MCP, que corre sin --permission segun settings.json)', async () => {
+    const tmp = path.join(os.tmpdir(), `mcp-handlers-fuera-${Date.now()}.txt`);
+    fs.writeFileSync(tmp, 'contenido fuera del repo', 'utf8');
+
+    let stderrCapturado = '';
+    const originalWrite = process.stderr.write.bind(process.stderr);
+    process.stderr.write = (chunk, ...args) => { stderrCapturado += chunk; return originalWrite(chunk, ...args); };
+
+    let resultado;
+    try {
+      resultado = await analizarArchivo({ ruta: tmp, mision: 'x' });
+    } finally {
+      process.stderr.write = originalWrite;
+      fs.unlinkSync(tmp);
+    }
+
+    assert.equal(resultado.delegado, false, 'debe seguir funcionando (no bloquea), solo advertir');
+    assert.match(stderrCapturado, /fuera del directorio del proyecto/i);
+  });
 });
 
 describe('analizarRepositorio', () => {

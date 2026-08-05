@@ -3,6 +3,47 @@
 Registro de cambios por version. Formato basado en [Keep a Changelog](https://keepachangelog.com/es/1.0.0/).
 Versionado semantico: MAJOR.MINOR.PATCH.
 
+## [3.30.0] — 2026-08-05
+
+### Corregido — auditoria de seguridad del codigo del arnes: 4 hallazgos reales
+
+- **Alto**: `issue-reporter.js` construia el comando `gh issue create` con `execSync` + template string interpolado — `title` deriva de contenido no confiable (`evento.tool`/`evento.error`, que puede originarse en un archivo del repo, salida de Gemini o WebFetch) y `.replace(/"/g, "'")` solo neutralizaba el cierre de comillas, no metacaracteres de shell (`&`, `|`, `&&`, `||`). Migrado a `execFileSync('gh', [...args])`, sin shell.
+- **Alto**: mismo antipatron en `standards-guard.js` al encolar el evento de captura — migrado igual a `execFileSync` con array de argumentos.
+- **Medio**: path traversal en `agent-tools-guard.js` — `agentType` (JSON de stdin) se usaba sin validar antes de `path.join(AGENTS_DIR, ...)`, permitiendo escapar el directorio con `../`. Se agrego validacion `/^[a-zA-Z0-9_-]+$/` antes de construir la ruta.
+- **Medio**: `analizarArchivo` (`McpServerHandlers.js`) sin limite de directorio — el proceso MCP corre sin `--permission` (a diferencia de los hooks propios). No se bloquea (romperia el uso legitimo con rutas fuera del repo), pero ahora emite advertencia auditable en stderr si la ruta cae fuera de `process.cwd()`.
+
+### Corregido — gobierno de subagentes (auditoria Opus + Sonnet, verificacion cruzada)
+
+- **Critico**: `agent-tools-guard.js` solo se registraba en `PreToolUse` para el matcher `Bash|Read|Write|Edit` — 6 de los 7 agentes podian usar Grep/Glob/WebFetch/Agent fuera de su scope declarado sin que el guard se disparara nunca. Matcher ampliado a `Bash|Read|Write|Edit|Grep|Glob|WebFetch|Agent`.
+- **Critico**: `IntentClassifier.js` enrutaba peticiones cortas de generacion de codigo (< 200 caracteres) al subtipo `prosa` (Haiku) con confianza 1.0 falsa — faltaba una rama para las mismas senales que ya activaban el rol CODER. Agregada rama `codigo` -> `refactorizar_archivo` (Sonnet).
+- **Critico**: `AgentRoles.js` -> `inferirSkills()` devolvia todos los skills del rol sin truncar (ARCHITECT: 25 skills, ~164k tokens) cuando el llamador no especificaba ninguno. Tope fijado en 12 (tamano actual de AUDITOR) — no trunca ningun skill real de los roles que ya estaban por debajo.
+- **Alto**: `subagent-guard.js` no liberaba el lock de paralelismo al terminar un subagente, solo via TTL de 2 min — bloqueaba falsamente un 4to spawn aunque los 3 previos ya hubieran terminado. Nuevo hook `subagent-guard-release.js` en `SubagentStop`, indexado por `session_id`+`prompt_id` (misma clave que `subagent-task-store.js`), borra el lock exacto.
+- **Alto**: `agent-tools-guard.js` solo parseaba `tools:` en sintaxis de array inline — un `AGENT.md` con la sintaxis de lista YAML multilinea (igualmente valida) fallaba abierto sin restriccion. Ahora reconoce ambas sintaxis.
+- **Alto**: `validate-agents.js` nunca validaba el campo `tools:` — el unico campo del frontmatter con enforcement real en runtime. Ahora exige que exista y no este vacio.
+- **Medio**: la anti-recursion de `subagent-guard.js` solo detectaba el ciclo directo A->A, no el indirecto A->B->A. Cada lock ahora persiste su cadena de ancestros (heuristica por tipo de subagente activo, no un id de linaje real que Claude Code no expone hoy) y bloquea si el nuevo tipo ya aparece en esa cadena.
+
+### Corregido — resistencia a jailbreak en 14 perfiles (auditoria de 49 skills+agentes, 142 agentes de workflow, verificacion cruzada)
+
+12 perfiles con exposicion real a contenido externo no confiable (Gobierno de Agentes, punto 7 de CLAUDE.md) ahora lo declaran localmente, adaptado a su dominio: `rag-specialist` (chunks del corpus), `aiops-engineer` (changelogs/repo), `cost-optimizer` (inventario de `analizar_repositorio`), `doc-builder` (brief del cliente), `multimodal-engineer` (documentos/facturas), `llm-evals` (casos de prompt injection del dataset), `silent-failure-hunter` (DOM scrapeado), `web-scraping-specialist` (texto de pagina en flujos LLM-driven), `mcp-registry-navigator` (README/codigo de MCPs de terceros), `security-scanner` (output de `npm audit`), `code-reviewer` (diff completo), `issue-tracker` (errores de MCPs republicados en issues).
+
+3 puertas de escape textuales cerradas: `dev-loop` (el bypass de fases exigia solo "documentar riesgos", ahora exige lista de gates omitidos + confirmacion humana explicita posterior a esa lista); `prompt-engineer` (el ejemplo de codigo de Prefill concatenaba input crudo, contradiciendo su propia regla de delimitar con `<user_input>` unas lineas despues — corregido el ejemplo); `issue-tracker` (Directiva de Interrupcion contradictoria: decia "NO interrumpe" pero definia una alerta condicional sin mecanismo de verificacion objetivo — ahora especifica que se verifica `pending.length` de `issue-reporter.js` y que produce exactamente).
+
+Bug funcional cerrado (dimension vigencia, hallazgo critico de la misma auditoria): la precondicion 1 de `aiops-auditor` usaba `grep -q "pass"` contra `validate-globals.js`, que nunca imprime esa palabra literal (solo `[OK  ]`/`ESTADO: OK`) — la precondicion fallaba siempre, incluso con el harness sano. Corregido a verificacion por exit code real, con test de regresion ejecutado contra el repo real.
+
+### Corregido — juez de evals y rate limit de Gemini
+
+Revertido el juez de evals de `openai:chat:gpt-5.6-luna` (fallback de emergencia de v3.24.0) a `google:gemini-3.6-flash` (tier 0) en los 42 `*.promptfooconfig.yaml` y `ci.yml`, tras confirmar en vivo (`ciso`, 4/4 en 1m26s) que la saturacion original ya se normalizo.
+
+El tier gratuito real de Gemini es 20 requests/min; cada eval consume ~8 (4 casos x respuesta+rubric), asi que sin espaciar las corridas el 3er eval ya golpea `429 RESOURCE_EXHAUSTED` con reintentos de 60s+ por intento. Agregado `calcularEsperaMs()` (30s) entre evals en `run-all.js` y `sleep 30` entre pasos del job de CI.
+
+Causa real de un `MALFORMED_FUNCTION_CALL` intermitente descubierta al reconfirmar `qa-engineer`: 136 casos de los 42 evals no tenian la clausula `(responde solo en texto, sin invocar ninguna herramienta ni funcion)` que ya protegia a otros casos — sin ella, Gemini interpretaba la instruccion textual "invocar MCP X" del propio SKILL.md como una function-call real y la devolvia malformada, dejando el output vacio. Agregada la clausula a los 136 casos faltantes.
+
+### Corregido — vault de memoria
+
+`memory-vault-prune-check.js` y su test escribian sobre `.claude/memory-vault/.raw/architect/` real del proyecto para simular el umbral de poda; si el hook `Stop` corria mientras esos archivos de test existian, los sintetizaba a `.wiki/architect/` real, dejando residuos huerfanos (ocurrido varias veces en sesiones previas). Aislado con `AI_CORE_MEMORY_VAULT_PATH` (mismo patron que `memory-index.js`), test movido a `os.tmpdir()`.
+
+**919 tests, 42 skills con eval de conformidad (42/42), 7 agentes (7/7).**
+
 ## [3.29.0] — 2026-08-05
 
 ### Corregido — auditoria completa del arnes: 31 hallazgos confirmados, todos cerrados

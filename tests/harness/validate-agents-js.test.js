@@ -52,6 +52,7 @@ describe('validate-agents.js', () => {
       `last_updated: ${hoy}`,
       'provider: any',
       'loop: false',
+      'tools: [Bash, Read]',
       '---',
       '# Agente de prueba',
       '## Restricciones',
@@ -64,6 +65,64 @@ describe('validate-agents.js', () => {
     const resultado = salida.resultados.find(x => x.nombre === NOMBRE_AGENTE);
     assert.ok(resultado, 'debe auditar el agente de prueba');
     assert.equal(resultado.status, 'CONFORME');
+  });
+
+  test('agente SIN campo tools: declarado genera hallazgo alto -- es el unico campo con enforcement real en runtime (agent-tools-guard.js)', () => {
+    limpiar();
+    const hoy = new Date().toISOString().slice(0, 10);
+    crearAgenteDePrueba([
+      '---',
+      `name: ${NOMBRE_AGENTE}`,
+      'origin: ai-core',
+      'version: 1.0.0',
+      `last_updated: ${hoy}`,
+      'provider: any',
+      'loop: false',
+      '---',
+      '# Agente de prueba',
+      '## Restricciones',
+      '> Reglas de sesion activas: CLAUDE.md > este agente.',
+    ].join('\n'));
+
+    const r = runValidate();
+    limpiar();
+    const salida = JSON.parse(r.stdout);
+    const resultado = salida.resultados.find(x => x.nombre === NOMBRE_AGENTE);
+    assert.ok(resultado, 'debe auditar el agente de prueba');
+    assert.ok(
+      resultado.hallazgos.some(h => h.desc.includes('tools:')),
+      'debe reportar la falta del campo tools: declarado'
+    );
+    assert.equal(resultado.status, 'NO_CONFORME');
+  });
+
+  test('agente con tools: vacio ([] o lista sin items) genera hallazgo alto', () => {
+    limpiar();
+    const hoy = new Date().toISOString().slice(0, 10);
+    crearAgenteDePrueba([
+      '---',
+      `name: ${NOMBRE_AGENTE}`,
+      'origin: ai-core',
+      'version: 1.0.0',
+      `last_updated: ${hoy}`,
+      'provider: any',
+      'loop: false',
+      'tools: []',
+      '---',
+      '# Agente de prueba',
+      '## Restricciones',
+      '> Reglas de sesion activas: CLAUDE.md > este agente.',
+    ].join('\n'));
+
+    const r = runValidate();
+    limpiar();
+    const salida = JSON.parse(r.stdout);
+    const resultado = salida.resultados.find(x => x.nombre === NOMBRE_AGENTE);
+    assert.ok(resultado, 'debe auditar el agente de prueba');
+    assert.ok(
+      resultado.hallazgos.some(h => h.desc.includes('tools:')),
+      'debe reportar tools: vacio como scope invalido'
+    );
   });
 
   test('agente SIN referencia inmutable a CLAUDE.md genera hallazgo alto', () => {

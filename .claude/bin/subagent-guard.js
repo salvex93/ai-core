@@ -12,11 +12,14 @@
  *      esta lanzando (recursion directa — el padre esta corriendo AGENT_TYPE
  *      y pide lanzar otro AGENT_TYPE).
  *
- * Un lock por subagente se crea aqui. No hay release explicito en
- * SubagentStop (el pid del hook no correlaciona 1:1 con el agentId real
- * del subagente) — el lock expira solo via TTL, igual que las categorias
- * de process-guard.js. MAX_PARALLEL debe leerse como "hasta N subagentes
- * lanzados en los ultimos TIMEOUT_MS", no como contador exacto en vivo.
+ * Un lock por subagente se crea aqui, indexado por session_id+prompt_id
+ * (misma clave que subagent-task-store.js usa para correlacionar
+ * PreToolUse(Agent) con su SubagentStop -- confirmado que tool_use_id y
+ * agent_id NO correlacionan entre si, pero session_id+prompt_id si). El
+ * companero subagent-guard-release.js corre en SubagentStop y borra el
+ * lock exacto por esa clave. El TTL de TIMEOUT_MS sigue como red de
+ * seguridad si el release nunca llega (subagente cancelado, proceso
+ * matado), igual que las categorias de process-guard.js.
  *
  * Uso: node subagent-guard.js (recibe el evento PreToolUse por stdin)
  *
@@ -90,19 +93,28 @@ function locksActivos() {
   return activos;
 }
 
-// Anti-recursion: el subagente actual no puede lanzar otro de su mismo tipo
-// sin que exista una condicion de parada explicita (esto bloquea el caso
-// generico; un agente que necesite excepcion la declara en su propio prompt
-// y usa SendMessage para continuar el mismo agente en vez de spawnear otro).
-if (tipoActual && nuevoTipo && tipoActual === nuevoTipo) {
+const activos = locksActivos();
+
+// Anti-recursion: bloquea tanto la recursion directa (A lanza A) como el
+// ciclo indirecto (A lanza B, B lanza A). La cadena de ancestros de este
+// spawn es la del lock activo cuyo tipo coincide con tipoActual (heredada)
+// mas tipoActual mismo. Heuristica por tipo, no un id de linaje real (Claude
+// Code no expone hoy un identificador estable de "bajo que lock corro este
+// subagente") -- cubre el caso comun de un subagente por tipo activo a la
+// vez; con 2+ subagentes del mismo tipo en paralelo podria heredar la
+// cadena de cualquiera de ellos indistintamente.
+const lockPadre = tipoActual ? activos.find((l) => l.tipo === tipoActual) : null;
+const cadenaHeredada = lockPadre?.cadena || [];
+const cadenaAncestros = tipoActual ? [...cadenaHeredada, tipoActual] : cadenaHeredada;
+
+if (nuevoTipo && cadenaAncestros.includes(nuevoTipo)) {
   process.stderr.write(
-    `[SUBAGENT-GUARD] BLOQUEADO: el subagente "${tipoActual}" intento lanzar otro "${nuevoTipo}" (recursion del mismo tipo).\n` +
+    `[SUBAGENT-GUARD] BLOQUEADO: el subagente "${tipoActual}" intento lanzar "${nuevoTipo}", que ya aparece en la cadena de ancestros [${cadenaAncestros.join(' -> ')}] (recursion directa o ciclo indirecto).\n` +
     'Si es intencional, usa SendMessage para continuar el agente existente en vez de spawnear uno nuevo.\n'
   );
   process.exit(2);
 }
 
-const activos = locksActivos();
 if (activos.length >= MAX_PARALLEL) {
   process.stderr.write(
     `[SUBAGENT-GUARD] BLOQUEADO: ${activos.length}/${MAX_PARALLEL} subagentes activos. ` +
@@ -111,13 +123,19 @@ if (activos.length >= MAX_PARALLEL) {
   process.exit(2);
 }
 
-// Registrar el lock del nuevo subagente. El id es best-effort (timestamp+pid)
-// porque el subagente real aun no tiene su propio agentId en este punto.
+// Registrar el lock del nuevo subagente, incluida su cadena de ancestros
+// (para que si este subagente a su vez lanza otro, pueda heredarla). Si hay
+// session_id+prompt_id (caso real), el nombre del lock los codifica para que
+// subagent-guard-release.js pueda borrarlo por clave exacta en SubagentStop.
+// Sin esos campos (tests legacy, llamada sin contexto de sesion) cae a
+// timestamp+random y depende solo del TTL, igual que antes.
 ensureDir();
-const lockId   = crypto.randomBytes(6).toString('hex');
-const lockFile = path.join(LOCK_DIR, `${Date.now()}-${lockId}.lock`);
+const lockId = evento.session_id && evento.prompt_id
+  ? `${evento.session_id}__${evento.prompt_id}`
+  : `${Date.now()}-${crypto.randomBytes(6).toString('hex')}`;
+const lockFile = path.join(LOCK_DIR, `${lockId}.lock`);
 try {
-  fs.writeFileSync(lockFile, JSON.stringify({ pid: process.pid, ts: Date.now(), tipo: nuevoTipo }), 'utf8');
+  fs.writeFileSync(lockFile, JSON.stringify({ pid: process.pid, ts: Date.now(), tipo: nuevoTipo, cadena: cadenaAncestros }), 'utf8');
 } catch { /* no bloquear el spawn si el lock no se pudo escribir */ }
 
 // Persistir la tarea original para que subagent-grader.js pueda evaluar

@@ -26,9 +26,24 @@ describe('agent-tools-guard.js', () => {
     fs.writeFileSync(path.join(AGENTS_DIR_TMP, `${nombre}.md`), contenido, 'utf8');
   }
 
+  function escribirAgenteToolsMultilinea(nombre, tools) {
+    const contenido = [
+      '---',
+      `name: ${nombre}`,
+      'description: agente de prueba',
+      'tools:',
+      ...tools.map((t) => `  - ${t}`),
+      '---',
+      '',
+      `# ${nombre}`,
+    ].join('\n');
+    fs.writeFileSync(path.join(AGENTS_DIR_TMP, `${nombre}.md`), contenido, 'utf8');
+  }
+
   before(() => {
     escribirAgente('scanner-solo-lectura', 'tools: [Bash, Read, Grep, Glob]');
     escribirAgente('sin-scope-declarado', null);
+    escribirAgenteToolsMultilinea('scanner-yaml-multilinea', ['Bash', 'Read']);
   });
 
   after(() => {
@@ -65,9 +80,61 @@ describe('agent-tools-guard.js', () => {
     assert.equal(r.status, 0, 'agentes que no son de ai-core no tienen scope que verificar');
   });
 
+  test('agent_type con path traversal (../) nunca lee el archivo fuera de AGENTS_DIR -- se trata como agente no reconocido', () => {
+    // Hallazgo de seguridad real: agentType viene de evento.agent_type (JSON
+    // de stdin) sin validar caracteres antes de path.join(AGENTS_DIR,
+    // `${agentType}.md`) -- path.join no previene el traversal, permitiendo
+    // leer un archivo arbitrario del sistema como si fuera un AGENT.md.
+    // Fix: agentType debe matchear /^[a-zA-Z0-9_-]+$/ antes de construir la
+    // ruta -- un traversal cae al mismo camino que "agente no reconocido"
+    // (null, no bloquea) en vez de leer el archivo fuera del directorio.
+    // El test verifica el efecto observable correcto: el archivo externo
+    // (con tools: [Write, Edit, Bash], mas permisivo) nunca se lee -- si lo
+    // leyera, el guard heredaria ESE scope y permitiria Write igual que
+    // Edit/Bash; en cambio, con la validacion, tratar el traversal como
+    // "sin scope declarado" es el unico comportamiento observable posible.
+    const archivoFuera = path.join(os.tmpdir(), 'agent-tools-guard-secreto.md');
+    fs.writeFileSync(archivoFuera, '---\nname: secreto\ntools: [Write, Edit, Bash]\n---\n', 'utf8');
+    try {
+      const traversal = path.relative(AGENTS_DIR_TMP, archivoFuera).replace(/\.md$/, '').split(path.sep).join('/');
+      const rWrite = enviarEvento({ agent_type: traversal, tool_name: 'Write' });
+      const rGrep  = enviarEvento({ agent_type: traversal, tool_name: 'Grep' });
+      // Si el traversal leyera el archivo externo, Write y Grep se
+      // comportarian identico (ambos permitidos, mismo scope [Write,Edit,
+      // Bash]) -- el efecto real esperado es "no reconocido" para cualquier
+      // herramienta, consistente con agent_type='Explore' en el test de arriba.
+      assert.equal(rWrite.status, 0, 'sin scope verificable, no bloquea (mismo camino que agente no reconocido)');
+      assert.equal(rGrep.status, 0, 'sin scope verificable, no bloquea (mismo camino que agente no reconocido)');
+    } finally {
+      fs.rmSync(archivoFuera, { force: true });
+    }
+  });
+
+  test('agentType con caracteres fuera de [a-zA-Z0-9_-] (incluye ../ y separadores de ruta) se rechaza antes de tocar el filesystem', () => {
+    const invalidos = ['../secreto', '..\\secreto', 'a/b', 'a\\b', '..', '.'];
+    for (const agentType of invalidos) {
+      const r = enviarEvento({ agent_type: agentType, tool_name: 'Write' });
+      assert.equal(r.status, 0, `"${agentType}" no debe bloquear (tratado como no reconocido, nunca como scope real)`);
+    }
+  });
+
   test('AGENT.md sin campo tools: declarado: no bloquea (retrocompatible)', () => {
     const r = enviarEvento({ agent_type: 'sin-scope-declarado', tool_name: 'Write' });
     assert.equal(r.status, 0, 'sin scope declarado no hay nada que verificar');
+  });
+
+  test('tools: en sintaxis YAML de lista multilinea (no solo array inline) tambien bloquea fuera de scope', () => {
+    // Regresion real: el parser solo entendia `tools: [A, B]` -- un AGENT.md
+    // escrito con `tools:\n  - A\n  - B` (sintaxis YAML igualmente valida)
+    // fallaba abierto (exit 0) sin ninguna advertencia, sin restringir nada.
+    const r = enviarEvento({ agent_type: 'scanner-yaml-multilinea', tool_name: 'Write' });
+    assert.equal(r.status, 2, 'debe bloquear Write si el agente declara tools en YAML multilinea sin incluirla');
+    assert.match(r.stderr, /AGENT-TOOLS-GUARD/);
+  });
+
+  test('tools: en sintaxis YAML multilinea permite una herramienta dentro del scope', () => {
+    const r = enviarEvento({ agent_type: 'scanner-yaml-multilinea', tool_name: 'Read' });
+    assert.equal(r.status, 0, 'Read esta declarado en la lista multilinea, no debe bloquear');
   });
 
   test('los 7 agentes reales de ai-core tienen scope de herramientas declarado', () => {

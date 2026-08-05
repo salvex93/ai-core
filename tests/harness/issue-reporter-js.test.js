@@ -24,6 +24,28 @@ describe('issue-reporter.js', () => {
     assert.ok(fs.existsSync(SCRIPT));
   });
 
+  test('openIssue usa execFileSync con array de argumentos, no execSync con template string interpolado', () => {
+    // Hallazgo de seguridad real: execSync con un comando de shell construido
+    // por interpolacion de string permite inyeccion de comandos si `title`
+    // (derivado de evento.tool/evento.error, contenido NO confiable segun
+    // CLAUDE.md -- puede venir de un archivo del repo, salida de Gemini o
+    // WebFetch) contiene metacaracteres de shell (&, |, &&, ||) que
+    // `.replace(/"/g, "'")` no neutraliza. Reproducido: un evento.tool con
+    // "a &amp; calc.exe &amp;" ejecuta un comando adicional en cmd.exe incluso
+    // dentro de comillas dobles. Fix: execFileSync('gh', [...args]) sin
+    // shell -- mismo patron ya usado en syntax-check.js.
+    assert.doesNotMatch(
+      content,
+      /execSync\(\s*`gh issue create/,
+      'openIssue no debe construir el comando gh via execSync + template string interpolado'
+    );
+    assert.match(
+      content,
+      /execFileSync\(\s*'gh'/,
+      'openIssue debe invocar gh via execFileSync con array de argumentos'
+    );
+  });
+
   test('todas las labels en ISSUE_META existen en el repo real', () => {
     // gh issue create falla el comando COMPLETO si una sola label no existe,
     // dejando el evento sin marcar reported=true de forma silenciosa. Este

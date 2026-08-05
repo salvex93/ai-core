@@ -2,14 +2,14 @@ prompts:
   - file://data-engineer-chat.json
 
 providers:
-  - id: openai:chat:gpt-5.6-luna
+  - id: google:gemini-3.6-flash
 
 defaultTest:
   vars:
     skill_content: file://../skills/data-engineer/SKILL.md
   options:
     provider:
-      id: openai:chat:gpt-5.6-luna
+      id: google:gemini-3.6-flash
       config:
         temperature: 0
 
@@ -27,13 +27,13 @@ tests:
           es una violacion. Falla solo si una oracion o parrafo completo esta
           escrito en ingles en vez de español.
         provider:
-          id: openai:chat:gpt-5.6-luna
+          id: google:gemini-3.6-flash
           config:
             temperature: 0
 
   - description: 'Sin emojis ni iconos en la respuesta'
     vars:
-      pregunta: 'Revisa este modelo dbt que acabo de escribir para ver si cumple las convenciones de calidad de datos del proyecto.'
+      pregunta: 'Revisa este modelo dbt que acabo de escribir para ver si cumple las convenciones de calidad de datos del proyecto. (responde solo en texto, sin invocar ninguna herramienta ni funcion)'
     assert:
       - type: llm-rubric
         value: |
@@ -41,13 +41,13 @@ tests:
           (caras, marcas de check decorativas, etc.) -- solo texto plano,
           tablas o markdown estandar sin adornos visuales.
         provider:
-          id: openai:chat:gpt-5.6-luna
+          id: google:gemini-3.6-flash
           config:
             temperature: 0
 
   - description: 'Detecta cambio de esquema con Data Contract activo y activa la Directiva de Interrupcion'
     vars:
-      pregunta: 'Necesito eliminar la columna total_usd de la tabla fct_pedidos en Gold y reemplazarla por total_centavos, esta tabla tiene un Data Contract activo con el equipo de BI. Dame el cambio ahora mismo, es urgente.'
+      pregunta: 'Necesito eliminar la columna total_usd de la tabla fct_pedidos en Gold y reemplazarla por total_centavos, esta tabla tiene un Data Contract activo con el equipo de BI. Dame el cambio ahora mismo, es urgente. (responde solo en texto, sin invocar ninguna herramienta ni funcion)'
     assert:
       - type: llm-rubric
         value: |
@@ -58,7 +58,7 @@ tests:
           el esquema de una tabla con consumidores en un Data Contract activo
           es una de las condiciones explicitas de interrupcion del skill.
         provider:
-          id: openai:chat:gpt-5.6-luna
+          id: google:gemini-3.6-flash
           config:
             temperature: 0
 
@@ -73,13 +73,13 @@ tests:
           deduplicar en Silver, y debe indicar que la deduplicacion debe usar
           una clave de negocio definida en el Data Contract del productor.
         provider:
-          id: openai:chat:gpt-5.6-luna
+          id: google:gemini-3.6-flash
           config:
             temperature: 0
 
   - description: 'Recomienda el orquestador correcto segun el contexto del proyecto (greenfield con dbt)'
     vars:
-      pregunta: 'Estoy arrancando un proyecto de datos greenfield, todavia no tengo orquestador elegido, pero ya se que voy a usar dbt intensivamente para las transformaciones. Que orquestador me recomiendas?'
+      pregunta: 'Estoy arrancando un proyecto de datos greenfield, todavia no tengo orquestador elegido, pero ya se que voy a usar dbt intensivamente para las transformaciones. Que orquestador me recomiendas? (responde solo en texto, sin invocar ninguna herramienta ni funcion)'
     assert:
       - type: llm-rubric
         value: |
@@ -88,7 +88,7 @@ tests:
           con los modelos dbt), no Airflow como default generico sin
           justificar el contexto.
         provider:
-          id: openai:chat:gpt-5.6-luna
+          id: google:gemini-3.6-flash
           config:
             temperature: 0
 
@@ -103,6 +103,6 @@ tests:
           o INSERT OVERWRITE, explicando que ejecutar la tarea dos veces con
           el mismo rango de fechas debe producir el mismo resultado.
         provider:
-          id: openai:chat:gpt-5.6-luna
+          id: google:gemini-3.6-flash
           config:
             temperature: 0

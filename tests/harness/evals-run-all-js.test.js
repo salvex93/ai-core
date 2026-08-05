@@ -7,7 +7,14 @@ const { REPO } = require('./_shared');
 
 describe('.claude/evals/run-all.js', () => {
   const MODULE = path.join(REPO, '.claude', 'evals', 'run-all.js');
-  const { listarConfigs, resumirTotales } = require(MODULE);
+  const { listarConfigs, resumirTotales, calcularEsperaMs } = require(MODULE);
+
+  describe('calcularEsperaMs', () => {
+    test('espera > 0 entre evals -- cada eval consume ~8 requests (4 casos x respuesta+rubric) contra el limite de 20 req/min del tier gratuito de Gemini', () => {
+      const espera = calcularEsperaMs();
+      assert.ok(espera > 0, 'debe esperar entre evals para no saturar el rate limit del proveedor juez');
+    });
+  });
 
   describe('listarConfigs', () => {
     test('lista todos los *.promptfooconfig.yaml del directorio, ordenados', () => {

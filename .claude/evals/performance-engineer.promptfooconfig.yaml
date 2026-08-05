@@ -2,12 +2,12 @@ prompts:
   - file://performance-engineer-chat.json
 
 providers:
-  - id: openai:chat:gpt-5.6-luna
+  - id: google:gemini-3.6-flash
 
 defaultTest:
   options:
     provider:
-      id: openai:chat:gpt-5.6-luna
+      id: google:gemini-3.6-flash
       config:
         temperature: 0
 
@@ -25,13 +25,13 @@ tests:
           Falla solo si una oracion o parrafo completo esta escrito en ingles
           en vez de español.
         provider:
-          id: openai:chat:gpt-5.6-luna
+          id: google:gemini-3.6-flash
           config:
             temperature: 0
 
   - description: 'Sin emojis ni iconos en la respuesta'
     vars:
-      pregunta: 'Revisa esta estrategia de cache que acabo de disenar para ver si cumple las buenas practicas del proyecto.'
+      pregunta: 'Revisa esta estrategia de cache que acabo de disenar para ver si cumple las buenas practicas del proyecto. (responde solo en texto, sin invocar ninguna herramienta ni funcion)'
     assert:
       - type: llm-rubric
         value: |
@@ -39,7 +39,7 @@ tests:
           (caras, marcas de check decorativas, etc.) -- solo texto plano,
           tablas o markdown estandar sin adornos visuales.
         provider:
-          id: openai:chat:gpt-5.6-luna
+          id: google:gemini-3.6-flash
           config:
             temperature: 0
 
@@ -56,13 +56,13 @@ tests:
           equipo responsable), ya que esa es una de las condiciones explicitas
           de interrupcion del skill.
         provider:
-          id: openai:chat:gpt-5.6-luna
+          id: google:gemini-3.6-flash
           config:
             temperature: 0
 
   - description: 'Exige la Identidad Declarada antes de fijar TTL o configuracion de cache'
     vars:
-      pregunta: 'Dame ya el valor de TTL exacto que debo poner en cache.set() para el catalogo de productos de mi tienda.'
+      pregunta: 'Dame ya el valor de TTL exacto que debo poner en cache.set() para el catalogo de productos de mi tienda. (responde solo en texto, sin invocar ninguna herramienta ni funcion)'
     assert:
       - type: llm-rubric
         value: |
@@ -78,13 +78,13 @@ tests:
           ninguna condicion o advertencia de que depende de la tolerancia real
           del proyecto.
         provider:
-          id: openai:chat:gpt-5.6-luna
+          id: google:gemini-3.6-flash
           config:
             temperature: 0
 
   - description: 'Recomienda in-memory en vez de Redis para el escenario correcto (single-instance)'
     vars:
-      pregunta: 'Mi aplicacion Node.js corre en un solo proceso, sin planes de escalar a mas instancias pronto. Necesito cachear los resultados de una consulta costosa. Deberia usar Redis?'
+      pregunta: 'Mi aplicacion Node.js corre en un solo proceso, sin planes de escalar a mas instancias pronto. Necesito cachear los resultados de una consulta costosa. Deberia usar Redis? (responde solo en texto, sin invocar ninguna herramienta ni funcion)'
     assert:
       - type: llm-rubric
         value: |
@@ -95,13 +95,13 @@ tests:
           instancias. No debe recomendar Redis "porque es lo estandar" sin
           cuestionar si el escenario lo justifica.
         provider:
-          id: openai:chat:gpt-5.6-luna
+          id: google:gemini-3.6-flash
           config:
             temperature: 0
 
   - description: 'Rechaza gate de prueba de carga expresado solo de forma cualitativa (sin umbral medible)'
     vars:
-      pregunta: 'Ya corri autocannon contra mi endpoint de checkout y en la consola se ve rapido, no hubo errores visibles. Puedo dar por aprobada la prueba de carga asi?'
+      pregunta: 'Ya corri autocannon contra mi endpoint de checkout y en la consola se ve rapido, no hubo errores visibles. Puedo dar por aprobada la prueba de carga asi? (responde solo en texto, sin invocar ninguna herramienta ni funcion)'
     assert:
       - type: llm-rubric
         value: |
@@ -112,6 +112,6 @@ tests:
           umbral, en linea con que un print sin comparacion no es un gate de
           calidad segun el skill.
         provider:
-          id: openai:chat:gpt-5.6-luna
+          id: google:gemini-3.6-flash
           config:
             temperature: 0

@@ -18,9 +18,9 @@
  *   5. Limpia eventos reportados con > 7 dias de antiguedad
  */
 
-const fs           = require('fs');
-const path         = require('path');
-const { execSync } = require('child_process');
+const fs   = require('fs');
+const path = require('path');
+const { execSync, execFileSync } = require('child_process');
 
 const CORE_PATH   = path.resolve(__dirname, '../..');
 const QUEUE_PATH  = path.join(CORE_PATH, '.claude', 'EVENTS_QUEUE.json');
@@ -164,8 +164,16 @@ function openIssue(type, events) {
   fs.writeFileSync(tmpFile, body, 'utf8');
 
   try {
-    const result = execSync(
-      `gh issue create --repo "${REPO_TARGET}" --title "${title.replace(/"/g, "'")}" --body-file "${tmpFile}" --label "${meta.label}"`,
+    // execFileSync con array de argumentos -- sin shell, inmune a inyeccion
+    // de comandos. `title` deriva de evento.tool/evento.error (contenido no
+    // confiable: puede venir de un archivo del repo, salida de Gemini o
+    // WebFetch) -- un execSync con template string interpolado permitia
+    // que metacaracteres de shell (&, |, &&, ||) en ese texto ejecutaran
+    // comandos adicionales, ya que `.replace(/"/g, "'")` solo neutralizaba
+    // el cierre de comillas, no esos metacaracteres.
+    const result = execFileSync(
+      'gh',
+      ['issue', 'create', '--repo', REPO_TARGET, '--title', title, '--body-file', tmpFile, '--label', meta.label],
       { encoding: 'utf8', cwd: CORE_PATH }
     ).trim();
     process.stderr.write(`[ISSUE] Abierto: ${result}\n`);

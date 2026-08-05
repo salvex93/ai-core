@@ -2,12 +2,12 @@ prompts:
   - file://rag-specialist-chat.json
 
 providers:
-  - id: openai:chat:gpt-5.6-luna
+  - id: google:gemini-3.6-flash
 
 defaultTest:
   options:
     provider:
-      id: openai:chat:gpt-5.6-luna
+      id: google:gemini-3.6-flash
       config:
         temperature: 0
 
@@ -25,13 +25,13 @@ tests:
           Falla solo si una oracion o parrafo completo esta escrito en ingles en
           vez de español.
         provider:
-          id: openai:chat:gpt-5.6-luna
+          id: google:gemini-3.6-flash
           config:
             temperature: 0
 
   - description: 'Sin emojis ni iconos en la respuesta'
     vars:
-      pregunta: 'Revisa la calidad de recuperacion semantica de mi pipeline RAG actual y dame tu diagnostico.'
+      pregunta: 'Revisa la calidad de recuperacion semantica de mi pipeline RAG actual y dame tu diagnostico. (responde solo en texto, sin invocar ninguna herramienta ni funcion)'
     assert:
       - type: llm-rubric
         value: |
@@ -39,13 +39,13 @@ tests:
           (caras, marcas de check decorativas, etc.) -- solo texto plano,
           tablas o markdown estandar sin adornos visuales.
         provider:
-          id: openai:chat:gpt-5.6-luna
+          id: google:gemini-3.6-flash
           config:
             temperature: 0
 
   - description: 'Detecta modificacion de coleccion vectorial en produccion y activa la Directiva de Interrupcion'
     vars:
-      pregunta: 'Necesito cambiar el modelo de embedding de nuestra coleccion vectorial en produccion, que ya tiene millones de vectores indexados. Dame el plan de migracion ahora mismo, es urgente.'
+      pregunta: 'Necesito cambiar el modelo de embedding de nuestra coleccion vectorial en produccion, que ya tiene millones de vectores indexados. Dame el plan de migracion ahora mismo, es urgente. (responde solo en texto, sin invocar ninguna herramienta ni funcion)'
     assert:
       - type: llm-rubric
         value: |
@@ -57,7 +57,7 @@ tests:
           produccion es una de las condiciones explicitas de interrupcion del
           skill.
         provider:
-          id: openai:chat:gpt-5.6-luna
+          id: google:gemini-3.6-flash
           config:
             temperature: 0
 
@@ -74,13 +74,13 @@ tests:
           valida una respuesta que solo sugiera ajustar el modelo de embedding
           o aumentar top-K sin mencionar BM25/hibrido/RRF.
         provider:
-          id: openai:chat:gpt-5.6-luna
+          id: google:gemini-3.6-flash
           config:
             temperature: 0
 
   - description: 'Detecta el anti-patron de chunking fijo de 512 tokens sin verificar estructura del contenido'
     vars:
-      pregunta: 'Voy a ingerir documentacion tecnica que tiene muchas tablas y bloques de codigo largos. Simplemente le aplico el chunking estandar de 512 tokens con 64 de solapamiento a todo el corpus por igual, cierto?'
+      pregunta: 'Voy a ingerir documentacion tecnica que tiene muchas tablas y bloques de codigo largos. Simplemente le aplico el chunking estandar de 512 tokens con 64 de solapamiento a todo el corpus por igual, cierto? (responde solo en texto, sin invocar ninguna herramienta ni funcion)'
     assert:
       - type: llm-rubric
         value: |
@@ -92,7 +92,7 @@ tests:
           corpus. Falla si la respuesta confirma sin matices que el chunking
           fijo de 512/64 es siempre apropiado para este corpus.
         provider:
-          id: openai:chat:gpt-5.6-luna
+          id: google:gemini-3.6-flash
           config:
             temperature: 0
 
@@ -109,6 +109,6 @@ tests:
           embedding en su lugar. Falla si la respuesta recomienda el
           re-ranking sin condicionarlo o sin advertir el costo de latencia.
         provider:
-          id: openai:chat:gpt-5.6-luna
+          id: google:gemini-3.6-flash
           config:
             temperature: 0

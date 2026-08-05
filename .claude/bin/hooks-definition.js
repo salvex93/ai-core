@@ -116,6 +116,7 @@ function buildHooksSection(bin) {
           { type: 'command', command: `${nodeConPermiso(bin('cross-verify-gate.js'), repoConGit)} 2>/dev/null || true` },
           { type: 'command', command: `${nodeConPermiso(bin('injection-guard.js'), readYWrite)} 2>/dev/null || true` },
           { type: 'command', command: `${nodeConPermiso(bin('subagent-grader.js'), soloRead)} 2>/dev/null || true` },
+          { type: 'command', command: `${nodeConPermiso(bin('subagent-guard-release.js'), readYWrite)} 2>/dev/null || true` },
         ],
       },
     ],
@@ -190,8 +191,13 @@ function buildHooksSection(bin) {
         // Enforcement de scope de herramientas por subagente (Gobierno de
         // Agentes, regla 2 de CLAUDE.md). agent_type solo esta presente en
         // el evento cuando la tool call se origina dentro de un subagente
-        // -- sin efecto sobre el hilo principal.
-        matcher: 'Bash|Read|Write|Edit',
+        // -- sin efecto sobre el hilo principal. Cubre TODAS las
+        // herramientas que un AGENT.md puede declarar en tools: (Grep/Glob/
+        // WebFetch incluidos: mcp-registry-navigator, aiops-auditor,
+        // code-reviewer y security-scanner las declaran) -- antes solo
+        // cubria Bash/Read/Write/Edit, dejando sin enforcement real a 6 de
+        // los 7 agentes para el resto de su scope declarado.
+        matcher: 'Bash|Read|Write|Edit|Grep|Glob|WebFetch|Agent',
         hooks: [
           { type: 'command', command: nodeConPermiso(bin('agent-tools-guard.js'), soloLeerRepo) },
         ],

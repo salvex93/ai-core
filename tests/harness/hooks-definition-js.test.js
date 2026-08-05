@@ -36,6 +36,12 @@ describe('hooks-definition.js', () => {
     assert.match(str, /injection-guard\.js/);
   });
 
+  test('SubagentStop incluye subagent-guard-release.js para liberar el lock de paralelismo al terminar el subagente', () => {
+    const hooks = buildHooksSection((s) => `"${s}"`);
+    const str = JSON.stringify(hooks.SubagentStop);
+    assert.match(str, /subagent-guard-release\.js/);
+  });
+
   test('agent-metrics.js registra --status fail en PostToolUseFailure para el mismo grupo generico que --status ok en PostToolUse', () => {
     const hooks = buildHooksSection((s) => `"${s}"`);
 
@@ -210,7 +216,7 @@ describe('hooks-definition.js', () => {
       }
     });
 
-    test('agent-tools-guard.js se registra en PreToolUse(Bash|Read|Write|Edit) preservando su exit code de bloqueo', () => {
+    test('agent-tools-guard.js cubre TODAS las herramientas que un AGENT.md puede declarar en tools: (Bash/Read/Write/Edit/Grep/Glob/WebFetch/Agent), no solo un subconjunto', () => {
       const original = process.platform;
       Object.defineProperty(process, 'platform', { value: 'linux' });
       try {
@@ -218,13 +224,28 @@ describe('hooks-definition.js', () => {
         const { buildHooksSection: build } = require(path.join(BIN, 'hooks-definition.js'));
         const hooks = build((s) => `"/repo/.claude/bin/${s}"`);
 
-        const grupo = hooks.PreToolUse.find(
-          (g) => g.matcher === 'Bash|Read|Write|Edit' && JSON.stringify(g.hooks).includes('agent-tools-guard.js')
+        const gruposConGuard = hooks.PreToolUse.filter(
+          (g) => JSON.stringify(g.hooks).includes('agent-tools-guard.js')
         );
-        assert.ok(grupo, 'debe existir una entrada PreToolUse para Bash|Read|Write|Edit con agent-tools-guard.js');
+        assert.ok(gruposConGuard.length >= 1, 'debe existir al menos una entrada PreToolUse con agent-tools-guard.js');
 
-        const comando = grupo.hooks.find((h) => h.command.includes('agent-tools-guard.js')).command;
-        assert.doesNotMatch(comando, /\|\|\s*true/, `agent-tools-guard.js no debe anular su exit code de bloqueo: "${comando}"`);
+        // Herramientas reales declaradas hoy en algun tools: de .claude/agents/*.md
+        // (mcp-registry-navigator declara WebFetch; aiops-auditor/code-reviewer/
+        // security-scanner declaran Grep y Glob) -- el matcher debe cubrirlas
+        // todas, no solo Bash/Read/Write/Edit.
+        const matcherCombinado = gruposConGuard.map((g) => g.matcher).join('|');
+        for (const herramienta of ['Bash', 'Read', 'Write', 'Edit', 'Grep', 'Glob', 'WebFetch', 'Agent']) {
+          assert.match(
+            matcherCombinado,
+            new RegExp(`\\b${herramienta}\\b`),
+            `el matcher de agent-tools-guard.js debe cubrir "${herramienta}"`
+          );
+        }
+
+        for (const grupo of gruposConGuard) {
+          const comando = grupo.hooks.find((h) => h.command.includes('agent-tools-guard.js')).command;
+          assert.doesNotMatch(comando, /\|\|\s*true/, `agent-tools-guard.js no debe anular su exit code de bloqueo: "${comando}"`);
+        }
       } finally {
         Object.defineProperty(process, 'platform', { value: original });
         delete require.cache[require.resolve(path.join(BIN, 'hooks-definition.js'))];

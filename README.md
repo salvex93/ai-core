@@ -1,4 +1,4 @@
-# AI-CORE v3.29.0: Nucleo Multi-Agente
+# AI-CORE v3.30.0: Nucleo Multi-Agente
 
 `ai-core` es un nucleo de configuracion y comportamiento para agentes IA. Se usa como submodulo Git en un proyecto existente o como repositorio independiente. Define reglas globales, 42 skills especializados, 7 agentes autonomos, un orquestador Mixture-of-Agents (Gemini + DeepSeek + Claude) y un ciclo de mejora continua por uso, sin acoplarse al stack del proyecto anfitrion.
 
@@ -33,7 +33,7 @@ npm install
 npm run setup    # adapta settings.json a tu ruta exacta (cross-platform)
 
 # 3. Verificar que todo funciona
-npm test         # debe terminar: 901 pass, 0 fail
+npm test         # debe terminar: 919 pass, 0 fail
 
 # 4. Autenticar gh CLI para el issue-tracker (una sola vez por maquina)
 gh auth login    # GitHub.com -> HTTPS -> Login with a web browser
@@ -81,7 +81,7 @@ Repositorio independiente:
 npm run update
 ```
 
-Esto corre `git pull`, regenera `settings.json` (purga automaticamente cualquier hook de una version anterior que referencie un script eliminado o renombrado — el objeto de hooks se construye desde cero y sobreescribe el archivo completo, nunca mergea, con la definicion compartida en `hooks-definition.js`), corre los 901 tests, aplica migraciones de version, valida los 42 skills y los 7 agentes, y reporta que cambio. Si un test falla, el comando se detiene ahi.
+Esto corre `git pull`, regenera `settings.json` (purga automaticamente cualquier hook de una version anterior que referencie un script eliminado o renombrado — el objeto de hooks se construye desde cero y sobreescribe el archivo completo, nunca mergea, con la definicion compartida en `hooks-definition.js`), corre los 919 tests, aplica migraciones de version, valida los 42 skills y los 7 agentes, y reporta que cambio. Si un test falla, el comando se detiene ahi.
 
 Instalado como submodulo:
 
@@ -123,7 +123,7 @@ Si no esta autenticado, los eventos se acumulan en `.claude/EVENTS_QUEUE.json` y
 
 ```bash
 npm install                               # instalar dependencias (corre postinstall -> npm run setup)
-npm test                                  # 901 tests, Node nativo, sin deps externas
+npm test                                  # 919 tests, Node nativo, sin deps externas
 npm run setup                             # regenerar settings.json con rutas locales (ya corre solo via postinstall)
 npm run update                            # actualizacion one-command desde GitHub
 npm run validate-globals                  # auditar conformidad de los 42 skills (incluye schema agentskills.io)
@@ -152,6 +152,18 @@ npm run eval-skills                       # correr los 42 evals de conformidad d
 
 ## Que trae cada version
 
+### v3.30.0 — auditoria de seguridad del codigo + anti-jailbreak en 14 perfiles + release real de locks
+
+Auditoria de codigo (hooks, bridges, evals) encontro y cerro 4 hallazgos de seguridad reales: inyeccion de comandos via `execSync` con template string en `issue-reporter.js` y `standards-guard.js` (migrados a `execFileSync` con array de argumentos, sin shell); path traversal en `agent-tools-guard.js` (valida `agentType` antes de construir la ruta); `analizarArchivo` sin limite de directorio (advertencia auditable en logs, sin bloquear el uso legitimo con rutas fuera del repo).
+
+Auditoria separada (Opus + Sonnet, verificacion cruzada) sobre los 7 hallazgos previos de gobierno de subagentes: `agent-tools-guard.js` ahora cubre Grep/Glob/WebFetch/Agent (antes solo Bash/Read/Write/Edit, dejando sin enforcement real a 6 de los 7 agentes); `subagent-guard.js` libera el lock real al terminar el subagente (nuevo hook `subagent-guard-release.js` en SubagentStop, indexado por session_id+prompt_id) en vez de depender solo de TTL, y detecta el ciclo indirecto A->B->A ademas de la recursion directa; `IntentClassifier.js` ya no enruta generacion de codigo a Haiku/prosa; `AgentRoles.js` limita a 12 los skills inferidos sin especificar (antes 25 sin tope, ~164k tokens); `validate-agents.js` valida que el campo `tools:` exista y no este vacio.
+
+Auditoria de resistencia a jailbreak en los 42 skills + 7 agentes (verificacion cruzada, 142 agentes de workflow): 14 perfiles con exposicion real a contenido externo (RAG, scraping, documentos multimodales, diffs, MCPs de terceros, output de npm audit) ahora declaran localmente que ese contenido nunca se ejecuta como instruccion nueva. 3 puertas de escape textuales cerradas: `dev-loop` (bypass de fases exigia solo "documentar riesgo", ahora exige lista de gates omitidos + confirmacion humana posterior); `prompt-engineer` (ejemplo de Prefill sin delimitador, contradecia su propia regla de defensa); `issue-tracker` (Directiva de Interrupcion contradictoria, ahora especifica el mecanismo objetivo de verificacion). Bug funcional cerrado: la precondicion 1 de `aiops-auditor` buscaba la palabra literal "pass" en un output que nunca la contiene — siempre reportaba falso negativo, corregido a exit code real.
+
+Revertido el juez de evals de `openai:chat:gpt-5.6-luna` a `google:gemini-3.6-flash` (tier 0) tras confirmar en vivo que la saturacion original ya se normalizo. Agregado espaciado de 30s entre evals en `run-all.js` y CI (tier gratuito de Gemini es 20 req/min, cada eval consume ~8) y la clausula "sin invocar ninguna herramienta ni funcion" en 136 casos de los 42 evals que la omitian, causa real de un `MALFORMED_FUNCTION_CALL` intermitente con Gemini.
+
+**919 tests, 42 skills con eval de conformidad, 7 agentes.**
+
 ### v3.29.0 — auditoria completa del arnes (31 hallazgos cerrados) + prompt caching real
 
 Workflow de barrido con verificacion cruzada independiente encontro y cerro 19 hallazgos aplicables: dos guards de seguridad (`secrets-guard.js`, `guard-read.js`) tenian su exit code de bloqueo anulado y nunca bloqueaban en produccion; `process-guard.js` simulaba exito al descartar `standards-guard.js` bajo carga; ningun agente declaraba scope de herramientas (nuevo hook `agent-tools-guard.js` + `tools:` en los 7 `AGENT.md`); varios modulos tragaban excepciones sin log (`mcp-gemini.js`/`mcp-anthropic.js` dejaban requests MCP colgadas, `memory-index.js`/`validate-map.js`/`circuit-breaker.js`/`health-check.js`/`audit-market.js` degradaban en silencio total). Eliminado `norm-harness.ps1`, huerfano desde v2.6.x.
@@ -168,7 +180,7 @@ La corrida real de los evals nuevos encontro 7 gaps de conformidad reales (no de
 
 Fix de infraestructura reusable: `tech-lead-frontend` y `web-scraping-specialist` tienen SKILL.md con JSX/f-strings con llaves dobles literales que el motor Nunjucks de promptfoo interpretaba como variables de template, rompiendo el eval antes de invocar al modelo. Se agrego `.claude/evals/prompt-loader.js`, que arma el prompt de chat leyendo el SKILL.md por filesystem y envolviendolo en un bloque `{% raw %}...{% endraw %}` -- Nunjucks preserva el contenido literal sin re-interpretarlo. `npm run eval-skills` ahora corre los 42 evals en secuencia via `.claude/evals/run-all.js` (antes apuntaba solo a `security-auditor` como piloto).
 
-**901 tests, 42 skills con eval de conformidad, 7 agentes.**
+**874 tests, 42 skills con eval de conformidad, 7 agentes.**
 
 ### v3.27.0 — evals expandidos de 3 a 8 skills de mayor riesgo
 
@@ -655,7 +667,7 @@ New-Item -ItemType SymbolicLink -Path './CLAUDE.md' -Target 'C:/ruta/a/ai-core/C
 │   │   │   └── guard-report.js       Esquema tipado {guard,verdict,severity} en JSONL, opt-in por guard (secrets-guard, injection-guard, pre-commit-tdd)
 │   │   └── memory-vault-prune-check.js Hook Stop: avisa (sin borrar) cuando el vault supera 50 archivos
 │   └── skills/                  42 skills — enrutamiento via frontmatter description (agentskills.io), reglas en CLAUDE.md
-├── tests/                       901 tests — tests/harness/*.test.js (dividido por modulo) + archivos dedicados
+├── tests/                       919 tests — tests/harness/*.test.js (dividido por modulo) + archivos dedicados
 ├── .github/workflows/ci.yml     CI: Ubuntu/Windows/macOS, Node 22 unicamente (sandboxing con Permission Model exige >= 22.13.0)
 ├── CLAUDE.md                    Autoridad unica: reglas globales, skills, enrutamiento
 ├── DEPRECATIONS.json            Contrato de migracion por version

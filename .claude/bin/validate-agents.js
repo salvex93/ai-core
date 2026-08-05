@@ -84,6 +84,28 @@ function auditarAgente(file) {
     hallazgos.push({ sev: 'alta', desc: 'falta referencia inmutable a CLAUDE.md en Restricciones' });
   }
 
+  // 2b. Campo tools: -- unico campo del frontmatter con enforcement real en
+  // runtime (agent-tools-guard.js, hook PreToolUse). Sin este chequeo, un
+  // agente sin scope declarado o con scope vacio pasaba la auditoria como
+  // conforme mientras agent-tools-guard.js fallaba abierto en produccion.
+  // Debe reconocer ambas sintaxis (array inline y lista YAML multilinea),
+  // igual que agent-tools-guard.js.
+  const frontmatterMatch = content.match(/^---\r?\n([\s\S]*?)\r?\n---/);
+  const frontmatter = frontmatterMatch ? frontmatterMatch[1] : '';
+  const toolsInline = frontmatter.match(/^tools:\s*\[([^\]]*)\]/m);
+  const toolsMultilinea = frontmatter.match(/^tools:\s*\r?\n((?:^[ \t]*-[ \t].*\r?\n?)+)/m);
+
+  if (!toolsInline && !toolsMultilinea) {
+    hallazgos.push({ sev: 'alta', desc: 'frontmatter: falta "tools:" -- unico campo con enforcement real en runtime (agent-tools-guard.js)' });
+  } else {
+    const listaTools = toolsInline
+      ? toolsInline[1].split(',').map((t) => t.trim()).filter(Boolean)
+      : toolsMultilinea[1].split(/\r?\n/).map((l) => l.replace(/^[ \t]*-[ \t]*/, '').trim()).filter(Boolean);
+    if (listaTools.length === 0) {
+      hallazgos.push({ sev: 'alta', desc: 'frontmatter: "tools:" declarado pero vacio -- scope invalido' });
+    }
+  }
+
   // 3. Reglas NO deben estar copiadas
   for (const regla of REGLAS_NO_COPIAR) {
     if (content.includes(regla)) {

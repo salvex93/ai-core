@@ -17,7 +17,10 @@ const path = require('path');
 
 const UMBRAL = 50; // igual al definido en memory-manager/SKILL.md
 const REPO   = path.resolve(__dirname, '..', '..');
-const RAW    = path.join(REPO, '.claude', 'memory-vault', '.raw');
+// AI_CORE_MEMORY_VAULT_PATH permite operar sobre un vault temporal en tests
+// aislados -- sin ella, comportamiento identico (vault real del repo).
+const VAULT  = process.env.AI_CORE_MEMORY_VAULT_PATH || path.join(REPO, '.claude', 'memory-vault');
+const RAW    = path.join(VAULT, '.raw');
 
 function contarMd(dir) {
   if (!fs.existsSync(dir)) return 0;

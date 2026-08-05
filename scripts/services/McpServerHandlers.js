@@ -62,6 +62,19 @@ Reglas:
 
 async function analizarArchivo({ ruta, mision }) {
   const filePath = path.resolve(ruta);
+
+  // Esta tool esta declarada para "archivos del proyecto anfitrion" pero no
+  // hay enforcement tecnico real: el proceso MCP (mcp-gemini.js) corre sin
+  // --permission (ver .claude/settings.json, mcpServers.gemini-bridge), a
+  // diferencia de los hooks propios que si usan el Node.js Permission Model
+  // (hooks-definition.js). No se bloquea (romperia el caso legitimo de
+  // analizar archivos en os.tmpdir() u otras rutas absolutas fuera del
+  // repo), pero se deja evidencia en stderr para poder auditar despues si
+  // una sesion leyo contenido fuera del directorio esperado.
+  if (!filePath.startsWith(path.resolve(process.cwd()) + path.sep) && filePath !== path.resolve(process.cwd())) {
+    process.stderr.write(`[analizarArchivo] Advertencia: ruta fuera del directorio del proyecto (${filePath}) -- sin restriccion tecnica, solo auditoria.\n`);
+  }
+
   if (!fs.existsSync(filePath)) {
     return { error: `Archivo no encontrado: ${filePath}` };
   }

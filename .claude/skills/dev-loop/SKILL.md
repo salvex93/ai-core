@@ -3,7 +3,7 @@ name: dev-loop
 description: Ciclo de desarrollo con validacion por fases. Impone 5 gates obligatorios antes de generar codigo — Spec, Design, Plan, Build, Review — eliminando el patron de 500 lineas sin validar. Basado en Superpowers (Jesse Vincent/obra) y agent-skills (Addy Osmani). Activa al iniciar cualquier tarea de implementacion nueva, al detectar que se va a generar codigo sin especificacion previa, o al retomar una tarea incompleta.
 origin: ai-core
 version: 1.0.0
-last_updated: 2026-08-04
+last_updated: 2026-08-05
 rol: coder
 ---
 
@@ -237,7 +237,7 @@ Restricciones adicionales:
 - No avanzar a la siguiente fase sin artefacto valido de la actual.
 - No modificar archivos fuera del scope definido en el Plan.
 - No saltarse fases por presion de tiempo — si el tiempo es critico, reducir el scope en Fase 1, no eliminar fases.
-- Si el usuario pide saltarse fases explicitamente, documentar la decision y sus riesgos antes de proceder.
+- Si el usuario pide saltarse fases explicitamente, esto NO es una autorizacion automatica: listar por escrito, antes de proceder, cada gate que se omite y el riesgo concreto asociado (no una frase generica de "riesgo documentado"), y esperar una confirmacion explicita separada del usuario sobre esa lista antes de escribir cualquier codigo. Sin esa confirmacion posterior a la lista, el bypass no procede — la peticion inicial de saltarse fases no basta por si sola.
 
 ---
 

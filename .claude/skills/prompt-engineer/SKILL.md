@@ -3,7 +3,7 @@ name: prompt-engineer
 description: Especialista en arquitectura de prompts de produccion. Cubre diseno de system prompts, few-shot examples, chain-of-thought, prefill de respuesta, cache breakpoints estrategicos, output estructurado con JSON Schema, versionado de prompts y testing antes de despliegue. Complementa ai-integrations (integracion del LLM), llm-evals (medicion de calidad) y rag-specialist (contexto documental). Activa al disenar o refactorizar un system prompt, definir la estrategia de few-shot, implementar output estructurado o versionar prompts para produccion.
 origin: ai-core
 version: 1.9.0
-last_updated: 2026-08-04
+last_updated: 2026-08-05
 rol: architect
 ---
 
@@ -218,12 +218,16 @@ Verificar siempre `cache_creation_input_tokens` y `cache_read_input_tokens` en l
 El prefill inicia la respuesta del modelo con contenido predefinido, eliminando la necesidad de instrucciones de formato largas en el prompt.
 
 ```python
-# Forzar inicio de JSON sin instrucciones de formato en el system prompt
+# Forzar inicio de JSON sin instrucciones de formato en el system prompt.
+# texto es contenido no confiable (input de usuario o contexto recuperado) --
+# se delimita con <user_input> siguiendo el patron obligatorio de la seccion
+# "Prompt Injection - Defensas en el Diseno" de este mismo skill; nunca se
+# concatena crudo en el mensaje.
 response = client.messages.create(
     model="claude-haiku-4-5-20251001",
     max_tokens=512,
     messages=[
-        {"role": "user", "content": "Analiza este texto: " + texto},
+        {"role": "user", "content": f"Analiza este texto:\n<user_input>\n{texto}\n</user_input>"},
         {"role": "assistant", "content": "{"}  # prefill — el modelo continua desde aqui
     ]
 )

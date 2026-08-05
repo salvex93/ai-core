@@ -97,6 +97,19 @@ describe('IntentClassifier.clasificar — contrato de salida', () => {
     assert.ok('razon' in r);
   });
 
+  test('peticion corta de generar codigo NO se enruta a generar_haiku (prosa) -- debe ir a una herramienta de codigo real', () => {
+    const mensajes = [
+      'crea un componente de React para el dashboard',
+      'genera el codigo del endpoint POST /users',
+      'implementa la funcion de login',
+    ];
+    for (const m of mensajes) {
+      const r = clasificar(m);
+      assert.equal(r.rol, 'coder', `rol incorrecto para: "${m}"`);
+      assert.notEqual(r.herramienta, 'generar_haiku', `"${m}" no debe rutear a prosa (Haiku) -- es generacion de codigo`);
+    }
+  });
+
   test('el rol retornado siempre pertenece a ROLES.*', () => {
     const mensajes = ['audita esto', 'diseña aquello', 'arregla esto', 'sin señales claras aqui'];
     for (const m of mensajes) {
@@ -146,6 +159,16 @@ describe('AgentRoles.obtenerSkillsPorRol — auto-discovery via frontmatter', ()
     const skills = inferirSkills('auditar_seguridad_critica');
     assert.ok(Array.isArray(skills));
     assert.ok(skills.includes('security-auditor'));
+  });
+
+  test('inferirSkills nunca devuelve mas de un tope razonable de skills -- el rol ARCHITECT tiene 25 skills completos y sin limite se inyectan ~164k tokens de SKILL.md en una sola llamada cuando el llamador no especifica skills', () => {
+    const skillsArchitect = inferirSkills('disenar_sistema');
+    assert.ok(skillsArchitect.length <= 12, `inferirSkills debe truncar a un maximo razonable, obtuvo ${skillsArchitect.length}`);
+  });
+
+  test('el tope de inferirSkills no trunca skills reales de roles ya por debajo del limite (AUDITOR conserva security-auditor)', () => {
+    const skillsAuditor = inferirSkills('auditar_seguridad_critica');
+    assert.ok(skillsAuditor.includes('security-auditor'), 'el tope no debe perder skills de roles con menos skills que el limite');
   });
 });
 

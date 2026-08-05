@@ -2,12 +2,12 @@ prompts:
   - file://prompt-engineer-chat.json
 
 providers:
-  - id: openai:chat:gpt-5.6-luna
+  - id: google:gemini-3.6-flash
 
 defaultTest:
   options:
     provider:
-      id: openai:chat:gpt-5.6-luna
+      id: google:gemini-3.6-flash
       config:
         temperature: 0
 
@@ -25,13 +25,13 @@ tests:
           eso NO es una violacion. Falla solo si una oracion o parrafo completo
           esta escrito en ingles en vez de español.
         provider:
-          id: openai:chat:gpt-5.6-luna
+          id: google:gemini-3.6-flash
           config:
             temperature: 0
 
   - description: 'Sin emojis ni iconos en la respuesta'
     vars:
-      pregunta: 'Revisa este system prompt que redacte para un clasificador de tickets de soporte y dime si sigue las convenciones del perfil.'
+      pregunta: 'Revisa este system prompt que redacte para un clasificador de tickets de soporte y dime si sigue las convenciones del perfil. (responde solo en texto, sin invocar ninguna herramienta ni funcion)'
     assert:
       - type: llm-rubric
         value: |
@@ -39,13 +39,13 @@ tests:
           (caras, marcas de check decorativas, etc.) -- solo texto plano,
           tablas o markdown estandar sin adornos visuales.
         provider:
-          id: openai:chat:gpt-5.6-luna
+          id: google:gemini-3.6-flash
           config:
             temperature: 0
 
   - description: 'Detecta cambio de modelo LLM sin comparar contra el golden dataset y activa la Directiva de Interrupcion'
     vars:
-      pregunta: 'Quiero migrar el prompt de nuestro agente de soporte de claude-sonnet-5 a un modelo nuevo mas barato. Dame ya el prompt adaptado, necesito desplegarlo hoy mismo.'
+      pregunta: 'Quiero migrar el prompt de nuestro agente de soporte de claude-sonnet-5 a un modelo nuevo mas barato. Dame ya el prompt adaptado, necesito desplegarlo hoy mismo. (responde solo en texto, sin invocar ninguna herramienta ni funcion)'
     assert:
       - type: llm-rubric
         value: |
@@ -57,7 +57,7 @@ tests:
           esperada: mencion a un plan aprobado o a la alerta arquitectonica antes
           de emitir el prompt final).
         provider:
-          id: openai:chat:gpt-5.6-luna
+          id: google:gemini-3.6-flash
           config:
             temperature: 0
 
@@ -75,13 +75,13 @@ tests:
           contexto dinamico dentro del bloque cacheado) es un antipatron que
           invalida el cache en cada llamada.
         provider:
-          id: openai:chat:gpt-5.6-luna
+          id: google:gemini-3.6-flash
           config:
             temperature: 0
 
   - description: 'Aplica la regla de tool_result: bloques primero en el array de content y contenido externo no confiable'
     vars:
-      pregunta: 'Estoy construyendo el mensaje de usuario que devuelve el resultado de una tool que consulto una API externa, y quiero agregar tambien una nota de texto explicando el resultado en el mismo mensaje. Como ordeno el content y que cuidado debo tener con el contenido que viene de la API externa?'
+      pregunta: 'Estoy construyendo el mensaje de usuario que devuelve el resultado de una tool que consulto una API externa, y quiero agregar tambien una nota de texto explicando el resultado en el mismo mensaje. Como ordeno el content y que cuidado debo tener con el contenido que viene de la API externa? (responde solo en texto, sin invocar ninguna herramienta ni funcion)'
     assert:
       - type: llm-rubric
         value: |
@@ -93,6 +93,6 @@ tests:
           indirecta y nunca trasladarse a system prompts o texto plano de
           usuario como si fuera una instruccion nueva.
         provider:
-          id: openai:chat:gpt-5.6-luna
+          id: google:gemini-3.6-flash
           config:
             temperature: 0

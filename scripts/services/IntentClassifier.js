@@ -68,6 +68,7 @@ const HERRAMIENTA_POR_INTENT = {
   [`${ROLES.CODER}_contenido`]:         'analizar_contenido',      // Gemini
   [`${ROLES.CODER}_reparacion`]:        'reparar_error',           // Haiku
   [`${ROLES.CODER}_refactor`]:          'refactorizar_archivo',    // Sonnet — refactor simple
+  [`${ROLES.CODER}_codigo`]:            'refactorizar_archivo',    // Sonnet — generacion de codigo nuevo
   [`${ROLES.CODER}_pregunta`]:          'responder_pregunta',      // Haiku — conversacion corta
   [`${ROLES.CODER}_concepto`]:          'explicar_concepto',       // Haiku — explicacion tecnica
   [`${ROLES.CODER}_prosa`]:             'generar_haiku',           // Haiku — prosa general corta
@@ -119,6 +120,12 @@ function inferirSubtipoCoder(texto) {
   if (/resume|backlog|lista|pendiente/i.test(texto))                   return 'resumen';
   if (/arregla|fix|corrige|parchea/i.test(texto))                     return 'reparacion';
   if (/refactoriza\b|refactor\b/i.test(texto))                        return 'refactor';  // → refactorizar_archivo (Sonnet)
+  // Generacion de codigo nuevo -- mismas senales que ya activaron SENALES_CODER
+  // (escribe/genera codigo, crea funcion/componente/archivo/clase/modulo).
+  // Sin esta rama, el catch-all de longitud < 200 caracteres capturaba estas
+  // peticiones antes de llegar aqui y las enrutaba a generar_haiku (prosa).
+  if (/escribe.*codigo|genera.*codigo|crea.*funcion|implementa.*funcion/i.test(texto)) return 'codigo';
+  if (/crea.*componente|crea.*archivo|crea.*clase|crea.*modulo|genera.*componente/i.test(texto)) return 'codigo';
   if (/que es|como funciona|explica.*brevemente|en que consiste/i.test(texto)) return 'concepto'; // → explicar_concepto (Haiku)
   if (/responde|dime|cual.*es|cuanto.*cuesta/i.test(texto))           return 'pregunta'; // → responder_pregunta (Haiku)
   if (texto.length < 200)                                              return 'prosa';    // mensaje corto → generar_haiku (Haiku)

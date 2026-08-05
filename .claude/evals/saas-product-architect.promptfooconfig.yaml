@@ -2,12 +2,12 @@ prompts:
   - file://saas-product-architect-chat.json
 
 providers:
-  - id: openai:chat:gpt-5.6-luna
+  - id: google:gemini-3.6-flash
 
 defaultTest:
   options:
     provider:
-      id: openai:chat:gpt-5.6-luna
+      id: google:gemini-3.6-flash
       config:
         temperature: 0
 
@@ -25,13 +25,13 @@ tests:
           es una violacion. Falla solo si una oracion o parrafo completo esta
           escrito en ingles en vez de español.
         provider:
-          id: openai:chat:gpt-5.6-luna
+          id: google:gemini-3.6-flash
           config:
             temperature: 0
 
   - description: 'Sin emojis ni iconos en la respuesta'
     vars:
-      pregunta: 'Revisa la matriz de entitlements por plan que acabo de definir para mi SaaS, quiero saber si esta bien estructurada.'
+      pregunta: 'Revisa la matriz de entitlements por plan que acabo de definir para mi SaaS, quiero saber si esta bien estructurada. (responde solo en texto, sin invocar ninguna herramienta ni funcion)'
     assert:
       - type: llm-rubric
         value: |
@@ -39,13 +39,13 @@ tests:
           (caras, marcas de check decorativas, etc.) -- solo texto plano,
           tablas o markdown estandar sin adornos visuales.
         provider:
-          id: openai:chat:gpt-5.6-luna
+          id: google:gemini-3.6-flash
           config:
             temperature: 0
 
   - description: 'Detecta migracion de modelo de tenancy en produccion y activa la Directiva de Interrupcion'
     vars:
-      pregunta: 'Mi SaaS ya tiene tenants activos en un modelo pool compartido, pero ahora quiero migrar todo a silo (stack dedicado por cliente) porque un cliente grande lo esta pidiendo. Dame el plan de migracion ahora mismo, necesito avanzar hoy.'
+      pregunta: 'Mi SaaS ya tiene tenants activos en un modelo pool compartido, pero ahora quiero migrar todo a silo (stack dedicado por cliente) porque un cliente grande lo esta pidiendo. Dame el plan de migracion ahora mismo, necesito avanzar hoy. (responde solo en texto, sin invocar ninguna herramienta ni funcion)'
     assert:
       - type: llm-rubric
         value: |
@@ -57,13 +57,13 @@ tests:
           produccion con tenants activos es una de las condiciones explicitas
           de interrupcion del skill.
         provider:
-          id: openai:chat:gpt-5.6-luna
+          id: google:gemini-3.6-flash
           config:
             temperature: 0
 
   - description: 'Detecta el anti-patron de confundir feature flag de despliegue con entitlement de plan pagado'
     vars:
-      pregunta: 'Tengo una feature nueva que solo deberian poder usar los clientes del plan Enterprise. Pense en simplemente activarla con un feature flag para todos los tenants una vez que termine el rollout gradual. Te parece bien ese enfoque?'
+      pregunta: 'Tengo una feature nueva que solo deberian poder usar los clientes del plan Enterprise. Pense en simplemente activarla con un feature flag para todos los tenants una vez que termine el rollout gradual. Te parece bien ese enfoque? (responde solo en texto, sin invocar ninguna herramienta ni funcion)'
     assert:
       - type: llm-rubric
         value: |
@@ -76,13 +76,13 @@ tests:
           activar la feature para todos los tenants via flag sin distinguir
           ambas capas.
         provider:
-          id: openai:chat:gpt-5.6-luna
+          id: google:gemini-3.6-flash
           config:
             temperature: 0
 
   - description: 'Exige declarar tenancy/pricing/mercado objetivo antes de disenar en un escenario ambiguo'
     vars:
-      pregunta: 'Quiero armar la arquitectura de mi SaaS desde cero. Disename ya el pipeline de provisioning de tenants nuevos.'
+      pregunta: 'Quiero armar la arquitectura de mi SaaS desde cero. Disename ya el pipeline de provisioning de tenants nuevos. (responde solo en texto, sin invocar ninguna herramienta ni funcion)'
     assert:
       - type: llm-rubric
         value: |
@@ -94,6 +94,6 @@ tests:
           Falla si la respuesta disena el provisioning directamente asumiendo
           estas decisiones sin declararlas o sin pedirselas al usuario primero.
         provider:
-          id: openai:chat:gpt-5.6-luna
+          id: google:gemini-3.6-flash
           config:
             temperature: 0

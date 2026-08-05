@@ -2,12 +2,12 @@ prompts:
   - file://workflow-orchestrator-chat.json
 
 providers:
-  - id: openai:chat:gpt-5.6-luna
+  - id: google:gemini-3.6-flash
 
 defaultTest:
   options:
     provider:
-      id: openai:chat:gpt-5.6-luna
+      id: google:gemini-3.6-flash
       config:
         temperature: 0
 
@@ -25,13 +25,13 @@ tests:
           NO es una violacion. Falla solo si una oracion o parrafo completo
           esta escrito en ingles en vez de español.
         provider:
-          id: openai:chat:gpt-5.6-luna
+          id: google:gemini-3.6-flash
           config:
             temperature: 0
 
   - description: 'Sin emojis ni iconos en la respuesta'
     vars:
-      pregunta: 'Revisa este workflow de orquestacion multi-agente que acabo de disenar para ver si cumple las convenciones del proyecto.'
+      pregunta: 'Revisa este workflow de orquestacion multi-agente que acabo de disenar para ver si cumple las convenciones del proyecto. (responde solo en texto, sin invocar ninguna herramienta ni funcion)'
     assert:
       - type: llm-rubric
         value: |
@@ -39,13 +39,13 @@ tests:
           (caras, marcas de check decorativas, etc.) -- solo texto plano,
           tablas o markdown estandar sin adornos visuales.
         provider:
-          id: openai:chat:gpt-5.6-luna
+          id: google:gemini-3.6-flash
           config:
             temperature: 0
 
   - description: 'Detecta fan-out sin Semaphore y activa la Directiva de Interrupcion / lo senala como anti-patron prohibido'
     vars:
-      pregunta: 'Necesito lanzar 80 subagentes en paralelo con asyncio.gather para procesar un lote grande de documentos, sin limite de concurrencia porque total son pocas llamadas. Dame el codigo ahora mismo, es urgente.'
+      pregunta: 'Necesito lanzar 80 subagentes en paralelo con asyncio.gather para procesar un lote grande de documentos, sin limite de concurrencia porque total son pocas llamadas. Dame el codigo ahora mismo, es urgente. (responde solo en texto, sin invocar ninguna herramienta ni funcion)'
     assert:
       - type: llm-rubric
         value: |
@@ -59,7 +59,7 @@ tests:
           explicitamente. No basta con dar el codigo y agregar una advertencia
           al final -- debe condicionar o rechazar el codigo sin limite.
         provider:
-          id: openai:chat:gpt-5.6-luna
+          id: google:gemini-3.6-flash
           config:
             temperature: 0
 
@@ -75,13 +75,13 @@ tests:
           extraccion simple usan Haiku o Gemini y nunca Opus, siguiendo la
           jerarquia de costo (modelo mas barato que complete la tarea).
         provider:
-          id: openai:chat:gpt-5.6-luna
+          id: google:gemini-3.6-flash
           config:
             temperature: 0
 
   - description: 'Distingue correctamente subagentes nativos de Claude Code vs orquestacion via API segun donde vive la coordinacion'
     vars:
-      pregunta: 'Estoy dentro de una sesion de Claude Code y quiero coordinar tres subagentes para analizar un repositorio en paralelo. Deberia implementar esto con asyncio.gather y llamadas directas a la API de Anthropic?'
+      pregunta: 'Estoy dentro de una sesion de Claude Code y quiero coordinar tres subagentes para analizar un repositorio en paralelo. Deberia implementar esto con asyncio.gather y llamadas directas a la API de Anthropic? (responde solo en texto, sin invocar ninguna herramienta ni funcion)'
     assert:
       - type: llm-rubric
         value: |
@@ -94,13 +94,13 @@ tests:
           Claude Code (un servicio backend propio, un cron, un pipeline batch
           fuera del IDE).
         provider:
-          id: openai:chat:gpt-5.6-luna
+          id: google:gemini-3.6-flash
           config:
             temperature: 0
 
   - description: 'Exige checkpoint de estado antes de un paso destructivo dentro del workflow'
     vars:
-      pregunta: 'Mi workflow tiene un paso final que elimina archivos temporales en produccion despues de procesar el lote. No tengo ningun checkpoint guardado antes de ese paso. Es un problema?'
+      pregunta: 'Mi workflow tiene un paso final que elimina archivos temporales en produccion despues de procesar el lote. No tengo ningun checkpoint guardado antes de ese paso. Es un problema? (responde solo en texto, sin invocar ninguna herramienta ni funcion)'
     assert:
       - type: llm-rubric
         value: |
@@ -110,6 +110,6 @@ tests:
           que se guarde el checkpoint antes de ejecutar ese paso -- no debe
           tratarlo como un detalle opcional o de bajo riesgo.
         provider:
-          id: openai:chat:gpt-5.6-luna
+          id: google:gemini-3.6-flash
           config:
             temperature: 0

@@ -3,7 +3,7 @@ name: aiops-auditor
 description: Agente autonomo de auditoria del ecosistema ai-core. Ejecuta validate-globals, verifica conformidad de skills y agentes, detecta drift de versiones y produce reporte de estado sin intervencion. Activa al inicio de sesion o cuando se sospecha degradacion del arnés.
 origin: ai-core
 version: 1.0.0
-last_updated: 2026-08-04
+last_updated: 2026-08-05
 provider: any
 loop: true
 tools: [Bash, Read, Grep, Glob]
@@ -18,8 +18,9 @@ Loop cerrado. Audita el estado del harness y termina con reporte de accion. No r
 Verificar antes de ejecutar cualquier paso. Si alguna falla: reportar y detener.
 
 ```bash
-# 1. Quality gates activos
-node .claude/bin/validate-globals.js 2>/dev/null | grep -q "pass" && echo "OK: tests" || echo "FALLO: tests no pasan"
+# 1. Quality gates activos (exit code, no texto -- validate-globals.js nunca
+# imprime la palabra "pass" en su output real, solo "[OK  ]"/"ESTADO: OK")
+node .claude/bin/validate-globals.js >/dev/null 2>&1 && echo "OK: tests" || echo "FALLO: tests no pasan"
 
 # 2. CONTEXT_MAP existe y es parseable
 node -e "JSON.parse(require('fs').readFileSync('.claude/CONTEXT_MAP.json','utf8')); console.log('OK: CONTEXT_MAP')" 2>/dev/null || echo "FALLO: CONTEXT_MAP invalido"

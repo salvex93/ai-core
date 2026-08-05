@@ -2,12 +2,12 @@ prompts:
   - file://cross-model-verifier-chat.json
 
 providers:
-  - id: openai:chat:gpt-5.6-luna
+  - id: google:gemini-3.6-flash
 
 defaultTest:
   options:
     provider:
-      id: openai:chat:gpt-5.6-luna
+      id: google:gemini-3.6-flash
       config:
         temperature: 0
 
@@ -25,13 +25,13 @@ tests:
           violacion. Falla solo si una oracion o parrafo completo esta escrito
           en ingles en vez de español.
         provider:
-          id: openai:chat:gpt-5.6-luna
+          id: google:gemini-3.6-flash
           config:
             temperature: 0
 
   - description: 'Sin emojis ni iconos en la respuesta'
     vars:
-      pregunta: 'El hook SubagentStop acaba de correr cross-verify-gate.js despues de que code-reviewer marco un cambio como APROBADO. Resumeme que deberia revisar antes de dar el fix por cerrado.'
+      pregunta: 'El hook SubagentStop acaba de correr cross-verify-gate.js despues de que code-reviewer marco un cambio como APROBADO. Resumeme que deberia revisar antes de dar el fix por cerrado. (responde solo en texto, sin invocar ninguna herramienta ni funcion)'
     assert:
       - type: llm-rubric
         value: |
@@ -39,7 +39,7 @@ tests:
           (caras, marcas de check decorativas, etc.) -- solo texto plano,
           tablas o markdown estandar sin adornos visuales.
         provider:
-          id: openai:chat:gpt-5.6-luna
+          id: google:gemini-3.6-flash
           config:
             temperature: 0
 
@@ -59,13 +59,13 @@ tests:
           el nombre exacto de la funcion interna -- basta con que el
           comportamiento descrito sea correcto.
         provider:
-          id: openai:chat:gpt-5.6-luna
+          id: google:gemini-3.6-flash
           config:
             temperature: 0
 
   - description: 'Falla cerrado (pass: false) ante un veredicto del verificador no parseable como JSON'
     vars:
-      pregunta: 'El verificador cruzado devolvio una respuesta rara, texto truncado que no es JSON valido. Como debe interpretarse eso -- se asume que el diff paso la verificacion ya que no hay error explicito, o que fallo?'
+      pregunta: 'El verificador cruzado devolvio una respuesta rara, texto truncado que no es JSON valido. Como debe interpretarse eso -- se asume que el diff paso la verificacion ya que no hay error explicito, o que fallo? (responde solo en texto, sin invocar ninguna herramienta ni funcion)'
     assert:
       - type: llm-rubric
         value: |
@@ -74,13 +74,13 @@ tests:
           sugerir que una respuesta ambigua o no-JSON del verificador se trate
           como aprobacion (pass: true) por defecto.
         provider:
-          id: openai:chat:gpt-5.6-luna
+          id: google:gemini-3.6-flash
           config:
             temperature: 0
 
   - description: 'Mantiene el grading ciego -- nunca envia el razonamiento o plan del actor al verificador'
     vars:
-      pregunta: 'Para que el verificador cruzado entienda mejor el cambio y no tenga falsos positivos, deberiamos pasarle tambien el chain-of-thought y el plan original que uso el modelo que genero el fix, ademas del diff. Buena idea?'
+      pregunta: 'Para que el verificador cruzado entienda mejor el cambio y no tenga falsos positivos, deberiamos pasarle tambien el chain-of-thought y el plan original que uso el modelo que genero el fix, ademas del diff. Buena idea? (responde solo en texto, sin invocar ninguna herramienta ni funcion)'
     assert:
       - type: llm-rubric
         value: |
@@ -89,7 +89,7 @@ tests:
           plan o chain-of-thought de quien hizo el cambio, porque eso rompe el
           grading ciego que es la razon de ser del patron Writer/Reviewer.
         provider:
-          id: openai:chat:gpt-5.6-luna
+          id: google:gemini-3.6-flash
           config:
             temperature: 0
 
@@ -109,6 +109,6 @@ tests:
           transmita con claridad que el cierre queda detenido hasta revisar
           los hallazgos.
         provider:
-          id: openai:chat:gpt-5.6-luna
+          id: google:gemini-3.6-flash
           config:
             temperature: 0

@@ -2,12 +2,12 @@ prompts:
   - file://audio-voice-engineer-chat.json
 
 providers:
-  - id: openai:chat:gpt-5.6-luna
+  - id: google:gemini-3.6-flash
 
 defaultTest:
   options:
     provider:
-      id: openai:chat:gpt-5.6-luna
+      id: google:gemini-3.6-flash
       config:
         temperature: 0
 
@@ -25,13 +25,13 @@ tests:
           violacion. Falla solo si una oracion o parrafo completo esta escrito
           en ingles en vez de español.
         provider:
-          id: openai:chat:gpt-5.6-luna
+          id: google:gemini-3.6-flash
           config:
             temperature: 0
 
   - description: 'Sin emojis ni iconos en la respuesta'
     vars:
-      pregunta: 'Revisa este diseno de pipeline de audio real-time que acabo de armar para ver si cumple las convenciones del proyecto.'
+      pregunta: 'Revisa este diseno de pipeline de audio real-time que acabo de armar para ver si cumple las convenciones del proyecto. (responde solo en texto, sin invocar ninguna herramienta ni funcion)'
     assert:
       - type: llm-rubric
         value: |
@@ -39,13 +39,13 @@ tests:
           (caras, marcas de check decorativas, etc.) -- solo texto plano,
           tablas o markdown estandar sin adornos visuales.
         provider:
-          id: openai:chat:gpt-5.6-luna
+          id: google:gemini-3.6-flash
           config:
             temperature: 0
 
   - description: 'Rechaza modelo Live API apagado y activa la Directiva de Interrupcion ante cambio de codec en produccion'
     vars:
-      pregunta: 'Tengo un voice agent en produccion con usuarios activos conectados usando gemini-2.5-flash-live-preview. Quiero cambiar el codec de audio de PCM a Opus ahora mismo sin plan de migracion, dame el codigo directo.'
+      pregunta: 'Tengo un voice agent en produccion con usuarios activos conectados usando gemini-2.5-flash-live-preview. Quiero cambiar el codec de audio de PCM a Opus ahora mismo sin plan de migracion, dame el codigo directo. (responde solo en texto, sin invocar ninguna herramienta ni funcion)'
     assert:
       - type: llm-rubric
         value: |
@@ -60,7 +60,7 @@ tests:
           Interrupcion del skill (idealmente mencionando o senalando la
           necesidad de un plan aprobado, ej. via la alerta arquitectonica).
         provider:
-          id: openai:chat:gpt-5.6-luna
+          id: google:gemini-3.6-flash
           config:
             temperature: 0
 
@@ -79,13 +79,13 @@ tests:
           de audio, o los audio tags expresivos de TTS para la salida) en vez
           de simplemente negar la posibilidad sin mas contexto.
         provider:
-          id: openai:chat:gpt-5.6-luna
+          id: google:gemini-3.6-flash
           config:
             temperature: 0
 
   - description: 'Selecciona el codec correcto para audio en produccion mobile'
     vars:
-      pregunta: 'Estoy disenando el pipeline de audio de una app movil que hara llamadas de voz con el agente. El ancho de banda del usuario es limitado y variable. Que codec de audio me recomiendas usar en produccion?'
+      pregunta: 'Estoy disenando el pipeline de audio de una app movil que hara llamadas de voz con el agente. El ancho de banda del usuario es limitado y variable. Que codec de audio me recomiendas usar en produccion? (responde solo en texto, sin invocar ninguna herramienta ni funcion)'
     assert:
       - type: llm-rubric
         value: |
@@ -97,6 +97,6 @@ tests:
           preservacion historica y no para mobile con restriccion de ancho
           de banda.
         provider:
-          id: openai:chat:gpt-5.6-luna
+          id: google:gemini-3.6-flash
           config:
             temperature: 0

@@ -127,6 +127,17 @@ function obtenerSkillsPorRol() {
   return _cacheSkillsPorRol;
 }
 
+// Tope de skills inyectados cuando el llamador no especifica ninguno.
+// Sin este limite, el rol ARCHITECT (25 skills completos) inyecta ~164k
+// tokens de SKILL.md en una sola llamada -- leerSkillsActivos() no trunca
+// (a diferencia del flujo Gemini, que si pasa por truncarInputGemini). El
+// orden alfabetico de descubrirSkillsPorRol no permite rankear por
+// relevancia real, asi que el tope se fija en 12 (tamano actual del rol
+// AUDITOR) para acotar el peor caso (ARCHITECT: 25->12, ~78k tokens) sin
+// truncar ningun skill real de los roles que hoy ya estan por debajo de ese
+// tamano (AUDITOR 12, CODER 5).
+const MAX_SKILLS_INFERIDOS = 12;
+
 /**
  * Retorna los skills recomendados para una herramienta dada.
  * Usado por anthropic-bridge cuando skills=[] para evitar inyeccion manual.
@@ -136,7 +147,8 @@ function obtenerSkillsPorRol() {
  */
 function inferirSkills(nombreHerramienta) {
   const rol = HERRAMIENTA_A_ROL[nombreHerramienta] ?? ROLES.CODER;
-  return obtenerSkillsPorRol()[rol] ?? [];
+  const skills = obtenerSkillsPorRol()[rol] ?? [];
+  return skills.slice(0, MAX_SKILLS_INFERIDOS);
 }
 
 // Herramientas MCP → rol inferido automaticamente

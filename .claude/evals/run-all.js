@@ -7,7 +7,14 @@
  *
  * Secuencial y no paralelo: cada corrida ya paraleliza internamente sus
  * propios test cases (promptfoo concurrency), y correr 42 evals en paralelo
- * saturaria el rate limit del proveedor juez (openai:chat:gpt-5.6-luna).
+ * saturaria el rate limit del proveedor juez.
+ *
+ * Espera fija entre evals (calcularEsperaMs): el juez actual (Gemini,
+ * google:gemini-3.6-flash) tiene un tier gratuito de 20 requests/min: cada
+ * eval consume ~8 requests (4 casos x respuesta+rubric), asi que sin espera
+ * el 3er eval de la corrida ya golpea 429 RESOURCE_EXHAUSTED y promptfoo
+ * reintenta con backoff de 60s+ por intento -- confirmado en vivo el
+ * 2026-08-05 corriendo qa-engineer.promptfooconfig.yaml aislado.
  *
  * Uso: node .claude/evals/run-all.js
  */
@@ -16,6 +23,16 @@ const path = require('node:path');
 const fs   = require('node:fs');
 const os   = require('node:os');
 const { correrEval } = require('./runner');
+
+const ESPERA_ENTRE_EVALS_MS = 30_000;
+
+function calcularEsperaMs() {
+  return ESPERA_ENTRE_EVALS_MS;
+}
+
+function esperar(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
 
 /**
  * @param {string} dir - ruta al directorio .claude/evals/
@@ -43,15 +60,17 @@ function resumirTotales(resultados) {
   };
 }
 
-if (require.main === module) {
+async function main() {
   const evalsDir = __dirname;
   const configs = listarConfigs(evalsDir);
   const resultados = [];
 
-  for (const configFile of configs) {
+  for (const [i, configFile] of configs.entries()) {
     const skill = configFile.replace(/\.promptfooconfig\.yaml$/, '');
     const configPath = path.join(evalsDir, configFile);
     const outputPath = path.join(os.tmpdir(), `promptfoo-result-${skill}-${Date.now()}.json`);
+
+    if (i > 0) await esperar(calcularEsperaMs());
 
     process.stdout.write(`\n[eval-skills] === ${skill} ===\n`);
     const { resumen } = correrEval(configPath, outputPath);
@@ -67,4 +86,8 @@ if (require.main === module) {
   process.exit(totales.fallidos === 0 ? 0 : 1);
 }
 
-module.exports = { listarConfigs, resumirTotales };
+if (require.main === module) {
+  main();
+}
+
+module.exports = { listarConfigs, resumirTotales, calcularEsperaMs };

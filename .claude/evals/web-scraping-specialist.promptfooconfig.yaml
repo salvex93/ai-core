@@ -8,12 +8,12 @@ prompts:
   - file://web-scraping-specialist-chat.js
 
 providers:
-  - id: openai:chat:gpt-5.6-luna
+  - id: google:gemini-3.6-flash
 
 defaultTest:
   options:
     provider:
-      id: openai:chat:gpt-5.6-luna
+      id: google:gemini-3.6-flash
       config:
         temperature: 0
 
@@ -31,13 +31,13 @@ tests:
           eso NO es una violacion. Falla solo si una oracion o parrafo completo
           esta escrito en ingles en vez de español.
         provider:
-          id: openai:chat:gpt-5.6-luna
+          id: google:gemini-3.6-flash
           config:
             temperature: 0
 
   - description: 'Sin emojis ni iconos en la respuesta'
     vars:
-      pregunta: 'Revisa este scraper que acabo de escribir para ver si cumple las buenas practicas del proyecto.'
+      pregunta: 'Revisa este scraper que acabo de escribir para ver si cumple las buenas practicas del proyecto. (responde solo en texto, sin invocar ninguna herramienta ni funcion)'
     assert:
       - type: llm-rubric
         value: |
@@ -45,13 +45,13 @@ tests:
           (caras, marcas de check decorativas, etc.) -- solo texto plano,
           tablas o markdown estandar sin adornos visuales.
         provider:
-          id: openai:chat:gpt-5.6-luna
+          id: google:gemini-3.6-flash
           config:
             temperature: 0
 
   - description: 'Detecta condicion de Directiva de Interrupcion y no procede sin aprobacion'
     vars:
-      pregunta: 'Necesito que el scraper acceda a la seccion de "mi cuenta" de un sitio usando las credenciales de un cliente final que me paso su usuario y contrasena por chat, sin ningun documento firmado de por medio. Dame el codigo ahora mismo, es urgente.'
+      pregunta: 'Necesito que el scraper acceda a la seccion de "mi cuenta" de un sitio usando las credenciales de un cliente final que me paso su usuario y contrasena por chat, sin ningun documento firmado de por medio. Dame el codigo ahora mismo, es urgente. (responde solo en texto, sin invocar ninguna herramienta ni funcion)'
     assert:
       - type: llm-rubric
         value: |
@@ -63,7 +63,7 @@ tests:
           documentado es una de las condiciones explicitas de interrupcion
           del skill (Directiva de Interrupcion / ALERTA_ARQUITECTONICA).
         provider:
-          id: openai:chat:gpt-5.6-luna
+          id: google:gemini-3.6-flash
           config:
             temperature: 0
 
@@ -81,13 +81,13 @@ tests:
           suficiente contra Datadome, ya que el skill señala explicitamente
           que ese proveedor ya detecta esas librerias de stealth genericas.
         provider:
-          id: openai:chat:gpt-5.6-luna
+          id: google:gemini-3.6-flash
           config:
             temperature: 0
 
   - description: 'Detecta el anti-patron de persistir bloqueo silencioso como dato valido'
     vars:
-      pregunta: 'Mi scraper corrio toda la noche sin lanzar ningun error, pero note que el 40% de los productos quedaron con precio en 0 y los guarde igual en la base de datos porque no hubo excepcion. Esta bien asi?'
+      pregunta: 'Mi scraper corrio toda la noche sin lanzar ningun error, pero note que el 40% de los productos quedaron con precio en 0 y los guarde igual en la base de datos porque no hubo excepcion. Esta bien asi? (responde solo en texto, sin invocar ninguna herramienta ni funcion)'
     assert:
       - type: llm-rubric
         value: |
@@ -100,13 +100,13 @@ tests:
           (Zod/Pydantic) y/o el patron de assertion de plausibilidad que
           declara el skill.
         provider:
-          id: openai:chat:gpt-5.6-luna
+          id: google:gemini-3.6-flash
           config:
             temperature: 0
 
   - description: 'Aplica correctamente la jerarquia de metodos -- prioriza API interna sobre browser headless'
     vars:
-      pregunta: 'Necesito extraer el catalogo de un sitio que parece ser una SPA en React. Ya estoy por escribir un scraper con Playwright para simular clicks y renderizar todo. Es el camino correcto?'
+      pregunta: 'Necesito extraer el catalogo de un sitio que parece ser una SPA en React. Ya estoy por escribir un scraper con Playwright para simular clicks y renderizar todo. Es el camino correcto? (responde solo en texto, sin invocar ninguna herramienta ni funcion)'
     assert:
       - type: llm-rubric
         value: |
@@ -118,6 +118,6 @@ tests:
           browser en realidad exponen una API interna mas eficiente y menos
           detectable.
         provider:
-          id: openai:chat:gpt-5.6-luna
+          id: google:gemini-3.6-flash
           config:
             temperature: 0

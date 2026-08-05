@@ -2,12 +2,12 @@ prompts:
   - file://ux-visual-designer-chat.json
 
 providers:
-  - id: openai:chat:gpt-5.6-luna
+  - id: google:gemini-3.6-flash
 
 defaultTest:
   options:
     provider:
-      id: openai:chat:gpt-5.6-luna
+      id: google:gemini-3.6-flash
       config:
         temperature: 0
 
@@ -25,13 +25,13 @@ tests:
           es una violacion. Falla solo si una oracion o parrafo completo esta
           escrito en ingles en vez de español.
         provider:
-          id: openai:chat:gpt-5.6-luna
+          id: google:gemini-3.6-flash
           config:
             temperature: 0
 
   - description: 'Sin emojis ni iconos en la respuesta'
     vars:
-      pregunta: 'Revisa la paleta de colores que elegi para mi landing page y dime si esta bien.'
+      pregunta: 'Revisa la paleta de colores que elegi para mi landing page y dime si esta bien. (responde solo en texto, sin invocar ninguna herramienta ni funcion)'
     assert:
       - type: llm-rubric
         value: |
@@ -39,13 +39,13 @@ tests:
           (caras, marcas de check decorativas, etc.) -- solo texto plano,
           tablas o markdown estandar sin adornos visuales.
         provider:
-          id: openai:chat:gpt-5.6-luna
+          id: google:gemini-3.6-flash
           config:
             temperature: 0
 
   - description: 'Detecta rediseno de marca en produccion y activa la Directiva de Interrupcion'
     vars:
-      pregunta: 'Quiero cambiar por completo la paleta de colores y la tipografia del design system de mi app, que ya esta en produccion con miles de usuarios activos. Dame los tokens nuevos ahora mismo, es urgente.'
+      pregunta: 'Quiero cambiar por completo la paleta de colores y la tipografia del design system de mi app, que ya esta en produccion con miles de usuarios activos. Dame los tokens nuevos ahora mismo, es urgente. (responde solo en texto, sin invocar ninguna herramienta ni funcion)'
     assert:
       - type: llm-rubric
         value: |
@@ -57,13 +57,13 @@ tests:
           system ya implementado en produccion es una de las condiciones
           explicitas de interrupcion del skill.
         provider:
-          id: openai:chat:gpt-5.6-luna
+          id: google:gemini-3.6-flash
           config:
             temperature: 0
 
   - description: 'Declara identidad visual obligatoria y evita el patron slop por defecto'
     vars:
-      pregunta: 'Necesito el diseno visual para un dashboard SaaS B2B nuevo. Dame la paleta y la tipografia que deberia usar.'
+      pregunta: 'Necesito el diseno visual para un dashboard SaaS B2B nuevo. Dame la paleta y la tipografia que deberia usar. (responde solo en texto, sin invocar ninguna herramienta ni funcion)'
     assert:
       - type: llm-rubric
         value: |
@@ -83,13 +83,13 @@ tests:
           como si fuera una decision de diseno valida sin paradigma nombrado
           ni pedido de contexto previo.
         provider:
-          id: openai:chat:gpt-5.6-luna
+          id: google:gemini-3.6-flash
           config:
             temperature: 0
 
   - description: 'No implementa codigo -- deriva la implementacion a tech-lead-frontend'
     vars:
-      pregunta: 'Ya definimos el design system. Ahora escribeme el codigo React completo del componente Button con todos sus estados.'
+      pregunta: 'Ya definimos el design system. Ahora escribeme el codigo React completo del componente Button con todos sus estados. (responde solo en texto, sin invocar ninguna herramienta ni funcion)'
     assert:
       - type: llm-rubric
         value: |
@@ -101,6 +101,6 @@ tests:
           especificacion de handoff del componente (variantes, tamanos,
           estados, tokens requeridos).
         provider:
-          id: openai:chat:gpt-5.6-luna
+          id: google:gemini-3.6-flash
           config:
             temperature: 0

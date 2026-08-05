@@ -2,12 +2,12 @@ prompts:
   - file://mobile-engineer-chat.json
 
 providers:
-  - id: openai:chat:gpt-5.6-luna
+  - id: google:gemini-3.6-flash
 
 defaultTest:
   options:
     provider:
-      id: openai:chat:gpt-5.6-luna
+      id: google:gemini-3.6-flash
       config:
         temperature: 0
 
@@ -25,13 +25,13 @@ tests:
           una violacion. Falla solo si una oracion o parrafo completo esta
           escrito en ingles en vez de español.
         provider:
-          id: openai:chat:gpt-5.6-luna
+          id: google:gemini-3.6-flash
           config:
             temperature: 0
 
   - description: 'Sin emojis ni iconos en la respuesta'
     vars:
-      pregunta: 'Revisa esta pantalla de Flutter que acabo de escribir para ver si cumple las convenciones del proyecto.'
+      pregunta: 'Revisa esta pantalla de Flutter que acabo de escribir para ver si cumple las convenciones del proyecto. (responde solo en texto, sin invocar ninguna herramienta ni funcion)'
     assert:
       - type: llm-rubric
         value: |
@@ -39,13 +39,13 @@ tests:
           (caras, marcas de check decorativas, etc.) -- solo texto plano,
           tablas o markdown estandar sin adornos visuales.
         provider:
-          id: openai:chat:gpt-5.6-luna
+          id: google:gemini-3.6-flash
           config:
             temperature: 0
 
   - description: 'Detecta sincronizacion offline-first con conflict resolution y activa la Directiva de Interrupcion'
     vars:
-      pregunta: 'Necesito implementar la sincronizacion offline-first de mi app: los registros se editan localmente sin conexion y despues deben conciliarse con el backend, incluyendo casos donde el mismo registro cambio en ambos lados. Dame el codigo completo ahora mismo, es urgente.'
+      pregunta: 'Necesito implementar la sincronizacion offline-first de mi app: los registros se editan localmente sin conexion y despues deben conciliarse con el backend, incluyendo casos donde el mismo registro cambio en ambos lados. Dame el codigo completo ahora mismo, es urgente. (responde solo en texto, sin invocar ninguna herramienta ni funcion)'
     assert:
       - type: llm-rubric
         value: |
@@ -56,13 +56,13 @@ tests:
           sincronizacion offline-first con resolucion de conflictos es una
           de las condiciones explicitas de interrupcion del skill.
         provider:
-          id: openai:chat:gpt-5.6-luna
+          id: google:gemini-3.6-flash
           config:
             temperature: 0
 
   - description: 'Recomienda migrar de StateNotifierProvider (deprecado) a Notifier/AsyncNotifier en Riverpod'
     vars:
-      pregunta: 'Mi proyecto Flutter usa flutter_riverpod y quiero agregar un nuevo provider para manejar el estado de la lista de partidos. Estaba pensando usar StateNotifierProvider como en un tutorial viejo que encontre, te parece bien?'
+      pregunta: 'Mi proyecto Flutter usa flutter_riverpod y quiero agregar un nuevo provider para manejar el estado de la lista de partidos. Estaba pensando usar StateNotifierProvider como en un tutorial viejo que encontre, te parece bien? (responde solo en texto, sin invocar ninguna herramienta ni funcion)'
     assert:
       - type: llm-rubric
         value: |
@@ -74,13 +74,13 @@ tests:
           exacto de version de Riverpod en la que ocurrio la
           deprecacion.
         provider:
-          id: openai:chat:gpt-5.6-luna
+          id: google:gemini-3.6-flash
           config:
             temperature: 0
 
   - description: 'Detecta el anti-patron de mezclar state management dentro del mismo feature'
     vars:
-      pregunta: 'En mi feature de autenticacion ya tengo el AuthBloc manejando el estado en la capa de presentation, pero para la capa de data quiero usar un StateNotifier de Riverpod para cachear la sesion, me parece mas comodo para ese caso puntual. Alguna objecion?'
+      pregunta: 'En mi feature de autenticacion ya tengo el AuthBloc manejando el estado en la capa de presentation, pero para la capa de data quiero usar un StateNotifier de Riverpod para cachear la sesion, me parece mas comodo para ese caso puntual. Alguna objecion? (responde solo en texto, sin invocar ninguna herramienta ni funcion)'
     assert:
       - type: llm-rubric
         value: |
@@ -90,6 +90,6 @@ tests:
           perfil, y debe desaconsejar esa mezcla en vez de aceptarla sin
           objecion.
         provider:
-          id: openai:chat:gpt-5.6-luna
+          id: google:gemini-3.6-flash
           config:
             temperature: 0

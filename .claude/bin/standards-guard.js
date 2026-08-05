@@ -21,7 +21,7 @@
 
 const fs   = require('fs');
 const path = require('path');
-const { execSync } = require('child_process');
+const { execSync, execFileSync } = require('child_process');
 const { leerEventoDeStdin } = require('./lib/hook-stdin');
 
 const CORE_PATH = path.resolve(__dirname, '../..');
@@ -220,10 +220,16 @@ for (const v of violations) {
     `[STANDARDS] ${v.sev.toUpperCase()} | ${fileSuffix}:${v.linea} | ${v.detalle}\n`
   );
 
-  // Encolar como evento para issue-tracker
+  // Encolar como evento para issue-tracker. execFileSync con array de
+  // argumentos -- sin shell, inmune a inyeccion de comandos. fileSuffix
+  // deriva de tool_input.file_path (contenido no confiable en el caso de
+  // nombres de archivo generados dinamicamente); execSync + template string
+  // permitia que metacaracteres de shell en ese valor ejecutaran comandos
+  // adicionales (mismo antipatron corregido en issue-reporter.js).
   try {
-    execSync(
-      `node "${CAPTURE}" --type harness_error --tool standards-guard --error "${v.rule}" --context "${fileSuffix}:${v.linea} — ${v.detalle.replace(/"/g, "'")}"`,
+    execFileSync(
+      process.execPath,
+      [CAPTURE, '--type', 'harness_error', '--tool', 'standards-guard', '--error', v.rule, '--context', `${fileSuffix}:${v.linea} — ${v.detalle}`],
       { cwd: CORE_PATH, stdio: 'pipe', timeout: 3000 }
     );
   } catch (err) {

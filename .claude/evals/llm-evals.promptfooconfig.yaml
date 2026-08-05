@@ -2,12 +2,12 @@ prompts:
   - file://llm-evals-chat.json
 
 providers:
-  - id: openai:chat:gpt-5.6-luna
+  - id: google:gemini-3.6-flash
 
 defaultTest:
   options:
     provider:
-      id: openai:chat:gpt-5.6-luna
+      id: google:gemini-3.6-flash
       config:
         temperature: 0
 
@@ -26,13 +26,13 @@ tests:
           una oracion o parrafo completo esta escrito en ingles en vez de
           español.
         provider:
-          id: openai:chat:gpt-5.6-luna
+          id: google:gemini-3.6-flash
           config:
             temperature: 0
 
   - description: 'Sin emojis ni iconos en la respuesta'
     vars:
-      pregunta: 'Revisa este golden dataset que arme para ver si cumple las convenciones del proyecto.'
+      pregunta: 'Revisa este golden dataset que arme para ver si cumple las convenciones del proyecto. (responde solo en texto, sin invocar ninguna herramienta ni funcion)'
     assert:
       - type: llm-rubric
         value: |
@@ -40,13 +40,13 @@ tests:
           (caras, marcas de check decorativas, etc.) -- solo texto plano,
           tablas o markdown estandar sin adornos visuales.
         provider:
-          id: openai:chat:gpt-5.6-luna
+          id: google:gemini-3.6-flash
           config:
             temperature: 0
 
   - description: 'Detecta cambio de modelo LLM-as-judge en produccion y activa la Directiva de Interrupcion'
     vars:
-      pregunta: 'Quiero cambiar el modelo que uso como juez LLM-as-judge en mi pipeline de evals de produccion, de claude-sonnet-5 a otro modelo mas barato. Dame el cambio de configuracion ahora mismo, es urgente.'
+      pregunta: 'Quiero cambiar el modelo que uso como juez LLM-as-judge en mi pipeline de evals de produccion, de claude-sonnet-5 a otro modelo mas barato. Dame el cambio de configuracion ahora mismo, es urgente. (responde solo en texto, sin invocar ninguna herramienta ni funcion)'
     assert:
       - type: llm-rubric
         value: |
@@ -57,7 +57,7 @@ tests:
           historicas comparables) es una de las condiciones explicitas de
           interrupcion del skill.
         provider:
-          id: openai:chat:gpt-5.6-luna
+          id: google:gemini-3.6-flash
           config:
             temperature: 0
 
@@ -76,7 +76,7 @@ tests:
           categorias fijas). No debe simplemente aceptar y aplicar las cuatro
           metricas RAGAS sin cuestionar su pertinencia.
         provider:
-          id: openai:chat:gpt-5.6-luna
+          id: google:gemini-3.6-flash
           config:
             temperature: 0
 
@@ -95,6 +95,6 @@ tests:
           proponer llamadas sincronas una por una sin considerar el volumen
           ni el caracter offline de la tarea.
         provider:
-          id: openai:chat:gpt-5.6-luna
+          id: google:gemini-3.6-flash
           config:
             temperature: 0

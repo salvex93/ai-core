@@ -2,12 +2,12 @@ prompts:
   - file://dev-loop-chat.json
 
 providers:
-  - id: openai:chat:gpt-5.6-luna
+  - id: google:gemini-3.6-flash
 
 defaultTest:
   options:
     provider:
-      id: openai:chat:gpt-5.6-luna
+      id: google:gemini-3.6-flash
       config:
         temperature: 0
 
@@ -24,13 +24,13 @@ tests:
           nombres de fases o herramientas) -- eso NO es una violacion. Falla solo
           si una oracion o parrafo completo esta escrito en ingles en vez de español.
         provider:
-          id: openai:chat:gpt-5.6-luna
+          id: google:gemini-3.6-flash
           config:
             temperature: 0
 
   - description: 'Sin emojis ni iconos en la respuesta'
     vars:
-      pregunta: 'Dame el artefacto de Spec para la tarea de agregar un campo de descuento a la tabla pedidos.'
+      pregunta: 'Dame el artefacto de Spec para la tarea de agregar un campo de descuento a la tabla pedidos. (responde solo en texto, sin invocar ninguna herramienta ni funcion)'
     assert:
       - type: llm-rubric
         value: |
@@ -38,7 +38,7 @@ tests:
           (caras, marcas de check decorativas, etc.) -- solo texto plano,
           tablas o markdown estandar sin adornos visuales.
         provider:
-          id: openai:chat:gpt-5.6-luna
+          id: google:gemini-3.6-flash
           config:
             temperature: 0
 
@@ -55,13 +55,13 @@ tests:
           Spec, Design y Plan aprobados previamente, dado que este es el
           patron de "500 lineas sin validar" que el skill existe para eliminar.
         provider:
-          id: openai:chat:gpt-5.6-luna
+          id: google:gemini-3.6-flash
           config:
             temperature: 0
 
   - description: 'Activa la alerta arquitectonica cuando el diseño afecta mas de 3 archivos'
     vars:
-      pregunta: 'Estoy en la fase de Design de una tarea que va a requerir modificar el modelo de usuario, el servicio de autenticacion, el middleware de sesiones, el controlador de perfil y el frontend de login -- son 5 archivos existentes en produccion. Dame el Design completo y avancemos al Plan.'
+      pregunta: 'Estoy en la fase de Design de una tarea que va a requerir modificar el modelo de usuario, el servicio de autenticacion, el middleware de sesiones, el controlador de perfil y el frontend de login -- son 5 archivos existentes en produccion. Dame el Design completo y avancemos al Plan. (responde solo en texto, sin invocar ninguna herramienta ni funcion)'
     assert:
       - type: llm-rubric
         value: |
@@ -72,13 +72,13 @@ tests:
           mas de 3 archivos existentes en produccion -- una de las condiciones
           explicitas de la Directiva de Interrupcion del skill.
         provider:
-          id: openai:chat:gpt-5.6-luna
+          id: google:gemini-3.6-flash
           config:
             temperature: 0
 
   - description: 'Detecta el anti-patron de agregar logica no especificada durante Build'
     vars:
-      pregunta: 'Estoy en Fase 4 (Build) siguiendo el Plan aprobado que solo incluye agregar validacion de stock al endpoint de pedidos. Ya que estoy en el archivo, de paso quiero aprovechar y refactorizar tambien el sistema de logging completo que no tiene nada que ver con esta tarea. Esta bien hacerlo ahora?'
+      pregunta: 'Estoy en Fase 4 (Build) siguiendo el Plan aprobado que solo incluye agregar validacion de stock al endpoint de pedidos. Ya que estoy en el archivo, de paso quiero aprovechar y refactorizar tambien el sistema de logging completo que no tiene nada que ver con esta tarea. Esta bien hacerlo ahora? (responde solo en texto, sin invocar ninguna herramienta ni funcion)'
     assert:
       - type: llm-rubric
         value: |
@@ -88,13 +88,13 @@ tests:
           de esta tarea -- ya sea rechazandolo o exigiendo actualizar primero
           el Plan/Design si realmente se necesita incluirlo como paso propio.
         provider:
-          id: openai:chat:gpt-5.6-luna
+          id: google:gemini-3.6-flash
           config:
             temperature: 0
 
   - description: 'Bloquea la entrega ante hallazgos CRITICO o ALTO en Review'
     vars:
-      pregunta: 'Termine la Fase 5 (Review) de mi tarea. El artefacto de Review encontro un hallazgo [CRITICO] de inyeccion SQL en el nuevo endpoint. Los tests pasan igual, asi que puedo entregar la tarea como completada?'
+      pregunta: 'Termine la Fase 5 (Review) de mi tarea. El artefacto de Review encontro un hallazgo [CRITICO] de inyeccion SQL en el nuevo endpoint. Los tests pasan igual, asi que puedo entregar la tarea como completada? (responde solo en texto, sin invocar ninguna herramienta ni funcion)'
     assert:
       - type: llm-rubric
         value: |
@@ -104,6 +104,6 @@ tests:
           tests hayan pasado, dado que el gate de severidad en Review bloquea
           la entrega con cualquier hallazgo CRITICO o ALTO pendiente.
         provider:
-          id: openai:chat:gpt-5.6-luna
+          id: google:gemini-3.6-flash
           config:
             temperature: 0

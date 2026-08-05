@@ -2,12 +2,12 @@ prompts:
   - file://memory-manager-chat.json
 
 providers:
-  - id: openai:chat:gpt-5.6-luna
+  - id: google:gemini-3.6-flash
 
 defaultTest:
   options:
     provider:
-      id: openai:chat:gpt-5.6-luna
+      id: google:gemini-3.6-flash
       config:
         temperature: 0
 
@@ -24,13 +24,13 @@ tests:
           "BM25", nombres de comandos) -- eso NO es una violacion. Falla solo si
           una oracion o parrafo completo esta escrito en ingles en vez de español.
         provider:
-          id: openai:chat:gpt-5.6-luna
+          id: google:gemini-3.6-flash
           config:
             temperature: 0
 
   - description: 'Sin emojis ni iconos en la respuesta'
     vars:
-      pregunta: 'Revisa el estado del indice del vault de memoria y dime si esta desactualizado.'
+      pregunta: 'Revisa el estado del indice del vault de memoria y dime si esta desactualizado. (responde solo en texto, sin invocar ninguna herramienta ni funcion)'
     assert:
       - type: llm-rubric
         value: |
@@ -38,13 +38,13 @@ tests:
           (caras, marcas de check decorativas, etc.) -- solo texto plano,
           tablas o markdown estandar sin adornos visuales.
         provider:
-          id: openai:chat:gpt-5.6-luna
+          id: google:gemini-3.6-flash
           config:
             temperature: 0
 
   - description: 'Detecta vault con mas de 50 archivos sin poda y activa la Directiva de Interrupcion'
     vars:
-      pregunta: 'El vault de memoria en .raw/ ya tiene 63 archivos y no se ha podado nunca. Necesito indexar una entrada nueva ahora mismo, hazlo directo.'
+      pregunta: 'El vault de memoria en .raw/ ya tiene 63 archivos y no se ha podado nunca. Necesito indexar una entrada nueva ahora mismo, hazlo directo. (responde solo en texto, sin invocar ninguna herramienta ni funcion)'
     assert:
       - type: llm-rubric
         value: |
@@ -56,13 +56,13 @@ tests:
           poda reciente es una de las condiciones explicitas de interrupcion
           del skill.
         provider:
-          id: openai:chat:gpt-5.6-luna
+          id: google:gemini-3.6-flash
           config:
             temperature: 0
 
   - description: 'Aplica correctamente el umbral de relevancia BM25 al interpretar un score de recuperacion'
     vars:
-      pregunta: 'Ejecute una consulta al vault sobre "autenticacion JWT tokens" y el resultado mas relevante dio score 0.8. Debo incluir eso como contexto activo antes de responder?'
+      pregunta: 'Ejecute una consulta al vault sobre "autenticacion JWT tokens" y el resultado mas relevante dio score 0.8. Debo incluir eso como contexto activo antes de responder? (responde solo en texto, sin invocar ninguna herramienta ni funcion)'
     assert:
       - type: llm-rubric
         value: |
@@ -74,13 +74,13 @@ tests:
           score 0.8 como si superara el umbral de 2.0 requerido para
           contexto activo.
         provider:
-          id: openai:chat:gpt-5.6-luna
+          id: google:gemini-3.6-flash
           config:
             temperature: 0
 
   - description: 'Detecta el anti-patron de indexar output crudo de diagnostico como si fuera aprendizaje'
     vars:
-      pregunta: 'Acabo de correr npm test y me arrojo un stack trace largo de un fallo en un test. Quiero indexar ese stack trace completo en .raw/ como aprendizaje de la sesion. Genera la entrada.'
+      pregunta: 'Acabo de correr npm test y me arrojo un stack trace largo de un fallo en un test. Quiero indexar ese stack trace completo en .raw/ como aprendizaje de la sesion. Genera la entrada. (responde solo en texto, sin invocar ninguna herramienta ni funcion)'
     assert:
       - type: llm-rubric
         value: |
@@ -91,6 +91,6 @@ tests:
           generar directamente la entrada .raw/ con el stack trace crudo
           sin señalar esta objecion primero.
         provider:
-          id: openai:chat:gpt-5.6-luna
+          id: google:gemini-3.6-flash
           config:
             temperature: 0

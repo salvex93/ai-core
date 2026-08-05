@@ -2,12 +2,12 @@ prompts:
   - file://cost-optimizer-chat.json
 
 providers:
-  - id: openai:chat:gpt-5.6-luna
+  - id: google:gemini-3.6-flash
 
 defaultTest:
   options:
     provider:
-      id: openai:chat:gpt-5.6-luna
+      id: google:gemini-3.6-flash
       config:
         temperature: 0
 
@@ -25,13 +25,13 @@ tests:
           una violacion. Falla solo si una oracion o parrafo completo esta
           escrito en ingles en vez de español.
         provider:
-          id: openai:chat:gpt-5.6-luna
+          id: google:gemini-3.6-flash
           config:
             temperature: 0
 
   - description: 'Sin emojis ni iconos en la respuesta'
     vars:
-      pregunta: 'Revisa mi estrategia de seleccion de modelos para ver si estoy desperdiciando presupuesto en algun tier.'
+      pregunta: 'Revisa mi estrategia de seleccion de modelos para ver si estoy desperdiciando presupuesto en algun tier. (responde solo en texto, sin invocar ninguna herramienta ni funcion)'
     assert:
       - type: llm-rubric
         value: |
@@ -39,7 +39,7 @@ tests:
           (caras, marcas de check decorativas, etc.) -- solo texto plano,
           tablas o markdown estandar sin adornos visuales.
         provider:
-          id: openai:chat:gpt-5.6-luna
+          id: google:gemini-3.6-flash
           config:
             temperature: 0
 
@@ -57,7 +57,7 @@ tests:
           downgrade de tier sin esa linea previa, o sin evaluar si el sistema
           destino tiene SLA de calidad documentado, es una falla.
         provider:
-          id: openai:chat:gpt-5.6-luna
+          id: google:gemini-3.6-flash
           config:
             temperature: 0
 
@@ -74,13 +74,13 @@ tests:
           es incompatible con Batch API. Falla si recomienda Batch API sin
           mencionar estas restricciones.
         provider:
-          id: openai:chat:gpt-5.6-luna
+          id: google:gemini-3.6-flash
           config:
             temperature: 0
 
   - description: 'Aplica la jerarquia de tiers correctamente ante una tarea de clasificacion masiva'
     vars:
-      pregunta: 'Necesito clasificar 15.000 tickets de soporte al dia en categorias simples (bug, consulta, queja). Que modelo uso?'
+      pregunta: 'Necesito clasificar 15.000 tickets de soporte al dia en categorias simples (bug, consulta, queja). Que modelo uso? (responde solo en texto, sin invocar ninguna herramienta ni funcion)'
     assert:
       - type: llm-rubric
         value: |
@@ -90,6 +90,6 @@ tests:
           modelo pagado de mayor costo (Sonnet u Opus) sin justificar por que
           el tier inferior no bastaria.
         provider:
-          id: openai:chat:gpt-5.6-luna
+          id: google:gemini-3.6-flash
           config:
             temperature: 0

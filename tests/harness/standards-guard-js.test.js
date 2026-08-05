@@ -10,9 +10,29 @@ const { REPO, BIN, SKILLS, SETTINGS, runScript, tmpFile } = require('./_shared')
 
 describe('standards-guard.js', () => {
   const SCRIPT = path.join(BIN, 'standards-guard.js');
+  const content = fs.readFileSync(SCRIPT, 'utf8');
 
   test('el script existe', () => {
     assert.ok(fs.existsSync(SCRIPT), 'standards-guard.js debe existir en .claude/bin/');
+  });
+
+  test('el evento de captura se encola via execFileSync con array de argumentos, no execSync con template string interpolado', () => {
+    // Mismo antipatron de inyeccion de comandos que issue-reporter.js:
+    // fileSuffix proviene de path.relative(CORE_PATH, filePath), derivado de
+    // tool_input.file_path -- si un subagente o script externo genera un
+    // nombre de archivo con metacaracteres de shell, execSync + template
+    // string lo ejecutaria como comando adicional (`.replace(/"/g, "'")`
+    // solo neutraliza comillas, no & | && ||).
+    assert.doesNotMatch(
+      content,
+      /execSync\(\s*`node "\$\{CAPTURE\}/,
+      'no debe construir el comando de captura via execSync + template string interpolado'
+    );
+    assert.match(
+      content,
+      /execFileSync\(\s*process\.execPath|execFileSync\(\s*'node'/,
+      'debe invocar capture-event.js via execFileSync con array de argumentos'
+    );
   });
 
   test('archivo de codigo con emoji: exit 2 (bloqueante)', () => {

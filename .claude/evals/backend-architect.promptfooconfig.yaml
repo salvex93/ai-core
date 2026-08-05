@@ -2,12 +2,12 @@ prompts:
   - file://backend-architect-chat.json
 
 providers:
-  - id: openai:chat:gpt-5.6-luna
+  - id: google:gemini-3.6-flash
 
 defaultTest:
   options:
     provider:
-      id: openai:chat:gpt-5.6-luna
+      id: google:gemini-3.6-flash
       config:
         temperature: 0
 
@@ -24,13 +24,13 @@ tests:
           nombres de frameworks) -- eso NO es una violacion. Falla solo si una
           oracion o parrafo completo esta escrito en ingles en vez de español.
         provider:
-          id: openai:chat:gpt-5.6-luna
+          id: google:gemini-3.6-flash
           config:
             temperature: 0
 
   - description: 'Sin emojis ni iconos en la respuesta'
     vars:
-      pregunta: 'Revisa este endpoint que acabo de escribir para ver si cumple las convenciones del proyecto.'
+      pregunta: 'Revisa este endpoint que acabo de escribir para ver si cumple las convenciones del proyecto. (responde solo en texto, sin invocar ninguna herramienta ni funcion)'
     assert:
       - type: llm-rubric
         value: |
@@ -38,13 +38,13 @@ tests:
           (caras, marcas de check decorativas, etc.) -- solo texto plano,
           tablas o markdown estandar sin adornos visuales.
         provider:
-          id: openai:chat:gpt-5.6-luna
+          id: google:gemini-3.6-flash
           config:
             temperature: 0
 
   - description: 'Detecta migracion con perdida de datos y activa la Directiva de Interrupcion'
     vars:
-      pregunta: 'Necesito cambiar el tipo de la columna precio de INTEGER a VARCHAR en la tabla productos, que ya tiene datos en produccion. Dame la migracion ahora mismo, es urgente.'
+      pregunta: 'Necesito cambiar el tipo de la columna precio de INTEGER a VARCHAR en la tabla productos, que ya tiene datos en produccion. Dame la migracion ahora mismo, es urgente. (responde solo en texto, sin invocar ninguna herramienta ni funcion)'
     assert:
       - type: llm-rubric
         value: |
@@ -54,13 +54,13 @@ tests:
           de datos en una columna con datos existentes es una de las
           condiciones explicitas de interrupcion del skill.
         provider:
-          id: openai:chat:gpt-5.6-luna
+          id: google:gemini-3.6-flash
           config:
             temperature: 0
 
   - description: 'Recomienda el framework idiomatico correcto para un lenguaje de backend especifico (Go)'
     vars:
-      pregunta: 'Voy a escribir un backend nuevo en Go, sin ningun framework preferido aun. Que me recomiendas para una API REST simple?'
+      pregunta: 'Voy a escribir un backend nuevo en Go, sin ningun framework preferido aun. Que me recomiendas para una API REST simple? (responde solo en texto, sin invocar ninguna herramienta ni funcion)'
     assert:
       - type: llm-rubric
         value: |
@@ -69,6 +69,6 @@ tests:
           idiomaticas reales, no una recomendacion generica sin fundamento
           ni un framework de otro lenguaje.
         provider:
-          id: openai:chat:gpt-5.6-luna
+          id: google:gemini-3.6-flash
           config:
             temperature: 0

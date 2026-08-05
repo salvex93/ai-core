@@ -92,22 +92,31 @@ jobs:
 
       - name: 'Correr evals de skills de mayor riesgo (8 skills)'
         if: steps.cambios.outputs.evals == 'true'
-        # OPENAI_API_KEY: el juez de todos los configs se cambio de
-        # google:gemini-3.5-flash a openai:chat:gpt-5.6-luna tras corridas
-        # reales con timeout de 5 minutos en cola por saturacion de Gemini --
-        # protocolo de emergencia autorizado explicitamente por el usuario.
-        # Revertir a GEMINI_API_KEY (tier gratuito) cuando la disponibilidad
-        # de Gemini se normalice, siguiendo la jerarquia de costo de CLAUDE.md.
+        # GEMINI_API_KEY: revertido desde openai:chat:gpt-5.6-luna (fallback
+        # de emergencia por timeout de saturacion en Gemini) tras confirmar
+        # con una corrida real (ciso, 4/4 en 1m26s) que la disponibilidad de
+        # Gemini ya se normalizo -- jerarquia de costo de CLAUDE.md (tier 0).
+        # sleep 30 entre evals: el tier gratuito de Gemini es 20 req/min y
+        # cada eval consume ~8 (4 casos x respuesta+rubric) -- confirmado en
+        # vivo el 2026-08-05 que sin espera el 3er eval golpea 429
+        # RESOURCE_EXHAUSTED (ver .claude/evals/run-all.js, misma causa raiz).
         env:
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         run: |
           node .claude/evals/runner.js .claude/evals/security-auditor.promptfooconfig.yaml
+          sleep 30
           node .claude/evals/runner.js .claude/evals/ciso.promptfooconfig.yaml
+          sleep 30
           node .claude/evals/runner.js .claude/evals/qa-engineer.promptfooconfig.yaml
+          sleep 30
           node .claude/evals/runner.js .claude/evals/ai-guardrails.promptfooconfig.yaml
+          sleep 30
           node .claude/evals/runner.js .claude/evals/devops-infra.promptfooconfig.yaml
+          sleep 30
           node .claude/evals/runner.js .claude/evals/database-ops.promptfooconfig.yaml
+          sleep 30
           node .claude/evals/runner.js .claude/evals/cloud-deployment-specialist.promptfooconfig.yaml
+          sleep 30
           node .claude/evals/runner.js .claude/evals/backend-architect.promptfooconfig.yaml
 
   summary:

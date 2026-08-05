@@ -27,6 +27,12 @@ const { leerEventoDeStdin } = require('./lib/hook-stdin');
 const AGENTS_DIR = process.env.AI_CORE_AGENTS_DIR || path.join(__dirname, '..', 'agents');
 
 function leerScopeDeclarado(agentType) {
+  // agentType viene de evento.agent_type (JSON de stdin) sin garantia de
+  // formato -- sin esta validacion, un valor con "../" escapa AGENTS_DIR via
+  // path.join (que no previene traversal) y permite leer un archivo
+  // arbitrario del sistema como si fuera un AGENT.md real.
+  if (!/^[a-zA-Z0-9_-]+$/.test(agentType)) return null;
+
   const agentPath = path.join(AGENTS_DIR, `${agentType}.md`);
   if (!fs.existsSync(agentPath)) return null; // agente no reconocido (ej. Explore, general-purpose) -- no es de ai-core
 
@@ -40,10 +46,24 @@ function leerScopeDeclarado(agentType) {
   const match = contenido.match(/^---\r?\n([\s\S]*?)\r?\n---/);
   if (!match) return null;
 
-  const toolsMatch = match[1].match(/^tools:\s*\[([^\]]*)\]/m);
-  if (!toolsMatch) return null; // sin scope declarado -- no restringe (retrocompatible)
+  const frontmatter = match[1];
 
-  return toolsMatch[1].split(',').map((t) => t.trim()).filter(Boolean);
+  // Sintaxis array inline: tools: [A, B, C]
+  const inlineMatch = frontmatter.match(/^tools:\s*\[([^\]]*)\]/m);
+  if (inlineMatch) {
+    return inlineMatch[1].split(',').map((t) => t.trim()).filter(Boolean);
+  }
+
+  // Sintaxis lista YAML multilinea: tools:\n  - A\n  - B
+  const multilineaMatch = frontmatter.match(/^tools:\s*\r?\n((?:^[ \t]*-[ \t].*\r?\n?)+)/m);
+  if (multilineaMatch) {
+    return multilineaMatch[1]
+      .split(/\r?\n/)
+      .map((linea) => linea.replace(/^[ \t]*-[ \t]*/, '').trim())
+      .filter(Boolean);
+  }
+
+  return null; // sin scope declarado -- no restringe (retrocompatible)
 }
 
 const evento    = leerEventoDeStdin();

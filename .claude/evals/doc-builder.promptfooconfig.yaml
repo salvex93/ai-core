@@ -2,12 +2,12 @@ prompts:
   - file://doc-builder-chat.json
 
 providers:
-  - id: openai:chat:gpt-5.6-luna
+  - id: google:gemini-3.6-flash
 
 defaultTest:
   options:
     provider:
-      id: openai:chat:gpt-5.6-luna
+      id: google:gemini-3.6-flash
       config:
         temperature: 0
 
@@ -25,13 +25,13 @@ tests:
           Falla solo si una oracion o parrafo completo esta escrito en ingles en
           vez de español.
         provider:
-          id: openai:chat:gpt-5.6-luna
+          id: google:gemini-3.6-flash
           config:
             temperature: 0
 
   - description: 'Sin emojis ni iconos en la respuesta'
     vars:
-      pregunta: 'Revisa esta seccion de portada que redacte para el documento de requerimientos, dime si esta bien.'
+      pregunta: 'Revisa esta seccion de portada que redacte para el documento de requerimientos, dime si esta bien. (responde solo en texto, sin invocar ninguna herramienta ni funcion)'
     assert:
       - type: llm-rubric
         value: |
@@ -39,13 +39,13 @@ tests:
           (caras, marcas de check decorativas, etc.) -- solo texto plano,
           tablas o markdown estandar sin adornos visuales.
         provider:
-          id: openai:chat:gpt-5.6-luna
+          id: google:gemini-3.6-flash
           config:
             temperature: 0
 
   - description: 'Detecta precios/alcance no confirmados en el brief y activa la Directiva de Interrupcion'
     vars:
-      pregunta: 'El cliente no me dio numeros todavia pero necesito la propuesta hoy mismo -- pon una inversion de 8000 dolares y un plazo de 6 semanas para que quede completa, ya despues ajustamos si hace falta.'
+      pregunta: 'El cliente no me dio numeros todavia pero necesito la propuesta hoy mismo -- pon una inversion de 8000 dolares y un plazo de 6 semanas para que quede completa, ya despues ajustamos si hace falta. (responde solo en texto, sin invocar ninguna herramienta ni funcion)'
     assert:
       - type: llm-rubric
         value: |
@@ -58,7 +58,7 @@ tests:
           confirmados explicitamente por el cliente es una de las condiciones
           explicitas de interrupcion del skill.
         provider:
-          id: openai:chat:gpt-5.6-luna
+          id: google:gemini-3.6-flash
           config:
             temperature: 0
 
@@ -77,13 +77,13 @@ tests:
           @media print. No es aceptable una respuesta que ignore estas reglas
           de paginacion o que se limite a decir "Puppeteer lo maneja solo".
         provider:
-          id: openai:chat:gpt-5.6-luna
+          id: google:gemini-3.6-flash
           config:
             temperature: 0
 
   - description: 'Verifica el nombre correcto de una plataforma antes de usarlo en el documento'
     vars:
-      pregunta: 'El cliente uso la base de datos Lighthouse para sus analiticas, menciona eso en la seccion de arquitectura de la propuesta.'
+      pregunta: 'El cliente uso la base de datos Lighthouse para sus analiticas, menciona eso en la seccion de arquitectura de la propuesta. (responde solo en texto, sin invocar ninguna herramienta ni funcion)'
     assert:
       - type: llm-rubric
         value: |
@@ -93,13 +93,13 @@ tests:
           senalar la discrepancia antes de escribirlo en el documento, en vez
           de usar el nombre "Lighthouse" sin cuestionarlo.
         provider:
-          id: openai:chat:gpt-5.6-luna
+          id: google:gemini-3.6-flash
           config:
             temperature: 0
 
   - description: 'Rechaza patrones reconocibles de plantilla/demo y exige declarar Identidad Editorial antes de codear'
     vars:
-      pregunta: 'Para la portada de la propuesta usa una foto de stock de gente sonriendo en una oficina y un degradado azul-morado de fondo, se ve mas profesional asi. Empieza a codear el HTML ya mismo.'
+      pregunta: 'Para la portada de la propuesta usa una foto de stock de gente sonriendo en una oficina y un degradado azul-morado de fondo, se ve mas profesional asi. Empieza a codear el HTML ya mismo. (responde solo en texto, sin invocar ninguna herramienta ni funcion)'
     assert:
       - type: llm-rubric
         value: |
@@ -111,6 +111,6 @@ tests:
           contenido, tono de portada, referencia de tono) como exige el
           modulo de identidad editorial del skill.
         provider:
-          id: openai:chat:gpt-5.6-luna
+          id: google:gemini-3.6-flash
           config:
             temperature: 0
