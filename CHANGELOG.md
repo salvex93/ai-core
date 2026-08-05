@@ -33,6 +33,17 @@ Antes apuntaba unicamente a `security-auditor.promptfooconfig.yaml` (piloto orig
 
 **869 tests, 42 skills con eval de conformidad (42/42), 7 agentes.**
 
+## [3.27.1] — 2026-08-04
+
+### Corregido — sandboxing activo en las 3 plataformas, 32/32 hooks propios (cierre del gap de v3.24.0)
+
+v3.24.0 dejaba el Node.js Permission Model activo solo en Linux/macOS y solo en 4 hooks de mayor riesgo, con Windows desactivado por un spike que encontro comportamiento de glob distinto entre Git Bash y PowerShell sin verificar contra `cmd.exe`. Dos cierres reales sin bump de version en su momento, registrados ahora:
+
+- Sandboxing ampliado a los 28 hooks propios restantes de `.claude/bin/`, auditando caso por caso las operaciones reales de filesystem/child_process de cada uno para asignar el permiso minimo correspondiente (`soloRead`, `readYWrite`, `repoReadWrite`, `repoConGit`). `git-queue-advisor.js` queda fuera por necesitar red real hacia el remoto de git.
+- Sandboxing activado tambien en Windows: verificado contra `cmd.exe` real (el shell por defecto sin configuracion adicional) que la misma sintaxis de glob y `--allow-child-process` funcionan identico a POSIX. `nodeConPermiso()` ya no excluye `win32`. Verificado de punta a punta con `settings.json` regenerado localmente en Windows y un comando real ejecutado via `cmd.exe` con exit 0.
+
+Sandboxing real ahora universal en las 3 plataformas para 31 de los 32 hooks propios registrados en `hooks-definition.js`.
+
 ## [3.27.0] — 2026-08-04
 
 ### Agregado — evals expandidos de 3 a 8 skills (los de mayor riesgo si degradan)

@@ -1,4 +1,4 @@
-# AI-CORE v3.28.0: Nucleo Multi-Agente Universal
+# AI-CORE v3.28.0: Nucleo Multi-Agente
 
 `ai-core` es un nucleo de configuracion y comportamiento para agentes IA. Se usa como submodulo Git en un proyecto existente o como repositorio independiente. Define reglas globales, 42 skills especializados, 7 agentes autonomos, un orquestador Mixture-of-Agents (Gemini + DeepSeek + Claude) y un ciclo de mejora continua por uso, sin acoplarse al stack del proyecto anfitrion.
 
@@ -14,7 +14,7 @@ Funciona con Claude, Gemini, OpenAI, DeepSeek y Kimi via `ModelRegistry`. Agrega
 
 | Requisito | Version minima | Verificar |
 |---|---|---|
-| Node.js | >= 20.0.0 | `node --version` |
+| Node.js | >= 22.13.0 | `node --version` |
 | Claude Code CLI | cualquiera | `claude --version` |
 | Git | cualquiera | `git --version` |
 | gh CLI | cualquiera | `gh --version` |
@@ -81,7 +81,7 @@ Repositorio independiente:
 npm run update
 ```
 
-Esto corre `git pull`, regenera `settings.json` (purga automaticamente cualquier hook de una version anterior que referencie un script eliminado o renombrado — el objeto de hooks se construye desde cero y sobreescribe el archivo completo, nunca mergea, con la definicion compartida en `hooks-definition.js`), corre los 754 tests, aplica migraciones de version, valida los 42 skills y los 7 agentes, y reporta que cambio. Si un test falla, el comando se detiene ahi.
+Esto corre `git pull`, regenera `settings.json` (purga automaticamente cualquier hook de una version anterior que referencie un script eliminado o renombrado — el objeto de hooks se construye desde cero y sobreescribe el archivo completo, nunca mergea, con la definicion compartida en `hooks-definition.js`), corre los 869 tests, aplica migraciones de version, valida los 42 skills y los 7 agentes, y reporta que cambio. Si un test falla, el comando se detiene ahi.
 
 Instalado como submodulo:
 
@@ -408,7 +408,7 @@ Skills reescritos con seccion "Cuando NO Activar Este Perfil" en todos, sistema 
 
 | Capa | Directorio | Que hace | Cuando se activa |
 |---|---|---|---|
-| Skills | `.claude/skills/` (39) | Perfil de comportamiento — como piensa Claude en un dominio | Claude lo adopta como rol dentro de la conversacion |
+| Skills | `.claude/skills/` (42) | Perfil de comportamiento — como piensa Claude en un dominio | Claude lo adopta como rol dentro de la conversacion |
 | Agents | `.claude/agents/` (7) | Loop autonomo que ejecuta una tarea completa sin intervencion | Claude Code lo lanza como subagente con contexto cero |
 
 Un skill se convierte en agente solo si cumple los tres criterios a la vez: autonomia real (sin interaccion por turno), salida estructurada verificable, y uso recurrente. Si falta uno, se queda como skill.
@@ -484,7 +484,7 @@ Se dispara automaticamente en el hook `SubagentStop` cuando `code-reviewer` marc
 - **`validate-globals.js`**: verifica que los 42 skills tengan la referencia inmutable a CLAUDE.md, las secciones obligatorias, `rol:` valido en frontmatter, ningun emoji, y conformidad con el schema abierto [agentskills.io](https://agentskills.io/specification) (`name` coincide con la carpeta, formato, limites de longitud). `--fix-drift` corrige `last_updated` desincronizado. Sale con exit 1 si hay hallazgos criticos o altos.
 - **`validate-agents.js`**: hermano de `validate-globals.js` para los 7 agentes de `.claude/agents/` — mismo criterio de referencia inmutable, copia literal de las 11 reglas del ANCLA (compartidas entre ambos validadores), emojis y drift de `last_updated`. Sale con exit 1 si hay hallazgos criticos o altos.
 - **`update.js`**: actualizacion cross-platform en un comando. Reporta version anterior vs nueva y si hay breaking changes que requieran accion manual.
-- **CI** (`.github/workflows/ci.yml`): corre tests y `validate-globals` en cada push a `main` y cada PR. Matriz: Ubuntu y Windows con Node 20/22, macOS solo con Node 22 (Node 20 removido de macOS por exit code espurio intermitente de `node --test` en esa combinacion especifica de runner). El step de tests usa `node --test` sin patrones de glob explicitos — descubrimiento automatico nativo, no depende de que el shell (PowerShell en Windows) expanda argumentos (ver CHANGELOG v3.17.3).
+- **CI** (`.github/workflows/ci.yml`): corre tests y `validate-globals` en cada push a `main` y cada PR. Matriz: Ubuntu, Windows y macOS, Node 22 unicamente (Node 20 removido de toda la matriz -- el sandboxing con Permission Model exige Node >= 22.13.0, ya no existe estable en la rama 20.x). El step de tests usa `node --test` sin patrones de glob explicitos — descubrimiento automatico nativo, no depende de que el shell (PowerShell en Windows) expanda argumentos (ver CHANGELOG v3.17.3).
 
 ---
 
@@ -643,11 +643,11 @@ New-Item -ItemType SymbolicLink -Path './CLAUDE.md' -Target 'C:/ruta/a/ai-core/C
 │   │   │   └── guard-report.js       Esquema tipado {guard,verdict,severity} en JSONL, opt-in por guard (secrets-guard, injection-guard, pre-commit-tdd)
 │   │   └── memory-vault-prune-check.js Hook Stop: avisa (sin borrar) cuando el vault supera 50 archivos
 │   └── skills/                  42 skills — enrutamiento via frontmatter description (agentskills.io), reglas en CLAUDE.md
-├── tests/                       754 tests — tests/harness/*.test.js (dividido por modulo) + archivos dedicados
-├── .github/workflows/ci.yml     CI: Ubuntu/Windows Node 20+22, macOS solo Node 22
+├── tests/                       869 tests — tests/harness/*.test.js (dividido por modulo) + archivos dedicados
+├── .github/workflows/ci.yml     CI: Ubuntu/Windows/macOS, Node 22 unicamente (sandboxing con Permission Model exige >= 22.13.0)
 ├── CLAUDE.md                    Autoridad unica: reglas globales, skills, enrutamiento
 ├── DEPRECATIONS.json            Contrato de migracion por version
-├── package.json                 v3.22.0, Node >= 20
+├── package.json                 v3.28.0, Node >= 22.13.0
 └── .env.example                 Plantilla de variables de entorno
 ```
 

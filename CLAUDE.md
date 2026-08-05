@@ -69,7 +69,7 @@ Imprimir una sola línea al inicio de la **primera respuesta de cada sesión**:
 `[DIR: <directorio-actual> | RAMA: <rama-git> | MODELO: <Architect|Coder|Auditor>]`
 
 Reglas adicionales (solo cuando aplique):
-- Al usar cualquier herramienta gemini-bridge: `[IA: gemini-2.5-flash | HERRAMIENTA: <nombre>]` antes del resultado.
+- Al usar cualquier herramienta gemini-bridge: `[IA: gemini-3.6-flash | HERRAMIENTA: <nombre>]` antes del resultado.
 - Al cambiar de rol durante la sesión: `[ROL → <nuevo-rol> | IA: <modelo>]` una vez por cambio.
 
 No repetir la línea de telemetría en cada turno — solo en el primero de la sesión.
