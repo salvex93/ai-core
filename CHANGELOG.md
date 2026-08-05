@@ -44,7 +44,11 @@ Causa real de un `MALFORMED_FUNCTION_CALL` intermitente descubierta al reconfirm
 
 `memory-vault-prune-check.js` y su test escribian sobre `.claude/memory-vault/.raw/architect/` real del proyecto para simular el umbral de poda; si el hook `Stop` corria mientras esos archivos de test existian, los sintetizaba a `.wiki/architect/` real, dejando residuos huerfanos (ocurrido varias veces en sesiones previas). Aislado con `AI_CORE_MEMORY_VAULT_PATH` (mismo patron que `memory-index.js`), test movido a `os.tmpdir()`.
 
-**919 tests, 42 skills con eval de conformidad (42/42), 7 agentes (7/7).**
+### Corregido — regresion de CI en windows-latest (post-merge, detectada tras push)
+
+`tests/harness/aiops-auditor-precondiciones.test.js` (agregado en esta misma version) pasaba 919/919 en local pero fallaba 918/919 en el runner `windows-latest` de GitHub Actions: el regex que extrae el bloque `` ```bash...``` `` de `aiops-auditor.md` usaba `\n` literal, que no matchea contra `\r\n` — el checkout de ese runner especifico entrega el archivo con CRLF real, a diferencia del entorno local de desarrollo en ese momento. Corregido a `\r?\n` en ambos regex y en el split de lineas del bloque bash, verificado con CRLF simulado antes de repushear. Detectado revisando `gh run list`/`gh run view --log-failed` tras el push -- **CI en verde local nunca es sustituto de confirmar el run remoto real**, sobre todo en tests que parsean contenido de archivo con line-endings sensibles al SO.
+
+**919 tests, 42 skills con eval de conformidad (42/42), 7 agentes (7/7). CI verde en windows-latest/macos-latest/ubuntu-latest confirmado post-push.**
 
 ## [3.29.0] — 2026-08-05
 

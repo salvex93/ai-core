@@ -123,6 +123,17 @@ gh secret list --repo <owner>/<repo>
 
 Sin este secret, el job de evals falla o se salta en cada corrida de CI, independientemente de que `.env` local este completo.
 
+### Verificar el CI remoto tras cada push (no confiar solo en el resultado local)
+
+`npm test` en verde local no garantiza que el mismo commit pase en CI: los runners de GitHub Actions pueden tener diferencias de entorno (line-endings CRLF/LF segun `windows-latest` vs el checkout local, versiones de dependencias del sistema, disponibilidad de secrets) que un test sensible al sistema de archivos puede exponer solo ahi. Confirmar siempre el run real despues de pushear:
+
+```bash
+gh run list --repo <owner>/<repo> --limit 1
+# Si "in_progress"/"queued": esperar y volver a consultar
+# Si "completed failure":
+gh run view <run-id> --repo <owner>/<repo> --log-failed
+```
+
 ### Verificar que el issue-tracker esta activo
 
 ```bash
