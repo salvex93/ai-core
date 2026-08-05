@@ -3,6 +3,18 @@
 Registro de cambios por version. Formato basado en [Keep a Changelog](https://keepachangelog.com/es/1.0.0/).
 Versionado semantico: MAJOR.MINOR.PATCH.
 
+## [Sin version — mantenimiento] — 2026-08-05
+
+### Corregido — npm 12 y drift real de package-lock.json
+
+npm actualizado de 11.12.1 a 12.0.2 (entorno local). npm >= 11 bloquea por defecto los scripts `preinstall`/`postinstall` de dependencias no aprobadas -- verificados y aprobados explicitamente los de `protobufjs@7.6.5` (script benigno: solo compara el `versionScheme` declarado, sin red ni escritura) y `@google/genai@2.15.0` (`echo` no-op). Declarado en `package.json` -> `allowScripts` para que persista en cualquier clon/CI.
+
+Al reinstalar se corrigio drift real preexistente en `package-lock.json`: `version` y `engines.node` seguian marcados como `3.22.0`/`>=20.0.0` (varias versiones atras del `package.json` real, `3.30.0`/`>=22.13.0`) -- nunca se habian sincronizado en una corrida de `npm install` posterior a esos bumps. `npm audit fix` aplicado (`hono` 4.12.32 -> 4.13.0, fix de ReDoS en middleware CORS de `@modelcontextprotocol/sdk`, dependencia declarada) -- 0 vulnerabilidades tras el fix.
+
+`.claude/settings.json` (generado, no editado a mano) regenerado con los hooks de v3.30.0 (matcher ampliado de `agent-tools-guard.js`, `subagent-guard-release.js` en SubagentStop) que quedaban aplicados en `hooks-definition.js` pero no propagados a este archivo desde el commit de esa version.
+
+**919 tests, 42/42 skills conformes, 7/7 agentes conformes.**
+
 ## [3.30.0] — 2026-08-05
 
 ### Corregido — auditoria de seguridad del codigo del arnes: 4 hallazgos reales

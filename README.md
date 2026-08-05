@@ -15,11 +15,14 @@ Funciona con Claude, Gemini, OpenAI, DeepSeek y Kimi via `ModelRegistry`. Agrega
 | Requisito | Version minima | Verificar |
 |---|---|---|
 | Node.js | >= 22.13.0 | `node --version` |
+| npm | >= 11 (bloquea install scripts no aprobados desde esa version) | `npm --version` |
 | Claude Code CLI | cualquiera | `claude --version` |
 | Git | cualquiera | `git --version` |
 | gh CLI | cualquiera | `gh --version` |
 
 `gh` es necesario para el issue-tracker. Instalar desde https://cli.github.com si falta.
+
+npm >= 11 bloquea por defecto los scripts `preinstall`/`postinstall` de dependencias no aprobadas explicitamente. `package.json` ya declara `allowScripts` para las 2 dependencias transitivas que los usan (`protobufjs`, `@google/genai` — ambos scripts verificados como benignos, sin efectos de red ni escritura fuera de su propio paquete), asi que un `npm install` limpio no deberia mostrar advertencias. Si aparece una nueva, verificar el script antes de aprobar con `npm install-scripts approve <paquete>` — nunca aprobar a ciegas.
 
 ### Como repositorio independiente
 

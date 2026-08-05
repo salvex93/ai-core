@@ -106,6 +106,10 @@
           {
             "type": "command",
             "command": "node --permission --allow-fs-read=\"C:/Users/arimac/Documents/ai-core/.claude/bin/*\" \"C:/Users/arimac/Documents/ai-core/.claude/bin/subagent-grader.js\" 2>/dev/null || true"
+          },
+          {
+            "type": "command",
+            "command": "node --permission --allow-fs-read=\"C:/Users/arimac/Documents/ai-core/.claude/bin/*\" --allow-fs-write=\"${TMPDIR:-/tmp}/*\" \"C:/Users/arimac/Documents/ai-core/.claude/bin/subagent-guard-release.js\" 2>/dev/null || true"
           }
         ]
       }
@@ -219,7 +223,7 @@
         ]
       },
       {
-        "matcher": "Bash|Read|Write|Edit",
+        "matcher": "Bash|Read|Write|Edit|Grep|Glob|WebFetch|Agent",
         "hooks": [
           {
             "type": "command",
