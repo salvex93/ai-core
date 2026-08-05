@@ -132,7 +132,7 @@ describe('hooks-definition.js', () => {
     // alcance de fs-read/fs-write puros de esta ronda).
     const HOOKS_CON_SANDBOX = [
       'destructive-op-guard.js', 'code-exec-guard.js', 'secrets-guard.js', 'injection-guard.js',
-      'agent-metrics.js', 'aiops-score.js', 'bash-verbosity-guard.js', 'capture-event.js',
+      'agent-metrics.js', 'agent-tools-guard.js', 'aiops-score.js', 'bash-verbosity-guard.js', 'capture-event.js',
       'circuit-breaker.js', 'cross-verify-gate.js', 'dependency-tracer.js', 'detect-role.js',
       'detox.js', 'diff-map-trigger.js', 'guard-read.js', 'health-check.js', 'issue-reporter.js',
       'memory-index-stop.js', 'memory-vault-prune-check.js', 'moa-context-gatherer.js',
@@ -173,6 +173,58 @@ describe('hooks-definition.js', () => {
 
         // process-guard.js siempre arranca con "node <ruta-process-guard>" plano
         assert.match(preToolUseStr, /"node \\"\/repo\/\.claude\/bin\/process-guard\.js\\" health node --permission/);
+      } finally {
+        Object.defineProperty(process, 'platform', { value: original });
+        delete require.cache[require.resolve(path.join(BIN, 'hooks-definition.js'))];
+      }
+    });
+
+    test('secrets-guard.js y guard-read.js preservan su exit code de bloqueo (sin || true), igual que los demas guards de bloqueo', () => {
+      const original = process.platform;
+      Object.defineProperty(process, 'platform', { value: 'linux' });
+      try {
+        delete require.cache[require.resolve(path.join(BIN, 'hooks-definition.js'))];
+        const { buildHooksSection: build } = require(path.join(BIN, 'hooks-definition.js'));
+        const hooks = build((s) => `"/repo/.claude/bin/${s}"`);
+
+        const comandosSecretsGuard = hooks.UserPromptSubmit
+          .flatMap((g) => g.hooks)
+          .map((h) => h.command)
+          .filter((c) => c.includes('secrets-guard.js'));
+        assert.ok(comandosSecretsGuard.length >= 1, 'debe encontrar la invocacion de secrets-guard.js');
+        for (const cmd of comandosSecretsGuard) {
+          assert.doesNotMatch(cmd, /\|\|\s*true/, `secrets-guard.js no debe anular su exit code de bloqueo: "${cmd}"`);
+        }
+
+        const comandosGuardRead = hooks.PreToolUse
+          .flatMap((g) => g.hooks)
+          .map((h) => h.command)
+          .filter((c) => c.includes('guard-read.js'));
+        assert.ok(comandosGuardRead.length >= 1, 'debe encontrar la invocacion de guard-read.js');
+        for (const cmd of comandosGuardRead) {
+          assert.doesNotMatch(cmd, /\|\|\s*true/, `guard-read.js no debe anular su exit code de bloqueo: "${cmd}"`);
+        }
+      } finally {
+        Object.defineProperty(process, 'platform', { value: original });
+        delete require.cache[require.resolve(path.join(BIN, 'hooks-definition.js'))];
+      }
+    });
+
+    test('agent-tools-guard.js se registra en PreToolUse(Bash|Read|Write|Edit) preservando su exit code de bloqueo', () => {
+      const original = process.platform;
+      Object.defineProperty(process, 'platform', { value: 'linux' });
+      try {
+        delete require.cache[require.resolve(path.join(BIN, 'hooks-definition.js'))];
+        const { buildHooksSection: build } = require(path.join(BIN, 'hooks-definition.js'));
+        const hooks = build((s) => `"/repo/.claude/bin/${s}"`);
+
+        const grupo = hooks.PreToolUse.find(
+          (g) => g.matcher === 'Bash|Read|Write|Edit' && JSON.stringify(g.hooks).includes('agent-tools-guard.js')
+        );
+        assert.ok(grupo, 'debe existir una entrada PreToolUse para Bash|Read|Write|Edit con agent-tools-guard.js');
+
+        const comando = grupo.hooks.find((h) => h.command.includes('agent-tools-guard.js')).command;
+        assert.doesNotMatch(comando, /\|\|\s*true/, `agent-tools-guard.js no debe anular su exit code de bloqueo: "${comando}"`);
       } finally {
         Object.defineProperty(process, 'platform', { value: original });
         delete require.cache[require.resolve(path.join(BIN, 'hooks-definition.js'))];

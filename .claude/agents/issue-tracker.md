@@ -6,6 +6,7 @@ version: 1.0.0
 last_updated: 2026-07-26
 provider: any
 loop: false
+tools: [Bash, Read]
 ---
 
 # Issue Tracker — Agente Autonomo de Mejora Continua

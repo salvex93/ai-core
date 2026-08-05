@@ -149,8 +149,8 @@ async function dispatch(msg) {
   }
 
   if (method === 'tools/call') {
-    const { name, arguments: args } = params;
     try {
+      const { name, arguments: args } = params ?? {};
       let result;
       if      (name === 'analizar_archivo')      result = await analizarArchivo(args);
       else if (name === 'analizar_contenido')    result = await analizarContenido(args);

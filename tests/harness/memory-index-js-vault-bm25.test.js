@@ -189,4 +189,25 @@ describe('memory-index.js (vault BM25)', () => {
       assert.ok(r.stdout.includes('auditor'), 'debe reportar el namespace auditor en el desglose');
     });
   });
+
+  describe('indice corrupto (JSON invalido)', () => {
+    const VAULT_CORRUPTO  = fs.mkdtempSync(path.join(os.tmpdir(), 'memory-vault-corrupto-'));
+    const INDEX_CORRUPTO  = path.join(VAULT_CORRUPTO, 'index.json');
+    const ENV_CORRUPTO    = { AI_CORE_MEMORY_VAULT_PATH: VAULT_CORRUPTO };
+
+    before(() => {
+      fs.writeFileSync(INDEX_CORRUPTO, '{ "frags": { esto no es JSON valido', 'utf8');
+    });
+
+    test('cmd query degrada con mensaje diagnosticable en vez de crashear con SyntaxError', () => {
+      const r = runScript(SCRIPT, ['query', 'cualquier tema'], ENV_CORRUPTO);
+      assert.notEqual(r.status, 1, `no debe crashear con excepcion no controlada: ${r.stderr}`);
+      assert.doesNotMatch(r.stderr || '', /SyntaxError/, 'no debe propagar un SyntaxError crudo de JSON.parse');
+    });
+
+    test('cmd status degrada con mensaje diagnosticable en vez de crashear con SyntaxError', () => {
+      const r = runScript(SCRIPT, ['status'], ENV_CORRUPTO);
+      assert.doesNotMatch(r.stderr || '', /SyntaxError/, 'no debe propagar un SyntaxError crudo de JSON.parse');
+    });
+  });
 });

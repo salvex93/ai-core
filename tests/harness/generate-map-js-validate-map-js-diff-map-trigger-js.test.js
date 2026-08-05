@@ -118,4 +118,39 @@ describe('generate-map.js / validate-map.js / diff-map-trigger.js', () => {
     assert.equal(r.stderr, '', 'modificacion de contenido (M) no debe disparar regeneracion');
     assert.equal(antesTs, despuesTs, 'el mapa no debe tocarse si no hay cambio estructural de rutas');
   });
+
+  test('validate-map.js degrada con mensaje diagnosticable si cwd no es un repo git', () => {
+    const dirNoGit = fs.mkdtempSync(path.join(os.tmpdir(), 'map-no-git-'));
+    try {
+      fs.mkdirSync(path.join(dirNoGit, '.claude'), { recursive: true });
+      fs.writeFileSync(
+        path.join(dirNoGit, '.claude', 'CONTEXT_MAP.json'),
+        JSON.stringify({ host: { total_files: 0, root_files: [] } }),
+        'utf8'
+      );
+
+      const r = spawnSync('node', [VALIDATE_MAP], { encoding: 'utf8', cwd: dirNoGit });
+      assert.notEqual(r.status, 1, `no debe crashear con excepcion no controlada: ${r.stderr}`);
+      assert.doesNotMatch(r.stderr || '', /^\s*at /m, 'no debe propagar un stack trace crudo de git ls-files');
+    } finally {
+      fs.rmSync(dirNoGit, { recursive: true, force: true });
+    }
+  });
+
+  test('validate-map.js degrada con mensaje diagnosticable si CONTEXT_MAP.json es JSON invalido', () => {
+    const dirMapaCorrupto = fs.mkdtempSync(path.join(os.tmpdir(), 'map-corrupto-'));
+    try {
+      execSync('git init -q', { cwd: dirMapaCorrupto });
+      execSync('git config user.email "test@test.com"', { cwd: dirMapaCorrupto });
+      execSync('git config user.name "Test"', { cwd: dirMapaCorrupto });
+      fs.mkdirSync(path.join(dirMapaCorrupto, '.claude'), { recursive: true });
+      fs.writeFileSync(path.join(dirMapaCorrupto, '.claude', 'CONTEXT_MAP.json'), '{ esto no es JSON valido', 'utf8');
+
+      const r = spawnSync('node', [VALIDATE_MAP], { encoding: 'utf8', cwd: dirMapaCorrupto });
+      assert.notEqual(r.status, 1, `no debe crashear con excepcion no controlada: ${r.stderr}`);
+      assert.doesNotMatch(r.stderr || '', /^\s*at /m, 'no debe propagar un stack trace crudo de JSON.parse');
+    } finally {
+      fs.rmSync(dirMapaCorrupto, { recursive: true, force: true });
+    }
+  });
 });

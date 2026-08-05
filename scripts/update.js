@@ -8,7 +8,9 @@
  *   1. git pull origin main (obtiene la ultima version)
  *   2. npm run setup       (regenera settings.json con rutas locales)
  *   3. npm test            (valida conformidad del harness)
- *   4. npm run validate-globals (valida conformidad de todos los skills)
+ *   4. scripts/migrator.js (aplica migraciones si hubo cambio de version -- puede eliminar archivos deprecados)
+ *   5. npm run validate-globals (valida conformidad de todos los skills)
+ *   6. norm-harness.js     (solo si corre como submodulo -- sincroniza CLAUDE.md/settings.json del proyecto anfitrion)
  *
  * Al finalizar muestra:
  *   - Version anterior vs version nueva
@@ -138,7 +140,8 @@ if (validate.status !== 0) {
   console.error(validateOut);
   process.exit(1);
 }
-ok('35/35 skills conformes con CLAUDE.md — validate-globals OK.');
+const resumenMatch = validateOut.match(/RESUMEN:\s*(\d+\/\d+)\s*conformes/);
+ok(`${resumenMatch ? resumenMatch[1] : 'todos los'} skills conformes con CLAUDE.md — validate-globals OK.`);
 
 // PASO 6 (condicional): norm-harness en proyecto anfitrion
 // Si ai-core se ejecuta como submodulo, sincronizar el CLAUDE.md del padre.

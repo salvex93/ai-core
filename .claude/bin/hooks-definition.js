@@ -80,6 +80,7 @@ function buildHooksSection(bin) {
   const dirRepo = '"${PWD}/**"';
 
   const soloRead      = { fsRead: [dirBin] };
+  const soloLeerRepo  = { fsRead: [dirBin, dirRepo] };
   const readYWrite    = { fsRead: [dirBin], fsWrite: [dirTmp] };
   const repoReadWrite = { fsRead: [dirBin, dirRepo], fsWrite: [dirRepo, dirTmp] };
   // git status/diff/log/rev-parse/ls-files -- ningun hook de esta lista
@@ -92,7 +93,7 @@ function buildHooksSection(bin) {
       {
         hooks: [
           { type: 'command', command: `node ${bin('process-guard.js')} intent ${nodeConPermiso(bin('detect-role.js'), soloRead)} 2>/dev/null || true` },
-          { type: 'command', command: `${nodeConPermiso(bin('secrets-guard.js'), readYWrite)} 2>/dev/null || true` },
+          { type: 'command', command: nodeConPermiso(bin('secrets-guard.js'), readYWrite) },
           { type: 'command', command: `node ${bin('process-guard.js')} moa ${nodeConPermiso(bin('moa-context-gatherer.js'), repoReadWrite)} 2>/dev/null || true` },
         ],
       },
@@ -167,7 +168,7 @@ function buildHooksSection(bin) {
       {
         matcher: 'Read',
         hooks: [
-          { type: 'command', command: `${nodeConPermiso(bin('guard-read.js'), repoReadWrite)} "$CLAUDE_TOOL_INPUT_file_path" 2>/dev/null || true` },
+          { type: 'command', command: `${nodeConPermiso(bin('guard-read.js'), repoReadWrite)} "$CLAUDE_TOOL_INPUT_file_path"` },
         ],
       },
       {
@@ -183,6 +184,16 @@ function buildHooksSection(bin) {
         matcher: 'Agent',
         hooks: [
           { type: 'command', command: nodeConPermiso(bin('subagent-guard.js'), readYWrite) },
+        ],
+      },
+      {
+        // Enforcement de scope de herramientas por subagente (Gobierno de
+        // Agentes, regla 2 de CLAUDE.md). agent_type solo esta presente en
+        // el evento cuando la tool call se origina dentro de un subagente
+        // -- sin efecto sobre el hilo principal.
+        matcher: 'Bash|Read|Write|Edit',
+        hooks: [
+          { type: 'command', command: nodeConPermiso(bin('agent-tools-guard.js'), soloLeerRepo) },
         ],
       },
       {

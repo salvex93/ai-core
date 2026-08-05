@@ -23,7 +23,15 @@ if (!fs.existsSync(MAP_PATH)) {
   process.exit(0);
 }
 
-const map    = JSON.parse(fs.readFileSync(MAP_PATH, 'utf8'));
+let map;
+try {
+  map = JSON.parse(fs.readFileSync(MAP_PATH, 'utf8'));
+} catch (err) {
+  process.stderr.write(`[MAP] CONTEXT_MAP.json corrupto (${err.message}) — regenerando.\n`);
+  execFileSync('node', [GENERATE], { cwd: HOST_PATH });
+  process.exit(0);
+}
+
 // Contar archivos del host en el mapa (clave nueva: host.total_files, fallback al esquema legacy)
 const enMapa = map.host?.total_files
   ?? [
@@ -31,9 +39,15 @@ const enMapa = map.host?.total_files
       ...Object.values(map.map?.directories ?? {}).flat(),
     ].length;
 
-const enGit = execSync('git ls-files', { cwd: HOST_PATH, encoding: 'utf8' })
-  .split('\n')
-  .filter(f => f && !f.startsWith('node_modules/') && !f.startsWith('.claude/ai-core/')).length;
+let enGit;
+try {
+  enGit = execSync('git ls-files', { cwd: HOST_PATH, encoding: 'utf8' })
+    .split('\n')
+    .filter(f => f && !f.startsWith('node_modules/') && !f.startsWith('.claude/ai-core/')).length;
+} catch (err) {
+  process.stderr.write(`[MAP] git ls-files fallo (${err.message}) — no se puede validar drift.\n`);
+  process.exit(0);
+}
 
 const drift = Math.abs(enGit - enMapa);
 if (drift >= DRIFT_THRESHOLD) {

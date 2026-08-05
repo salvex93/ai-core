@@ -53,7 +53,7 @@
           },
           {
             "type": "command",
-            "command": "node --permission --allow-fs-read=\"C:/Users/arimac/Documents/ai-core/.claude/bin/*\" --allow-fs-write=\"${TMPDIR:-/tmp}/*\" \"C:/Users/arimac/Documents/ai-core/.claude/bin/secrets-guard.js\" 2>/dev/null || true"
+            "command": "node --permission --allow-fs-read=\"C:/Users/arimac/Documents/ai-core/.claude/bin/*\" --allow-fs-write=\"${TMPDIR:-/tmp}/*\" \"C:/Users/arimac/Documents/ai-core/.claude/bin/secrets-guard.js\""
           },
           {
             "type": "command",
@@ -184,7 +184,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node --permission --allow-fs-read=\"C:/Users/arimac/Documents/ai-core/.claude/bin/*\" --allow-fs-read=\"${PWD}/**\" --allow-fs-write=\"${PWD}/**\" --allow-fs-write=\"${TMPDIR:-/tmp}/*\" \"C:/Users/arimac/Documents/ai-core/.claude/bin/guard-read.js\" \"$CLAUDE_TOOL_INPUT_file_path\" 2>/dev/null || true"
+            "command": "node --permission --allow-fs-read=\"C:/Users/arimac/Documents/ai-core/.claude/bin/*\" --allow-fs-read=\"${PWD}/**\" --allow-fs-write=\"${PWD}/**\" --allow-fs-write=\"${TMPDIR:-/tmp}/*\" \"C:/Users/arimac/Documents/ai-core/.claude/bin/guard-read.js\" \"$CLAUDE_TOOL_INPUT_file_path\""
           }
         ]
       },
@@ -215,6 +215,15 @@
           {
             "type": "command",
             "command": "node --permission --allow-fs-read=\"C:/Users/arimac/Documents/ai-core/.claude/bin/*\" --allow-fs-write=\"${TMPDIR:-/tmp}/*\" \"C:/Users/arimac/Documents/ai-core/.claude/bin/subagent-guard.js\""
+          }
+        ]
+      },
+      {
+        "matcher": "Bash|Read|Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node --permission --allow-fs-read=\"C:/Users/arimac/Documents/ai-core/.claude/bin/*\" --allow-fs-read=\"${PWD}/**\" \"C:/Users/arimac/Documents/ai-core/.claude/bin/agent-tools-guard.js\""
           }
         ]
       },

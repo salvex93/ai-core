@@ -23,6 +23,11 @@
  * Uso: node process-guard.js <categoria> <comando...>
  *   node process-guard.js map node .claude/bin/validate-map.js
  *   node process-guard.js lint node .claude/bin/standards-guard.js /path/file.js
+ *
+ * "lint" es categoria de bloqueo: si se descarta por carga alta o lock activo,
+ * sale con exit 1 (no 0) para no simular exito de standards-guard.js, el
+ * unico guard invocado aqui sin "|| true" en su wrapper externo. Las demas
+ * categorias siempre degradan a exit 0 (best-effort).
  */
 
 const fs           = require('fs');
@@ -32,6 +37,14 @@ const { spawnSync } = require('child_process');
 const TIMEOUT_MS  = 8000;  // max tiempo de espera por lock (ms)
 const LOCK_DIR    = path.join(require('os').tmpdir(), 'ai-core-locks');
 const MAX_PROCS   = 4;     // procesos Node.js del harness maximos en paralelo
+
+// Categoria "lint" envuelve standards-guard.js (PreToolUse Write|Edit), el
+// unico guard de bloqueo real invocado a traves de process-guard.js sin
+// "|| true" en su wrapper externo. Descartarla en silencio bajo carga
+// anularia ese bloqueo. Las demas categorias (health, map, capture, intent,
+// moa) siempre llevan "|| true" en su wrapper y son verificaciones
+// best-effort — pueden degradar a exit 0 sin riesgo.
+const CATEGORIAS_BLOQUEO = new Set(['lint']);
 
 const categoria = process.argv[2];
 const comando   = process.argv.slice(3);
@@ -116,16 +129,17 @@ function releaseLock() {
 // Main
 // ---------------------------------------------------------------------------
 
-// Si hay demasiados procesos del harness corriendo, descartar silenciosamente
+// Si hay demasiados procesos del harness corriendo, descartar el intento.
+// Para categorias de bloqueo, exit 0 equivaldria a "aprobado" — evitarlo.
 const carga = countHarnessProcs();
 if (carga >= MAX_PROCS) {
   process.stderr.write(`[GUARD] Carga alta (${carga} procs) — ${categoria} pospuesto.\n`);
-  process.exit(0);
+  process.exit(CATEGORIAS_BLOQUEO.has(categoria) ? 1 : 0);
 }
 
 if (!acquireLock()) {
   // Otro proceso de la misma categoria ya esta corriendo — saltarse
-  process.exit(0);
+  process.exit(CATEGORIAS_BLOQUEO.has(categoria) ? 1 : 0);
 }
 
 try {

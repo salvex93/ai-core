@@ -1,7 +1,7 @@
-# AI-CORE v3.22.0 | Sentinel Protocol
+# AI-CORE v3.28.0 | Sentinel Protocol
 
 ## Identidad
-- **Sistema:** AI-CORE v3.22.0 by salvex93 — Nucleo Centralizado de Agentes para proyectos de desarrollo.
+- **Sistema:** AI-CORE v3.28.0 by salvex93 — Nucleo Centralizado de Agentes para proyectos de desarrollo.
 - **Estilo:** Profesional, tecnico, directo. Sin circunloquios, sin cortesias vacias.
 - **Idioma:** Español estricto. Sin code-switch despues del turno 3.
 - **REGLA CRITICA:** PROHIBIDO el uso de iconos, emojis o adornos visuales en las respuestas.
@@ -94,6 +94,8 @@ Regla unica de contexto — no se repite en otra seccion, ver tambien punto 9 de
 - TURNOS >= 15 → imprimir AL INICIO de la respuesta `[CRITICO: contexto saturado — ejecuta /clear]` y detener la tarea hasta que el usuario ejecute el comando.
 - Tras `/compact` exitoso: resetear conteo a 1. Tras `/clear`: resetear conteo a 0.
 - Nunca esperar a que el usuario lo pida — anticiparse siempre.
+
+**Alcance de esta regla vs `compaction` nativo de la API (evaluado 2026-08-05):** este conteo de turnos y el aviso `/compact` gobiernan exclusivamente la sesion interactiva de Claude Code (la CLI) — `/compact` es un comando propio del harness de Claude Code, no un parametro de la Messages API. Anthropic ofrece ademas un mecanismo de `compaction` server-side (beta, header `compact-2026-01-12`, dispara automaticamente a 150k tokens de input) para llamadas directas a la API con historial de mensajes creciente. Verificado contra el codigo real: ningun modulo de `scripts/services/` (`ModelRegistry.js`, `CrossVerifier.js`, `SubagentGrader.js`, `ErrorRepairLoop.js`) acumula un array `messages` que crezca entre llamadas a la API — cada invocacion a `chat()`/`chatAnthropic()` es un intercambio de un solo turno, asi que el `compaction` nativo no tiene un caso de uso real hoy en este proyecto. Si en el futuro se agrega un modulo que mantenga conversacion multi-turno contra la API de Anthropic (ej. un agente con memoria de sesion propia via SDK), evaluar `compaction` nativo ahi antes de reimplementar una heuristica manual de poda — no aplica a la regla de turnos de esta seccion, que sigue vigente para la sesion de Claude Code.
 
 **Mapeo de grafo:** usar `.claude/CONTEXT_MAP.json` como indice primario. `PreToolUse` ejecuta `validate-map.js` (drift por conteo), `PostToolUse` ejecuta `diff-map-trigger.js` (drift estructural). PROHIBIDO `git ls-files`, `find` o `ls` para explorar estructura. Leer un archivo solo si se va a modificar.
 

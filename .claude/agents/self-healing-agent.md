@@ -6,6 +6,7 @@ version: 1.0.0
 last_updated: 2026-07-26
 provider: any
 loop: true
+tools: [Bash, Read, Grep, Glob]
 ---
 
 # Self-Healing Agent — Agente Autonomo

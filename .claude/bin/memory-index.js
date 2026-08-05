@@ -118,6 +118,15 @@ function cmdIndex(rolFiltro) {
   console.log(`[memory] indexados ${allFrags.length} fragmentos de ${totalFiles} archivos (namespaces: ${namespaces.map(n => n.rol).join(', ')})`);
 }
 
+function leerIndice() {
+  try {
+    return JSON.parse(fs.readFileSync(INDEX, 'utf8'));
+  } catch (err) {
+    console.error(`[memory] indice corrupto (${err.message}) — ejecutar: node memory-index.js index`);
+    return null;
+  }
+}
+
 function cmdQuery(query, rolFiltro) {
   if (!query) { console.error('[memory] query vacia'); process.exit(1); }
   if (!fs.existsSync(INDEX)) {
@@ -125,7 +134,8 @@ function cmdQuery(query, rolFiltro) {
     return;
   }
 
-  const index = JSON.parse(fs.readFileSync(INDEX, 'utf8'));
+  const index = leerIndice();
+  if (!index) return;
 
   const indexFiltrado = rolFiltro
     ? { ...index, frags: Object.fromEntries(Object.entries(index.frags).filter(([, f]) => f.rol === rolFiltro)) }
@@ -169,7 +179,8 @@ function cmdStatus() {
   }
 
   if (hasIndex) {
-    const idx = JSON.parse(fs.readFileSync(INDEX, 'utf8'));
+    const idx = leerIndice();
+    if (!idx) return;
     const frags = Object.values(idx.frags || {});
     console.log(`[memory] fragmentos: ${frags.length}`);
     for (const rol of [...ROLES_VALIDOS, ROL_DEFECTO]) {

@@ -18,7 +18,7 @@ const path = require('node:path');
 const { spawnSync } = require('node:child_process');
 
 const ROLE_FILE  = path.join(__dirname, '..', '.current_role');
-const MEMORY_IDX = path.join(__dirname, 'memory-index.js');
+const MEMORY_IDX = process.env.AI_CORE_MEMORY_INDEX_SCRIPT_PATH || path.join(__dirname, 'memory-index.js');
 const ROLES_VALIDOS = ['architect', 'coder', 'auditor'];
 
 function leerYConsumirRol() {
@@ -32,4 +32,9 @@ function leerYConsumirRol() {
 }
 
 const rol = leerYConsumirRol();
-spawnSync('node', [MEMORY_IDX, 'index', `--rol=${rol}`], { stdio: 'inherit' });
+const result = spawnSync('node', [MEMORY_IDX, 'index', `--rol=${rol}`], { stdio: 'inherit' });
+if (result.error || (result.status !== 0 && result.status !== null)) {
+  process.stderr.write(
+    `[MEMORY-INDEX-STOP] indexacion de cierre de sesion fallo (rol=${rol}): ${result.error?.message || `exit ${result.status}`}\n`
+  );
+}

@@ -190,8 +190,10 @@ async function main() {
       checkAnthropicModels(ROOT),
     ]);
     appendAsyncSection(REPORT_PATH, versionResults, modelsResult);
-  } catch {
-    // Worker silencioso — nunca crashear el proceso principal
+  } catch (err) {
+    // Worker silencioso — nunca crashear el proceso principal, pero dejar
+    // rastro diagnosticable de que la seccion asincrona no se escribio.
+    process.stderr.write(`[HEALTH-WORKER] fallo no bloqueante: ${err.message}\n`);
   }
 }
 

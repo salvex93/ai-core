@@ -257,8 +257,8 @@ async function dispatch(msg) {
   }
 
   if (method === 'tools/call') {
-    const { name, arguments: args } = params;
     try {
+      const { name, arguments: args } = params ?? {};
       let result;
       if      (name === 'completar_tarea') result = await handleCompletarTarea(args);
       else if (name === 'estimar_costo')   result = handleEstimarCosto(args);

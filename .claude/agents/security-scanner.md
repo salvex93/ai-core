@@ -6,6 +6,7 @@ version: 1.0.0
 last_updated: 2026-07-26
 provider: any
 loop: true
+tools: [Bash, Read, Grep, Glob]
 ---
 
 # Security Scanner — Agente Autonomo
@@ -34,14 +35,13 @@ Si se detectan archivos sensibles en git (paso 4): emitir `[PRECONDICION-CRITICA
 
 ### Paso 1 — Credenciales y secrets
 
-```bash
-# Detectar patrones de credenciales hardcodeadas
-grep -rn "api_key\|apikey\|api-key\|secret\|password\|token\|Bearer\|ghp_\|sk-\|AIza" \
-  --include="*.js" --include="*.ts" --include="*.py" --include="*.env" \
-  --exclude-dir=node_modules --exclude-dir=.git . 2>/dev/null | grep -v ".example"
+Usar la herramienta nativa Grep (no `grep -rn` crudo de Bash — sin limite de resultados, el output queda en el contexto para siempre):
+
+```
+Grep({ pattern: "api_key|apikey|api-key|secret|password|token|Bearer|ghp_|sk-|AIza", glob: "*.{js,ts,py,env}", output_mode: "content", "-n": true, head_limit: 100 })
 ```
 
-Cada match es un hallazgo critico hasta que se verifique que es un placeholder o ejemplo.
+Excluir manualmente los matches en archivos `.example` del resultado. Cada match restante es un hallazgo critico hasta que se verifique que es un placeholder o ejemplo.
 
 ### Paso 2 — Dependencias con CVEs
 

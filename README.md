@@ -1,4 +1,4 @@
-# AI-CORE v3.28.0: Nucleo Multi-Agente
+# AI-CORE v3.29.0: Nucleo Multi-Agente
 
 `ai-core` es un nucleo de configuracion y comportamiento para agentes IA. Se usa como submodulo Git en un proyecto existente o como repositorio independiente. Define reglas globales, 42 skills especializados, 7 agentes autonomos, un orquestador Mixture-of-Agents (Gemini + DeepSeek + Claude) y un ciclo de mejora continua por uso, sin acoplarse al stack del proyecto anfitrion.
 
@@ -33,7 +33,7 @@ npm install
 npm run setup    # adapta settings.json a tu ruta exacta (cross-platform)
 
 # 3. Verificar que todo funciona
-npm test         # debe terminar: 869 pass, 0 fail
+npm test         # debe terminar: 901 pass, 0 fail
 
 # 4. Autenticar gh CLI para el issue-tracker (una sola vez por maquina)
 gh auth login    # GitHub.com -> HTTPS -> Login with a web browser
@@ -81,7 +81,7 @@ Repositorio independiente:
 npm run update
 ```
 
-Esto corre `git pull`, regenera `settings.json` (purga automaticamente cualquier hook de una version anterior que referencie un script eliminado o renombrado — el objeto de hooks se construye desde cero y sobreescribe el archivo completo, nunca mergea, con la definicion compartida en `hooks-definition.js`), corre los 869 tests, aplica migraciones de version, valida los 42 skills y los 7 agentes, y reporta que cambio. Si un test falla, el comando se detiene ahi.
+Esto corre `git pull`, regenera `settings.json` (purga automaticamente cualquier hook de una version anterior que referencie un script eliminado o renombrado — el objeto de hooks se construye desde cero y sobreescribe el archivo completo, nunca mergea, con la definicion compartida en `hooks-definition.js`), corre los 901 tests, aplica migraciones de version, valida los 42 skills y los 7 agentes, y reporta que cambio. Si un test falla, el comando se detiene ahi.
 
 Instalado como submodulo:
 
@@ -123,7 +123,7 @@ Si no esta autenticado, los eventos se acumulan en `.claude/EVENTS_QUEUE.json` y
 
 ```bash
 npm install                               # instalar dependencias (corre postinstall -> npm run setup)
-npm test                                  # 869 tests, Node nativo, sin deps externas
+npm test                                  # 901 tests, Node nativo, sin deps externas
 npm run setup                             # regenerar settings.json con rutas locales (ya corre solo via postinstall)
 npm run update                            # actualizacion one-command desde GitHub
 npm run validate-globals                  # auditar conformidad de los 42 skills (incluye schema agentskills.io)
@@ -152,6 +152,14 @@ npm run eval-skills                       # correr los 42 evals de conformidad d
 
 ## Que trae cada version
 
+### v3.29.0 — auditoria completa del arnes (31 hallazgos cerrados) + prompt caching real
+
+Workflow de barrido con verificacion cruzada independiente encontro y cerro 19 hallazgos aplicables: dos guards de seguridad (`secrets-guard.js`, `guard-read.js`) tenian su exit code de bloqueo anulado y nunca bloqueaban en produccion; `process-guard.js` simulaba exito al descartar `standards-guard.js` bajo carga; ningun agente declaraba scope de herramientas (nuevo hook `agent-tools-guard.js` + `tools:` en los 7 `AGENT.md`); varios modulos tragaban excepciones sin log (`mcp-gemini.js`/`mcp-anthropic.js` dejaban requests MCP colgadas, `memory-index.js`/`validate-map.js`/`circuit-breaker.js`/`health-check.js`/`audit-market.js` degradaban en silencio total). Eliminado `norm-harness.ps1`, huerfano desde v2.6.x.
+
+Prompt caching real en `AnthropicAdapter.js` (`cache_control` en `system`, patron verificado contra codigo de produccion real, no solo documentacion) — un cache hit cuesta ~10% de un input normal. Gemini evaluado sin cambio de codigo (implicit caching ya automatico, pero el caso de uso actual no supera el umbral minimo). Ver CHANGELOG.md para el detalle completo.
+
+**901 tests, 42 skills con eval de conformidad, 7 agentes.**
+
 ### v3.28.0 — evals completos en los 42 skills, gaps reales de conformidad corregidos
 
 Cierre del piloto de evals: se generan y verifican los 34 evals faltantes (los 8 previos ya cubrian `security-auditor`, `ciso`, `qa-engineer`, `ai-guardrails`, `devops-infra`, `database-ops`, `cloud-deployment-specialist`, `backend-architect`). Cada eval nuevo sigue el mismo patron (idioma, ausencia de emojis, 2-4 casos especificos de dominio derivados literalmente del SKILL.md real, juez `openai:chat:gpt-5.6-luna`).
@@ -160,7 +168,7 @@ La corrida real de los evals nuevos encontro 7 gaps de conformidad reales (no de
 
 Fix de infraestructura reusable: `tech-lead-frontend` y `web-scraping-specialist` tienen SKILL.md con JSX/f-strings con llaves dobles literales que el motor Nunjucks de promptfoo interpretaba como variables de template, rompiendo el eval antes de invocar al modelo. Se agrego `.claude/evals/prompt-loader.js`, que arma el prompt de chat leyendo el SKILL.md por filesystem y envolviendolo en un bloque `{% raw %}...{% endraw %}` -- Nunjucks preserva el contenido literal sin re-interpretarlo. `npm run eval-skills` ahora corre los 42 evals en secuencia via `.claude/evals/run-all.js` (antes apuntaba solo a `security-auditor` como piloto).
 
-**869 tests, 42 skills con eval de conformidad, 7 agentes.**
+**901 tests, 42 skills con eval de conformidad, 7 agentes.**
 
 ### v3.27.0 — evals expandidos de 3 a 8 skills de mayor riesgo
 
@@ -483,6 +491,7 @@ Se dispara automaticamente en el hook `SubagentStop` cuando `code-reviewer` marc
 
 - **`validate-globals.js`**: verifica que los 42 skills tengan la referencia inmutable a CLAUDE.md, las secciones obligatorias, `rol:` valido en frontmatter, ningun emoji, y conformidad con el schema abierto [agentskills.io](https://agentskills.io/specification) (`name` coincide con la carpeta, formato, limites de longitud). `--fix-drift` corrige `last_updated` desincronizado. Sale con exit 1 si hay hallazgos criticos o altos.
 - **`validate-agents.js`**: hermano de `validate-globals.js` para los 7 agentes de `.claude/agents/` — mismo criterio de referencia inmutable, copia literal de las 11 reglas del ANCLA (compartidas entre ambos validadores), emojis y drift de `last_updated`. Sale con exit 1 si hay hallazgos criticos o altos.
+- **`agent-tools-guard.js`**: enforcement real de scope de herramientas por subagente (Gobierno de Agentes, regla 2 de CLAUDE.md) — hook `PreToolUse` que lee `agent_type` del evento (presente cuando la tool call se origina dentro de un subagente) y bloquea si la herramienta usada no esta en el `tools:` declarado del `AGENT.md` correspondiente. Los 7 agentes de `.claude/agents/` declaran su scope; `self-healing-agent` no tiene `Write`/`Edit` en el suyo, consistente con que nunca aplica un fix por si solo.
 - **`update.js`**: actualizacion cross-platform en un comando. Reporta version anterior vs nueva y si hay breaking changes que requieran accion manual.
 - **CI** (`.github/workflows/ci.yml`): corre tests y `validate-globals` en cada push a `main` y cada PR. Matriz: Ubuntu, Windows y macOS, Node 22 unicamente (Node 20 removido de toda la matriz -- el sandboxing con Permission Model exige Node >= 22.13.0, ya no existe estable en la rama 20.x). El step de tests usa `node --test` sin patrones de glob explicitos — descubrimiento automatico nativo, no depende de que el shell (PowerShell en Windows) expanda argumentos (ver CHANGELOG v3.17.3).
 
@@ -517,7 +526,7 @@ Categoria de `process-guard.js` propia (`moa`, no `intent`): `moa-context-gather
 ## Motor de ahorro de tokens
 
 - **Guard Read** (`guard-read.js`): bloquea la lectura directa de archivos de mas de 200 lineas, fuerza delegacion a Gemini.
-- **Validate Map** (`validate-map.js`): regenera `CONTEXT_MAP.json` si detecta drift de 3 archivos o mas — evita exploracion ciega del repo.
+- **Validate Map** (`validate-map.js`): regenera `CONTEXT_MAP.json` ante cualquier drift real (umbral 1 archivo) — evita exploracion ciega del repo.
 - **Modo Neanderthal**: en el rol Coder, maximo 3 lineas de prosa.
 - **Compact/Clear automatico**: aviso al turno 6, detencion al turno 15.
 - **`token-metrics.js`**: mide la reduccion real de consumo por sesion.
@@ -606,6 +615,8 @@ New-Item -ItemType SymbolicLink -Path './CLAUDE.md' -Target 'C:/ruta/a/ai-core/C
 │   ├── bin/
 │   │   ├── setup-settings.js    Genera settings.json con rutas locales (fuente del archivo anterior)
 │   │   ├── health-check.js      Autodiagnostico y path drift al inicio de sesion
+│   │   ├── health-report.js     Genera el markdown del reporte de salud (SRP: solo formatea, no chequea)
+│   │   ├── session-summary.js   Hook Stop: resumen de 2-3 lineas de la sesion (archivos, eventos, estado git)
 │   │   ├── detect-stack.js      Infiere el stack del anfitrion via manifiestos
 │   │   ├── validate-map.js      Valida y regenera CONTEXT_MAP.json si hay drift
 │   │   ├── guard-read.js        Hook PreToolUse: bloquea Read de mas de 200 lineas
@@ -627,6 +638,7 @@ New-Item -ItemType SymbolicLink -Path './CLAUDE.md' -Target 'C:/ruta/a/ai-core/C
 │   │   ├── cross-verify-gate.js Hook SubagentStop: segunda opinion cross-model tras code-reviewer
 │   │   ├── hooks-definition.js  Fuente unica de la seccion "hooks" de settings.json (usada por setup-settings.js y norm-harness.js)
 │   │   ├── subagent-guard.js    Hook PreToolUse(Agent): bloquea recursion y exceso de subagentes paralelos
+│   │   ├── agent-tools-guard.js Hook PreToolUse(Bash|Read|Write|Edit): bloquea herramientas fuera del scope `tools:` declarado por el subagente activo
 │   │   ├── bash-verbosity-guard.js Hook PreToolUse(Bash): bloquea comandos de alto riesgo de output masivo
 │   │   ├── destructive-op-guard.js Hook PreToolUse(Bash): bloquea rm -rf, git push --force, reset --hard, clean -f, branch -D, DROP TABLE/TRUNCATE sin confirmacion humana
 │   │   ├── code-exec-guard.js   Hook PreToolUse(Write|Edit): bloquea eval/exec/shell antes de escribir (ASI05)
@@ -643,7 +655,7 @@ New-Item -ItemType SymbolicLink -Path './CLAUDE.md' -Target 'C:/ruta/a/ai-core/C
 │   │   │   └── guard-report.js       Esquema tipado {guard,verdict,severity} en JSONL, opt-in por guard (secrets-guard, injection-guard, pre-commit-tdd)
 │   │   └── memory-vault-prune-check.js Hook Stop: avisa (sin borrar) cuando el vault supera 50 archivos
 │   └── skills/                  42 skills — enrutamiento via frontmatter description (agentskills.io), reglas en CLAUDE.md
-├── tests/                       869 tests — tests/harness/*.test.js (dividido por modulo) + archivos dedicados
+├── tests/                       901 tests — tests/harness/*.test.js (dividido por modulo) + archivos dedicados
 ├── .github/workflows/ci.yml     CI: Ubuntu/Windows/macOS, Node 22 unicamente (sandboxing con Permission Model exige >= 22.13.0)
 ├── CLAUDE.md                    Autoridad unica: reglas globales, skills, enrutamiento
 ├── DEPRECATIONS.json            Contrato de migracion por version

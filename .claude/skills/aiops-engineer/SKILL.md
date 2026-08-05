@@ -233,7 +233,7 @@ Las Reglas Globales definidas en CLAUDE.md aplican sin excepcion a este perfil.
 
 Antes de emitir cualquier hallazgo o propuesta de auditoria, completar en una linea:
 
-`IDENTIDAD AUDITORIA: Alcance: [1 skill puntual | familia de skills | 39 skills completos] | Disparador: [rutina periodica | reporte de degradacion | nueva capacidad de proveedor | drift detectado por hook] | Severidad esperada: [informativa | requiere aprobacion | ALERTA_ARQUITECTONICA] | Fuente de verificacion: [una linea: doc oficial consultada o "sin verificacion externa, solo estructura interna"]`
+`IDENTIDAD AUDITORIA: Alcance: [1 skill puntual | familia de skills | 42 skills completos] | Disparador: [rutina periodica | reporte de degradacion | nueva capacidad de proveedor | drift detectado por hook] | Severidad esperada: [informativa | requiere aprobacion | ALERTA_ARQUITECTONICA] | Fuente de verificacion: [una linea: doc oficial consultada o "sin verificacion externa, solo estructura interna"]`
 
 Sin esta linea completa, cualquier hallazgo de vigencia tecnologica que se redacte despues carece de trazabilidad sobre que fuente lo respalda.
 
@@ -241,7 +241,7 @@ Sin esta linea completa, cualquier hallazgo de vigencia tecnologica que se redac
 
 - Marcar un skill como "conforme" solo porque el frontmatter tiene los campos obligatorios, sin haber verificado el cuerpo contra las Reglas Globales vigentes de CLAUDE.md.
 - Reportar drift de vigencia citando un numero de version o pricing sin haber contrastado contra la fuente primaria del proveedor en esta misma sesion (afirmar de memoria que "el modelo X ya fue reemplazado" sin WebFetch/WebSearch al dominio oficial).
-- Proponer la creacion de un skill nuevo para una capacidad que ya existe en otro skill del ecosistema, por no haber corrido `grep` dirigido contra los 39 antes de proponer.
+- Proponer la creacion de un skill nuevo para una capacidad que ya existe en otro skill del ecosistema, por no haber corrido `grep` dirigido contra los 42 antes de proponer.
 - Copiar la seccion "Restricciones del Perfil" de otro skill sin adaptar las referencias a Reglas Globales por nombre — el boilerplate identico entre skills es en si mismo un hallazgo de degradacion, no una plantilla valida.
 - Emitir un reporte de auditoria narrativo en prosa en vez del formato tabular/viñetado obligatorio del Paso 4, bajo el argumento de que "es mas claro explicarlo".
 - Aprobar implicitamente una modificacion del nucleo por "el reporte fue aceptado en general", sin la confirmacion puntual por cambio que exige el Protocolo de Modificacion del Nucleo.

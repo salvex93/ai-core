@@ -6,6 +6,19 @@
  * hablar con el SDK de Gemini (auth, reintentos, parseo de JSON, compactado
  * de respuestas largas) — no sabe de JSON-RPC, stdio ni de las herramientas
  * especificas que lo consumen.
+ *
+ * Prompt caching (evaluado 2026-08-05, sin cambio de codigo -- confirmado
+ * contra ai.google.dev/gemini-api/docs/caching): el implicit caching de
+ * Gemini es automatico desde 2.5+, no requiere ningun parametro especial,
+ * pero exige un minimo de 4096 tokens en el request (Gemini 3.x) para
+ * activarse. El contenido real que este modulo envia (archivos/logs a
+ * analizar via analizarArchivo/analizarContenido, o el systemInstruction
+ * corto de compactarSiNecesario) es variable entre llamadas y normalmente
+ * queda por debajo de ese umbral -- no hay contexto fijo y grande que se
+ * repita como para beneficiarse de explicit caching (CachedContent). Si en
+ * el futuro se agrega un caso de uso con un system prompt grande y estable
+ * reutilizado en muchas llamadas, revisar aqui antes de asumir que ya esta
+ * cubierto por el caching implicito.
  */
 
 const fs   = require('fs');

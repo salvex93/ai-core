@@ -6,6 +6,7 @@ version: 1.0.0
 last_updated: 2026-07-26
 provider: any
 loop: false
+tools: [Bash, Read, Grep, Glob, WebFetch, Edit]
 ---
 
 # MCP Registry Navigator — Agente Autonomo
@@ -22,8 +23,9 @@ El prompt de lanzamiento DEBE incluir al menos uno de:
 ## Flujo de Ejecucion
 
 ```
-1. Leer README del repositorio del MCP
-2. Leer archivo principal del servidor (index.js, server.py, src/index.ts)
+1. Leer README del repositorio del MCP (WebFetch a la URL de GitHub si el MCP
+   solo se identifico por URL, ver Precondiciones; Read/Grep si ya esta clonado localmente)
+2. Leer archivo principal del servidor (index.js, server.py, src/index.ts) -- misma via que el paso 1
 3. Criterio 1 — Transporte: identificar stdio / SSE / HTTP y calcular puntuacion (0-2)
 4. Criterio 2 — Seguridad de inputs: buscar eval/exec/shell sin sanitizar (0-2)
 5. Criterio 3 — Mantenimiento: fecha ultimo commit, issues abiertos, licencia (0-2)

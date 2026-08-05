@@ -77,4 +77,11 @@ describe('detect-role.js + memory-index-stop.js (estado efimero de rol)', () => 
     assert.equal(r.status, 0);
     assert.ok(!fs.existsSync(ROLE_FILE), 'no debe crear .current_role si no existia');
   });
+
+  test('memory-index-stop.js loguea a stderr si memory-index.js subyacente falla, en vez de fallar en silencio total', () => {
+    if (fs.existsSync(ROLE_FILE)) fs.unlinkSync(ROLE_FILE);
+    const scriptQueFalla = tmpFile('process.exit(1);');
+    const r = runScript(STOP_WRAPPER, [], { AI_CORE_MEMORY_INDEX_SCRIPT_PATH: scriptQueFalla });
+    assert.match(r.stderr, /MEMORY-INDEX-STOP.*fallo/i, 'debe dejar rastro diagnosticable del fallo subyacente');
+  });
 });

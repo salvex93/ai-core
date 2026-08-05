@@ -50,6 +50,31 @@ describe('health-check.js — gate de sesion', () => {
     assert.equal(r2.status, 0);
     assert.equal(r2.stderr, '', 'la segunda corrida no debe emitir ningun banner (gate de sesion activo)');
   });
+
+  test('si el reporte no se puede escribir (REPORT_PATH es un directorio), main().catch loguea el motivo sin crashear', () => {
+    const sessionId = `test-${process.pid}-3`;
+    const flag = flagPath(sessionId);
+    fs.rmSync(flag, { force: true });
+
+    // HEALTH_REPORT.md como directorio fuerza EISDIR en fs.writeFileSync
+    // dentro de main(), reproduciendo un fallo inesperado tardio en el
+    // pipeline sin tocar node_modules ni el repo real.
+    const reportComoDirectorio = path.join(REPO, '.claude', 'HEALTH_REPORT.md');
+    const existiaComoArchivo = fs.existsSync(reportComoDirectorio) && fs.statSync(reportComoDirectorio).isFile();
+    const backup = existiaComoArchivo ? fs.readFileSync(reportComoDirectorio, 'utf8') : null;
+    if (existiaComoArchivo) fs.rmSync(reportComoDirectorio);
+    fs.mkdirSync(reportComoDirectorio, { recursive: true });
+
+    try {
+      const r = runScript(SCRIPT, [], { CLAUDE_CODE_SESSION_ID: sessionId, ...MCP_BASELINE_ENV });
+      assert.equal(r.status, 0, 'nunca debe bloquear el hook');
+      assert.match(r.stderr, /HEALTH-CHECK.*fallo no bloqueante/, 'debe loguear el motivo del fallo, no tragarlo en silencio');
+    } finally {
+      fs.rmSync(reportComoDirectorio, { recursive: true, force: true });
+      if (backup !== null) fs.writeFileSync(reportComoDirectorio, backup, 'utf8');
+      fs.rmSync(flag, { force: true });
+    }
+  });
 });
 
 // ─── detect-stack.js ──────────────────────────────────────────────────────────

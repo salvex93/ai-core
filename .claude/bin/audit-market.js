@@ -26,7 +26,7 @@ const path = require('node:path');
 
 const REPO       = path.resolve(__dirname, '..', '..');
 const SKILLS     = path.join(REPO, '.claude', 'skills');
-const STANDARDS  = path.join(REPO, '.claude', 'MARKET_STANDARDS.json');
+const STANDARDS  = process.env.AI_CORE_MARKET_STANDARDS_PATH || path.join(REPO, '.claude', 'MARKET_STANDARDS.json');
 const JSON_OUT     = process.argv.includes('--json');
 const ONLY_STALE   = process.argv.includes('--only-stale');
 const HOY        = new Date().toISOString().slice(0, 10);
@@ -62,7 +62,13 @@ if (!fs.existsSync(STANDARDS)) {
   process.exit(1);
 }
 
-const standards = JSON.parse(fs.readFileSync(STANDARDS, 'utf8'));
+let standards;
+try {
+  standards = JSON.parse(fs.readFileSync(STANDARDS, 'utf8'));
+} catch (err) {
+  console.error(`[audit-market] ${path.relative(REPO, STANDARDS)} tiene JSON invalido (${err.message}). Nada que auditar.`);
+  process.exit(1);
+}
 const domains   = standards.domains || {};
 
 // Invertir: skill -> [{domain, verified, sources}]

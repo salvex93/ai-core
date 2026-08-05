@@ -3,6 +3,31 @@
 Registro de cambios por version. Formato basado en [Keep a Changelog](https://keepachangelog.com/es/1.0.0/).
 Versionado semantico: MAJOR.MINOR.PATCH.
 
+## [3.29.0] — 2026-08-05
+
+### Corregido — auditoria completa del arnes: 31 hallazgos confirmados, todos cerrados
+
+Workflow de barrido multi-dimension (scripts de bootstrap, hooks de `.claude/bin/`, skills, agentes, silent-failure patterns, docs-vs-realidad) con verificacion cruzada independiente por un segundo proveedor antes de reportar cada hallazgo. De 32 candidatos, 31 confirmados; 19 aplicados con TDD real (test rojo -> fix -> verde):
+
+- **Critico**: `secrets-guard.js` y `guard-read.js` tenian su exit code de bloqueo anulado por `2>/dev/null || true` en `hooks-definition.js` — el bloqueo de credenciales de alta confianza y el guard de lectura >200 lineas nunca surtian efecto real en produccion, contradiciendo el propio comentario de diseño de ambos scripts.
+- **Alto**: `process-guard.js` descartaba `standards-guard.js` (categoria `lint`, unico guard de bloqueo real invocado ahi) con exit 0 bajo carga alta o lock activo, simulando exito. Ahora la categoria `lint` sale con exit 1 al descartarse, sin afectar las demas categorias (best-effort por diseño).
+- **Alto**: ningun agente de `.claude/agents/` declaraba scope de herramientas (`tools:`), contradiciendo la regla 2 de Gobierno de Agentes. Se agrego el campo a los 7 `AGENT.md` (verificado con `agent_type`, confirmado disponible en `PreToolUse` contra `code.claude.com/docs/en/hooks`) y un hook nuevo, `agent-tools-guard.js`, que bloquea (exit 2) si un subagente activo usa una herramienta fuera de su scope declarado. `self-healing-agent` queda sin `Write`/`Edit`, consistente con que nunca aplica un fix por si solo.
+- **Medio**: `mcp-gemini.js`/`mcp-anthropic.js` desestructuraban `params` fuera del try/catch de `dispatch()` — un `tools/call` sin `params` dejaba la request MCP colgada sin respuesta. `memory-index.js`, `validate-map.js`, `circuit-breaker.js`, `health-worker.js`/`health-check.js` y `audit-market.js` tragaban JSON invalido o excepciones inesperadas sin log, degradando en silencio total en vez de con rastro diagnosticable.
+- **Bajo/documentacion**: version de CLAUDE.md desincronizada (v3.22.0 vs 3.28.0 real), conteo hardcodeado "35/35 skills" en `scripts/update.js` (ahora interpola el conteo real de `validate-globals.js`), referencias a "39 skills" en `aiops-engineer/SKILL.md`, comentario obsoleto a `tests/harness.test.js` en `capture-event.js`.
+- **Eliminado**: `norm-harness.ps1` — huerfano desde v2.6.x, desincronizado de `norm-harness.js` (creaba symlinks de un esquema ya reemplazado, no generaba `settings.json` del host), sin tests, sin referencias en package.json/README/CLAUDE.md.
+
+Hallazgo de gobernanza durante la propia auditoria: un subagente verificador ejecuto `rm -rf` sobre un directorio de test sin autorizacion explicita en la sesion. Revisado — sin perdida de datos reales (archivos de test aislados), documentado como gap del propio mecanismo de auditoria.
+
+### Agregado — prompt caching real en AnthropicAdapter.js
+
+`system` ahora se envia como content block cacheable (`cache_control: {type:'ephemeral'}`), patron verificado en codigo real de produccion (Portkey-AI/gateway, Apache 2.0) y en el cookbook oficial de Vercel AI SDK, ademas de `platform.claude.com/docs/en/build-with-claude/prompt-caching`. Soporta `cacheTtl:'1h'` y `disableCache`. Un cache hit cuesta ~10% de un input normal. `usage` ahora expone `cache_creation_input_tokens`/`cache_read_input_tokens` para medir el ahorro real.
+
+Gemini (`GeminiApiClient.js`) evaluado y sin cambio de codigo: el implicit caching ya es automatico desde Gemini 2.5+, pero el contenido real enviado hoy (archivos/logs variables, `systemInstruction` corto) no supera de forma consistente el minimo de 4096 tokens que activa el mecanismo.
+
+CLAUDE.md documenta la distincion entre el Protocolo de Ahorro de Tokens (gobierna la sesion interactiva de Claude Code, `/compact` es un comando de la CLI) y el `compaction` nativo de la API de Anthropic (beta, header `compact-2026-01-12`, para llamadas programaticas con historial creciente) — verificado que ningun modulo de `scripts/services/` acumula ese tipo de historial hoy, asi que no aplica todavia.
+
+**901 tests, 42 skills con eval de conformidad (42/42), 7 agentes.**
+
 ## [3.28.0] — 2026-08-05
 
 ### Agregado — evals completos: los 34 skills restantes cubiertos (42/42)
@@ -31,7 +56,7 @@ Se agrego `prompt-loader.js`: lee el SKILL.md por filesystem y envuelve su conte
 
 Antes apuntaba unicamente a `security-auditor.promptfooconfig.yaml` (piloto original). Se agrego `.claude/evals/run-all.js`, que itera sobre todos los `*.promptfooconfig.yaml` de `.claude/evals/` en secuencia (no paralelo, para no saturar el rate limit del juez) y reporta un resumen consolidado de aprobados/fallidos.
 
-**869 tests, 42 skills con eval de conformidad (42/42), 7 agentes.**
+**901 tests, 42 skills con eval de conformidad (42/42), 7 agentes.**
 
 ## [3.27.1] — 2026-08-04
 

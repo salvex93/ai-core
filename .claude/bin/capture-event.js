@@ -22,7 +22,7 @@
  *   practica esto script siempre recibe --type/--tool explicitos desde
  *   hooks-definition.js, asi que el fallback solo cubre --error/--context.
  *
- * AI_CORE_TEST_MODE=1 — inyectada por tests/harness.test.js (runScript) para
+ * AI_CORE_TEST_MODE=1 — inyectada por tests/harness/_shared.js (runScript) para
  * que ejercitar guards con archivos temporales de prueba no contamine
  * EVENTS_QUEUE.json con eventos que no son fallos reales del arnes.
  */

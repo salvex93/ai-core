@@ -9,10 +9,33 @@ const { spawnSync } = require('node:child_process');
 const { REPO, BIN, SKILLS, SETTINGS, runScript, tmpFile } = require('./_shared');
 
 describe('circuit-breaker.js', () => {
-  const { evaluarCircuito, UMBRAL_FALLOS, VENTANA_MS } = require(path.join(BIN, 'circuit-breaker.js'));
+  const { evaluarCircuito, leerQueue, UMBRAL_FALLOS, VENTANA_MS } = require(path.join(BIN, 'circuit-breaker.js'));
 
   test('el script existe', () => {
     assert.ok(fs.existsSync(path.join(BIN, 'circuit-breaker.js')));
+  });
+
+  describe('leerQueue() con EVENTS_QUEUE.json corrupto', () => {
+    test('degrada a [] y loguea el motivo a stderr en vez de fallar en silencio', () => {
+      const queuePath = tmpFile('{ "eventos": [ esto no es JSON valido');
+      const original = process.env.AI_CORE_EVENTS_QUEUE_PATH;
+      process.env.AI_CORE_EVENTS_QUEUE_PATH = queuePath;
+      delete require.cache[require.resolve(path.join(BIN, 'circuit-breaker.js'))];
+      const stderrOriginal = process.stderr.write;
+      let stderrCapturado = '';
+      process.stderr.write = (chunk) => { stderrCapturado += chunk; return true; };
+      try {
+        const { leerQueue: leerQueueFresco } = require(path.join(BIN, 'circuit-breaker.js'));
+        const resultado = leerQueueFresco();
+        assert.deepEqual(resultado, [], 'debe degradar a arreglo vacio');
+      } finally {
+        process.stderr.write = stderrOriginal;
+        if (original === undefined) delete process.env.AI_CORE_EVENTS_QUEUE_PATH;
+        else process.env.AI_CORE_EVENTS_QUEUE_PATH = original;
+        delete require.cache[require.resolve(path.join(BIN, 'circuit-breaker.js'))];
+      }
+      assert.match(stderrCapturado, /corrupto/i, 'debe loguear que el archivo estaba corrupto, no fallar en silencio total');
+    });
   });
 
   test('sin eventos: circuito cerrado (permite)', () => {

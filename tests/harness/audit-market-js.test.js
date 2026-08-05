@@ -30,6 +30,14 @@ describe('audit-market.js', () => {
     assert.equal(salida.resultados[0].skill, 'ciso');
   });
 
+  test('MARKET_STANDARDS.json corrupto: degrada con mensaje diagnosticable en vez de SyntaxError crudo', () => {
+    const standardsPath = tmpFile('{ "domains": { esto no es JSON valido');
+    const r = runScript(SCRIPT, ['--json'], { AI_CORE_MARKET_STANDARDS_PATH: standardsPath });
+    assert.equal(r.status, 1, 'debe salir 1 (fallo controlado), igual que el caso "archivo no existe"');
+    assert.doesNotMatch(r.stderr || '', /at Object\.<anonymous>|at Module\._compile/, 'no debe propagar un stack trace crudo de JSON.parse');
+    assert.match(r.stderr || '', /JSON invalido/, 'debe emitir un mensaje diagnosticable');
+  });
+
   test('nunca hace llamadas de red ni escribe archivos (solo lectura + stdout)', () => {
     const antes = fs.statSync(path.join(REPO, '.claude', 'MARKET_STANDARDS.json')).mtimeMs;
     runScript(SCRIPT, ['--json']);

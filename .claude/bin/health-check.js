@@ -167,4 +167,7 @@ async function main() {
   launchAsyncWorker();
 }
 
-main().catch(() => process.exit(0)); // Nunca bloquear el hook
+main().catch((err) => {
+  process.stderr.write(`[HEALTH-CHECK] fallo no bloqueante: ${err.message}\n`);
+  process.exit(0); // Nunca bloquear el hook
+});

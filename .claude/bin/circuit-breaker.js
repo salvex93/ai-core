@@ -66,11 +66,15 @@ function evaluarCircuito(tool, eventos, ahora = Date.now()) {
 
 function leerQueue() {
   if (!fs.existsSync(QUEUE_PATH)) return [];
-  try { return JSON.parse(fs.readFileSync(QUEUE_PATH, 'utf8')); }
-  catch { return []; }
+  try {
+    return JSON.parse(fs.readFileSync(QUEUE_PATH, 'utf8'));
+  } catch (err) {
+    process.stderr.write(`[CIRCUIT-BREAKER] EVENTS_QUEUE.json corrupto (${err.message}) — degradando a circuito cerrado.\n`);
+    return [];
+  }
 }
 
-module.exports = { evaluarCircuito, UMBRAL_FALLOS, VENTANA_MS, VENTANA_AGUDA_MS };
+module.exports = { evaluarCircuito, leerQueue, UMBRAL_FALLOS, VENTANA_MS, VENTANA_AGUDA_MS };
 
 if (require.main === module) {
   const evento   = leerEventoDeStdin();
