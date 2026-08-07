@@ -12,11 +12,10 @@
  *   esta es la ruta real en esta maquina; la ruta previa
  *   (~/.config/.claude/sessions o %APPDATA%/.claude/sessions) nunca existio,
  *   por lo que este script nunca reporto datos desde que se implemento.
- * - Suma message.usage.input_tokens / output_tokens / cache_read_input_tokens
- *   / cache_creation_input_tokens de cada turno assistant -- campos reales
- *   que Anthropic ya calcula, no una estimacion de 800 tokens/turno.
- * - cache_read_input_tokens es el ahorro real de prompt caching: tokens que
- *   se leyeron del cache en vez de procesarse de cero.
+ * - El calculo real (suma de input/output/cache_read/cache_creation y el
+ *   porcentaje de ahorro por cache) vive en scripts/services/SessionCacheMetrics.js
+ *   -- extraido para poder testearlo con datos sinteticos sin depender de
+ *   sesiones reales en disco (ver tests/harness/session-cache-metrics-js.test.js).
  *
  * Ejecutar: node tests/token-metrics.js [--json]
  */
@@ -26,6 +25,7 @@
 const fs   = require('node:fs');
 const path = require('node:path');
 const os   = require('node:os');
+const { calcularMetricasDeJsonl } = require('../scripts/services/SessionCacheMetrics');
 
 const REPO        = path.resolve(__dirname, '..');
 const OUTPUT_PATH  = path.join(REPO, '.claude', 'TOKEN_METRICS.json');
@@ -41,63 +41,8 @@ function getSessionsDir() {
 }
 
 function leerUsageDeSesion(filePath) {
-  const raw   = fs.readFileSync(filePath, 'utf8');
-  const lines = raw.trim().split('\n').filter(Boolean);
-
-  let turns              = 0;
-  let inputTokens        = 0;
-  let outputTokens       = 0;
-  let cacheReadTokens    = 0;
-  let cacheCreationTokens = 0;
-  let guardBlocks        = 0;
-  let geminiDelegations  = 0;
-  let compactCount       = 0;
-
-  for (const line of lines) {
-    let entry;
-    try { entry = JSON.parse(line); } catch { continue; }
-
-    if (entry.type !== 'assistant' && entry.type !== 'user') continue;
-    turns++;
-
-    const usage = entry.message?.usage;
-    if (usage) {
-      inputTokens         += usage.input_tokens || 0;
-      outputTokens        += usage.output_tokens || 0;
-      cacheReadTokens     += usage.cache_read_input_tokens || 0;
-      cacheCreationTokens += usage.cache_creation_input_tokens || 0;
-    }
-
-    // Deteccion de mecanismos activos en el texto de bloques de contenido
-    const bloques = Array.isArray(entry.message?.content) ? entry.message.content : [];
-    for (const b of bloques) {
-      const texto = typeof b.text === 'string' ? b.text
-        : typeof b.content === 'string' ? b.content
-        : '';
-      if (!texto) continue;
-      if (texto.includes('GUARD-READ')) guardBlocks++;
-      if (texto.includes('gemini') || texto.includes('analizar_archivo')) geminiDelegations++;
-      if (texto.includes('/compact')) compactCount++;
-    }
-  }
-
-  const totalReal = inputTokens + outputTokens + cacheCreationTokens; // sin contar cache_read: ese es tokens NO reprocesados
-  const totalSinCache = totalReal + cacheReadTokens; // lo que hubiera costado sin ningun cache hit
-
-  return {
-    file: path.basename(filePath),
-    turns,
-    input_tokens: inputTokens,
-    output_tokens: outputTokens,
-    cache_read_tokens: cacheReadTokens,
-    cache_creation_tokens: cacheCreationTokens,
-    guard_read_blocks: guardBlocks,
-    gemini_delegations: geminiDelegations,
-    compact_executions: compactCount,
-    total_tokens_real: totalReal,
-    total_tokens_sin_cache: totalSinCache,
-    ahorro_por_cache_pct: totalSinCache > 0 ? Math.round((cacheReadTokens / totalSinCache) * 100) : 0,
-  };
+  const raw = fs.readFileSync(filePath, 'utf8');
+  return { file: path.basename(filePath), ...calcularMetricasDeJsonl(raw) };
 }
 
 function estimateSessionTokens(sessionDir) {

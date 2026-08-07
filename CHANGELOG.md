@@ -3,6 +3,18 @@
 Registro de cambios por version. Formato basado en [Keep a Changelog](https://keepachangelog.com/es/1.0.0/).
 Versionado semantico: MAJOR.MINOR.PATCH.
 
+## [Sin version — mantenimiento] — 2026-08-07 (verificacion de ahorro de tokens)
+
+### Agregado — test de umbral de ahorro por prompt caching
+
+Medido con `message.usage` real de Anthropic (no estimacion): la sesion de trabajo mas reciente de este repo alcanzo 95% de ahorro por cache, dentro del rango que la industria documenta para caching bien implementado (80-95% de cache-hit en contenido estatico, blogs de terceros -- no fuente oficial primaria de Anthropic, ver Protocolo de Vigencia Tecnologica).
+
+Extraido `scripts/services/SessionCacheMetrics.js` de `tests/token-metrics.js` (que antes tenia el calculo de ahorro embebido sin cobertura de test propia) para poder probarlo con datos sinteticos. Nuevo `tests/harness/session-cache-metrics-js.test.js` (14 tests): casos unitarios del calculo (suma de input/output/cache_read/cache_creation, deteccion de mecanismos por texto, manejo de lineas corruptas) mas un test de umbral que lee la sesion `.jsonl` real mas reciente de esta maquina y falla si el ahorro cae debajo de 80% -- alerta temprana si `cache_control: ephemeral` deja de calentar (ej. CLAUDE.md o un skill mutando en cada turno).
+
+**Limitacion conocida:** el umbral valida cache-hit, no eficiencia de uso -- una sesion puede tener 95% de ahorro por cache y aun asi gastar turnos en exploracion redundante o lecturas de archivo innecesarias. Eso queda fuera del alcance de este test.
+
+**994 tests, 42/42 skills conformes, 7/7 agentes conformes.**
+
 ## [Sin version — mantenimiento] — 2026-08-07
 
 ### Verificado — herencia de las protecciones anti-jailbreak/injection hacia proyectos anfitriones
