@@ -124,6 +124,25 @@ describe('norm-harness.js', () => {
       assert.match(contenido, /dist\//);
       assert.match(contenido, /^ai-core\/$/m);
     });
+
+    test('correr el harness dos veces seguidas no duplica el bloque de encabezado de comentarios', () => {
+      // Regresion real: el filtro de entradas a agregar dejaba pasar los comentarios
+      // ('# ...') sin chequear si ya estaban -- aAgregar.length nunca era 0 aunque solo
+      // quedaran comentarios pendientes, asi que cada corrida re-escribia el encabezado
+      // '# --- ai-core: no-desarrollo ... ---' completo, aunque ninguna entrada real
+      // fuera nueva. Con 2+ corridas en la misma sesion (norm-harness.js se ejecuta al
+      // inicio de cada sesion) el .gitignore acumulaba un bloque vacio por corrida.
+      tmpHost = crearProyectoAnfitrionTemporal();
+      spawnSync('node', [SCRIPT], { encoding: 'utf8', cwd: tmpHost });
+      const primeraCorrida = fs.readFileSync(path.join(tmpHost, '.gitignore'), 'utf8');
+
+      spawnSync('node', [SCRIPT], { encoding: 'utf8', cwd: tmpHost });
+      const segundaCorrida = fs.readFileSync(path.join(tmpHost, '.gitignore'), 'utf8');
+
+      assert.equal(segundaCorrida, primeraCorrida, 'la segunda corrida no debe modificar el .gitignore en absoluto');
+      const ocurrenciasEncabezado = (segundaCorrida.match(/ai-core: no-desarrollo/g) || []).length;
+      assert.equal(ocurrenciasEncabezado, 1, 'no debe duplicar el bloque de encabezado de comentarios');
+    });
   });
 });
 

@@ -207,8 +207,8 @@ function ensureHostGitignore(hostProjectDir) {
   const existente = fs.existsSync(gitignorePath) ? fs.readFileSync(gitignorePath, 'utf8') : '';
   const lineasExistentes = new Set(existente.split('\n').map((l) => l.trim()));
 
-  const aAgregar = entradasNuevas.filter((e) => e.startsWith('#') || !lineasExistentes.has(e));
-  if (aAgregar.length === 0) return;
+  const aAgregar = entradasNuevas.filter((e) => !lineasExistentes.has(e));
+  if (aAgregar.filter((e) => !e.startsWith('#')).length === 0) return;
 
   const separador = existente && !existente.endsWith('\n') ? '\n' : '';
   const encabezado = existente ? '' : '';
