@@ -18,6 +18,11 @@ NOTEBOOK_SETUP.md
 .claude/settings.local.json
 .claude.json
 
+# settings.json contiene rutas absolutas de la maquina donde se genero
+# (via setup-settings.js) — versionarlo rompe el proyecto en cualquier otro
+# equipo o usuario. Se regenera local con `npm run setup` (postinstall).
+.claude/settings.json
+
 # Credenciales/claves que no deberian versionarse nunca, aunque hoy no
 # existan en el repo — red de seguridad preventiva.
 *.pem
@@ -39,3 +44,4 @@ scripts/premium/
 .claude/EVENTS_QUEUE.json
 .claude/_issue_tmp_*.md
 .claude/.current_role
+.claude/AGENT_SNAPSHOTS/

@@ -214,7 +214,47 @@ const REGLAS = [
     excepcion: /\bWHERE\b/i,
     motivo: 'modifica o elimina filas sin condicion -- afecta la tabla completa. Agregar WHERE para acotar el alcance, o confirmar explicitamente si el alcance total es intencional.',
   },
+  {
+    nombre: 'DROP DATABASE',
+    disparo: /\bDROP\s+DATABASE\b/i,
+    excepcion: /IF\s+EXISTS.*--\s*intencional|--\s*confirmado/i,
+    motivo: 'elimina una base de datos completa de forma irreversible sin backup verificado en el propio comando.',
+  },
+  {
+    // Equivalente nativo de Windows cmd.exe a "rm -rf" -- ausente hasta ahora
+    // pese a que destructive-op-guard.js corre igual en Windows (settings.json
+    // se genera y ejecuta en la misma maquina, ver hooks-definition.js).
+    nombre: 'del /f /s /q (cmd.exe)',
+    disparo: /\bdel\s+(\/[a-zA-Z]\s+)*\/[fF](\s+\/[a-zA-Z])*\s+\/[sS]\b|\bdel\s+(\/[a-zA-Z]\s+)*\/[sS](\s+\/[a-zA-Z])*\s+\/[fF]\b/,
+    excepcion: null,
+    motivo: 'borrado forzado y recursivo de archivos via cmd.exe -- equivalente Windows de "rm -rf", irreversible.',
+  },
+  {
+    // Equivalente nativo de PowerShell a "rm -rf".
+    nombre: 'Remove-Item -Recurse -Force (PowerShell)',
+    disparo: /\bRemove-Item\b.*(-Recurse\b.*-Force\b|-Force\b.*-Recurse\b)|\brm\b.*(-Recurse\b.*-Force\b|-Force\b.*-Recurse\b)/i,
+    excepcion: null,
+    motivo: 'borrado forzado y recursivo de archivos via PowerShell -- equivalente Windows de "rm -rf", irreversible.',
+  },
 ];
+
+// Deteccion basica de ofuscacion: un comando destructivo pasado como STRING
+// a un evaluador (eval, Invoke-Expression, sh -c/bash -c con variable
+// interpolada, o construido a partir de $(...)/${...} en vez de literal)
+// puede evadir el matching de string literal de arriba. No decodifica el
+// contenido real (eso requeriria un interprete de shell completo, fuera de
+// alcance) -- bloquea el patron de evaluacion dinamica en si mismo cuando
+// aparece junto a una fuente de datos no literal, que es la señal real de
+// intento de evasion, no el uso legitimo de eval con un string constante.
+const PATRON_OFUSCACION = /\b(eval|Invoke-Expression|iex)\s*[\s(]\s*(\$\{?\w+\}?|\$\(.+\)|`.+`)/i;
+if (PATRON_OFUSCACION.test(cmd)) {
+  process.stderr.write(
+    `[DESTRUCTIVE-OP-GUARD] BLOQUEADO (evaluacion dinamica de comando ofuscado): "${cmd}"\n` +
+    'Motivo: el comando se construye/evalua desde una variable o substitucion en vez de literal -- no se puede verificar su contenido real antes de ejecutar, y es el patron tipico usado para evadir guards de comandos destructivos.\n' +
+    'Reescribe el comando de forma literal (sin eval/Invoke-Expression/iex sobre una variable) para que pueda inspeccionarse antes de ejecutar.\n'
+  );
+  process.exit(2);
+}
 
 for (const regla of REGLAS) {
   if (regla.disparo.test(cmd) && !(regla.excepcion && regla.excepcion.test(cmd))) {

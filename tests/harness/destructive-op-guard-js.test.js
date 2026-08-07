@@ -232,4 +232,43 @@ describe('destructive-op-guard.js', () => {
       assert.equal(run('psql -c "SELECT COUNT(*) FROM usuarios"').status, 0);
     });
   });
+
+  describe('DROP DATABASE, equivalentes Windows de rm -rf, y ofuscacion (hallazgos de auditoria 2026-08-07)', () => {
+    test('bloquea "DROP DATABASE"', () => {
+      assert.equal(run('psql -c "DROP DATABASE produccion"').status, 2);
+    });
+
+    test('permite "DROP DATABASE IF EXISTS ... -- confirmado" documentado como intencional', () => {
+      assert.equal(run('psql -c "DROP DATABASE IF EXISTS staging -- confirmado"').status, 0);
+    });
+
+    test('bloquea "del /f /s /q" (cmd.exe, equivalente Windows de rm -rf)', () => {
+      assert.equal(run('del /f /s /q build').status, 2);
+      assert.equal(run('del /s /f /q build').status, 2);
+    });
+
+    test('permite "del archivo.txt" sin /f /s (borrado simple de un archivo)', () => {
+      assert.equal(run('del archivo.txt').status, 0);
+    });
+
+    test('bloquea "Remove-Item -Recurse -Force" (PowerShell, equivalente Windows de rm -rf)', () => {
+      assert.equal(run('Remove-Item -Recurse -Force build').status, 2);
+      assert.equal(run('Remove-Item -Force -Recurse build').status, 2);
+    });
+
+    test('permite "Remove-Item archivo.txt" sin -Recurse -Force', () => {
+      assert.equal(run('Remove-Item archivo.txt').status, 0);
+    });
+
+    test('bloquea comando destructivo evaluado dinamicamente via eval/Invoke-Expression/iex sobre una variable', () => {
+      assert.equal(run('eval $CMD_PELIGROSO').status, 2);
+      assert.equal(run('Invoke-Expression $cmdPeligroso').status, 2);
+      assert.equal(run('iex ${cmd}').status, 2);
+      assert.equal(run('eval $(echo cm -rf construido en runtime)').status, 2);
+    });
+
+    test('permite eval/Invoke-Expression sobre un literal (no hay ofuscacion real que evadir)', () => {
+      assert.equal(run('eval "echo hola"').status, 0);
+    });
+  });
 });

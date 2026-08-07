@@ -3,10 +3,12 @@ name: map-updater
 description: Agente autonomo de mantenimiento del CONTEXT_MAP. Detecta drift estructural entre el mapa y el estado real del repositorio, regenera el indice y verifica la integridad del resultado. Sin intervencion. Activa cuando diff-map-trigger detecta cambios estructurales o cuando validate-map reporta drift >= 3 archivos.
 origin: ai-core
 version: 1.0.0
-last_updated: 2026-08-05
+last_updated: 2026-08-07
 provider: any
+model: haiku
 loop: false
 tools: [Bash, Read]
+paths_allow: [".claude/CONTEXT_MAP.json", ".claude/bin/**"]
 ---
 
 # Map Updater — Agente Autonomo

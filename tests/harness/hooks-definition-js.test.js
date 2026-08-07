@@ -131,14 +131,14 @@ describe('hooks-definition.js', () => {
     });
   });
 
-  describe('sandboxing ampliado: los 28 hooks restantes registrados en buildHooksSection', () => {
-    // Los 32 hooks reales registrados en buildHooksSection, menos process-guard.js
+  describe('sandboxing ampliado: los hooks restantes registrados en buildHooksSection', () => {
+    // Los hooks reales registrados en buildHooksSection, menos process-guard.js
     // (wrapper de otros hooks, no se sandboxea a si mismo -- ver mas abajo) y
     // git-queue-advisor.js (necesita red real para gh/git remoto, fuera de
     // alcance de fs-read/fs-write puros de esta ronda).
     const HOOKS_CON_SANDBOX = [
       'destructive-op-guard.js', 'code-exec-guard.js', 'secrets-guard.js', 'injection-guard.js',
-      'agent-metrics.js', 'agent-tools-guard.js', 'aiops-score.js', 'bash-verbosity-guard.js', 'capture-event.js',
+      'agent-metrics.js', 'agent-tools-guard.js', 'agent-paths-guard.js', 'mutating-action-guard.js', 'aiops-score.js', 'bash-verbosity-guard.js', 'capture-event.js',
       'circuit-breaker.js', 'cross-verify-gate.js', 'dependency-tracer.js', 'detect-role.js',
       'detox.js', 'diff-map-trigger.js', 'guard-read.js', 'health-check.js', 'issue-reporter.js',
       'memory-index-stop.js', 'memory-vault-prune-check.js', 'moa-context-gatherer.js',
@@ -246,6 +246,53 @@ describe('hooks-definition.js', () => {
           const comando = grupo.hooks.find((h) => h.command.includes('agent-tools-guard.js')).command;
           assert.doesNotMatch(comando, /\|\|\s*true/, `agent-tools-guard.js no debe anular su exit code de bloqueo: "${comando}"`);
         }
+      } finally {
+        Object.defineProperty(process, 'platform', { value: original });
+        delete require.cache[require.resolve(path.join(BIN, 'hooks-definition.js'))];
+      }
+    });
+
+    test('agent-paths-guard.js se registra en el mismo matcher que agent-tools-guard.js (scope de herramienta y de ruta corren juntos)', () => {
+      const original = process.platform;
+      Object.defineProperty(process, 'platform', { value: 'linux' });
+      try {
+        delete require.cache[require.resolve(path.join(BIN, 'hooks-definition.js'))];
+        const { buildHooksSection: build } = require(path.join(BIN, 'hooks-definition.js'));
+        const hooks = build((s) => `"/repo/.claude/bin/${s}"`);
+
+        const grupo = hooks.PreToolUse.find(
+          (g) => JSON.stringify(g.hooks).includes('agent-tools-guard.js')
+        );
+        assert.ok(grupo, 'debe existir el grupo PreToolUse de agent-tools-guard.js');
+        assert.match(JSON.stringify(grupo.hooks), /agent-paths-guard\.js/, 'agent-paths-guard.js debe estar en el mismo grupo');
+
+        const comando = grupo.hooks.find((h) => h.command.includes('agent-paths-guard.js')).command;
+        assert.doesNotMatch(comando, /\|\|\s*true/, `agent-paths-guard.js no debe anular su exit code de bloqueo: "${comando}"`);
+      } finally {
+        Object.defineProperty(process, 'platform', { value: original });
+        delete require.cache[require.resolve(path.join(BIN, 'hooks-definition.js'))];
+      }
+    });
+
+    test('mutating-action-guard.js se registra tanto para Bash/subagentes como para mcp__.* (accion mutante hacia un tenant puede llegar por cualquiera de las dos vias)', () => {
+      const original = process.platform;
+      Object.defineProperty(process, 'platform', { value: 'linux' });
+      try {
+        delete require.cache[require.resolve(path.join(BIN, 'hooks-definition.js'))];
+        const { buildHooksSection: build } = require(path.join(BIN, 'hooks-definition.js'));
+        const hooks = build((s) => `"/repo/.claude/bin/${s}"`);
+
+        const grupoAgentes = hooks.PreToolUse.find(
+          (g) => JSON.stringify(g.hooks).includes('agent-tools-guard.js')
+        );
+        assert.match(JSON.stringify(grupoAgentes.hooks), /mutating-action-guard\.js/, 'debe estar junto a agent-tools-guard.js (cubre Bash)');
+
+        const grupoMcp = hooks.PreToolUse.find((g) => g.matcher === 'mcp__.*');
+        assert.ok(grupoMcp, 'debe existir el grupo PreToolUse de mcp__.*');
+        assert.match(JSON.stringify(grupoMcp.hooks), /mutating-action-guard\.js/, 'debe estar registrado en el matcher mcp__.*');
+
+        const comandoMcp = grupoMcp.hooks.find((h) => h.command.includes('mutating-action-guard.js')).command;
+        assert.doesNotMatch(comandoMcp, /\|\|\s*true/, `mutating-action-guard.js no debe anular su exit code de bloqueo en mcp__.*: "${comandoMcp}"`);
       } finally {
         Object.defineProperty(process, 'platform', { value: original });
         delete require.cache[require.resolve(path.join(BIN, 'hooks-definition.js'))];

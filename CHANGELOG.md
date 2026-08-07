@@ -3,6 +3,26 @@
 Registro de cambios por version. Formato basado en [Keep a Changelog](https://keepachangelog.com/es/1.0.0/).
 Versionado semantico: MAJOR.MINOR.PATCH.
 
+## [Sin version — mantenimiento] — 2026-08-07
+
+### Verificado — herencia de las protecciones anti-jailbreak/injection hacia proyectos anfitriones
+
+Confirmado (sin cambio de codigo) que `jailbreak-guard.js`, `injection-quarantine-guard.js`, `agent-snapshot.js` y `rollback-agent.js` (agregados en esta sesion) se propagan automaticamente a cualquier proyecto anfitrion que instale ai-core como submodulo: `norm-harness.js` construye su `settings.json` con `buildHooksSection(bin)`, la misma fuente unica que usa `setup-settings.js` para el standalone (`.claude/bin/hooks-definition.js`) -- un hook nuevo agregado ahi queda incluido en ambos callers sin trabajo adicional.
+
+El symlink `<host>/CLAUDE.md` -> `ai-core/CLAUDE.md` (creado por `normalizeSymlinks()` solo si el anfitrion no tiene su propio `CLAUDE.md`) es lo que efectivamente carga las reglas completas de Gobierno de Agentes (puntos 6-8: cuarentena de contenido externo, anti-jailbreak) en el anfitrion -- no el `CLAUDE.md` generico que `ensureHostClaude()` escribe cuando ya existe un `CLAUDE.md` propio del proyecto.
+
+**Alcance real de esta herencia:** cubre unicamente anfitriones que ejecutan `node .claude/ai-core/.claude/bin/norm-harness.js` (submodulo real). No cubre proyectos generados desde cero por un skill (`backend-architect`, `mobile-engineer`, etc.) sin usar ai-core como submodulo -- esos no heredan ninguna proteccion hoy, quedo fuera de alcance de esta verificacion por decision explicita.
+
+### Agregado — enforcement real de scope de rutas y de acciones mutantes por subagente
+
+Gap real identificado: `agent-tools-guard.js` ya verificaba que un subagente usara solo las HERRAMIENTAS declaradas en `tools:` de su `AGENT.md`, pero un agente con `Write`/`Bash` legitimamente declarado podia usar esa herramienta sobre CUALQUIER ruta o accion, sin que nada verificara que cayera dentro de la tarea real encomendada. Caso real reportado: un agente exploratorio, en una prueba sintetica local, intento eliminar un archivo no relacionado con su tarea sin que el usuario lo pidiera en ese turno.
+
+- **`agent-paths-guard.js`** (nuevo, `PreToolUse`, mismo matcher que `agent-tools-guard.js`): bloquea `Write`/`Edit` cuyo `file_path` no matchea ningun glob de `paths_allow:` (campo nuevo, opcional, mismo formato de lista que `tools:`) declarado en el `AGENT.md` del subagente. Para `Bash`, bloquea con heuristica conservadora (mismo espiritu que `destructive-op-guard.js`) si el comando contiene un patron de escritura/borrado (`rm`, `del`, `Remove-Item`, redireccion `>`) sobre una ruta detectada que cae fuera de `paths_allow`. Comandos de solo lectura (`cat`, `grep`, `ls`) nunca bloquean. Declarado `paths_allow:` en los 6 `AGENT.md` autonomos segun lo que su propio protocolo de ejecucion realmente toca (ej. `map-updater` solo `.claude/CONTEXT_MAP.json` + `.claude/bin/**`; `mcp-registry-navigator` solo `.claude/MCP_REGISTRY.md`, cerrando una inconsistencia real donde declaraba `Edit` en `tools:` pero sus propias Restricciones en prosa decian "NO modificar settings.json").
+- **`mutating-action-guard.js`** (nuevo, `PreToolUse`, matchers `mcp__.*` y el generico de agentes): bloquea cuando un SUBAGENTE (no el hilo principal) invoca una tool `mcp__servidor__accion` cuyo nombre de accion contiene un verbo de escritura (crear, actualizar, delete, etc. -- nombres de lectura como `get_`/`list_`/`consultar_` nunca bloquean), o ejecuta via `Bash` un comando HTTP mutante (`curl -X POST/PUT/PATCH/DELETE`, `Invoke-RestMethod -Method Post`, etc.) hacia un servicio externo. Cierra el gap de iniciativa no solicitada: una accion que muta estado en un tenant/API externa (crear o actualizar un registro en un sistema ajeno al repo) no toca ninguna ruta de archivo, asi que `agent-paths-guard.js` no la cubre -- este guard nuevo exige confirmacion humana explicita en el turno siguiente antes de que un subagente pueda ejecutarla, igual que `destructive-op-guard.js` ya exige para comandos destructivos de shell.
+- **`lib/agent-frontmatter.js`** (nuevo): parser de frontmatter de `AGENT.md` extraido de `agent-tools-guard.js` para reutilizarlo en `agent-paths-guard.js` sin duplicar logica. Corrigio de paso un bug real: los valores de una lista inline con comillas (`paths_allow: [".claude/x.json"]`) no se despojaban de las comillas envolventes antes de comparar, por lo que ningun glob matcheaba nunca -- `tools:` no lo sufria porque se declara sin comillas.
+
+**Alcance real de esta ronda (limitaciones conocidas, no cubiertas hoy):** ambos guards nuevos solo aplican cuando `agent_type` esta presente en el evento (tool call originada dentro de un subagente de ai-core) -- el hilo principal (usuario interactuando directo con Claude) nunca se bloquea. La deteccion de accion mutante en `Bash` es heuristica por verbo/patron de texto, no un parser real de HTTP ni de SQL -- comandos de BD (`psql`, `mysql`) con DML mutante no estan cubiertos todavia, queda para una ronda futura si se conecta un agente directo a una base de datos de tenant.
+
 ## [Sin version — mantenimiento] — 2026-08-05
 
 ### Corregido — npm 12 y drift real de package-lock.json

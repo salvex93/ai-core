@@ -94,6 +94,7 @@ function buildHooksSection(bin) {
         hooks: [
           { type: 'command', command: `node ${bin('process-guard.js')} intent ${nodeConPermiso(bin('detect-role.js'), soloRead)} 2>/dev/null || true` },
           { type: 'command', command: nodeConPermiso(bin('secrets-guard.js'), readYWrite) },
+          { type: 'command', command: nodeConPermiso(bin('jailbreak-guard.js'), readYWrite) },
           { type: 'command', command: `node ${bin('process-guard.js')} moa ${nodeConPermiso(bin('moa-context-gatherer.js'), repoReadWrite)} 2>/dev/null || true` },
         ],
       },
@@ -152,6 +153,15 @@ function buildHooksSection(bin) {
     ],
     PreToolUse: [
       {
+        // Cuarentena real de prompt injection detectado por injection-guard.js
+        // en SubagentStop -- corre primero, antes de cualquier otro guard de
+        // esta lista, porque bloquea la accion sin importar cual sea.
+        matcher: 'Bash|Write|Edit',
+        hooks: [
+          { type: 'command', command: nodeConPermiso(bin('injection-quarantine-guard.js'), soloRead) },
+        ],
+      },
+      {
         matcher: 'Bash(git push*)',
         hooks: [
           { type: 'command', command: `node ${bin('git-queue-advisor.js')} push 2>&1 || true` },
@@ -175,6 +185,7 @@ function buildHooksSection(bin) {
       {
         matcher: 'Write|Edit',
         hooks: [
+          { type: 'command', command: `${nodeConPermiso(bin('agent-snapshot.js'), repoReadWrite)} 2>/dev/null || true` },
           { type: 'command', command: `${nodeConPermiso(bin('ponytail-check.js'), soloRead)} 2>/dev/null || true` },
           { type: 'command', command: `${nodeConPermiso(bin('dependency-tracer.js'), repoReadWrite)} "$CLAUDE_TOOL_INPUT_file_path" 2>/dev/null || true` },
           { type: 'command', command: `${nodeConPermiso(bin('pre-commit-tdd.js'), repoConGit)} "$CLAUDE_TOOL_INPUT_file_path"` },
@@ -200,12 +211,15 @@ function buildHooksSection(bin) {
         matcher: 'Bash|Read|Write|Edit|Grep|Glob|WebFetch|Agent',
         hooks: [
           { type: 'command', command: nodeConPermiso(bin('agent-tools-guard.js'), soloLeerRepo) },
+          { type: 'command', command: nodeConPermiso(bin('agent-paths-guard.js'), soloLeerRepo) },
+          { type: 'command', command: nodeConPermiso(bin('mutating-action-guard.js'), soloRead) },
         ],
       },
       {
         matcher: 'mcp__.*',
         hooks: [
           { type: 'command', command: `${nodeConPermiso(bin('circuit-breaker.js'), repoReadWrite)} 2>&1 || true` },
+          { type: 'command', command: nodeConPermiso(bin('mutating-action-guard.js'), soloRead) },
         ],
       },
     ],

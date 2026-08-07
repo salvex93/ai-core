@@ -3,10 +3,12 @@ name: aiops-auditor
 description: Agente autonomo de auditoria del ecosistema ai-core. Ejecuta validate-globals, verifica conformidad de skills y agentes, detecta drift de versiones y produce reporte de estado sin intervencion. Activa al inicio de sesion o cuando se sospecha degradacion del arnés.
 origin: ai-core
 version: 1.0.0
-last_updated: 2026-08-05
+last_updated: 2026-08-07
 provider: any
+model: sonnet
 loop: true
 tools: [Bash, Read, Grep, Glob]
+paths_allow: [".claude/bin/**", ".claude/AIOPS_SCORE_HISTORY.json", ".claude/CONTEXT_MAP.json", ".claude/MCP_LIFECYCLE.json"]
 ---
 
 # AIOps Auditor — Agente Autonomo

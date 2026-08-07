@@ -25,7 +25,8 @@ const {
 } = require('./lib/aiops-scorers');
 
 const CORE       = path.resolve(__dirname, '../..');
-const HISTORY_F  = path.join(CORE, '.claude', 'AIOPS_SCORE_HISTORY.json');
+// AI_CORE_SCORE_HISTORY_PATH permite operar sobre un historial temporal en tests
+const HISTORY_F  = process.env.AI_CORE_SCORE_HISTORY_PATH || path.join(CORE, '.claude', 'AIOPS_SCORE_HISTORY.json');
 const SETTINGS_F = path.join(CORE, '.claude', 'settings.json');
 const MAP_F      = path.join(CORE, '.claude', 'CONTEXT_MAP.json');
 const SKILLS_DIR = path.join(CORE, '.claude', 'skills');
@@ -74,7 +75,13 @@ function cargarHistorial() {
 function guardarHistorial(historial, entrada) {
   historial.push(entrada);
   if (historial.length > MAX_HISTORY) historial.splice(0, historial.length - MAX_HISTORY);
-  fs.writeFileSync(HISTORY_F, JSON.stringify(historial, null, 2));
+  // Escritura atomica (temp + rename): writeFileSync directo sobre HISTORY_F
+  // compite por el mismo handle si dos invocaciones corren en paralelo sobre
+  // el mismo archivo (Windows no tolera escrituras concurrentes al mismo
+  // path y falla con EBUSY/UNKNOWN error).
+  const tmp = `${HISTORY_F}.tmp-${process.pid}`;
+  fs.writeFileSync(tmp, JSON.stringify(historial, null, 2));
+  fs.renameSync(tmp, HISTORY_F);
 }
 
 function formatDelta(actual, anterior) {

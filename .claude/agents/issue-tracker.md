@@ -3,10 +3,12 @@ name: issue-tracker
 description: Agente autonomo de captura de mejoras. Monitorea errores, gaps de skills, fallos de herramientas y patrones repetidos durante el uso del arnes. Al final de cada sesion procesa la cola y abre issues en github.com/salvex93/ai-core con el contexto necesario para evaluar e implementar la mejora. Sin intervencion del usuario.
 origin: ai-core
 version: 1.0.0
-last_updated: 2026-08-05
+last_updated: 2026-08-07
 provider: any
+model: haiku
 loop: false
 tools: [Bash, Read]
+paths_allow: [".claude/EVENTS_QUEUE.json", ".claude/bin/**"]
 ---
 
 # Issue Tracker — Agente Autonomo de Mejora Continua
