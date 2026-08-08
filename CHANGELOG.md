@@ -3,6 +3,12 @@
 Registro de cambios por version. Formato basado en [Keep a Changelog](https://keepachangelog.com/es/1.0.0/).
 Versionado semantico: MAJOR.MINOR.PATCH.
 
+## [3.31.0] — 2026-08-08
+
+Consolida las 3 rondas de trabajo de seguridad y tokenomics de los dias 2026-08-07/08 (ver detalle completo mas abajo, bajo "Sin version — mantenimiento"): scope de rutas y acciones mutantes por subagente (`agent-paths-guard.js`, `mutating-action-guard.js`), rollback de agentes (`agent-snapshot.js` + `scripts/rollback-agent.js`), anti-jailbreak (`jailbreak-guard.js`) y cuarentena de prompt injection (`injection-quarantine-guard.js`), mas verificacion de umbral de ahorro por prompt caching (`scripts/services/SessionCacheMetrics.js`, 95% real medido en sesion).
+
+**994 tests, 42/42 skills conformes, 7/7 agentes conformes.**
+
 ## [Sin version — mantenimiento] — 2026-08-07 (verificacion de ahorro de tokens)
 
 ### Agregado — test de umbral de ahorro por prompt caching

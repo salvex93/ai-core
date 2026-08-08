@@ -1,4 +1,4 @@
-# AI-CORE v3.30.0: Nucleo Multi-Agente
+# AI-CORE v3.31.0: Nucleo Multi-Agente
 
 `ai-core` es un nucleo de configuracion y comportamiento para agentes IA. Se usa como submodulo Git en un proyecto existente o como repositorio independiente. Define reglas globales, 42 skills especializados, 7 agentes autonomos, un orquestador Mixture-of-Agents (Gemini + DeepSeek + Claude) y un ciclo de mejora continua por uso, sin acoplarse al stack del proyecto anfitrion.
 
@@ -180,6 +180,18 @@ npm run eval-skills                       # correr los 42 evals de conformidad d
 ---
 
 ## Que trae cada version
+
+### v3.31.0 — scope de rutas y acciones mutantes por subagente, rollback de agentes, anti-jailbreak y cuarentena de injection
+
+Gap real cerrado: `agent-tools-guard.js` ya verificaba que un subagente usara solo las HERRAMIENTAS declaradas en `tools:` de su `AGENT.md`, pero un agente con `Write`/`Bash` legitimamente declarado podia usar esa herramienta sobre cualquier ruta o accion sin que nada verificara que cayera dentro de la tarea encomendada. Caso real: un agente exploratorio, en prueba sintetica local, intento eliminar un archivo no relacionado con su tarea sin que el usuario lo pidiera en ese turno.
+
+Dos guards nuevos en `PreToolUse`, ambos con enforcement real (exit 2), no solo prosa: `agent-paths-guard.js` bloquea `Write`/`Edit`/`Bash` de un subagente fuera de un `paths_allow:` (campo nuevo, opcional, mismo formato que `tools:`) declarado en su `AGENT.md` — declarado en los 6 agentes autonomos segun lo que su protocolo real toca. `mutating-action-guard.js` exige confirmacion humana explicita antes de que un subagente ejecute una accion que muta estado en un servicio externo (tool MCP con verbo de escritura en el nombre, o comando `curl -X POST/PUT/PATCH/DELETE`) — verificado en vivo contra una API PMO real, confirmando que bloquea la creacion/actualizacion de una tarea sin que el turno actual la solicitara, y deja pasar una consulta de solo lectura.
+
+Suma el trabajo de gobierno de agentes de esta misma ronda: `agent-snapshot.js` + `scripts/rollback-agent.js` (backup automatico antes de que cualquiera de los 6 agentes autonomos escriba, revert por ruta o por id); `jailbreak-guard.js` en `UserPromptSubmit` (bloquea patrones tecnicos de prompt hacking: anular instrucciones previas, roleplay sin restricciones, extraccion de system prompt, desactivar guards); `injection-quarantine-guard.js` (cuarentena real tras deteccion de alta confianza de `injection-guard.js` en `SubagentStop` — bloquea la siguiente accion del agente padre hasta confirmacion explicita de un solo uso).
+
+Nuevo `scripts/services/SessionCacheMetrics.js` (extraido de `tests/token-metrics.js`, sin cobertura propia hasta ahora) mas un test de umbral que lee la sesion real mas reciente y alerta si el ahorro por prompt caching cae debajo de 80% (piso documentado de caching bien implementado en la industria) — medido en la sesion de esta ronda: 95% de ahorro real, `message.usage` de Anthropic.
+
+**994 tests, 42/42 skills conformes, 7/7 agentes conformes.**
 
 ### v3.30.0 — auditoria de seguridad del codigo + anti-jailbreak en 14 perfiles + release real de locks
 
