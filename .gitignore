@@ -42,6 +42,7 @@ scripts/premium/
 .claude/models-cache.json
 .claude/CONTEXT_MAP.json
 .claude/EVENTS_QUEUE.json
+.claude/BREAK_GLASS_LOG.jsonl
 .claude/_issue_tmp_*.md
 .claude/.current_role
 .claude/AGENT_SNAPSHOTS/

@@ -36,10 +36,31 @@
  *   PATCH/DELETE, -Method Post/Put/Patch/Delete) hacia una URL -- un GET
  *   implicito (sin -X, o -X GET) nunca bloquea.
  *
+ * Bloqueo con excepcion auditable (break-glass): antes, "confirma
+ * explicitamente" era solo prosa sin ningun enforcement -- reintentar el
+ * mismo comando literal volvia a bloquear identico. Ahora se genera un id
+ * de un solo uso via lib/break-glass.js; el humano lo confirma respondiendo
+ * "CONFIRMAR-<id>" en su proximo mensaje (jailbreak-guard.js lo intercepta
+ * en UserPromptSubmit), y solo entonces el REINTENTO EXACTO del mismo
+ * tool_input pasa -- no otorga una excepcion general para acciones futuras.
+ *
  * Uso: node mutating-action-guard.js (recibe el evento PreToolUse por stdin)
  */
 
+const crypto = require('node:crypto');
 const { leerEventoDeStdin } = require('./lib/hook-stdin');
+const { solicitarBreakGlass, accionAprobada } = require('./lib/break-glass');
+
+const GUARD_ID = 'mutating-action-guard';
+
+/**
+ * El "reintento exacto" se identifica por hash del tool_input completo, no
+ * solo por el id de break-glass -- evita que confirmar un id autorice CUALQUIER
+ * accion mutante subsecuente en vez de unicamente la que se bloqueo.
+ */
+function hashAccion(toolName, detalle) {
+  return crypto.createHash('sha256').update(`${toolName}:${detalle}`).digest('hex').slice(0, 16);
+}
 
 const VERBOS_ESCRITURA = /\b(crear?|nuevo|add|update|actualizar|set|write|post|delete|borrar|eliminar|remove|create)\w*/i;
 const VERBOS_LECTURA_MCP = /^(get|list|consultar|read|buscar|fetch|query|check|status)/i;
@@ -71,15 +92,29 @@ const toolName  = evento.tool_name || '';
 // presente turno a turno para decidir.
 if (!agentType) process.exit(0);
 
+/**
+ * Bloquea con break-glass: si el reintento exacto (mismo hash) ya fue
+ * aprobado via CONFIRMAR-<id>, deja pasar. Si no, genera un id nuevo y
+ * bloquea con exit 2.
+ */
+function bloquearOAprobar(detalle, mensajeContexto) {
+  const hash = hashAccion(toolName, detalle);
+  if (accionAprobada(GUARD_ID, hash)) process.exit(0);
+
+  const id = solicitarBreakGlass(GUARD_ID, hash);
+  process.stderr.write(
+    `[MUTATING-ACTION-GUARD] BLOQUEADO: el subagente "${agentType}" intento ${mensajeContexto} sin que el turno actual la solicitara explicitamente.\n` +
+    'Motivo: crear/actualizar/borrar datos en un tenant o servicio externo requiere confirmacion humana explicita (Gobierno de Agentes, regla 6 de CLAUDE.md) -- el subagente no debe decidir por iniciativa propia cuando ejecutar esta accion.\n' +
+    `Si es intencional, confirma explicitamente respondiendo unicamente: CONFIRMAR-${id}\n` +
+    '(valido solo por 5 minutos y solo para reintentar esta accion exacta -- no autoriza otras acciones mutantes futuras).\n'
+  );
+  process.exit(2);
+}
+
 if (toolName.startsWith('mcp__')) {
   const mutante = esToolMcpMutante(toolName);
   if (mutante) {
-    process.stderr.write(
-      `[MUTATING-ACTION-GUARD] BLOQUEADO: el subagente "${agentType}" intento "${toolName}" -- accion mutante hacia un servicio externo (servidor MCP "${mutante.servidor}") sin que el turno actual la solicitara explicitamente.\n` +
-      'Motivo: crear/actualizar/borrar datos en un tenant o servicio externo requiere confirmacion humana explicita (Gobierno de Agentes, regla 6 de CLAUDE.md) -- el subagente no debe decidir por iniciativa propia cuando ejecutar esta accion.\n' +
-      'Si es intencional, confirma explicitamente pidiendo esta accion en tu proximo mensaje antes de reintentar.\n'
-    );
-    process.exit(2);
+    bloquearOAprobar(toolName, `"${toolName}" -- accion mutante hacia un servicio externo (servidor MCP "${mutante.servidor}")`);
   }
   process.exit(0);
 }
@@ -87,12 +122,7 @@ if (toolName.startsWith('mcp__')) {
 if (toolName === 'Bash') {
   const cmd = evento.tool_input?.command || '';
   if (cmd && esComandoHttpMutante(cmd)) {
-    process.stderr.write(
-      `[MUTATING-ACTION-GUARD] BLOQUEADO: el subagente "${agentType}" intento un comando HTTP mutante hacia un servicio externo sin que el turno actual lo solicitara explicitamente: "${cmd}"\n` +
-      'Motivo: crear/actualizar/borrar datos en un tenant o servicio externo requiere confirmacion humana explicita (Gobierno de Agentes, regla 6 de CLAUDE.md) -- el subagente no debe decidir por iniciativa propia cuando ejecutar esta accion.\n' +
-      'Si es intencional, confirma explicitamente pidiendo esta accion en tu proximo mensaje antes de reintentar.\n'
-    );
-    process.exit(2);
+    bloquearOAprobar(cmd, `un comando HTTP mutante hacia un servicio externo: "${cmd}"`);
   }
 }
 

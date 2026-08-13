@@ -34,6 +34,7 @@ const crypto = require('node:crypto');
 const { leerEventoDeStdin } = require('./lib/hook-stdin');
 const { emitirReporte }     = require('./lib/guard-report');
 const { confirmarCuarentena } = require('./lib/injection-quarantine');
+const { confirmarBreakGlass } = require('./lib/break-glass');
 
 const TTL_MS = 5 * 60 * 1000; // 5 min -- ventana corta, el bypass no debe quedar valido "para siempre"
 
@@ -75,16 +76,18 @@ function intentarBypassLocal(texto) {
 }
 
 /**
- * Intenta el bypass local (bloqueo de este mismo guard) y, si no aplica, el
- * de una cuarentena de injection-quarantine-guard.js -- mismo formato de id,
- * espacios de almacenamiento distintos.
+ * Intenta el bypass local (bloqueo de este mismo guard) y, si no aplica,
+ * una cuarentena de injection-quarantine-guard.js o una solicitud generica
+ * de lib/break-glass.js (ej. mutating-action-guard.js) -- mismo formato de
+ * id "CONFIRMAR-<id>", espacios de almacenamiento distintos.
  */
 function intentarBypass(texto) {
   if (intentarBypassLocal(texto)) return true;
 
   const match = texto.trim().match(/^CONFIRMAR-([a-f0-9]{8})$/i);
   if (!match) return false;
-  return confirmarCuarentena(match[1].toLowerCase());
+  const id = match[1].toLowerCase();
+  return confirmarCuarentena(id) || confirmarBreakGlass(id);
 }
 
 if (intentarBypass(prompt)) {
