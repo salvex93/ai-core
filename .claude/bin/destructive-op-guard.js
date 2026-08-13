@@ -161,9 +161,18 @@ const REGLAS = [
     motivo: 'borra una rama sin verificar si esta mergeada -- usar -d (minuscula) si la rama ya esta integrada.',
   },
   {
+    // La palabra TRUNCATE/DROP TABLE dentro de un patron de busqueda (grep,
+    // rg, findstr, ag) no ejecuta nada contra una base de datos -- es texto
+    // a buscar, no DDL real. Sin esta exclusion, "grep TRUNCATE archivo.sql"
+    // se bloqueaba igual que un TRUNCATE TABLE real ejecutado por psql/mysql.
+    // La excepcion exige que la herramienta de busqueda aparezca ANTES del
+    // patron destructivo en el comando (mismo lado del pipe/`;` que la
+    // palabra) para no eximir un comando encadenado real como
+    // "grep foo; psql -c TRUNCATE TABLE x", donde el TRUNCATE real esta en
+    // otro comando distinto separado por ; o &&.
     nombre: 'DROP TABLE / TRUNCATE sin filtro',
     disparo: /\b(DROP\s+TABLE|TRUNCATE(\s+TABLE)?)\b/i,
-    excepcion: /IF\s+EXISTS.*--\s*intencional|--\s*confirmado/i,
+    excepcion: /IF\s+EXISTS.*--\s*intencional|--\s*confirmado|\b(grep|rg|findstr|ag)\b[^;&|]*(DROP\s+TABLE|TRUNCATE)/i,
     motivo: 'elimina datos o estructura de tabla de forma irreversible sin backup verificado en el propio comando.',
   },
   {

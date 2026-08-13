@@ -78,6 +78,18 @@ describe('destructive-op-guard.js', () => {
     assert.equal(run('psql -c "SELECT * FROM usuarios"').status, 0);
   });
 
+  test('permite "grep TRUNCATE"/"DROP TABLE" como busqueda de texto, no ejecuta nada contra una BD', () => {
+    // Falso positivo real: la palabra aparece dentro del PATRON de busqueda,
+    // no como DDL real enviado a una base de datos.
+    assert.equal(run('grep TRUNCATE migraciones.sql').status, 0);
+    assert.equal(run('grep -e "DROP TABLE" schema.sql').status, 0);
+    assert.equal(run('rg "TRUNCATE TABLE" src/').status, 0);
+  });
+
+  test('SI bloquea TRUNCATE/DROP TABLE real aunque aparezca junto a un grep encadenado', () => {
+    assert.equal(run('grep -c usuarios log.txt; psql -c "TRUNCATE TABLE usuarios"').status, 2);
+  });
+
   test('permite comandos no destructivos (npm test, git status, ls)', () => {
     assert.equal(run('npm test').status, 0);
     assert.equal(run('git status --short').status, 0);
