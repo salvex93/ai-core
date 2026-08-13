@@ -62,6 +62,14 @@ describe('bash-verbosity-guard.js', () => {
     assert.equal(run('cat /dev/null').status, 0);
   });
 
+  test('permite heredoc de escritura "cat > archivo <<EOF"', () => {
+    assert.equal(run('cat > archivo.txt <<EOF\ncontenido\nEOF').status, 0);
+  });
+
+  test('permite heredoc de escritura "cat <<EOF > archivo"', () => {
+    assert.equal(run('cat <<EOF > archivo.txt\ncontenido\nEOF').status, 0);
+  });
+
   test('bloquea "find -name" sin maxdepth', () => {
     assert.equal(run("find . -name '*.js'").status, 2);
   });

@@ -17,7 +17,8 @@
  */
 
 const path = require('node:path');
-const { execSync } = require('node:child_process');
+const fs = require('node:fs');
+const { execSync, execFileSync } = require('node:child_process');
 const { leerEventoDeStdin } = require('./lib/hook-stdin');
 const { emitirReporte }     = require('./lib/guard-report');
 
@@ -44,8 +45,55 @@ const relPathPosix = relPath.split(path.sep).join('/');
 const esArchivoDeTest = /\.test\.js$|\.spec\.js$|^tests\//.test(relPathPosix);
 const esFueraDelRepo  = relPath.startsWith('..');
 
-// Solo aplica a codigo fuente real dentro del repo, fuera de tests/
-if (!esArchivoFuente || esArchivoDeTest || esFueraDelRepo) process.exit(0);
+/**
+ * Estima si un archivo es un script ad-hoc/desechable (no codigo de
+ * produccion real). El nombre/carpeta convencional (tmp_, scratch/,
+ * .scripts/) es una condicion OBLIGATORIA, no una señal mas entre varias --
+ * un archivo aislado sin imports (ej. un entrypoint app.js legitimo) se ve
+ * identico a un script desechable si solo se mide "sin referencias" o "sin
+ * hermanos testeados", asi que ninguna de esas dos puede decidir sola.
+ *
+ * Con el nombre ya confirmado, las otras dos señales solo pueden REFORZAR o
+ * ANULAR la exencion (nunca otorgarla): si el archivo con nombre tmp_/scratch
+ * SI esta referenciado por otro modulo real del repo, se trata como
+ * produccion pese al nombre -- evita el blindaje trivial de "le pongo tmp_ a
+ * un modulo real para evadir el gate".
+ *
+ * @param {string} repo - raiz del repo a auditar
+ * @param {string} relPathPosix - ruta relativa del archivo, separador '/'
+ * @returns {boolean}
+ */
+function pareceScriptDesechable(repo, relPathPosix) {
+  const nombreConvencional = /(^|\/)(tmp_|scratch[_/]|\.scripts\/)/i.test(relPathPosix);
+  if (!nombreConvencional) return false;
+
+  // execFileSync con args array (no execSync con template string): el nombre
+  // base del archivo lo controla quien invoca Write/Edit, no un literal
+  // fijo -- interpolarlo en un comando de shell permitiria romper la sintaxis
+  // o inyectar si el nombre contuviera comillas/metacaracteres.
+  const nombreBase = path.basename(relPathPosix, path.extname(relPathPosix));
+  try {
+    const grep = execFileSync(
+      'git', ['grep', '--untracked', '-l', '--fixed-strings', nombreBase, '--', '*.js', '*.ts'],
+      { cwd: repo, encoding: 'utf8', stdio: ['pipe', 'pipe', 'ignore'] }
+    ).trim();
+    const referenciadoPorOtro = grep.split('\n').filter(Boolean).some(f => f !== relPathPosix);
+    return !referenciadoPorOtro;
+  } catch (err) {
+    // git grep sale con exit 1 exactamente cuando no hay matches -- ese caso
+    // SI otorga la exencion (sin referencias reales, pareceScriptDesechable
+    // = true). Cualquier otro exit code (repo corrupto, git no disponible,
+    // permisos) es un fallo de entorno real: no se puede verificar si el
+    // archivo esta referenciado, asi que NO se otorga la exencion
+    // (fail-closed hacia el gate TDD, no fail-open silencioso).
+    return err.status === 1;
+  }
+}
+
+// Solo aplica a codigo fuente real dentro del repo, fuera de tests/, y que no
+// parezca un script ad-hoc/desechable por convencion + ausencia de uso real.
+if (!esArchivoFuente || esArchivoDeTest || esFueraDelRepo
+    || pareceScriptDesechable(REPO, relPathPosix)) process.exit(0);
 
 function sesionTocoAlgunTest() {
   try {

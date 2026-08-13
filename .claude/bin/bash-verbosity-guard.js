@@ -62,9 +62,14 @@ const REGLAS = [
     sugerencia: 'git diff --stat (resumen) o git diff <archivo especifico>',
   },
   {
+    // "cat archivo" (lectura -> vuelca contenido al contexto) es el riesgo
+    // real. "cat > archivo <<EOF" / "cat <<EOF > archivo" (heredoc de
+    // escritura) es el patron opuesto -- no lee nada, no produce output, solo
+    // crea el archivo. Sin la exclusion de "cat\s*>", el guard bloqueaba ese
+    // uso legitimo como si fuera el mismo riesgo.
     nombre: 'cat de archivo sin acotar',
-    disparo: /\bcat\s+(?!.*\/dev\/null)\S/,
-    excepcion: /\|\s*head|\|\s*tail|\|\s*grep|\|\s*wc/,
+    disparo: /\bcat\s+(?!.*\/dev\/null)(?!\s*>)\S/,
+    excepcion: /\|\s*head|\|\s*tail|\|\s*grep|\|\s*wc|<<\s*['"]?\w/,
     sugerencia: 'usa la herramienta Read (con limit/offset) en vez de cat, o acota con | head -N',
   },
   {
