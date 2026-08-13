@@ -39,8 +39,32 @@
  * real de hooks confirmado contra code.claude.com/docs/en/hooks (ver
  * bash-verbosity-guard.js para el detalle de esta regresion).
  *
+ * Reglas sin alternativa segura equivalente (rm -rf, git reset --hard, git
+ * clean -f, git branch -D, terraform -auto-approve, docker prune/volume rm,
+ * git push --delete, del/Remove-Item, TRUNCATE/DROP TABLE, DROP DATABASE)
+ * marcan breakGlass:true -- en vez de bloquear sin salida, ofrecen el
+ * mecanismo auditable de lib/break-glass.js (id de un solo uso, confirmacion
+ * solo via el proximo mensaje real del usuario). Antes, "confirma
+ * explicitamente con el usuario" era solo prosa sin ningun enforcement --
+ * reintentar el mismo comando volvia a bloquear identico. La excepcion
+ * previa de comentario literal ("-- confirmado"/"IF EXISTS...intencional")
+ * en TRUNCATE/DROP TABLE/DROP DATABASE NO se retira, sigue siendo valida --
+ * break-glass es una via adicional, no un reemplazo.
+ *
+ * Deliberadamente SIN break-glass (hard-stop absoluto, ninguna excepcion):
+ * ofuscacion de comando via eval/Invoke-Expression/iex sobre variable, y
+ * Co-Authored-By/atribucion de autoria de IA en mensajes de commit -- el
+ * research de gobierno de agentes (2026-08-13) confirma que estos son los
+ * casos de mayor blast radius (ejecucion arbitraria encadenada; integridad
+ * de autoria del proyecto) donde ni AWS ni Kubernetes ofrecen equivalente de
+ * break-glass en sus propios modelos de acceso de emergencia.
+ *
  * Uso: node destructive-op-guard.js (recibe el evento PreToolUse por stdin)
  */
+
+const { solicitarBreakGlass, accionAprobada } = require('./lib/break-glass');
+
+const GUARD_ID = 'destructive-op-guard';
 
 function leerComandoDeStdin() {
   try {
@@ -134,6 +158,7 @@ const REGLAS = [
     nombre: 'rm -rf',
     disparo: /\brm\s+(-[a-zA-Z]*r[a-zA-Z]*f[a-zA-Z]*|-[a-zA-Z]*f[a-zA-Z]*r[a-zA-Z]*)\b/,
     excepcion: null,
+    breakGlass: true,
     motivo: 'borrado recursivo forzado -- irreversible, sin papelera de reciclaje.',
   },
   {
@@ -146,18 +171,21 @@ const REGLAS = [
     nombre: 'git reset --hard',
     disparo: /\bgit\s+reset\s+.*--hard\b/,
     excepcion: null,
+    breakGlass: true,
     motivo: 'descarta cambios locales sin posibilidad de recuperacion (working tree + index).',
   },
   {
     nombre: 'git clean -f',
     disparo: /\bgit\s+clean\s+.*-[a-zA-Z]*f/,
     excepcion: null,
+    breakGlass: true,
     motivo: 'borra archivos no trackeados de forma irreversible -- puede incluir trabajo en progreso nunca commiteado.',
   },
   {
     nombre: 'git branch -D',
     disparo: /\bgit\s+branch\s+.*-D\b/,
     excepcion: null,
+    breakGlass: true,
     motivo: 'borra una rama sin verificar si esta mergeada -- usar -d (minuscula) si la rama ya esta integrada.',
   },
   {
@@ -173,6 +201,7 @@ const REGLAS = [
     nombre: 'DROP TABLE / TRUNCATE sin filtro',
     disparo: /\b(DROP\s+TABLE|TRUNCATE(\s+TABLE)?)\b/i,
     excepcion: /IF\s+EXISTS.*--\s*intencional|--\s*confirmado|\b(grep|rg|findstr|ag)\b[^;&|]*(DROP\s+TABLE|TRUNCATE)/i,
+    breakGlass: true,
     motivo: 'elimina datos o estructura de tabla de forma irreversible sin backup verificado en el propio comando.',
   },
   {
@@ -191,18 +220,21 @@ const REGLAS = [
     nombre: 'terraform apply -auto-approve',
     disparo: /\bterraform\s+apply\b.*-auto-approve\b/,
     excepcion: null,
+    breakGlass: true,
     motivo: 'omite la revision interactiva del plan antes de aplicar -- HashiCorp advierte verificar que nada mas pueda cambiar la infraestructura fuera de este flujo.',
   },
   {
     nombre: 'docker system prune --volumes',
     disparo: /\bdocker\s+system\s+prune\b.*--volumes\b/,
     excepcion: null,
+    breakGlass: true,
     motivo: 'borra volumenes anonimos ademas de contenedores/imagenes/redes -- docker no los borra por defecto justamente para evitar perdida de datos.',
   },
   {
     nombre: 'docker volume rm',
     disparo: /\bdocker\s+volume\s+rm\b/,
     excepcion: null,
+    breakGlass: true,
     motivo: 'elimina un volumen de datos de forma irreversible -- confirmar que no contiene datos que no esten respaldados en otro lugar.',
   },
   {
@@ -212,6 +244,7 @@ const REGLAS = [
     // que sea un borrado; "origin HEAD:main" (refspec normal) no debe matchear.
     disparo: /\bgit\s+push\s+\S+\s+(--delete\b|-d\b|:\S+)/,
     excepcion: null,
+    breakGlass: true,
     motivo: 'elimina una rama del repositorio remoto -- confirmar que no es una rama protegida (main/master/develop) antes de reintentar.',
   },
   {
@@ -227,6 +260,7 @@ const REGLAS = [
     nombre: 'DROP DATABASE',
     disparo: /\bDROP\s+DATABASE\b/i,
     excepcion: /IF\s+EXISTS.*--\s*intencional|--\s*confirmado/i,
+    breakGlass: true,
     motivo: 'elimina una base de datos completa de forma irreversible sin backup verificado en el propio comando.',
   },
   {
@@ -236,6 +270,7 @@ const REGLAS = [
     nombre: 'del /f /s /q (cmd.exe)',
     disparo: /\bdel\s+(\/[a-zA-Z]\s+)*\/[fF](\s+\/[a-zA-Z])*\s+\/[sS]\b|\bdel\s+(\/[a-zA-Z]\s+)*\/[sS](\s+\/[a-zA-Z])*\s+\/[fF]\b/,
     excepcion: null,
+    breakGlass: true,
     motivo: 'borrado forzado y recursivo de archivos via cmd.exe -- equivalente Windows de "rm -rf", irreversible.',
   },
   {
@@ -243,6 +278,7 @@ const REGLAS = [
     nombre: 'Remove-Item -Recurse -Force (PowerShell)',
     disparo: /\bRemove-Item\b.*(-Recurse\b.*-Force\b|-Force\b.*-Recurse\b)|\brm\b.*(-Recurse\b.*-Force\b|-Force\b.*-Recurse\b)/i,
     excepcion: null,
+    breakGlass: true,
     motivo: 'borrado forzado y recursivo de archivos via PowerShell -- equivalente Windows de "rm -rf", irreversible.',
   },
 ];
@@ -267,10 +303,22 @@ if (PATRON_OFUSCACION.test(cmd)) {
 
 for (const regla of REGLAS) {
   if (regla.disparo.test(cmd) && !(regla.excepcion && regla.excepcion.test(cmd))) {
+    if (regla.breakGlass && accionAprobada(GUARD_ID, cmd)) process.exit(0);
+
+    if (regla.breakGlass) {
+      const id = solicitarBreakGlass(GUARD_ID, cmd);
+      process.stderr.write(
+        `[DESTRUCTIVE-OP-GUARD] BLOQUEADO (${regla.nombre}): "${cmd}"\n` +
+        `Motivo: ${regla.motivo}\n` +
+        `Si es intencional, confirma explicitamente respondiendo unicamente: CONFIRMAR-${id}\n` +
+        '(valido solo por 5 minutos y solo para reintentar este comando exacto -- no autoriza otros comandos destructivos futuros).\n'
+      );
+      process.exit(2);
+    }
+
     process.stderr.write(
       `[DESTRUCTIVE-OP-GUARD] BLOQUEADO (${regla.nombre}): "${cmd}"\n` +
-      `Motivo: ${regla.motivo}\n` +
-      `Si es intencional, confirma explicitamente con el usuario antes de reintentar el comando exacto.\n`
+      `Motivo: ${regla.motivo}\n`
     );
     process.exit(2);
   }
