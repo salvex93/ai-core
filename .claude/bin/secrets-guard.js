@@ -14,10 +14,20 @@
  * Los patrones de ALTA_CONFIANZA tienen formato inequivoco de credencial real
  * (sin lectura plausible como texto/codigo de ejemplo) y bloquean. El resto
  * (confianza media, riesgo de falso positivo mayor) solo advierte.
+ *
+ * Bloqueo con excepcion auditable (break-glass): a diferencia de los guards
+ * de PreToolUse, aqui no hay una "tool call" que reintentar -- el reintento
+ * real es que el usuario reenvie el MISMO prompt exacto en su siguiente
+ * mensaje. Confirmar el id via CONFIRMAR-<id> autoriza unicamente ese
+ * reenvio exacto (mismo texto), no cualquier prompt futuro con otra
+ * credencial.
  */
 
 const { leerEventoDeStdin } = require('./lib/hook-stdin');
 const { emitirReporte }     = require('./lib/guard-report');
+const { solicitarBreakGlass, accionAprobada } = require('./lib/break-glass');
+
+const GUARD_ID = 'secrets-guard';
 
 const prompt = process.env.CLAUDE_USER_PROMPT || leerEventoDeStdin().prompt_text || '';
 if (!prompt) process.exit(0);
@@ -44,9 +54,19 @@ const bloqueantes = ALTA_CONFIANZA.filter(({ re }) => re.test(prompt));
 const advertencias = CONFIANZA_MEDIA.filter(({ re }) => re.test(prompt));
 
 if (bloqueantes.length > 0) {
+  if (accionAprobada(GUARD_ID, prompt)) {
+    emitirReporte({ guard: 'secrets-guard', verdict: 'ok', severity: 'baja', hallazgos: ['bypass confirmado por humano'] });
+    process.exit(0);
+  }
+
+  const id = solicitarBreakGlass(GUARD_ID, prompt);
   process.stderr.write('[secrets-guard] BLOQUEADO: credencial de alta confianza detectada en el mensaje:\n');
   bloqueantes.forEach(({ etiqueta }) => process.stderr.write(`  - ${etiqueta}\n`));
-  process.stderr.write('Usar variables de entorno en lugar de pegar credenciales directamente. Reescribe el mensaje sin la credencial.\n');
+  process.stderr.write(
+    'Usar variables de entorno en lugar de pegar credenciales directamente. Reescribe el mensaje sin la credencial, ' +
+    `o si es intencional confirma explicitamente respondiendo unicamente: CONFIRMAR-${id}\n` +
+    '(valido solo por 5 minutos y solo para reenviar este mismo mensaje exacto).\n'
+  );
   emitirReporte({ guard: 'secrets-guard', verdict: 'blocked', severity: 'critica', hallazgos: bloqueantes.map(b => b.etiqueta) });
   process.exit(2);
 }

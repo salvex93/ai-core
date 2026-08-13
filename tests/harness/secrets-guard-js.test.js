@@ -46,6 +46,82 @@ describe('secrets-guard.js', () => {
     assert.ok(r.stdout.includes('[secrets-guard]'), 'debe advertir sobre el patron detectado');
     assert.equal(r.status, 0, 'confianza media no bloquea');
   });
+
+  describe('break-glass: excepcion auditable para credenciales de alta confianza', () => {
+    const JAILBREAK_GUARD = path.join(BIN, 'jailbreak-guard.js');
+
+    function nuevoDirBreakGlass() {
+      return fs.mkdtempSync(path.join(os.tmpdir(), 'secrets-guard-breakglass-'));
+    }
+
+    function confirmar(dir, id) {
+      return spawnSync('node', [JAILBREAK_GUARD], {
+        input: '',
+        encoding: 'utf8',
+        env: {
+          ...process.env,
+          CLAUDE_USER_PROMPT: `CONFIRMAR-${id}`,
+          AI_CORE_BREAK_GLASS_DIR: dir,
+          AI_CORE_BREAK_GLASS_LOG: path.join(dir, 'log.jsonl'),
+          AI_CORE_JAILBREAK_BYPASS_DIR: path.join(dir, 'jb'),
+        },
+      });
+    }
+
+    test('el bloqueo genera un id CONFIRMAR-<id> real en stderr', () => {
+      const dir = nuevoDirBreakGlass();
+      const r = runScript(SCRIPT, [], {
+        CLAUDE_USER_PROMPT: 'usa esta key: sk-abcdefghijklmnopqrstuvwxyz123456 para el test',
+        AI_CORE_BREAK_GLASS_DIR: dir,
+        AI_CORE_BREAK_GLASS_LOG: path.join(dir, 'log.jsonl'),
+      });
+      assert.equal(r.status, 2);
+      assert.match(r.stderr, /CONFIRMAR-[a-f0-9]{8}/);
+      fs.rmSync(dir, { recursive: true, force: true });
+    });
+
+    test('confirmar el id permite REENVIAR el mismo prompt exacto', () => {
+      const dir = nuevoDirBreakGlass();
+      const env = { AI_CORE_BREAK_GLASS_DIR: dir, AI_CORE_BREAK_GLASS_LOG: path.join(dir, 'log.jsonl') };
+      const prompt = 'usa esta key: sk-abcdefghijklmnopqrstuvwxyz123456 para el test';
+
+      const bloqueo = runScript(SCRIPT, [], { CLAUDE_USER_PROMPT: prompt, ...env });
+      const id = bloqueo.stderr.match(/CONFIRMAR-([a-f0-9]{8})/)[1];
+      assert.equal(confirmar(dir, id).status, 0);
+
+      const reenvio = runScript(SCRIPT, [], { CLAUDE_USER_PROMPT: prompt, ...env });
+      assert.equal(reenvio.status, 0, 'reenviar el mismo prompt exacto tras confirmar debe pasar');
+      fs.rmSync(dir, { recursive: true, force: true });
+    });
+
+    test('confirmar el id NO autoriza un prompt DISTINTO con otra credencial', () => {
+      const dir = nuevoDirBreakGlass();
+      const env = { AI_CORE_BREAK_GLASS_DIR: dir, AI_CORE_BREAK_GLASS_LOG: path.join(dir, 'log.jsonl') };
+
+      const bloqueo = runScript(SCRIPT, [], { CLAUDE_USER_PROMPT: 'sk-abcdefghijklmnopqrstuvwxyz123456', ...env });
+      const id = bloqueo.stderr.match(/CONFIRMAR-([a-f0-9]{8})/)[1];
+      confirmar(dir, id);
+
+      const otro = runScript(SCRIPT, [], { CLAUDE_USER_PROMPT: 'ghp_ABCDEFGHIJKLMNOPQRSTUVWXYZ123456789A', ...env });
+      assert.equal(otro.status, 2, 'un prompt con una credencial distinta debe seguir bloqueado');
+      fs.rmSync(dir, { recursive: true, force: true });
+    });
+
+    test('reenviar el mismo prompt una SEGUNDA vez tras confirmar vuelve a bloquear (un solo uso)', () => {
+      const dir = nuevoDirBreakGlass();
+      const env = { AI_CORE_BREAK_GLASS_DIR: dir, AI_CORE_BREAK_GLASS_LOG: path.join(dir, 'log.jsonl') };
+      const prompt = 'sk-abcdefghijklmnopqrstuvwxyz123456';
+
+      const bloqueo = runScript(SCRIPT, [], { CLAUDE_USER_PROMPT: prompt, ...env });
+      const id = bloqueo.stderr.match(/CONFIRMAR-([a-f0-9]{8})/)[1];
+      confirmar(dir, id);
+
+      runScript(SCRIPT, [], { CLAUDE_USER_PROMPT: prompt, ...env }); // consume la aprobacion
+      const segundoIntento = runScript(SCRIPT, [], { CLAUDE_USER_PROMPT: prompt, ...env });
+      assert.equal(segundoIntento.status, 2, 'la aprobacion de un solo uso no debe cubrir un segundo reenvio');
+      fs.rmSync(dir, { recursive: true, force: true });
+    });
+  });
 });
 
 // ─── session-summary.js ──────────────────────────────────────────────────────

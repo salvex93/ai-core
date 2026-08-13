@@ -16,6 +16,14 @@
  * introduce sandboxing real de ejecucion (vm2/isolated-vm), que es un cambio
  * de arquitectura, no un guard quirurgico.
  *
+ * Bloqueo con excepcion auditable (break-glass): antes, "documenta el
+ * motivo... y confirma con el usuario" era solo prosa sin enforcement --
+ * reintentar el mismo Write/Edit volvia a bloquear identico. Ahora usa
+ * lib/break-glass.js: el id generado se confirma respondiendo
+ * "CONFIRMAR-<id>", y solo entonces el REINTENTO EXACTO del mismo
+ * file_path+content pasa -- no autoriza otro contenido futuro con el mismo
+ * patron de riesgo.
+ *
  * Ejecutado via hook PreToolUse(Write|Edit) en settings.json.
  * Uso: node code-exec-guard.js (recibe el evento PreToolUse por stdin)
  */
@@ -23,6 +31,9 @@
 const path = require('node:path');
 const { leerEventoDeStdin } = require('./lib/hook-stdin');
 const { RIESGO_EJECUCION_JS, RIESGO_EJECUCION_PY } = require('./lib/risky-code-patterns');
+const { solicitarBreakGlass, accionAprobada } = require('./lib/break-glass');
+
+const GUARD_ID = 'code-exec-guard';
 
 const evento    = leerEventoDeStdin();
 const toolInput = evento.tool_input || {};
@@ -51,11 +62,16 @@ const hallazgos = patrones.filter(({ re }) => re.test(content));
 
 if (hallazgos.length === 0) process.exit(0);
 
+const hashAccion = `${filePath}:${content}`;
+if (accionAprobada(GUARD_ID, hashAccion)) process.exit(0);
+
+const id = solicitarBreakGlass(GUARD_ID, hashAccion);
 process.stderr.write(
   `[CODE-EXEC-GUARD] BLOQUEADO: ${path.basename(filePath)} contiene ${hallazgos.length} patron(es) de ejecucion arbitraria:\n`
 );
 hallazgos.forEach(({ etiqueta }) => process.stderr.write(`  - ${etiqueta}\n`));
 process.stderr.write(
-  'Si es intencional (ej. sandbox de pruebas), documenta el motivo explicito en el propio codigo y confirma con el usuario antes de reintentar.\n'
+  `Si es intencional (ej. sandbox de pruebas), confirma explicitamente respondiendo unicamente: CONFIRMAR-${id}\n` +
+  '(valido solo por 5 minutos y solo para reintentar este mismo contenido -- no autoriza otro codigo futuro con el mismo patron).\n'
 );
 process.exit(2);
