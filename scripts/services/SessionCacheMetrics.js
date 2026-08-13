@@ -51,7 +51,12 @@ function calcularMetricasDeSesion(entries) {
         : typeof b.content === 'string' ? b.content
         : '';
       if (!texto) continue;
-      if (texto.includes('GUARD-READ')) guardBlocks++;
+      // "GUARD-READ" es el formato legacy (stderr, exit 2, previo a la
+      // migracion a permissionDecision:"deny"); "mcp__gemini-bridge__
+      // analizar_archivo" es la cadena unica y estable que guard-read.js
+      // emite hoy dentro del JSON de permissionDecisionReason -- sin ambos
+      // casos, sesiones antiguas y nuevas no se contarian por igual.
+      if (texto.includes('GUARD-READ') || texto.includes('mcp__gemini-bridge__analizar_archivo')) guardBlocks++;
       if (texto.includes('gemini') || texto.includes('analizar_archivo')) geminiDelegations++;
       if (texto.includes('/compact')) compactCount++;
     }

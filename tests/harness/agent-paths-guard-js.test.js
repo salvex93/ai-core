@@ -69,24 +69,30 @@ describe('agent-paths-guard.js', () => {
     assert.equal(r.status, 0);
   });
 
-  test('Write fuera de paths_allow: bloquea (codigo 2)', () => {
+  test('Write fuera de paths_allow: emite permissionDecision:deny (exit 0 + JSON)', () => {
+    // Friccion de scope declarado en AGENT.md, no riesgo de seguridad activa
+    // -- permissionDecision:"deny" en vez de exit 2, recomendacion oficial
+    // de Anthropic para este tipo de bloqueo (code.claude.com/docs/en/hooks).
     const r = enviarEvento({
       agent_type: 'map-updater-fake',
       tool_name: 'Write',
       tool_input: { file_path: path.join(REPO_TMP, 'informe-secreto.md') },
     });
-    assert.equal(r.status, 2);
-    assert.match(r.stderr, /AGENT-PATHS-GUARD/);
-    assert.match(r.stderr, /map-updater-fake/);
+    assert.equal(r.status, 0, 'permissionDecision:deny exige exit 0, no exit 2');
+    const parsed = JSON.parse(r.stdout);
+    assert.equal(parsed.hookSpecificOutput.permissionDecision, 'deny');
+    assert.match(parsed.hookSpecificOutput.permissionDecisionReason, /map-updater-fake/);
   });
 
-  test('Edit fuera de paths_allow: bloquea igual que Write', () => {
+  test('Edit fuera de paths_allow: deniega igual que Write', () => {
     const r = enviarEvento({
       agent_type: 'map-updater-fake',
       tool_name: 'Edit',
       tool_input: { file_path: path.join(REPO_TMP, 'otro-archivo.js') },
     });
-    assert.equal(r.status, 2);
+    assert.equal(r.status, 0);
+    const parsed = JSON.parse(r.stdout);
+    assert.equal(parsed.hookSpecificOutput.permissionDecision, 'deny');
   });
 
   test('glob ** cubre subdirectorios (.claude/bin/sub/x.js dentro de .claude/bin/**)', () => {
@@ -107,14 +113,15 @@ describe('agent-paths-guard.js', () => {
     assert.equal(r.status, 0);
   });
 
-  test('Bash con rm sobre ruta fuera de scope: bloquea -- caso real (agente exploratorio intento borrar un archivo no relacionado con su tarea)', () => {
+  test('Bash con rm sobre ruta fuera de scope: deniega -- caso real (agente exploratorio intento borrar un archivo no relacionado con su tarea)', () => {
     const r = enviarEvento({
       agent_type: 'map-updater-fake',
       tool_name: 'Bash',
       tool_input: { command: 'rm /tmp/algo-no-relacionado.txt' },
     });
-    assert.equal(r.status, 2);
-    assert.match(r.stderr, /AGENT-PATHS-GUARD/);
+    assert.equal(r.status, 0);
+    const parsed = JSON.parse(r.stdout);
+    assert.equal(parsed.hookSpecificOutput.permissionDecision, 'deny');
   });
 
   test('Bash con rm sobre ruta dentro de scope: permite', () => {
@@ -126,22 +133,24 @@ describe('agent-paths-guard.js', () => {
     assert.equal(r.status, 0);
   });
 
-  test('Bash con redireccion de escritura (>) sobre ruta fuera de scope: bloquea', () => {
+  test('Bash con redireccion de escritura (>) sobre ruta fuera de scope: deniega', () => {
     const r = enviarEvento({
       agent_type: 'map-updater-fake',
       tool_name: 'Bash',
       tool_input: { command: 'echo hola > /tmp/fuera-de-scope.txt' },
     });
-    assert.equal(r.status, 2);
+    assert.equal(r.status, 0);
+    assert.equal(JSON.parse(r.stdout).hookSpecificOutput.permissionDecision, 'deny');
   });
 
-  test('Bash con Remove-Item -Recurse -Force (PowerShell) fuera de scope: bloquea', () => {
+  test('Bash con Remove-Item -Recurse -Force (PowerShell) fuera de scope: deniega', () => {
     const r = enviarEvento({
       agent_type: 'map-updater-fake',
       tool_name: 'Bash',
       tool_input: { command: 'Remove-Item -Recurse -Force /tmp/otra-carpeta' },
     });
-    assert.equal(r.status, 2);
+    assert.equal(r.status, 0);
+    assert.equal(JSON.parse(r.stdout).hookSpecificOutput.permissionDecision, 'deny');
   });
 
   test('agent_type con path traversal: tratado como sin scope declarado, no bloquea (mismo criterio que agent-tools-guard.js)', () => {

@@ -35,14 +35,22 @@ describe('guard-read.js', () => {
     assert.equal(r.status, 0, 'debe permitir archivos bajo el limite de 200 lineas');
   });
 
-  test('sale con codigo 2 para .js con mas de 200 lineas', () => {
+  test('sale con codigo 0 y emite permissionDecision:deny en stdout para .js con mas de 200 lineas', () => {
+    // Friccion operativa (limite de tokens), no riesgo de seguridad -- usa
+    // permissionDecision:"deny" (exit 0 + razon en JSON) en vez de exit 2,
+    // siguiendo la recomendacion oficial de Anthropic para este caso
+    // (code.claude.com/docs/en/hooks): Claude ve el motivo y puede reformular
+    // (ej. usar Gemini) sin que el humano tenga que aprobar nada.
     const lines = Array.from({ length: 250 }, (_, i) => `const x${i} = ${i};`).join('\n');
     const fjs = path.join(os.tmpdir(), `guard-test-${Date.now()}.js`);
     fs.writeFileSync(fjs, lines);
     const r = runScript(GUARD, [fjs]);
     fs.unlinkSync(fjs);
-    assert.equal(r.status, 2, 'debe bloquear archivos de mas de 200 lineas');
-    assert.ok(r.stderr.includes('GUARD-READ'), 'debe incluir [GUARD-READ] en stderr');
+    assert.equal(r.status, 0, 'permissionDecision:deny exige exit 0, no exit 2');
+    const parsed = JSON.parse(r.stdout);
+    assert.equal(parsed.hookSpecificOutput.hookEventName, 'PreToolUse');
+    assert.equal(parsed.hookSpecificOutput.permissionDecision, 'deny');
+    assert.match(parsed.hookSpecificOutput.permissionDecisionReason, /200/);
   });
 
   test('sale con codigo 0 para archivo inexistente', () => {

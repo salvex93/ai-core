@@ -17,12 +17,20 @@
  * agent_type no esta presente, la tool call viene del hilo principal y
  * este guard no aplica.
  *
+ * Bloqueo con permissionDecision:"deny" (exit 0 + JSON) en vez de exit 2 --
+ * esto es friccion de configuracion estatica (que tools: declara el propio
+ * AGENT.md), no un riesgo de seguridad activo. Claude ve la razon en el
+ * mismo turno y puede reformular (usar otra herramienta ya declarada) sin
+ * que el humano tenga que aprobar nada, siguiendo la recomendacion oficial
+ * de Anthropic (code.claude.com/docs/en/hooks) para este tipo de friccion.
+ *
  * Uso: node agent-tools-guard.js (recibe el evento PreToolUse por stdin)
  */
 
 const path = require('path');
 const { leerEventoDeStdin } = require('./lib/hook-stdin');
 const { leerFrontmatter, leerListaDeclarada } = require('./lib/agent-frontmatter');
+const { denegarConRazon } = require('./lib/permission-decision');
 
 const AGENTS_DIR = process.env.AI_CORE_AGENTS_DIR || path.join(__dirname, '..', 'agents');
 
@@ -42,10 +50,11 @@ const scope = leerScopeDeclarado(agentType);
 if (!scope) process.exit(0); // agente sin AGENT.md propio o sin tools: declarado -- no bloquea
 
 if (!scope.includes(toolName)) {
-  process.stderr.write(
-    `[AGENT-TOOLS-GUARD] BLOQUEADO: el subagente "${agentType}" intento usar "${toolName}", fuera de su scope declarado [${scope.join(', ')}] en .claude/agents/${agentType}.md.\n`
-  );
-  process.exit(2);
+  process.stdout.write(denegarConRazon(
+    'PreToolUse',
+    `El subagente "${agentType}" intento usar "${toolName}", fuera de su scope declarado [${scope.join(', ')}] en .claude/agents/${agentType}.md.`
+  ));
+  process.exit(0);
 }
 
 process.exit(0);

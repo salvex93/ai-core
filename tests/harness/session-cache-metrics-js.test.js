@@ -82,7 +82,7 @@ describe('SessionCacheMetrics — calcularMetricasDeSesion', () => {
     assert.equal(r.turns, 1);
   });
 
-  test('detecta mecanismos activos por texto: GUARD-READ, gemini/analizar_archivo, /compact', () => {
+  test('detecta mecanismos activos por texto: GUARD-READ (formato legacy), gemini/analizar_archivo, /compact', () => {
     const usage = { input_tokens: 1, output_tokens: 1, cache_read_input_tokens: 0, cache_creation_input_tokens: 0 };
     const entries = [
       turnoAssistant(usage, ['[GUARD-READ] bloqueado']),
@@ -93,6 +93,23 @@ describe('SessionCacheMetrics — calcularMetricasDeSesion', () => {
     assert.equal(r.guard_read_blocks, 1);
     assert.equal(r.gemini_delegations, 1);
     assert.equal(r.compact_executions, 1);
+  });
+
+  test('detecta guard-read.js bloqueado en formato permissionDecision (post-migracion break-glass/deny)', () => {
+    // Regresion real: guard-read.js migro de "[GUARD-READ] BLOQUEADO..." por
+    // stderr a permissionDecision:"deny" via JSON en stdout -- sin este caso,
+    // esta metrica quedaria permanentemente en cero sin ningun error visible.
+    const usage = { input_tokens: 1, output_tokens: 1, cache_read_input_tokens: 0, cache_creation_input_tokens: 0 };
+    const razonDeny = JSON.stringify({
+      hookSpecificOutput: {
+        hookEventName: 'PreToolUse',
+        permissionDecision: 'deny',
+        permissionDecisionReason: 'x.js tiene 250 lineas (limite: 200). Usa mcp__gemini-bridge__analizar_archivo en su lugar para no quemar tokens de Claude.',
+      },
+    });
+    const entries = [turnoAssistant(usage, [razonDeny])];
+    const r = calcularMetricasDeSesion(entries);
+    assert.equal(r.guard_read_blocks, 1);
   });
 
   test('umbral de industria (>= 80% cache-hit en contenido estatico bien implementado): una sesion sintetica con 95% pasa el umbral', () => {

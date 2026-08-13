@@ -63,11 +63,16 @@ describe('agent-tools-guard.js', () => {
     assert.equal(r.status, 0);
   });
 
-  test('bloquea (codigo 2) una herramienta fuera del scope declarado', () => {
+  test('emite permissionDecision:deny (exit 0 + JSON) para una herramienta fuera del scope declarado', () => {
+    // Friccion de configuracion estatica (AGENT.md), no riesgo de seguridad
+    // activa -- usa permissionDecision:"deny" en vez de exit 2, siguiendo la
+    // recomendacion oficial de Anthropic (code.claude.com/docs/en/hooks).
     const r = enviarEvento({ agent_type: 'scanner-solo-lectura', tool_name: 'Write' });
-    assert.equal(r.status, 2, 'debe bloquear Write si el agente solo declara Bash/Read/Grep/Glob');
-    assert.match(r.stderr, /AGENT-TOOLS-GUARD/);
-    assert.match(r.stderr, /scanner-solo-lectura/);
+    assert.equal(r.status, 0, 'permissionDecision:deny exige exit 0, no exit 2');
+    const parsed = JSON.parse(r.stdout);
+    assert.equal(parsed.hookSpecificOutput.permissionDecision, 'deny');
+    assert.match(parsed.hookSpecificOutput.permissionDecisionReason, /scanner-solo-lectura/);
+    assert.match(parsed.hookSpecificOutput.permissionDecisionReason, /Write/);
   });
 
   test('sin agent_type (tool call del hilo principal): no bloquea', () => {
@@ -123,13 +128,15 @@ describe('agent-tools-guard.js', () => {
     assert.equal(r.status, 0, 'sin scope declarado no hay nada que verificar');
   });
 
-  test('tools: en sintaxis YAML de lista multilinea (no solo array inline) tambien bloquea fuera de scope', () => {
+  test('tools: en sintaxis YAML de lista multilinea (no solo array inline) tambien deniega fuera de scope', () => {
     // Regresion real: el parser solo entendia `tools: [A, B]` -- un AGENT.md
     // escrito con `tools:\n  - A\n  - B` (sintaxis YAML igualmente valida)
-    // fallaba abierto (exit 0) sin ninguna advertencia, sin restringir nada.
+    // fallaba abierto (exit 0 sin JSON) sin ninguna advertencia, sin
+    // restringir nada.
     const r = enviarEvento({ agent_type: 'scanner-yaml-multilinea', tool_name: 'Write' });
-    assert.equal(r.status, 2, 'debe bloquear Write si el agente declara tools en YAML multilinea sin incluirla');
-    assert.match(r.stderr, /AGENT-TOOLS-GUARD/);
+    assert.equal(r.status, 0);
+    const parsed = JSON.parse(r.stdout);
+    assert.equal(parsed.hookSpecificOutput.permissionDecision, 'deny');
   });
 
   test('tools: en sintaxis YAML multilinea permite una herramienta dentro del scope', () => {
@@ -148,7 +155,9 @@ describe('agent-tools-guard.js', () => {
         encoding: 'utf8',
         env: { ...process.env },
       });
-      assert.equal(r.status, 2, `${nombre} debe tener tools: declarado y bloquear una herramienta fuera de scope`);
+      assert.equal(r.status, 0, `${nombre} debe tener tools: declarado (exit 0 + permissionDecision:deny)`);
+      const parsed = JSON.parse(r.stdout);
+      assert.equal(parsed.hookSpecificOutput.permissionDecision, 'deny', `${nombre} debe denegar una herramienta fuera de scope`);
     }
   });
 

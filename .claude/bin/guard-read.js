@@ -1,14 +1,18 @@
 #!/usr/bin/env node
 /**
  * guard-read.js — Intercepta Read en archivos > 200 líneas.
- * Si el archivo supera el límite, imprime advertencia al stderr
- * y sale con código 2 para bloquear la herramienta (block mode).
+ * Si el archivo supera el límite, emite permissionDecision:"deny" (JSON en
+ * stdout, exit 0) en vez de exit 2 -- es un limite de ahorro de tokens, no
+ * un riesgo de seguridad, y esta via (recomendada por Anthropic en
+ * code.claude.com/docs/en/hooks) deja que Claude vea el motivo y reformule
+ * en el mismo turno (ej. usar Gemini) en vez de quedar con un bloqueo duro.
  *
  * Uso: node guard-read.js <file_path>
  */
 
 const fs = require('fs');
 const path = require('path');
+const { denegarConRazon } = require('./lib/permission-decision');
 
 const MAX_LINES = 200;
 const filePath = process.argv[2];
@@ -31,12 +35,11 @@ try {
   if (content.length > 0 && content[content.length - 1] !== '\n') lineCount++;
 
   if (lineCount > MAX_LINES) {
-    process.stderr.write(
-      `[GUARD-READ] BLOQUEADO: ${filePath} tiene ${lineCount} lineas (limite: ${MAX_LINES}).\n` +
-      `Usa mcp__gemini-bridge__analizar_archivo en su lugar para no quemar tokens de Claude.\n`
-    );
-    // Salir con código 2 = block en el harness de Claude Code hooks
-    process.exit(2);
+    process.stdout.write(denegarConRazon(
+      'PreToolUse',
+      `${filePath} tiene ${lineCount} lineas (limite: ${MAX_LINES}). Usa mcp__gemini-bridge__analizar_archivo en su lugar para no quemar tokens de Claude.`
+    ));
+    process.exit(0);
   }
 } catch {
   // Si no se puede leer el archivo, dejar pasar
