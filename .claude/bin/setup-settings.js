@@ -67,7 +67,7 @@ const settings = {
       'mcp__gemini-bridge__buscar_web',
     ],
   },
-  hooks: buildHooksSection(bin),
+  hooks: buildHooksSection(bin, fwd(os.tmpdir())),
 };
 
 fs.writeFileSync(SETTINGS_PATH, JSON.stringify(settings, null, 2) + '\n', 'utf8');

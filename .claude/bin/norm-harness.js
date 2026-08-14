@@ -118,7 +118,7 @@ function buildSettingsForHost(corePath, stackPermissions) {
     },
     skillListingBudgetFraction: 0.03,
     permissions: { allow: allPermissions },
-    hooks: buildHooksSection(bin),
+    hooks: buildHooksSection(bin, os.tmpdir().split(path.sep).join('/')),
   };
 }
 

@@ -28,6 +28,32 @@ describe('hooks-definition.js', () => {
     assert.match(str, /MARCADOR-destructive-op-guard\.js/);
   });
 
+  test('con tmpDir explicito: usa el valor REAL de os.tmpdir(), no el literal ${TMPDIR:-/tmp}', () => {
+    // Bug real de CI (2026-08-14): el literal '"${TMPDIR:-/tmp}/*"' depende
+    // de que el shell que invoca el comando expanda esa sintaxis POSIX antes
+    // de pasarselo a Node -- en macOS runners de GitHub Actions, $TMPDIR real
+    // no es /tmp (suele ser /var/folders/xx/xxxxx/T/, a veces con prefijo
+    // /private/ segun si Node resuelve el symlink o no), y el patron
+    // declarado en --allow-fs-read/--allow-fs-write podia no coincidir con
+    // la ruta real donde Node escribe/lee (os.tmpdir()), causando
+    // ERR_ACCESS_DENIED especifico de esa plataforma. Resolver tmpDir en
+    // build time (mismo proceso Node que luego ejecuta el guard) elimina la
+    // categoria entera del bug -- ya no depende de que un shell externo
+    // expanda nada.
+    const tmpDirReal = '/var/folders/xx/xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx/T';
+    const hooks = buildHooksSection((s) => `"/repo/.claude/bin/${s}"`, tmpDirReal);
+    const str = JSON.stringify(hooks);
+
+    assert.match(str, /var\/folders\/xx/, 'debe usar el tmpDir real pasado, no el literal ${TMPDIR:-/tmp}');
+    assert.doesNotMatch(str, /\$\{TMPDIR/, 'no debe quedar ningun literal sin resolver de ${TMPDIR:-/tmp}');
+  });
+
+  test('sin tmpDir explicito (retrocompatible): sigue usando el literal ${TMPDIR:-/tmp} como fallback', () => {
+    const hooks = buildHooksSection((s) => `"/repo/.claude/bin/${s}"`);
+    const str = JSON.stringify(hooks);
+    assert.match(str, /\$\{TMPDIR:-\/tmp\}/, 'sin tmpDir explicito, debe conservar el comportamiento anterior');
+  });
+
   test('SubagentStop incluye los 3 guards de validacion de output', () => {
     const hooks = buildHooksSection((s) => `"${s}"`);
     const str = JSON.stringify(hooks.SubagentStop);

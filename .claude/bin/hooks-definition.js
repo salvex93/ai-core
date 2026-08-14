@@ -65,18 +65,34 @@ function globDir(dirCitado) {
   return dirCitado.replace(/\/?"$/, '/*"');
 }
 
-function buildHooksSection(bin) {
+/**
+ * @param {(script: string) => string} bin - ver cabecera del modulo.
+ * @param {string} [tmpDirReal] - valor real de os.tmpdir(), resuelto por el
+ *   caller (setup-settings.js/norm-harness.js) en el mismo proceso Node que
+ *   luego ejecutara los guards -- evita depender de que un shell externo
+ *   expanda "${TMPDIR:-/tmp}" con el mismo valor que ve Node internamente.
+ *   Sin este argumento, cae al literal POSIX anterior (retrocompatible).
+ */
+function buildHooksSection(bin, tmpDirReal) {
   // Rutas de --allow-fs-read/--allow-fs-write auditadas hook por hook (leyendo
   // que cada uno realmente hace, no por analogia): todos los hooks propios
   // viven en .claude/bin/ y su unico require relativo real es ./lib/* dentro
   // del mismo directorio -- el glob de una sola profundidad (dirBin) ya cubre
-  // eso. "$TMPDIR" con fallback a /tmp es donde guard-report.js y varios
-  // locks (process-guard.js) escriben, salvo que una env var los redirija.
+  // eso. dirTmp usa el tmpDir REAL resuelto por el caller cuando esta
+  // disponible -- bug real de CI (2026-08-14): el literal
+  // '"${TMPDIR:-/tmp}/*"' depende de que el shell que invoca el comando
+  // expanda esa sintaxis POSIX antes de pasarsela a Node. En macOS runners de
+  // GitHub Actions, $TMPDIR real no es /tmp (tipicamente
+  // /var/folders/xx/xxxxx/T/, con o sin el prefijo /private/ segun
+  // resolucion de symlink), y el patron declarado podia no coincidir con la
+  // ruta real donde Node escribe/lee via os.tmpdir(), causando
+  // ERR_ACCESS_DENIED especifico de esa plataforma -- Ubuntu no lo sufria
+  // porque ahi $TMPDIR tipicamente cae al mismo /tmp literal del fallback.
   // dirRepo cubre lecturas/escrituras a archivos propios del repo fuera de
   // .claude/bin/ (ej. .claude/AGENT_METRICS.json, .claude/EVENTS_QUEUE.json,
   // .claude/moa_context.md, CONTEXT_MAP.json) que varios hooks leen/escriben.
   const dirBin  = globDir(bin(''));
-  const dirTmp  = '"${TMPDIR:-/tmp}/*"';
+  const dirTmp  = tmpDirReal ? `"${tmpDirReal.replace(/\/$/, '')}/*"` : '"${TMPDIR:-/tmp}/*"';
   const dirRepo = '"${PWD}/**"';
 
   const soloRead      = { fsRead: [dirBin] };
