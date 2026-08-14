@@ -15,7 +15,7 @@
 ## Comandos de Referencia
 ```bash
 npm install                          # instalar dependencias del ai-core
-npm test                             # 1045 tests, Node nativo, sin dependencias externas
+npm test                             # 1049 tests, Node nativo, sin dependencias externas
 npm run validate-agents              # auditar conformidad de los 7 agentes con CLAUDE.md
 npm run setup                        # regenerar settings.json manualmente (ya corre solo via postinstall)
 npm run update                       # actualizacion one-command: pull + setup + test + validate

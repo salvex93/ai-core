@@ -3,6 +3,24 @@
 Registro de cambios por version. Formato basado en [Keep a Changelog](https://keepachangelog.com/es/1.0.0/).
 Versionado semantico: MAJOR.MINOR.PATCH.
 
+## [Sin version — mantenimiento] — 2026-08-14 (post-release v3.32.0: CI real reparado, historial de autoria unificado)
+
+### Corregido — 3 causas reales distintas rompian CI en Linux/macOS tras el release de v3.32.0
+
+El push de v3.32.0 fallo en CI real (ubuntu-latest y macos-latest) pese a que la suite local (Windows) pasaba 1045/1045 -- confirmado que ningun test unitario activa el Node.js Permission Model real (`spawnSync` sin `--permission`), asi que ninguno podia detectar estos 3 problemas antes de pushear.
+
+**1. `tests/harness/sandbox-permission-smoke.test.js` desactualizado.** El smoke test asumia que `destructive-op-guard.js` podia correr con `--permission` sin ningun `--allow-fs-read` porque "solo lee stdin" -- cierto antes de la sesion de break-glass, falso desde que el guard usa `require('./lib/break-glass')`. Sin el permiso, ese `require` fallaba con `ERR_ACCESS_DENIED` (exit 1) en vez del bloqueo esperado (exit 2). El `describe` de este archivo se salta por completo en Windows ("solo aplica en POSIX"), por lo que la regresion nunca se detecto localmente. Corregido el test existente y agregada cobertura equivalente para `secrets-guard.js` y `mutating-action-guard.js` (mismos gaps, sin smoke test propio hasta ahora).
+
+**2. `${TMPDIR:-/tmp}` como flag literal de permisos, dependiente de expansion de shell.** `hooks-definition.js` declaraba el permiso de lectura/escritura sobre el directorio temporal como el string POSIX `'"${TMPDIR:-/tmp}/*"'`, que depende de que el shell que invoca el comando lo expanda con el MISMO valor que `os.tmpdir()` de Node resuelve internamente. En Ubuntu ambos caen a `/tmp` literal por casualidad; en macOS, `$TMPDIR` real no es `/tmp` (tipicamente `/var/folders/xx/xxxxx/T/`), sin garantia de coincidir con la expansion del shell. `buildHooksSection()` acepta ahora un segundo argumento opcional (`tmpDirReal`) -- `setup-settings.js` y `norm-harness.js` pasan `os.tmpdir()` real, resuelto en el mismo proceso Node que luego ejecuta los guards, eliminando la categoria entera de mismatch shell-vs-Node. Retrocompatible: sin el argumento, cae al literal anterior.
+
+**3. Mismatch de symlinks en `pre-commit-tdd.js`, especifico de macOS.** Con los dos fixes anteriores aplicados, Ubuntu y Windows pasaron pero macOS seguia fallando -- el log real (obtenido con `gh run view --log-failed`, imprescindible porque los dos intentos anteriores fueron diagnostico por inspeccion de codigo sin ver el error real) mostro 2 tests de `pre-commit-tdd-js.test.js` con `0 !== 2` (el guard no bloqueaba cuando debia). Causa: `os.tmpdir()` en macOS puede devolver una ruta con un symlink de sistema sin resolver, mientras `process.cwd()` del proceso hijo del guard (`REPO = process.cwd()`) puede resolverlo a su target real o al reves -- `path.relative(REPO, path.resolve(filePath))` calculaba una ruta con `".."` de mas cuando un lado estaba resuelto y el otro no, activando `esFueraDelRepo=true` por error y dejando pasar codigo fuente real sin bloquear el gate TDD. Reproducido localmente en Windows creando un symlink/junction real antes de aplicar el fix (mismo `0 !== 2` exacto) -- fix: resolver tanto `REPO` como `filePath` con `fs.realpathSync` (fallback al valor crudo si falla) antes de calcular la ruta relativa.
+
+**1049 tests, 43/43 skills conformes. CI verde confirmado en los 3 sistemas operativos (ubuntu-latest, macos-latest, windows-latest) via API de GitHub tras cada fix.**
+
+### Cambiado — historial de autoria de git unificado a un solo contribuidor
+
+267 commits del historial completo tenian el autor real (Andrew Arizmendi) atribuido a dos direcciones de correo distintas (`salvex93@gmail.com` y un correo laboral usado en 5 commits de sesiones anteriores), apareciendo como dos "contribuidores" separados en GitHub pese a ser la misma persona. Reescrito con `git filter-branch --env-filter` (unifica ambos emails al principal) y republicado con `git push --force-with-lease` -- el propio `destructive-op-guard.js` del arnes bloqueo el primer intento con `--force` ciego y sugirio la alternativa segura, exactamente como fue diseñado. Verificado antes y despues de la reescritura: contenido de cada commit intacto (1049/1049 tests identicos en ambos momentos), solo cambio la metadata de autor/committer. Rama de respaldo `backup-antes-de-reescribir-historial` y los refs automaticos `refs/original/*` de `filter-branch` se conservan localmente.
+
 ## [3.32.0] — 2026-08-14
 
 ### Corregido — 3 falsos positivos reales de guards que bloqueaban trabajo legitimo

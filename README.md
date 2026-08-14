@@ -84,7 +84,7 @@ Repositorio independiente:
 npm run update
 ```
 
-Esto corre `git pull`, regenera `settings.json` (purga automaticamente cualquier hook de una version anterior que referencie un script eliminado o renombrado — el objeto de hooks se construye desde cero y sobreescribe el archivo completo, nunca mergea, con la definicion compartida en `hooks-definition.js`), corre los 1045 tests, aplica migraciones de version, valida los 43 skills y los 7 agentes, y reporta que cambio. Si un test falla, el comando se detiene ahi.
+Esto corre `git pull`, regenera `settings.json` (purga automaticamente cualquier hook de una version anterior que referencie un script eliminado o renombrado — el objeto de hooks se construye desde cero y sobreescribe el archivo completo, nunca mergea, con la definicion compartida en `hooks-definition.js`), corre los 1049 tests, aplica migraciones de version, valida los 43 skills y los 7 agentes, y reporta que cambio. Si un test falla, el comando se detiene ahi.
 
 Instalado como submodulo:
 
@@ -152,7 +152,7 @@ Si no esta autenticado, los eventos se acumulan en `.claude/EVENTS_QUEUE.json` y
 
 ```bash
 npm install                               # instalar dependencias (corre postinstall -> npm run setup)
-npm test                                  # 1045 tests, Node nativo, sin deps externas
+npm test                                  # 1049 tests, Node nativo, sin deps externas
 npm run setup                             # regenerar settings.json con rutas locales (ya corre solo via postinstall)
 npm run update                            # actualizacion one-command desde GitHub
 npm run validate-globals                  # auditar conformidad de los 43 skills (incluye schema agentskills.io)
@@ -191,7 +191,9 @@ El usuario pidio que el arnes "no sea un stopper, sea mejor validador" sin perde
 
 Skill nuevo `product-lifecycle-orchestrator` (43avo) cierra la fase de definicion de producto que ningun skill cubria: User Story Mapping (Jeff Patton — con correccion real, Patton rechaza el termino "Epic"), INVEST (Bill Wake), MoSCoW (DSDM), BDD/Gherkin (Dan North, Gojko Adzic) y DDD estrategico (Eric Evans, Martin Fowler), mas hypercare post-golive, todos con fuente primaria verificada. Orquesta delegando a `dev-loop`/`qa-engineer`/`release-manager` en vez de duplicar su contenido.
 
-**1045 tests, 43/43 skills conformes, 7/7 agentes conformes. Verificado end-to-end en sesion real.**
+**Post-release: CI real reparado en Linux/macOS (3 causas distintas, ninguna detectable por la suite local en Windows), historial de autoria unificado.** El push inicial de esta version fallo en `ubuntu-latest`/`macos-latest` — ningun test unitario activa el Node.js Permission Model real, asi que 3 bugs reales de permisos/rutas pasaron desapercibidos en local: un smoke test desactualizado tras el cambio a `lib/break-glass.js`, un flag de permiso dependiente de expansion de shell (`${TMPDIR:-/tmp}`, ahora resuelto en build time con `os.tmpdir()` real), y un mismatch de symlinks especifico de macOS en `pre-commit-tdd.js` (reproducido localmente creando un symlink real antes de corregirlo). Ver CHANGELOG.md para el diagnostico completo de cada uno. Ademas, 267 commits del historial reescritos para unificar dos direcciones de correo del mismo autor en una sola.
+
+**1049 tests, 43/43 skills conformes, 7/7 agentes conformes. Verificado end-to-end en sesion real y confirmado en CI de los 3 sistemas operativos.**
 
 ### v3.31.0 — scope de rutas y acciones mutantes por subagente, rollback de agentes, anti-jailbreak y cuarentena de injection
 
@@ -723,7 +725,7 @@ New-Item -ItemType SymbolicLink -Path './CLAUDE.md' -Target 'C:/ruta/a/ai-core/C
 │   │   │   └── permission-decision.js Formato permissionDecision:"deny" (JSON, exit 0) para guards de friccion operativa
 │   │   └── memory-vault-prune-check.js Hook Stop: avisa (sin borrar) cuando el vault supera 50 archivos
 │   └── skills/                  43 skills — enrutamiento via frontmatter description (agentskills.io), reglas en CLAUDE.md
-├── tests/                       1045 tests — tests/harness/*.test.js (dividido por modulo) + archivos dedicados
+├── tests/                       1049 tests — tests/harness/*.test.js (dividido por modulo) + archivos dedicados
 ├── .github/workflows/ci.yml     CI: Ubuntu/Windows/macOS, Node 22 unicamente (sandboxing con Permission Model exige >= 22.13.0)
 ├── CLAUDE.md                    Autoridad unica: reglas globales, skills, enrutamiento
 ├── DEPRECATIONS.json            Contrato de migracion por version
