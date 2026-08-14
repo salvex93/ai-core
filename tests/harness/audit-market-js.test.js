@@ -15,11 +15,17 @@ describe('audit-market.js', () => {
     assert.ok(fs.existsSync(SCRIPT));
   });
 
-  test('--json produce un resumen valido con los 42 skills reales', () => {
+  test('--json produce un resumen valido con todos los skills reales del repo', () => {
+    // No fijar el conteo exacto de skills como constante -- crece con el
+    // repo (product-lifecycle-orchestrator lo elevo de 42 a 43). Verificar
+    // en cambio que el total coincide con los directorios reales de
+    // .claude/skills/, que es la fuente de verdad real.
+    const totalSkillsReal = fs.readdirSync(SKILLS, { withFileTypes: true })
+      .filter((d) => d.isDirectory()).length;
     const r = runScript(SCRIPT, ['--json']);
     assert.equal(r.status, 0);
     const salida = JSON.parse(r.stdout);
-    assert.equal(salida.resumen.total, 42);
+    assert.equal(salida.resumen.total, totalSkillsReal);
     assert.ok(Array.isArray(salida.resultados));
   });
 
@@ -49,9 +55,21 @@ describe('audit-market.js', () => {
     // Gap real: el protocolo de arranque de CLAUDE.md necesita correr esto en
     // cada sesion sin agregar ruido cuando no hay hallazgos -- --only-stale
     // sale con stdout vacio y exit 0 si no hay ningun STALE_MERCADO/DRIFT_VS_MERCADO.
-    const r = runScript(SCRIPT, ['--only-stale']);
+    // Filtrado a --skill ciso (tiene dominio registrado con "verified"
+    // reciente) para no depender de que TODOS los skills del repo tengan
+    // dominio -- product-lifecycle-orchestrator es metodologia pura (User
+    // Story Mapping/INVEST/MoSCoW/BDD/DDD, sin modelos ni SDKs que vigilar
+    // por vigencia) y correctamente no tiene entrada en MARKET_STANDARDS.json.
+    const r = runScript(SCRIPT, ['--only-stale', '--skill', 'ciso']);
     assert.equal(r.status, 0);
     assert.equal(r.stdout.trim(), '');
+  });
+
+  test('un skill de metodologia pura sin modelos/SDKs (product-lifecycle-orchestrator) reporta SIN_DOMINIO_REGISTRADO, no un error', () => {
+    const r = runScript(SCRIPT, ['--json', '--skill', 'product-lifecycle-orchestrator']);
+    assert.equal(r.status, 0);
+    const salida = JSON.parse(r.stdout);
+    assert.equal(salida.resultados[0].status, 'SIN_DOMINIO_REGISTRADO');
   });
 
   test('--only-stale con un dominio STALE si imprime el hallazgo', () => {
