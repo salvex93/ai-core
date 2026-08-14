@@ -82,6 +82,15 @@ function buildHooksSection(bin) {
   const soloRead      = { fsRead: [dirBin] };
   const soloLeerRepo  = { fsRead: [dirBin, dirRepo] };
   const readYWrite    = { fsRead: [dirBin], fsWrite: [dirTmp] };
+  // dirTmp tambien en fsRead (no solo fsWrite): los guards de break-glass
+  // (lib/break-glass.js) escriben su lock en os.tmpdir() y despues necesitan
+  // RELEERLO (fs.readFileSync/fs.existsSync) para confirmarlo -- bug real en
+  // produccion (2026-08-14): con dirTmp solo en fsWrite, el Node Permission
+  // Model dejaba escribir el lock pero bloqueaba su lectura posterior con
+  // ERR_ACCESS_DENIED, y el catch silencioso de lib/break-glass.js absorbia
+  // el error devolviendo false -- el mecanismo generaba un id real pero
+  // NINGUN CONFIRMAR-<id> llegaba a autorizar nada, sin ningun aviso visible.
+  const breakGlassRW = { fsRead: [dirBin, dirRepo, dirTmp], fsWrite: [dirRepo, dirTmp] };
   const repoReadWrite = { fsRead: [dirBin, dirRepo], fsWrite: [dirRepo, dirTmp] };
   // git status/diff/log/rev-parse/ls-files -- ningun hook de esta lista
   // ejecuta escritura via git (commit/push/reset quedan bloqueados aparte por
@@ -93,8 +102,13 @@ function buildHooksSection(bin) {
       {
         hooks: [
           { type: 'command', command: `node ${bin('process-guard.js')} intent ${nodeConPermiso(bin('detect-role.js'), soloRead)} 2>/dev/null || true` },
-          { type: 'command', command: nodeConPermiso(bin('secrets-guard.js'), readYWrite) },
-          { type: 'command', command: nodeConPermiso(bin('jailbreak-guard.js'), readYWrite) },
+          // repoReadWrite (no readYWrite): ambos usan lib/break-glass.js, que
+          // escribe el log de auditoria en .claude/BREAK_GLASS_LOG.jsonl
+          // (dentro del repo, no en $TMPDIR) -- con solo fsWrite a $TMPDIR el
+          // log fallaba en silencio (catch dentro de registrarUso(), no
+          // rompe el guard pero pierde el rastro de auditoria sin avisar).
+          { type: 'command', command: nodeConPermiso(bin('secrets-guard.js'), breakGlassRW) },
+          { type: 'command', command: nodeConPermiso(bin('jailbreak-guard.js'), breakGlassRW) },
           { type: 'command', command: `node ${bin('process-guard.js')} moa ${nodeConPermiso(bin('moa-context-gatherer.js'), repoReadWrite)} 2>/dev/null || true` },
         ],
       },
@@ -173,7 +187,16 @@ function buildHooksSection(bin) {
           { type: 'command', command: `node ${bin('process-guard.js')} health ${nodeConPermiso(bin('health-check.js'), repoConGit)} 2>&1 || true` },
           { type: 'command', command: `node ${bin('process-guard.js')} map ${nodeConPermiso(bin('validate-map.js'), repoConGit)} 2>/dev/null || true` },
           { type: 'command', command: nodeConPermiso(bin('bash-verbosity-guard.js'), soloRead) },
-          { type: 'command', command: nodeConPermiso(bin('destructive-op-guard.js')) },
+          // repoReadWrite (no soloRead): desde que usa lib/break-glass.js,
+          // el guard necesita leer .claude/bin/lib/* (el require del modulo)
+          // y escribir tanto en $TMPDIR (locks de break-glass) como en el
+          // repo (.claude/BREAK_GLASS_LOG.jsonl). Bug real encontrado en
+          // produccion: sin este permiso, --permission del Node Permission
+          // Model bloqueaba el require con ERR_ACCESS_DENIED, el guard salia
+          // con exit 1 (no 2), y Claude Code trataba cualquier exit distinto
+          // de 2 como "no bloqueante" -- el rm -rf pasaba sin bloquear pese
+          // a que el guard "existia".
+          { type: 'command', command: nodeConPermiso(bin('destructive-op-guard.js'), breakGlassRW) },
         ],
       },
       {
@@ -189,7 +212,9 @@ function buildHooksSection(bin) {
           { type: 'command', command: `${nodeConPermiso(bin('ponytail-check.js'), soloRead)} 2>/dev/null || true` },
           { type: 'command', command: `${nodeConPermiso(bin('dependency-tracer.js'), repoReadWrite)} "$CLAUDE_TOOL_INPUT_file_path" 2>/dev/null || true` },
           { type: 'command', command: `${nodeConPermiso(bin('pre-commit-tdd.js'), repoConGit)} "$CLAUDE_TOOL_INPUT_file_path"` },
-          { type: 'command', command: nodeConPermiso(bin('code-exec-guard.js'), soloRead) },
+          // repoReadWrite (no soloRead): usa lib/break-glass.js -- ver nota
+          // de destructive-op-guard.js mas arriba en este mismo archivo.
+          { type: 'command', command: nodeConPermiso(bin('code-exec-guard.js'), breakGlassRW) },
         ],
       },
       {
@@ -212,14 +237,18 @@ function buildHooksSection(bin) {
         hooks: [
           { type: 'command', command: nodeConPermiso(bin('agent-tools-guard.js'), soloLeerRepo) },
           { type: 'command', command: nodeConPermiso(bin('agent-paths-guard.js'), soloLeerRepo) },
-          { type: 'command', command: nodeConPermiso(bin('mutating-action-guard.js'), soloRead) },
+          // repoReadWrite (no soloRead): usa lib/break-glass.js -- ver nota
+          // de destructive-op-guard.js mas arriba en este mismo archivo.
+          { type: 'command', command: nodeConPermiso(bin('mutating-action-guard.js'), breakGlassRW) },
         ],
       },
       {
         matcher: 'mcp__.*',
         hooks: [
           { type: 'command', command: `${nodeConPermiso(bin('circuit-breaker.js'), repoReadWrite)} 2>&1 || true` },
-          { type: 'command', command: nodeConPermiso(bin('mutating-action-guard.js'), soloRead) },
+          // repoReadWrite (no soloRead): usa lib/break-glass.js -- ver nota
+          // de destructive-op-guard.js mas arriba en este mismo archivo.
+          { type: 'command', command: nodeConPermiso(bin('mutating-action-guard.js'), breakGlassRW) },
         ],
       },
     ],

@@ -299,6 +299,83 @@ describe('hooks-definition.js', () => {
       }
     });
 
+    test('destructive-op-guard.js tiene --allow-fs-read/--allow-fs-write suficiente para su require de lib/break-glass.js', () => {
+      // Bug real detectado en produccion (2026-08-14): el guard se registraba
+      // con nodeConPermiso(bin('destructive-op-guard.js')) SIN segundo
+      // argumento -- sin ningun --allow-fs-read. Cuando el guard empezo a
+      // usar require('./lib/break-glass') (mecanismo de break-glass), el
+      // Node Permission Model bloqueaba esa lectura con ERR_ACCESS_DENIED,
+      // el guard salia con exit 1 (no 2), y Claude Code trataba cualquier
+      // exit distinto de 2 como "no bloqueante" -- un "rm -rf" real paso sin
+      // bloquear pese a que el guard "existia" y sus tests unitarios (que
+      // corren con spawnSync, sin --permission) pasaban en verde.
+      const original = process.platform;
+      Object.defineProperty(process, 'platform', { value: 'linux' });
+      try {
+        delete require.cache[require.resolve(path.join(BIN, 'hooks-definition.js'))];
+        const { buildHooksSection: build } = require(path.join(BIN, 'hooks-definition.js'));
+        const hooks = build((s) => `"/repo/.claude/bin/${s}"`);
+
+        const comando = hooks.PreToolUse
+          .flatMap((g) => g.hooks)
+          .map((h) => h.command)
+          .find((c) => c.includes('destructive-op-guard.js'));
+
+        assert.ok(comando, 'debe encontrar la invocacion de destructive-op-guard.js');
+        assert.match(comando, /--allow-fs-read="\/repo\/\.claude\/bin\/\*"/, 'debe poder leer .claude/bin/lib/break-glass.js via require()');
+      } finally {
+        Object.defineProperty(process, 'platform', { value: original });
+        delete require.cache[require.resolve(path.join(BIN, 'hooks-definition.js'))];
+      }
+    });
+
+    test('todos los guards que usan lib/break-glass.js tienen --allow-fs-read sobre $TMPDIR (no solo --allow-fs-write)', () => {
+      // Bug real detectado en produccion (2026-08-14, segunda capa del mismo
+      // problema): "$TMPDIR" nunca aparecia en ningun fsRead de
+      // hooks-definition.js, solo en fsWrite (readYWrite/repoReadWrite). Un
+      // guard podia ESCRIBIR el lock de break-glass en os.tmpdir() pero el
+      // Node Permission Model bloqueaba con ERR_ACCESS_DENIED cualquier
+      // intento posterior de LEERLO (fs.readFileSync/fs.existsSync) para
+      // confirmarlo -- el mecanismo generaba un id real, pero
+      // confirmarBreakGlass()/accionAprobada() nunca podian verificarlo, asi
+      // que ningun CONFIRMAR-<id> llegaba a autorizar el reintento. El bug
+      // paso inadvertido porque el try/catch de lib/break-glass.js absorbe
+      // el error silenciosamente (retorna false, no lanza), consistente con
+      // el diseño fail-closed -- pero el mecanismo completo quedaba inerte.
+      const original = process.platform;
+      Object.defineProperty(process, 'platform', { value: 'linux' });
+      try {
+        delete require.cache[require.resolve(path.join(BIN, 'hooks-definition.js'))];
+        const { buildHooksSection: build } = require(path.join(BIN, 'hooks-definition.js'));
+        const hooks = build((s) => `"/repo/.claude/bin/${s}"`);
+
+        const GUARDS_CON_BREAK_GLASS = [
+          'destructive-op-guard.js', 'mutating-action-guard.js',
+          'code-exec-guard.js', 'secrets-guard.js', 'jailbreak-guard.js',
+        ];
+
+        const todosLosComandos = [
+          ...hooks.UserPromptSubmit.flatMap((g) => g.hooks),
+          ...hooks.PreToolUse.flatMap((g) => g.hooks),
+        ].map((h) => h.command);
+
+        for (const guard of GUARDS_CON_BREAK_GLASS) {
+          const comandos = todosLosComandos.filter((c) => c.includes(guard));
+          assert.ok(comandos.length >= 1, `debe encontrar al menos una invocacion de ${guard}`);
+          for (const comando of comandos) {
+            assert.match(
+              comando,
+              /--allow-fs-read="\$\{TMPDIR:-\/tmp\}\/\*"/,
+              `${guard} debe poder LEER \${TMPDIR:-/tmp} para confirmar/consultar sus propios locks de break-glass: "${comando}"`
+            );
+          }
+        }
+      } finally {
+        Object.defineProperty(process, 'platform', { value: original });
+        delete require.cache[require.resolve(path.join(BIN, 'hooks-definition.js'))];
+      }
+    });
+
     test('git-queue-advisor.js queda deliberadamente sin --permission (necesita red real hacia el remoto de git)', () => {
       const original = process.platform;
       Object.defineProperty(process, 'platform', { value: 'linux' });
