@@ -3,6 +3,54 @@
 Registro de cambios por version. Formato basado en [Keep a Changelog](https://keepachangelog.com/es/1.0.0/).
 Versionado semantico: MAJOR.MINOR.PATCH.
 
+## [3.32.0] — 2026-08-14
+
+### Corregido — 3 falsos positivos reales de guards que bloqueaban trabajo legitimo
+
+Reportado por el usuario: `pre-commit-tdd.js` bloqueaba un script de un solo uso (llamada a una API externa) al operar ai-core como submodulo, porque calculaba "fuera del repo vigilado" con `process.cwd()` (raiz del proyecto anfitrion) en vez de la raiz real de ai-core -- cualquier archivo nuevo dentro del anfitrion, sin importar su naturaleza, disparaba el gate TDD. Ahora exime archivos con nombre/carpeta convencional (`tmp_*`, `scratch/`, `.scripts/`) SOLO si ademas no estan referenciados por ningun otro modulo real via `git grep` -- evita el bypass trivial de renombrar codigo real para evadir el gate.
+
+`bash-verbosity-guard.js` bloqueaba heredocs de escritura (`cat > archivo <<EOF`) igual que un `cat` de lectura sin acotar, cuando es el patron opuesto (no vuelca nada al contexto). `destructive-op-guard.js` bloqueaba `TRUNCATE`/`DROP TABLE` como palabra dentro de un `grep`/`rg`/`findstr` sobre un archivo `.sql`, sin ejecutar nada real contra una base de datos -- la excepcion nueva exige que la herramienta de busqueda aparezca antes del patron destructivo en el mismo comando, para no eximir un `TRUNCATE` real encadenado despues de un `grep`.
+
+### Agregado — mecanismo transversal de break-glass para guards de riesgo real
+
+El usuario pidio explicitamente que el arnes "no sea un stopper, sea mejor validador" sin perder el marco de reduccion de errores en produccion -- deep research (7 agentes) confirmo que ni Claude Code ni frameworks de guardrails de referencia (Guardrails AI, NeMo Guardrails, LangChain, AutoGPT) tienen un mecanismo equivalente nombrado como estandar; el patron ya usado en `jailbreak-guard.js`/`injection-quarantine.js` (id de un solo uso, TTL corto, confirmacion solo via mensaje real del usuario) resulto ser estructuralmente identico al patron break-glass real de AWS/Kubernetes (acceso elevado temporal + revocacion automatica + auditoria).
+
+`lib/break-glass.js` (nuevo) generaliza ese patron: `solicitarBreakGlass(guardId, contexto)` genera un id de 8 hex y persiste el lock; `confirmarBreakGlass(id)` lo valida/consume y registra el uso en `.claude/BREAK_GLASS_LOG.jsonl` (append-only, gitignored -- primer registro de auditoria de este tipo en el arnes); `accionAprobada(guardId, hash)` ata la aprobacion al hash de la ACCION EXACTA bloqueada, no al id en abstracto -- confirmar un `CONFIRMAR-<id>` autoriza unicamente el reintento de esa misma tool call/comando, nunca una excepcion general para acciones futuras, y se consume en el primer reintento.
+
+Aplicado a los 4 guards que antes pedian "confirma explicitamente" solo en prosa sin ningun enforcement tecnico (el reintento del mismo comando volvia a bloquear identico): `mutating-action-guard.js`, `destructive-op-guard.js` (11 reglas sin alternativa segura equivalente: `rm -rf`, `git reset --hard`, `git clean -f`, `git branch -D`, `terraform apply -auto-approve`, `docker system prune --volumes`, `docker volume rm`, `git push --delete`, `del /f /s /q`, `Remove-Item -Recurse -Force`, `TRUNCATE`/`DROP TABLE`/`DROP DATABASE` -- la excepcion previa de comentario literal `-- confirmado` se mantiene intacta como via adicional), `code-exec-guard.js`, `secrets-guard.js` (caso distinto: corre en `UserPromptSubmit`, no hay tool call que reintentar -- el hash de aprobacion es sobre el PROMPT completo, confirmar autoriza solo reenviar ese mismo texto exacto).
+
+Deliberadamente SIN break-glass, hard-stop absoluto sin ninguna excepcion (confirmado por el research, no una brecha): ofuscacion de comando via `eval`/`Invoke-Expression`/`iex` sobre variable, y `Co-Authored-By`/atribucion de autoria de IA en mensajes de commit.
+
+### Corregido — bug critico: el break-glass estaba roto en produccion, encontrado probando en sesion real
+
+Descubierto pidiendole al usuario que probara el mecanismo en su propia sesion de Claude Code (no en un test): la primera prueba no bloqueo en absoluto -- `destructive-op-guard.js` se registraba en `hooks-definition.js` sin ningun `--allow-fs-read`, su `require('./lib/break-glass')` fallaba con `ERR_ACCESS_DENIED` del Node Permission Model, el guard salia con exit 1 (no 2), y Claude Code trata cualquier exit distinto de 2 como no bloqueante.
+
+Corregido ese permiso, la segunda prueba SI bloqueo y genero un id real -- pero confirmarlo nunca autorizaba el reintento. Causa raiz: `"${TMPDIR:-/tmp}/*"` (donde vive el lock de break-glass) aparecia en `fsWrite` de varias combinaciones de permisos de `hooks-definition.js`, pero NUNCA en `fsRead`, en ninguna combinacion. El guard podia escribir el lock al bloquear pero el Node Permission Model bloqueaba con `ERR_ACCESS_DENIED` cualquier intento posterior de leerlo para confirmarlo -- el catch silencioso de `lib/break-glass.js` (diseño fail-closed intencional) absorbia el error sin ningun aviso visible, ni en el guard ni en sus 1034+ tests unitarios en verde, porque esos tests invocan los guards con `spawnSync` sin el flag `--permission` que Claude Code si usa en produccion real.
+
+Nuevo permiso `breakGlassRW` (`fsRead` incluye `.claude/bin`, el repo, Y `$TMPDIR`; `fsWrite` incluye el repo y `$TMPDIR`) aplicado a los 5 guards que usan `lib/break-glass.js`. Verificado end-to-end con un script que reproduce el ciclo completo real: bloqueo, confirmacion, reintento exacto del mismo comando pasa.
+
+### Agregado — 3 guards de friccion operativa migrados a permissionDecision (no break-glass)
+
+`guard-read.js` (limite de 200 lineas por archivo), `agent-paths-guard.js` y `agent-tools-guard.js` (scope de rutas/herramientas declarado en `AGENT.md`) bloqueaban con el mismo exit 2 duro que los guards de riesgo de seguridad real, pese a ser friccion de politica/configuracion estatica sin nada que auditar. Migrados a `permissionDecision:"deny"` (JSON en stdout, exit 0) via `lib/permission-decision.js` (nuevo) -- formato documentado oficialmente por Anthropic (`code.claude.com/docs/en/hooks`) para este tipo de bloqueo: Claude ve la razon en el mismo turno y puede reformular la accion sin que el humano tenga que aprobar nada. Sin registro de auditoria (decision explicita del usuario): no hay riesgo de seguridad activo que justifique el log.
+
+Hallazgo colateral real: `scripts/services/SessionCacheMetrics.js` contaba bloqueos de `guard-read.js` buscando el string literal `"GUARD-READ"` en la transcripcion de sesion -- con el nuevo formato JSON esa metrica se habria quedado en cero silenciosamente. Corregido agregando deteccion del nuevo marcador (`mcp__gemini-bridge__analizar_archivo` dentro de `permissionDecisionReason`) sin romper la deteccion legacy, detectado con un grep dirigido antes de commitear, no en produccion.
+
+### Agregado — skill nuevo: product-lifecycle-orchestrator (43avo skill)
+
+Ningun skill cubria la fase de definicion de producto (historias de usuario, epicas, priorizacion, criterios de aceptacion) antes de que exista una tarea tecnica delimitada -- `dev-loop` opera sobre una tarea ya definida, `saas-product-architect` cubre estrategia de negocio B2B. Nuevo skill verificado con fuentes primarias reales (no interpretacion de terceros vía research de 7 agentes en Workflow):
+
+- **User Story Mapping (Jeff Patton)**: correccion real de terminologia comun -- Patton rechaza explicitamente el termino "Epic" (`jpattonassociates.com/the-new-backlog/`, cita literal: "I hate that word 'epic'") y usa la jerarquia `Activity -> User Task -> User Story`, no `Theme -> Epic -> Feature -> Story` como suele asumirse por convencion de Jira/Azure DevOps.
+- **INVEST (Bill Wake, xp123.com)**: filtro de calidad de 6 criterios para cada User Story antes de pasarla a `dev-loop`.
+- **MoSCoW (DSDM/Agile Business Consortium)**: regla real de esfuerzo verificada contra fuente oficial -- maximo 60% del esfuerzo en "Must have".
+- **BDD/Gherkin (Dan North, Gojko Adzic, cucumber.io)**: sintaxis exacta con ejemplo bien escrito vs. antipatron ambiguo no automatizable.
+- **DDD estrategico (Eric Evans, Martin Fowler)**: Bounded Context y Context Mapping (Shared Kernel, Customer-Supplier, Anticorruption Layer) para delimitar Epicas/Features antes de que lleguen a arquitectura.
+
+Incluye fase de hypercare/soporte post-golive (terminologia ITIL "Early Life Support", Production Readiness Review de Google SRE) con criterios de salida explicitos hacia soporte regular. Orquesta delegando a los skills existentes por etapa (`dev-loop`, `qa-engineer`, `release-manager`, `backend-architect`/`tech-lead-frontend`, `llm-observability`) en vez de duplicar su contenido. Puramente conversacional -- evaluado contra el criterio de 3 puntos de CLAUDE.md para agentes autonomos y descartado explicitamente (la definicion colaborativa de historias no admite automatizacion sin intervencion humana por turno).
+
+Ajustados 2 tests que asumian "42 skills" como constante fija (`audit-market-js.test.js`, `health-sync-js-checkskills.test.js`) en vez de verificar contra el conteo real de `.claude/skills/` -- crecen con el repo.
+
+**1045 tests, 43/43 skills conformes, 7/7 agentes conformes. Verificado end-to-end en sesion real, no solo en tests unitarios.**
+
 ## [3.31.0] — 2026-08-08
 
 Consolida las 3 rondas de trabajo de seguridad y tokenomics de los dias 2026-08-07/08 (ver detalle completo mas abajo, bajo "Sin version — mantenimiento"): scope de rutas y acciones mutantes por subagente (`agent-paths-guard.js`, `mutating-action-guard.js`), rollback de agentes (`agent-snapshot.js` + `scripts/rollback-agent.js`), anti-jailbreak (`jailbreak-guard.js`) y cuarentena de prompt injection (`injection-quarantine-guard.js`), mas verificacion de umbral de ahorro por prompt caching (`scripts/services/SessionCacheMetrics.js`, 95% real medido en sesion).

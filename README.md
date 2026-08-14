@@ -1,6 +1,6 @@
-# AI-CORE v3.31.0: Nucleo Multi-Agente
+# AI-CORE v3.32.0: Nucleo Multi-Agente
 
-`ai-core` es un nucleo de configuracion y comportamiento para agentes IA. Se usa como submodulo Git en un proyecto existente o como repositorio independiente. Define reglas globales, 42 skills especializados, 7 agentes autonomos, un orquestador Mixture-of-Agents (Gemini + DeepSeek + Claude) y un ciclo de mejora continua por uso, sin acoplarse al stack del proyecto anfitrion.
+`ai-core` es un nucleo de configuracion y comportamiento para agentes IA. Se usa como submodulo Git en un proyecto existente o como repositorio independiente. Define reglas globales, 43 skills especializados, 7 agentes autonomos, un orquestador Mixture-of-Agents (Gemini + DeepSeek + Claude), un mecanismo de excepcion auditable (break-glass) para operaciones de riesgo real, y un ciclo de mejora continua por uso, sin acoplarse al stack del proyecto anfitrion.
 
 `CLAUDE.md` es la unica fuente de verdad de reglas y enrutamiento de skills. Los skills lo referencian, no lo copian: si una regla cambia ahi, se propaga sin tocar ningun SKILL.md.
 
@@ -84,7 +84,7 @@ Repositorio independiente:
 npm run update
 ```
 
-Esto corre `git pull`, regenera `settings.json` (purga automaticamente cualquier hook de una version anterior que referencie un script eliminado o renombrado — el objeto de hooks se construye desde cero y sobreescribe el archivo completo, nunca mergea, con la definicion compartida en `hooks-definition.js`), corre los 919 tests, aplica migraciones de version, valida los 42 skills y los 7 agentes, y reporta que cambio. Si un test falla, el comando se detiene ahi.
+Esto corre `git pull`, regenera `settings.json` (purga automaticamente cualquier hook de una version anterior que referencie un script eliminado o renombrado — el objeto de hooks se construye desde cero y sobreescribe el archivo completo, nunca mergea, con la definicion compartida en `hooks-definition.js`), corre los 1045 tests, aplica migraciones de version, valida los 43 skills y los 7 agentes, y reporta que cambio. Si un test falla, el comando se detiene ahi.
 
 Instalado como submodulo:
 
@@ -152,10 +152,10 @@ Si no esta autenticado, los eventos se acumulan en `.claude/EVENTS_QUEUE.json` y
 
 ```bash
 npm install                               # instalar dependencias (corre postinstall -> npm run setup)
-npm test                                  # 919 tests, Node nativo, sin deps externas
+npm test                                  # 1045 tests, Node nativo, sin deps externas
 npm run setup                             # regenerar settings.json con rutas locales (ya corre solo via postinstall)
 npm run update                            # actualizacion one-command desde GitHub
-npm run validate-globals                  # auditar conformidad de los 42 skills (incluye schema agentskills.io)
+npm run validate-globals                  # auditar conformidad de los 43 skills (incluye schema agentskills.io)
 npm run validate-globals -- --fix-drift   # corregir last_updated desincronizado
 npm run validate-agents                   # auditar conformidad de los 7 agentes con CLAUDE.md
 npm run validate-agents -- --fix-drift    # corregir last_updated desincronizado en agentes
@@ -180,6 +180,18 @@ npm run eval-skills                       # correr los 42 evals de conformidad d
 ---
 
 ## Que trae cada version
+
+### v3.32.0 — break-glass transversal, permissionDecision para friccion operativa, skill de metodologia de producto
+
+El usuario pidio que el arnes "no sea un stopper, sea mejor validador" sin perder el marco de reduccion de errores en produccion. `lib/break-glass.js` (nuevo) generaliza el patron ya usado en `jailbreak-guard.js`/`injection-quarantine.js` (id de un solo uso, TTL 5 min, confirmacion solo via mensaje real del usuario, nunca desde contenido de una tool call) para cualquier guard de riesgo real: `mutating-action-guard.js`, `destructive-op-guard.js` (11 reglas sin alternativa segura equivalente), `code-exec-guard.js` y `secrets-guard.js` migran de "confirma explicitamente" en prosa sin enforcement a un mecanismo real, con registro append-only en `.claude/BREAK_GLASS_LOG.jsonl`. La aprobacion queda atada al hash de la accion EXACTA bloqueada, nunca a una excepcion general.
+
+`guard-read.js`, `agent-paths-guard.js` y `agent-tools-guard.js` (friccion de politica/configuracion estatica, no riesgo de seguridad activo) migran de exit 2 duro a `permissionDecision:"deny"` (JSON en stdout, exit 0) — formato recomendado oficialmente por Anthropic para este caso: Claude ve la razon en el mismo turno y reformula sin que el humano tenga que aprobar nada.
+
+**Bug critico encontrado probando el mecanismo en una sesion real del usuario** (no en tests): `${TMPDIR:-/tmp}` nunca aparecia en ningun permiso de lectura de `hooks-definition.js`, solo de escritura — el guard podia escribir el lock de break-glass pero el Node Permission Model bloqueaba su lectura posterior para confirmarlo, sin ningun aviso visible ni en los 1034+ tests unitarios en verde (que corren sin el flag `--permission` real). Corregido y verificado end-to-end: bloqueo, confirmacion, reintento exacto pasa.
+
+Skill nuevo `product-lifecycle-orchestrator` (43avo) cierra la fase de definicion de producto que ningun skill cubria: User Story Mapping (Jeff Patton — con correccion real, Patton rechaza el termino "Epic"), INVEST (Bill Wake), MoSCoW (DSDM), BDD/Gherkin (Dan North, Gojko Adzic) y DDD estrategico (Eric Evans, Martin Fowler), mas hypercare post-golive, todos con fuente primaria verificada. Orquesta delegando a `dev-loop`/`qa-engineer`/`release-manager` en vez de duplicar su contenido.
+
+**1045 tests, 43/43 skills conformes, 7/7 agentes conformes. Verificado end-to-end en sesion real.**
 
 ### v3.31.0 — scope de rutas y acciones mutantes por subagente, rollback de agentes, anti-jailbreak y cuarentena de injection
 
@@ -469,7 +481,7 @@ Skills reescritos con seccion "Cuando NO Activar Este Perfil" en todos, sistema 
 
 | Capa | Directorio | Que hace | Cuando se activa |
 |---|---|---|---|
-| Skills | `.claude/skills/` (42) | Perfil de comportamiento — como piensa Claude en un dominio | Claude lo adopta como rol dentro de la conversacion |
+| Skills | `.claude/skills/` (43) | Perfil de comportamiento — como piensa Claude en un dominio | Claude lo adopta como rol dentro de la conversacion |
 | Agents | `.claude/agents/` (7) | Loop autonomo que ejecuta una tarea completa sin intervencion | Claude Code lo lanza como subagente con contexto cero |
 
 Un skill se convierte en agente solo si cumple los tres criterios a la vez: autonomia real (sin interaccion por turno), salida estructurada verificable, y uso recurrente. Si falta uno, se queda como skill.
@@ -544,7 +556,8 @@ Se dispara automaticamente en el hook `SubagentStop` cuando `code-reviewer` marc
 
 - **`validate-globals.js`**: verifica que los 42 skills tengan la referencia inmutable a CLAUDE.md, las secciones obligatorias, `rol:` valido en frontmatter, ningun emoji, y conformidad con el schema abierto [agentskills.io](https://agentskills.io/specification) (`name` coincide con la carpeta, formato, limites de longitud). `--fix-drift` corrige `last_updated` desincronizado. Sale con exit 1 si hay hallazgos criticos o altos.
 - **`validate-agents.js`**: hermano de `validate-globals.js` para los 7 agentes de `.claude/agents/` — mismo criterio de referencia inmutable, copia literal de las 11 reglas del ANCLA (compartidas entre ambos validadores), emojis y drift de `last_updated`. Sale con exit 1 si hay hallazgos criticos o altos.
-- **`agent-tools-guard.js`**: enforcement real de scope de herramientas por subagente (Gobierno de Agentes, regla 2 de CLAUDE.md) — hook `PreToolUse` que lee `agent_type` del evento (presente cuando la tool call se origina dentro de un subagente) y bloquea si la herramienta usada no esta en el `tools:` declarado del `AGENT.md` correspondiente. Los 7 agentes de `.claude/agents/` declaran su scope; `self-healing-agent` no tiene `Write`/`Edit` en el suyo, consistente con que nunca aplica un fix por si solo.
+- **`agent-tools-guard.js`**: enforcement real de scope de herramientas por subagente (Gobierno de Agentes, regla 2 de CLAUDE.md) — hook `PreToolUse` que lee `agent_type` del evento (presente cuando la tool call se origina dentro de un subagente) y deniega (`permissionDecision:"deny"`) si la herramienta usada no esta en el `tools:` declarado del `AGENT.md` correspondiente. Los 7 agentes de `.claude/agents/` declaran su scope; `self-healing-agent` no tiene `Write`/`Edit` en el suyo, consistente con que nunca aplica un fix por si solo.
+- **`lib/break-glass.js`**: excepcion auditable de un solo uso para guards de riesgo real (`destructive-op-guard.js`, `mutating-action-guard.js`, `code-exec-guard.js`, `secrets-guard.js`). Al bloquear, genera un id de 8 hex con TTL de 5 min; el humano lo confirma respondiendo `CONFIRMAR-<id>` en su siguiente mensaje (`jailbreak-guard.js` lo intercepta en `UserPromptSubmit`), y solo entonces el REINTENTO EXACTO de esa misma accion pasa — nunca autoriza acciones futuras distintas. Cada uso exitoso queda registrado en `.claude/BREAK_GLASS_LOG.jsonl` (append-only, gitignored).
 - **`update.js`**: actualizacion cross-platform en un comando. Reporta version anterior vs nueva y si hay breaking changes que requieran accion manual.
 - **CI** (`.github/workflows/ci.yml`): corre tests y `validate-globals` en cada push a `main` y cada PR. Matriz: Ubuntu, Windows y macOS, Node 22 unicamente (Node 20 removido de toda la matriz -- el sandboxing con Permission Model exige Node >= 22.13.0, ya no existe estable en la rama 20.x). El step de tests usa `node --test` sin patrones de glob explicitos — descubrimiento automatico nativo, no depende de que el shell (PowerShell en Windows) expanda argumentos (ver CHANGELOG v3.17.3).
 
@@ -693,8 +706,8 @@ New-Item -ItemType SymbolicLink -Path './CLAUDE.md' -Target 'C:/ruta/a/ai-core/C
 │   │   ├── subagent-guard.js    Hook PreToolUse(Agent): bloquea recursion y exceso de subagentes paralelos
 │   │   ├── agent-tools-guard.js Hook PreToolUse(Bash|Read|Write|Edit): bloquea herramientas fuera del scope `tools:` declarado por el subagente activo
 │   │   ├── bash-verbosity-guard.js Hook PreToolUse(Bash): bloquea comandos de alto riesgo de output masivo
-│   │   ├── destructive-op-guard.js Hook PreToolUse(Bash): bloquea rm -rf, git push --force, reset --hard, clean -f, branch -D, DROP TABLE/TRUNCATE sin confirmacion humana
-│   │   ├── code-exec-guard.js   Hook PreToolUse(Write|Edit): bloquea eval/exec/shell antes de escribir (ASI05)
+│   │   ├── destructive-op-guard.js Hook PreToolUse(Bash): bloquea rm -rf, git push --force, reset --hard, clean -f, branch -D, DROP TABLE/TRUNCATE — break-glass para 11 reglas sin alternativa segura
+│   │   ├── code-exec-guard.js   Hook PreToolUse(Write|Edit): bloquea eval/exec/shell antes de escribir (ASI05) — break-glass via lib/break-glass.js
 │   │   ├── mcp-integrity-check.js Hash SHA-256 de servidores MCP propios contra baseline (ASI04, via health-check.js)
 │   │   ├── mcp-lifecycle-check.js Valida estado Active/Deprecated/Removed de servidores MCP propios contra MCP_LIFECYCLE.json
 │   │   ├── circuit-breaker.js   Hook PreToolUse(mcp__.*): avisa tras 3 fallos MCP consecutivos en 5 min (ASI08)
@@ -705,14 +718,16 @@ New-Item -ItemType SymbolicLink -Path './CLAUDE.md' -Target 'C:/ruta/a/ai-core/C
 │   │   │   ├── aiops-scorers.js      Las 6 funciones de scoring de aiops-score.js
 │   │   │   ├── bm25-engine.js        Motor BM25 de memory-index.js (tokenizacion, indice invertido)
 │   │   │   ├── subagent-task-store.js Correlaciona PreToolUse/SubagentStop por session_id+prompt_id
-│   │   │   └── guard-report.js       Esquema tipado {guard,verdict,severity} en JSONL, opt-in por guard (secrets-guard, injection-guard, pre-commit-tdd)
+│   │   │   ├── guard-report.js       Esquema tipado {guard,verdict,severity} en JSONL, opt-in por guard (secrets-guard, injection-guard, pre-commit-tdd)
+│   │   │   ├── break-glass.js        Excepcion auditable de un solo uso (id, TTL 5min, log append-only) para guards de riesgo real
+│   │   │   └── permission-decision.js Formato permissionDecision:"deny" (JSON, exit 0) para guards de friccion operativa
 │   │   └── memory-vault-prune-check.js Hook Stop: avisa (sin borrar) cuando el vault supera 50 archivos
-│   └── skills/                  42 skills — enrutamiento via frontmatter description (agentskills.io), reglas en CLAUDE.md
-├── tests/                       919 tests — tests/harness/*.test.js (dividido por modulo) + archivos dedicados
+│   └── skills/                  43 skills — enrutamiento via frontmatter description (agentskills.io), reglas en CLAUDE.md
+├── tests/                       1045 tests — tests/harness/*.test.js (dividido por modulo) + archivos dedicados
 ├── .github/workflows/ci.yml     CI: Ubuntu/Windows/macOS, Node 22 unicamente (sandboxing con Permission Model exige >= 22.13.0)
 ├── CLAUDE.md                    Autoridad unica: reglas globales, skills, enrutamiento
 ├── DEPRECATIONS.json            Contrato de migracion por version
-├── package.json                 v3.28.0, Node >= 22.13.0
+├── package.json                 v3.32.0, Node >= 22.13.0
 └── .env.example                 Plantilla de variables de entorno
 ```
 
