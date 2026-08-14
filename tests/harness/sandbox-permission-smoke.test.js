@@ -51,7 +51,33 @@ describe('sandboxing de hooks propios — Node.js Permission Model (smoke test)'
     assert.match(r.stderr, /ERR_ACCESS_DENIED|Access to this API has been restricted/);
   });
 
-  test('destructive-op-guard.js no requiere --allow-fs-read (solo lee stdin, un fd ya abierto)', () => {
+  test('destructive-op-guard.js CON --allow-fs-read: bloquea el patron destructivo normalmente', () => {
+    // Regresion real (2026-08-14): este test asumia que destructive-op-guard.js
+    // no necesitaba ningun --allow-fs-read porque solo leia stdin (un fd ya
+    // abierto, sin permiso de filesystem). Desde que el guard usa
+    // require('./lib/break-glass') para el mecanismo de excepcion auditable,
+    // SI necesita leer .claude/bin/lib/break-glass.js -- sin el permiso, el
+    // require fallaba con ERR_ACCESS_DENIED (exit 1, no exit 2), y Claude
+    // Code trata cualquier exit distinto de 2 como no bloqueante. Este mismo
+    // gap rompio CI real en ubuntu-latest/macos-latest (el describe se salta
+    // en Windows, por eso nunca se detecto localmente antes de pushear).
+    const evento = JSON.stringify({ tool_input: { command: 'rm -rf /tmp/algo' } });
+    const dirBin = path.join(BIN, '*');
+
+    const r = spawnSync('node', [
+      '--permission',
+      `--allow-fs-read=${dirBin}`,
+      path.join(BIN, 'destructive-op-guard.js'),
+    ], { input: evento, encoding: 'utf8', cwd: REPO });
+
+    assert.equal(r.status, 2, 'debe bloquear el patron destructivo con el permiso de lectura que su require necesita');
+    assert.match(r.stderr, /DESTRUCTIVE-OP-GUARD/);
+  });
+
+  test('destructive-op-guard.js SIN --allow-fs-read: falla de forma controlada (EPERM), no silenciosa', () => {
+    // Documenta el comportamiento real de fallo -- si algun dia el require
+    // de lib/break-glass.js se elimina o se vuelve opcional, este test debe
+    // fallar para forzar la actualizacion del smoke test de arriba tambien.
     const evento = JSON.stringify({ tool_input: { command: 'rm -rf /tmp/algo' } });
 
     const r = spawnSync('node', [
@@ -59,8 +85,9 @@ describe('sandboxing de hooks propios — Node.js Permission Model (smoke test)'
       path.join(BIN, 'destructive-op-guard.js'),
     ], { input: evento, encoding: 'utf8', cwd: REPO });
 
-    assert.equal(r.status, 2, 'debe bloquear el patron destructivo sin necesitar ningun --allow-fs-*');
-    assert.match(r.stderr, /DESTRUCTIVE-OP-GUARD/);
+    assert.notEqual(r.status, 0, 'sin permiso de lectura, el hook no debe poder correr silenciosamente con exit 0');
+    assert.notEqual(r.status, 2, 'sin el permiso que su propio require necesita, el fallo debe ser por EPERM, no el bloqueo normal del guard');
+    assert.match(r.stderr, /ERR_ACCESS_DENIED|Access to this API has been restricted/);
   });
 
   test('secrets-guard.js sin --allow-fs-write: el guard sigue bloqueando (emitirReporte es best-effort, nunca lanza)', () => {
@@ -78,5 +105,49 @@ describe('sandboxing de hooks propios — Node.js Permission Model (smoke test)'
 
     assert.equal(r.status, 2, 'el bloqueo del guard no debe depender de si el reporte de telemetria logro escribirse');
     assert.match(r.stderr, /secrets-guard.*BLOQUEADO/);
+  });
+
+  test('secrets-guard.js SIN --allow-fs-read: falla de forma controlada (EPERM), no silenciosa', () => {
+    // Mismo gap que destructive-op-guard.js: secrets-guard.js usa
+    // require('./lib/break-glass') desde esta sesion -- sin permiso de
+    // lectura, ese require debe fallar con EPERM, no dejar pasar el prompt
+    // con la credencial sin bloquear.
+    const evento = JSON.stringify({ prompt_text: 'mi token es ghp_1234567890abcdefghij1234567890abcdef' });
+
+    const r = spawnSync('node', [
+      '--permission',
+      path.join(BIN, 'secrets-guard.js'),
+    ], { input: evento, encoding: 'utf8', cwd: REPO, env: { ...process.env, CLAUDE_USER_PROMPT: '' } });
+
+    assert.notEqual(r.status, 0, 'sin permiso de lectura, el hook no debe poder correr silenciosamente con exit 0');
+    assert.notEqual(r.status, 2, 'sin el permiso que su propio require necesita, el fallo debe ser por EPERM, no el bloqueo normal del guard');
+    assert.match(r.stderr, /ERR_ACCESS_DENIED|Access to this API has been restricted/);
+  });
+
+  test('mutating-action-guard.js CON --allow-fs-read: bloquea una accion mutante de subagente normalmente', () => {
+    const evento = JSON.stringify({ agent_type: 'test', tool_name: 'mcp__pmo__crear_tarea', tool_input: {} });
+    const dirBin = path.join(BIN, '*');
+
+    const r = spawnSync('node', [
+      '--permission',
+      `--allow-fs-read=${dirBin}`,
+      path.join(BIN, 'mutating-action-guard.js'),
+    ], { input: evento, encoding: 'utf8', cwd: REPO });
+
+    assert.equal(r.status, 2, 'debe bloquear la accion mutante con el permiso de lectura que su require necesita');
+    assert.match(r.stderr, /MUTATING-ACTION-GUARD/);
+  });
+
+  test('mutating-action-guard.js SIN --allow-fs-read: falla de forma controlada (EPERM), no silenciosa', () => {
+    const evento = JSON.stringify({ agent_type: 'test', tool_name: 'mcp__pmo__crear_tarea', tool_input: {} });
+
+    const r = spawnSync('node', [
+      '--permission',
+      path.join(BIN, 'mutating-action-guard.js'),
+    ], { input: evento, encoding: 'utf8', cwd: REPO });
+
+    assert.notEqual(r.status, 0, 'sin permiso de lectura, el hook no debe poder correr silenciosamente con exit 0');
+    assert.notEqual(r.status, 2, 'sin el permiso que su propio require necesita, el fallo debe ser por EPERM, no el bloqueo normal del guard');
+    assert.match(r.stderr, /ERR_ACCESS_DENIED|Access to this API has been restricted/);
   });
 });
