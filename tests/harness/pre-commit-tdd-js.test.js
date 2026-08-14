@@ -76,4 +76,49 @@ describe('pre-commit-tdd.js', () => {
     fs.rmSync(repoTmp, { recursive: true, force: true });
     assert.equal(r.status, 0, 'si ya hay un *.test.js tocado en la sesion, no bloquea');
   });
+
+  test('bloquea igual cuando el repo esta detras de un symlink (mismatch real de macOS: os.tmpdir() sin resolver vs process.cwd() resuelto)', () => {
+    // Bug real de CI (2026-08-14): en macOS, os.tmpdir() puede devolver una
+    // ruta con el symlink de sistema sin resolver (ej. /var/folders/...),
+    // mientras que process.cwd() del proceso hijo (REPO = process.cwd() en
+    // pre-commit-tdd.js) puede resolverlo a su target real (/private/var/
+    // folders/...) o viceversa -- path.relative(REPO, path.resolve(filePath))
+    // calculaba una ruta con ".." de mas si un lado estaba resuelto y el
+    // otro no, activando esFueraDelRepo=true por error y dejando pasar
+    // codigo fuente real sin bloquear (exit 0 en vez de exit 2).
+    const base = fs.mkdtempSync(path.join(os.tmpdir(), 'pre-commit-tdd-symlink-'));
+    const real = path.join(base, 'real-repo');
+    fs.mkdirSync(real, { recursive: true });
+    spawnSync('git', ['init', '-q'], { cwd: real });
+    spawnSync('git', ['config', 'user.email', 'test@test.com'], { cwd: real });
+    spawnSync('git', ['config', 'user.name', 'Test'], { cwd: real });
+
+    const link = path.join(base, 'link-repo');
+    try {
+      fs.symlinkSync(real, link, 'junction');
+    } catch {
+      fs.rmSync(base, { recursive: true, force: true });
+      return; // entorno sin permiso para symlinks -- no aplica, no falsear el test
+    }
+
+    const srcDir = path.join(link, 'src');
+    fs.mkdirSync(srcDir, { recursive: true });
+    fs.writeFileSync(path.join(srcDir, 'helper.js'), 'module.exports = {};');
+    // filePath se pasa RESUELTO (fs.realpathSync) mientras el guard corre
+    // con cwd = link SIN resolver -- exactamente la asimetria que rompe en
+    // macOS entre os.tmpdir() y process.cwd() del proceso hijo.
+    const objetivoSinResolver = path.join(srcDir, 'servicio.js');
+    fs.writeFileSync(objetivoSinResolver, "require('./helper');");
+    const objetivoResuelto = fs.realpathSync(objetivoSinResolver);
+
+    const r = spawnSync('node', [GUARD, objetivoResuelto], {
+      encoding: 'utf8',
+      cwd: link,
+      env: { ...process.env, AI_CORE_TEST_MODE: '1' },
+    });
+    fs.rmSync(base, { recursive: true, force: true });
+
+    assert.equal(r.status, 2, 'debe bloquear aunque filePath y cwd difieran en resolucion de symlink');
+    assert.ok(r.stderr.includes('TDD-GATE'));
+  });
 });

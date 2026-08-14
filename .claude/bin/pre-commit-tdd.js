@@ -25,7 +25,21 @@ const { emitirReporte }     = require('./lib/guard-report');
 // El repo a auditar es el directorio de trabajo activo (proyecto anfitrion o
 // el propio ai-core en standalone) — no la ruta de instalacion de este script,
 // que en modo submodulo vive dentro de .claude/ai-core/ del anfitrion.
-const REPO = process.cwd();
+//
+// realpathSync (con fallback al valor crudo si falla, ej. el directorio no
+// existe todavia): bug real de CI (2026-08-14, especifico de macOS) --
+// os.tmpdir() puede devolver una ruta con un symlink de sistema SIN resolver
+// (ej. /var/folders/...), mientras que process.cwd() del proceso hijo puede
+// resolverlo a su target real (/private/var/folders/...) o al reves. Sin
+// normalizar ambos lados de la misma forma, path.relative(REPO,
+// path.resolve(filePath)) mas abajo calculaba una ruta con ".." de mas
+// cuando un lado estaba resuelto y el otro no, activando esFueraDelRepo=true
+// por error y dejando pasar codigo fuente real sin bloquear el gate TDD.
+function resolverRealSiExiste(ruta) {
+  try { return fs.realpathSync(ruta); } catch { return ruta; }
+}
+
+const REPO = resolverRealSiExiste(process.cwd());
 
 // CLAUDE_TOOL_INPUT_file_path nunca existio como variable de entorno real
 // (confirmado contra code.claude.com/docs/en/hooks) -- el JSON de stdin trae
@@ -39,7 +53,7 @@ if (!filePath) process.exit(0);
 const TEST_EXTS = ['.js', '.ts', '.py'];
 const ext = path.extname(filePath).toLowerCase();
 const esArchivoFuente = TEST_EXTS.includes(ext);
-const relPath = path.relative(REPO, path.resolve(filePath));
+const relPath = path.relative(REPO, resolverRealSiExiste(path.resolve(filePath)));
 const relPathPosix = relPath.split(path.sep).join('/');
 
 const esArchivoDeTest = /\.test\.js$|\.spec\.js$|^tests\//.test(relPathPosix);
