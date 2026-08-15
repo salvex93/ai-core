@@ -64,6 +64,16 @@ const SECCIONES_OBLIGATORIAS = [
   'Restricciones del Perfil',
 ];
 
+// Gate de Calidad Medible obligatorio SOLO para skills rol:auditor (hallazgo
+// de auditoria de scaffolding 2026-08-15: el paper arxiv 2607.17044 confirma
+// que la confiabilidad de un agente viene de gates verificables, no de
+// prosa de precaucion -- sin este chequeo, borrar el gate de un skill
+// auditor por error no lo detecta ningun hook ni script, solo una lectura
+// manual). Regex flexible (no string literal exacto): algunos skills usan
+// variantes del titulo ("Gate de evaluacion medible" en
+// mcp-registry-navigator) que son equivalentes en intencion.
+const GATE_CALIDAD_MEDIBLE_RE = /gate de (calidad|evaluaci[oó]n) medible/i;
+
 // ─── Referencia inmutable que debe estar en cada skill ───────────────────────
 const REFERENCIA_INMUTABLE = 'Reglas de sesion activas: CLAUDE.md > este skill.';
 
