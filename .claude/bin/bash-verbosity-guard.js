@@ -38,10 +38,16 @@ function leerComandoDeStdin() {
 
 // CLAUDE_TOOL_INPUT_command como fallback: nunca la establece Claude Code en
 // produccion, pero permite invocacion manual/tests sin tener que armar JSON.
-const cmd = process.env.CLAUDE_TOOL_INPUT_command
+const cmdOriginal = process.env.CLAUDE_TOOL_INPUT_command
   || (!process.stdin.isTTY ? leerComandoDeStdin() : '');
 
-if (!cmd) process.exit(0);
+if (!cmdOriginal) process.exit(0);
+
+// Normalizacion Unicode antes de matchear (hallazgo red-team 2026-08-15) --
+// mismo motivo que destructive-op-guard.js. El mensaje de bloqueo sigue
+// mostrando cmdOriginal.
+const { normalizarTexto } = require('./lib/normalizar-texto');
+const cmd = normalizarTexto(cmdOriginal);
 
 // Cada regla: patron que dispara el bloqueo + patron de excepcion (si el
 // comando YA incluye una forma de acotar, no se bloquea) + sugerencia.
