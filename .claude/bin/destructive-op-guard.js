@@ -196,7 +196,7 @@ const REGLAS = [
   },
   {
     nombre: 'git clean -f',
-    disparo: /\bgit\s+clean\s+.*-[a-zA-Z]*f/,
+    disparo: /\bgit\s+clean\s+.*-[a-zA-Z]*f/i,
     excepcion: null,
     breakGlass: true,
     motivo: 'borra archivos no trackeados de forma irreversible -- puede incluir trabajo en progreso nunca commiteado.',
