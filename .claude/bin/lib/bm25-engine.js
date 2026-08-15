@@ -66,8 +66,9 @@ function tokenize(text) {
 function expandQuery(tokens) {
   const expanded = new Set(tokens);
   for (const t of tokens) {
+    if (!Object.prototype.hasOwnProperty.call(SYNONYMS, t)) continue;
     const syns = SYNONYMS[t];
-    if (syns) syns.forEach(s => expanded.add(stem(s)));
+    syns.forEach(s => expanded.add(stem(s)));
   }
   return [...expanded];
 }
