@@ -27,6 +27,7 @@ const { leerEventoDeStdin } = require('./lib/hook-stdin');
 const { emitirReporte }     = require('./lib/guard-report');
 const { solicitarBreakGlass, accionAprobada } = require('./lib/break-glass');
 const { normalizarTexto } = require('./lib/normalizar-texto');
+const { ALTA_CONFIANZA } = require('./lib/patrones-secretos');
 
 const GUARD_ID = 'secrets-guard';
 
@@ -49,15 +50,6 @@ const prompt = normalizarTexto(promptOriginal);
 // PREFIJO puede escribirse deliberadamente en otro case para evadir sin
 // alterar el secreto real que sigue -- normalizar solo el prefijo detecta
 // ese intento sin ampliar el patron a texto que no es una credencial real.
-const ALTA_CONFIANZA = [
-  { re: /sk-[A-Za-z0-9]{20,}/i,             etiqueta: 'OpenAI API key' },
-  { re: /ghp_[A-Za-z0-9]{36}/i,             etiqueta: 'GitHub Personal Access Token' },
-  { re: /AKIA[A-Z0-9]{16}/i,                etiqueta: 'AWS Access Key ID' },
-  { re: /xox[baprs]-[A-Za-z0-9\-]{10,}/i,   etiqueta: 'Slack token' },
-  { re: /-----BEGIN (RSA|EC|OPENSSH) PRIVATE KEY/i, etiqueta: 'Clave privada' },
-  { re: /AIza[A-Za-z0-9_\-]{35}/i,          etiqueta: 'Google API key' },
-];
-
 // Solo advierten (exit 0): patron generico, riesgo real de falso positivo
 // (ej. dos hashes o tokens de ejemplo en documentacion no son necesariamente
 // un secreto real).

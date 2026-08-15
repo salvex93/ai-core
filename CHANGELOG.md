@@ -3,6 +3,62 @@
 Registro de cambios por version. Formato basado en [Keep a Changelog](https://keepachangelog.com/es/1.0.0/).
 Versionado semantico: MAJOR.MINOR.PATCH.
 
+## [Sin version — mantenimiento] — 2026-08-15 (fix critico: permiso de fs insuficiente rompia el release real de locks de subagentes)
+
+Antes de declarar el arnes listo para produccion, se verifico en SESION REAL (invocacion exacta de `settings.json`, no solo `npm test` con `spawnSync` directo) el comportamiento de los 3 guards modificados hoy. `process-guard.js` y `guard-read.js` funcionaron correctamente con sus invocaciones reales. `subagent-guard-release.js` no.
+
+### Corregido — bug preexistente: el Node Permission Model bloqueaba en silencio la escritura y el borrado del lock de subagentes
+
+`subagent-guard.js` (escribe el lock al lanzar un subagente) y `subagent-guard-release.js` (lo borra al terminar) reciben en `settings.json` un permiso `--allow-fs-write`/`--allow-fs-read` generico de UN nivel de profundidad bajo el tmpdir (`<tmp>/*`, generado por `dirTmp` en `hooks-definition.js`). El `LOCK_DIR` real de ambos guards vive DOS niveles bajo el tmpdir (`<tmp>/ai-core-locks/subagents/*.lock`). Verificado en vivo con el Node Permission Model real: ese glob de un nivel NUNCA cubrio esa profundidad, ni para lectura ni para escritura, con el directorio destino preexistente o no.
+
+Efecto real en produccion: `subagent-guard.js` nunca pudo escribir su lock (el `try/catch` del guard lo absorbia en silencio, "no bloquear el spawn si el lock no se pudo escribir" documentado como comportamiento intencional pero enmascarando el fallo real de permisos), y `subagent-guard-release.js` nunca pudo borrar ningun lock (mismo patron de catch silencioso, "ya expirado o nunca existio con esta clave"). El TTL de 2 minutos de `subagent-guard.js` era la UNICA garantia real de liberacion de cupo en produccion -- el mecanismo de release explicito documentado en el propio codigo nunca funciono desde que se agrego.
+
+Corregido agregando `dirTmpSubagentLocks` (permiso especifico de dos niveles, `<tmp>/ai-core-locks/subagents/*`) en `hooks-definition.js`, aplicado a ambos guards. Verificado el ciclo completo en sesion real tras el fix (escritura + borrado del lock con la invocacion exacta que genera `settings.json`, sin mocks): exitoso. 3 tests nuevos en `hooks-definition-js.test.js`, incluida una ejecucion real end-to-end (no solo verificacion de que el comando generado tenga el string esperado).
+
+Este bug es preexistente al trabajo de hoy (no lo introdujo el fix de path traversal de `subagent-guard-release.js` de esta misma sesion) -- muestra el valor real de verificar en sesion real antes de declarar cualquier cambio "listo para produccion", incluso cuando la suite completa de tests esta en verde.
+
+1211 tests tras esta ronda, 43/43 skills conformes, 6/6 agentes conformes.
+
+## [Sin version — mantenimiento] — 2026-08-15 (retry/backoff en ModelRegistry + secret scanning retroactivo del historial de git)
+
+Segunda ronda de investigacion de mercado fresca (deliberadamente evitando repetir lo ya auditado: mercado de skills/agentes, red-team de guards, tokens, scaffolding, contextual retrieval) para confirmar si quedaba trabajo real pendiente. Encontro 2 gaps accionables, ambos verificados contra el codigo real antes de reportarlos.
+
+### Agregado — retry con backoff exponencial en ModelRegistry (Gemini y OpenAI-compat)
+
+`platform.claude.com/docs/en/api/errors` documenta que los SDKs oficiales de Anthropic reintentan automaticamente errores transitorios (rate limit, 5xx, timeout de conexion) con backoff exponencial -- confirmado que `AnthropicAdapter.js` ya hereda ese comportamiento (`maxRetries=2` por defecto sin configuracion explicita). `GeminiAdapter.js` (`@google/genai`) y `OpenAICompatAdapter.js` (`https.request` crudo, cubre OpenAI/DeepSeek/Kimi) no tenian ningun mecanismo de retry -- un 429/500/503 transitorio se propagaba como fallo definitivo del worker en `ModelDispatcher.js` en vez de reintentarse.
+
+Nueva libreria pura `scripts/services/lib/retry-with-backoff.js` (`esErrorReintentable`, `calcularBackoffMs`, `reintentarConBackoff`) integrada en `ModelRegistry.chat()` solo para los proveedores sin retry nativo. Clasifica transitorio (429, 5xx, ECONNRESET/ETIMEDOUT) vs definitivo (4xx distinto de 429 -- no reintenta errores del cliente). `OpenAICompatAdapter.js` ahora propaga `err.status` y `err.retryAfterMs` (header `Retry-After`) en vez de perderlos en un `Error` generico, lo que tambien mejora cualquier manejo de error futuro sobre ese adapter. 12 tests de la libreria + 3 de integracion end-to-end contra `chat()` con adapters mockeados.
+
+### Agregado — escaneo retroactivo de credenciales en el historial completo de git
+
+`secrets-guard.js` solo inspecciona el prompt entrante y `security-scanner.md` (paso 3) solo hace grep del working tree actual (`git ls-files`) -- ningun componente escaneaba `git log -p`. Un secreto commiteado y luego borrado del archivo seguia vivo en el historial sin que nada lo detectara, a diferencia del patron estandar de mercado (gitleaks, trufflehog).
+
+Los patrones de `secrets-guard.js` se extrajeron a `lib/patrones-secretos.js` (fuente unica, sin cambiar su comportamiento) y se construyo `lib/git-history-secrets-scan.js` + el CLI `git-history-secrets-scan.js` (`npm run scan-secrets-history`), que parsea `git log -p --format=COMMIT:%H` y reporta el commit exacto de cada hallazgo. Aplica la misma exclusion de archivos de test que `standards-guard.js` (segmento de ruta real, no `.includes('test')` -- ese bug ya se habia corregido en la ronda anterior) para no confundir fixtures de credenciales sinteticas de los propios tests de seguridad con secretos reales. Integrado como Paso 3b de `security-scanner.md` (agente `security-scanner` v1.2.0). Solo reporta -- la reescritura de historial (`git filter-repo`/BFG) sigue siendo una operacion destructiva que exige confirmacion humana explicita, nunca automatizada.
+
+Corrido contra el historial real de ai-core tras el fix de exclusion: 0 hallazgos (los 10 matches iniciales eran fixtures de test con formato de credencial sintetica, confirmado por lectura directa de cada commit).
+
+1208 tests tras esta ronda, 43/43 skills conformes, 6/6 agentes conformes.
+
+## [Sin version — mantenimiento] — 2026-08-15 (benchmark real de Contextual Retrieval + red-team de los 3 guards restantes)
+
+### Medido — Contextual Retrieval con benchmark real propio (cierre de gap identificado en balance vs referencias)
+
+`rag-specialist.md` documentaba la tecnica de Anthropic (35%/49%/67% de reduccion de fallo de retrieval segun combinacion) citando el benchmark oficial, pero nunca se habia corrido contra un corpus propio de este proyecto con el motor real (`bm25-engine.js`, usado tambien por `memory-index.js` en produccion). Se construyo `lib/contextual-retrieval-benchmark.js` con 15 queries de ground truth fijadas a mano ANTES de medir (eligiendas deliberadamente donde el termino clave no aparece literal en el chunk correcto) y se genero un prefijo contextual real via Claude Haiku 4.5 (una llamada por SKILL.md completo como contexto, no por fragmento) para los 1366 fragmentos de los 43 skills.
+
+Resultado real: recall@5 subio de 53.3% (baseline) a 73.3% con Contextual Retrieval -- 4 de 7 fallos de la baseline se corrigieron, 0 regresiones. Confirma en la practica, con este motor especifico (stemming en español, sin componente denso/embeddings), que la tecnica mejora retrieval real, no solo la cifra citada de terceros.
+
+Bug real encontrado como efecto colateral de construir el benchmark (no buscado deliberadamente): `bm25-engine.js` usaba objetos planos (`{}`) para los diccionarios `df`/`inv`/`len`/`scores`, indexados por token de texto libre del corpus. El corpus real de `backend-architect/SKILL.md` contiene literalmente las palabras "constructor" y "push" (documentacion de codigo JS), que colisionan con propiedades heredadas de `Object.prototype`, rompiendo `buildIndex()` con `TypeError: inv[t].push is not a function`. Corregido con `Object.create(null)` en los diccionarios de `buildIndex()` y con `Object.prototype.hasOwnProperty.call()` en `expandQuery()` (el diccionario `SYNONYMS` tenia el mismo problema con terminos de busqueda que coinciden con el prototipo). Bug preexistente en el motor de produccion, ahora corregido con 5 tests dedicados.
+
+### Corregido — 5 evasiones confirmadas por red-team en los 3 guards restantes (concurrencia/recursos, no deteccion textual)
+
+El red-team anterior cubrio 12 guards de deteccion de contenido textual; quedaron fuera `guard-read.js`, `process-guard.js` y `subagent-guard-release.js` por ser de naturaleza distinta (limites de recursos/concurrencia). Workflow adversarial + verificacion independiente confirmo 5/5 hallazgos:
+
+- `guard-read.js` (severidad baja, limite de ahorro de tokens no de seguridad): whitelist `TEXT_EXTS` cerrada dejaba pasar sin limite `.jsx/.tsx/.mjs/.rs` y por extension logica `.go/.java/.rb/.php/.cjs`; ampliada. El conteo de lineas solo contaba `\n` literal, evadible con JSON minificado sin saltos de linea o archivos con `\r` puro (CR sin LF); ahora cuenta tambien CR real y aplica un umbral de tamaño en bytes cuando no hay separadores de linea.
+- `process-guard.js` (severidad critica en el PoC): `isLockStale()` solo verificaba que el PID del lock existiera (`process.kill(pid,0)`), nunca que correspondiera a un proceso Node real -- un lock con PID falso/reciclado se trataba como obsoleto sin comparar contra el proceso que efectivamente ejecuta el comando envuelto, permitiendo dos instancias paralelas de una categoria de bloqueo. Corregido verificando ademas que el PID vivo corresponda a un proceso `node` real (`tasklist` en Windows, `/proc/<pid>/cmdline` en POSIX).
+- `subagent-guard-release.js` (severidad critica, path traversal; falsificacion de identidad documentada como limitacion conocida sin fix estructural disponible hoy): `session_id`/`prompt_id` con `../` real en el payload del evento `SubagentStop` permitia borrar un archivo `.lock` arbitrario fuera del directorio de locks. Corregido validando que la ruta resuelta permanezca dentro de `LOCK_DIR` antes de `unlinkSync`.
+
+1176 tests tras esta ronda, 43/43 skills conformes, 6/6 agentes conformes.
+
 ## [Sin version — mantenimiento] — 2026-08-15 (red-team adversarial de guards + cierre de scaffolding sin test real)
 
 ### Corregido — 61 evasiones de guards confirmadas por red-team adversarial

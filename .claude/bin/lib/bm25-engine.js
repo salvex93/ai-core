@@ -66,8 +66,9 @@ function tokenize(text) {
 function expandQuery(tokens) {
   const expanded = new Set(tokens);
   for (const t of tokens) {
+    if (!Object.prototype.hasOwnProperty.call(SYNONYMS, t)) continue;
     const syns = SYNONYMS[t];
-    if (syns) syns.forEach(s => expanded.add(stem(s)));
+    syns.forEach(s => expanded.add(stem(s)));
   }
   return [...expanded];
 }
@@ -127,9 +128,9 @@ function fragmentar(content, filePath, rol) {
 
 // ─── Construccion del indice invertido ───────────────────────────────────────
 function buildIndex(frags) {
-  const df  = {};   // document frequency por termino
-  const inv = {};   // indice invertido: term → [{id, tf}]
-  const len = {};   // longitud de cada fragmento en tokens
+  const df  = Object.create(null);   // document frequency por termino
+  const inv = Object.create(null);   // indice invertido: term → [{id, tf}]
+  const len = Object.create(null);   // longitud de cada fragmento en tokens
 
   for (const frag of frags) {
     len[frag.id] = frag.tokens.length;
@@ -152,7 +153,7 @@ function buildIndex(frags) {
 // ─── Puntuacion BM25 ─────────────────────────────────────────────────────────
 function bm25Score(query, index) {
   const qTokens = expandQuery(tokenize(query));
-  const scores  = {};
+  const scores  = Object.create(null);
 
   for (const t of qTokens) {
     if (!index.inv[t]) continue;

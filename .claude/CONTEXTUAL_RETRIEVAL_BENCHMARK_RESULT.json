@@ -1,0 +1,377 @@
+{
+  "fecha": "2026-08-15",
+  "modelo": "claude-haiku-4-5-20251001",
+  "fragmentos_totales": 1366,
+  "skills_totales": 43,
+  "fallos_generacion_prefijo": 0,
+  "tokens": {
+    "input": 136543,
+    "output": 37822
+  },
+  "recall_baseline": 0.5333333333333333,
+  "recall_contextual": 0.7333333333333333,
+  "detalle_baseline": [
+    {
+      "query": "cuando se apago text-embedding-004",
+      "esperado": "skill/multimodal-engineer#16",
+      "topK": [
+        "skill/multimodal-engineer#5",
+        "skill/multimodal-engineer#17",
+        "skill/rag-specialist#35",
+        "skill/rag-specialist#31",
+        "skill/rag-specialist#25"
+      ],
+      "acierto": false
+    },
+    {
+      "query": "que hacer si el catalogo de herramientas MCP es muy grande",
+      "esperado": "skill/mcp-server-builder#16",
+      "topK": [
+        "skill/managed-agents-specialist#7",
+        "skill/claude-api#11",
+        "skill/mcp-server-builder#16",
+        "skill/mcp-server-builder#12",
+        "skill/mcp-server-builder#11"
+      ],
+      "acierto": true
+    },
+    {
+      "query": "como saber si un CVE es realmente explotable antes de marcarlo critico",
+      "esperado": "skill/security-auditor#8",
+      "topK": [
+        "skill/attack-surface-analyst#26",
+        "skill/attack-surface-analyst#27",
+        "skill/performance-engineer#28",
+        "skill/database-ops#14",
+        "skill/backend-architect#49"
+      ],
+      "acierto": false
+    },
+    {
+      "query": "reduce hasta 85% de tokens en descubrimiento de herramientas",
+      "esperado": "skill/mcp-server-builder#16",
+      "topK": [
+        "skill/claude-api#11",
+        "skill/mcp-server-builder#16",
+        "skill/managed-agents-specialist#7",
+        "skill/aiops-engineer#12",
+        "skill/llm-observability#14"
+      ],
+      "acierto": true
+    },
+    {
+      "query": "que modelo de embeddings soporta imagen video audio y PDF en una sola llamada",
+      "esperado": "skill/multimodal-engineer#16",
+      "topK": [
+        "skill/rag-specialist#30",
+        "skill/multimodal-engineer#17",
+        "skill/multimodal-engineer#16",
+        "skill/multimodal-engineer#5",
+        "skill/audio-voice-engineer#7"
+      ],
+      "acierto": true
+    },
+    {
+      "query": "formula para combinar busqueda lexica y densa con amortiguacion k=60",
+      "esperado": "skill/rag-specialist#24",
+      "topK": [
+        "skill/rag-specialist#24",
+        "skill/rag-specialist#44",
+        "skill/seo-sem-specialist#36",
+        "skill/doc-builder#29",
+        "skill/managed-agents-specialist#9"
+      ],
+      "acierto": true
+    },
+    {
+      "query": "mejora de retrieval al anteponer contexto a cada fragmento antes de indexar",
+      "esperado": "skill/rag-specialist#25",
+      "topK": [
+        "skill/memory-manager#18",
+        "skill/memory-manager#26",
+        "skill/memory-manager#6",
+        "skill/rag-specialist#29",
+        "skill/memory-manager#29"
+      ],
+      "acierto": false
+    },
+    {
+      "query": "limite de paginas y tamano de archivo para procesar PDFs con Claude",
+      "esperado": "skill/multimodal-engineer#26",
+      "topK": [
+        "skill/multimodal-engineer#14",
+        "skill/multimodal-engineer#26",
+        "skill/multimodal-engineer#19",
+        "skill/doc-builder#32",
+        "skill/doc-builder#31"
+      ],
+      "acierto": true
+    },
+    {
+      "query": "que transporte reemplaza al SSE legacy en servidores remotos MCP",
+      "esperado": "skill/mcp-server-builder#9",
+      "topK": [
+        "skill/mcp-server-builder#18",
+        "skill/mcp-server-builder#33",
+        "skill/mcp-registry-navigator#24",
+        "skill/mcp-registry-navigator#5",
+        "skill/mcp-server-builder#9"
+      ],
+      "acierto": true
+    },
+    {
+      "query": "los 10 controles de seguridad de aplicaciones web mas criticos",
+      "esperado": "skill/security-auditor#14",
+      "topK": [
+        "skill/ciso#12",
+        "skill/ciso#14",
+        "skill/ciso#15",
+        "skill/ciso#24",
+        "skill/ciso#7"
+      ],
+      "acierto": false
+    },
+    {
+      "query": "riesgo de que un modelo LLM tenga demasiado acceso a herramientas sin supervision",
+      "esperado": "skill/security-auditor#32",
+      "topK": [
+        "skill/mcp-server-builder#5",
+        "skill/ciso#15",
+        "skill/gemini-3-specialist#7",
+        "skill/mcp-registry-navigator#7",
+        "skill/mcp-registry-navigator#23"
+      ],
+      "acierto": false
+    },
+    {
+      "query": "cuanto cuesta procesar un documento con cache activo segun Anthropic",
+      "esperado": "skill/rag-specialist#25",
+      "topK": [
+        "skill/claude-api#21",
+        "skill/claude-api#27",
+        "skill/multimodal-engineer#4",
+        "skill/claude-api#8",
+        "skill/claude-api#4"
+      ],
+      "acierto": false
+    },
+    {
+      "query": "que hacer cuando el diseño no se puede resumir en una frase de por que funciona mejor que busqueda simple",
+      "esperado": "skill/rag-specialist#42",
+      "topK": [
+        "skill/cost-optimizer#4",
+        "skill/rag-specialist#42",
+        "skill/agent-testing#22",
+        "skill/doc-builder#28",
+        "skill/backend-architect#17"
+      ],
+      "acierto": true
+    },
+    {
+      "query": "variantes de nombre para el algoritmo de busqueda por texto en tools MCP",
+      "esperado": "skill/mcp-server-builder#16",
+      "topK": [
+        "skill/mcp-server-builder#12",
+        "skill/mcp-server-builder#11",
+        "skill/claude-agent-sdk#10",
+        "skill/seo-sem-specialist#19",
+        "skill/memory-manager#30"
+      ],
+      "acierto": false
+    },
+    {
+      "query": "protocolo cuando el pipeline visual procesa datos biometricos sin politica aprobada",
+      "esperado": "skill/multimodal-engineer#18",
+      "topK": [
+        "skill/multimodal-engineer#18",
+        "skill/multimodal-engineer#20",
+        "skill/multimodal-engineer#2",
+        "skill/ciso#13",
+        "skill/security-auditor#17"
+      ],
+      "acierto": true
+    }
+  ],
+  "detalle_contextual": [
+    {
+      "query": "cuando se apago text-embedding-004",
+      "esperado": "skill/multimodal-engineer#16",
+      "topK": [
+        "skill/multimodal-engineer#17",
+        "skill/rag-specialist#35",
+        "skill/rag-specialist#31",
+        "skill/backend-architect#39",
+        "skill/rag-specialist#34"
+      ],
+      "acierto": false
+    },
+    {
+      "query": "que hacer si el catalogo de herramientas MCP es muy grande",
+      "esperado": "skill/mcp-server-builder#16",
+      "topK": [
+        "skill/claude-api#11",
+        "skill/mcp-server-builder#16",
+        "skill/managed-agents-specialist#7",
+        "skill/mcp-server-builder#12",
+        "skill/performance-engineer#12"
+      ],
+      "acierto": true
+    },
+    {
+      "query": "como saber si un CVE es realmente explotable antes de marcarlo critico",
+      "esperado": "skill/security-auditor#8",
+      "topK": [
+        "skill/attack-surface-analyst#26",
+        "skill/security-auditor#8",
+        "skill/ciso#10",
+        "skill/performance-engineer#28",
+        "skill/llm-evals#1"
+      ],
+      "acierto": true
+    },
+    {
+      "query": "reduce hasta 85% de tokens en descubrimiento de herramientas",
+      "esperado": "skill/mcp-server-builder#16",
+      "topK": [
+        "skill/claude-api#11",
+        "skill/mcp-server-builder#16",
+        "skill/aiops-engineer#12",
+        "skill/ai-integrations#11",
+        "skill/cost-optimizer#9"
+      ],
+      "acierto": true
+    },
+    {
+      "query": "que modelo de embeddings soporta imagen video audio y PDF en una sola llamada",
+      "esperado": "skill/multimodal-engineer#16",
+      "topK": [
+        "skill/rag-specialist#30",
+        "skill/multimodal-engineer#16",
+        "skill/multimodal-engineer#17",
+        "skill/rag-specialist#31",
+        "skill/audio-voice-engineer#7"
+      ],
+      "acierto": true
+    },
+    {
+      "query": "formula para combinar busqueda lexica y densa con amortiguacion k=60",
+      "esperado": "skill/rag-specialist#24",
+      "topK": [
+        "skill/rag-specialist#24",
+        "skill/rag-specialist#44",
+        "skill/managed-agents-specialist#9",
+        "skill/seo-sem-specialist#19",
+        "skill/seo-sem-specialist#31"
+      ],
+      "acierto": true
+    },
+    {
+      "query": "mejora de retrieval al anteponer contexto a cada fragmento antes de indexar",
+      "esperado": "skill/rag-specialist#25",
+      "topK": [
+        "skill/rag-specialist#24",
+        "skill/memory-manager#26",
+        "skill/memory-manager#27",
+        "skill/memory-manager#21",
+        "skill/rag-specialist#29"
+      ],
+      "acierto": false
+    },
+    {
+      "query": "limite de paginas y tamano de archivo para procesar PDFs con Claude",
+      "esperado": "skill/multimodal-engineer#26",
+      "topK": [
+        "skill/multimodal-engineer#14",
+        "skill/multimodal-engineer#26",
+        "skill/doc-builder#31",
+        "skill/web-scraping-specialist#39",
+        "skill/managed-agents-specialist#19"
+      ],
+      "acierto": true
+    },
+    {
+      "query": "que transporte reemplaza al SSE legacy en servidores remotos MCP",
+      "esperado": "skill/mcp-server-builder#9",
+      "topK": [
+        "skill/mcp-server-builder#22",
+        "skill/mcp-server-builder#18",
+        "skill/claude-agent-sdk#22",
+        "skill/mcp-registry-navigator#5",
+        "skill/mcp-server-builder#9"
+      ],
+      "acierto": true
+    },
+    {
+      "query": "los 10 controles de seguridad de aplicaciones web mas criticos",
+      "esperado": "skill/security-auditor#14",
+      "topK": [
+        "skill/security-auditor#16",
+        "skill/security-auditor#23",
+        "skill/ai-guardrails#1",
+        "skill/security-auditor#37",
+        "skill/ux-visual-designer#22"
+      ],
+      "acierto": false
+    },
+    {
+      "query": "riesgo de que un modelo LLM tenga demasiado acceso a herramientas sin supervision",
+      "esperado": "skill/security-auditor#32",
+      "topK": [
+        "skill/mcp-server-builder#5",
+        "skill/mcp-registry-navigator#12",
+        "skill/security-auditor#32",
+        "skill/ciso#7",
+        "skill/gemini-3-specialist#7"
+      ],
+      "acierto": true
+    },
+    {
+      "query": "cuanto cuesta procesar un documento con cache activo segun Anthropic",
+      "esperado": "skill/rag-specialist#25",
+      "topK": [
+        "skill/agent-testing#12",
+        "skill/claude-api#2",
+        "skill/claude-api#21",
+        "skill/multimodal-engineer#4",
+        "skill/cost-optimizer#8"
+      ],
+      "acierto": false
+    },
+    {
+      "query": "que hacer cuando el diseño no se puede resumir en una frase de por que funciona mejor que busqueda simple",
+      "esperado": "skill/rag-specialist#42",
+      "topK": [
+        "skill/backend-architect#81",
+        "skill/rag-specialist#42",
+        "skill/agent-testing#22",
+        "skill/prompt-engineer#32",
+        "skill/claude-agent-sdk#7"
+      ],
+      "acierto": true
+    },
+    {
+      "query": "variantes de nombre para el algoritmo de busqueda por texto en tools MCP",
+      "esperado": "skill/mcp-server-builder#16",
+      "topK": [
+        "skill/mcp-server-builder#12",
+        "skill/aaa-evaluator#10",
+        "skill/mcp-server-builder#11",
+        "skill/claude-agent-sdk#10",
+        "skill/mcp-server-builder#16"
+      ],
+      "acierto": true
+    },
+    {
+      "query": "protocolo cuando el pipeline visual procesa datos biometricos sin politica aprobada",
+      "esperado": "skill/multimodal-engineer#18",
+      "topK": [
+        "skill/multimodal-engineer#18",
+        "skill/devops-infra#5",
+        "skill/release-manager#5",
+        "skill/ciso#13",
+        "skill/workflow-orchestrator#3"
+      ],
+      "acierto": true
+    }
+  ]
+}

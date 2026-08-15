@@ -22,6 +22,7 @@ const path = require('path');
 const { chatAnthropic } = require('./model-adapters/AnthropicAdapter');
 const { chatGemini } = require('./model-adapters/GeminiAdapter');
 const { chatOpenAICompat, PROVIDER_CONFIGS } = require('./model-adapters/OpenAICompatAdapter');
+const { reintentarConBackoff } = require('./lib/retry-with-backoff');
 
 // Carga .env desde la raiz del proyecto
 function loadEnv() {
@@ -64,11 +65,19 @@ async function chat(provider, messages, options = {}) {
   loadEnv();
 
   switch (provider) {
+    // El SDK de Anthropic ya reintenta automaticamente errores transitorios
+    // por defecto (maxRetries=2 sin configuracion explicita, ver
+    // platform.claude.com/docs/en/api/errors) -- no se envuelve aqui de nuevo.
     case 'anthropic':
       return chatAnthropic(messages, options);
 
+    // @google/genai y el adapter HTTP-compatible no traen retry incorporado
+    // (gap real detectado por investigacion de mercado 2026-08-15) -- se
+    // reintenta aqui con backoff exponencial solo para errores transitorios
+    // (429, 5xx, timeout de conexion); un error 4xx no transitorio se
+    // propaga de inmediato.
     case 'gemini':
-      return chatGemini(messages, options);
+      return reintentarConBackoff(() => chatGemini(messages, options));
 
     case 'openai':
     case 'deepseek':
@@ -76,7 +85,7 @@ async function chat(provider, messages, options = {}) {
       const cfg = PROVIDER_CONFIGS[provider];
       const apiKey = process.env[cfg.apiKeyEnv] || '';
       if (!apiKey) throw new Error(`${cfg.apiKeyEnv} no configurada en .env`);
-      return chatOpenAICompat(messages, options, { ...cfg, apiKey });
+      return reintentarConBackoff(() => chatOpenAICompat(messages, options, { ...cfg, apiKey }));
     }
 
     default:

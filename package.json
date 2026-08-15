@@ -1,6 +1,6 @@
 {
   "name": "ai-core",
-  "version": "3.32.0",
+  "version": "3.33.0",
   "description": "AI-CORE by salvex93. Nucleo Centralizado de Agentes para proyectos de desarrollo. Submodulo Git con reglas globales, skills y scripts de orquestacion.",
   "private": true,
   "scripts": {
@@ -31,7 +31,8 @@
     "agent-report": "node .claude/bin/agent-metrics.js report",
     "agent-report-full": "node .claude/bin/agent-metrics.js report --full",
     "eval-skills": "node .claude/evals/run-all.js",
-    "sandbox": "node scripts/sandbox.js"
+    "sandbox": "node scripts/sandbox.js",
+    "scan-secrets-history": "node .claude/bin/git-history-secrets-scan.js"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.115.0",

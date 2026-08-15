@@ -1,7 +1,7 @@
-# AI-CORE v3.32.0 | Sentinel Protocol
+# AI-CORE v3.33.0 | Sentinel Protocol
 
 ## Identidad
-- **Sistema:** AI-CORE v3.32.0 by salvex93 — Nucleo Centralizado de Agentes para proyectos de desarrollo.
+- **Sistema:** AI-CORE v3.33.0 by salvex93 — Nucleo Centralizado de Agentes para proyectos de desarrollo.
 - **Estilo:** Profesional, tecnico, directo. Sin circunloquios, sin cortesias vacias.
 - **Idioma:** Español estricto. Sin code-switch despues del turno 3.
 - **REGLA CRITICA:** PROHIBIDO el uso de iconos, emojis o adornos visuales en las respuestas.
@@ -32,6 +32,7 @@ npm run rollback-agent -- <ruta-archivo>      # revertir el ultimo snapshot regi
 npm run rollback-agent -- --id <id>           # revertir un snapshot especifico por id
 npm run audit-market                 # auditar vigencia de modelos/SDKs contra MARKET_STANDARDS.json
 npm run audit-market -- --only-stale # silencioso salvo hallazgo -- corre en el Protocolo de Arranque de cada sesion
+npm run scan-secrets-history          # escanear TODO el historial de git (no solo el working tree) por credenciales -- security-scanner.md paso 3b
 npm run score                        # calcular aiops-score de la sesion actual
 npm run score-report                 # reporte historico de aiops-score
 npm run memory-index                 # indexar vault de memoria (.claude/memory-vault/)

@@ -1,4 +1,4 @@
-# AI-CORE v3.32.0: Nucleo Multi-Agente
+# AI-CORE v3.33.0: Nucleo Multi-Agente
 
 `ai-core` es un nucleo de configuracion y comportamiento para agentes IA. Se usa como submodulo Git en un proyecto existente o como repositorio independiente. Define reglas globales, 43 skills especializados, 7 agentes autonomos, un orquestador Mixture-of-Agents (Gemini + DeepSeek + Claude), un mecanismo de excepcion auditable (break-glass) para operaciones de riesgo real, y un ciclo de mejora continua por uso, sin acoplarse al stack del proyecto anfitrion.
 
@@ -36,7 +36,7 @@ npm install
 npm run setup    # adapta settings.json a tu ruta exacta (cross-platform)
 
 # 3. Verificar que todo funciona
-npm test         # debe terminar: 919 pass, 0 fail
+npm test         # debe terminar: 1211 pass, 0 fail
 
 # 4. Autenticar gh CLI para el issue-tracker (una sola vez por maquina)
 gh auth login    # GitHub.com -> HTTPS -> Login with a web browser
@@ -84,7 +84,7 @@ Repositorio independiente:
 npm run update
 ```
 
-Esto corre `git pull`, regenera `settings.json` (purga automaticamente cualquier hook de una version anterior que referencie un script eliminado o renombrado — el objeto de hooks se construye desde cero y sobreescribe el archivo completo, nunca mergea, con la definicion compartida en `hooks-definition.js`), corre los 1049 tests, aplica migraciones de version, valida los 43 skills y los 7 agentes, y reporta que cambio. Si un test falla, el comando se detiene ahi.
+Esto corre `git pull`, regenera `settings.json` (purga automaticamente cualquier hook de una version anterior que referencie un script eliminado o renombrado — el objeto de hooks se construye desde cero y sobreescribe el archivo completo, nunca mergea, con la definicion compartida en `hooks-definition.js`), corre los 1211 tests, aplica migraciones de version, valida los 43 skills y los 7 agentes, y reporta que cambio. Si un test falla, el comando se detiene ahi.
 
 Instalado como submodulo:
 
@@ -152,7 +152,7 @@ Si no esta autenticado, los eventos se acumulan en `.claude/EVENTS_QUEUE.json` y
 
 ```bash
 npm install                               # instalar dependencias (corre postinstall -> npm run setup)
-npm test                                  # 1049 tests, Node nativo, sin deps externas
+npm test                                  # 1211 tests, Node nativo, sin deps externas
 npm run setup                             # regenerar settings.json con rutas locales (ya corre solo via postinstall)
 npm run update                            # actualizacion one-command desde GitHub
 npm run validate-globals                  # auditar conformidad de los 43 skills (incluye schema agentskills.io)
@@ -164,6 +164,7 @@ npm run dry-run                           # simular 5 turnos con calculo de cost
 npm run map                               # regenerar CONTEXT_MAP.json
 npm run audit-market                      # auditar vigencia de skills vs. dominios en MARKET_STANDARDS.json
 npm run audit-market -- --only-stale      # silencioso salvo hallazgo -- usado en el Protocolo de Arranque de cada sesion
+npm run scan-secrets-history               # escanear TODO el historial de git (no solo el working tree) por credenciales
 npm run score                             # scoring 0-10 por 6 dimensiones del arnes
 npm run score-report                      # historial completo de scores con delta
 npm run migrate                           # aplicar migraciones de version manualmente
@@ -180,6 +181,22 @@ npm run eval-skills                       # correr los 42 evals de conformidad d
 ---
 
 ## Que trae cada version
+
+### v3.33.0 — retry/backoff en ModelRegistry, secret scanning retroactivo del historial de git, fix critico de permisos en locks de subagentes
+
+Segunda ronda de investigacion de mercado fresca (deliberadamente evitando repetir la auditoria de skills/agentes, el red-team de guards, la auditoria de tokens y el cierre de scaffolding ya hechos en v3.32.0) para confirmar si quedaba trabajo real pendiente. Encontro 2 gaps accionables y verificados contra el codigo real antes de reportarlos.
+
+**Retry con backoff exponencial en `ModelRegistry.chat()`.** El SDK de Anthropic ya reintenta automaticamente errores transitorios por defecto (`maxRetries=2`), pero `GeminiAdapter.js` (`@google/genai`) y `OpenAICompatAdapter.js` (`https.request` crudo, cubre OpenAI/DeepSeek/Kimi) no tenian ningun mecanismo de retry -- un 429/500/503 transitorio se propagaba como fallo definitivo. Nueva libreria pura `lib/retry-with-backoff.js` integrada solo en los proveedores sin retry nativo, clasificando transitorio (429, 5xx, ECONNRESET/ETIMEDOUT) vs definitivo (4xx distinto de 429).
+
+**Escaneo retroactivo de credenciales en el historial completo de git.** `secrets-guard.js` solo inspecciona el prompt entrante y `security-scanner.md` solo hace grep del working tree actual -- ningun componente escaneaba `git log -p`, dejando sin deteccion un secreto commiteado y luego borrado del archivo (sigue vivo en el historial). Nuevo `npm run scan-secrets-history` (patron estandar de mercado: gitleaks/trufflehog), integrado como paso 3b de `security-scanner.md`, con la misma exclusion de archivos de test que `standards-guard.js` para no confundir fixtures sinteticos con secretos reales.
+
+**Benchmark real de Contextual Retrieval.** `rag-specialist.md` documentaba la tecnica de Anthropic citando su benchmark oficial, pero nunca se habia corrido contra un corpus propio. Se genero un prefijo contextual real via Claude Haiku 4.5 (una llamada por SKILL.md completo) para los 1366 fragmentos de los 43 skills, con 15 queries de ground truth fijadas a mano antes de medir: recall@5 subio de 53.3% (baseline) a 73.3% con Contextual Retrieval. Efecto colateral: se encontro y corrigio un bug real de prototype pollution en `bm25-engine.js` (motor tambien usado por `memory-index.js` en produccion) -- tokens del corpus real como "constructor"/"push" colisionaban con `Object.prototype` en los diccionarios del indice invertido.
+
+**Red-team de los 3 guards restantes** (`guard-read.js`, `process-guard.js`, `subagent-guard-release.js` -- el red-team de v3.32.0 cubrio los 12 guards de deteccion textual, estos 3 quedaron fuera por ser de naturaleza distinta: limites de recursos/concurrencia). 5/5 hallazgos confirmados con verificacion independiente: whitelist de extensiones cerrada y conteo de lineas ingenuo ante CRLF/JSON minificado en `guard-read.js` (severidad baja); lock stale que no validaba identidad del proceso real en `process-guard.js` (severidad critica en el PoC); path traversal en `subagent-guard-release.js` que permitia borrar un archivo `.lock` arbitrario fuera del directorio de locks (severidad critica).
+
+**Bug critico preexistente encontrado verificando en SESION REAL, no solo con tests.** Antes de declarar el trabajo listo para produccion, se probo la invocacion exacta de `settings.json` para los 3 guards modificados. `subagent-guard.js`/`subagent-guard-release.js` reciben un permiso de fs de UN nivel de profundidad bajo el tmpdir, pero su `LOCK_DIR` real vive DOS niveles mas abajo (`<tmp>/ai-core-locks/subagents/`) -- confirmado en vivo que ese glob nunca cubrio esa profundidad, ni para lectura ni escritura. Efecto real: el mecanismo de release explicito de locks de subagentes nunca funciono desde que se agrego (absorbido en silencio por un `catch` documentado como "best-effort"); el TTL de 2 minutos era la unica garantia real de liberacion de cupo. Corregido con un permiso especifico de dos niveles en `hooks-definition.js`, verificado end-to-end (escritura + borrado del lock) con la invocacion real de produccion.
+
+**1211 tests, 43/43 skills conformes, 6/6 agentes conformes.**
 
 ### v3.32.0 — break-glass transversal, permissionDecision para friccion operativa, skill de metodologia de producto
 
@@ -736,7 +753,7 @@ New-Item -ItemType SymbolicLink -Path './CLAUDE.md' -Target 'C:/ruta/a/ai-core/C
 ├── .github/workflows/ci.yml     CI: Ubuntu/Windows/macOS, Node 22 unicamente (sandboxing con Permission Model exige >= 22.13.0)
 ├── CLAUDE.md                    Autoridad unica: reglas globales, skills, enrutamiento
 ├── DEPRECATIONS.json            Contrato de migracion por version
-├── package.json                 v3.32.0, Node >= 22.13.0
+├── package.json                 v3.33.0, Node >= 22.13.0
 └── .env.example                 Plantilla de variables de entorno
 ```
 

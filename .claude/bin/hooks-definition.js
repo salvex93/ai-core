@@ -94,10 +94,23 @@ function buildHooksSection(bin, tmpDirReal) {
   const dirBin  = globDir(bin(''));
   const dirTmp  = tmpDirReal ? `"${tmpDirReal.replace(/\/$/, '')}/*"` : '"${TMPDIR:-/tmp}/*"';
   const dirRepo = '"${PWD}/**"';
+  // Locks de subagent-guard.js/-release.js viven dos niveles bajo el tmpdir
+  // real (tmp/ai-core-locks/subagents/*.lock) -- bug real confirmado en
+  // sesion 2026-08-15 verificando el Node Permission Model en vivo (no solo
+  // con tests): dirTmp (glob de UN solo nivel) nunca cubrio esa profundidad,
+  // ni para lectura ni para escritura, con directorio preexistente o no.
+  // subagent-guard.js jamas pudo escribir su lock, y -release.js jamas pudo
+  // borrarlo -- el TTL de 2 minutos (subagent-guard.js) era la UNICA
+  // garantia real de liberacion en produccion, el release documentado en el
+  // codigo nunca funciono.
+  const dirTmpSubagentLocks = tmpDirReal
+    ? `"${tmpDirReal.replace(/\/$/, '')}/ai-core-locks/subagents/*"`
+    : '"${TMPDIR:-/tmp}/ai-core-locks/subagents/*"';
 
   const soloRead      = { fsRead: [dirBin] };
   const soloLeerRepo  = { fsRead: [dirBin, dirRepo] };
   const readYWrite    = { fsRead: [dirBin], fsWrite: [dirTmp] };
+  const readYWriteSubagentLocks = { fsRead: [dirBin, dirTmpSubagentLocks], fsWrite: [dirTmpSubagentLocks] };
   // dirTmp tambien en fsRead (no solo fsWrite): los guards de break-glass
   // (lib/break-glass.js) escriben su lock en os.tmpdir() y despues necesitan
   // RELEERLO (fs.readFileSync/fs.existsSync) para confirmarlo -- bug real en
@@ -147,7 +160,7 @@ function buildHooksSection(bin, tmpDirReal) {
           { type: 'command', command: `${nodeConPermiso(bin('cross-verify-gate.js'), repoConGit)} 2>/dev/null || true` },
           { type: 'command', command: `${nodeConPermiso(bin('injection-guard.js'), readYWrite)} 2>/dev/null || true` },
           { type: 'command', command: `${nodeConPermiso(bin('subagent-grader.js'), soloRead)} 2>/dev/null || true` },
-          { type: 'command', command: `${nodeConPermiso(bin('subagent-guard-release.js'), readYWrite)} 2>/dev/null || true` },
+          { type: 'command', command: `${nodeConPermiso(bin('subagent-guard-release.js'), readYWriteSubagentLocks)} 2>/dev/null || true` },
         ],
       },
     ],
@@ -236,7 +249,7 @@ function buildHooksSection(bin, tmpDirReal) {
       {
         matcher: 'Agent',
         hooks: [
-          { type: 'command', command: nodeConPermiso(bin('subagent-guard.js'), readYWrite) },
+          { type: 'command', command: nodeConPermiso(bin('subagent-guard.js'), readYWriteSubagentLocks) },
         ],
       },
       {

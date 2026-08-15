@@ -56,6 +56,41 @@ describe('process-guard.js — propagacion de exit code', () => {
       for (const lockPath of locksCreados) { try { fs.unlinkSync(lockPath); } catch {} }
     }
   });
+
+  // ─── Fix red-team 2026-08-15: lock con PID no-Node no cuenta como vivo ──────
+
+  test('un lock cuyo PID no corresponde a un proceso Node real se trata como obsoleto (no bloquea una segunda instancia)', () => {
+    const LOCK_DIR = path.join(os.tmpdir(), 'ai-core-locks');
+    fs.mkdirSync(LOCK_DIR, { recursive: true });
+    const lockPath = path.join(LOCK_DIR, 'lint.lock');
+
+    // PID que casi seguro no existe en el sistema (rango muy alto) -- simula
+    // el escenario del red-team: un lock desincronizado del proceso real que
+    // efectivamente ejecuta el comando de esa categoria.
+    fs.writeFileSync(lockPath, JSON.stringify({ pid: 999999, ts: Date.now() }), 'utf8');
+    try {
+      const r = runScript(SCRIPT, ['lint', 'node', '-e', 'process.exit(0)']);
+      assert.equal(r.status, 0, 'debe adquirir el lock y ejecutar el comando -- el lock con PID inexistente/no-Node no debe bloquear');
+      assert.equal(fs.existsSync(lockPath), false, 'el lock debe quedar liberado tras la ejecucion');
+    } finally {
+      try { fs.unlinkSync(lockPath); } catch {}
+    }
+  });
+
+  test('un lock con PID de un proceso Node real vivo SI bloquea una segunda instancia de la misma categoria', () => {
+    const LOCK_DIR = path.join(os.tmpdir(), 'ai-core-locks');
+    fs.mkdirSync(LOCK_DIR, { recursive: true });
+    const lockPath = path.join(LOCK_DIR, 'lint.lock');
+
+    // process.pid del propio test runner: proceso Node real y vivo durante la prueba.
+    fs.writeFileSync(lockPath, JSON.stringify({ pid: process.pid, ts: Date.now() }), 'utf8');
+    try {
+      const r = runScript(SCRIPT, ['lint', 'node', '-e', 'process.exit(0)']);
+      assert.equal(r.status, 1, 'lock activo con PID Node real y vivo debe bloquear (categoria de bloqueo -> exit 1)');
+    } finally {
+      try { fs.unlinkSync(lockPath); } catch {}
+    }
+  });
 });
 
 // ─── security-check.js ───────────────────────────────────────────────────────

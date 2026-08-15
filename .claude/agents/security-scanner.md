@@ -2,7 +2,7 @@
 name: security-scanner
 description: Agente autonomo de escaneo de seguridad. Audita el repositorio completo en busca de credenciales expuestas, dependencias con CVEs, headers HTTP incorrectos y violaciones OWASP Top 10. Produce reporte clasificado sin intervencion. Activa periodicamente o antes de cada release.
 origin: ai-core
-version: 1.1.0
+version: 1.2.0
 last_updated: 2026-08-15
 provider: any
 model: sonnet
@@ -66,6 +66,16 @@ git ls-files | grep -E "\.env$|\.key$|\.pem$|\.p12$|credentials|secret"
 ```
 
 Cualquier archivo sensible trackeado en git = hallazgo critico.
+
+### Paso 3b — Historial de git (no solo el working tree actual)
+
+`git ls-files`/grep del Paso 3 solo ve el estado ACTUAL del repo -- un secreto que se commiteo y luego se borro del archivo sigue vivo en el historial hasta que se reescribe (gap real cerrado 2026-08-15, patron estandar de mercado: gitleaks/trufflehog escanean `git log -p`, no solo el estado actual):
+
+```bash
+node .claude/bin/git-history-secrets-scan.js --json
+```
+
+Cualquier hallazgo (exit distinto de 0) = hallazgo critico. La credencial real debe rotarse de inmediato; eliminarla del historial (`git filter-repo`/BFG) es una operacion destructiva que requiere confirmacion humana explicita -- este agente NUNCA la ejecuta por si solo, solo reporta.
 
 ### Paso 4 — Permisos y configuracion
 
