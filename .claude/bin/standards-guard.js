@@ -188,7 +188,7 @@ const nombreArchivo = path.basename(filePath);
 const isExample = filePath.includes('.example')
   || /(^|[-_.])tests?([-_.]|$)/i.test(nombreArchivo)
   || /(^|[-_.])spec([-_.]|$)/i.test(nombreArchivo)
-  || /[\\/]tests?[\\/]/i.test(filePath);
+  || /(^|[\\/])tests?[\\/]/i.test(filePath);
 
 if (!isExample) {
   for (const { re, label } of SECRET_PATTERNS) {
