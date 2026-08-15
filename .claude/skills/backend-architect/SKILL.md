@@ -678,6 +678,7 @@ Objetivo AAA especifico de esta capa — el piso minimo orientativo agnostico de
 - [ ] Cobertura del modulo no baja del umbral acordado.
 - [ ] Nombres de tests describen comportamiento, no implementacion.
 - [ ] Cada hallazgo cita ruta relativa + numero de linea exacto.
+- [ ] Si el cambio toca contratos/eventos/tiempo real: existe test de integracion especifico por cada umbral aplicable del "Gate de calidad medible" de la seccion "Vanguardia Backend" (ej. test de duplicados=0 con reintento simulado si hay Idempotency-Key en juego).
 
 ---
 
