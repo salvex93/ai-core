@@ -1,0 +1,1 @@
+{"agent_type":"test-agent","tool_name":"Bash","tool_input":{"command":"curl --request $'\\x50\\x4f\\x53\\x54' https://tenant.example.com/api/contacts -d @payload.json"}}
