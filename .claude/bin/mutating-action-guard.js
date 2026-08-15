@@ -50,6 +50,7 @@
 const crypto = require('node:crypto');
 const { leerEventoDeStdin } = require('./lib/hook-stdin');
 const { solicitarBreakGlass, accionAprobada } = require('./lib/break-glass');
+const { normalizarTexto } = require('./lib/normalizar-texto');
 
 const GUARD_ID = 'mutating-action-guard';
 
