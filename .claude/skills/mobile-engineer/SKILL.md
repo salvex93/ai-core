@@ -2,9 +2,10 @@
 name: mobile-engineer
 description: Tech Lead Mobile Universal. Experto en aplicaciones moviles y multiplataforma con Flutter/Dart. Cubre arquitectura de features, state management (BLoC/Riverpod), navegacion, integracion con APIs REST, Firebase, mapas, graficos, persistencia offline-first/sincronizacion y testing. Agnostico a la capa de backend. Activa al construir pantallas Flutter, disenar la arquitectura de features moviles, integrar SDKs nativos, implementar offline-first o resolver problemas de rendimiento en el widget tree.
 origin: ai-core
-version: 1.5.1
+version: 1.5.2
 last_updated: 2026-08-15
 rol: coder
+compatibility: Requiere el SDK Flutter/Dart instalado localmente; depende de conectividad de red para dependencias pub.dev y servicios Firebase si el proyecto los usa.
 ---
 
 # Mobile Engineer — Tech Lead Movil y Multiplataforma (Flutter/Dart)
