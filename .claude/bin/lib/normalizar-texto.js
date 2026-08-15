@@ -56,8 +56,16 @@ const INVISIBLES_A_REMOVER = /[​‌‍‎‏﻿­]/g;
 
 // Marcadores de enfasis markdown que un usuario (o contenido inyectado)
 // puede envolver alrededor de una palabra clave para evadir la secuencia
-// exacta que un regex espera.
-const MARKDOWN_ENFASIS = /[*_`]{1,3}/g;
+// exacta que un regex espera. Exige limite de palabra (\b) a AMBOS lados
+// del marcador -- sin este limite, un "_" real dentro de un identificador
+// (ej. "ghp_ABC123", una credencial de GitHub) se removia por error,
+// rompiendo la deteccion de secrets-guard.js (bug real encontrado en esta
+// misma correccion: "ghp_ABC..." se normalizaba a "ghpABC...", que ya no
+// matcheaba el patron `ghp_[A-Za-z0-9]{36}`). El limite de palabra
+// garantiza que solo se remueve cuando el caracter actua como delimitador
+// de enfasis (rodeado de espacio o inicio/fin de string), no cuando es
+// parte de un token alfanumerico contiguo.
+const MARKDOWN_ENFASIS = /(?<=^|\s)[*_`]{1,3}|[*_`]{1,3}(?=\s|$)/g;
 
 /**
  * Reemplaza caracteres de scripts no latinos que son homoglifos conocidos
