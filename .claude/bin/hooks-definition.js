@@ -249,7 +249,7 @@ function buildHooksSection(bin, tmpDirReal) {
       {
         matcher: 'Agent',
         hooks: [
-          { type: 'command', command: nodeConPermiso(bin('subagent-guard.js'), readYWrite) },
+          { type: 'command', command: nodeConPermiso(bin('subagent-guard.js'), readYWriteSubagentLocks) },
         ],
       },
       {
