@@ -1,0 +1,29 @@
+services:
+  ai-core-sandbox:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      # El proyecto anfitrion se monta como volumen -- Claude Code opera
+      # sobre el mismo arbol de archivos que en el host, no una copia
+      # dentro de la imagen. AI_CORE_HOST_PATH la define quien invoca
+      # docker-compose (ver docs/sandboxing.md), nunca un valor hardcodeado.
+      - "${AI_CORE_HOST_PATH:-..}:/workspace"
+    working_dir: /workspace
+    environment:
+      - ANTHROPIC_API_KEY
+      - GEMINI_API_KEY
+      - OPENAI_API_KEY
+      - DEEPSEEK_API_KEY
+      - KIMI_API_KEY
+    # Aislamiento real: sin acceso a la red del host salvo lo que el
+    # contenedor necesita para llamar APIs de LLM (egress normal). Sin
+    # --privileged, sin montar el socket de Docker del host, sin acceso a
+    # dispositivos. Filesystem del host limitado exclusivamente al volumen
+    # declarado arriba -- ninguna otra ruta del host es visible.
+    cap_drop:
+      - ALL
+    security_opt:
+      - "no-new-privileges:true"
+    stdin_open: true
+    tty: true
