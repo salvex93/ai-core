@@ -21,7 +21,7 @@ describe('lib/normalizar-texto.js', () => {
     // NFKC no unifica cirilico->latin por default (son alfabetos distintos
     // con su propia forma canonica) -- normalizarTexto debe usar una tabla
     // de confusables ademas de NFKC para este caso real.
-    const texto = 'DR\u041ЕP TABLE usuarios'; // О cirilica en "DROP"
+    const texto = `DR${'О'}P TABLE usuarios`; // О cirilica (U+041E) en "DROP"
     const normalizado = normalizarTexto(texto);
     assert.match(normalizado, /DROP TABLE usuarios/i);
   });
