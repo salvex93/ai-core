@@ -31,7 +31,7 @@ function parsearLogParaSecretos(logText) {
   let commitActual = null;
 
   for (const linea of lineas) {
-    const matchCommit = linea.match(/^COMMIT:([0-9a-f]+)/);
+    const matchCommit = linea.match(/^COMMIT:(\S+)/);
     if (matchCommit) {
       commitActual = matchCommit[1];
       continue;
