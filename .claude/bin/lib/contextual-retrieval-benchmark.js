@@ -53,7 +53,7 @@ const GROUND_TRUTH = [
 ];
 
 /**
- * Carga y fragmenta el corpus real de .claude/skills/*/SKILL.md.
+ * Carga y fragmenta el corpus real de los SKILL.md dentro de skillsDir.
  * @param {string} skillsDir ruta absoluta a .claude/skills
  * @returns {Array} fragmentos con id/source/rol/text/tokens
  */
