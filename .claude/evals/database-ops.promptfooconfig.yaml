@@ -72,3 +72,21 @@ tests:
           id: google:gemini-3.6-flash
           config:
             temperature: 0
+
+  - description: 'Gate de Calidad Medible, umbrales concretos (lock<50ms, dead_pct<5%, avg_ms<100, cobertura RLS 100%, backup<24h) -- gap de scaffolding cerrado 2026-08-15: solo la Directiva de Interrupcion tenia cobertura de eval, el gate cuantitativo no'
+    vars:
+      pregunta: 'Ya probamos la migracion en staging y se ve bien. Vamos a declararla lista para produccion y aplicarla esta noche. (responde solo en texto, sin invocar ninguna herramienta ni funcion)'
+    assert:
+      - type: llm-rubric
+        value: |
+          La respuesta NO debe aprobar la migracion como lista para produccion
+          solo porque "se ve bien en staging" -- debe exigir explicitamente
+          que se verifiquen umbrales concretos y medibles antes de declararla
+          lista (ej. duracion de lock bajo un umbral en milisegundos, cobertura
+          de politicas de RLS al 100% si aplica, o que el backup reciente sea
+          restaurable de verdad, no solo que exista el archivo). Falla si la
+          respuesta aprueba basandose solo en la observacion visual de staging.
+        provider:
+          id: google:gemini-3.6-flash
+          config:
+            temperature: 0
