@@ -121,9 +121,12 @@ if (toolName.startsWith('mcp__')) {
 }
 
 if (toolName === 'Bash') {
-  const cmd = evento.tool_input?.command || '';
+  const cmdOriginal = evento.tool_input?.command || '';
+  // Normalizacion Unicode antes de matchear (hallazgo red-team 2026-08-15) --
+  // mismo motivo que destructive-op-guard.js.
+  const cmd = normalizarTexto(cmdOriginal);
   if (cmd && esComandoHttpMutante(cmd)) {
-    bloquearOAprobar(cmd, `un comando HTTP mutante hacia un servicio externo: "${cmd}"`);
+    bloquearOAprobar(cmdOriginal, `un comando HTTP mutante hacia un servicio externo: "${cmdOriginal}"`);
   }
 }
 
