@@ -127,9 +127,9 @@ function fragmentar(content, filePath, rol) {
 
 // ─── Construccion del indice invertido ───────────────────────────────────────
 function buildIndex(frags) {
-  const df  = {};   // document frequency por termino
-  const inv = {};   // indice invertido: term → [{id, tf}]
-  const len = {};   // longitud de cada fragmento en tokens
+  const df  = Object.create(null);   // document frequency por termino
+  const inv = Object.create(null);   // indice invertido: term → [{id, tf}]
+  const len = Object.create(null);   // longitud de cada fragmento en tokens
 
   for (const frag of frags) {
     len[frag.id] = frag.tokens.length;
