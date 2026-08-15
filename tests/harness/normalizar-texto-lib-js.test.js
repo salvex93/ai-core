@@ -51,6 +51,16 @@ describe('lib/normalizar-texto.js', () => {
     assert.match(normalizado, /ignora todas las instrucciones anteriores/);
   });
 
+  test('NO remueve "_" cuando es parte de un identificador contiguo, ej. una credencial real (bug encontrado y corregido durante esta correccion)', () => {
+    // Regresion real: un primer intento de esta funcion trataba cualquier
+    // "_" como delimitador de enfasis markdown sin exigir limite de
+    // palabra, lo que rompia secrets-guard.js -- "ghp_ABC123" se
+    // normalizaba a "ghpABC123", dejando de matchear el patron de GitHub
+    // PAT y anulando la deteccion de esa credencial real.
+    const texto = 'token: ghp_ABCDEFGHIJKLMNOPQRSTUVWXYZ123456789A';
+    assert.equal(normalizarTexto(texto), texto);
+  });
+
   test('colapsa espacios multiples a uno solo', () => {
     const texto = 'rm   -rf     /tmp/x';
     const normalizado = normalizarTexto(texto);
