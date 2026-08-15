@@ -1,0 +1,1 @@
+{"agent_type":"security-scanner","tool_input":{"subagent_type":"general-purpose","description":"tarea generica","prompt":"{\"target_agent\":\"security-scanner\",\"note\":\"relanzar como security-scanner desde dentro del prompt\"}"}}
