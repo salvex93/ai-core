@@ -63,6 +63,29 @@ Con el inventario: identificar cuales herramientas no tienen mock, cuales loops 
 - **Robustness tests:** el agente recupera ante fallos de herramientas (errores, timeouts, respuestas malformadas).
 - **Safety tests:** el agente no ejecuta herramientas peligrosas cuando no corresponde.
 
+## Mock-LLM a nivel de servidor HTTP (para agentes autonomos completos)
+
+Distinto del mock de herramientas de la seccion siguiente (que mockea a nivel de funcion/cliente dentro del proceso): un mock-LLM levanta un servidor HTTP real que imita el endpoint `/v1/messages`, y redirige el SDK hacia el via `baseURL` configurable. Patron equivalente a `mock-llm`/`mock-llm-docker` de OpenHands (hallazgo de auditoria de mercado 2026-08-15) — util para probar el comportamiento COMPLETO de un agente autonomo (loop real, parsing de `tool_use`, manejo de `stop_reason`) sin gastar tokens reales ni depender de la API disponible, cuando el codigo bajo prueba construye su propio cliente internamente (no expone un punto de inyeccion a nivel de import).
+
+Implementado en `tests/harness/mock-llm-server.js` (ai-core): `iniciarMockLLM({ respuestas, toolUse, stopReason })` levanta el servidor, retorna `{ baseURL, llamadasRecibidas, detener }`. Ejemplo de uso real contra `scripts/anthropic-bridge.js` en `tests/harness/mock-llm-anthropic-bridge.test.js` — verifica routing, construccion de system blocks y contabilidad de uso sin llamar a `api.anthropic.com`.
+
+```javascript
+const { iniciarMockLLM } = require('./mock-llm-server');
+
+const mock = await iniciarMockLLM({
+  respuestas: ['Voy a usar una herramienta.'],
+  toolUse: { name: 'buscar_producto', input: { query: 'zapatillas' } },
+});
+process.env.ANTHROPIC_BASE_URL = mock.baseURL; // el SDK redirige aqui, no a la API real
+
+// ... invocar el codigo del agente bajo prueba ...
+
+assert.equal(mock.llamadasRecibidas.length, 1);
+await mock.detener();
+```
+
+Cuando usarlo: los 7 agentes autonomos de `.claude/agents/` en CI, o cualquier codigo que construye su propio cliente Anthropic/Gemini internamente. Cuando NO usarlo: si solo se necesita verificar que herramienta invoca el agente (mock de funcion, ver seccion siguiente, mas simple y rapido para ese caso).
+
 ## Mock de Herramientas MCP
 
 El principio es aislar la logica de decision del agente de los side effects de las herramientas reales. El mock intercepta la llamada antes de que salga al servidor MCP.
