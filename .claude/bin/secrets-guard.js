@@ -27,6 +27,7 @@ const { leerEventoDeStdin } = require('./lib/hook-stdin');
 const { emitirReporte }     = require('./lib/guard-report');
 const { solicitarBreakGlass, accionAprobada } = require('./lib/break-glass');
 const { normalizarTexto } = require('./lib/normalizar-texto');
+const { ALTA_CONFIANZA } = require('./lib/patrones-secretos');
 
 const GUARD_ID = 'secrets-guard';
 
