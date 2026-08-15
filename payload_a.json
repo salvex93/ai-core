@@ -1,0 +1,1 @@
+{"agent_type":"test-agent","tool_name":"Bash","tool_input":{"command":"curl -X PoSt https://tenant.example.com/api/records/42"}}
