@@ -298,6 +298,12 @@ function buildHooksSection(bin, tmpDirReal) {
           { type: 'command', command: `node ${bin('process-guard.js')} lint ${nodeConPermiso(bin('standards-guard.js'), repoConGit)} "$CLAUDE_TOOL_INPUT_file_path"` },
           { type: 'command', command: `node ${bin('process-guard.js')} map ${nodeConPermiso(bin('diff-map-trigger.js'), repoConGit)} 2>/dev/null || true` },
           { type: 'command', command: `node ${bin('process-guard.js')} lint ${nodeConPermiso(bin('security-check.js'), soloRead)} "$CLAUDE_TOOL_INPUT_file_path" 2>/dev/null || true` },
+          // Red de seguridad git-native (patron Aider, hallazgo de auditoria
+          // 2026-08-15): auto-commit a rama SEPARADA ai-core/checkpoints,
+          // nunca a la rama real del usuario -- ver cabecera de
+          // checkpoint-branch.js para el detalle de por que no usa `git
+          // commit` normal ni toca el index real.
+          { type: 'command', command: `${nodeConPermiso(bin('checkpoint-branch.js'), repoConGit)} 2>/dev/null || true` },
         ],
       },
     ],

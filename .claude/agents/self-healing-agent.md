@@ -2,8 +2,8 @@
 name: self-healing-agent
 description: Agente autonomo de auto-reparacion. Diagnostica errores encolados en EVENTS_QUEUE.json via el ciclo AUDITOR/ARCHITECT de ErrorRepairLoop.js y produce una propuesta de fix (causa raiz, archivos afectados, comando o codigo de correccion). Nunca aplica el fix por si solo — requiere confirmacion humana explicita. Activa al detectar errores repetidos en EVENTS_QUEUE.json o cuando el catch de una tool MCP devuelve reparacion.fallo=false con una propuesta pendiente de revisar.
 origin: ai-core
-version: 1.0.0
-last_updated: 2026-08-07
+version: 1.0.1
+last_updated: 2026-08-15
 provider: any
 model: sonnet
 loop: true
@@ -22,7 +22,6 @@ Loop cerrado. Diagnostica y propone — nunca aplica sin confirmacion humana. No
 node -e "JSON.parse(require('fs').readFileSync('.claude/EVENTS_QUEUE.json','utf8')); console.log('OK: EVENTS_QUEUE parseable')" 2>/dev/null || echo "INFO: sin cola de eventos aun (normal en instalacion nueva)"
 
 # 2. ANTHROPIC_API_KEY configurada (el ciclo de diagnostico/reparacion depende del bridge)
-node -e "require('dotenv').config?.(); " 2>/dev/null
 test -n "$ANTHROPIC_API_KEY" && echo "OK: bridge disponible" || echo "FALLO: sin ANTHROPIC_API_KEY, el ciclo de reparacion no puede completar"
 
 # 3. No hay otra instancia self-healing-agent corriendo

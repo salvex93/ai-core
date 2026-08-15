@@ -183,14 +183,14 @@ describe('validate-agents.js', () => {
     );
   });
 
-  test('los 7 agentes reales del ecosistema no tienen hallazgos criticos ni altos', () => {
+  test('los 6 agentes reales del ecosistema no tienen hallazgos criticos ni altos', () => {
     // No se exige status CONFORME estricto (0 hallazgos de cualquier
     // severidad): el chequeo de drift last_updated-vs-mtime depende del
     // mtime real del sistema de archivos, que en un checkout fresco de CI
     // es "ahora" para TODOS los archivos -- un agente con last_updated
-    // antiguo (ej. map-updater.md) dispara ese drift (severidad baja, no
-    // bloqueante) en CI aunque nunca lo haga en un working tree local ya
-    // clonado. Regresion real: este test con deepEqual estricto rompio CI
+    // antiguo dispara ese drift (severidad baja, no bloqueante) en CI
+    // aunque nunca lo haga en un working tree local ya clonado.
+    // Regresion real: este test con deepEqual estricto rompio CI
     // en push (no se reprodujo local) por exactamente este motivo.
     const r = spawnSync('node', [SCRIPT, '--json'], { encoding: 'utf8', cwd: REPO, maxBuffer: 10 * 1024 * 1024 });
     const salida = JSON.parse(r.stdout);

@@ -26,21 +26,36 @@
 const { leerEventoDeStdin } = require('./lib/hook-stdin');
 const { emitirReporte }     = require('./lib/guard-report');
 const { solicitarBreakGlass, accionAprobada } = require('./lib/break-glass');
+const { normalizarTexto } = require('./lib/normalizar-texto');
 
 const GUARD_ID = 'secrets-guard';
 
-const prompt = process.env.CLAUDE_USER_PROMPT || leerEventoDeStdin().prompt_text || '';
-if (!prompt) process.exit(0);
+const promptOriginal = process.env.CLAUDE_USER_PROMPT || leerEventoDeStdin().prompt_text || '';
+if (!promptOriginal) process.exit(0);
+
+// Normalizacion Unicode antes de matchear (hallazgo red-team 2026-08-15):
+// zero-width space/homoglifos dentro del prefijo de una credencial real
+// (ej. "sk-" con un caracter invisible insertado) rompian el matching sin
+// alterar la credencial en si -- el secreto seguia siendo exfiltrable tal
+// cual, solo el prefijo quedaba disfrazado. El prompt se usa normalizado
+// SOLO para el matching; el reporte al usuario sigue mostrando el original.
+const prompt = normalizarTexto(promptOriginal);
 
 // Bloquean (exit 2): formato inequivoco, imposible de confundir con codigo
-// de ejemplo o placeholder generico.
+// de ejemplo o placeholder generico. Prefijo con flag /i (hallazgo
+// red-team: "Sk-..." con mayuscula en el prefijo evadia el match) --
+// el cuerpo de la credencial real de cada proveedor SI es case-sensitive
+// por diseño (un token real nunca cambia su propio case), pero el
+// PREFIJO puede escribirse deliberadamente en otro case para evadir sin
+// alterar el secreto real que sigue -- normalizar solo el prefijo detecta
+// ese intento sin ampliar el patron a texto que no es una credencial real.
 const ALTA_CONFIANZA = [
-  { re: /sk-[A-Za-z0-9]{20,}/,             etiqueta: 'OpenAI API key' },
-  { re: /ghp_[A-Za-z0-9]{36}/,             etiqueta: 'GitHub Personal Access Token' },
-  { re: /AKIA[A-Z0-9]{16}/,                etiqueta: 'AWS Access Key ID' },
-  { re: /xox[baprs]-[A-Za-z0-9\-]{10,}/,   etiqueta: 'Slack token' },
-  { re: /-----BEGIN (RSA|EC|OPENSSH) PRIVATE KEY/, etiqueta: 'Clave privada' },
-  { re: /AIza[A-Za-z0-9_\-]{35}/,          etiqueta: 'Google API key' },
+  { re: /sk-[A-Za-z0-9]{20,}/i,             etiqueta: 'OpenAI API key' },
+  { re: /ghp_[A-Za-z0-9]{36}/i,             etiqueta: 'GitHub Personal Access Token' },
+  { re: /AKIA[A-Z0-9]{16}/i,                etiqueta: 'AWS Access Key ID' },
+  { re: /xox[baprs]-[A-Za-z0-9\-]{10,}/i,   etiqueta: 'Slack token' },
+  { re: /-----BEGIN (RSA|EC|OPENSSH) PRIVATE KEY/i, etiqueta: 'Clave privada' },
+  { re: /AIza[A-Za-z0-9_\-]{35}/i,          etiqueta: 'Google API key' },
 ];
 
 // Solo advierten (exit 0): patron generico, riesgo real de falso positivo
@@ -54,12 +69,15 @@ const bloqueantes = ALTA_CONFIANZA.filter(({ re }) => re.test(prompt));
 const advertencias = CONFIANZA_MEDIA.filter(({ re }) => re.test(prompt));
 
 if (bloqueantes.length > 0) {
-  if (accionAprobada(GUARD_ID, prompt)) {
+  // El hash de break-glass usa promptOriginal (no el normalizado): el
+  // reintento exacto que el usuario reenvia es el texto original con sus
+  // caracteres tal cual, no la version normalizada usada solo para deteccion.
+  if (accionAprobada(GUARD_ID, promptOriginal)) {
     emitirReporte({ guard: 'secrets-guard', verdict: 'ok', severity: 'baja', hallazgos: ['bypass confirmado por humano'] });
     process.exit(0);
   }
 
-  const id = solicitarBreakGlass(GUARD_ID, prompt);
+  const id = solicitarBreakGlass(GUARD_ID, promptOriginal);
   process.stderr.write('[secrets-guard] BLOQUEADO: credencial de alta confianza detectada en el mensaje:\n');
   bloqueantes.forEach(({ etiqueta }) => process.stderr.write(`  - ${etiqueta}\n`));
   process.stderr.write(

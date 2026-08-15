@@ -2,9 +2,10 @@
 name: claude-agent-sdk
 description: Especialista en construccion de agentes autonomos con el Claude Agent SDK (TypeScript/Python). Cubre herramientas integradas, hooks de ciclo de vida, subagentes, integracion MCP, OAuth 2.0 client flow (Authorization Code + PKCE) para servidores MCP remotos, gestion de permisos y sesiones. Activa al construir agentes personalizados, orquestar subagentes, integrar el Agent SDK en un proyecto anfitrion o disenar flujos de automatizacion con Claude.
 origin: ai-core
-version: 2.4.0
-last_updated: 2026-08-04
+version: 2.4.2
+last_updated: 2026-08-15
 rol: architect
+compatibility: Depende de @anthropic-ai/claude-agent-sdk (o el paquete Python equivalente) y conectividad de red hacia la Claude API; para MCP remoto ademas requiere flujo OAuth 2.0 con un authorization server externo.
 ---
 
 # Claude Agent SDK — Especialista en Agentes Autonomos
@@ -248,15 +249,15 @@ No activar en flujos deterministas simples — el overhead de tokens no se justi
 
 Reglas: incluir bloques `thinking` del turno anterior en el historial del siguiente. Loguear tokens thinking separado. Requiere `claude-sonnet-5` o superior.
 
-## Adaptive Thinking — Opus 4.8
+## Adaptive Thinking — Opus 5 (antes Opus 4.8)
 
-`claude-opus-4-8` introduce pensamiento adaptativo: el modelo asigna presupuesto de razonamiento de forma variable por paso, proporcional a la complejidad local de cada decision. Es la opcion optima para agentes con pasos de complejidad heterogenea.
+`claude-opus-5` (lanzado 24-jul-2026, mismo pricing que Opus 4.8: $5/$25 por millon de tokens) es ahora el default recomendado para agentes autonomos en Claude Max e introduce pensamiento adaptativo: el modelo asigna presupuesto de razonamiento de forma variable por paso, proporcional a la complejidad local de cada decision. Es la opcion optima para agentes con pasos de complejidad heterogenea. `claude-opus-4-8` sigue soportado como fallback documentado.
 
 Activar con `thinking: { type: "auto" }` en lugar de budget fijo:
 
 ```typescript
 const respuesta = await cliente.messages.create({
-  model: 'claude-opus-4-8',
+  model: 'claude-opus-5',
   thinking: { type: 'auto' },   // el modelo decide el budget por paso
   max_tokens: 16000,
   messages: historial,
@@ -264,7 +265,7 @@ const respuesta = await cliente.messages.create({
 ```
 
 Cuando usar cada modo:
-- `{ type: "auto" }` (Opus 4.8): pasos de complejidad variable — ahorra en pasos simples sin degradar calidad en pasos complejos.
+- `{ type: "auto" }` (Opus 5, fallback Opus 4.8): pasos de complejidad variable — ahorra en pasos simples sin degradar calidad en pasos complejos.
 - `{ type: "enabled", budget_tokens: N }` (Opus/Sonnet 5): costo predecible por llamada o complejidad uniforme entre pasos.
 
 Loguear `thinking_tokens` separado de `output_tokens` en ambos modos. La diferencia entre llamadas revela que porcion del costo es razonamiento adaptativo.

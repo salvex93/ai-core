@@ -23,8 +23,16 @@ const path = require('path');
 const { execSync, execFileSync } = require('child_process');
 
 const CORE_PATH   = path.resolve(__dirname, '../..');
-const QUEUE_PATH  = path.join(CORE_PATH, '.claude', 'EVENTS_QUEUE.json');
+// AI_CORE_EVENTS_QUEUE_PATH permite aislar en tests -- mismo patron que
+// AI_CORE_AGENT_SNAPSHOTS_DIR/AI_CORE_SUBAGENT_LOCK_DIR en otros scripts.
+const QUEUE_PATH  = process.env.AI_CORE_EVENTS_QUEUE_PATH || path.join(CORE_PATH, '.claude', 'EVENTS_QUEUE.json');
 const REPO_TARGET = 'salvex93/ai-core';
+// Umbral documentado en .claude/agents/issue-tracker.md -- si la cola de
+// pendientes supera este valor sin poder reportarse (gh no disponible),
+// emitir ALERTA_ARQUITECTONICA como evidencia auditable de que la cola
+// crece sin resolverse. Gap de scaffolding cerrado 2026-08-15: el .md ya
+// citaba este comportamiento como implementado aqui, pero no existia.
+const UMBRAL_ALERTA_COLA = 20;
 
 // ---------------------------------------------------------------------------
 // Tipos de evento → labels y titulo de issue
@@ -212,6 +220,14 @@ if (pending.length === 0) {
 if (!ghAvailable()) {
   process.stderr.write('[ISSUE-REPORTER] gh CLI no disponible o no autenticado — issues no enviados.\n');
   process.stderr.write(`[ISSUE-REPORTER] ${pending.length} evento(s) en cola para el proximo intento.\n`);
+  if (pending.length > UMBRAL_ALERTA_COLA) {
+    process.stderr.write(
+      `[ALERTA_ARQUITECTONICA: REQUIERE_OPUSPLAN]\n` +
+      `${pending.length} eventos pendientes en cola (umbral: ${UMBRAL_ALERTA_COLA}) -- ` +
+      `motivo probable: gh CLI no autenticado o sin conectividad (verificar con "gh auth status"). ` +
+      `La cola de reporte crece sin resolverse.\n`
+    );
+  }
   process.exit(0);
 }
 

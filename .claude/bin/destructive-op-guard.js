@@ -63,6 +63,8 @@
  */
 
 const { solicitarBreakGlass, accionAprobada } = require('./lib/break-glass');
+const { normalizarTexto } = require('./lib/normalizar-texto');
+const { tieneIndicioDeResolucionPrevia } = require('./lib/deteccion-resolucion-previa');
 
 const GUARD_ID = 'destructive-op-guard';
 
@@ -116,10 +118,23 @@ if (!cmdOriginal) process.exit(0);
 // documenta este mismo guard) -- eso no es un comando real de shell, es
 // contenido citado. Se descarta el argumento del mensaje antes de evaluar
 // las reglas para no bloquear el commit que las documenta.
-const cmd = /\bgit\s+commit\b/.test(cmdOriginal)
+const cmdEnmascarado = /\bgit\s+commit\b/.test(cmdOriginal)
   ? cmdOriginal.replace(/-m\s+(["'])(?:(?!\1).)*\1/gs, '-m "..."')
                .replace(/-F\s+\S+/g, '-F ...')
   : cmdOriginal;
+
+// Normalizacion Unicode antes de evaluar las REGLAS (hallazgo red-team
+// 2026-08-15): homoglifos cirilicos (ej. "О" en "DRОP TABLE"), zero-width
+// space y non-breaking space evadian el matching porque las reglas
+// comparaban contra el string crudo. Deliberadamente NO se aplica
+// toLowerCase() global: "git branch -D" (destructivo, sin --dry-run
+// posible) debe seguir distinguiendose de "git branch -d" (seguro,
+// alternativa explicita) -- normalizar el case aqui borraria esa
+// distincion de seguridad. Cada regla que necesita case-insensitive ya
+// declara su propio flag /i (ver REGLAS abajo); el fix de mayusculas para
+// las reglas que carecian de /i (rm, git reset, git clean, "del /F /S") se
+// aplica en el flag de cada regla especifica, no aqui.
+const cmd = normalizarTexto(cmdEnmascarado);
 
 // Mensaje REAL de commit (no enmascarado) -- se inspecciona por separado del
 // loop de REGLAS porque necesita distinguir atribucion real de IA (bloquea)
@@ -156,27 +171,33 @@ if (mensajeCommit) {
 const REGLAS = [
   {
     nombre: 'rm -rf',
-    disparo: /\brm\s+(-[a-zA-Z]*r[a-zA-Z]*f[a-zA-Z]*|-[a-zA-Z]*f[a-zA-Z]*r[a-zA-Z]*)\b/,
+    // Cubre combinada corta (-rf/-fr), formas largas (--recursive --force en
+    // cualquier orden) y mezcla corta+larga (-r --force, --recursive -f) --
+    // hallazgo de auditoria 2026-08-14: solo se cubria la forma corta combinada.
+    // Flag /i agregado (hallazgo red-team 2026-08-15): "RM -rf" en
+    // mayusculas evadia el bloqueo -- el nombre del comando no distingue
+    // seguridad por case, a diferencia de flags como git branch -D/-d.
+    disparo: /\brm\s+.*(?:(?:-[a-zA-Z]*r[a-zA-Z]*f[a-zA-Z]*\b)|(?:-[a-zA-Z]*f[a-zA-Z]*r[a-zA-Z]*\b)|(?:(?:-r\b|--recursive\b).*(?:-f\b|--force\b))|(?:(?:-f\b|--force\b).*(?:-r\b|--recursive\b)))/i,
     excepcion: null,
     breakGlass: true,
     motivo: 'borrado recursivo forzado -- irreversible, sin papelera de reciclaje.',
   },
   {
     nombre: 'git push --force',
-    disparo: /\bgit\s+push\b.*(--force\b|(?<!--force-with-lease)\s-f\b)/,
-    excepcion: /--force-with-lease/,
+    disparo: /\bgit\s+push\b.*(--force\b|(?<!--force-with-lease)\s-f\b)/i,
+    excepcion: /--force-with-lease/i,
     motivo: 'sobreescribe el historial remoto sin verificar si alguien mas pusheo -- usar --force-with-lease en su lugar.',
   },
   {
     nombre: 'git reset --hard',
-    disparo: /\bgit\s+reset\s+.*--hard\b/,
+    disparo: /\bgit\s+reset\s+.*--hard\b/i,
     excepcion: null,
     breakGlass: true,
     motivo: 'descarta cambios locales sin posibilidad de recuperacion (working tree + index).',
   },
   {
     nombre: 'git clean -f',
-    disparo: /\bgit\s+clean\s+.*-[a-zA-Z]*f/,
+    disparo: /\bgit\s+clean\s+.*-[a-zA-Z]*f/i,
     excepcion: null,
     breakGlass: true,
     motivo: 'borra archivos no trackeados de forma irreversible -- puede incluir trabajo en progreso nunca commiteado.',
@@ -275,11 +296,17 @@ const REGLAS = [
   },
   {
     // Equivalente nativo de PowerShell a "rm -rf".
-    nombre: 'Remove-Item -Recurse -Force (PowerShell)',
-    disparo: /\bRemove-Item\b.*(-Recurse\b.*-Force\b|-Force\b.*-Recurse\b)|\brm\b.*(-Recurse\b.*-Force\b|-Force\b.*-Recurse\b)/i,
+    // Alias reales de Remove-Item verificados contra learn.microsoft.com/
+    // powershell/module/microsoft.powershell.management/remove-item
+    // (2026-08-15, vigente 5.1/7+): ri, rd, rmdir, del, erase (ademas de
+    // Remove-Item y rm ya cubiertos). Hallazgo red-team: "ri -Recurse
+    // -Force" evadia el bloqueo porque solo el nombre completo del cmdlet
+    // y "rm" estaban en el patron.
+    nombre: 'Remove-Item -Recurse -Force (PowerShell, incluye alias reales)',
+    disparo: /\b(Remove-Item|rm|ri|rd|rmdir|erase)\b.*(-Recurse\b.*-Force\b|-Force\b.*-Recurse\b)/i,
     excepcion: null,
     breakGlass: true,
-    motivo: 'borrado forzado y recursivo de archivos via PowerShell -- equivalente Windows de "rm -rf", irreversible.',
+    motivo: 'borrado forzado y recursivo de archivos via PowerShell (o su alias real) -- equivalente Windows de "rm -rf", irreversible.',
   },
 ];
 
@@ -297,6 +324,23 @@ if (PATRON_OFUSCACION.test(cmd)) {
     `[DESTRUCTIVE-OP-GUARD] BLOQUEADO (evaluacion dinamica de comando ofuscado): "${cmd}"\n` +
     'Motivo: el comando se construye/evalua desde una variable o substitucion en vez de literal -- no se puede verificar su contenido real antes de ejecutar, y es el patron tipico usado para evadir guards de comandos destructivos.\n' +
     'Reescribe el comando de forma literal (sin eval/Invoke-Expression/iex sobre una variable) para que pueda inspeccionarse antes de ejecutar.\n'
+  );
+  process.exit(2);
+}
+
+// Segunda causa raiz cerrada (red-team 2026-08-15): decodificacion
+// (base64/hex/Buffer.from/atob) o fragmentacion en variables adyacentes
+// ("A=..."; B=...; bash -c "$A$B"), ambas combinadas con una via de
+// ejecucion real del resultado -- el contenido peligroso solo existe
+// codificado o partido en el string, materializandose recien cuando el
+// shell lo interpreta. Mismo tratamiento hard-stop que PATRON_OFUSCACION
+// (sin break-glass): es la misma clase de evasion -- el comando no puede
+// verificarse por contenido antes de ejecutar.
+if (tieneIndicioDeResolucionPrevia(cmd)) {
+  process.stderr.write(
+    `[DESTRUCTIVE-OP-GUARD] BLOQUEADO (decodificacion o fragmentacion previa a ejecucion): "${cmd}"\n` +
+    'Motivo: el comando decodifica contenido (base64/hex) o lo reconstruye desde variables fragmentadas antes de ejecutarlo -- no se puede verificar su contenido real antes de correr, mismo riesgo que un comando destructivo literal.\n' +
+    'Reescribe el comando de forma literal (sin decodificar ni fragmentar en variables antes de ejecutar) para que pueda inspeccionarse antes de correr.\n'
   );
   process.exit(2);
 }

@@ -253,6 +253,13 @@ describe('destructive-op-guard.js', () => {
       assert.equal(run('psql -c "DROP DATABASE produccion"').status, 2);
     });
 
+    test('bloquea "rm --recursive --force" (formas largas equivalentes a -rf, hallazgo auditoria 2026-08-14)', () => {
+      assert.equal(run('rm --recursive --force /tmp/x').status, 2);
+      assert.equal(run('rm --force --recursive /tmp/x').status, 2);
+      assert.equal(run('rm -r --force /tmp/x').status, 2);
+      assert.equal(run('rm --recursive -f /tmp/x').status, 2);
+    });
+
     test('permite "DROP DATABASE IF EXISTS ... -- confirmado" documentado como intencional', () => {
       assert.equal(run('psql -c "DROP DATABASE IF EXISTS staging -- confirmado"').status, 0);
     });
@@ -271,8 +278,57 @@ describe('destructive-op-guard.js', () => {
       assert.equal(run('Remove-Item -Force -Recurse build').status, 2);
     });
 
+    test('bloquea alias reales de Remove-Item verificados contra learn.microsoft.com (hallazgo red-team 2026-08-15: "ri" evadia el guard)', () => {
+      assert.equal(run('ri -Recurse -Force build').status, 2);
+      assert.equal(run('rd -Recurse -Force build').status, 2);
+      assert.equal(run('erase -Recurse -Force build').status, 2);
+    });
+
     test('permite "Remove-Item archivo.txt" sin -Recurse -Force', () => {
       assert.equal(run('Remove-Item archivo.txt').status, 0);
+    });
+  });
+
+  describe('normalizacion Unicode y case-insensitivity (hallazgos red-team 2026-08-15)', () => {
+    test('bloquea "RM -rf" en mayusculas (nombre de comando, no distingue seguridad por case)', () => {
+      assert.equal(run('RM -rf /datos-importantes').status, 2);
+    });
+
+    test('bloquea "DRОP TABLE" con homoglifo cirilico О (U+041E) en vez de O latina', () => {
+      const payload = `psql -c "DR${'О'}P TABLE usuarios"`;
+      assert.equal(run(payload).status, 2);
+    });
+
+    test('bloquea "GIT RESET --hard" y "GIT CLEAN -f" en mayusculas', () => {
+      assert.equal(run('GIT RESET --hard').status, 2);
+      assert.equal(run('GIT CLEAN -f').status, 2);
+    });
+
+    test('"git branch -D" mayuscula sigue distinguiendose de "-d" minuscula (case intencional, NO normalizado a insensitive)', () => {
+      assert.equal(run('git branch -D rama-vieja').status, 2, '-D mayuscula debe seguir bloqueando');
+      assert.equal(run('git branch -d rama-vieja').status, 0, '-d minuscula (alternativa segura documentada) debe seguir permitida');
+    });
+  });
+
+  describe('resolucion previa: decodificacion y fragmentacion antes de ejecutar (causa raiz 2, red-team 2026-08-15)', () => {
+    test('bloquea "rm -rf" codificado en base64 y decodificado via pipe a bash', () => {
+      const r = run('echo cm0gLXJmIC9pbXBvcnRhbnQtZGF0YQ== | base64 -d | bash');
+      assert.equal(r.status, 2);
+    });
+
+    test('bloquea "rm -rf" fragmentado en 2 variables de shell reconstruidas en bash -c', () => {
+      const r = run('A="rm -"; B="rf /datos-importantes"; bash -c "$A$B"');
+      assert.equal(r.status, 2);
+    });
+
+    test('permite un uso normal de variables de shell sin fragmentacion de comando destructivo', () => {
+      const r = run('A="hola mundo"; echo "$A"');
+      assert.equal(r.status, 0);
+    });
+
+    test('permite mencionar "base64" en un comando sin decode + ejecucion (no es un intento real de resolucion previa)', () => {
+      const r = run('echo "este script codifica el payload en base64 antes de subirlo"');
+      assert.equal(r.status, 0);
     });
 
     test('bloquea comando destructivo evaluado dinamicamente via eval/Invoke-Expression/iex sobre una variable', () => {

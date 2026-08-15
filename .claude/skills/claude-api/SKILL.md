@@ -2,9 +2,10 @@
 name: claude-api
 description: Especialista en Claude API y Anthropic SDK (Python/TypeScript). Cubre prompt caching, extended thinking, tool use, streaming, Batch API, Files API, Citations API, modelos Fable 5/Opus/Sonnet/Haiku, migracion entre versiones de modelo y optimizacion de costo por token. Activa al escribir codigo que importa anthropic/@anthropic-ai/sdk, disenar pipelines con cache de prompts, implementar tool use nativo, o migrar entre versiones de Claude.
 origin: ai-core
-version: 1.2.0
-last_updated: 2026-08-05
+version: 1.3.1
+last_updated: 2026-08-15
 rol: coder
+compatibility: Depende de @anthropic-ai/sdk (o el paquete Python `anthropic`) y conectividad de red hacia api.anthropic.com.
 ---
 
 # Claude API Specialist
@@ -14,7 +15,7 @@ rol: coder
 - Codigo importa `anthropic` o `@anthropic-ai/sdk`.
 - El usuario pregunta sobre prompt caching, cache hit rate, o costos de inferencia.
 - Implementacion de tool use, streaming, extended thinking o Batch API.
-- Migracion de modelo: Haiku 4.5 → Sonnet 5 → Opus 4.8, o reemplazo de modelos retirados.
+- Migracion de modelo: Haiku 4.5 → Sonnet 5 → Opus 5, o reemplazo de modelos retirados.
 - Disenar system prompts con cache para reducir costo en sesiones largas.
 - Uso de Citations API para documentos estructurados o Files API para contexto persistente.
 
@@ -36,22 +37,23 @@ rol: coder
 grep -r "cache_control\|anthropic\|claude-" src/ --include="*.ts" --include="*.py" -l
 ```
 
-## Modelos Vigentes (2026-07)
+## Modelos Vigentes (verificado 2026-08-14 contra anthropic.com/news/claude-opus-5 y platform.claude.com/docs/en/about-claude/models/overview)
 
 | Modelo | ID exacto | Uso recomendado |
 |---|---|---|
 | Fable 5 | `claude-fable-5` | Razonamiento profundo multi-paso, diseno de sistemas, alternativa a Opus cuando la tarea es puro razonamiento sin computer use |
-| Opus 4.8 | `claude-opus-4-8` | Agentes autonomos, computer use, arquitectura con herramientas integradas |
+| Opus 5 | `claude-opus-5` | Recomendado por defecto para agentes autonomos, computer use, arquitectura con herramientas integradas — nuevo default en Claude Max, mismo pricing que Opus 4.8 ($5/$25 por MTok) |
+| Opus 4.8 | `claude-opus-4-8` | Version anterior, aun soportada — mantener solo si el proyecto ya fijo esta version por compatibilidad especifica |
 | Sonnet 5 | `claude-sonnet-5` | Produccion general, balance costo/calidad |
 | Haiku 4.5 | `claude-haiku-4-5-20251001` | Tareas simples, maximo ahorro de tokens |
 
 Jerarquia de costo: Haiku < Sonnet < Opus ≈ Fable. Usar siempre el minimo suficiente.
-Regla de seleccion Fable vs Opus: si la tarea requiere razonamiento profundo SIN herramientas integradas → Fable 5. Si requiere computer use o loops de agente con tools → Opus 4.8.
+Regla de seleccion Fable vs Opus: si la tarea requiere razonamiento profundo SIN herramientas integradas → Fable 5. Si requiere computer use o loops de agente con tools → Opus 5 (Opus 4.8 como fallback documentado).
 
 ## Prompt Caching — Patron Obligatorio
 
-Todo proyecto con Claude API DEBE incluir cache en el system prompt si supera 1024 tokens.
-Cache reduce costo hasta 90% en tokens de input repetidos. TTL: 5 minutos.
+Todo proyecto con Claude API DEBE incluir cache en el system prompt si supera 1024 tokens (512 en Opus 5; 4096 en Haiku 4.5 — el minimo cacheable varia por modelo).
+Cache reduce costo hasta 90% en tokens de input repetidos. TTL disponibles: **5 minutos** (default, escritura a 1.25x el precio de input base) y **1 hora** (escritura a 2x, para pipelines de agente con pasos espaciados mas de 5 minutos entre si). Lectura de cache: 0.1x el precio de input base en ambos TTL. Sintaxis del TTL de 1h: `"cache_control": {"type": "ephemeral", "ttl": "1h"}`.
 
 ```python
 response = client.messages.create(
@@ -92,11 +94,11 @@ Regla: el contenido antes del breakpoint se cachea; el de despues, no. Colocar e
 
 ## Extended Thinking — Patron con Streaming
 
-Para razonamiento profundo en Opus 4.8. Usar streaming para no bloquear el proceso:
+Para razonamiento profundo en Opus 5. Usar streaming para no bloquear el proceso:
 
 ```python
 with client.messages.stream(
-    model="claude-opus-4-8",
+    model="claude-opus-5",
     max_tokens=16000,
     thinking={"type": "enabled", "budget_tokens": 10000},
     messages=[{"role": "user", "content": pregunta_compleja}]
@@ -132,6 +134,62 @@ if response.stop_reason == "tool_use":
     tool_block = next(b for b in response.content if b.type == "tool_use")
     result = execute_tool(tool_block.name, tool_block.input)
 ```
+
+Este patron aplica a catalogos pequenos de herramientas (todas se cargan siempre). Para catalogos grandes de tools o servidores MCP con muchos servicios, ver "Tool Search Tool" abajo.
+
+### Tool Use Examples — subir precision en schemas anidados complejos
+
+Verificado 2026-08-14 contra platform.claude.com/docs/en/agents-and-tools/tool-use/define-tools: el campo `input_examples` (array al mismo nivel que `input_schema`, no anidado dentro de el) sube la precision de parametros anidados complejos de 72% a 90% en el benchmark de Anthropic. No soportado en server tools (web search, code execution).
+
+```python
+tools = [{
+    "name": "get_weather",
+    "description": "Obtiene el clima de una ubicacion",
+    "input_schema": {"type": "object", "properties": {"location": {"type": "string"}, "unit": {"type": "string"}}},
+    "input_examples": [
+        {"location": "San Francisco, CA", "unit": "fahrenheit"},
+        {"location": "New York, NY"}
+    ]
+}]
+```
+
+Cada ejemplo debe validar contra `input_schema`. Usar siempre que el schema tenga arrays anidados o mas de 2-3 campos con formato ambiguo (ej. fechas, enums, estructuras compuestas).
+
+### Tool Search Tool — descubrimiento diferido para catalogos grandes
+
+Verificado 2026-08-14 contra platform.claude.com/docs/en/agents-and-tools/tool-use/tool-search-tool: cuando el catalogo de herramientas es grande (muchos servidores MCP, decenas de tools), cargar todas las definiciones completas en cada request infla el costo de input. `defer_loading: true` es un campo booleano dentro de cada definicion de tool individual — el array `tools` sigue enviando todas las definiciones (el servidor las necesita para expandir referencias), pero Claude las descubre bajo demanda en vez de razonar sobre el catalogo completo desde el primer token. Reduce hasta 85% de tokens de descubrimiento de herramientas.
+
+```python
+tools = [
+    {"type": "tool_search_tool_regex_20251119", "name": "tool_search_tool_regex"},
+    {
+        "name": "get_weather",
+        "description": "...",
+        "input_schema": {"type": "object", "properties": {"location": {"type": "string"}}},
+        "defer_loading": True,
+    },
+    # resto del catalogo grande, todas con defer_loading: True
+]
+```
+
+Variante `tool_search_tool_bm25_20251119` disponible para busqueda en lenguaje natural en vez de regex. Al menos una tool de busqueda debe quedar sin `defer_loading` (o en `false`). Claude descubre tools via bloques `tool_search_tool_result` con `tool_references` que la API expande automaticamente.
+
+### Programmatic Tool Calling — orquestacion via codigo, no llamadas secuenciales
+
+Verificado 2026-08-14 contra platform.claude.com/docs/en/agents-and-tools/tool-use/programmatic-tool-calling: para tareas con 3+ llamadas de tool dependientes entre si, este patron reduce ~37% de tokens facturados en el benchmark de Anthropic al dejar que Claude escriba codigo que orquesta las llamadas, en vez de hacer una tool call por turno. Se activa incluyendo la tool `code_execution_20260120` en `tools`, y agregando `allowed_callers: ["code_execution_20260120"]` a cada tool que Claude debe poder invocar desde el codigo que escribe:
+
+```python
+tools = [
+    {"type": "code_execution_20260120", "name": "code_execution"},
+    {
+        "name": "query_database",
+        "input_schema": {"type": "object", "properties": {"query": {"type": "string"}}},
+        "allowed_callers": ["code_execution_20260120"],
+    },
+]
+```
+
+La respuesta incluye un bloque `server_tool_use` (name `code_execution`) con el codigo que Claude escribio, seguido de bloques `tool_use` con un campo `caller: {"type": "code_execution_20260120", "tool_id": "srvtoolu_..."}` que identifica que ejecucion de codigo invoco cada tool. `stop_reason` sigue siendo `"tool_use"` mientras el modelo espera resultados.
 
 ## Batch API — 50% de descuento para procesamiento no urgente
 
@@ -249,12 +307,12 @@ Caso de uso en ai-core: invocar Claude desde hooks de CI/CD sin levantar un proc
 
 ## Adaptive Thinking — Calibracion Automatica de Razonamiento
 
-Disponible en `claude-opus-4-8`. El modelo asigna presupuesto de razonamiento por paso segun la complejidad local, sin requerir `budget_tokens` fijo.
+Disponible en `claude-opus-5` (y `claude-opus-4-8`). El modelo asigna presupuesto de razonamiento por paso segun la complejidad local, sin requerir `budget_tokens` fijo. No se verifico independientemente en esta pasada si Opus 5 cambia algun detalle de este mecanismo respecto a Opus 4.8 — confirmar contra platform.claude.com antes de asumir paridad total si el comportamiento observado difiere.
 
 ```python
 # Thinking adaptativo — el modelo decide cuanto razonar por llamada
 response = client.messages.create(
-    model="claude-opus-4-8",
+    model="claude-opus-5",
     max_tokens=16000,
     thinking={"type": "auto"},   # adaptativo vs {"type": "enabled", "budget_tokens": N}
     messages=[{"role": "user", "content": pregunta}]
@@ -267,24 +325,22 @@ Cuando usar `auto` vs `budget_tokens`:
 
 ## Context Compaction — Sesiones de Ejecucion Larga
 
-El agente puede compactar su propio historial de contexto para continuar tareas sin alcanzar el limite de tokens. Util en pipelines de agentes con > 20 pasos.
+Precision importante (verificado 2026-08-14 contra code.claude.com/docs/en/agent-sdk/agent-loop, seccion "Automatic compaction"): la compactacion automatica de historial es una capacidad del **Claude Agent SDK** (y por extension del `/compact` de la CLI de Claude Code que lo usa), NO un comportamiento de la Messages API llamada directamente con este SDK (`anthropic`/`@anthropic-ai/sdk`). Una llamada cruda a `client.messages.create` con un historial que supera el limite de contexto simplemente falla — no compacta sola. Si el proyecto usa el SDK base de este skill sin el Agent SDK, la compactacion debe implementarse manualmente (ver regla abajo). Si el proyecto SI usa el Agent SDK, ver `claude-agent-sdk` para el detalle de `PreCompact` hook y personalizacion — este skill (`claude-api`) no cubre esa capa.
+
+Regla para pipelines sobre la Messages API directa: si el pipeline de agente supera 20 iteraciones, implementar compaction manual como fallback:
+1. Llamar a Claude con el historial completo pidiendo un resumen estructurado de los pasos completados.
+2. Reemplazar el historial por `[{"role": "assistant", "content": resumen_compacto}]`.
+3. Continuar el pipeline con el historial compactado.
 
 ```python
-# Activar compaction en el loop del agente
+# Ejemplo del paso 1 — resumen estructurado antes de reemplazar el historial
 response = client.messages.create(
     model="claude-sonnet-5",
     max_tokens=8192,
     system=[{"type": "text", "text": SYSTEM, "cache_control": {"type": "ephemeral"}}],
-    messages=historial,
-    # Si el historial se acerca al limite, Claude compacta automaticamente
-    # No requiere parametro explicito — se activa por politica del modelo
+    messages=historial + [{"role": "user", "content": "Resume los pasos completados hasta ahora en un formato estructurado que preserve el estado necesario para continuar la tarea."}],
 )
 ```
-
-Regla: si el pipeline supera 20 iteraciones, implementar compaction manual como fallback:
-1. Llamar a Claude con el historial completo pidiendo un resumen estructurado de los pasos completados.
-2. Reemplazar el historial por `[{"role": "assistant", "content": resumen_compacto}]`.
-3. Continuar el pipeline con el historial compactado.
 
 ## Batch API — Limite 300k tokens (actualizado)
 
@@ -362,10 +418,11 @@ Si el proyecto ya tiene un patron de cache o seleccion de modelo declarado en ot
 
 ### Vigencia — estandar mas reciente del dominio
 
-Verificado contra fuente oficial (`platform.claude.com/docs/en/build-with-claude/prompt-caching`) en esta misma tarea:
+Verificado contra fuente oficial (`platform.claude.com/docs/en/build-with-claude/prompt-caching`, `anthropic.com/news/claude-opus-5`, `anthropic.com/engineering/advanced-tool-use`) — ultima pasada 2026-08-14:
 
 - Limite duro de cache breakpoints: **4 por request**. Un quinto breakpoint explicito devuelve error `400` (sin espacio para cache automatico).
-- TTL de cache disponibles: **5 minutos** (default, sin costo adicional de configuracion — escritura a 1.25x el precio de input base) y **1 hora** (escritura a 2x el precio de input base, para sesiones de agente de ejecucion larga donde 5 minutos no alcanza entre pasos). Sintaxis: `"cache_control": {"type": "ephemeral", "ttl": "1h"}` vs `{"type": "ephemeral"}` (5m implicito).
-- Lectura de cache: **0.1x** el precio de input base — el ahorro real esta en maximizar cache reads, no solo en activar cache_control una vez.
-- El SKILL.md actual documenta TTL de 5 minutos como unica opcion — esto queda desactualizado por esta verificacion: la opcion de 1 hora existe y es preferible en pipelines de agente con pasos espaciados mas de 5 minutos entre si.
+- TTL de cache y minimos cacheables ya consolidados en el cuerpo principal de este skill (seccion "Prompt Caching — Patron Obligatorio") — no dejar esta informacion solo en esta nota de vigencia.
+- Opus 5 (`claude-opus-5`) ya incorporado en la tabla de modelos vigentes y en los ejemplos de codigo de este skill.
+- Tool Search Tool, Programmatic Tool Calling y `input_examples` ya incorporados en la seccion "Tool Use".
 - Pricing exacto por modelo (USD/MTok) no fue re-verificado linea por linea en esta pasada — orientativo, verificar contra `platform.claude.com/docs/en/about-claude/pricing` antes de escribir un numero de costo especifico en una propuesta o skill.
+- La sintaxis exacta de subcomandos de `ant CLI` (`ant prompts push/pull`) no pudo confirmarse contra el repositorio oficial (github.com/anthropics/anthropic-cli) en esta pasada — tratar como ilustrativo, no como sintaxis literal verificada, hasta confirmar contra el README del repo.

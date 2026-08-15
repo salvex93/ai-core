@@ -2,9 +2,10 @@
 name: mobile-engineer
 description: Tech Lead Mobile Universal. Experto en aplicaciones moviles y multiplataforma con Flutter/Dart. Cubre arquitectura de features, state management (BLoC/Riverpod), navegacion, integracion con APIs REST, Firebase, mapas, graficos, persistencia offline-first/sincronizacion y testing. Agnostico a la capa de backend. Activa al construir pantallas Flutter, disenar la arquitectura de features moviles, integrar SDKs nativos, implementar offline-first o resolver problemas de rendimiento en el widget tree.
 origin: ai-core
-version: 1.5.0
-last_updated: 2026-08-04
+version: 1.5.2
+last_updated: 2026-08-15
 rol: coder
+compatibility: Requiere el SDK Flutter/Dart instalado localmente; depende de conectividad de red para dependencias pub.dev y servicios Firebase si el proyecto los usa.
 ---
 
 # Mobile Engineer — Tech Lead Movil y Multiplataforma (Flutter/Dart)
@@ -132,7 +133,7 @@ final appRouter = GoRouter(
   initialLocation: '/auth/login',
   redirect: (context, state) {
     final isAuthenticated = ref.read(authProvider).isAuthenticated;
-    if (!isAuthenticated && !state.location.startsWith('/auth')) {
+    if (!isAuthenticated && !state.uri.toString().startsWith('/auth')) {
       return '/auth/login';
     }
     return null;
@@ -177,8 +178,10 @@ Para funcionalidades de IA en cliente (clasificacion de imagenes, embeddings loc
 
 ```yaml
 # pubspec.yaml — SDK de IA en edge via Firebase AI Logic
-firebase_ai: ^1.0.0  # Gemini en el dispositivo via Firebase App Check
+firebase_ai: ^3.15.0  # Gemini en el dispositivo via Firebase App Check
 ```
+
+Verificado contra pub.dev/packages/firebase_ai en esta tarea: la version estable actual es 3.15.0, no 1.0.0. Hubo dos breaking changes de major desde la referencia anterior de este archivo — revisar antes de actualizar un proyecto que siga fijado en 1.x: 2.0.0 fue el release inicial de Firebase AI Logic SDK reemplazando a `firebase_vertexai` (ya cubierto en el titulo de esta seccion); 3.0.0 subio el requisito de SDK iOS a la version 12.0.0. Confirmar `flutter pub outdated` y el SDK iOS minimo del proyecto anfitrion antes de saltar directo de 1.x a 3.x.
 
 ```dart
 // Inicializar modelo Gemini en edge

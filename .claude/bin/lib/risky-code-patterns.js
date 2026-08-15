@@ -14,7 +14,13 @@
 const RIESGO_EJECUCION_JS = [
   { re: /[^/'"]\beval\s*\(/,           etiqueta: 'eval() — ejecucion arbitraria de codigo' },
   { re: /new\s+Function\s*\(/,        etiqueta: 'new Function() — ejecucion arbitraria equivalente a eval' },
-  { re: /child_process[^;]*exec(Sync)?\s*\([^)]*shell\s*:\s*true/i, etiqueta: 'exec/execSync con shell:true — inyeccion de comandos' },
+  // Version anterior exigia "child_process" y la llamada exec(Sync)? SIN
+  // punto y coma de por medio -- codigo idiomatico real que asigna
+  // require('child_process') a una variable y la invoca en una statement
+  // separada evadia el patron sin ninguna ofuscacion deliberada (hallazgo
+  // red-team 2026-08-15). [\s\S]*? (cualquier caracter, incluye saltos de
+  // linea y ";") ya no exige que ambas partes esten en la misma statement.
+  { re: /child_process[\s\S]*?exec(Sync)?\s*\([^)]*shell\s*:\s*true/i, etiqueta: 'exec/execSync con shell:true — inyeccion de comandos' },
 ];
 
 const RIESGO_EJECUCION_PY = [

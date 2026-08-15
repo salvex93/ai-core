@@ -2,9 +2,10 @@
 name: mcp-server-builder
 description: Especialista en construccion de servidores MCP (Model Context Protocol). Cubre ciclo de vida del protocolo, transportes stdio y SSE/HTTP, definicion de herramientas con JSON Schema, seguridad de inputs, testing con MCP Inspector y despliegue. Activa al construir un servidor MCP propio, exponer herramientas internas a Claude, o publicar un servidor MCP en el registro oficial.
 origin: ai-core
-version: 1.4.0
-last_updated: 2026-08-04
+version: 1.5.0
+last_updated: 2026-08-15
 rol: coder
+compatibility: Requiere @modelcontextprotocol/sdk (TypeScript) o mcp (Python) compatible con especificacion MCP 2026-07-28; depende de conectividad de red para transporte Streamable HTTP.
 ---
 
 # MCP Server Builder — Especialista en Servidores Model Context Protocol
@@ -74,36 +75,44 @@ Ventana de migracion: 10 semanas desde el RC. Servidores nuevos deben construirs
 
 ### Ciclo de vida de la conexion (stateless)
 
-El handshake `initialize`/`initialized` desaparece como intercambio unico de conexion. La version de protocolo, info del cliente y capabilities viajan en `_meta` en cada request:
+El handshake `initialize`/`initialized` desaparece como intercambio unico de conexion. La version de protocolo, info del cliente y capabilities viajan en `_meta` en cada request (`io.modelcontextprotocol/protocolVersion`, `io.modelcontextprotocol/clientCapabilities`). Todo servidor conforme a 2026-07-28 implementa ademas el RPC `server/discover` para anunciar version y capacidades soportadas:
 
 ```
-1. Descubrimiento
+1. Descubrimiento de capacidades del servidor
+   Cliente -> server/discover (sin params propios, solo _meta estandar)
+   Servidor -> { resultType: "complete", supportedVersions: ["2026-07-28"], capabilities: {...},
+                 _meta: { "io.modelcontextprotocol/serverInfo": { name, version } },
+                 instructions, ttlMs, cacheScope }
+
+2. Listado de herramientas
    Cliente -> tools/list (incluye _meta con protocol version y capabilities)
-   Servidor -> lista de herramientas con schemas JSON Schema
+   Servidor -> lista de herramientas con schemas JSON Schema, en orden deterministico
 
-2. Ejecucion
+3. Ejecucion
    Cliente -> tools/call (nombre de herramienta + argumentos tipados + _meta)
-   Servidor -> resultado (contenido de texto, imagen, recurso, o error)
+   Servidor -> resultado con campo resultType obligatorio ("complete" o "input_required")
 
-3. Cierre
+4. Cierre
    Sin estado de sesion que cerrar — cada request es autonomo (EOF en stdio, fin de request HTTP en Streamable HTTP)
 ```
 
-Implicacion practica: sin sticky sessions ni almacen de sesion compartido. Cualquier instancia detras de un load balancer round-robin puede atender cualquier request. Elimina tambien la necesidad de deep packet inspection en el gateway para enrutar — ver headers obligatorios abajo.
+Implicacion practica: sin sticky sessions ni almacen de sesion compartido. Cualquier instancia detras de un load balancer round-robin puede atender cualquier request.
 
-Todos los mensajes siguen JSON-RPC 2.0. Los IDs de request son enteros o strings. Recurso no encontrado ahora usa el codigo estandar `-32602` (Invalid Params) en lugar del custom `-32002` de la especificacion anterior.
+Todo resultado retornado por el servidor (incluido cada `tools/call`) debe incluir el campo `resultType` (`"complete"` o `"input_required"`) como campo hermano dentro de `result`, no anidado. Un servidor que omite este campo no es conforme a 2026-07-28, aunque siga funcionando contra clientes tolerantes que lo tratan como `"complete"` por defecto. `tools/list` debe devolver las herramientas en orden deterministico (mejora cache hit rate en el cliente).
 
-### Headers obligatorios en Streamable HTTP (2026-07-28)
+Todos los mensajes siguen JSON-RPC 2.0. Los IDs de request son enteros o strings. Recurso no encontrado ahora usa el codigo estandar `-32602` (Invalid Params) en lugar del custom `-32002` de la especificacion anterior, dentro de una nueva politica de rangos de error (`-32000` a `-32019` legacy de SDK, `-32020` a `-32099` reservado a la especificacion).
 
-Todo request Streamable HTTP debe incluir:
+Solicitudes iniciadas por el servidor hacia el cliente (`roots/list`, `sampling/createMessage`, `elicitation/create`) quedan reemplazadas por el patron Multi Round-Trip Requests (MRTR): el servidor retorna un resultado con `resultType: "input_required"` e `InputRequiredResult` (campos `inputRequests`/`requestState`) en vez de iniciar una request propia hacia el cliente.
 
-| Header | Valor | Proposito |
-|---|---|---|
-| `MCP-Protocol-Version` | `2026-07-28` | Version de especificacion activa |
-| `Mcp-Method` | metodo de la operacion (`tools/call`, `tools/list`, etc.) | Permite enrutar sin inspeccionar el body |
-| `Mcp-Name` | nombre del recurso/herramienta objetivo | Enrutamiento fino sin parsear JSON-RPC |
+### Suscripciones a cambios (`subscriptions/listen`)
 
-El servidor debe rechazar el request si los headers y el body son inconsistentes entre si.
+Reemplaza `resources/subscribe`/`resources/unsubscribe` y el endpoint HTTP GET. Un unico RPC con filtro de que notificar:
+
+```json
+{"jsonrpc":"2.0","id":1,"method":"subscriptions/listen","params":{"notifications":{"toolsListChanged":true,"resourceSubscriptions":["file:///project/config.json"]}}}
+```
+
+El servidor responde primero con `notifications/subscriptions/acknowledged` (lleva `io.modelcontextprotocol/subscriptionId` en `_meta`), y cada notificacion posterior en el stream (ej. `notifications/resources/updated`) porta ese mismo `subscriptionId` para que el cliente demultiplexe. Cierre gracioso: resultado vacio con `resultType: "complete"`.
 
 ### Transportes disponibles
 
@@ -172,7 +181,7 @@ def buscar_producto(query: str, limite: int = 10) -> str:
 
 ### Anotaciones de herramientas (Tool Annotations)
 
-La especificacion MCP 2025-03-26 define metadatos opcionales de comportamiento por herramienta. El cliente MCP puede usarlos para solicitar confirmacion del usuario antes de ejecutar operaciones sensibles.
+La especificacion MCP (vigente desde 2025-03-26, sin cambios en 2026-07-28) define metadatos opcionales de comportamiento por herramienta. El cliente MCP puede usarlos para solicitar confirmacion del usuario antes de ejecutar operaciones sensibles.
 
 | Anotacion | Tipo | Significado |
 |---|---|---|
@@ -202,6 +211,10 @@ Regla: declarar `destructiveHint: true` en toda herramienta con efectos irrevers
 | `resource` | Referencia a un recurso MCP. Para exponer documentos del servidor. |
 
 Una herramienta puede retornar multiples items de contenido en el array `content`.
+
+### Catalogos grandes de herramientas — descubrimiento diferido
+
+Un servidor con muchas herramientas no debe forzar al cliente a cargar todas las definiciones upfront en el system prompt. Anthropic documenta el patron de Tool Search Tool con `defer_loading: true` (anthropic.com/engineering/advanced-tool-use, verificado 2026-08-14) como mecanismo de descubrimiento bajo demanda del lado cliente, con reduccion medida de hasta 85% en tokens de descubrimiento de herramientas. Esta seccion vive del lado cliente (no requiere cambios en el codigo del servidor MCP), pero al definir el catalogo de herramientas de un servidor nuevo: mantener `tools/list` en orden deterministico (ya exigido por 2026-07-28) facilita que el cliente cachee resultados de busqueda sobre el catalogo.
 
 ## Servidor stdio Minimo (TypeScript)
 
@@ -239,7 +252,7 @@ Configurar en Claude Code (`.claude/settings.json` del proyecto anfitrion):
 
 ## Servidor Streamable HTTP Minimo (TypeScript)
 
-Transporte definido en la especificacion MCP 2025-03-26. Reemplaza al SSE legacy. El cliente envía peticiones HTTP POST al endpoint `/mcp` y el servidor puede responder con JSON simple o con un stream SSE segun la cabecera `Accept` del cliente.
+Transporte introducido en la especificacion MCP 2025-03-26, ahora stateless desde 2026-07-28 (ver "Ciclo de vida de la conexion" arriba). Reemplaza al SSE legacy. El cliente envía peticiones HTTP POST al endpoint `/mcp` y el servidor puede responder con JSON simple o con un stream SSE segun la cabecera `Accept` del cliente. Cada request debe incluir su version de protocolo y capabilities en `_meta`, sin handshake previo.
 
 ```typescript
 import { McpServer } from '@modelcontextprotocol/sdk/server/index.js';
@@ -309,7 +322,7 @@ Todo servidor MCP expuesto en red (no solo localhost) requiere autenticacion:
 - Token Bearer en el header `Authorization`.
 - El token se valida antes de procesar el request MCP, no despues.
 - En produccion, rotar los tokens con la misma frecuencia que cualquier API key.
-- El transporte SSE legacy (`SSEServerTransport`) esta obsoleto a partir de la especificacion 2025-03-26. Los servidores nuevos usan `StreamableHTTPServerTransport` exclusivamente.
+- El transporte SSE legacy (`SSEServerTransport`) esta obsoleto desde la especificacion 2025-03-26 y formalmente en estado Deprecated bajo la politica de ciclo de vida de 2026-07-28 (ventana minima de 12 meses antes de Removed). Los servidores nuevos usan `StreamableHTTPServerTransport` exclusivamente — no depender de resumability via `Last-Event-ID`, eliminada en 2026-07-28: un stream roto obliga a reemitir el request completo.
 
 ## Framework de Extensiones (2026-07-28)
 
@@ -436,7 +449,9 @@ Nunca publicar un servidor MCP sin haber verificado cada herramienta con el insp
 
 ## Autenticacion OAuth 2.0 en Servidores Remotos
 
-La especificacion MCP 2025-03-26 define OAuth 2.0 como el mecanismo de autenticacion estandar para servidores MCP accesibles via Streamable HTTP desde redes externas. El flujo recomendado es Authorization Code con PKCE.
+La especificacion MCP define OAuth 2.1 como el mecanismo de autenticacion estandar para servidores MCP accesibles via Streamable HTTP desde redes externas — el servidor MCP actua formalmente como Resource Server OAuth 2.1 (terminologia confirmada en 2026-07-28). El flujo recomendado es Authorization Code con PKCE.
+
+Cambios de 2026-07-28 relevantes para el ecosistema, verificados contra modelcontextprotocol.io/specification/2026-07-28: Dynamic Client Registration (RFC7591) queda deprecado en favor de Client ID Metadata Documents (CIMD), y se exige validar el claim `iss` de la respuesta de autorizacion (RFC 9207) antes de canjear el codigo de autorizacion por un token. **Ambos cambios son responsabilidad del cliente MCP y del authorization server, no del servidor MCP que este skill construye** — el Resource Server (el codigo de abajo) nunca procesa el `client_id` ni el `iss` de la respuesta de autorizacion; su unica responsabilidad sigue siendo validar `issuer`/`audience` del access token ya emitido, que es exactamente lo que hace `verificarToken` mas abajo. No agregar logica de CIMD o de validacion de `iss` al servidor: pertenece al lado del cliente.
 
 ### Flujo de autorizacion
 
@@ -578,12 +593,14 @@ Sin esta linea llenada con nombres reales (no placeholders tipo "mi_herramienta"
 
 ### VIGENCIA — ESTANDAR MAS RECIENTE DEL DOMINIO
 
-Verificado contra fuente oficial en esta tarea (`modelcontextprotocol.io/specification/2026-07-28/changelog`, changelog de la especificacion final 2026-07-28 respecto a 2025-11-25): la version 2026-07-28 ya referenciada en este skill sigue siendo la vigente. El changelog oficial confirma, ademas de lo ya documentado arriba en el skill, cambios que este modulo transversal debe reforzar como gate de vigencia:
+Verificado contra fuente oficial (`modelcontextprotocol.io/specification/2026-07-28/changelog` y paginas de especificacion referenciadas, 2026-08-14): la version 2026-07-28 sigue siendo la vigente, y la seccion tecnica principal de este skill (arriba) ya fue actualizada para ser consistente con este modulo — `server/discover`, `resultType` obligatorio y `subscriptions/listen` estan documentados en el cuerpo principal, no solo aqui.
 
-- El handshake `initialize`/`initialized` fue removido; cada request lleva su version de protocolo y capabilities en `_meta` (`io.modelcontextprotocol/protocolVersion`, `io.modelcontextprotocol/clientCapabilities`). Los servidores deben implementar el RPC `server/discover` para anunciar versiones y capacidades soportadas.
-- Todo resultado ahora requiere el campo `resultType` (`"complete"` o `"input_required"`); un servidor nuevo que omite este campo en sus resultados no es un servidor conforme a 2026-07-28, aunque funcione contra clientes tolerantes.
-- El patron Multi Round-Trip Requests (MRTR) reemplaza a las solicitudes iniciadas por el servidor (`roots/list`, `sampling/createMessage`, `elicitation/create`) via `InputRequiredResult`.
-- Roots, Sampling y Logging (la primitiva del protocolo, no el uso de stderr) quedan formalmente en estado Deprecated con ventana minima de 12 meses — coherente con lo que ya declara este skill.
-- El codigo de error por recurso no encontrado cambio de `-32002` a `-32602`, y existe una nueva politica de asignacion de rangos de error (`-32000` a `-32019` legacy de SDK, `-32020` a `-32099` reservado a la especificacion).
+Shape exacto verificado de `server/discover` (request sin params propios, solo `_meta` estandar):
 
-Antes de escribir codigo nuevo contra `server/discover`, el `resultType` obligatorio o el patron MRTR, releer la seccion tecnica correspondiente del skill (arriba en este mismo archivo) para confirmar que no quedo desactualizada respecto a este hallazgo — si hay discrepancia entre el detalle ya escrito y lo verificado aqui, prevalece la fuente oficial consultada en esta tarea, no la version anterior del texto del skill.
+```json
+{"jsonrpc":"2.0","id":"discover-1","result":{"resultType":"complete","supportedVersions":["2026-07-28"],"capabilities":{"tools":{},"resources":{}},"_meta":{"io.modelcontextprotocol/serverInfo":{"name":"ExampleServer","version":"1.0.0"}},"instructions":"...","ttlMs":3600000,"cacheScope":"public"}}
+```
+
+Precision adicional sobre OAuth (fuente: `modelcontextprotocol.io/specification/2026-07-28/basic/authorization` y `.../basic/authorization/client-registration`): CIMD y la validacion de `iss`/RFC 9207 son responsabilidad exclusiva del cliente MCP y del authorization server — el servidor MCP (Resource Server) no implementa ninguno de los dos; su unico deber sigue siendo validar `issuer`/`audience` del access token, ya cubierto por el ejemplo de codigo de este skill. No agregar codigo de CIMD ni de validacion de `iss` al servidor.
+
+Roots, Sampling y Logging (la primitiva del protocolo, no el uso de stderr) quedan formalmente en estado Deprecated con ventana minima de 12 meses — coherente con lo que ya declara este skill.

@@ -35,6 +35,8 @@ const { leerEventoDeStdin } = require('./lib/hook-stdin');
 const { emitirReporte }     = require('./lib/guard-report');
 const { confirmarCuarentena } = require('./lib/injection-quarantine');
 const { confirmarBreakGlass } = require('./lib/break-glass');
+const { normalizarTexto } = require('./lib/normalizar-texto');
+const { tieneIndicioDeResolucionPreviaEnTexto } = require('./lib/deteccion-resolucion-previa');
 
 const TTL_MS = 5 * 60 * 1000; // 5 min -- ventana corta, el bypass no debe quedar valido "para siempre"
 
@@ -95,15 +97,31 @@ if (intentarBypass(prompt)) {
   process.exit(0);
 }
 
+// Normalizacion compartida (lib/normalizar-texto.js) antes de matchear:
+// cierra evasiones triviales de espanol/ingles natural (auditoria
+// 2026-08-14: enfasis markdown, palabra intercalada) Y evasiones Unicode
+// confirmadas por red-team 2026-08-15 (homoglifos cirilicos como "ignпra",
+// zero-width space dentro de "ignora", que antes rompian el matching sin
+// necesidad de ninguna ofuscacion sofisticada). No cambia el SIGNIFICADO
+// detectado, solo tolera decoracion/relleno y variantes visuales del mismo
+// texto.
+const promptNormalizado = normalizarTexto(prompt);
+
+// Tolerancia de 1-2 palabras cortas intercaladas entre tokens de una frase
+// fija (ej. "ignora [por favor] todas las instrucciones anteriores"), sin
+// relajar tanto que capture texto no relacionado. \S+ acotado a 1-2
+// ocurrencias evita falsos positivos de frases largas sin relacion.
+const RELLENO = '(?:\\s+\\S+){0,2}?';
+
 // Patrones tecnicos de jailbreak/prompt hacking dirigidos a romper reglas
 // del propio arnes (CLAUDE.md, hooks, permisos) -- distinto de
 // injection-guard.js (contenido externo en output de subagentes) y de
 // secrets-guard.js (credenciales). Este guard cubre el prompt DIRECTO del
-// usuario al modelo.
+// usuario al modelo. Se evaluan sobre promptNormalizado (ver funcion arriba).
 const PATRONES = [
-  { re: /ignor[ae]\s+(todas\s+)?(las\s+)?(instrucciones|reglas)\s+(anteriores|previas|del\s+sistema)/i,
+  { re: new RegExp(`ignor[ae]${RELLENO}\\s+(todas\\s+)?(las\\s+)?(instrucciones|reglas)${RELLENO}\\s+(anteriores|previas|del\\s+sistema)`, 'i'),
     etiqueta: 'intento de anular instrucciones/reglas previas (ES)' },
-  { re: /ignore\s+(all\s+)?(previous|prior|system)\s+(instructions|rules|prompts?)/i,
+  { re: new RegExp(`ignore${RELLENO}\\s+(all\\s+)?(previous|prior|system)${RELLENO}\\s+(instructions|rules|prompts?)`, 'i'),
     etiqueta: 'intento de anular instrucciones/reglas previas (EN)' },
   { re: /act[uú]a?s?\s+como\s+(DAN\b|un\s+modelo\s+sin\s+restricciones|un\s+AI\s+sin\s+filtros)/i,
     etiqueta: 'intento de roleplay de jailbreak conocido (DAN/sin restricciones)' },
@@ -119,7 +137,17 @@ const PATRONES = [
     etiqueta: 'intento de justificar bypass como "solo una prueba"' },
 ];
 
-const hallazgos = PATRONES.filter(({ re }) => re.test(prompt));
+const hallazgos = PATRONES.filter(({ re }) => re.test(promptNormalizado));
+
+// Deteccion de resolucion previa (causa raiz 2, red-team 2026-08-15):
+// un bloque base64 largo pidiendo al modelo que lo decodifique y actue
+// segun el resultado evade los PATRONES de arriba porque el texto real
+// ("ignora todas las instrucciones...") nunca aparece en claro dentro del
+// prompt. Se evalua sobre el prompt ORIGINAL (no promptNormalizado): el
+// bloque base64 en si no debe alterarse para detectarlo correctamente.
+if (tieneIndicioDeResolucionPreviaEnTexto(prompt)) {
+  hallazgos.push({ etiqueta: 'bloque base64 combinado con instruccion de decodificar y ejecutar' });
+}
 
 if (hallazgos.length === 0) {
   emitirReporte({ guard: 'jailbreak-guard', verdict: 'ok', severity: 'baja' });

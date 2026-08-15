@@ -1,10 +1,11 @@
 ---
 name: multimodal-engineer
-description: Especialista en pipelines de procesamiento multimodal con LLMs. Cubre analisis de imagenes con Claude Opus 4.8 (vision 3.75MP) y Gemini 3.1 Pro (1M tokens), extraccion estructurada desde PDFs y documentos con Citations API, pipelines OCR semanticos, optimizacion de costo por token visual y arquitectura de sistemas que procesan entradas mixtas (texto + imagen + documento). Activa al construir pipelines que procesan imagenes o documentos, integrar vision en agentes, comparar capacidades multimodales entre Claude y Gemini, o disenar extraccion estructurada desde contratos, facturas o diagramas tecnicos.
+description: Especialista en pipelines de procesamiento multimodal con LLMs. Cubre analisis de imagenes con Claude Opus 5 (vision 3.75MP) y Gemini 3.1 Pro (1M tokens), extraccion estructurada desde PDFs y documentos con Citations API, pipelines OCR semanticos, optimizacion de costo por token visual y arquitectura de sistemas que procesan entradas mixtas (texto + imagen + documento). Activa al construir pipelines que procesan imagenes o documentos, integrar vision en agentes, comparar capacidades multimodales entre Claude y Gemini, o disenar extraccion estructurada desde contratos, facturas o diagramas tecnicos.
 origin: ai-core
-version: 1.1.0
-last_updated: 2026-08-05
+version: 1.2.1
+last_updated: 2026-08-15
 rol: architect
+compatibility: Requiere el SDK de vision del proveedor activo (anthropic o google-genai); depende de conectividad de red hacia esa API, y opcionalmente voyageai para embeddings multimodales de Voyage.
 ---
 
 # Multimodal Engineer
@@ -18,7 +19,7 @@ Complementos: `rag-specialist` (embeddings de contenido visual para busqueda sem
 - Al construir un pipeline que analiza imagenes, PDFs, capturas de pantalla o diagramas con un LLM.
 - Al integrar vision en un agente para percepcion del entorno (computer use, analisis de UI, inspeccion de dashboards).
 - Al disenar extraccion estructurada de documentos: contratos, facturas, formularios, tablas en PDF.
-- Al comparar capacidades multimodales entre Claude Opus 4.8 y Gemini 3.1 Pro / 3.5 Flash para un caso de uso especifico.
+- Al comparar capacidades multimodales entre Claude Opus 5 y Gemini 3.1 Pro / 3.5 Flash para un caso de uso especifico.
 - Al optimizar el costo de un pipeline que procesa muchas imagenes (estrategia de resolucion, compresion, caching).
 - Al construir un sistema de Citations API para respuestas con referencias a fuentes documentales.
 - Al integrar embeddings multimodales para busqueda semantica sobre colecciones de imagenes o documentos.
@@ -53,13 +54,15 @@ Deducir:
 | Caso de uso | Modelo recomendado | Justificacion |
 |---|---|---|
 | Analisis de documentos largos (> 50 paginas) | Gemini 3.1 Pro (1M tokens) | Contexto extendido sin fragmentacion |
-| Extraccion estructurada con citations | Claude Opus 4.8 + Citations API | Citations API nativa; referencias exactas a fragmentos |
-| Vision en agente (computer use, UI) | Claude Opus 4.8 | Computer use 2025 con `computer-use-2025-01-24` |
+| Extraccion estructurada con citations | Claude Opus 5 + Citations API | Citations API nativa; referencias exactas a fragmentos |
+| Vision en agente (computer use, UI) | Claude Opus 5 | Computer use con beta header `computer-use-2025-11-24` |
 | Clasificacion masiva de imagenes (> 10k/dia) | Gemini 3.1 Flash-Lite (tier 0) | Costo minimo; heredero del tier Lite, mas barato que 3.5 Flash |
 | Analisis de diagramas tecnicos o planos | Gemini 3.1 Pro (1M, resolucion alta) | Superior en comprension espacial y diagramas complejos |
 | Tareas agenticas multimodales (multi-step, sub-agentes) | Gemini 3.5 Flash | Rinde por encima de 3.1 Pro en razonamiento multimodal (MMMU-Pro); mayor costo que 3.1 Flash-Lite |
-| Extraccion de tablas de facturas/contratos | Claude Opus 4.8 o Gemini 3.1 Flash | Ambos comparables; Claude con tool_use para schema forzado |
-| Embeddings multimodales para busqueda | Gemini text-embedding-004 o voyage-multimodal-3 | Unico tier con embeddings nativos imagen+texto |
+| Extraccion de tablas de facturas/contratos | Claude Opus 5 o Gemini 3.1 Flash | Ambos comparables; Claude con tool_use para schema forzado |
+| Embeddings multimodales para busqueda | gemini-embedding-2 (multimodal GA) o voyage-multimodal-3.5 | gemini-embedding-2 ya GA (texto/imagen/video/audio/PDF); voyage-multimodal-3.5 alternativa dedicada de mayor precision en retrieval visual |
+
+Nota de vigencia (verificado 2026-08-14 contra ai.google.dev/gemini-api/docs/embeddings y ai.google.dev/gemini-api/docs/deprecations): `text-embedding-004` fue apagado el 14-ene-2026 y ya no responde. `gemini-embedding-001` sigue activo pero es solo texto (limite 2048 tokens de entrada) — no usar para casos multimodales nativos. `gemini-embedding-2` ya alcanzo disponibilidad general (GA), no usar el sufijo `-preview` por analogia con nomenclatura anterior sin confirmar contra la fuente vigente al momento de implementar.
 
 Nota: Gemini 3.5 Pro esta listado como "coming soon" en deepmind.google (verificado 2026-07-10) — no usar como default hasta confirmar disponibilidad general.
 
@@ -70,7 +73,7 @@ Gemini 3.1 Flash-Lite (tier 0, gratis)  → clasificacion simple, sin razonamien
 Gemini 3.5 Flash (tier 0B, gratis en API) → analisis general y tareas agenticas multi-step
 Claude Haiku 4.5                        → extraccion estructurada de bajo volumen
 Claude Sonnet 5                       → analisis de calidad media con schema
-Claude Opus 4.8 / Gemini 3.1 Pro       → documentos complejos, citations, razonamiento profundo
+Claude Opus 5 / Gemini 3.1 Pro       → documentos complejos, citations, razonamiento profundo
 ```
 
 ## Costo de Tokens por Imagen
@@ -121,7 +124,7 @@ def extraer_factura(ruta_imagen: str) -> dict:
     imagen_b64 = base64.standard_b64encode(Path(ruta_imagen).read_bytes()).decode()
 
     respuesta = cliente.messages.create(
-        model="claude-opus-4-8",
+        model="claude-opus-5",
         max_tokens=1024,
         tools=[{
             "name": "registrar_factura",
@@ -185,7 +188,7 @@ def analizar_contrato_con_citas(ruta_pdf: str, pregunta: str) -> dict:
         )
 
     respuesta = cliente.beta.messages.create(
-        model="claude-opus-4-8",
+        model="claude-opus-5",
         max_tokens=2048,
         messages=[{
             "role": "user",
@@ -235,33 +238,38 @@ def analizar_documento_largo(ruta_pdf: str, instruccion: str) -> str:
 Reglas:
 - Gemini 3.1 Pro acepta PDFs hasta 1M tokens (aprox. 1000 paginas de texto denso).
 - Para documentos > 200 paginas con estructura compleja, usar `thinking_level: "high"` (ver `gemini-3-specialist` para el detalle de niveles) para mejorar la comprension de la estructura del documento.
-- El archivo subido via `client.files.upload` expira en 48 horas — no confiar en persistencia.
+- El archivo subido via `client.files.upload` persiste hasta borrado explicito via `DELETE /v1/files/{file_id}` — no expira automaticamente por tiempo (verificado 2026-08-14 contra platform.claude.com/docs/en/build-with-claude/files). Limites reales: 500 MB por archivo, 500 GB de storage por organizacion. Igual conviene borrar explicitamente los archivos que ya no se usan para no acumular contra el limite de organizacion.
 
 ## Pipeline de Embeddings Multimodales
 
 Para construir busqueda semantica sobre colecciones de imagenes o documentos mixtos:
 
 ```python
-# Opcion A — Gemini text-embedding-004 (solo texto, pero acepta descripciones generadas por vision)
-# 1. Claude/Gemini genera descripcion textual de la imagen
-# 2. Se embeddea la descripcion con text-embedding-004
-# Costo: 2 llamadas por imagen. Calidad: alta para busqueda semantica textual.
+# Opcion A — gemini-embedding-2 (multimodal nativo: texto/imagen/video/audio/PDF, GA)
+from google import genai
+client = genai.Client()
 
-# Opcion B — voyage-multimodal-3 (imagen + texto nativo)
+def embeddear_multimodal(contenido) -> list[float]:
+    resultado = client.models.embed_content(model="gemini-embedding-2", contents=contenido)
+    return resultado.embeddings[0].values
+
+# Opcion B — voyage-multimodal-3.5 (imagen + texto nativo, mayor precision en retrieval visual)
 import voyageai
 cliente_voyage = voyageai.Client()
 
 def embeddear_imagen(imagen_b64: str, descripcion: str) -> list[float]:
     resultado = cliente_voyage.multimodal_embed(
         inputs=[[{"type": "image_base64", "data": imagen_b64}, {"type": "text", "text": descripcion}]],
-        model="voyage-multimodal-3"
+        model="voyage-multimodal-3.5"
     )
     return resultado.embeddings[0]
 ```
 
 Criterio de seleccion:
-- `text-embedding-004`: cuando la busqueda es predominantemente textual y las imagenes tienen descripciones o metadatos ricos.
-- `voyage-multimodal-3`: cuando las imagenes son el contenido primario (productos, diagramas, fotos) y la busqueda debe operar sobre contenido visual directo.
+- `gemini-embedding-2`: cuando se necesita un unico modelo nativo multimodal (imagen, video, audio, PDF) sin depender de un proveedor de terceros. `gemini-embedding-001` es solo texto (legacy) — no usar para casos multimodales nativos.
+- `voyage-multimodal-3.5`: cuando las imagenes son el contenido primario (productos, diagramas, fotos) y se requiere maxima precision de retrieval visual; supera a `voyage-multimodal-3` (aun disponible pero no recomendado para proyectos nuevos).
+
+Verificado 2026-08-14 contra ai.google.dev/gemini-api/docs/embeddings y docs.voyageai.com/docs/multimodal-embeddings.
 
 ## Directiva de Interrupcion
 

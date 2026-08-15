@@ -2,8 +2,8 @@
 name: prompt-engineer
 description: Especialista en arquitectura de prompts de produccion. Cubre diseno de system prompts, few-shot examples, chain-of-thought, prefill de respuesta, cache breakpoints estrategicos, output estructurado con JSON Schema, versionado de prompts y testing antes de despliegue. Complementa ai-integrations (integracion del LLM), llm-evals (medicion de calidad) y rag-specialist (contexto documental). Activa al disenar o refactorizar un system prompt, definir la estrategia de few-shot, implementar output estructurado o versionar prompts para produccion.
 origin: ai-core
-version: 1.9.0
-last_updated: 2026-08-05
+version: 1.9.1
+last_updated: 2026-08-15
 rol: architect
 ---
 
@@ -53,7 +53,7 @@ Ante cualquiera de estas condiciones, insertar la directiva y detener. No emitir
 - La tarea cambia el modelo LLM asociado al prompt sin comparar los outputs del nuevo modelo contra el golden dataset del sistema.
 - La tarea introduce instrucciones en el system prompt que contradicen reglas de seguridad o compliance documentadas del proyecto anfitrion.
 - El system prompt propuesto supera 4000 tokens sin justificacion documentada de por que no puede reducirse.
-- La tarea usa Opus 4.8 con `effort: "xhigh"` o `task_budgets` en flujo de alto volumen (>100 req/min) sin justificacion de ROI de razonamiento adaptativo.
+- La tarea usa Opus 5 (o su fallback Opus 4.8) con `effort: "xhigh"` o `task_budgets` en flujo de alto volumen (>100 req/min) sin justificacion de ROI de razonamiento adaptativo.
 
 ```
 [ALERTA_ARQUITECTONICA: REQUIERE_OPUSPLAN]
@@ -107,7 +107,7 @@ Antes de emitir tu respuesta final, razona paso a paso:
 Emite primero el razonamiento dentro de <thinking>...</thinking> y luego el output final en el formato especificado.
 ```
 
-En modelos con soporte nativo de extended thinking (claude-sonnet-5, claude-opus-4-8, claude-fable-5), el CoT explicito en el prompt puede omitirse si se activa el thinking via API. En ese caso, el bloque `<thinking>` lo genera el modelo internamente sin consumir tokens del output visible. En `claude-opus-4-8` y `claude-fable-5`, usar `thinking: { type: "auto" }` permite que el modelo asigne presupuesto de razonamiento de forma adaptativa por paso, sin requerir un budget fijo.
+En modelos con soporte nativo de extended thinking (claude-sonnet-5, claude-opus-5, claude-fable-5; claude-opus-4-8 como fallback documentado), el CoT explicito en el prompt puede omitirse si se activa el thinking via API. En ese caso, el bloque `<thinking>` lo genera el modelo internamente sin consumir tokens del output visible. En `claude-opus-5` (o `claude-opus-4-8` en fallback) y `claude-fable-5`, usar `thinking: { type: "auto" }` permite que el modelo asigne presupuesto de razonamiento de forma adaptativa por paso, sin requerir un budget fijo.
 
 Al combinar extended thinking con tool use, es obligatorio preservar tanto el bloque `thinking` como el `tool_use` del turno anterior al construir el siguiente mensaje del assistant — omitir el `thinking_block` al reenviar el `tool_result` produce comportamiento incorrecto o error. No modificar ni reordenar los bloques de thinking entre turnos: pasarlos integros tal cual los devolvio la API.
 
@@ -145,7 +145,7 @@ Agregar `strict: true` en la definicion de la tool (junto a `input_schema`) gara
 
 ### Diseno de la tool para output estructurado
 
-La descripcion de la tool debe cubrir en 3-4 oraciones minimo: que hace, cuando usarla y cuando no, que significa cada parametro, y limitaciones conocidas — es el factor de mayor impacto en la fiabilidad del tool use segun la documentacion oficial de Anthropic. Para schemas con objetos anidados o parametros sensibles al formato, agregar `input_examples` (array de inputs validos segun el schema) en la definicion de la tool; no soportado en server tools (web search, code execution).
+La descripcion de la tool debe cubrir en 3-4 oraciones minimo: que hace, cuando usarla y cuando no, que significa cada parametro, y limitaciones conocidas — es el factor de mayor impacto en la fiabilidad del tool use segun la documentacion oficial de Anthropic. Para schemas con objetos anidados o parametros sensibles al formato, agregar `input_examples` (array al mismo nivel que `input_schema`, no anidado dentro) en la definicion de la tool: eleva la precision de parametros anidados complejos de 72% a 90% segun benchmark de Anthropic (`anthropic.com/engineering/advanced-tool-use`); no soportado en server tools (web search, code execution).
 
 ### tool_result — formato y confianza
 
@@ -337,15 +337,15 @@ print(interaction.output_text)
 - Migracion desde codigo con `thinking_budget`: reemplazar por el nivel discreto mas cercano (`budget: 0` → `low`; `budget` bajo/fijo → `medium`; `budget: -1`/alto → `high`) y probar contra el error 400 de parametros mutuamente excluyentes.
 - Para integracion via bridge MCP del ai-core, delegar al skill `gemini-3-specialist`. Este bloque aplica a integracion directa via SDK.
 
-## Effort Levels (Opus 4.8 Adaptive Reasoning)
+## Effort Levels (Opus 5 / Opus 4.8 Adaptive Reasoning)
 
-Opus 4.8 introduce `effort` para controlar la intensidad del razonamiento por tarea dentro de un presupuesto global. Tres niveles: `low`, `high`, `xhigh`.
+Opus 5 (`claude-opus-5`, lanzado 24-jul-2026, mismo pricing $5/$25 por millon de tokens que Opus 4.8 y default recomendado en Claude Max) mantiene `effort` para controlar la intensidad del razonamiento por tarea dentro de un presupuesto global. Tres niveles: `low`, `high`, `xhigh`. Opus 4.8 sigue soportado como fallback documentado con la misma semantica de `effort`.
 
 ### Configuracion
 
 ```python
 respuesta = cliente.messages.create(
-    model="claude-opus-4-8",
+    model="claude-opus-5",  # fallback documentado: claude-opus-4-8
     effort="high",  # o "low", "xhigh"
     task_budgets={
         "total_budget": 8000,          # Presupuesto global para toda la sesion
@@ -375,7 +375,7 @@ Usar ambos juntos en agentes multi-paso donde la complejidad es variable:
 ```python
 # Agente que puede tener pasos simples y pasos complejos
 cliente.messages.create(
-    model="claude-opus-4-8",
+    model="claude-opus-5",  # fallback documentado: claude-opus-4-8
     effort="high",  # Razonamiento balanceado por defecto
     task_budgets={
         "total_budget": 10000,         # Presupuesto global para toda la sesion del agente

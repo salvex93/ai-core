@@ -50,6 +50,7 @@
 const crypto = require('node:crypto');
 const { leerEventoDeStdin } = require('./lib/hook-stdin');
 const { solicitarBreakGlass, accionAprobada } = require('./lib/break-glass');
+const { normalizarTexto } = require('./lib/normalizar-texto');
 
 const GUARD_ID = 'mutating-action-guard';
 
@@ -79,8 +80,18 @@ function esToolMcpMutante(toolName) {
 const VERBO_HTTP_MUTANTE = /(-X\s*(POST|PUT|PATCH|DELETE)\b|--request\s+(POST|PUT|PATCH|DELETE)\b|-Method\s+(Post|Put|Patch|Delete)\b)/i;
 const HERRAMIENTA_HTTP   = /\b(curl|wget|Invoke-WebRequest|Invoke-RestMethod|iwr|irm)\b/i;
 
+// Hallazgo red-team 2026-08-15: "V=POST; curl -X\"$V\" ..." evadia el
+// patron anterior porque el verbo real (POST) nunca aparece pegado al flag
+// -X -- viaja en una variable interpolada. No se puede saber sin ejecutar
+// el shell si "$V" resuelve a un verbo mutante o a GET -- ante esa
+// incertidumbre, se trata como potencialmente mutante por defecto (negar
+// es la opcion segura: un GET real fallara el guard y se puede reintentar
+// literal, un POST real queda correctamente bloqueado).
+const VERBO_HTTP_EN_VARIABLE = /(-X\s*["']?\$\{?\w+\}?["']?|--request\s+["']?\$\{?\w+\}?["']?|-Method\s+["']?\$\{?\w+\}?["']?)/i;
+
 function esComandoHttpMutante(cmd) {
-  return HERRAMIENTA_HTTP.test(cmd) && VERBO_HTTP_MUTANTE.test(cmd);
+  if (!HERRAMIENTA_HTTP.test(cmd)) return false;
+  return VERBO_HTTP_MUTANTE.test(cmd) || VERBO_HTTP_EN_VARIABLE.test(cmd);
 }
 
 const evento    = leerEventoDeStdin();
@@ -120,9 +131,12 @@ if (toolName.startsWith('mcp__')) {
 }
 
 if (toolName === 'Bash') {
-  const cmd = evento.tool_input?.command || '';
+  const cmdOriginal = evento.tool_input?.command || '';
+  // Normalizacion Unicode antes de matchear (hallazgo red-team 2026-08-15) --
+  // mismo motivo que destructive-op-guard.js.
+  const cmd = normalizarTexto(cmdOriginal);
   if (cmd && esComandoHttpMutante(cmd)) {
-    bloquearOAprobar(cmd, `un comando HTTP mutante hacia un servicio externo: "${cmd}"`);
+    bloquearOAprobar(cmdOriginal, `un comando HTTP mutante hacia un servicio externo: "${cmdOriginal}"`);
   }
 }
 

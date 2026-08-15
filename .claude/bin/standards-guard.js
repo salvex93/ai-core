@@ -175,8 +175,20 @@ const SECRET_PATTERNS = [
   { re: /secret\s*[:=]\s*['"][^'"]{8,}['"]/i,  label: 'Secret hardcodeado'          },
 ];
 
-// Excluir archivos de ejemplo y tests
-const isExample = filePath.includes('.example') || filePath.includes('test') || filePath.includes('spec');
+// Excluir archivos de ejemplo y tests -- verifica el NOMBRE BASE del archivo
+// y su extension real, no una substring generica dentro de toda la ruta.
+// Bug real corregido (hallazgo red-team 2026-08-15): filePath.includes('test')
+// eximia cualquier archivo cuyo path contuviera "test" como substring en
+// CUALQUIER posicion (ej. "latest-config.json", "contest-results.json",
+// "protest.md") -- un secreto real en un archivo de produccion con ese
+// nombre quedaba sin deteccion. Ahora exige que "test"/"spec" aparezcan
+// como palabra completa en el nombre de archivo (con separador de guion,
+// guion bajo o punto), o dentro de un segmento de carpeta "test(s)/".
+const nombreArchivo = path.basename(filePath);
+const isExample = filePath.includes('.example')
+  || /(^|[-_.])tests?([-_.]|$)/i.test(nombreArchivo)
+  || /(^|[-_.])spec([-_.]|$)/i.test(nombreArchivo)
+  || /(^|[\\/])tests?[\\/]/i.test(filePath);
 
 if (!isExample) {
   for (const { re, label } of SECRET_PATTERNS) {

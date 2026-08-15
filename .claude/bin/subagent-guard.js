@@ -43,6 +43,13 @@ const path   = require('path');
 const crypto = require('crypto');
 const { leerEventoDeStdin } = require('./lib/hook-stdin');
 const { guardarTarea } = require('./lib/subagent-task-store');
+const { normalizarTexto } = require('./lib/normalizar-texto');
+
+// Nombres reales de agentes de .claude/agents/ -- lista sincronizada
+// manualmente (igual criterio que otros guards que enumeran agentes reales,
+// ej. tests/harness/agent-tools-guard-js.test.js). Actualizar si se agrega o
+// elimina un agente.
+const AGENTES_REALES = ['aiops-auditor', 'code-reviewer', 'issue-tracker', 'mcp-registry-navigator', 'security-scanner', 'self-healing-agent'];
 
 const MAX_PARALLEL = 3;        // alineado con la regla de CLAUDE.md; ajustar ahi tambien si cambia
 const TIMEOUT_MS   = 2 * 60 * 1000; // 2 min — ventana de "lanzados recientemente", no timeout de ejecucion
@@ -113,6 +120,29 @@ if (nuevoTipo && cadenaAncestros.includes(nuevoTipo)) {
     'Si es intencional, usa SendMessage para continuar el agente existente en vez de spawnear uno nuevo.\n'
   );
   process.exit(2);
+}
+
+// Recursion INDIRECTA via contenido del prompt (hallazgo red-team
+// 2026-08-15): el campo subagent_type puede ser "general-purpose" (sin
+// disparar la deteccion de arriba) mientras el PROMPT en texto libre le
+// pide al subagente relanzarse o simular ser un agente real especifico que
+// ya esta en la cadena de ancestros. Deliberadamente conservador: exige que
+// el nombre real de un agente aparezca junto a un verbo de relanzamiento
+// ("relanzar", "actua como", "target_agent") para no bloquear menciones
+// legitimas de un agente en el contexto normal de una tarea.
+const promptEntrante = normalizarTexto(evento.tool_input?.prompt || '');
+if (promptEntrante && cadenaAncestros.length > 0) {
+  const VERBO_RELANZAMIENTO = /(relanza|relanzar|target_agent|actua\s+como|actua\s+de|simula\s+(ser|que\s+eres)|convier[te]{1,3}\s+en)/i;
+  if (VERBO_RELANZAMIENTO.test(promptEntrante)) {
+    const agenteMencionado = AGENTES_REALES.find((nombre) => cadenaAncestros.includes(nombre) && promptEntrante.includes(nombre));
+    if (agenteMencionado) {
+      process.stderr.write(
+        `[SUBAGENT-GUARD] BLOQUEADO: el subagente "${tipoActual}" intento lanzar "${nuevoTipo || 'general-purpose'}" con un prompt que pide relanzarse/simular ser "${agenteMencionado}", ya presente en la cadena de ancestros [${cadenaAncestros.join(' -> ')}] -- recursion indirecta via contenido, no via subagent_type estructurado.\n` +
+        'Si es intencional, usa SendMessage para continuar el agente existente en vez de spawnear uno nuevo.\n'
+      );
+      process.exit(2);
+    }
+  }
 }
 
 if (activos.length >= MAX_PARALLEL) {

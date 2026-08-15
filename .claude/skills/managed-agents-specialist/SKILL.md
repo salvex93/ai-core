@@ -2,9 +2,10 @@
 name: managed-agents-specialist
 description: Especialista en agentes gestionados de Anthropic (Managed Agents). Cubre configuracion via API/UI, herramientas integradas (web search, code execution, computer use 2025, files), diseño de system prompts para loops de agente, gestion de costos en iteraciones y seguridad. Activa al configurar un agente con herramientas integradas de Anthropic, evaluar si el caso de uso requiere Managed Agents vs Agent SDK, o diagnosticar comportamiento de un loop de agente gestionado.
 origin: ai-core
-version: 1.2.0
-last_updated: 2026-08-04
+version: 1.2.2
+last_updated: 2026-08-15
 rol: architect
+compatibility: Requiere @anthropic-ai/sdk con acceso a Managed Agents (beta); depende de conectividad de red hacia la Claude API.
 ---
 
 # Managed Agents Specialist
@@ -77,27 +78,29 @@ Ante cualquiera de estas condiciones, insertar directiva y detener:
 |---|---|---|---|
 | `web_search` | ninguno | Busqueda y lectura de paginas web en tiempo real | Tokens adicionales por contenido recuperado |
 | `code_execution` | ninguno | Ejecucion de Python en sandbox aislado | Tokens adicionales por output del interprete |
-| `computer_use` | `computer-use-2025-01-24` | Control de interfaz grafica — capturas + acciones | Muy alto: screenshots en cada paso (~1k tokens c/u) |
+| `computer_use` | `computer-use-2025-11-24` | Control de interfaz grafica — capturas + acciones | Muy alto: screenshots en cada paso (~1k tokens c/u) |
 | `files` | `files-api-2025-04-14` | Lectura y escritura de archivos persistentes entre sesiones | Tokens adicionales por contenido de archivo |
 
 Habilitar solo las herramientas estrictamente necesarias. Cada herramienta amplia la superficie de ataque y puede incrementar el costo del loop significativamente.
+
+Si el catalogo de herramientas del agente es grande (muchas tools custom ademas de las integradas), evaluar Tool Search Tool (`defer_loading: true` por tool, reduce ~85% tokens de descubrimiento al no cargar todas las definiciones de entrada) y Programmatic Tool Calling (tool `code_execution_20260120` + `allowed_callers`, reduce ~37% tokens al orquestar llamadas dentro del sandbox en vez de rondas completas del loop) en vez de declarar el catalogo completo en cada iteracion.
 
 Las herramientas integradas de Anthropic (`web_search`, `code_execution`, `computer_use`, `files`) no soportan el campo `input_examples`. Si el agente gestionado combina estas con tools custom definidas por el usuario, usar `input_examples` solo en las tools custom con parametros anidados o sensibles al formato — no aplica a las server tools de esta tabla.
 
 ### Computer Use 2025 — Consideraciones Criticas
 
-El beta `computer-use-2025-01-24` introduce mejoras sobre la version original:
+El beta `computer-use-2025-11-24` (vigente para Opus 5, Opus 4.8 y Sonnet 5) introduce mejoras sobre la version original:
 - Coordenadas normalizadas (0-1) en lugar de pixeles absolutos — mas estable en resoluciones variables.
 - Accion `screenshot` explicita requerida para actualizar la vista del modelo.
 - Toolset: `computer`, `text_editor`, `bash` disponibles en conjunto.
 
 ```python
 response = client.messages.create(
-    model="claude-opus-4-8",  # computer use requiere Opus 4.8 — Sonnet 4 y Opus 4 originales deprecados 2026-06-15
+    model="claude-opus-5",  # recomendado para computer use/agentes autonomos en Claude Max; claude-opus-4-8 sigue soportado como fallback documentado
     max_tokens=4096,
     tools=[{"type": "computer_20250124", "name": "computer", "display_width_px": 1280, "display_height_px": 800}],
     messages=[{"role": "user", "content": "Abre el navegador y navega a example.com"}],
-    betas=["computer-use-2025-01-24"]
+    betas=["computer-use-2025-11-24"]
 )
 ```
 
@@ -225,6 +228,6 @@ Sin esta linea completada, cualquier configuracion de agente gestionado que se p
 
 Verificado contra `platform.claude.com` en esta tarea (2026-08-03): "Claude Managed Agents" es hoy un producto formal y documentado aparte del uso general de tools (`/docs/en/managed-agents/overview`), distinto de la nocion de "agente gestionado = tools integradas sobre Messages API" que describe el resto de este skill — es un harness de infraestructura gestionada (sandbox cloud o self-hosted, sesiones con estado persistente, eventos SSE) para tareas largas y asincronas, con beta header propio `managed-agents-2026-04-01` (declarado obligatorio en todos los endpoints de Managed Agents; el SDK lo agrega automaticamente). Esto es distinto del beta header `computer-use-2025-XX-XX` que gobierna solo la tool de computer use dentro de Messages API. El toolset nativo de Managed Agents (bash, operaciones de archivo, web search/fetch, conexion MCP) tambien difiere del listado de "herramientas integradas" ya documentado en este skill para Messages API — verificar cual de los dos productos aplica al caso de uso concreto antes de proponer configuracion, no asumir que son intercambiables.
 
-El beta header de computer use tambien evoluciono: `computer-use-2025-11-24` aplica a los modelos vigentes de la familia 5.x/4.8/4.7/4.6/4.5, mientras `computer-use-2025-01-24` sigue documentado como header valido pero limitado a modelos anteriores (Sonnet 4.5, Haiku 4.5, y los ya deprecados/retirados Opus 4.1, Sonnet 4, Opus 4). Cualquier configuracion nueva de computer use debe fijar el header segun el modelo real de destino, no reusar el header de un ejemplo anterior.
+El beta header de computer use tambien evoluciono: `computer-use-2025-11-24` aplica a los modelos vigentes (Opus 5 — lanzado 24-jul-2026, `claude-opus-5`, recomendado para agentes autonomos/computer use en Claude Max — Opus 4.8 como fallback documentado, Sonnet 5, y el resto de la familia 4.7/4.6/4.5), mientras `computer-use-2025-01-24` queda limitado a modelos legacy ya retirados (Sonnet 4.5, Haiku 4.5, Opus 4.1, Sonnet 4, Opus 4). Cualquier configuracion nueva de computer use debe fijar el header segun el modelo real de destino, no reusar el header de un ejemplo anterior.
 
 Dato no reverificado en esta pasada: precio y rate limits especificos de Managed Agents (RPM/RPD, costo del sandbox por hora) — orientativo, no verificado contra fuente oficial; consultar `/docs/en/managed-agents/reference` antes de dimensionar presupuesto en produccion.

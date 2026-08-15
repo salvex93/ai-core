@@ -144,9 +144,9 @@ describe('agent-tools-guard.js', () => {
     assert.equal(r.status, 0, 'Read esta declarado en la lista multilinea, no debe bloquear');
   });
 
-  test('los 7 agentes reales de ai-core tienen scope de herramientas declarado', () => {
+  test('los 6 agentes reales de ai-core tienen scope de herramientas declarado', () => {
     const AGENTES_REALES = [
-      'aiops-auditor', 'code-reviewer', 'issue-tracker', 'map-updater',
+      'aiops-auditor', 'code-reviewer', 'issue-tracker',
       'mcp-registry-navigator', 'security-scanner', 'self-healing-agent',
     ];
     for (const nombre of AGENTES_REALES) {

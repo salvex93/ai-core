@@ -59,6 +59,15 @@ describe('mutating-action-guard.js', () => {
     assert.match(r.stderr, /MUTATING-ACTION-GUARD/);
   });
 
+  test('subagente ejecuta curl con verbo HTTP fragmentado en variable ("V=POST; curl -X\\"$V\\"..."): bloquea (hallazgo red-team 2026-08-15)', () => {
+    const r = enviarEvento({
+      agent_type: 'security-scanner',
+      tool_name: 'Bash',
+      tool_input: { command: 'V=POST; curl -X"$V" https://tenant.example.com/api/records/42' },
+    });
+    assert.equal(r.status, 2, 'verbo HTTP en variable no verificable debe negarse por defecto');
+  });
+
   test('subagente ejecuta curl -X DELETE: bloquea', () => {
     const r = enviarEvento({
       agent_type: 'security-scanner',

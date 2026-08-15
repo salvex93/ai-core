@@ -51,6 +51,12 @@ function getClient() {
   const { default: Anthropic } = require('@anthropic-ai/sdk');
   _anthropic = new Anthropic({
     apiKey: process.env.ANTHROPIC_API_KEY,
+    // ANTHROPIC_BASE_URL: uso exclusivo de testing (mock-llm-server.js,
+    // patron mock-llm de OpenHands) -- redirige el SDK a un servidor HTTP
+    // local que imita /v1/messages, sin gastar tokens reales ni depender
+    // de la API disponible. En produccion esta variable nunca se define,
+    // por lo que baseURL cae al default del SDK (api.anthropic.com).
+    ...(process.env.ANTHROPIC_BASE_URL && { baseURL: process.env.ANTHROPIC_BASE_URL }),
   });
   return _anthropic;
 }

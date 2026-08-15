@@ -2,15 +2,22 @@
 'use strict';
 
 /**
- * agent-snapshot.js — Backup automatico del archivo objetivo antes de que un
- * AGENTE AUTONOMO (aiops-auditor, self-healing-agent, map-updater,
- * security-scanner, issue-tracker, mcp-registry-navigator) lo escriba via
- * Write/Edit. Corre en PreToolUse.
+ * agent-snapshot.js — Backup automatico del archivo objetivo antes de
+ * CUALQUIER Write/Edit, tanto de un AGENTE AUTONOMO (aiops-auditor,
+ * self-healing-agent, security-scanner, issue-tracker,
+ * mcp-registry-navigator) como del hilo principal. Corre en PreToolUse.
  *
- * Gap real que cierra: hasta ahora no existia ningun mecanismo de rollback
- * para cambios de un AGENTE (rollback-skill.js solo cubre SKILL.md) ni
- * snapshot previo a que estos 6 agentes escriban -- la unica red de
- * seguridad era git de forma manual, sin ningun comando dedicado.
+ * Cobertura total (hallazgo de auditoria 2026-08-15, paridad con el patron
+ * de checkpoints de Cline): antes solo cubria escrituras de subagentes,
+ * dejando sin snapshot cualquier edicion directa del hilo principal --
+ * revertir a un punto arbitrario de la sesion solo era posible via git
+ * manual. Ahora TODA escritura queda registrada, con agentType
+ * "hilo-principal" cuando el evento no trae agent_type real.
+ *
+ * Gap original que cierra: hasta ahora no existia ningun mecanismo de
+ * rollback para cambios de un AGENTE (rollback-skill.js solo cubre
+ * SKILL.md) ni snapshot previo a que estos agentes escriban -- la unica red
+ * de seguridad era git de forma manual, sin ningun comando dedicado.
  *
  * No usa `git stash` para el snapshot: git stash create/store maneja
  * archivos untracked (nuevos) de forma no trivial de restaurar de forma
@@ -20,13 +27,8 @@
  * .claude/AGENT_SNAPSHOTS/ es predecible y cubre el caso de archivo nuevo
  * sin depender de comportamiento interno de git.
  *
- * Solo corre si el evento trae agent_type (la escritura se origina dentro
- * de un subagente, no del hilo principal) -- el humano trabajando
- * directamente no necesita este snapshot, ya tiene git como red de
- * seguridad normal para su propio trabajo.
- *
  * Best-effort: nunca bloquea la escritura si el snapshot falla (ej. disco
- * lleno) -- un guard de backup no debe impedir el flujo normal del agente.
+ * lleno) -- un guard de backup no debe impedir el flujo normal.
  */
 
 const fs   = require('node:fs');
@@ -35,10 +37,10 @@ const { leerEventoDeStdin } = require('./lib/hook-stdin');
 
 const evento = leerEventoDeStdin();
 
-const agentType = process.env.CLAUDE_SUBAGENT_TYPE || evento.agent_type || '';
+const agentType = process.env.CLAUDE_SUBAGENT_TYPE || evento.agent_type || 'hilo-principal';
 const filePath   = process.env.CLAUDE_TOOL_INPUT_file_path || evento.tool_input?.file_path || '';
 
-if (!agentType || !filePath) process.exit(0);
+if (!filePath) process.exit(0);
 
 // AI_CORE_AGENT_SNAPSHOTS_DIR permite aislar en tests.
 const REPO = process.env.AI_CORE_AGENT_SNAPSHOTS_REPO || path.resolve(__dirname, '..', '..');
@@ -75,12 +77,29 @@ try {
     existiaAntes,
     snapshotPath,
   });
-  // Mantener solo los ultimos 200 registros -- backstop simple contra
-  // crecimiento sin limite en sesiones largas con muchos agentes autonomos.
-  if (indice.length > 200) indice.splice(0, indice.length - 200);
+  // Retencion de 1000 registros (antes 200) -- con cobertura total (toda
+  // edicion del hilo principal, no solo de subagentes) el volumen de
+  // snapshots por sesion sube significativamente. Al purgar el excedente,
+  // tambien se borran los archivos fisicos de esas entradas -- de lo
+  // contrario quedaban huerfanos en disco sin limite real de crecimiento
+  // (el indice se acotaba, pero .claude/AGENT_SNAPSHOTS/ seguia creciendo).
+  const LIMITE = 1000;
+  if (indice.length > LIMITE) {
+    const purgados = indice.splice(0, indice.length - LIMITE);
+    for (const p of purgados) {
+      if (p.snapshotPath) {
+        try { fs.unlinkSync(p.snapshotPath); } catch { /* ya no existe o no se pudo borrar -- no bloquear */ }
+      }
+    }
+  }
   guardarIndice(indice);
 
-  console.log(`[agent-snapshot] backup registrado (id ${id}) antes de que "${agentType}" escriba ${path.basename(filePath)}.`);
+  // Log silencioso para ediciones del hilo principal (ruido en cada guardado
+  // trivial); visible solo para subagentes autonomos, donde el snapshot es
+  // la unica red de seguridad ademas de este mensaje.
+  if (agentType !== 'hilo-principal') {
+    console.log(`[agent-snapshot] backup registrado (id ${id}) antes de que "${agentType}" escriba ${path.basename(filePath)}.`);
+  }
 } catch (err) {
   // best-effort -- nunca bloquear el flujo del agente por un fallo de backup
   console.error(`[agent-snapshot] no se pudo registrar el snapshot: ${err.message}`);

@@ -2,8 +2,8 @@
 name: performance-engineer
 description: Especialista en performance de aplicacion bajo carga real. Cubre estrategia de cache (in-memory vs Redis), distribucion de assets estaticos via CDN, y pruebas de carga que simulan usuarios concurrentes antes de que lleguen en produccion. Diferenciado de database-ops (pooling de conexiones e indices de BD) y devops-infra (observabilidad e infraestructura). Agnostico al framework y proveedor. Activa al disenar una capa de cache, evaluar si un recurso necesita CDN, definir o ejecutar pruebas de carga, o diagnosticar degradacion bajo trafico concurrente.
 origin: ai-core
-version: 1.0.0
-last_updated: 2026-08-04
+version: 1.0.1
+last_updated: 2026-08-15
 rol: architect
 ---
 
@@ -227,7 +227,9 @@ No se acepta un gate expresado como "deberia aguantar mas trafico" o "se ve mas 
 
 ### 4. Vigencia — Estandar Mas Reciente del Dominio
 
-Verificado en esta tarea contra `grafana.com/docs/k6/latest/release-notes/` (fuente oficial del proyecto): la version estable de k6 documentada actualmente es **1.7.1**, y la sintaxis de threshold vigente para percentiles sigue el formato `p(99)<300` sobre metricas como `http_req_duration` (confirmado contra `grafana.com/docs/k6/latest/using-k6/thresholds/`). No se verifico en esta pasada el detalle de changelog especifico de la 1.7.1 (metricas nuevas, breaking changes) — antes de fijar una version exacta en un `package.json` o pipeline de CI, releer el archivo de esa version puntual en `release-notes/`, no asumir por analogia con 1.0 o versiones previas.
+Reverificado 2026-08-14 contra `grafana.com/docs/k6/latest/release-notes/` (fuente oficial del proyecto): la version estable de k6 documentada actualmente es **2.2.0** (linea 1.x, incluida 1.7.1, ya superada por el salto mayor 2.0.0). La sintaxis de threshold vigente para percentiles se mantiene sin cambios: formato `p(99)<300` sobre metricas como `http_req_duration` (confirmado contra `grafana.com/docs/k6/latest/using-k6/thresholds/`) — el salto de 1.x a 2.x no altera la sintaxis de script ni la API de thresholds usada en este skill.
+
+Breaking changes reales de la 2.0.0 (no aplican al patron de este skill, que solo usa `autocannon` como ejemplo de codigo embebido y menciona `k6` como alternativa, sin invocar CLI ni modulos afectados — documentado por transparencia si se expande el uso de k6 en el futuro): modulo Go renombrado a `go.k6.io/k6/v2`; comandos removidos `k6 pause`/`resume`/`scale`/`status`/`login`; forma posicional `k6 cloud script.js` eliminada (usar `k6 cloud run script.js`); flags removidos `--upload-only`, `--no-summary`, `--summary-mode=legacy`; executor `externally-controlled` eliminado; `options.ext.loadimpact` reemplazado por `options.cloud`; modulo `k6/experimental/redis` removido (usar `k6/x/redis`); exit code de aborto por cloud run sin threshold cambia de `0` a `97`. Las versiones 2.1.0 y 2.2.0 no introducen breaking changes adicionales segun sus propias release notes. Antes de fijar una version exacta en `package.json` o pipeline de CI, releer el archivo de esa version puntual en `release-notes/`, no asumir por analogia con versiones previas.
 
 Para `autocannon` y `Artillery`: la vigencia de version/pricing de estas dos herramientas no se verifico contra fuente oficial en esta tarea — orientativo, no verificado contra fuente oficial. Confirmar version instalada real (`npm ls autocannon`) y el registro npm oficial antes de fijar un numero de version en documentacion o `package.json`.
 

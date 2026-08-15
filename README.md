@@ -493,12 +493,19 @@ Un skill se convierte en agente solo si cumple los tres criterios a la vez: auto
 | `code-reviewer` | Revisa el diff completo contra main, clasifica hallazgos, produce veredicto APROBADO/REQUIERE_CAMBIOS/BLOQUEADO |
 | `security-scanner` | Escanea credenciales expuestas, CVEs, secrets en git, permisos excesivos |
 | `aiops-auditor` | Audita conformidad de skills, detecta agentes faltantes, drift de SDK |
-| `map-updater` | Regenera CONTEXT_MAP ante drift estructural del repo |
 | `issue-tracker` | Captura errores y gaps, los envia como issues a GitHub al cerrar sesion |
 | `mcp-registry-navigator` | Evalua servidores MCP de terceros antes de instalar (INSTALAR/EVALUAR/RECHAZAR) |
 | `self-healing-agent` | Diagnostica errores repetidos via el ciclo AUDITOR/ARCHITECT de ErrorRepairLoop.js y propone un fix — nunca lo aplica sin confirmacion humana |
 
 La lista completa de skills, sus triggers de activacion y la logica de enrutamiento por contexto viven unicamente en `CLAUDE.md`, seccion "Seleccion de Skills". No se duplica aqui a proposito — mantenerla en dos archivos es lo que produce drift.
+
+---
+
+## Sandboxing opcional por contenedor
+
+`npm run sandbox` levanta una sesion de Claude Code aislada en Docker (`docker/Dockerfile` + `docker/docker-compose.yml`), montando el proyecto anfitrion como volumen en vez de operar directo sobre el filesystem del host. Capacidad **opcional** — el uso normal sin Docker sigue funcionando exactamente igual, nada cambia por default.
+
+Cuando usarlo: agentes autonomos sobre codigo no confiable, pruebas de comandos potencialmente destructivos, o cualquier tarea de mayor riesgo donde se prefiera aislamiento de proceso real ademas de los guards de patron de comando (que siguen activos dentro del contenedor tambien — son capas complementarias, no alternativas). Requiere Docker instalado; si no esta disponible, el script falla con mensaje explicativo, nunca degrada silenciosamente. Detalle tecnico en `docker/Dockerfile`.
 
 ---
 

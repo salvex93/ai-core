@@ -153,6 +153,16 @@ describe('agent-paths-guard.js', () => {
     assert.equal(JSON.parse(r.stdout).hookSpecificOutput.permissionDecision, 'deny');
   });
 
+  test('Bash con alias real "ri" (PowerShell) fuera de scope: deniega (hallazgo red-team 2026-08-15)', () => {
+    const r = enviarEvento({
+      agent_type: 'map-updater-fake',
+      tool_name: 'Bash',
+      tool_input: { command: 'ri -Recurse -Force /tmp/otra-carpeta' },
+    });
+    assert.equal(r.status, 0);
+    assert.equal(JSON.parse(r.stdout).hookSpecificOutput.permissionDecision, 'deny', 'el alias "ri" debe denegar igual que "Remove-Item"');
+  });
+
   test('agent_type con path traversal: tratado como sin scope declarado, no bloquea (mismo criterio que agent-tools-guard.js)', () => {
     const r = enviarEvento({
       agent_type: '../secreto',
@@ -164,7 +174,7 @@ describe('agent-paths-guard.js', () => {
 
   test('los 6 agentes con paths_allow real declaran al menos un patron', () => {
     const AGENTES_CON_PATHS = [
-      'aiops-auditor', 'code-reviewer', 'issue-tracker', 'map-updater',
+      'aiops-auditor', 'code-reviewer', 'issue-tracker',
       'mcp-registry-navigator', 'security-scanner', 'self-healing-agent',
     ];
     for (const nombre of AGENTES_CON_PATHS) {

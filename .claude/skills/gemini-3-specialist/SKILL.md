@@ -1,10 +1,11 @@
 ---
 name: gemini-3-specialist
-description: Especialista en integracion avanzada con la familia Gemini 3.x (3.1 Pro, 3.6 Flash, 3.5 Flash-Lite, 3.1 Flash Image). Cubre thinking_level (low/medium/high), Live API con TTS nativo, generacion y edicion conversacional de imagenes (Nano Banana 2), contexto de 1M tokens, y seleccion de variante segun caso de uso y costo. Activa al integrar Gemini directamente (fuera del bridge MCP), disenar pipelines multimodales, o evaluar Flash-Lite como alternativa de escala masiva.
+description: Especialista en integracion avanzada con la familia Gemini 3.x (3.1 Pro, 3.7 Flash, 3.6 Flash, 3.5 Flash-Lite, 3.1 Flash Image). Cubre thinking_level (minimal/low/medium/high segun modelo), Live API con TTS nativo, generacion y edicion conversacional de imagenes (Nano Banana 2), contexto de 1M tokens, y seleccion de variante segun caso de uso y costo. Activa al integrar Gemini directamente (fuera del bridge MCP), disenar pipelines multimodales, o evaluar Flash-Lite como alternativa de escala masiva.
 origin: ai-core
-version: 2.2.0
-last_updated: 2026-08-04
+version: 2.3.1
+last_updated: 2026-08-15
 rol: architect
+compatibility: Requiere el SDK google-genai (sucesor de google-generativeai); depende de conectividad de red hacia la Gemini API (GEMINI_API_KEY).
 ---
 
 # Gemini 3 Specialist
@@ -47,7 +48,7 @@ grep -r "gemini\|google-genai\|GEMINI_API_KEY" . --include="*.ts" --include="*.p
 Insertar directiva y detener ante:
 
 - La integracion propuesta envia PII o datos sensibles a la API de Gemini sin evaluar si el acuerdo de datos del anfitrion lo permite (GDPR, HIPAA, contratos de cliente).
-- `thinking_level: "high"` se deja como default implicito en un flujo de alto volumen sin evaluar costo — es el default de la API si no se especifica, y es la opcion mas cara.
+- `thinking_level` se deja sin especificar en un flujo de alto volumen sin evaluar costo — el default varia por modelo (`gemini-3.1-pro-preview` default `high`; `gemini-3.6-flash`/`gemini-3.7-flash` default `medium`; `gemini-3.5-flash-lite` default `minimal`), y asumir "high" para todos sobreestima el costo real pero tambien puede ocultar un default mas caro de lo esperado en Pro.
 - La tarea requiere outputs deterministicos (firmas legales, calculos financieros regulados) — los modelos generativos no son deterministas.
 
 ```
@@ -60,16 +61,19 @@ El tier "Flash-Thinking" de la generacion 2.5 desaparecio como modelo separado: 
 
 | Variante | Contexto | Thinking | Uso optimo | Pricing paid (in/out por 1M tokens) |
 |---|---|---|---|---|
-| `gemini-3.1-pro-preview` | 1M tokens | `thinking_level` (low/medium/high) | Razonamiento complejo, corpus muy largos, benchmarks exigentes | $2.00 / $12.00 |
-| `gemini-3.6-flash` | 1M tokens | `thinking_level` (low/medium/high) | Tareas agenticas multi-step, coding — modelo Flash mas reciente, reemplaza a 3.5 Flash como tier general | $1.50 / $7.50 |
+| `gemini-3.1-pro-preview` | 1M tokens | `thinking_level` (low/medium/high, default high) | Razonamiento complejo, corpus muy largos, benchmarks exigentes | $2.00 / $12.00 |
+| `gemini-3.7-flash` | 1M tokens (output max 65.536) | `thinking_level` (low/medium/high, default medium) | Modelo Flash mas capaz y reciente para coding y agentes — coexiste con 3.6 Flash, ya es el default en casos especificos como el Antigravity agent | $0.75 / $3.75 introductorio hasta 2026-12-31; luego $1.50 / $7.50 |
+| `gemini-3.6-flash` | 1M tokens | `thinking_level` (minimal/low/medium/high, default medium) | Tareas agenticas multi-step, coding — sigue disponible, sucedido por 3.7 Flash como opcion mas capaz al mismo pricing final | $1.50 / $7.50 |
 | `gemini-3.1-flash-live-preview` | — (streaming) | Si | Live API audio-to-audio, conversacion en tiempo real | Ver `audio-voice-engineer` |
-| `gemini-3.5-flash-lite` | 1M tokens | `thinking_level` (low/medium/high, default low recomendado) | Alta escala, throughput masivo, costo minimo — reemplaza a 3.1 Flash-Lite como tier 0 mas barato de la familia 3.x | $0.30 / $2.50 |
+| `gemini-3.5-flash-lite` | 1M tokens | `thinking_level` (minimal/low/medium/high, default minimal) | Alta escala, throughput masivo, costo minimo — reemplaza a 3.1 Flash-Lite como tier 0 mas barato de la familia 3.x | $0.30 / $2.50 |
 
 Verificado 2026-08-03 contra `ai.google.dev/gemini-api/docs/pricing` y `/docs/models`. `gemini-3.1-flash-lite` ($0.25/$1.50) sigue disponible y vigente — no esta deprecado, pero 3.5 Flash-Lite es la opcion mas nueva dentro del mismo tier de costo. `gemini-3.5-flash` ($1.50/$9.00) tambien sigue disponible; 3.6 Flash lo mejora en pricing de output sin subir el de input.
 
+Verificado 2026-08-14 contra `ai.google.dev/gemini-api/docs/models/gemini-3.7-flash` y `/docs/latest-model`: `gemini-3.7-flash` es GA, es el modelo Flash mas reciente y capaz de la familia para coding/agentes, con precio introductorio vigente hasta 2026-12-31 ($0.75/$3.75) que despues iguala el pricing final de 3.6 Flash ($1.50/$7.50). No hay evidencia en fuente oficial de que 3.6 Flash quede deprecado — 3.7 Flash coexiste como la opcion mas capaz dentro del mismo tier de costo final, similar al patron ya documentado entre 3.1 Flash-Lite y 3.5 Flash-Lite.
+
 Regla de seleccion:
-1. Tarea de alto volumen con logica simple → `gemini-3.5-flash-lite` con `thinking_level: "low"` (o `gemini-3.1-flash-lite` si el proyecto ya lo tiene integrado y no requiere las mejoras de 3.5).
-2. Tarea agentica multi-step o coding con presupuesto medio → `gemini-3.6-flash`.
+1. Tarea de alto volumen con logica simple → `gemini-3.5-flash-lite` con `thinking_level: "minimal"` o `"low"` (o `gemini-3.1-flash-lite` si el proyecto ya lo tiene integrado y no requiere las mejoras de 3.5).
+2. Tarea agentica multi-step o coding con presupuesto medio → `gemini-3.7-flash` (o `gemini-3.6-flash` si el proyecto ya lo tiene integrado y no requiere la mejora de capacidad).
 3. Live API / audio-to-audio → `gemini-3.1-flash-live-preview` (ver `audio-voice-engineer` para detalle; Affective Dialog no soportado a la fecha).
 4. Corpus > 500MB o razonamiento muy complejo → `gemini-3.1-pro-preview` con `thinking_level: "high"`.
 5. Nunca subir de tier sin medir primero el delta de calidad/costo en un dataset de evaluacion. Ver `llm-evals` para diseno del dataset de evaluacion representativo.
@@ -110,7 +114,7 @@ Guia de `thinking_level` por tipo de tarea:
 - Clasificacion, extraccion, alto throughput: `low`.
 - Analisis con contexto, uso diario general: `medium` (default recomendado si no hay razon para `low` o `high`).
 - Razonamiento complejo, arquitectura, benchmarks exigentes: `high`.
-- **Si no se especifica `thinking_level`, la API usa `high` por defecto** — fijarlo explicitamente en produccion de alto volumen para evitar costo/latencia inesperados.
+- **El default cuando no se especifica `thinking_level` varia por modelo, no es "high" para toda la familia** (verificado 2026-08-14 contra `ai.google.dev/gemini-api/docs/thinking`): `gemini-3.1-pro-preview` default `high`; `gemini-3.7-flash` y `gemini-3.6-flash` default `medium` (soportan ademas `minimal` como cuarto nivel, no solo low/medium/high); `gemini-3.5-flash-lite` default `minimal`. Fijarlo explicitamente en produccion de alto volumen igual aplica — el riesgo no es siempre "mas caro de lo esperado", en Flash y Flash-Lite el riesgo tipico es el opuesto (dejar el default barato cuando la tarea si requiere mas razonamiento).
 
 ## Gemini 3.5 Flash-Lite — Tier 0 de Alta Escala
 
@@ -219,7 +223,7 @@ Regla: para proyectos con datos de clientes finales o contratos de confidenciali
 ## Checklist de Integracion Gemini 3.x
 
 - [ ] Variante seleccionada es la mas barata que completa la tarea (Flash-Lite > 3.6 Flash > Pro).
-- [ ] `thinking_level` fijado explicitamente ("low"/"medium"/"high") — nunca dejar el default implicito ("high") en produccion de alto volumen.
+- [ ] `thinking_level` fijado explicitamente ("minimal"/"low"/"medium"/"high" segun el modelo) — nunca dejar el default implicito en produccion de alto volumen; el default no es "high" para toda la familia (varia por modelo, ver seccion Thinking Level).
 - [ ] No se combina `thinking_level` con `thinking_budget` en el mismo request (error 400).
 - [ ] GEMINI_API_KEY leida desde variable de entorno — prohibido hardcodear.
 - [ ] Para datos de clientes finales: Vertex AI, no Google AI Studio.
@@ -264,7 +268,7 @@ Si el proyecto ya tiene una variante y `thinking_level` fijados en `ModelRegistr
 ### Prohibido — patrones reconocibles de demo/plantilla
 
 - Copiar el snippet de quickstart de `ai.google.dev` tal cual, con el modelo hardcodeado y sin `thinking_level` explicito.
-- Dejar `thinking_level` sin especificar en produccion de alto volumen, aceptando el default `"high"` de la API por omision en vez de una decision consciente.
+- Dejar `thinking_level` sin especificar en produccion de alto volumen, aceptando el default implicito de la API por omision (que varia por modelo: `high` en Pro, `medium` en 3.6/3.7 Flash, `minimal` en Flash-Lite) en vez de una decision consciente.
 - Usar `gemini-3.1-pro-preview` para tareas de clasificacion simple o extraccion de bajo volumen — variante de razonamiento maximo aplicada a una tarea que Flash-Lite resuelve igual de bien a fraccion del costo.
 - Reintentar agresivamente ante error 429 (rate limit) en un loop cerrado sin backoff — genera bloqueo de cuota mas rapido que el error original.
 - Enviar el mismo contexto largo (system prompt, documento base) en cada llamada de una sesion repetitiva sin evaluar implicit o explicit caching — pagar tokens de input completos cuando gran parte del contenido es identico entre llamadas.
@@ -287,3 +291,5 @@ Verificado en esta tarea contra `ai.google.dev/gemini-api/docs/caching` (fuente 
 Explicit caching (control manual de TTL y contenido cacheado) esta documentado para la API `generateContent`, pero la fuente oficial consultada indica explicitamente que **la Interactions API no soporta explicit caching, solo implicito** — si el proyecto usa `client.interactions.create()` como en los ejemplos de este skill, el unico mecanismo de cache disponible es el implicito automatico; explicit caching requeriria migrar esa llamada especifica a `generateContent`.
 
 Orientativo, no verificado contra fuente oficial en esta pasada: umbral minimo de tokens para cache en `gemini-3.6-flash` y `gemini-3.5-flash-lite` especificamente (la fuente consultada no menciono estas dos variantes por nombre) — verificar contra `ai.google.dev/gemini-api/docs/caching` antes de asumir que aplica el mismo umbral de 4096 tokens documentado para 3.5 Flash y 3.1 Pro Preview.
+
+Verificado 2026-08-14 contra `ai.google.dev/gemini-api/docs/models/gemini-3.7-flash`, `/docs/latest-model` y `/docs/thinking` (fuentes oficiales primarias, consultadas hoy): `gemini-3.7-flash` existe, es GA, y es el modelo Flash mas capaz de la familia para coding/agentes — no reemplaza a `gemini-3.6-flash` (que sigue disponible sin evidencia de deprecacion), coexiste como la opcion de mayor capacidad al mismo pricing final ($1.50/$7.50), con precio introductorio menor ($0.75/$3.75) vigente hasta 2026-12-31. Ademas, el default real de `thinking_level` cuando no se especifica **no es uniforme ("high") para toda la familia** como afirmaba una version anterior de este skill: `gemini-3.1-pro-preview` default `high`; `gemini-3.7-flash` y `gemini-3.6-flash` default `medium`; `gemini-3.5-flash-lite` default `minimal`. La tabla oficial de `/docs/thinking` tambien expone un cuarto nivel `minimal` soportado por 3.6/3.7 Flash y Flash-Lite, no documentado en versiones previas de este skill que solo listaban low/medium/high.

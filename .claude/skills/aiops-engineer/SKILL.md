@@ -2,8 +2,8 @@
 name: aiops-engineer
 description: AI-Ops Engineer — Agente de mantenimiento del ecosistema ai-core. Audita la configuracion de .claude/skills/, analiza nuevas especificaciones de Anthropic y propone mejoras en prompts, herramientas MCP y flujos de trabajo. NUNCA modifica el ai-core sin confirmacion humana explicita. Activa al auditar el nucleo, proponer actualizaciones de skills o incorporar nuevas capacidades del ecosistema Anthropic.
 origin: ai-core
-version: 1.7.0
-last_updated: 2026-08-05
+version: 1.7.1
+last_updated: 2026-08-15
 rol: architect
 ---
 
@@ -101,6 +101,8 @@ Buscar informacion actualizada sobre:
 1. Nuevas capacidades del modelo Claude activo (desde el contexto de la sesion o documentacion disponible).
 2. Nuevos tipos de herramientas MCP publicados por Anthropic o la comunidad.
 3. Cambios en las mejores practicas de prompt engineering que afecten la estructura de los SKILL.md.
+
+Patrones vigentes de Tool Use (verificado contra `anthropic.com/engineering/advanced-tool-use`) a tener presentes al auditar flujos de agentes o carga de herramientas MCP: Tool Search Tool (campo `defer_loading: true` por tool, descubrimiento bajo demanda via `tool_search_tool_regex_20251119`/`tool_search_tool_bm25_20251119`, hasta 85% menos tokens de descubrimiento) y Programmatic Tool Calling (tool `code_execution_20260120` en `tools` + `allowed_callers: ["code_execution_20260120"]` por tool invocable, ~37% menos tokens en tareas con 3+ llamadas dependientes). Ambos reemplazan la carga completa de definiciones de tools en el system prompt.
 
 Si se dispone de changelogs, release notes o especificaciones de Anthropic o Google que superen 200 lineas, aplicar la regla GEMINI PRIMERO de CLAUDE.md antes de procesarlos directamente:
 

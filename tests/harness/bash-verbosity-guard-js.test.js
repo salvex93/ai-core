@@ -26,6 +26,11 @@ describe('bash-verbosity-guard.js', () => {
     assert.ok(r.stderr.includes('BASH-VERBOSITY-GUARD'));
   });
 
+  test('bloquea "Git LoG" en mayusculas mezcladas (hallazgo red-team 2026-08-15)', () => {
+    const r = run('Git LoG');
+    assert.equal(r.status, 2);
+  });
+
   test('permite "git log --oneline -n"', () => {
     assert.equal(run('git log --oneline -n 10').status, 0);
   });

@@ -30,7 +30,8 @@
     "memory-status": "node .claude/bin/memory-index.js status",
     "agent-report": "node .claude/bin/agent-metrics.js report",
     "agent-report-full": "node .claude/bin/agent-metrics.js report --full",
-    "eval-skills": "node .claude/evals/run-all.js"
+    "eval-skills": "node .claude/evals/run-all.js",
+    "sandbox": "node scripts/sandbox.js"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.115.0",
