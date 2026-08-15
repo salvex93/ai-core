@@ -48,4 +48,26 @@ function tieneIndicioDeResolucionPrevia(cmd) {
   return false;
 }
 
-module.exports = { tieneIndicioDeResolucionPrevia };
+// Variante para PROMPTS/TEXTO (no comandos de shell) -- hallazgo red-team
+// 2026-08-15 contra jailbreak-guard.js/injection-guard.js: un bloque base64
+// largo junto a una instruccion explicita de "decodifica y ejecuta/actua
+// como" evade el matching porque el texto peligroso real (ej. "ignora
+// todas las instrucciones") solo existe codificado, nunca en claro dentro
+// del prompt. Exige AMBAS condiciones: un bloque base64 de longitud
+// significativa (>= 20 chars, evita falsos positivos con tokens cortos que
+// no son realmente base64 de una instruccion) Y una instruccion textual de
+// decodificar+actuar/ejecutar sobre ese contenido.
+const PATRON_BLOQUE_BASE64_LARGO = /\b[A-Za-z0-9+/]{20,}={0,2}\b/;
+const PATRON_INSTRUCCION_DECODIFICAR_Y_ACTUAR = /decodifica[r]?\s+(esto|este|el\s+siguiente)?[^.]*\by\s+(ejecuta|actua|haz|sigue|obedece)|decode\s+(this|the\s+following)[^.]*\band\s+(execute|follow|act|do)/i;
+
+/**
+ * @param {unknown} texto
+ * @returns {boolean} true si el texto contiene un bloque base64 largo
+ *   combinado con una instruccion de decodificar y actuar sobre el.
+ */
+function tieneIndicioDeResolucionPreviaEnTexto(texto) {
+  if (typeof texto !== 'string') return false;
+  return PATRON_BLOQUE_BASE64_LARGO.test(texto) && PATRON_INSTRUCCION_DECODIFICAR_Y_ACTUAR.test(texto);
+}
+
+module.exports = { tieneIndicioDeResolucionPrevia, tieneIndicioDeResolucionPreviaEnTexto };
