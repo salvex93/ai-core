@@ -36,7 +36,7 @@ npm install
 npm run setup    # adapta settings.json a tu ruta exacta (cross-platform)
 
 # 3. Verificar que todo funciona
-npm test         # debe terminar: 919 pass, 0 fail
+npm test         # debe terminar: 1211 pass, 0 fail
 
 # 4. Autenticar gh CLI para el issue-tracker (una sola vez por maquina)
 gh auth login    # GitHub.com -> HTTPS -> Login with a web browser
