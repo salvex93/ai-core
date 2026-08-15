@@ -36,7 +36,7 @@ npm install
 npm run setup    # adapta settings.json a tu ruta exacta (cross-platform)
 
 # 3. Verificar que todo funciona
-npm test         # debe terminar: 1211 pass, 0 fail
+npm test         # debe terminar: 1212 pass, 0 fail
 
 # 4. Autenticar gh CLI para el issue-tracker (una sola vez por maquina)
 gh auth login    # GitHub.com -> HTTPS -> Login with a web browser
@@ -84,7 +84,7 @@ Repositorio independiente:
 npm run update
 ```
 
-Esto corre `git pull`, regenera `settings.json` (purga automaticamente cualquier hook de una version anterior que referencie un script eliminado o renombrado — el objeto de hooks se construye desde cero y sobreescribe el archivo completo, nunca mergea, con la definicion compartida en `hooks-definition.js`), corre los 1211 tests, aplica migraciones de version, valida los 43 skills y los 7 agentes, y reporta que cambio. Si un test falla, el comando se detiene ahi.
+Esto corre `git pull`, regenera `settings.json` (purga automaticamente cualquier hook de una version anterior que referencie un script eliminado o renombrado — el objeto de hooks se construye desde cero y sobreescribe el archivo completo, nunca mergea, con la definicion compartida en `hooks-definition.js`), corre los 1212 tests, aplica migraciones de version, valida los 43 skills y los 7 agentes, y reporta que cambio. Si un test falla, el comando se detiene ahi.
 
 Instalado como submodulo:
 
@@ -152,7 +152,7 @@ Si no esta autenticado, los eventos se acumulan en `.claude/EVENTS_QUEUE.json` y
 
 ```bash
 npm install                               # instalar dependencias (corre postinstall -> npm run setup)
-npm test                                  # 1211 tests, Node nativo, sin deps externas
+npm test                                  # 1212 tests, Node nativo, sin deps externas
 npm run setup                             # regenerar settings.json con rutas locales (ya corre solo via postinstall)
 npm run update                            # actualizacion one-command desde GitHub
 npm run validate-globals                  # auditar conformidad de los 43 skills (incluye schema agentskills.io)
@@ -196,7 +196,9 @@ Segunda ronda de investigacion de mercado fresca (deliberadamente evitando repet
 
 **Bug critico preexistente encontrado verificando en SESION REAL, no solo con tests.** Antes de declarar el trabajo listo para produccion, se probo la invocacion exacta de `settings.json` para los 3 guards modificados. `subagent-guard.js`/`subagent-guard-release.js` reciben un permiso de fs de UN nivel de profundidad bajo el tmpdir, pero su `LOCK_DIR` real vive DOS niveles mas abajo (`<tmp>/ai-core-locks/subagents/`) -- confirmado en vivo que ese glob nunca cubrio esa profundidad, ni para lectura ni escritura. Efecto real: el mecanismo de release explicito de locks de subagentes nunca funciono desde que se agrego (absorbido en silencio por un `catch` documentado como "best-effort"); el TTL de 2 minutos era la unica garantia real de liberacion de cupo. Corregido con un permiso especifico de dos niveles en `hooks-definition.js`, verificado end-to-end (escritura + borrado del lock) con la invocacion real de produccion.
 
-**1211 tests, 43/43 skills conformes, 6/6 agentes conformes.**
+**Post-release: fix real de CI en macOS.** El push inicial de esta version fallo en el runner `macos-latest` (windows-latest y ubuntu-latest pasaron con el mismo codigo), diagnosticado con el log real del job via API de GitHub Actions. `pidEsProcesoNode()` (fix de `process-guard.js` de esta misma version) asumia que `/proc/<pid>/cmdline` aplicaba a todo POSIX -- `/proc` es exclusivo de Linux, no existe en macOS/Darwin, asi que el `catch` trataba cualquier proceso real y vivo como "no confiable" y dejaba pasar una segunda instancia de una categoria de bloqueo bajo carga real. Corregido con una rama especifica para `darwin` usando `ps -p <pid> -o comm=`. Verificado en verde en los 3 sistemas operativos tras el fix.
+
+**1212 tests, 43/43 skills conformes, 6/6 agentes conformes.**
 
 ### v3.32.0 — break-glass transversal, permissionDecision para friccion operativa, skill de metodologia de producto
 
