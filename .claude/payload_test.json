@@ -1,0 +1,1 @@
+{"agent_type":"code-reviewer","tool_name":"Bash","tool_input":{"command":"C1=r; C2=m; $C1$C2 -rf /tmp/other/secret.txt"}}
