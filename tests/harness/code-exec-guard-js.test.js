@@ -41,6 +41,12 @@ describe('code-exec-guard.js', () => {
     assert.ok(r.stderr.includes('shell=True'));
   });
 
+  test('bloquea (exit 2) child_process asignado a variable y ejecutado en statement separada (hallazgo red-team 2026-08-15 -- codigo idiomatico, no ofuscacion)', () => {
+    const contenido = 'const cp = require("child_' + 'process"); cp.' + 'exec' + 'Sync("echo hola", { shell: true });';
+    const r = run({ file_path: 'x.js', content: contenido });
+    assert.equal(r.status, 2);
+  });
+
   test('permite (exit 0) codigo limpio', () => {
     const r = run({ file_path: 'x.js', content: 'const suma = (a, b) => a + b;' });
     assert.equal(r.status, 0);
