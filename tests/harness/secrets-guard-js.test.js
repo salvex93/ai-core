@@ -39,6 +39,13 @@ describe('secrets-guard.js', () => {
     assert.equal(r.status, 2, 'debe bloquear (exit 2) — credencial de alta confianza');
   });
 
+  test('bloquea el prefijo de OpenAI API key con mayuscula ("Sk-...", hallazgo red-team 2026-08-15)', () => {
+    const r = runScript(SCRIPT, [], {
+      CLAUDE_USER_PROMPT: 'Sk-abcdefghijklmnopqrstuvwxyz123456',
+    });
+    assert.equal(r.status, 2, 'el prefijo en otro case no debe evadir la deteccion de la credencial real');
+  });
+
   test('solo advierte (exit 0) para patron de confianza media', () => {
     const r = runScript(SCRIPT, [], {
       CLAUDE_USER_PROMPT: 'a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2:f1e2d3c4b5a6f1e2d3c4b5a6f1e2d3c4b5a6f1e2',
