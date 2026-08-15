@@ -3,10 +3,10 @@
   "modelo": "claude-haiku-4-5-20251001",
   "fragmentos_totales": 1366,
   "skills_totales": 43,
-  "fallos_generacion_prefijo": 2,
+  "fallos_generacion_prefijo": 4,
   "tokens": {
     "input": 136543,
-    "output": 37544
+    "output": 36056
   },
   "recall_baseline": 0.5333333333333333,
   "recall_contextual": 0.7333333333333333,
@@ -197,11 +197,11 @@
       "query": "cuando se apago text-embedding-004",
       "esperado": "skill/multimodal-engineer#16",
       "topK": [
-        "skill/rag-specialist#35",
         "skill/multimodal-engineer#17",
+        "skill/rag-specialist#35",
         "skill/rag-specialist#31",
         "skill/backend-architect#39",
-        "skill/rag-specialist#34"
+        "skill/rag-specialist#30"
       ],
       "acierto": false
     },
@@ -223,8 +223,8 @@
       "topK": [
         "skill/attack-surface-analyst#26",
         "skill/security-auditor#8",
-        "skill/ciso#10",
         "skill/performance-engineer#28",
+        "skill/ciso#10",
         "skill/llm-evals#1"
       ],
       "acierto": true
@@ -236,8 +236,8 @@
         "skill/claude-api#11",
         "skill/mcp-server-builder#16",
         "skill/aiops-engineer#12",
-        "skill/claude-api#6",
-        "skill/cost-optimizer#9"
+        "skill/ai-integrations#11",
+        "skill/claude-api#6"
       ],
       "acierto": true
     },
@@ -248,8 +248,8 @@
         "skill/rag-specialist#30",
         "skill/multimodal-engineer#16",
         "skill/multimodal-engineer#17",
-        "skill/rag-specialist#33",
-        "skill/audio-voice-engineer#7"
+        "skill/rag-specialist#31",
+        "skill/multimodal-engineer#3"
       ],
       "acierto": true
     },
@@ -260,8 +260,8 @@
         "skill/rag-specialist#24",
         "skill/rag-specialist#44",
         "skill/managed-agents-specialist#9",
-        "skill/rag-specialist#36",
-        "skill/seo-sem-specialist#19"
+        "skill/multimodal-engineer#15",
+        "skill/multimodal-engineer#9"
       ],
       "acierto": true
     },
@@ -269,11 +269,11 @@
       "query": "mejora de retrieval al anteponer contexto a cada fragmento antes de indexar",
       "esperado": "skill/rag-specialist#25",
       "topK": [
+        "skill/memory-manager#21",
+        "skill/rag-specialist#24",
         "skill/memory-manager#26",
         "skill/rag-specialist#42",
-        "skill/rag-specialist#24",
-        "skill/rag-specialist#29",
-        "skill/memory-manager#29"
+        "skill/rag-specialist#29"
       ],
       "acierto": false
     },
@@ -281,8 +281,8 @@
       "query": "limite de paginas y tamano de archivo para procesar PDFs con Claude",
       "esperado": "skill/multimodal-engineer#26",
       "topK": [
-        "skill/multimodal-engineer#14",
         "skill/multimodal-engineer#26",
+        "skill/multimodal-engineer#14",
         "skill/web-scraping-specialist#39",
         "skill/doc-builder#31",
         "skill/managed-agents-specialist#19"
@@ -296,8 +296,8 @@
         "skill/mcp-server-builder#18",
         "skill/mcp-registry-navigator#5",
         "skill/claude-agent-sdk#22",
-        "skill/mcp-server-builder#9",
-        "skill/mcp-server-builder#22"
+        "skill/mcp-server-builder#22",
+        "skill/mcp-server-builder#9"
       ],
       "acierto": true
     },
@@ -309,7 +309,7 @@
         "skill/ai-guardrails#1",
         "skill/security-auditor#16",
         "skill/ux-visual-designer#22",
-        "skill/security-auditor#36"
+        "skill/security-auditor#23"
       ],
       "acierto": false
     },
@@ -318,10 +318,10 @@
       "esperado": "skill/security-auditor#32",
       "topK": [
         "skill/mcp-server-builder#5",
-        "skill/security-auditor#32",
         "skill/mcp-registry-navigator#12",
-        "skill/ciso#7",
-        "skill/security-auditor#31"
+        "skill/security-auditor#32",
+        "skill/security-auditor#31",
+        "skill/ciso#7"
       ],
       "acierto": true
     },
@@ -331,7 +331,7 @@
       "topK": [
         "skill/agent-testing#12",
         "skill/claude-api#2",
-        "skill/claude-api#4",
+        "skill/multimodal-engineer#7",
         "skill/claude-api#21",
         "skill/cost-optimizer#8"
       ],
@@ -344,8 +344,8 @@
         "skill/rag-specialist#42",
         "skill/backend-architect#81",
         "skill/agent-testing#22",
-        "skill/claude-agent-sdk#7",
-        "skill/prompt-engineer#32"
+        "skill/data-engineer#35",
+        "skill/claude-agent-sdk#7"
       ],
       "acierto": true
     },
@@ -367,9 +367,9 @@
       "topK": [
         "skill/multimodal-engineer#18",
         "skill/release-manager#5",
-        "skill/devops-infra#5",
         "skill/llm-observability#5",
-        "skill/data-engineer#5"
+        "skill/devops-infra#5",
+        "skill/aiops-engineer#15"
       ],
       "acierto": true
     }
