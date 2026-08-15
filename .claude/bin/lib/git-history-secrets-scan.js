@@ -41,7 +41,7 @@ function parsearLogParaSecretos(logText) {
 
     const contenido = linea.slice(1);
     for (const { etiqueta } of buscarCredenciales(contenido)) {
-      const clave = `${commitActual}::${etiqueta}::${contenido}`;
+      const clave = `${commitActual}::${etiqueta}`;
       if (vistos.has(clave)) continue;
       vistos.add(clave);
       hallazgos.push({ commit: commitActual, etiqueta });
