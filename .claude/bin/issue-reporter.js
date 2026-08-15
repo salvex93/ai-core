@@ -220,6 +220,14 @@ if (pending.length === 0) {
 if (!ghAvailable()) {
   process.stderr.write('[ISSUE-REPORTER] gh CLI no disponible o no autenticado — issues no enviados.\n');
   process.stderr.write(`[ISSUE-REPORTER] ${pending.length} evento(s) en cola para el proximo intento.\n`);
+  if (pending.length > UMBRAL_ALERTA_COLA) {
+    process.stderr.write(
+      `[ALERTA_ARQUITECTONICA: REQUIERE_OPUSPLAN]\n` +
+      `${pending.length} eventos pendientes en cola (umbral: ${UMBRAL_ALERTA_COLA}) -- ` +
+      `motivo probable: gh CLI no autenticado o sin conectividad (verificar con "gh auth status"). ` +
+      `La cola de reporte crece sin resolverse.\n`
+    );
+  }
   process.exit(0);
 }
 
