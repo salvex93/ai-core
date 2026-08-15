@@ -138,6 +138,13 @@ function auditarSkill(skillDir) {
     }
   }
 
+  // 2b. Gate de Calidad Medible obligatorio solo para rol:auditor (skills de
+  // diagnostico/seguridad/calidad -- ver nota de GATE_CALIDAD_MEDIBLE_RE).
+  const esRolAuditor = /^rol:\s*"?auditor"?\s*$/m.test(content);
+  if (esRolAuditor && !GATE_CALIDAD_MEDIBLE_RE.test(content)) {
+    hallazgos.push({ sev: 'alta', desc: 'falta seccion: "Gate de Calidad Medible" (obligatoria para rol:auditor)' });
+  }
+
   // 3. Referencia inmutable (debe estar, no la copia)
   if (!content.includes(REFERENCIA_INMUTABLE)) {
     hallazgos.push({ sev: 'alta', desc: 'falta referencia inmutable a CLAUDE.md en Restricciones del Perfil' });
