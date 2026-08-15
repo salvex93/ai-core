@@ -96,6 +96,25 @@ function readLock() {
   return readLockFile(LOCK_FILE);
 }
 
+// Verifica que el PID vivo corresponda realmente a un proceso Node del
+// harness, no solo que exista (red-team 2026-08-15: un lock con PID
+// reciclado/falso donde process.kill(pid,0) no lanza -- porque ese PID
+// resucito para otro proceso cualquiera del sistema operativo -- se
+// consideraba "vivo" sin ninguna verificacion adicional de identidad).
+// wmic/tasklist son nativos de Windows; en POSIX se usa /proc/<pid>/cmdline.
+function pidEsProcesoNode(pid) {
+  try {
+    if (process.platform === 'win32') {
+      const r = spawnSync('tasklist', ['/FI', `PID eq ${pid}`, '/FO', 'CSV', '/NH'], { encoding: 'utf8' });
+      return /node\.exe/i.test(r.stdout || '');
+    }
+    const cmdline = fs.readFileSync(`/proc/${pid}/cmdline`, 'utf8');
+    return /node/i.test(cmdline);
+  } catch {
+    return false; // no se pudo verificar -- tratar como no confiable
+  }
+}
+
 function isLockStale(lock) {
   if (!lock) return true;
   // PID ya no existe
@@ -104,6 +123,9 @@ function isLockStale(lock) {
   } catch {
     return true; // proceso muerto
   }
+  // El PID existe pero no corresponde a un proceso Node -- fue reciclado por
+  // el SO para otro programa, o el lock nunca fue escrito por este guard.
+  if (!pidEsProcesoNode(lock.pid)) return true;
   // Lock mas viejo que TIMEOUT_MS
   return (Date.now() - lock.ts) > TIMEOUT_MS;
 }
