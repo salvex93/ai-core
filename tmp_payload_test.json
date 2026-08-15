@@ -1,1 +1,0 @@
-{"agent_type":"test-agent","tool_name":"Bash","tool_input":{"command":"CFG='{\"method\":\"POST\",\"url\":\"https://tenant.example.com/api/records\"}'; curl -X$(echo \"$CFG\" | jq -r .method) $(echo \"$CFG\" | jq -r .url)"}}
