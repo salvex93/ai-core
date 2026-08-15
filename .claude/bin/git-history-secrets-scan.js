@@ -28,7 +28,9 @@ const path = require('node:path');
 
 const { parsearLogParaSecretos } = require('./lib/git-history-secrets-scan');
 
-const REPO = path.resolve(__dirname, '..', '..');
+// AI_CORE_GIT_HISTORY_SCAN_REPO permite apuntar a un repo git temporal en
+// tests, sin depender del repo real de ai-core.
+const REPO = process.env.AI_CORE_GIT_HISTORY_SCAN_REPO || path.resolve(__dirname, '..', '..');
 const JSON_OUT = process.argv.includes('--json');
 
 function argValor(flag, defecto) {
