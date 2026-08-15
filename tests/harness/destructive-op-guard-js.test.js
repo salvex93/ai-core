@@ -281,6 +281,27 @@ describe('destructive-op-guard.js', () => {
     test('permite "Remove-Item archivo.txt" sin -Recurse -Force', () => {
       assert.equal(run('Remove-Item archivo.txt').status, 0);
     });
+  });
+
+  describe('normalizacion Unicode y case-insensitivity (hallazgos red-team 2026-08-15)', () => {
+    test('bloquea "RM -rf" en mayusculas (nombre de comando, no distingue seguridad por case)', () => {
+      assert.equal(run('RM -rf /datos-importantes').status, 2);
+    });
+
+    test('bloquea "DRОP TABLE" con homoglifo cirilico О (U+041E) en vez de O latina', () => {
+      const payload = `psql -c "DR${'О'}P TABLE usuarios"`;
+      assert.equal(run(payload).status, 2);
+    });
+
+    test('bloquea "GIT RESET --hard" y "GIT CLEAN -f" en mayusculas', () => {
+      assert.equal(run('GIT RESET --hard').status, 2);
+      assert.equal(run('GIT CLEAN -f').status, 2);
+    });
+
+    test('"git branch -D" mayuscula sigue distinguiendose de "-d" minuscula (case intencional, NO normalizado a insensitive)', () => {
+      assert.equal(run('git branch -D rama-vieja').status, 2, '-D mayuscula debe seguir bloqueando');
+      assert.equal(run('git branch -d rama-vieja').status, 0, '-d minuscula (alternativa segura documentada) debe seguir permitida');
+    });
 
     test('bloquea comando destructivo evaluado dinamicamente via eval/Invoke-Expression/iex sobre una variable', () => {
       assert.equal(run('eval $CMD_PELIGROSO').status, 2);
