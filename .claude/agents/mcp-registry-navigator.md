@@ -33,7 +33,12 @@ El prompt de lanzamiento DEBE incluir al menos uno de:
 5. Criterio 3 — Mantenimiento: fecha ultimo commit, issues abiertos, licencia (0-2)
 6. Criterio 4 — Calidad de schema: inputSchema completo por herramienta (0-2)
 7. Criterio 5 — Riesgo operativo: dependencias, acceso filesystem, APIs externas (0-2)
-8. Calcular total (0-10) y emitir decision
+8. Calcular total (0-10) y emitir decision segun el umbral exacto:
+   PUNTUACION >= 8: INSTALAR | 5-7: EVALUAR | < 5: RECHAZAR
+   (mismo umbral que .claude/skills/mcp-registry-navigator/SKILL.md -- gap
+   de scaffolding cerrado 2026-08-15: este agente calculaba el puntaje sin
+   declarar el umbral que lo convierte en decision, obligando a un
+   subagente de contexto cero a inventarlo cada vez)
 9. Registrar en .claude/MCP_REGISTRY.md
 ```
 
