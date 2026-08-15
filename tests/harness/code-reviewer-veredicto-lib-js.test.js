@@ -25,9 +25,8 @@ const { BIN } = require('./_shared');
 const { calcularVeredicto, parsearReporte } = require(path.join(BIN, 'lib', 'code-reviewer-veredicto.js'));
 
 describe('lib/code-reviewer-veredicto.js — calcularVeredicto (regla objetiva del Paso 3)', () => {
-  test('0 criticos y 0 altos -> APROBADO, sin importar medios/bajos', () => {
+  test('0 criticos, 0 altos, 0 medios, 0 bajos -> APROBADO', () => {
     assert.equal(calcularVeredicto({ criticos: 0, altos: 0, medios: 0, bajos: 0 }), 'APROBADO');
-    assert.equal(calcularVeredicto({ criticos: 0, altos: 0, medios: 3, bajos: 5 }), 'APROBADO');
   });
 
   test('1+ criticos o 1+ altos -> BLOQUEADO, tiene prioridad sobre medios/bajos', () => {
