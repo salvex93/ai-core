@@ -11,13 +11,29 @@
 
 const { buscarCredenciales } = require('./patrones-secretos');
 
+// Mismo criterio que standards-guard.js (bug real corregido en red-team
+// 2026-08-15: filePath.includes('test') eximia archivos de produccion como
+// "latest-config.json"). Exige que "test"/"spec" aparezcan como segmento
+// real (separado por / \ - _ . o limite de string), o dentro de una
+// carpeta "test(s)/" -- los fixtures de credenciales dentro de los propios
+// tests de seguridad (ej. secrets-guard-js.test.js) no son secretos reales.
+function esArchivoDeTest(filePath) {
+  if (!filePath) return false;
+  const nombreArchivo = filePath.split(/[\\/]/).pop() || '';
+  return /(^|[-_.])tests?([-_.]|$)/i.test(nombreArchivo)
+    || /(^|[-_.])spec([-_.]|$)/i.test(nombreArchivo)
+    || /(^|[\\/])tests?[\\/]/i.test(filePath);
+}
+
 /**
  * Parsea el texto completo de `git log -p --format=COMMIT:%H` y devuelve
  * los hallazgos de credenciales, agrupados por el commit que las introdujo.
  * Solo evalua lineas AÑADIDAS del diff (prefijo '+', sin contar '+++'
  * encabezado de archivo) -- una credencial que solo aparece en una linea
  * eliminada ('-') ya fue removida por ese mismo commit, se cuenta en el
- * commit que la introdujo, no en el que la borra.
+ * commit que la introdujo, no en el que la borra. Excluye archivos de test
+ * (fixtures de credenciales con formato real, usados para probar los
+ * propios guards de seguridad no son secretos reales).
  *
  * @param {string} logText salida cruda de `git log -p --format=COMMIT:%H`
  * @returns {Array<{commit: string, etiqueta: string}>}
@@ -29,15 +45,25 @@ function parsearLogParaSecretos(logText) {
   const hallazgos = [];
   const vistos = new Set();
   let commitActual = null;
+  let archivoActual = null;
 
   for (const linea of lineas) {
     const matchCommit = linea.match(/^COMMIT:(\S+)/);
     if (matchCommit) {
       commitActual = matchCommit[1];
+      archivoActual = null;
       continue;
     }
     if (!commitActual) continue;
+
+    const matchArchivo = linea.match(/^\+\+\+ b\/(.+)$/);
+    if (matchArchivo) {
+      archivoActual = matchArchivo[1];
+      continue;
+    }
+
     if (!linea.startsWith('+') || linea.startsWith('+++')) continue;
+    if (esArchivoDeTest(archivoActual)) continue;
 
     const contenido = linea.slice(1);
     for (const { etiqueta } of buscarCredenciales(contenido)) {
