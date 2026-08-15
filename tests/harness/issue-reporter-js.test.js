@@ -85,9 +85,12 @@ describe('issue-reporter.js', () => {
 
     test('con 21 eventos pendientes (> 20) y gh no disponible: emite ALERTA_ARQUITECTONICA en stderr', () => {
       const { dir, queuePath } = crearColaConNPendientes(21);
-      const r = spawnSync('node', [SCRIPT], {
+      // PATH vacio -> "gh" no se resuelve (simula gh no instalado); node se
+      // invoca por ruta absoluta (process.execPath) para que spawnSync igual
+      // encuentre el binario de node pese al PATH vacio.
+      const r = spawnSync(process.execPath, [SCRIPT], {
         encoding: 'utf8',
-        env: { ...process.env, AI_CORE_EVENTS_QUEUE_PATH: queuePath, PATH: '' }, // PATH vacio -> gh no disponible
+        env: { ...process.env, AI_CORE_EVENTS_QUEUE_PATH: queuePath, PATH: '' },
       });
       fs.rmSync(dir, { recursive: true, force: true });
       assert.match(r.stderr, /ALERTA_ARQUITECTONICA/, 'debe emitir la alerta cuando la cola supera 20 pendientes sin poder reportar');
@@ -96,7 +99,7 @@ describe('issue-reporter.js', () => {
 
     test('con 5 eventos pendientes (<= 20) y gh no disponible: NO emite ALERTA_ARQUITECTONICA', () => {
       const { dir, queuePath } = crearColaConNPendientes(5);
-      const r = spawnSync('node', [SCRIPT], {
+      const r = spawnSync(process.execPath, [SCRIPT], {
         encoding: 'utf8',
         env: { ...process.env, AI_CORE_EVENTS_QUEUE_PATH: queuePath, PATH: '' },
       });
