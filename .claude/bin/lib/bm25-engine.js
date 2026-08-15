@@ -152,7 +152,7 @@ function buildIndex(frags) {
 // ─── Puntuacion BM25 ─────────────────────────────────────────────────────────
 function bm25Score(query, index) {
   const qTokens = expandQuery(tokenize(query));
-  const scores  = {};
+  const scores  = Object.create(null);
 
   for (const t of qTokens) {
     if (!index.inv[t]) continue;
