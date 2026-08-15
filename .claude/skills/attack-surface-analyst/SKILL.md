@@ -162,6 +162,12 @@ class ResultadoSuperficie:
     endpoints_activos: list[str] = field(default_factory=list)
     exposiciones: list[dict] = field(default_factory=list)  # {"tipo": "credencial", "fuente": "github", "detalle": "..."}
     emails_filtrados: list[str] = field(default_factory=list)
+    # Metodo de verificacion citado por el Gate de calidad medible (metrica 1,
+    # cobertura de correlacion de activos): registra por que se confirmo cada
+    # subdominio/IP como propio antes de listarlo (WHOIS, TLS CN-SAN, registro
+    # interno) -- gap de scaffolding cerrado 2026-08-15: el gate referenciaba
+    # este campo sin que el dataclass lo declarara.
+    pertenencia_verificada: dict = field(default_factory=dict)  # {"<subdominio>": "whois" | "tls-cn-san" | "registro-interno"}
 
     def to_json(self) -> str:
         return json.dumps(self.__dict__, default=str, indent=2)
