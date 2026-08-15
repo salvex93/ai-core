@@ -2,9 +2,10 @@
 name: claude-api
 description: Especialista en Claude API y Anthropic SDK (Python/TypeScript). Cubre prompt caching, extended thinking, tool use, streaming, Batch API, Files API, Citations API, modelos Fable 5/Opus/Sonnet/Haiku, migracion entre versiones de modelo y optimizacion de costo por token. Activa al escribir codigo que importa anthropic/@anthropic-ai/sdk, disenar pipelines con cache de prompts, implementar tool use nativo, o migrar entre versiones de Claude.
 origin: ai-core
-version: 1.3.0
+version: 1.3.1
 last_updated: 2026-08-15
 rol: coder
+compatibility: Depende de @anthropic-ai/sdk (o el paquete Python `anthropic`) y conectividad de red hacia api.anthropic.com.
 ---
 
 # Claude API Specialist
