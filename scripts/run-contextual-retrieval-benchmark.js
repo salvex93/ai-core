@@ -54,17 +54,27 @@ function parsearRespuestaJSON(texto) {
 async function generarPrefijosParaSkill(skillName, fullDoc, fragmentosDelSkill) {
   const prompt = construirPromptPrefijos(fullDoc, fragmentosDelSkill);
   // ~90 tokens de salida por fragmento (frase corta + overhead de JSON), con piso de 1024.
-  const maxTokens = Math.max(1024, fragmentosDelSkill.length * 90 + 500);
-  const res = await chat('anthropic', [{ role: 'user', content: prompt }], {
-    model: MODEL,
-    max_tokens: maxTokens,
-    system: fullDoc,
-  });
-  const prefijos = parsearRespuestaJSON(res.content);
-  if (!prefijos || prefijos.length !== fragmentosDelSkill.length) {
-    return { prefijos: fragmentosDelSkill.map(() => ''), usage: res.usage, fallo: true };
+  // Si el JSON llega truncado (no-determinismo del LLM en la longitud de cada frase),
+  // se reintenta una vez con el doble de margen antes de darlo por fallido.
+  const intentos = [
+    Math.max(1024, fragmentosDelSkill.length * 90 + 500),
+    Math.max(2048, fragmentosDelSkill.length * 180 + 1000),
+  ];
+
+  let ultimoRes = null;
+  for (const maxTokens of intentos) {
+    const res = await chat('anthropic', [{ role: 'user', content: prompt }], {
+      model: MODEL,
+      max_tokens: maxTokens,
+      system: fullDoc,
+    });
+    ultimoRes = res;
+    const prefijos = parsearRespuestaJSON(res.content);
+    if (prefijos && prefijos.length === fragmentosDelSkill.length) {
+      return { prefijos, usage: res.usage, fallo: false };
+    }
   }
-  return { prefijos, usage: res.usage, fallo: false };
+  return { prefijos: fragmentosDelSkill.map(() => ''), usage: ultimoRes.usage, fallo: true };
 }
 
 async function main() {
