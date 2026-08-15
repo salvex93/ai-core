@@ -24,8 +24,29 @@ node -e "JSON.parse(require('fs').readFileSync('.claude/EVENTS_QUEUE.json','utf8
 # 2. ANTHROPIC_API_KEY configurada (el ciclo de diagnostico/reparacion depende del bridge)
 test -n "$ANTHROPIC_API_KEY" && echo "OK: bridge disponible" || echo "FALLO: sin ANTHROPIC_API_KEY, el ciclo de reparacion no puede completar"
 
-# 3. No hay otra instancia self-healing-agent corriendo
-pgrep -f "self-healing-agent" | grep -v $$ | head -1 && echo "FALLO: instancia duplicada detectada" || echo "OK: sin duplicados"
+# 3. No hay otra instancia self-healing-agent corriendo (pgrep no existe en
+# Git Bash/Windows -- mismo hallazgo y mismo fix ya aplicado en
+# aiops-auditor.md: lockfile con TTL en os.tmpdir(), Node puro, sin comando
+# de shell especifico de plataforma)
+node -e "
+const fs=require('fs'),path=require('path'),os=require('os');
+const dir=path.join(os.tmpdir(),'ai-core-locks','self-healing-agent');
+fs.mkdirSync(dir,{recursive:true});
+const ttlMs=10*60*1000;
+const ahora=Date.now();
+let duplicado=false;
+for(const f of fs.readdirSync(dir)){
+  const p=path.join(dir,f);
+  try{
+    const lock=JSON.parse(fs.readFileSync(p,'utf8'));
+    if(ahora-lock.ts>ttlMs){fs.unlinkSync(p);continue;}
+    if(lock.pid!==process.pid){duplicado=true;}
+  }catch{continue;}
+}
+if(duplicado){console.log('FALLO: instancia duplicada detectada');process.exit(1);}
+fs.writeFileSync(path.join(dir,process.pid+'.lock'),JSON.stringify({pid:process.pid,ts:ahora}));
+console.log('OK: sin duplicados');
+"
 ```
 
 Si la precondicion 2 falla: reportar `[PRECONDICION-FALLO: bridge no disponible]` y detener — no tiene sentido diagnosticar sin poder completar el ciclo.
