@@ -189,7 +189,7 @@ const REGLAS = [
   },
   {
     nombre: 'git reset --hard',
-    disparo: /\bgit\s+reset\s+.*--hard\b/,
+    disparo: /\bgit\s+reset\s+.*--hard\b/i,
     excepcion: null,
     breakGlass: true,
     motivo: 'descarta cambios locales sin posibilidad de recuperacion (working tree + index).',
