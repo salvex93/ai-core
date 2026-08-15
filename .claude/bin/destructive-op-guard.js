@@ -63,6 +63,7 @@
  */
 
 const { solicitarBreakGlass, accionAprobada } = require('./lib/break-glass');
+const { normalizarTexto } = require('./lib/normalizar-texto');
 
 const GUARD_ID = 'destructive-op-guard';
 
