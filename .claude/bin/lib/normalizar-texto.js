@@ -99,10 +99,15 @@ function resolverConfusableContextual(texto) {
 function normalizarTexto(texto) {
   if (typeof texto !== 'string') return '';
 
+  // Los invisibles se remueven ANTES de resolver confusables contextuales:
+  // un caracter invisible interpuesto entre una letra ASCII y un homoglifo
+  // (ej. "ign" + zero-width + "п" + "ra") rompe el lookaround de contexto
+  // si no se limpia primero -- confirmado con el payload real del red-team
+  // que combina ambas tecnicas en el mismo intento.
   let resultado = texto.normalize('NFKC');
+  resultado = resultado.replace(INVISIBLES_A_REMOVER, '');
   resultado = resolverConfusableContextual(resultado);
   resultado = resolverConfusables(resultado);
-  resultado = resultado.replace(INVISIBLES_A_REMOVER, '');
   resultado = resultado.replace(MARKDOWN_ENFASIS, '');
   resultado = resultado.replace(/\s+/g, ' ').trim();
 
