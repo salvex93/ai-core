@@ -53,8 +53,8 @@ function parsearRespuestaJSON(texto) {
 
 async function generarPrefijosParaSkill(skillName, fullDoc, fragmentosDelSkill) {
   const prompt = construirPromptPrefijos(fullDoc, fragmentosDelSkill);
-  // ~40 tokens de salida por fragmento (frase corta + overhead de JSON), con piso de 1024.
-  const maxTokens = Math.max(1024, fragmentosDelSkill.length * 40 + 200);
+  // ~60 tokens de salida por fragmento (frase corta + overhead de JSON), con piso de 1024.
+  const maxTokens = Math.max(1024, fragmentosDelSkill.length * 60 + 300);
   const res = await chat('anthropic', [{ role: 'user', content: prompt }], {
     model: MODEL,
     max_tokens: maxTokens,
