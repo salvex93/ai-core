@@ -30,6 +30,7 @@ const { leerEventoDeStdin } = require('./lib/hook-stdin');
 const { emitirReporte }     = require('./lib/guard-report');
 const { marcarCuarentena }  = require('./lib/injection-quarantine');
 const { normalizarTexto }   = require('./lib/normalizar-texto');
+const { tieneIndicioDeResolucionPreviaEnTexto } = require('./lib/deteccion-resolucion-previa');
 
 // CLAUDE_SUBAGENT_OUTPUT/CLAUDE_SUBAGENT_TYPE nunca existieron como variables
 // de entorno reales -- SubagentStop entrega el output por stdin como JSON,
