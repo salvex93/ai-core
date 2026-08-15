@@ -96,24 +96,15 @@ if (intentarBypass(prompt)) {
   process.exit(0);
 }
 
-/**
- * Normaliza el prompt antes de matchear para cerrar evasiones triviales de
- * espanol/ingles natural (hallazgo de auditoria 2026-08-14): un usuario que
- * envuelve palabras en enfasis markdown ("*todas*", "**instrucciones**") o
- * inserta una palabra/frase corta entre los tokens de la frase fija
- * ("ignora por favor todas...") pasaba sin bloqueo porque los patrones
- * originales exigian la secuencia exacta de palabras pegadas. La
- * normalizacion no cambia el SIGNIFICADO detectado (sigue exigiendo la
- * secuencia semantica completa), solo tolera decoracion/relleno alrededor.
- */
-function normalizarParaMatching(texto) {
-  return texto
-    .replace(/[*_`]{1,3}/g, '')      // strip enfasis markdown: *x*, **x**, _x_, `x`
-    .replace(/\s+/g, ' ')            // colapsar espacios multiples
-    .trim();
-}
-
-const promptNormalizado = normalizarParaMatching(prompt);
+// Normalizacion compartida (lib/normalizar-texto.js) antes de matchear:
+// cierra evasiones triviales de espanol/ingles natural (auditoria
+// 2026-08-14: enfasis markdown, palabra intercalada) Y evasiones Unicode
+// confirmadas por red-team 2026-08-15 (homoglifos cirilicos como "ignпra",
+// zero-width space dentro de "ignora", que antes rompian el matching sin
+// necesidad de ninguna ofuscacion sofisticada). No cambia el SIGNIFICADO
+// detectado, solo tolera decoracion/relleno y variantes visuales del mismo
+// texto.
+const promptNormalizado = normalizarTexto(prompt);
 
 // Tolerancia de 1-2 palabras cortas intercaladas entre tokens de una frase
 // fija (ej. "ignora [por favor] todas las instrucciones anteriores"), sin
