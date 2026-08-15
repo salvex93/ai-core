@@ -123,13 +123,17 @@ const cmdEnmascarado = /\bgit\s+commit\b/.test(cmdOriginal)
   : cmdOriginal;
 
 // Normalizacion Unicode antes de evaluar las REGLAS (hallazgo red-team
-// 2026-08-15): homoglifos cirilicos (ej. "О" en "DRОP TABLE") y mayusculas
-// en comandos sin flag /i (rm, git reset, git clean, git branch) evadian
-// el matching porque las reglas comparaban contra el string crudo. La
-// normalizacion NO se aplica al mensaje de commit (extraerMensajeCommit
-// sigue leyendo cmdOriginal via cmdOriginal.match) para no alterar lo que
-// se le muestra al usuario como "mensaje real" en el reporte de bloqueo.
-const cmd = normalizarTexto(cmdEnmascarado).toLowerCase();
+// 2026-08-15): homoglifos cirilicos (ej. "О" en "DRОP TABLE"), zero-width
+// space y non-breaking space evadian el matching porque las reglas
+// comparaban contra el string crudo. Deliberadamente NO se aplica
+// toLowerCase() global: "git branch -D" (destructivo, sin --dry-run
+// posible) debe seguir distinguiendose de "git branch -d" (seguro,
+// alternativa explicita) -- normalizar el case aqui borraria esa
+// distincion de seguridad. Cada regla que necesita case-insensitive ya
+// declara su propio flag /i (ver REGLAS abajo); el fix de mayusculas para
+// las reglas que carecian de /i (rm, git reset, git clean, "del /F /S") se
+// aplica en el flag de cada regla especifica, no aqui.
+const cmd = normalizarTexto(cmdEnmascarado);
 
 // Mensaje REAL de commit (no enmascarado) -- se inspecciona por separado del
 // loop de REGLAS porque necesita distinguir atribucion real de IA (bloquea)
