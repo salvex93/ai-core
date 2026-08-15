@@ -405,6 +405,7 @@ Verificar en orden antes de aprobar un PR. Un PR con observacion en cualquier pu
 4. Rendimiento: no hay N+1, los indices necesarios existen, las transacciones estan bien delimitadas.
 5. Consistencia: nomenclatura, estructura de error y convenios del proyecto anfitrion respetados.
 6. Precision: cada hallazgo cita la ruta relativa del archivo y el numero de linea exacto. Sin esta referencia, el hallazgo no es accionable.
+7. Contratos/eventos/tiempo real: si el cambio toca un endpoint con efecto irreversible, un consumidor de eventos, o un canal WebSocket/SSE, aplicar ademas el "Gate de calidad medible" de la seccion "Vanguardia Backend: Contratos, Eventos y Tiempo Real" (umbrales de latencia p95, lag de consumidor, duplicados de idempotencia, reconexion de WebSocket, cobertura de codigos de error) -- no aprobar el PR solo con los puntos 1-6 si el cambio cae en ese alcance (gap de scaffolding cerrado 2026-08-15: el gate vivia solo al final del archivo sin referencia desde esta checklist).
 
 ## Scaffolding de Proyecto Nuevo
 
