@@ -69,12 +69,15 @@ const bloqueantes = ALTA_CONFIANZA.filter(({ re }) => re.test(prompt));
 const advertencias = CONFIANZA_MEDIA.filter(({ re }) => re.test(prompt));
 
 if (bloqueantes.length > 0) {
-  if (accionAprobada(GUARD_ID, prompt)) {
+  // El hash de break-glass usa promptOriginal (no el normalizado): el
+  // reintento exacto que el usuario reenvia es el texto original con sus
+  // caracteres tal cual, no la version normalizada usada solo para deteccion.
+  if (accionAprobada(GUARD_ID, promptOriginal)) {
     emitirReporte({ guard: 'secrets-guard', verdict: 'ok', severity: 'baja', hallazgos: ['bypass confirmado por humano'] });
     process.exit(0);
   }
 
-  const id = solicitarBreakGlass(GUARD_ID, prompt);
+  const id = solicitarBreakGlass(GUARD_ID, promptOriginal);
   process.stderr.write('[secrets-guard] BLOQUEADO: credencial de alta confianza detectada en el mensaje:\n');
   bloqueantes.forEach(({ etiqueta }) => process.stderr.write(`  - ${etiqueta}\n`));
   process.stderr.write(
