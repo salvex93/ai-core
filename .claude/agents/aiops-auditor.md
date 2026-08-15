@@ -2,8 +2,8 @@
 name: aiops-auditor
 description: Agente autonomo de auditoria del ecosistema ai-core. Ejecuta validate-globals, verifica conformidad de skills y agentes, detecta drift de versiones y produce reporte de estado sin intervencion. Activa al inicio de sesion o cuando se sospecha degradacion del arnés.
 origin: ai-core
-version: 1.0.0
-last_updated: 2026-08-07
+version: 1.0.1
+last_updated: 2026-08-15
 provider: any
 model: sonnet
 loop: true
@@ -27,8 +27,32 @@ node .claude/bin/validate-globals.js >/dev/null 2>&1 && echo "OK: tests" || echo
 # 2. CONTEXT_MAP existe y es parseable
 node -e "JSON.parse(require('fs').readFileSync('.claude/CONTEXT_MAP.json','utf8')); console.log('OK: CONTEXT_MAP')" 2>/dev/null || echo "FALLO: CONTEXT_MAP invalido"
 
-# 3. No hay otro proceso aiops-auditor corriendo
-pgrep -f "aiops-auditor" | grep -v $$ | head -1 && echo "FALLO: instancia duplicada detectada" || echo "OK: sin duplicados"
+# 3. No hay otro proceso aiops-auditor corriendo (pgrep no existe en Git
+# Bash/Windows, y "ps -ef" resulto poco confiable ahi: el propio wrapper de
+# shell reimprime el texto del comando en su linea de invocacion y se
+# autodetecta como falso positivo. Se usa el mismo mecanismo de lockfile con
+# TTL en os.tmpdir() que .claude/bin/subagent-guard.js ya usa para el limite
+# de subagentes paralelos -- Node puro, sin comando de shell especifico de
+# plataforma.)
+node -e "
+const fs=require('fs'),path=require('path'),os=require('os');
+const dir=path.join(os.tmpdir(),'ai-core-locks','aiops-auditor');
+fs.mkdirSync(dir,{recursive:true});
+const ttlMs=10*60*1000;
+const ahora=Date.now();
+let duplicado=false;
+for(const f of fs.readdirSync(dir)){
+  const p=path.join(dir,f);
+  try{
+    const lock=JSON.parse(fs.readFileSync(p,'utf8'));
+    if(ahora-lock.ts>ttlMs){fs.unlinkSync(p);continue;}
+    if(lock.pid!==process.pid){duplicado=true;}
+  }catch{continue;}
+}
+if(duplicado){console.log('FALLO: instancia duplicada detectada');process.exit(1);}
+fs.writeFileSync(path.join(dir,process.pid+'.lock'),JSON.stringify({pid:process.pid,ts:ahora}));
+console.log('OK: sin duplicados');
+"
 
 # 4. Rama activa identificable
 git branch --show-current 2>/dev/null && echo "OK: rama git" || echo "FALLO: no es un repositorio git"

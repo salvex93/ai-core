@@ -6,10 +6,14 @@
  * agent-snapshot.js para un archivo especifico, o lista los snapshots
  * recientes si se llama sin argumentos.
  *
- * Complementa rollback-skill.js (que solo revierte SKILL.md por version) --
- * este cubre cualquier archivo que un agente autonomo (aiops-auditor,
- * self-healing-agent, map-updater, security-scanner, issue-tracker,
- * mcp-registry-navigator) haya escrito via Write/Edit.
+ * Cobertura total (2026-08-15): agent-snapshot.js registra snapshot antes
+ * de CUALQUIER Write/Edit -- tanto de un agente autonomo (aiops-auditor,
+ * self-healing-agent, security-scanner, issue-tracker,
+ * mcp-registry-navigator) como del hilo principal (agentType
+ * "hilo-principal" en el indice). Este script revierte cualquiera de los
+ * dos por igual -- no distingue origen al restaurar.
+ *
+ * Complementa rollback-skill.js (que solo revierte SKILL.md por version).
  *
  * Uso:
  *   node scripts/rollback-agent.js                 (lista snapshots recientes)

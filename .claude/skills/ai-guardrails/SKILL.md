@@ -2,8 +2,8 @@
 name: ai-guardrails
 description: Especialista en capas de proteccion para sistemas LLM en produccion. Cubre deteccion y bloqueo de prompt injection, validacion de outputs, deteccion de PII, rate limiting por usuario, patron LLM Firewall y seleccion de frameworks (NeMo Guardrails, Guardrails AI, Azure AI Content Safety). Complementa security-auditor (seguridad de aplicacion) y llm-observability (deteccion reactiva). Activa al disenar la capa de proteccion de un sistema LLM, implementar filtros de input/output, o definir politicas de uso aceptable.
 origin: ai-core
-version: 1.3.0
-last_updated: 2026-08-04
+version: 1.3.1
+last_updated: 2026-08-15
 rol: auditor
 ---
 
@@ -185,7 +185,7 @@ Delegar la configuracion de alertas basadas en estos eventos al skill `llm-obser
 
 ### Interleaved Thinking como canal opaco
 
-El beta `interleaved-thinking-2025-05-14` de Anthropic introduce bloques `thinking` intercalados entre pasos de tool use. Estos bloques son invisibles al Output Guard si el sistema solo inspeciona el texto final. En modelos con adaptive thinking (Sonnet 5, Opus 4.8, Claude Fable 5), el interleaved thinking entre llamadas a herramientas esta disponible de forma automatica, sin necesidad de activar el header beta — ese header aplica solo a modelos legacy. Consecuencia para el guardrail: no asumir que la inspeccion de bloques thinking es opcional condicionada a un flag explicito en el codigo del anfitrion; verificar primero que modelo esta en uso antes de concluir que el canal esta cerrado por default. Riesgos:
+El beta `interleaved-thinking-2025-05-14` de Anthropic introduce bloques `thinking` intercalados entre pasos de tool use. Estos bloques son invisibles al Output Guard si el sistema solo inspeciona el texto final. En modelos con adaptive thinking (Sonnet 5, Opus 5, Opus 4.8, Claude Fable 5), el interleaved thinking entre llamadas a herramientas esta disponible de forma automatica, sin necesidad de activar el header beta — ese header aplica solo a modelos legacy. Consecuencia para el guardrail: no asumir que la inspeccion de bloques thinking es opcional condicionada a un flag explicito en el codigo del anfitrion; verificar primero que modelo esta en uso antes de concluir que el canal esta cerrado por default. Riesgos:
 
 - Un prompt injection bien diseñado puede instruir al modelo a razonar en el bloque `thinking` sobre como eludir la politica, y luego emitir una respuesta aparentemente conforme.
 - Los bloques `thinking` pueden contener razonamiento sobre el system prompt, filtrando estructura interna del sistema.
@@ -194,6 +194,10 @@ Contramedidas:
 1. Si el sistema usa `interleaved-thinking-2025-05-14`, el Output Guard debe inspeccionar tambien los bloques `thinking` antes de liberar la respuesta.
 2. En el system prompt: incluir instruccion explicita de que el bloque de razonamiento interno no puede contener instrucciones para eludir las politicas del sistema.
 3. Registrar `thinking_tokens_used` como metrica de observabilidad — un spike anomalo puede indicar razonamiento evasivo activo.
+
+### Tool Search Tool y catalogo de herramientas fuera del prompt inicial
+
+Con Tool Search Tool (`defer_loading: true` por definicion de tool), las definiciones completas de herramientas ya no viven todas en el system prompt inicial — se cargan bajo demanda durante la conversacion. Cualquier guardrail que inspeccione el catalogo de tools directamente en el system prompt (para validar scopes permitidos o detectar una tool inyectada/alterada) debe moverse a inspeccionar el resultado de la busqueda de tools y cada carga diferida individual, no solo el prompt inicial. Aplica el mismo criterio a Programmatic Tool Calling (tool `code_execution_20260120` con `allowed_callers`): el Output Guard debe cubrir tambien el codigo generado que invoca herramientas de forma programatica, no solo las respuestas `tool_use` directas del modelo.
 
 ```python
 # Inspeccion de bloques thinking en la respuesta
@@ -215,9 +219,9 @@ Para sistemas desplegados en GCP, Model Armor es ahora la opcion de produccion r
 
 Criterio de adopcion: si el proyecto ya corre en GCP y tiene requisitos de compliance auditables por terceros, Model Armor reemplaza la implementacion propia del Input Guard. Si el proyecto es multi-cloud o on-premise, mantener implementacion propia con Presidio + clasificador custom.
 
-### Adaptive Thinking (Opus 4.8) — superficie de ataque ampliada
+### Adaptive Thinking (Opus 5 / Opus 4.8) — superficie de ataque ampliada
 
-`task_budgets` de Opus 4.8 permite al modelo asignar razonamiento adaptativo por paso. El presupuesto no esta acotado por defecto en la API. Guardrail obligatorio para sistemas con Opus 4.8:
+`task_budgets` permite al modelo asignar razonamiento adaptativo por paso. El presupuesto no esta acotado por defecto en la API. Modelo recomendado: **Opus 5** (`claude-opus-5`, lanzado 2026-07-24, mismo pricing que Opus 4.8) — Opus 4.8 sigue soportado como fallback documentado si el proyecto aun no migro. Guardrail obligatorio para sistemas con Opus 5 u Opus 4.8:
 
 - Definir `max_tokens` global y `budget_tokens` maximo por paso para acotar el costo de un ataque de tokens.
 - El rate limiting debe incluir `thinking_tokens` en el calculo del presupuesto por usuario — un atacante puede forzar razonamiento extensivo con inputs de complejidad artificial.

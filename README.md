@@ -493,7 +493,6 @@ Un skill se convierte en agente solo si cumple los tres criterios a la vez: auto
 | `code-reviewer` | Revisa el diff completo contra main, clasifica hallazgos, produce veredicto APROBADO/REQUIERE_CAMBIOS/BLOQUEADO |
 | `security-scanner` | Escanea credenciales expuestas, CVEs, secrets en git, permisos excesivos |
 | `aiops-auditor` | Audita conformidad de skills, detecta agentes faltantes, drift de SDK |
-| `map-updater` | Regenera CONTEXT_MAP ante drift estructural del repo |
 | `issue-tracker` | Captura errores y gaps, los envia como issues a GitHub al cerrar sesion |
 | `mcp-registry-navigator` | Evalua servidores MCP de terceros antes de instalar (INSTALAR/EVALUAR/RECHAZAR) |
 | `self-healing-agent` | Diagnostica errores repetidos via el ciclo AUDITOR/ARCHITECT de ErrorRepairLoop.js y propone un fix — nunca lo aplica sin confirmacion humana |

@@ -164,7 +164,7 @@ describe('agent-paths-guard.js', () => {
 
   test('los 6 agentes con paths_allow real declaran al menos un patron', () => {
     const AGENTES_CON_PATHS = [
-      'aiops-auditor', 'code-reviewer', 'issue-tracker', 'map-updater',
+      'aiops-auditor', 'code-reviewer', 'issue-tracker',
       'mcp-registry-navigator', 'security-scanner', 'self-healing-agent',
     ];
     for (const nombre of AGENTES_CON_PATHS) {

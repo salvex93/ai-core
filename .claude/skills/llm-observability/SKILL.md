@@ -2,9 +2,10 @@
 name: llm-observability
 description: Especialista en observabilidad de sistemas LLM en produccion. Cubre instrumentacion con OpenTelemetry, dashboards de costo por operacion, alertas de degradacion de calidad, tracing de prompts y completions, y plataformas de observabilidad IA (Langfuse, Helicone, Phoenix). Activa al instrumentar un sistema que usa LLMs, disenar dashboards de costo/calidad, configurar alertas de degradacion o diagnosticar regresiones de calidad en produccion.
 origin: ai-core
-version: 1.1.4
-last_updated: 2026-08-04
+version: 1.2.0
+last_updated: 2026-08-15
 rol: auditor
+compatibility: Depende de SDKs de terceros (@langfuse/tracing, @langfuse/otel, @opentelemetry/*, helicone) y conectividad de red hacia la plataforma de observabilidad elegida.
 ---
 
 # LLM Observability — Especialista en Observabilidad de Sistemas IA
@@ -144,63 +145,62 @@ Los atributos usan el esquema `gen_ai.*` de las OpenTelemetry GenAI Semantic Con
 
 Langfuse es la opcion recomendada para proyectos con restriccion de privacidad porque es completamente self-hosteable con Docker Compose.
 
-```typescript
-import Langfuse from 'langfuse';
+Verificado 2026-08-14 contra langfuse.com/docs/observability/sdk/upgrade-path/js-v3-to-v4 y langfuse.com/docs/compatibility: la API v2/v3 (`langfuse.trace()`, `traza.generation()`, paquete monolitico `langfuse`) fue **eliminada**, no solo deprecada, en la version GA actual (v4/v5). La arquitectura vigente es OTel-nativa via `@langfuse/tracing` + `@langfuse/otel`, y converge con la instrumentacion OTel generica ya descrita arriba en este skill — un `LangfuseSpanProcessor` registrado en el mismo `NodeSDK` de OpenTelemetry.
 
-const langfuse = new Langfuse({
-  publicKey: process.env.LANGFUSE_PUBLIC_KEY,
-  secretKey: process.env.LANGFUSE_SECRET_KEY,
-  baseUrl: process.env.LANGFUSE_BASE_URL, // URL del servidor self-hosted
+```typescript
+// Setup — una sola vez al arrancar el proceso
+import { NodeSDK } from '@opentelemetry/sdk-node';
+import { LangfuseSpanProcessor } from '@langfuse/otel';
+
+const sdk = new NodeSDK({
+  spanProcessors: [new LangfuseSpanProcessor()],
 });
+sdk.start();
+```
+
+```typescript
+// Instrumentacion de la llamada LLM — startObservation con asType: 'generation'
+import { startActiveObservation } from '@langfuse/tracing';
 
 async function llamarLLMConLangfuse(operacion: string, prompt: PromptRequest): Promise<LLMResponse> {
-  // Crear una traza en Langfuse para la operacion completa
-  const traza = langfuse.trace({
-    name: operacion,
-    userId: prompt.userId,      // para analisis de costo por usuario
-    sessionId: prompt.sessionId,
-    metadata: { operacion },
-  });
-
-  // Registrar la generacion LLM dentro de la traza
-  const generacion = traza.generation({
-    name: 'llm-call',
-    model: prompt.modelo ?? 'claude-sonnet-5',
-    input: prompt.usuario,
-    systemPrompt: prompt.sistema,
-  });
-
-  try {
-    const respuesta = await gateway.completar(prompt);
-
-    // Registrar el resultado y el uso de tokens
-    generacion.end({
-      output: respuesta.contenido,
-      usage: {
-        input: respuesta.tokensEntrada,
-        output: respuesta.tokensSalida,
-        totalCost: calcularCosto(respuesta),
+  return startActiveObservation(operacion, async (span) => {
+    const generacion = span.startObservation(
+      'llm-call',
+      {
+        model: prompt.modelo ?? 'claude-sonnet-5',
+        input: [{ role: 'user', content: prompt.usuario }],
       },
-    });
+      { asType: 'generation' }
+    );
 
-    return respuesta;
-  } catch (error) {
-    generacion.end({ level: 'ERROR', statusMessage: String(error) });
-    throw error;
-  } finally {
-    // Envio asincrono — no bloquea el flujo de produccion
-    await langfuse.flushAsync();
-  }
+    try {
+      const respuesta = await gateway.completar(prompt);
+
+      generacion.update({
+        usageDetails: { input: respuesta.tokensEntrada, output: respuesta.tokensSalida },
+        output: { content: respuesta.contenido },
+      });
+      generacion.end();
+
+      return respuesta;
+    } catch (error) {
+      generacion.update({ level: 'ERROR', statusMessage: String(error) });
+      generacion.end();
+      throw error;
+    }
+  });
 }
 ```
 
-Variables de entorno requeridas para Langfuse self-hosted:
+Variables de entorno requeridas (mismos nombres que la version anterior del SDK):
 
 ```
 LANGFUSE_PUBLIC_KEY=pk-lf-...
 LANGFUSE_SECRET_KEY=sk-lf-...
 LANGFUSE_BASE_URL=https://langfuse.empresa.interna
 ```
+
+Nota: la documentacion oficial no confirma un campo explicito de costo total (`totalCost`) en `usageDetails` — Langfuse deriva el costo del lado servidor a partir de `model` + tokens. No asumir un parametro de costo manual sin confirmar contra la version instalada.
 
 ## Instrumentacion rapida con Helicone (proxy HTTP)
 
@@ -263,7 +263,7 @@ Configurar las siguientes alertas como gate de calidad operativa. Los umbrales e
 | Costo fuera de presupuesto | `llm_cost_usd_total` supera el presupuesto diario definido | CRITICAL | Throttling de llamadas no criticas; notificar al responsable de costos |
 | Tasa de errores del proveedor | `llm_errors_total` / `llm_requests_total` > 1% en 5 minutos | WARNING | Revisar status del proveedor; activar circuit breaker si supera 5% |
 | Cache miss rate alto | `llm_tokens_cache_read_total` / `llm_tokens_input_total` < 30% para operaciones con system prompt estatico | INFO | Revisar si el system prompt se esta modificando entre llamadas |
-| Prompt bloat | `gen_ai.usage.input_tokens` promedio por operacion sube mas del 20% respecto al baseline de 24h | WARNING | Revisar si el historial de conversacion no esta siendo truncado; comparar longitud del system prompt con la version anterior desplegada |
+| Prompt bloat | `gen_ai.usage.input_tokens` promedio por operacion sube mas del 20% respecto al baseline de 24h | WARNING | Revisar si el historial de conversacion no esta siendo truncado; comparar longitud del system prompt con la version anterior desplegada. Si el bloat viene de definiciones de tools (no de historial), evaluar Tool Search Tool con `defer_loading: true` (anthropic.com/engineering/advanced-tool-use, reduce hasta 85% de tokens de descubrimiento de herramientas) como mitigacion arquitectonica antes de solo ajustar el umbral de la alerta — ver `claude-api` para el detalle de implementacion |
 
 Ejemplo de regla PromQL para la alerta de prompt bloat:
 

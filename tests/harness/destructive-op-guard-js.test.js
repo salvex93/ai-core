@@ -253,6 +253,13 @@ describe('destructive-op-guard.js', () => {
       assert.equal(run('psql -c "DROP DATABASE produccion"').status, 2);
     });
 
+    test('bloquea "rm --recursive --force" (formas largas equivalentes a -rf, hallazgo auditoria 2026-08-14)', () => {
+      assert.equal(run('rm --recursive --force /tmp/x').status, 2);
+      assert.equal(run('rm --force --recursive /tmp/x').status, 2);
+      assert.equal(run('rm -r --force /tmp/x').status, 2);
+      assert.equal(run('rm --recursive -f /tmp/x').status, 2);
+    });
+
     test('permite "DROP DATABASE IF EXISTS ... -- confirmado" documentado como intencional', () => {
       assert.equal(run('psql -c "DROP DATABASE IF EXISTS staging -- confirmado"').status, 0);
     });

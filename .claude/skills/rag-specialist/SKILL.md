@@ -2,8 +2,8 @@
 name: rag-specialist
 description: Especialista en pipelines RAG y Mission Manager del LLM Routing Bridge. Cubre Hybrid Search (BM25+denso+RRF), Contextual Retrieval, re-ranking con cross-encoders y Files API como complemento del bridge. Activa al delegar analisis documental masivo, construir o mejorar pipelines RAG, o evaluar la calidad de recuperacion semantica.
 origin: ai-core
-version: 2.5.1
-last_updated: 2026-08-05
+version: 2.5.2
+last_updated: 2026-08-15
 rol: architect
 ---
 
@@ -260,9 +260,9 @@ Permite que el modelo devuelva referencias exactas a fragmentos del contexto que
 
 Activacion: en el bloque de documento del mensaje, incluir `"citations": {"enabled": True}`. El output incluye bloques `text` con fragmentos citados (`cited_text`, `document_index`, `start_char_index`/`end_char_index`) — registrar en span de trazabilidad para auditoria de faithfulness.
 
-## Embeddings Multimodal (Gemini Embedding 2 Preview)
+## Embeddings Multimodal (Gemini Embedding 2)
 
-Gemini Embedding 2 (`gemini-embedding-2-preview`) soporta vectorizacion de multiples modalidades en una sola llamada: texto, imagenes, videos, audio, y PDFs. Dimensión flexible (128 a 768) con recompensas de costo por dimension reducida.
+Gemini Embedding 2 (`gemini-embedding-2`, disponibilidad general — ya no "-preview") soporta vectorizacion de multiples modalidades en una sola llamada: texto, imagenes, videos, audio, y PDFs. Dimensión flexible (128 a 768) con recompensas de costo por dimension reducida.
 
 ### Cuando usar Gemini Embedding 2
 
@@ -281,7 +281,7 @@ client = genai.Client()
 
 # Texto + imagen simultaneamente
 response = client.models.embed_content(
-    model="gemini-embedding-2-preview",
+    model="gemini-embedding-2",
     contents=[
         "Descripcion de la imagen: [contenido]",
         {"inline_data": {"mime_type": "image/jpeg", "data": base64_encoded_image}}
@@ -294,14 +294,14 @@ pdf_chunks_with_embeddings = [
     {
         "id": "pdf_001_chunk_5",
         "texto": "[contenido extraido del PDF]",
-        "embedding": client.models.embed_content(model="gemini-embedding-2-preview", contents=[pdf_file]).embeddings[0].values,
+        "embedding": client.models.embed_content(model="gemini-embedding-2", contents=[pdf_file]).embeddings[0].values,
         "documento_tipo": "pdf"
     }
 ]
 
 # Consulta de usuario embebida
 query_embedding = embed_content(
-    model="models/gemini-embedding-2-preview",
+    model="models/gemini-embedding-2",
     content=[{"text": "Mi pregunta en texto"}]
 ).embedding
 

@@ -95,15 +95,40 @@ if (intentarBypass(prompt)) {
   process.exit(0);
 }
 
+/**
+ * Normaliza el prompt antes de matchear para cerrar evasiones triviales de
+ * espanol/ingles natural (hallazgo de auditoria 2026-08-14): un usuario que
+ * envuelve palabras en enfasis markdown ("*todas*", "**instrucciones**") o
+ * inserta una palabra/frase corta entre los tokens de la frase fija
+ * ("ignora por favor todas...") pasaba sin bloqueo porque los patrones
+ * originales exigian la secuencia exacta de palabras pegadas. La
+ * normalizacion no cambia el SIGNIFICADO detectado (sigue exigiendo la
+ * secuencia semantica completa), solo tolera decoracion/relleno alrededor.
+ */
+function normalizarParaMatching(texto) {
+  return texto
+    .replace(/[*_`]{1,3}/g, '')      // strip enfasis markdown: *x*, **x**, _x_, `x`
+    .replace(/\s+/g, ' ')            // colapsar espacios multiples
+    .trim();
+}
+
+const promptNormalizado = normalizarParaMatching(prompt);
+
+// Tolerancia de 1-2 palabras cortas intercaladas entre tokens de una frase
+// fija (ej. "ignora [por favor] todas las instrucciones anteriores"), sin
+// relajar tanto que capture texto no relacionado. \S+ acotado a 1-2
+// ocurrencias evita falsos positivos de frases largas sin relacion.
+const RELLENO = '(?:\\s+\\S+){0,2}?';
+
 // Patrones tecnicos de jailbreak/prompt hacking dirigidos a romper reglas
 // del propio arnes (CLAUDE.md, hooks, permisos) -- distinto de
 // injection-guard.js (contenido externo en output de subagentes) y de
 // secrets-guard.js (credenciales). Este guard cubre el prompt DIRECTO del
-// usuario al modelo.
+// usuario al modelo. Se evaluan sobre promptNormalizado (ver funcion arriba).
 const PATRONES = [
-  { re: /ignor[ae]\s+(todas\s+)?(las\s+)?(instrucciones|reglas)\s+(anteriores|previas|del\s+sistema)/i,
+  { re: new RegExp(`ignor[ae]${RELLENO}\\s+(todas\\s+)?(las\\s+)?(instrucciones|reglas)${RELLENO}\\s+(anteriores|previas|del\\s+sistema)`, 'i'),
     etiqueta: 'intento de anular instrucciones/reglas previas (ES)' },
-  { re: /ignore\s+(all\s+)?(previous|prior|system)\s+(instructions|rules|prompts?)/i,
+  { re: new RegExp(`ignore${RELLENO}\\s+(all\\s+)?(previous|prior|system)${RELLENO}\\s+(instructions|rules|prompts?)`, 'i'),
     etiqueta: 'intento de anular instrucciones/reglas previas (EN)' },
   { re: /act[uú]a?s?\s+como\s+(DAN\b|un\s+modelo\s+sin\s+restricciones|un\s+AI\s+sin\s+filtros)/i,
     etiqueta: 'intento de roleplay de jailbreak conocido (DAN/sin restricciones)' },
@@ -119,7 +144,7 @@ const PATRONES = [
     etiqueta: 'intento de justificar bypass como "solo una prueba"' },
 ];
 
-const hallazgos = PATRONES.filter(({ re }) => re.test(prompt));
+const hallazgos = PATRONES.filter(({ re }) => re.test(promptNormalizado));
 
 if (hallazgos.length === 0) {
   emitirReporte({ guard: 'jailbreak-guard', verdict: 'ok', severity: 'baja' });

@@ -156,7 +156,10 @@ if (mensajeCommit) {
 const REGLAS = [
   {
     nombre: 'rm -rf',
-    disparo: /\brm\s+(-[a-zA-Z]*r[a-zA-Z]*f[a-zA-Z]*|-[a-zA-Z]*f[a-zA-Z]*r[a-zA-Z]*)\b/,
+    // Cubre combinada corta (-rf/-fr), formas largas (--recursive --force en
+    // cualquier orden) y mezcla corta+larga (-r --force, --recursive -f) --
+    // hallazgo de auditoria 2026-08-14: solo se cubria la forma corta combinada.
+    disparo: /\brm\s+.*(?:(?:-[a-zA-Z]*r[a-zA-Z]*f[a-zA-Z]*\b)|(?:-[a-zA-Z]*f[a-zA-Z]*r[a-zA-Z]*\b)|(?:(?:-r\b|--recursive\b).*(?:-f\b|--force\b))|(?:(?:-f\b|--force\b).*(?:-r\b|--recursive\b)))/,
     excepcion: null,
     breakGlass: true,
     motivo: 'borrado recursivo forzado -- irreversible, sin papelera de reciclaje.',

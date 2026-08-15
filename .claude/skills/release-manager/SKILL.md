@@ -2,8 +2,8 @@
 name: release-manager
 description: Release Manager Universal. Gestiona el ciclo de vida de entregas de software: versionado semantico, estrategia de branching, pipelines CI/CD, resolucion de conflictos Git y planes de rollback. Agnóstico a la plataforma de CI/CD. Activa al planificar releases, gestionar ramas, configurar pipelines o coordinar despliegues.
 origin: ai-core
-version: 1.2.0
-last_updated: 2026-08-05
+version: 1.2.1
+last_updated: 2026-08-15
 rol: architect
 ---
 
@@ -112,12 +112,14 @@ jobs:
   validate-merge-group:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Tests en grupo de merge
         run: npm run test:integration
 ```
 
 Criterio de adopcion: activar Merge Queue cuando el equipo supera 3 desarrolladores integrando a `main` o `develop` en paralelo, o cuando los fallos de integracion post-merge son recurrentes.
+
+Nota de breaking change (v4 -> v7): desde v7.0.0, `actions/checkout` rechaza por defecto el checkout de codigo de fork cuando el trigger es `pull_request_target` o `workflow_run` (mitigacion de pwn requests). El ejemplo de Merge Queue usa `merge_group`, no afectado; si el pipeline evoluciona a usar `pull_request_target`, revisar el flag `allow-unsafe-pr-checkout` antes de asumir el comportamiento de v4.
 
 ### Flujo de release paso a paso
 
@@ -322,7 +324,7 @@ evals-llm:
     contains(toJson(github.event.commits.*.modified), 'src/ai/')
   runs-on: ubuntu-latest
   steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v7
     - name: Ejecutar golden dataset
       run: npm run evals:ci
     - name: Verificar umbrales
