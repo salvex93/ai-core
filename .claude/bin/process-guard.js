@@ -101,12 +101,23 @@ function readLock() {
 // reciclado/falso donde process.kill(pid,0) no lanza -- porque ese PID
 // resucito para otro proceso cualquiera del sistema operativo -- se
 // consideraba "vivo" sin ninguna verificacion adicional de identidad).
-// wmic/tasklist son nativos de Windows; en POSIX se usa /proc/<pid>/cmdline.
+// wmic/tasklist son nativos de Windows; en Linux existe /proc/<pid>/cmdline,
+// pero /proc NO existe en macOS/Darwin (bug real de CI 2026-08-15: el
+// comentario original asumia "en POSIX se usa /proc", incorrecto -- es
+// exclusivo de Linux; en macOS el readFileSync siempre lanzaba ENOENT y
+// TODO proceso Node real, vivo y legitimo, caia al catch como "no
+// confiable", marcando el lock como stale y dejando pasar una segunda
+// instancia bajo carga real -- reproducido y confirmado en el runner
+// macos-latest de GitHub Actions). macOS/BSD usa "ps -p <pid> -o comm=".
 function pidEsProcesoNode(pid) {
   try {
     if (process.platform === 'win32') {
       const r = spawnSync('tasklist', ['/FI', `PID eq ${pid}`, '/FO', 'CSV', '/NH'], { encoding: 'utf8' });
       return /node\.exe/i.test(r.stdout || '');
+    }
+    if (process.platform === 'darwin') {
+      const r = spawnSync('ps', ['-p', String(pid), '-o', 'comm='], { encoding: 'utf8' });
+      return /node/i.test(r.stdout || '');
     }
     const cmdline = fs.readFileSync(`/proc/${pid}/cmdline`, 'utf8');
     return /node/i.test(cmdline);
