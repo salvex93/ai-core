@@ -19,6 +19,16 @@ Auditoria completa de los 43 skills, 7 agentes y el arnes (hooks/guards) contra 
 2. **Red de seguridad git-native** (patron Aider): `checkpoint-branch.js` (hook `PostToolUse` nuevo) auto-commitea a una rama SEPARADA `ai-core/checkpoints` tras cada escritura con cambios reales — nunca a la rama de trabajo del usuario, nunca con `Co-Authored-By` ni mencion de IA (respeta integramente el Protocolo de Commits Git). Usa `git commit-tree` + `update-ref` con un `GIT_INDEX_FILE` aislado en vez de `git commit` normal, para no tocar jamas el index/staging real del usuario.
 3. **Sandboxing opcional por contenedor** (patron OpenHands): `npm run sandbox` levanta una sesion aislada en Docker (`docker/Dockerfile` + `docker/docker-compose.yml`, filesystem del host limitado al volumen montado, `cap_drop: ALL`, `no-new-privileges`). Capacidad activable — el uso normal sin Docker no cambia en nada.
 
+### Agregado — segunda ronda: mock-LLM y `compatibility` de agentskills.io
+
+**Mock-LLM a nivel de servidor HTTP** (patron `mock-llm`/`mock-llm-docker` de OpenHands): `tests/harness/mock-llm-server.js` levanta un servidor que imita `/v1/messages` de la Claude API, redirigido via `ANTHROPIC_BASE_URL` (soporte nuevo en `scripts/anthropic-bridge.js#getClient()`, exclusivo de testing -- en produccion la variable nunca se define). Permite probar el comportamiento completo de un agente autonomo (loop, parsing de `tool_use`, `stop_reason`) sin gastar tokens reales, para codigo que construye su propio cliente internamente (no expone punto de inyeccion a nivel de import). Documentado en el skill `agent-testing`.
+
+**Campo `compatibility` (spec agentskills.io)** agregado a 16 skills que dependen de un SDK o servicio de red especifico (`ai-integrations`, `claude-agent-sdk`, `claude-api`, `cloud-deployment-specialist`, `cross-model-verifier`, `gemini-3-specialist`, `managed-agents-specialist`, `mcp-registry-navigator`, `mcp-server-builder`, `llm-observability`, `mobile-engineer`, `multimodal-engineer`, `rag-specialist`, `security-auditor`, `web-scraping-specialist`, `audio-voice-engineer`) -- los 27 skills restantes son metodologicos/agnosticos sin dependencia tecnica de un SDK unico, no calificaron por criterio explicito.
+
+**Investigado y descartado con evidencia:** patron "multi-backend de agentes intercambiable" (OpenHands) -- confirmado contra `docs.openhands.dev` que ese patron es multi-PROVEEDOR de LLM dentro de un runtime propio (analogo exacto a lo que `ModelRegistry.js` ya resuelve en ai-core), no cambio de harness completo. Construir un orquestador que cambie entre Claude Code/Codex/otros preservando contexto de tarea esta fuera del alcance de un proyecto que es config portable (`.md` via estandar agentskills.io) para harnesses ajenos, no un producto-agente propio como OpenHands.
+
+1076 tests, 43/43 skills conformes.
+
 ## [Sin version — mantenimiento] — 2026-08-14 (post-release v3.32.0: CI real reparado, historial de autoria unificado)
 
 ### Corregido — 3 causas reales distintas rompian CI en Linux/macOS tras el release de v3.32.0
