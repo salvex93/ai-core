@@ -97,6 +97,25 @@ describe('issue-reporter.js', () => {
       assert.match(r.stderr, /21/, 'debe incluir la cifra exacta de eventos pendientes');
     });
 
+    test('con gh no disponible: emite el conteo exacto de pendientes en un formato parseable (contrato consumido por issue-tracker.md Paso 4)', () => {
+      // .claude/agents/issue-tracker.md Paso 4 le pide al AGENTE (no al
+      // script) mostrar al usuario "[ISSUE-TRACKER] <N> evento(s) en cola —
+      // gh no disponible..." -- son 2 capas distintas: el script emite su
+      // propio log tecnico ([ISSUE-REPORTER]...), y el agente lo resume al
+      // usuario con su propio prefijo. Este test verifica el contrato real:
+      // que el script comunique la cifra N de forma que el agente pueda
+      // extraerla y armar su mensaje, no que emita el string literal del
+      // .md (que es responsabilidad del agente/LLM, no del script).
+      const { dir, queuePath } = crearColaConNPendientes(7);
+      const r = spawnSync(process.execPath, [SCRIPT], {
+        encoding: 'utf8',
+        env: { ...process.env, AI_CORE_EVENTS_QUEUE_PATH: queuePath, PATH: '' },
+      });
+      fs.rmSync(dir, { recursive: true, force: true });
+      assert.match(r.stderr, /gh (CLI )?no disponible/i, 'debe indicar que gh no esta disponible');
+      assert.match(r.stderr, /\b7\b.*evento/i, 'debe incluir la cifra exacta de eventos pendientes junto a la palabra "evento(s)"');
+    });
+
     test('con 5 eventos pendientes (<= 20) y gh no disponible: NO emite ALERTA_ARQUITECTONICA', () => {
       const { dir, queuePath } = crearColaConNPendientes(5);
       const r = spawnSync(process.execPath, [SCRIPT], {
