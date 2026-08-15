@@ -1,1 +1,0 @@
-{"agent_type":"test-agent","tool_name":"Bash","tool_input":{"command":"psql -h prodhost -d appdb -c \"TRUNCATE TABLE /tmp/other/tenants;\""}}
