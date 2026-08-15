@@ -296,11 +296,17 @@ const REGLAS = [
   },
   {
     // Equivalente nativo de PowerShell a "rm -rf".
-    nombre: 'Remove-Item -Recurse -Force (PowerShell)',
-    disparo: /\bRemove-Item\b.*(-Recurse\b.*-Force\b|-Force\b.*-Recurse\b)|\brm\b.*(-Recurse\b.*-Force\b|-Force\b.*-Recurse\b)/i,
+    // Alias reales de Remove-Item verificados contra learn.microsoft.com/
+    // powershell/module/microsoft.powershell.management/remove-item
+    // (2026-08-15, vigente 5.1/7+): ri, rd, rmdir, del, erase (ademas de
+    // Remove-Item y rm ya cubiertos). Hallazgo red-team: "ri -Recurse
+    // -Force" evadia el bloqueo porque solo el nombre completo del cmdlet
+    // y "rm" estaban en el patron.
+    nombre: 'Remove-Item -Recurse -Force (PowerShell, incluye alias reales)',
+    disparo: /\b(Remove-Item|rm|ri|rd|rmdir|erase)\b.*(-Recurse\b.*-Force\b|-Force\b.*-Recurse\b)/i,
     excepcion: null,
     breakGlass: true,
-    motivo: 'borrado forzado y recursivo de archivos via PowerShell -- equivalente Windows de "rm -rf", irreversible.',
+    motivo: 'borrado forzado y recursivo de archivos via PowerShell (o su alias real) -- equivalente Windows de "rm -rf", irreversible.',
   },
 ];
 
