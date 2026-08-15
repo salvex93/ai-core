@@ -3,6 +3,18 @@
 Registro de cambios por version. Formato basado en [Keep a Changelog](https://keepachangelog.com/es/1.0.0/).
 Versionado semantico: MAJOR.MINOR.PATCH.
 
+## [3.33.1] — 2026-08-15 (fix real de CI: process-guard.js asumia /proc en macOS, que no existe ahi)
+
+El push de v3.33.0 (commit c0c9680) fallo en el runner `macos-latest` de CI -- `windows-latest` y `ubuntu-latest` pasaron con el mismo codigo. Diagnosticado con el log real del job (API de GitHub Actions), no por inspeccion de codigo a ciegas.
+
+### Corregido — `pidEsProcesoNode()` en `process-guard.js` no funcionaba en macOS/Darwin
+
+El fix de `process-guard.js` de v3.33.0 (verificar que un PID vivo corresponda a un proceso Node real, no solo que exista) asumia en su comentario "en POSIX se usa /proc/<pid>/cmdline" -- incorrecto: `/proc` es exclusivo de Linux, no existe en macOS/BSD. En el runner `macos-latest`, `fs.readFileSync('/proc/...')` lanzaba `ENOENT` siempre, y el `catch` devolvia `false` para CUALQUIER proceso, incluido un proceso Node real y legitimamente vivo -- marcando el lock como stale y dejando pasar una segunda instancia de una categoria de bloqueo bajo carga real (exactamente la regresion que el fix de v3.33.0 buscaba cerrar, reintroducida sin querer solo en macOS).
+
+Corregido agregando una rama especifica para `process.platform === 'darwin'` usando `ps -p <pid> -o comm=` (comando estandar de BSD/Darwin para resolver el nombre de un proceso por PID). Nuevo test de integracion que usa un proceso Node de larga duracion real (no el propio test runner) para confirmar el bloqueo en cualquier plataforma.
+
+1212 tests, 43/43 skills conformes, 6/6 agentes conformes.
+
 ## [Sin version — mantenimiento] — 2026-08-15 (fix critico: permiso de fs insuficiente rompia el release real de locks de subagentes)
 
 Antes de declarar el arnes listo para produccion, se verifico en SESION REAL (invocacion exacta de `settings.json`, no solo `npm test` con `spawnSync` directo) el comportamiento de los 3 guards modificados hoy. `process-guard.js` y `guard-read.js` funcionaron correctamente con sus invocaciones reales. `subagent-guard-release.js` no.

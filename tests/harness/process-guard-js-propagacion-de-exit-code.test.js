@@ -91,6 +91,32 @@ describe('process-guard.js — propagacion de exit code', () => {
       try { fs.unlinkSync(lockPath); } catch {}
     }
   });
+
+  // ─── Fix real de CI 2026-08-15: macOS/Darwin no tiene /proc ─────────────────
+  // Bug reproducido en el runner macos-latest de GitHub Actions: /proc no
+  // existe en macOS/BSD (exclusivo de Linux) -- pidEsProcesoNode() asumia lo
+  // contrario, caia siempre al catch en macOS y trataba CUALQUIER proceso
+  // Node real y vivo como "no confiable", marcando el lock como stale y
+  // dejando pasar una segunda instancia bajo carga real. Este test usa un
+  // proceso Node de larga duracion real (no el propio test runner, para que
+  // el PID siga vivo durante toda la asercion) y confirma el bloqueo en
+  // CUALQUIER plataforma (Linux via /proc, macOS via "ps", Windows via
+  // tasklist), no solo en el runner de CI donde se detecto originalmente.
+  test('un proceso Node de larga duracion (no el test runner) con lock real SI bloquea, en cualquier plataforma (Linux/macOS/Windows)', () => {
+    const LOCK_DIR = path.join(os.tmpdir(), 'ai-core-locks');
+    fs.mkdirSync(LOCK_DIR, { recursive: true });
+    const lockPath = path.join(LOCK_DIR, 'lint.lock');
+
+    const child = require('node:child_process').spawn('node', ['-e', 'setTimeout(() => {}, 3000)']);
+    try {
+      fs.writeFileSync(lockPath, JSON.stringify({ pid: child.pid, ts: Date.now() }), 'utf8');
+      const r = runScript(SCRIPT, ['lint', 'node', '-e', 'process.exit(0)']);
+      assert.equal(r.status, 1, 'lock con PID de un proceso Node real y vivo (distinto del test runner) debe bloquear en toda plataforma');
+    } finally {
+      try { child.kill(); } catch {}
+      try { fs.unlinkSync(lockPath); } catch {}
+    }
+  });
 });
 
 // ─── security-check.js ───────────────────────────────────────────────────────

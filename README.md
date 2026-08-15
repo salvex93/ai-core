@@ -1,4 +1,4 @@
-# AI-CORE v3.33.0: Nucleo Multi-Agente
+# AI-CORE v3.33.1: Nucleo Multi-Agente
 
 `ai-core` es un nucleo de configuracion y comportamiento para agentes IA. Se usa como submodulo Git en un proyecto existente o como repositorio independiente. Define reglas globales, 43 skills especializados, 7 agentes autonomos, un orquestador Mixture-of-Agents (Gemini + DeepSeek + Claude), un mecanismo de excepcion auditable (break-glass) para operaciones de riesgo real, y un ciclo de mejora continua por uso, sin acoplarse al stack del proyecto anfitrion.
 
@@ -182,7 +182,7 @@ npm run eval-skills                       # correr los 42 evals de conformidad d
 
 ## Que trae cada version
 
-### v3.33.0 — retry/backoff en ModelRegistry, secret scanning retroactivo del historial de git, fix critico de permisos en locks de subagentes
+### v3.33.1 — retry/backoff en ModelRegistry, secret scanning retroactivo del historial de git, fix critico de permisos en locks de subagentes
 
 Segunda ronda de investigacion de mercado fresca (deliberadamente evitando repetir la auditoria de skills/agentes, el red-team de guards, la auditoria de tokens y el cierre de scaffolding ya hechos en v3.32.0) para confirmar si quedaba trabajo real pendiente. Encontro 2 gaps accionables y verificados contra el codigo real antes de reportarlos.
 
@@ -753,7 +753,7 @@ New-Item -ItemType SymbolicLink -Path './CLAUDE.md' -Target 'C:/ruta/a/ai-core/C
 ├── .github/workflows/ci.yml     CI: Ubuntu/Windows/macOS, Node 22 unicamente (sandboxing con Permission Model exige >= 22.13.0)
 ├── CLAUDE.md                    Autoridad unica: reglas globales, skills, enrutamiento
 ├── DEPRECATIONS.json            Contrato de migracion por version
-├── package.json                 v3.33.0, Node >= 22.13.0
+├── package.json                 v3.33.1, Node >= 22.13.0
 └── .env.example                 Plantilla de variables de entorno
 ```
 
