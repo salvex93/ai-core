@@ -3,6 +3,26 @@
 Registro de cambios por version. Formato basado en [Keep a Changelog](https://keepachangelog.com/es/1.0.0/).
 Versionado semantico: MAJOR.MINOR.PATCH.
 
+## [Sin version — mantenimiento] — 2026-08-15 (retry/backoff en ModelRegistry + secret scanning retroactivo del historial de git)
+
+Segunda ronda de investigacion de mercado fresca (deliberadamente evitando repetir lo ya auditado: mercado de skills/agentes, red-team de guards, tokens, scaffolding, contextual retrieval) para confirmar si quedaba trabajo real pendiente. Encontro 2 gaps accionables, ambos verificados contra el codigo real antes de reportarlos.
+
+### Agregado — retry con backoff exponencial en ModelRegistry (Gemini y OpenAI-compat)
+
+`platform.claude.com/docs/en/api/errors` documenta que los SDKs oficiales de Anthropic reintentan automaticamente errores transitorios (rate limit, 5xx, timeout de conexion) con backoff exponencial -- confirmado que `AnthropicAdapter.js` ya hereda ese comportamiento (`maxRetries=2` por defecto sin configuracion explicita). `GeminiAdapter.js` (`@google/genai`) y `OpenAICompatAdapter.js` (`https.request` crudo, cubre OpenAI/DeepSeek/Kimi) no tenian ningun mecanismo de retry -- un 429/500/503 transitorio se propagaba como fallo definitivo del worker en `ModelDispatcher.js` en vez de reintentarse.
+
+Nueva libreria pura `scripts/services/lib/retry-with-backoff.js` (`esErrorReintentable`, `calcularBackoffMs`, `reintentarConBackoff`) integrada en `ModelRegistry.chat()` solo para los proveedores sin retry nativo. Clasifica transitorio (429, 5xx, ECONNRESET/ETIMEDOUT) vs definitivo (4xx distinto de 429 -- no reintenta errores del cliente). `OpenAICompatAdapter.js` ahora propaga `err.status` y `err.retryAfterMs` (header `Retry-After`) en vez de perderlos en un `Error` generico, lo que tambien mejora cualquier manejo de error futuro sobre ese adapter. 12 tests de la libreria + 3 de integracion end-to-end contra `chat()` con adapters mockeados.
+
+### Agregado — escaneo retroactivo de credenciales en el historial completo de git
+
+`secrets-guard.js` solo inspecciona el prompt entrante y `security-scanner.md` (paso 3) solo hace grep del working tree actual (`git ls-files`) -- ningun componente escaneaba `git log -p`. Un secreto commiteado y luego borrado del archivo seguia vivo en el historial sin que nada lo detectara, a diferencia del patron estandar de mercado (gitleaks, trufflehog).
+
+Los patrones de `secrets-guard.js` se extrajeron a `lib/patrones-secretos.js` (fuente unica, sin cambiar su comportamiento) y se construyo `lib/git-history-secrets-scan.js` + el CLI `git-history-secrets-scan.js` (`npm run scan-secrets-history`), que parsea `git log -p --format=COMMIT:%H` y reporta el commit exacto de cada hallazgo. Aplica la misma exclusion de archivos de test que `standards-guard.js` (segmento de ruta real, no `.includes('test')` -- ese bug ya se habia corregido en la ronda anterior) para no confundir fixtures de credenciales sinteticas de los propios tests de seguridad con secretos reales. Integrado como Paso 3b de `security-scanner.md` (agente `security-scanner` v1.2.0). Solo reporta -- la reescritura de historial (`git filter-repo`/BFG) sigue siendo una operacion destructiva que exige confirmacion humana explicita, nunca automatizada.
+
+Corrido contra el historial real de ai-core tras el fix de exclusion: 0 hallazgos (los 10 matches iniciales eran fixtures de test con formato de credencial sintetica, confirmado por lectura directa de cada commit).
+
+1208 tests tras esta ronda, 43/43 skills conformes, 6/6 agentes conformes.
+
 ## [Sin version — mantenimiento] — 2026-08-15 (benchmark real de Contextual Retrieval + red-team de los 3 guards restantes)
 
 ### Medido — Contextual Retrieval con benchmark real propio (cierre de gap identificado en balance vs referencias)
