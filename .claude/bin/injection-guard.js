@@ -70,7 +70,7 @@ const PATRONES = [
     etiqueta: 'instruccion de accion destructiva sin confirmacion', confianza: 'alta' },
 ];
 
-const hallazgos = PATRONES.filter(({ re }) => re.test(subagentOutput));
+const hallazgos = PATRONES.filter(({ re }) => re.test(outputNormalizado));
 
 if (hallazgos.length === 0) {
   emitirReporte({ guard: 'injection-guard', verdict: 'ok', severity: 'baja' });
