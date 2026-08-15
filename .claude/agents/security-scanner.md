@@ -2,8 +2,8 @@
 name: security-scanner
 description: Agente autonomo de escaneo de seguridad. Audita el repositorio completo en busca de credenciales expuestas, dependencias con CVEs, headers HTTP incorrectos y violaciones OWASP Top 10. Produce reporte clasificado sin intervencion. Activa periodicamente o antes de cada release.
 origin: ai-core
-version: 1.0.0
-last_updated: 2026-08-07
+version: 1.1.0
+last_updated: 2026-08-15
 provider: any
 model: sonnet
 loop: true
