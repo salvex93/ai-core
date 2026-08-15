@@ -107,7 +107,6 @@ describe('process-guard.js — propagacion de exit code', () => {
     fs.mkdirSync(LOCK_DIR, { recursive: true });
     const lockPath = path.join(LOCK_DIR, 'lint.lock');
 
-    const procLargo = spawnSync('node', ['-e', 'setTimeout(() => {}, 3000)'], { detached: false, timeout: 100, encoding: 'utf8' });
     const child = require('node:child_process').spawn('node', ['-e', 'setTimeout(() => {}, 3000)']);
     try {
       fs.writeFileSync(lockPath, JSON.stringify({ pid: child.pid, ts: Date.now() }), 'utf8');
