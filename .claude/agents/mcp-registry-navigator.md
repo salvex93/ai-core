@@ -2,8 +2,8 @@
 name: mcp-registry-navigator
 description: Agente autonomo de evaluacion de servidores MCP de terceros. Dado un repositorio o nombre de MCP, ejecuta los 5 criterios de evaluacion (transporte, seguridad de inputs, mantenimiento, calidad de schema, riesgo operativo) y produce un reporte con decision INSTALAR / EVALUAR / RECHAZAR. Sin intervencion durante la evaluacion. Activa antes de agregar cualquier MCP externo a settings.json.
 origin: ai-core
-version: 1.0.0
-last_updated: 2026-08-07
+version: 1.1.0
+last_updated: 2026-08-15
 provider: any
 model: sonnet
 loop: false
