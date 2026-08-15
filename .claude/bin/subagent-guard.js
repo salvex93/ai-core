@@ -43,6 +43,13 @@ const path   = require('path');
 const crypto = require('crypto');
 const { leerEventoDeStdin } = require('./lib/hook-stdin');
 const { guardarTarea } = require('./lib/subagent-task-store');
+const { normalizarTexto } = require('./lib/normalizar-texto');
+
+// Nombres reales de agentes de .claude/agents/ -- lista sincronizada
+// manualmente (igual criterio que otros guards que enumeran agentes reales,
+// ej. tests/harness/agent-tools-guard-js.test.js). Actualizar si se agrega o
+// elimina un agente.
+const AGENTES_REALES = ['aiops-auditor', 'code-reviewer', 'issue-tracker', 'mcp-registry-navigator', 'security-scanner', 'self-healing-agent'];
 
 const MAX_PARALLEL = 3;        // alineado con la regla de CLAUDE.md; ajustar ahi tambien si cambia
 const TIMEOUT_MS   = 2 * 60 * 1000; // 2 min — ventana de "lanzados recientemente", no timeout de ejecucion
