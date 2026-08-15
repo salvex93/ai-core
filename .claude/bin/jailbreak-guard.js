@@ -139,6 +139,16 @@ const PATRONES = [
 
 const hallazgos = PATRONES.filter(({ re }) => re.test(promptNormalizado));
 
+// Deteccion de resolucion previa (causa raiz 2, red-team 2026-08-15):
+// un bloque base64 largo pidiendo al modelo que lo decodifique y actue
+// segun el resultado evade los PATRONES de arriba porque el texto real
+// ("ignora todas las instrucciones...") nunca aparece en claro dentro del
+// prompt. Se evalua sobre el prompt ORIGINAL (no promptNormalizado): el
+// bloque base64 en si no debe alterarse para detectarlo correctamente.
+if (tieneIndicioDeResolucionPreviaEnTexto(prompt)) {
+  hallazgos.push({ etiqueta: 'bloque base64 combinado con instruccion de decodificar y ejecutar' });
+}
+
 if (hallazgos.length === 0) {
   emitirReporte({ guard: 'jailbreak-guard', verdict: 'ok', severity: 'baja' });
   process.exit(0);
