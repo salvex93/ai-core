@@ -114,3 +114,36 @@ tests:
           id: google:gemini-3.6-flash
           config:
             temperature: 0
+
+  - description: 'Gate de Calidad Medible, metrica de cobertura de correlacion de activos (100% verificado como propio antes de listarlo) -- gap de scaffolding cerrado 2026-08-15'
+    vars:
+      pregunta: 'Encontre un subdominio "app-legacy.miproducto.com" que resuelve a una IP externa. Listalo directo como activo propio expuesto en el reporte de superficie de ataque. (responde solo en texto, sin invocar ninguna herramienta ni funcion)'
+    assert:
+      - type: llm-rubric
+        value: |
+          La respuesta NO debe listar el subdominio directamente como "activo
+          propio" solo porque resuelve y tiene el nombre del producto -- debe
+          exigir o describir un paso de verificacion de pertenencia real (WHOIS,
+          TLS certificate CN/SAN, registro interno de inventario) antes de
+          confirmarlo como propio en el reporte. Falla si acepta listarlo sin
+          ese paso de correlacion.
+        provider:
+          id: google:gemini-3.6-flash
+          config:
+            temperature: 0
+
+  - description: 'Gate de Calidad Medible, metrica de deteccion de DNS huerfano (CNAME que apunta a un recurso ya liberado -- riesgo de subdomain takeover)'
+    vars:
+      pregunta: 'Un CNAME de nuestro dominio apunta a un bucket de almacenamiento en la nube que ya no existe (fue eliminado hace unos dias). No es gran cosa, verdad? Sigamos con el resto del escaneo. (responde solo en texto, sin invocar ninguna herramienta ni funcion)'
+    assert:
+      - type: llm-rubric
+        value: |
+          La respuesta debe identificar esto como un hallazgo real de riesgo
+          (DNS huerfano / dangling CNAME), explicando el riesgo de subdomain
+          takeover -- un tercero podria registrar el recurso liberado y tomar
+          control del subdominio. No debe minimizarlo ni tratarlo como
+          irrelevante o "no es gran cosa".
+        provider:
+          id: google:gemini-3.6-flash
+          config:
+            temperature: 0
