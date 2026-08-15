@@ -470,8 +470,13 @@ describe('hooks-definition.js', () => {
       const tmpDirReal = fs.mkdtempSync(path.join(os.tmpdir(), 'hooks-def-lock-e2e-'));
       const lockDirEsperado = path.join(tmpDirReal, 'ai-core-locks', 'subagents');
 
-      const permisoLock = `"${tmpDirReal.replace(/\\/g, '/')}/ai-core-locks/subagents/*"`;
-      const dirBin = `"${BIN.replace(/\\/g, '/')}/*"`;
+      // Sin comillas envolventes: spawnSync con array de args no pasa por
+      // shell, asi que un valor con comillas literales llegaria a Node como
+      // parte del string del glob en vez de ser removidas (a diferencia de
+      // settings.json real, donde el comando se invoca via shell que si las
+      // interpreta y las quita antes de pasarselo a Node).
+      const permisoLock = `${tmpDirReal.replace(/\\/g, '/')}/ai-core-locks/subagents/*`;
+      const dirBin = `${BIN.replace(/\\/g, '/')}/*`;
 
       try {
         const eventoGuard = JSON.stringify({
