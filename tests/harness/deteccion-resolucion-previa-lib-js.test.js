@@ -16,7 +16,7 @@ const assert = require('node:assert/strict');
 const path   = require('node:path');
 const { BIN } = require('./_shared');
 
-const { tieneIndicioDeResolucionPrevia } = require(path.join(BIN, 'lib', 'deteccion-resolucion-previa.js'));
+const { tieneIndicioDeResolucionPrevia, tieneIndicioDeResolucionPreviaEnTexto } = require(path.join(BIN, 'lib', 'deteccion-resolucion-previa.js'));
 
 describe('lib/deteccion-resolucion-previa.js', () => {
   test('detecta "base64 -d" seguido de ejecucion via pipe a bash/sh', () => {
