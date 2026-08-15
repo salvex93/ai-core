@@ -130,6 +130,21 @@ describe('standards-guard.js', () => {
     assert.match(r.stderr, new RegExp(marca));
   });
 
+  test('secreto real en archivo "latest-config.json" SI bloquea (hallazgo red-team 2026-08-15 -- "test" como substring, no segmento de ruta real)', () => {
+    // Regresion real: filePath.includes('test') eximia cualquier ruta cuyo
+    // string contuviera "test" en CUALQUIER posicion, incluyendo "latest".
+    // Un secreto real en un archivo de produccion llamado asi quedaba sin
+    // deteccion -- el fix exige "test" como palabra/segmento real, no
+    // substring generica.
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'standards-guard-secret-'));
+    const f = path.join(dir, 'latest-config.json');
+    const tokenGithub = 'ghp_' + 'A'.repeat(36);
+    fs.writeFileSync(f, `{"token": "${tokenGithub}"}\n`, 'utf8');
+    const r = runScript(SCRIPT, [f]);
+    fs.rmSync(dir, { recursive: true });
+    assert.equal(r.status, 2, 'un secreto real en un archivo con "test" como substring (no segmento) debe seguir bloqueando');
+  });
+
   test('fixture de emoji dentro de tests/: NO bloquea', () => {
     // Falso positivo real: tests/harness.test.js usa un emoji como literal
     // de prueba para verificarEmojis() -- no es prosa/codigo real.
