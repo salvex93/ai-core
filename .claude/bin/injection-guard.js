@@ -73,6 +73,14 @@ const PATRONES = [
 
 const hallazgos = PATRONES.filter(({ re }) => re.test(outputNormalizado));
 
+// Deteccion de resolucion previa (causa raiz 2, red-team 2026-08-15): un
+// bloque base64 largo pidiendo decodificar y ejecutar evade los PATRONES
+// de arriba -- se evalua sobre subagentOutput ORIGINAL (el bloque base64
+// no debe alterarse para detectarlo). Confianza alta: formato inequivoco.
+if (tieneIndicioDeResolucionPreviaEnTexto(subagentOutput)) {
+  hallazgos.push({ etiqueta: 'bloque base64 combinado con instruccion de decodificar y ejecutar', confianza: 'alta' });
+}
+
 if (hallazgos.length === 0) {
   emitirReporte({ guard: 'injection-guard', verdict: 'ok', severity: 'baja' });
   process.exit(0);
