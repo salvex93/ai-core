@@ -183,8 +183,8 @@ const REGLAS = [
   },
   {
     nombre: 'git push --force',
-    disparo: /\bgit\s+push\b.*(--force\b|(?<!--force-with-lease)\s-f\b)/,
-    excepcion: /--force-with-lease/,
+    disparo: /\bgit\s+push\b.*(--force\b|(?<!--force-with-lease)\s-f\b)/i,
+    excepcion: /--force-with-lease/i,
     motivo: 'sobreescribe el historial remoto sin verificar si alguien mas pusheo -- usar --force-with-lease en su lugar.',
   },
   {
