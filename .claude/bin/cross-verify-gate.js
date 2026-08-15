@@ -16,6 +16,7 @@
 const path = require('node:path');
 
 const { leerEventoDeStdin } = require('./lib/hook-stdin');
+const { parsearReporte } = require('./lib/code-reviewer-veredicto');
 
 const REPO = path.resolve(__dirname, '..', '..');
 
@@ -34,6 +35,28 @@ if (subagentType !== 'code-reviewer') {
 if (!/VEREDICTO:\s*APROBADO/.test(subagentOutput)) {
   // Ya fue REQUIERE_CAMBIOS o BLOQUEADO — no hace falta segunda opinion.
   process.exit(0);
+}
+
+// Verificacion de consistencia interna (hallazgo de scaffolding 2026-08-15):
+// antes de confiar en la linea "VEREDICTO: APROBADO", confirmar que
+// realmente corresponde a los conteos de severidad listados en el propio
+// reporte -- un diff con contenido inyectado podria intentar forzar ese
+// string sin que los conteos reales lo respalden (vector ya descartado en
+// prosa por code-reviewer.md, ahora tambien verificado programaticamente).
+// best-effort: si el reporte no sigue el formato exacto (parsearReporte
+// lanza), no bloquea el flujo normal -- solo se salta esta verificacion
+// extra y sigue al cross-verify de siempre.
+try {
+  const parsed = parsearReporte(subagentOutput);
+  if (!parsed.veredictoConsistente) {
+    console.log(
+      `[cross-verify] INCONSISTENCIA detectada: el reporte declara VEREDICTO: ${parsed.veredictoDeclarado} ` +
+      `pero los conteos reales (criticos:${parsed.conteos.criticos}, altos:${parsed.conteos.altos}, ` +
+      `medios:${parsed.conteos.medios}, bajos:${parsed.conteos.bajos}) corresponden a ${parsed.veredictoEsperado}.`
+    );
+  }
+} catch {
+  // reporte no sigue el formato de parsearReporte -- no bloquear, seguir con cross-verify normal
 }
 
 async function main() {
