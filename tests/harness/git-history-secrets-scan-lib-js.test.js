@@ -76,6 +76,44 @@ describe('lib/git-history-secrets-scan.js — parsearLogParaSecretos()', () => {
     assert.deepEqual(parsearLogParaSecretos('diff sin marcador de commit'), []);
   });
 
+  // ─── Exclusion de archivos de test (mismo criterio que standards-guard.js) ──
+
+  test('ignora fixtures de credenciales dentro de archivos de test (tests/**, *.test.js)', () => {
+    const log = [
+      'COMMIT:commit1',
+      'diff --git a/tests/harness/secrets-guard-js.test.js b/tests/harness/secrets-guard-js.test.js',
+      '+++ b/tests/harness/secrets-guard-js.test.js',
+      '+const evento = { prompt_text: "mi token es ghp_' + '1'.repeat(36) + '" };',
+    ].join('\n');
+
+    const hallazgos = parsearLogParaSecretos(log);
+    assert.equal(hallazgos.length, 0, 'un fixture de test no debe reportarse como hallazgo real');
+  });
+
+  test('SI detecta una credencial real en un archivo de produccion (no test)', () => {
+    const log = [
+      'COMMIT:commit1',
+      'diff --git a/scripts/config.js b/scripts/config.js',
+      '+++ b/scripts/config.js',
+      '+const token = "ghp_' + '1'.repeat(36) + '";',
+    ].join('\n');
+
+    const hallazgos = parsearLogParaSecretos(log);
+    assert.equal(hallazgos.length, 1, 'un archivo de produccion real si debe reportarse');
+  });
+
+  test('un archivo con "test" como substring de otra palabra (no segmento real) SI se evalua (bug ya corregido en standards-guard.js, mismo criterio aqui)', () => {
+    const log = [
+      'COMMIT:commit1',
+      'diff --git a/latest-config.js b/latest-config.js',
+      '+++ b/latest-config.js',
+      '+const token = "ghp_' + '1'.repeat(36) + '";',
+    ].join('\n');
+
+    const hallazgos = parsearLogParaSecretos(log);
+    assert.equal(hallazgos.length, 1, 'latest-config.js no es un archivo de test -- "test" es substring de "latest", debe evaluarse igual');
+  });
+
   test('no reporta duplicados si la misma credencial aparece en varias lineas del mismo commit', () => {
     const key = 'AIza' + 'x'.repeat(35);
     const log = [
