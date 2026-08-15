@@ -35,6 +35,7 @@ const { leerEventoDeStdin } = require('./lib/hook-stdin');
 const { emitirReporte }     = require('./lib/guard-report');
 const { confirmarCuarentena } = require('./lib/injection-quarantine');
 const { confirmarBreakGlass } = require('./lib/break-glass');
+const { normalizarTexto } = require('./lib/normalizar-texto');
 
 const TTL_MS = 5 * 60 * 1000; // 5 min -- ventana corta, el bypass no debe quedar valido "para siempre"
 
