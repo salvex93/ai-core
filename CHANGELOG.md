@@ -3,6 +3,26 @@
 Registro de cambios por version. Formato basado en [Keep a Changelog](https://keepachangelog.com/es/1.0.0/).
 Versionado semantico: MAJOR.MINOR.PATCH.
 
+## [Sin version — mantenimiento] — 2026-08-15 (benchmark real de Contextual Retrieval + red-team de los 3 guards restantes)
+
+### Medido — Contextual Retrieval con benchmark real propio (cierre de gap identificado en balance vs referencias)
+
+`rag-specialist.md` documentaba la tecnica de Anthropic (35%/49%/67% de reduccion de fallo de retrieval segun combinacion) citando el benchmark oficial, pero nunca se habia corrido contra un corpus propio de este proyecto con el motor real (`bm25-engine.js`, usado tambien por `memory-index.js` en produccion). Se construyo `lib/contextual-retrieval-benchmark.js` con 15 queries de ground truth fijadas a mano ANTES de medir (eligiendas deliberadamente donde el termino clave no aparece literal en el chunk correcto) y se genero un prefijo contextual real via Claude Haiku 4.5 (una llamada por SKILL.md completo como contexto, no por fragmento) para los 1366 fragmentos de los 43 skills.
+
+Resultado real: recall@5 subio de 53.3% (baseline) a 73.3% con Contextual Retrieval -- 4 de 7 fallos de la baseline se corrigieron, 0 regresiones. Confirma en la practica, con este motor especifico (stemming en español, sin componente denso/embeddings), que la tecnica mejora retrieval real, no solo la cifra citada de terceros.
+
+Bug real encontrado como efecto colateral de construir el benchmark (no buscado deliberadamente): `bm25-engine.js` usaba objetos planos (`{}`) para los diccionarios `df`/`inv`/`len`/`scores`, indexados por token de texto libre del corpus. El corpus real de `backend-architect/SKILL.md` contiene literalmente las palabras "constructor" y "push" (documentacion de codigo JS), que colisionan con propiedades heredadas de `Object.prototype`, rompiendo `buildIndex()` con `TypeError: inv[t].push is not a function`. Corregido con `Object.create(null)` en los diccionarios de `buildIndex()` y con `Object.prototype.hasOwnProperty.call()` en `expandQuery()` (el diccionario `SYNONYMS` tenia el mismo problema con terminos de busqueda que coinciden con el prototipo). Bug preexistente en el motor de produccion, ahora corregido con 5 tests dedicados.
+
+### Corregido — 5 evasiones confirmadas por red-team en los 3 guards restantes (concurrencia/recursos, no deteccion textual)
+
+El red-team anterior cubrio 12 guards de deteccion de contenido textual; quedaron fuera `guard-read.js`, `process-guard.js` y `subagent-guard-release.js` por ser de naturaleza distinta (limites de recursos/concurrencia). Workflow adversarial + verificacion independiente confirmo 5/5 hallazgos:
+
+- `guard-read.js` (severidad baja, limite de ahorro de tokens no de seguridad): whitelist `TEXT_EXTS` cerrada dejaba pasar sin limite `.jsx/.tsx/.mjs/.rs` y por extension logica `.go/.java/.rb/.php/.cjs`; ampliada. El conteo de lineas solo contaba `\n` literal, evadible con JSON minificado sin saltos de linea o archivos con `\r` puro (CR sin LF); ahora cuenta tambien CR real y aplica un umbral de tamaño en bytes cuando no hay separadores de linea.
+- `process-guard.js` (severidad critica en el PoC): `isLockStale()` solo verificaba que el PID del lock existiera (`process.kill(pid,0)`), nunca que correspondiera a un proceso Node real -- un lock con PID falso/reciclado se trataba como obsoleto sin comparar contra el proceso que efectivamente ejecuta el comando envuelto, permitiendo dos instancias paralelas de una categoria de bloqueo. Corregido verificando ademas que el PID vivo corresponda a un proceso `node` real (`tasklist` en Windows, `/proc/<pid>/cmdline` en POSIX).
+- `subagent-guard-release.js` (severidad critica, path traversal; falsificacion de identidad documentada como limitacion conocida sin fix estructural disponible hoy): `session_id`/`prompt_id` con `../` real en el payload del evento `SubagentStop` permitia borrar un archivo `.lock` arbitrario fuera del directorio de locks. Corregido validando que la ruta resuelta permanezca dentro de `LOCK_DIR` antes de `unlinkSync`.
+
+1176 tests tras esta ronda, 43/43 skills conformes, 6/6 agentes conformes.
+
 ## [Sin version — mantenimiento] — 2026-08-15 (red-team adversarial de guards + cierre de scaffolding sin test real)
 
 ### Corregido — 61 evasiones de guards confirmadas por red-team adversarial
