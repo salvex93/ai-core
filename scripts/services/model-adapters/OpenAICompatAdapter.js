@@ -132,7 +132,13 @@ async function chatOpenAICompat(messages, options = {}, providerConfig = {}) {
       res.on('end', () => {
         try {
           const parsed = JSON.parse(data);
-          if (parsed.error) return reject(new Error(parsed.error.message));
+          if (parsed.error || res.statusCode >= 400) {
+            const err = new Error(parsed.error?.message || `HTTP ${res.statusCode}`);
+            err.status = res.statusCode;
+            const retryAfter = res.headers['retry-after'];
+            if (retryAfter) err.retryAfterMs = Number(retryAfter) * 1000;
+            return reject(err);
+          }
           resolve({
             content:  parsed.choices?.[0]?.message?.content || '',
             provider: providerConfig.name || 'openai',
