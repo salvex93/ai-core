@@ -66,6 +66,45 @@ describe('issue-reporter.js', () => {
     }
   });
 
+  describe('umbral de 20 eventos pendientes -> ALERTA_ARQUITECTONICA (gap de scaffolding cerrado 2026-08-15)', () => {
+    // Hallazgo de auditoria: .claude/agents/issue-tracker.md documentaba
+    // "si pending.length supera 20, emitir ALERTA_ARQUITECTONICA" citando
+    // este mismo archivo como la fuente del comportamiento -- pero el
+    // umbral nunca estaba implementado aqui. El .md describia una
+    // salvaguarda que no existia en codigo real.
+    function crearColaConNPendientes(n) {
+      const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'issue-reporter-umbral-'));
+      const queuePath = path.join(dir, 'EVENTS_QUEUE.json');
+      const eventos = Array.from({ length: n }, (_, i) => ({
+        id: `ev-${i}`, type: 'hook_failure', tool: 'test-tool', error: 'error de prueba',
+        ts: new Date().toISOString(), reported: false,
+      }));
+      fs.writeFileSync(queuePath, JSON.stringify(eventos), 'utf8');
+      return { dir, queuePath };
+    }
+
+    test('con 21 eventos pendientes (> 20) y gh no disponible: emite ALERTA_ARQUITECTONICA en stderr', () => {
+      const { dir, queuePath } = crearColaConNPendientes(21);
+      const r = spawnSync('node', [SCRIPT], {
+        encoding: 'utf8',
+        env: { ...process.env, AI_CORE_EVENTS_QUEUE_PATH: queuePath, PATH: '' }, // PATH vacio -> gh no disponible
+      });
+      fs.rmSync(dir, { recursive: true, force: true });
+      assert.match(r.stderr, /ALERTA_ARQUITECTONICA/, 'debe emitir la alerta cuando la cola supera 20 pendientes sin poder reportar');
+      assert.match(r.stderr, /21/, 'debe incluir la cifra exacta de eventos pendientes');
+    });
+
+    test('con 5 eventos pendientes (<= 20) y gh no disponible: NO emite ALERTA_ARQUITECTONICA', () => {
+      const { dir, queuePath } = crearColaConNPendientes(5);
+      const r = spawnSync('node', [SCRIPT], {
+        encoding: 'utf8',
+        env: { ...process.env, AI_CORE_EVENTS_QUEUE_PATH: queuePath, PATH: '' },
+      });
+      fs.rmSync(dir, { recursive: true, force: true });
+      assert.doesNotMatch(r.stderr, /ALERTA_ARQUITECTONICA/, 'no debe alertar con una cola pequena, aunque gh no este disponible');
+    });
+  });
+
 });
 
 // ─── setup-settings.js ───────────────────────────────────────────────────────
