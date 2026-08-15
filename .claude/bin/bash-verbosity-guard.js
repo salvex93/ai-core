@@ -94,7 +94,7 @@ const REGLAS = [
 for (const regla of REGLAS) {
   if (regla.disparo.test(cmd) && !regla.excepcion.test(cmd)) {
     process.stderr.write(
-      `[BASH-VERBOSITY-GUARD] BLOQUEADO (${regla.nombre}): "${cmd}"\n` +
+      `[BASH-VERBOSITY-GUARD] BLOQUEADO (${regla.nombre}): "${cmdOriginal}"\n` +
       `Riesgo de output masivo sin acotar, se queda en el contexto para siempre.\n` +
       `Sugerencia: ${regla.sugerencia}\n`
     );
