@@ -29,6 +29,7 @@
 const { leerEventoDeStdin } = require('./lib/hook-stdin');
 const { emitirReporte }     = require('./lib/guard-report');
 const { marcarCuarentena }  = require('./lib/injection-quarantine');
+const { normalizarTexto }   = require('./lib/normalizar-texto');
 
 // CLAUDE_SUBAGENT_OUTPUT/CLAUDE_SUBAGENT_TYPE nunca existieron como variables
 // de entorno reales -- SubagentStop entrega el output por stdin como JSON,
@@ -39,6 +40,13 @@ const subagentOutput = process.env.CLAUDE_SUBAGENT_OUTPUT || evento.last_assista
 const subagentName   = process.env.CLAUDE_SUBAGENT_TYPE   || evento.agent_type || 'unknown';
 
 if (!subagentOutput) process.exit(0);
+
+// Normalizacion Unicode antes de matchear (hallazgo red-team 2026-08-15):
+// contenido inyectado en base64/homoglifos evadia el matching de la misma
+// forma que jailbreak-guard.js -- ver ese archivo para el detalle de la
+// tecnica. Solo se usa para deteccion; el log sigue mostrando subagentOutput
+// original.
+const outputNormalizado = normalizarTexto(subagentOutput);
 
 // Patrones de indirect prompt injection — contenido externo que intenta
 // hacerse pasar por una instruccion nueva del sistema o del usuario.
