@@ -501,6 +501,14 @@ La lista completa de skills, sus triggers de activacion y la logica de enrutamie
 
 ---
 
+## Sandboxing opcional por contenedor
+
+`npm run sandbox` levanta una sesion de Claude Code aislada en Docker (`docker/Dockerfile` + `docker/docker-compose.yml`), montando el proyecto anfitrion como volumen en vez de operar directo sobre el filesystem del host. Capacidad **opcional** — el uso normal sin Docker sigue funcionando exactamente igual, nada cambia por default.
+
+Cuando usarlo: agentes autonomos sobre codigo no confiable, pruebas de comandos potencialmente destructivos, o cualquier tarea de mayor riesgo donde se prefiera aislamiento de proceso real ademas de los guards de patron de comando (que siguen activos dentro del contenedor tambien — son capas complementarias, no alternativas). Requiere Docker instalado; si no esta disponible, el script falla con mensaje explicativo, nunca degrada silenciosamente. Detalle tecnico en `docker/Dockerfile`.
+
+---
+
 ## Sistema de gobierno y mejora continua
 
 **`process-guard.js`** — limita a 4 scripts del harness en paralelo, con timeout de 8s por proceso. Evita saturacion de memoria en sesiones largas.
