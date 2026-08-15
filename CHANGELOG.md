@@ -3,6 +3,22 @@
 Registro de cambios por version. Formato basado en [Keep a Changelog](https://keepachangelog.com/es/1.0.0/).
 Versionado semantico: MAJOR.MINOR.PATCH.
 
+## [Sin version — mantenimiento] — 2026-08-15 (fix critico: permiso de fs insuficiente rompia el release real de locks de subagentes)
+
+Antes de declarar el arnes listo para produccion, se verifico en SESION REAL (invocacion exacta de `settings.json`, no solo `npm test` con `spawnSync` directo) el comportamiento de los 3 guards modificados hoy. `process-guard.js` y `guard-read.js` funcionaron correctamente con sus invocaciones reales. `subagent-guard-release.js` no.
+
+### Corregido — bug preexistente: el Node Permission Model bloqueaba en silencio la escritura y el borrado del lock de subagentes
+
+`subagent-guard.js` (escribe el lock al lanzar un subagente) y `subagent-guard-release.js` (lo borra al terminar) reciben en `settings.json` un permiso `--allow-fs-write`/`--allow-fs-read` generico de UN nivel de profundidad bajo el tmpdir (`<tmp>/*`, generado por `dirTmp` en `hooks-definition.js`). El `LOCK_DIR` real de ambos guards vive DOS niveles bajo el tmpdir (`<tmp>/ai-core-locks/subagents/*.lock`). Verificado en vivo con el Node Permission Model real: ese glob de un nivel NUNCA cubrio esa profundidad, ni para lectura ni para escritura, con el directorio destino preexistente o no.
+
+Efecto real en produccion: `subagent-guard.js` nunca pudo escribir su lock (el `try/catch` del guard lo absorbia en silencio, "no bloquear el spawn si el lock no se pudo escribir" documentado como comportamiento intencional pero enmascarando el fallo real de permisos), y `subagent-guard-release.js` nunca pudo borrar ningun lock (mismo patron de catch silencioso, "ya expirado o nunca existio con esta clave"). El TTL de 2 minutos de `subagent-guard.js` era la UNICA garantia real de liberacion de cupo en produccion -- el mecanismo de release explicito documentado en el propio codigo nunca funciono desde que se agrego.
+
+Corregido agregando `dirTmpSubagentLocks` (permiso especifico de dos niveles, `<tmp>/ai-core-locks/subagents/*`) en `hooks-definition.js`, aplicado a ambos guards. Verificado el ciclo completo en sesion real tras el fix (escritura + borrado del lock con la invocacion exacta que genera `settings.json`, sin mocks): exitoso. 3 tests nuevos en `hooks-definition-js.test.js`, incluida una ejecucion real end-to-end (no solo verificacion de que el comando generado tenga el string esperado).
+
+Este bug es preexistente al trabajo de hoy (no lo introdujo el fix de path traversal de `subagent-guard-release.js` de esta misma sesion) -- muestra el valor real de verificar en sesion real antes de declarar cualquier cambio "listo para produccion", incluso cuando la suite completa de tests esta en verde.
+
+1211 tests tras esta ronda, 43/43 skills conformes, 6/6 agentes conformes.
+
 ## [Sin version — mantenimiento] — 2026-08-15 (retry/backoff en ModelRegistry + secret scanning retroactivo del historial de git)
 
 Segunda ronda de investigacion de mercado fresca (deliberadamente evitando repetir lo ya auditado: mercado de skills/agentes, red-team de guards, tokens, scaffolding, contextual retrieval) para confirmar si quedaba trabajo real pendiente. Encontro 2 gaps accionables, ambos verificados contra el codigo real antes de reportarlos.
