@@ -173,7 +173,10 @@ const REGLAS = [
     // Cubre combinada corta (-rf/-fr), formas largas (--recursive --force en
     // cualquier orden) y mezcla corta+larga (-r --force, --recursive -f) --
     // hallazgo de auditoria 2026-08-14: solo se cubria la forma corta combinada.
-    disparo: /\brm\s+.*(?:(?:-[a-zA-Z]*r[a-zA-Z]*f[a-zA-Z]*\b)|(?:-[a-zA-Z]*f[a-zA-Z]*r[a-zA-Z]*\b)|(?:(?:-r\b|--recursive\b).*(?:-f\b|--force\b))|(?:(?:-f\b|--force\b).*(?:-r\b|--recursive\b)))/,
+    // Flag /i agregado (hallazgo red-team 2026-08-15): "RM -rf" en
+    // mayusculas evadia el bloqueo -- el nombre del comando no distingue
+    // seguridad por case, a diferencia de flags como git branch -D/-d.
+    disparo: /\brm\s+.*(?:(?:-[a-zA-Z]*r[a-zA-Z]*f[a-zA-Z]*\b)|(?:-[a-zA-Z]*f[a-zA-Z]*r[a-zA-Z]*\b)|(?:(?:-r\b|--recursive\b).*(?:-f\b|--force\b))|(?:(?:-f\b|--force\b).*(?:-r\b|--recursive\b)))/i,
     excepcion: null,
     breakGlass: true,
     motivo: 'borrado recursivo forzado -- irreversible, sin papelera de reciclaje.',
