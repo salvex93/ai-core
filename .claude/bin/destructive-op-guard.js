@@ -321,6 +321,23 @@ if (PATRON_OFUSCACION.test(cmd)) {
   process.exit(2);
 }
 
+// Segunda causa raiz cerrada (red-team 2026-08-15): decodificacion
+// (base64/hex/Buffer.from/atob) o fragmentacion en variables adyacentes
+// ("A=..."; B=...; bash -c "$A$B"), ambas combinadas con una via de
+// ejecucion real del resultado -- el contenido peligroso solo existe
+// codificado o partido en el string, materializandose recien cuando el
+// shell lo interpreta. Mismo tratamiento hard-stop que PATRON_OFUSCACION
+// (sin break-glass): es la misma clase de evasion -- el comando no puede
+// verificarse por contenido antes de ejecutar.
+if (tieneIndicioDeResolucionPrevia(cmd)) {
+  process.stderr.write(
+    `[DESTRUCTIVE-OP-GUARD] BLOQUEADO (decodificacion o fragmentacion previa a ejecucion): "${cmd}"\n` +
+    'Motivo: el comando decodifica contenido (base64/hex) o lo reconstruye desde variables fragmentadas antes de ejecutarlo -- no se puede verificar su contenido real antes de correr, mismo riesgo que un comando destructivo literal.\n' +
+    'Reescribe el comando de forma literal (sin decodificar ni fragmentar en variables antes de ejecutar) para que pueda inspeccionarse antes de correr.\n'
+  );
+  process.exit(2);
+}
+
 for (const regla of REGLAS) {
   if (regla.disparo.test(cmd) && !(regla.excepcion && regla.excepcion.test(cmd))) {
     if (regla.breakGlass && accionAprobada(GUARD_ID, cmd)) process.exit(0);
