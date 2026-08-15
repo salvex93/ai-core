@@ -117,10 +117,19 @@ if (!cmdOriginal) process.exit(0);
 // documenta este mismo guard) -- eso no es un comando real de shell, es
 // contenido citado. Se descarta el argumento del mensaje antes de evaluar
 // las reglas para no bloquear el commit que las documenta.
-const cmd = /\bgit\s+commit\b/.test(cmdOriginal)
+const cmdEnmascarado = /\bgit\s+commit\b/.test(cmdOriginal)
   ? cmdOriginal.replace(/-m\s+(["'])(?:(?!\1).)*\1/gs, '-m "..."')
                .replace(/-F\s+\S+/g, '-F ...')
   : cmdOriginal;
+
+// Normalizacion Unicode antes de evaluar las REGLAS (hallazgo red-team
+// 2026-08-15): homoglifos cirilicos (ej. "О" en "DRОP TABLE") y mayusculas
+// en comandos sin flag /i (rm, git reset, git clean, git branch) evadian
+// el matching porque las reglas comparaban contra el string crudo. La
+// normalizacion NO se aplica al mensaje de commit (extraerMensajeCommit
+// sigue leyendo cmdOriginal via cmdOriginal.match) para no alterar lo que
+// se le muestra al usuario como "mensaje real" en el reporte de bloqueo.
+const cmd = normalizarTexto(cmdEnmascarado).toLowerCase();
 
 // Mensaje REAL de commit (no enmascarado) -- se inspecciona por separado del
 // loop de REGLAS porque necesita distinguir atribucion real de IA (bloquea)
