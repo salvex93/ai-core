@@ -117,7 +117,12 @@ function normalizarTexto(texto) {
   resultado = resolverConfusableContextual(resultado);
   resultado = resolverConfusables(resultado);
   resultado = resultado.replace(MARKDOWN_ENFASIS, '');
-  resultado = resultado.replace(/\s+/g, ' ').trim();
+  // Colapsa solo espacios/tabs horizontales -- preserva saltos de linea.
+  // Bug real encontrado durante esta correccion: colapsar \s+ (que incluye
+  // \n) a un solo espacio rompia el matching multilinea de injection-guard.js
+  // (patron /^(system|assistant|human):/m depende de que "\n" real preceda
+  // la linea para que ^ matchee el inicio de linea).
+  resultado = resultado.replace(/[ \t]+/g, ' ').replace(/ *\n */g, '\n').trim();
 
   return resultado;
 }
