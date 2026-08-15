@@ -160,7 +160,7 @@ function buildHooksSection(bin, tmpDirReal) {
           { type: 'command', command: `${nodeConPermiso(bin('cross-verify-gate.js'), repoConGit)} 2>/dev/null || true` },
           { type: 'command', command: `${nodeConPermiso(bin('injection-guard.js'), readYWrite)} 2>/dev/null || true` },
           { type: 'command', command: `${nodeConPermiso(bin('subagent-grader.js'), soloRead)} 2>/dev/null || true` },
-          { type: 'command', command: `${nodeConPermiso(bin('subagent-guard-release.js'), readYWrite)} 2>/dev/null || true` },
+          { type: 'command', command: `${nodeConPermiso(bin('subagent-guard-release.js'), readYWriteSubagentLocks)} 2>/dev/null || true` },
         ],
       },
     ],
