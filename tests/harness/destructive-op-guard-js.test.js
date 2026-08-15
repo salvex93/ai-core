@@ -302,6 +302,28 @@ describe('destructive-op-guard.js', () => {
       assert.equal(run('git branch -D rama-vieja').status, 2, '-D mayuscula debe seguir bloqueando');
       assert.equal(run('git branch -d rama-vieja').status, 0, '-d minuscula (alternativa segura documentada) debe seguir permitida');
     });
+  });
+
+  describe('resolucion previa: decodificacion y fragmentacion antes de ejecutar (causa raiz 2, red-team 2026-08-15)', () => {
+    test('bloquea "rm -rf" codificado en base64 y decodificado via pipe a bash', () => {
+      const r = run('echo cm0gLXJmIC9pbXBvcnRhbnQtZGF0YQ== | base64 -d | bash');
+      assert.equal(r.status, 2);
+    });
+
+    test('bloquea "rm -rf" fragmentado en 2 variables de shell reconstruidas en bash -c', () => {
+      const r = run('A="rm -"; B="rf /datos-importantes"; bash -c "$A$B"');
+      assert.equal(r.status, 2);
+    });
+
+    test('permite un uso normal de variables de shell sin fragmentacion de comando destructivo', () => {
+      const r = run('A="hola mundo"; echo "$A"');
+      assert.equal(r.status, 0);
+    });
+
+    test('permite mencionar "base64" en un comando sin decode + ejecucion (no es un intento real de resolucion previa)', () => {
+      const r = run('echo "este script codifica el payload en base64 antes de subirlo"');
+      assert.equal(r.status, 0);
+    });
 
     test('bloquea comando destructivo evaluado dinamicamente via eval/Invoke-Expression/iex sobre una variable', () => {
       assert.equal(run('eval $CMD_PELIGROSO').status, 2);
