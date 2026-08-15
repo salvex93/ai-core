@@ -278,6 +278,12 @@ describe('destructive-op-guard.js', () => {
       assert.equal(run('Remove-Item -Force -Recurse build').status, 2);
     });
 
+    test('bloquea alias reales de Remove-Item verificados contra learn.microsoft.com (hallazgo red-team 2026-08-15: "ri" evadia el guard)', () => {
+      assert.equal(run('ri -Recurse -Force build').status, 2);
+      assert.equal(run('rd -Recurse -Force build').status, 2);
+      assert.equal(run('erase -Recurse -Force build').status, 2);
+    });
+
     test('permite "Remove-Item archivo.txt" sin -Recurse -Force', () => {
       assert.equal(run('Remove-Item archivo.txt').status, 0);
     });
