@@ -3,6 +3,33 @@
 Registro de cambios por version. Formato basado en [Keep a Changelog](https://keepachangelog.com/es/1.0.0/).
 Versionado semantico: MAJOR.MINOR.PATCH.
 
+## [Sin version — mantenimiento] — 2026-08-15 (red-team adversarial de guards + cierre de scaffolding sin test real)
+
+### Corregido — 61 evasiones de guards confirmadas por red-team adversarial
+
+Workflow de red-team (12 guards, 6 tecnicas de evasion por guard, verificacion independiente de cada hallazgo) confirmo 61 evasiones reales via 2 causas raiz transversales: ningun guard normalizaba Unicode (homoglifos cirilicos, zero-width space, mayusculas sin flag `/i`) ni evaluaba lo que un comando PRODUCE al ejecutarse (base64/hex decodificado, variables de shell fragmentadas). Cerradas con 2 librerias compartidas nuevas (`lib/normalizar-texto.js`, `lib/deteccion-resolucion-previa.js`) aplicadas en los 10 guards de deteccion textual del arnes.
+
+Bugs puntuales corregidos, cada uno verificado contra el payload exacto reportado: `code-exec-guard.js` (regex se rompia con `;` entre `require(child_process)` y `.exec()`), `standards-guard.js` (`.includes('test')` eximia archivos de produccion como `latest-config.json`), `subagent-guard.js` (no detectaba recursion indirecta via contenido del prompt), `mutating-action-guard.js` (verbo HTTP en variable de shell evadia el bloqueo), `agent-paths-guard.js`/`destructive-op-guard.js` (faltaban 5 alias reales de `Remove-Item`: `ri`, `rd`, `rmdir`, `del`, `erase`, verificados contra Microsoft Learn).
+
+Dos bugs encontrados y corregidos dentro de la propia libreria compartida durante su construccion: el strip de markdown rompia credenciales reales con guion bajo (`ghp_ABC...` -> `ghpABC...`), y el colapso de espacios destruia saltos de linea que `injection-guard.js` necesita para su regex multilinea.
+
+1127 tests tras esta ronda, 43/43 skills conformes, 6/6 agentes conformes.
+
+### Cerrado — scaffolding sin test real en 12 de 13 unidades auditadas (nivel AAA senior)
+
+Extension del hallazgo de auditoria anterior (arxiv 2607.17044: la confiabilidad de un agente viene de scaffolding verificable, no de prosa de precaucion). Las 4 unidades restantes con `gate_tiene_test_real: false` en agentes:
+
+- `code-reviewer.md`: extraida la regla de veredicto (Paso 3) a `lib/code-reviewer-veredicto.js`, funcion pura testeable que ademas detecta si un reporte declara un VEREDICTO inconsistente con sus propios conteos de severidad -- integrada en `cross-verify-gate.js` para no confiar ciegamente en el string "VEREDICTO: APROBADO".
+- `issue-tracker.md`: agregado test de contrato de formato de mensaje (conteo de eventos pendientes parseable).
+- `security-scanner.md`: nuevo `lib/security-scanner-report-format.js`, valida el contrato ESTADO enum + conteos, con el umbral explicito ahora declarado en el propio `.md` (antes solo implicito).
+- `self-healing-agent.md`: nuevo `lib/self-healing-agent-report-format.js`; corregido ademas el mismo bug de `pgrep` (inexistente en Git Bash/Windows) que ya se habia corregido en `aiops-auditor.md` pero no se replico aqui, y el mecanismo de invocacion ambiguo de `ejecutarCicloReparacion` (ahora un comando `node -e` real, no un fragmento `require()` suelto).
+
+`validate-globals.js` ahora exige la seccion "Gate de Calidad Medible" (regex flexible, acepta variantes como "Gate de evaluacion medible") para todo skill `rol:auditor` -- cierra el vector donde borrar el gate de un skill auditor por error no lo detectaba ningun hook.
+
+7 skills con evals de promptfoo ampliados para ejercitar al menos 1-2 filas cuantitativas reales del Gate de Calidad Medible (antes solo probaban tono/idioma/Directiva de Interrupcion): `security-auditor`, `ciso`, `attack-surface-analyst`, `backend-architect`, `database-ops`, `claude-agent-sdk`, `mcp-server-builder`. Hallazgos menores corregidos: campo `pertenencia_verificada` faltante en el dataclass de `attack-surface-analyst`, gate de `backend-architect` sin referenciar desde sus 2 checklists de PR.
+
+1155 tests, 43/43 skills conformes, 6/6 agentes conformes.
+
 ## [Sin version — mantenimiento] — 2026-08-15 (auditoria intensiva de mercado: 43 skills + 7 agentes + arnes, 3 capacidades nuevas de paridad competitiva)
 
 ### Auditado y corregido — desactualizacion tecnica vs fuente primaria (research de mercado 2026)
