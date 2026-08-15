@@ -22,6 +22,7 @@ const path = require('path');
 const { chatAnthropic } = require('./model-adapters/AnthropicAdapter');
 const { chatGemini } = require('./model-adapters/GeminiAdapter');
 const { chatOpenAICompat, PROVIDER_CONFIGS } = require('./model-adapters/OpenAICompatAdapter');
+const { reintentarConBackoff } = require('./lib/retry-with-backoff');
 
 // Carga .env desde la raiz del proyecto
 function loadEnv() {
