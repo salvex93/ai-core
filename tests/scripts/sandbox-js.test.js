@@ -36,9 +36,12 @@ describe('sandbox.js', () => {
   });
 
   test('sin Docker disponible: exit distinto de 0, mensaje explicativo por stderr, nunca lanza excepcion no capturada', () => {
-    const r = spawnSync('node', [SCRIPT], {
+    // Invocar node por ruta absoluta (process.execPath) en vez del PATH --
+    // se vacia PATH para que "docker" no se resuelva en ningun directorio,
+    // sin impedir que el propio spawnSync encuentre el binario de node.
+    const r = spawnSync(process.execPath, [SCRIPT], {
       encoding: 'utf8',
-      env: { ...process.env, PATH: '' }, // fuerza que "docker" no se encuentre en ningun PATH
+      env: { ...process.env, PATH: '' },
     });
     assert.notEqual(r.status, 0, 'debe fallar explicitamente si Docker no esta disponible');
     assert.match(r.stderr, /Docker no esta instalado|no esta en PATH/i);
