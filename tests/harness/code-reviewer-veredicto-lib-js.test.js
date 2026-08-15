@@ -123,8 +123,8 @@ describe('lib/code-reviewer-veredicto.js — parsearReporte (contrato de formato
     assert.equal(parsed.veredictoConsistente, true);
   });
 
-  test('reporte malformado (sin linea VEREDICTO) lanza error explicito', () => {
-    const reporte = 'CRITICOS (0):\nninguno\n';
+  test('reporte malformado (con las 4 secciones pero sin linea VEREDICTO) lanza error explicito', () => {
+    const reporte = 'CRITICOS (0):\nninguno\nALTOS (0):\nninguno\nMEDIOS (0):\nninguno\nBAJOS (0):\nninguno\n';
     assert.throws(() => parsearReporte(reporte), /VEREDICTO/i);
   });
 
