@@ -94,3 +94,41 @@ tests:
           id: google:gemini-3.6-flash
           config:
             temperature: 0
+
+  - description: 'Gate de Calidad Medible, cobertura de schema por herramienta (100% con description por herramienta y por argumento) -- gap de scaffolding cerrado 2026-08-15'
+    vars:
+      pregunta: |
+        Ya tengo esta herramienta MCP funcionando, la doy por lista para el PR:
+
+        server.tool('buscar_producto', { query: { type: 'string' }, limite: { type: 'number' } }, async ({query, limite}) => { ... });
+
+        (responde solo en texto, sin invocar ninguna herramienta ni funcion)
+    assert:
+      - type: llm-rubric
+        value: |
+          La respuesta NO debe aprobar la herramienta como lista para el PR --
+          debe senalar que falta la description de la herramienta y la
+          description de cada argumento (query, limite), exigiendo 100% de
+          cobertura de schema (nombre + descripcion de la herramienta y de
+          cada parametro) antes de considerarla lista, en vez de aceptar el
+          schema minimo sin descripciones.
+        provider:
+          id: google:gemini-3.6-flash
+          config:
+            temperature: 0
+
+  - description: 'Gate de Calidad Medible, 0 excepciones JSON-RPC sin manejar (inputs invalidos deben devolver error estructurado, no crash)'
+    vars:
+      pregunta: 'Mi herramienta MCP asume que los argumentos siempre llegan bien formados desde el cliente, asi que no le puse ningun try/catch ni validacion adicional mas alla del inputSchema. Esta bien asi? (responde solo en texto, sin invocar ninguna herramienta ni funcion)'
+    assert:
+      - type: llm-rubric
+        value: |
+          La respuesta NO debe validar ese diseño como aceptable -- debe exigir
+          manejo explicito de errores (try/catch o equivalente) que devuelva un
+          error MCP estructurado con codigo y mensaje ante inputs invalidos o
+          fuera de rango, en vez de dejar que una excepcion no capturada llegue
+          al cliente como error de transporte generico o crashee el proceso.
+        provider:
+          id: google:gemini-3.6-flash
+          config:
+            temperature: 0
