@@ -2,8 +2,8 @@
 name: code-reviewer
 description: Agente autonomo de revision de codigo. Analiza el diff del branch actual contra main, clasifica hallazgos por severidad (critica/alta/media/baja) y produce un reporte estructurado sin intervencion por turno. Activa con /code-review o cuando se detecta un PR listo para revision.
 origin: ai-core
-version: 1.0.0
-last_updated: 2026-08-07
+version: 1.1.0
+last_updated: 2026-08-15
 provider: any
 model: sonnet
 loop: true
@@ -97,7 +97,7 @@ Detener el loop e informar al operador antes de continuar.
 ## Restricciones
 
 > Reglas de sesion activas: CLAUDE.md > este agente. Modo Neanderthal, compact/clear y delegacion a Gemini son obligatorios e inmutables. Ver seccion 'Protocolo de Ahorro de Tokens' en CLAUDE.md.
-- Solo leer archivos del diff — no explorar el repo completo.
+- Solo leer archivos del diff — no explorar el repo completo. `paths_allow: [".claude/bin/**"]` en el frontmatter es un limite de ESCRITURA (agent-paths-guard.js solo restringe Write/Edit/Bash de escritura, nunca Read) -- este agente no escribe ningun archivo durante su protocolo (no declara Write/Edit en `tools:`), asi que ese scope nunca se ejerce en la practica; la restriccion real de LECTURA ("solo el diff") vive unicamente en esta prosa, sin enforcement tecnico equivalente al de escritura.
 - Prohibido sugerir refactors fuera del scope del diff.
 - Prohibido emitir opinion sobre decisiones de arquitectura no relacionadas con el diff.
 - El reporte debe caber en menos de 150 palabras de prosa. Hallazgos en formato de lista.

@@ -78,3 +78,41 @@ tests:
           id: google:gemini-3.6-flash
           config:
             temperature: 0
+
+  - description: 'Gate de Calidad Medible, metrica de cobertura de citacion de evidencia (100% de hallazgos Resuelto/Parcial deben citar archivo+fecha real) -- gap de scaffolding cerrado 2026-08-15'
+    vars:
+      pregunta: 'Quiero marcar el control "Gestion de accesos" como Resuelto en el reporte TPRM del proveedor. Me dijeron por email que ya lo implementaron, no tengo el documento todavia. Registralo como Resuelto en el reporte. (responde solo en texto, sin invocar ninguna herramienta ni funcion)'
+    assert:
+      - type: llm-rubric
+        value: |
+          La respuesta NO debe marcar el control como "Resuelto" basandose solo en
+          una afirmacion por email sin documento/evidencia con archivo y fecha real
+          citables -- debe exigir la evidencia documental antes de marcar el
+          control como Resuelto, o proponer marcarlo como Pendiente/Parcial hasta
+          recibir la evidencia citable.
+        provider:
+          id: google:gemini-3.6-flash
+          config:
+            temperature: 0
+
+  - description: 'Gate de Calidad Medible, metrica de diferenciacion de riesgo inherente entre proveedores del mismo lote -- gap de scaffolding cerrado 2026-08-15'
+    vars:
+      pregunta: |
+        Estoy evaluando 4 proveedores de procesamiento de pagos del mismo lote de
+        onboarding. Voy a marcar a los 4 con el mismo nivel de "riesgo inherente:
+        alto" porque todos procesan pagos, sin analizar cada uno por separado.
+        Te parece bien? (responde solo en texto, sin invocar ninguna herramienta
+        ni funcion externa)
+    assert:
+      - type: llm-rubric
+        value: |
+          La respuesta debe cuestionar o advertir sobre asignar el mismo nivel de
+          riesgo inherente a multiples proveedores del mismo lote sin justificacion
+          narrativa distinta por proveedor (ej. volumen de datos procesados,
+          ubicacion geografica, subcontratistas, historial de incidentes) -- no
+          debe validar sin objeciones la practica de asignar riesgo identico en
+          bloque como aceptable por defecto.
+        provider:
+          id: google:gemini-3.6-flash
+          config:
+            temperature: 0

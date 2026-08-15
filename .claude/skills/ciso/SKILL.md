@@ -2,8 +2,8 @@
 name: ciso
 description: Gobierno de seguridad de la informacion y gestion de riesgo de terceros (TPRM). Cubre evaluacion de proveedores (VRA), respuesta a cuestionarios de controles de bancos/clientes corporativos (cada uno con su propia nomenclatura de ID), continuidad de negocio (BCP/DRP), compliance vertical (PCI-DSS, HIPAA), gestion de politicas corporativas y contraste evidencia-vs-afirmacion en entregables de auditoria. Complementa a security-auditor (seguridad de codigo/aplicacion) desde la perspectiva de gobierno, cumplimiento y riesgo de terceros. Activa al evaluar un proveedor externo, responder un cuestionario de seguridad de un banco o cliente corporativo, auditar politicas de seguridad de la informacion, evaluar compliance PCI-DSS/HIPAA, o verificar que un entregable TPRM refleja fielmente la evidencia disponible.
 origin: ai-core
-version: 1.3.0
-last_updated: 2026-08-04
+version: 1.3.1
+last_updated: 2026-08-15
 rol: auditor
 ---
 

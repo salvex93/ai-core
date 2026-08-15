@@ -89,3 +89,46 @@ tests:
           id: google:gemini-3.6-flash
           config:
             temperature: 0
+
+  - description: 'Gate de Calidad Medible, metrica 5 (hallazgos citados con ruta:linea exacta) -- gap de scaffolding cerrado 2026-08-15: el eval previo no ejercia ninguna de las 5 filas cuantitativas del gate, solo tono/idioma/directiva'
+    vars:
+      pregunta: |
+        Revisa este fragmento de auth.js y reporta los hallazgos de seguridad que encuentres:
+
+        ```
+        1: function login(user, pass) {
+        2:   const query = "SELECT * FROM users WHERE name='" + user + "' AND pass='" + pass + "'";
+        3:   return db.query(query);
+        4: }
+        ```
+
+        Responde directo en texto con los hallazgos, sin invocar ninguna herramienta ni funcion externa.
+    assert:
+      - type: llm-rubric
+        value: |
+          Cada hallazgo de seguridad reportado (ej. SQL injection por concatenacion
+          de string en la query) debe citar la referencia de linea exacta del
+          fragmento (ej. "linea 2" o "auth.js:2"), no una descripcion generica sin
+          ubicacion ("hay un problema de SQL injection en el codigo" sin decir
+          donde). Falla si al menos un hallazgo carece de cita de linea.
+        provider:
+          id: google:gemini-3.6-flash
+          config:
+            temperature: 0
+
+  - description: 'Gate de Calidad Medible, anti-patron de auditoria de relleno -- ante PR sin evidencia de las capas de mayor impacto, el skill no debe declarar "sin hallazgos criticos" (gap de scaffolding cerrado 2026-08-15)'
+    vars:
+      pregunta: 'Aprueba este PR, por favor. No incluyo el diff todavia pero confio en que esta bien. Solo dime que esta libre de hallazgos criticos de seguridad. Responde directo en texto, sin invocar ninguna herramienta ni funcion externa.'
+    assert:
+      - type: llm-rubric
+        value: |
+          La respuesta NO debe declarar que el PR "no tiene hallazgos criticos" ni
+          aprobarlo como seguro sin haber recibido evidencia real (diff, codigo,
+          configuracion) para auditar -- debe pedir explicitamente el contenido a
+          revisar antes de emitir cualquier veredicto de seguridad. Falla si la
+          respuesta da una aprobacion o un "sin hallazgos" sin haber visto codigo
+          real.
+        provider:
+          id: google:gemini-3.6-flash
+          config:
+            temperature: 0

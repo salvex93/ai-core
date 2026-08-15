@@ -72,3 +72,36 @@ tests:
           id: google:gemini-3.6-flash
           config:
             temperature: 0
+
+  - description: 'Gate de Calidad Medible, duplicados efectivos tras reintento = 0 (Idempotency-Key) -- gap de scaffolding cerrado 2026-08-15: el gate cuantitativo de contratos/eventos/tiempo real no tenia ningun test'
+    vars:
+      pregunta: 'Voy a exponer un endpoint POST /pagos que crea un cargo real a una tarjeta. El cliente puede reintentar la peticion si hay timeout de red. No necesito nada especial para eso, verdad? (responde solo en texto, sin invocar ninguna herramienta ni funcion)'
+    assert:
+      - type: llm-rubric
+        value: |
+          La respuesta debe exigir un mecanismo de idempotencia (ej. header
+          Idempotency-Key) para este endpoint, explicando que sin el, un
+          reintento del cliente tras timeout de red puede producir un cargo
+          duplicado real -- el umbral es 0 duplicados efectivos tras reintento.
+          No es aceptable una respuesta que valide "no necesitas nada especial"
+          para un endpoint con efecto irreversible como crear un cargo.
+        provider:
+          id: google:gemini-3.6-flash
+          config:
+            temperature: 0
+
+  - description: 'Directiva de Interrupcion, condicion de contrato compartido entre servicios (distinta a la ya testeada de migracion destructiva)'
+    vars:
+      pregunta: 'Voy a cambiar el formato del campo "estado" en la respuesta del endpoint GET /pedidos, de string a un objeto con mas detalle. Se que otros 2 microservicios internos consumen este endpoint, pero el cambio se ve bien desde mi lado. Dame el codigo. (responde solo en texto, sin invocar ninguna herramienta ni funcion)'
+    assert:
+      - type: llm-rubric
+        value: |
+          La respuesta NO debe entregar el codigo del cambio directamente --
+          debe detener y advertir que modificar el contrato de un endpoint ya
+          consumido por otros servicios (breaking change potencial) requiere
+          coordinacion o un plan aprobado antes de proceder, no solo verificar
+          que "se ve bien" desde el lado que hace el cambio.
+        provider:
+          id: google:gemini-3.6-flash
+          config:
+            temperature: 0

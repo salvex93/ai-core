@@ -2,7 +2,7 @@
 name: self-healing-agent
 description: Agente autonomo de auto-reparacion. Diagnostica errores encolados en EVENTS_QUEUE.json via el ciclo AUDITOR/ARCHITECT de ErrorRepairLoop.js y produce una propuesta de fix (causa raiz, archivos afectados, comando o codigo de correccion). Nunca aplica el fix por si solo — requiere confirmacion humana explicita. Activa al detectar errores repetidos en EVENTS_QUEUE.json o cuando el catch de una tool MCP devuelve reparacion.fallo=false con una propuesta pendiente de revisar.
 origin: ai-core
-version: 1.0.1
+version: 1.2.0
 last_updated: 2026-08-15
 provider: any
 model: sonnet
@@ -24,8 +24,29 @@ node -e "JSON.parse(require('fs').readFileSync('.claude/EVENTS_QUEUE.json','utf8
 # 2. ANTHROPIC_API_KEY configurada (el ciclo de diagnostico/reparacion depende del bridge)
 test -n "$ANTHROPIC_API_KEY" && echo "OK: bridge disponible" || echo "FALLO: sin ANTHROPIC_API_KEY, el ciclo de reparacion no puede completar"
 
-# 3. No hay otra instancia self-healing-agent corriendo
-pgrep -f "self-healing-agent" | grep -v $$ | head -1 && echo "FALLO: instancia duplicada detectada" || echo "OK: sin duplicados"
+# 3. No hay otra instancia self-healing-agent corriendo (pgrep no existe en
+# Git Bash/Windows -- mismo hallazgo y mismo fix ya aplicado en
+# aiops-auditor.md: lockfile con TTL en os.tmpdir(), Node puro, sin comando
+# de shell especifico de plataforma)
+node -e "
+const fs=require('fs'),path=require('path'),os=require('os');
+const dir=path.join(os.tmpdir(),'ai-core-locks','self-healing-agent');
+fs.mkdirSync(dir,{recursive:true});
+const ttlMs=10*60*1000;
+const ahora=Date.now();
+let duplicado=false;
+for(const f of fs.readdirSync(dir)){
+  const p=path.join(dir,f);
+  try{
+    const lock=JSON.parse(fs.readFileSync(p,'utf8'));
+    if(ahora-lock.ts>ttlMs){fs.unlinkSync(p);continue;}
+    if(lock.pid!==process.pid){duplicado=true;}
+  }catch{continue;}
+}
+if(duplicado){console.log('FALLO: instancia duplicada detectada');process.exit(1);}
+fs.writeFileSync(path.join(dir,process.pid+'.lock'),JSON.stringify({pid:process.pid,ts:ahora}));
+console.log('OK: sin duplicados');
+"
 ```
 
 Si la precondicion 2 falla: reportar `[PRECONDICION-FALLO: bridge no disponible]` y detener — no tiene sentido diagnosticar sin poder completar el ciclo.
@@ -40,14 +61,18 @@ Priorizar errores que aparezcan >= 2 veces — un error unico y no repetido es c
 
 ### Paso 2 — Diagnostico via ciclo AUDITOR/ARCHITECT
 
-Para cada error priorizado, invocar el ciclo ya conectado en `scripts/mcp-gemini.js` (funcion `intentarReparar`) o directamente `ejecutarCicloReparacion` de `scripts/services/ErrorRepairLoop.js`:
+Para cada error priorizado, invocar el ciclo ya conectado en `scripts/mcp-gemini.js` (funcion `intentarReparar`) o directamente `ejecutarCicloReparacion` de `scripts/services/ErrorRepairLoop.js`. Mecanismo de invocacion real (gap de scaffolding cerrado 2026-08-15: `tools:` solo declara `[Bash, Read, Grep, Glob]`, sin herramienta de tipo "ejecutar JS" -- la unica via valida es un comando Bash que invoque Node con `-e`, no un fragmento `require()` suelto que no es un comando copiable/pegable):
 
-```js
+```bash
+node -e "
 const { ejecutarCicloReparacion } = require('./scripts/services/ErrorRepairLoop');
-const resultado = await ejecutarCicloReparacion({ error, herramienta, exitCode, stderr });
+ejecutarCicloReparacion({ error: process.argv[1], herramienta: process.argv[2], exitCode: process.argv[3], stderr: process.argv[4] })
+  .then(r => console.log(JSON.stringify(r)))
+  .catch(e => { console.error('RECHAZADO:', e.message); process.exit(1); });
+" "<error>" "<herramienta>" "<exitCode>" "<stderr>"
 ```
 
-Si `ejecutarCicloReparacion` rechaza (bridge no disponible, rate limit): registrar el fallo y continuar con el siguiente error de la cola — no reintentar de forma agresiva (mismo criterio de `circuit-breaker.js`).
+Si el comando sale con exit distinto de 0 (`ejecutarCicloReparacion` rechazo -- bridge no disponible, rate limit): registrar el fallo y continuar con el siguiente error de la cola — no reintentar de forma agresiva (mismo criterio de `circuit-breaker.js`).
 
 ### Paso 3 — Clasificar la propuesta por riesgo de aplicacion
 

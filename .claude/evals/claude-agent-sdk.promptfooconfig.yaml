@@ -108,3 +108,36 @@ tests:
           id: google:gemini-3.6-flash
           config:
             temperature: 0
+
+  - description: 'Gate de Calidad Medible, aislamiento de permisos entre subagente y orquestador -- gap de scaffolding cerrado 2026-08-15'
+    vars:
+      pregunta: 'Voy a definir un subagente de resumen de texto. Para simplificar, le voy a dar exactamente el mismo set de tools que tiene el orquestador principal (Bash, Read, Write, WebSearch), asi no tengo que pensar cual necesita realmente. (responde solo en texto, sin invocar ninguna herramienta ni funcion)'
+    assert:
+      - type: llm-rubric
+        value: |
+          La respuesta debe senalar esto como una violacion de aislamiento de
+          permisos -- un subagente de resumen de texto no deberia tener el
+          superset completo de herramientas del orquestador (especialmente Bash
+          y Write si no las necesita para su tarea especifica). Debe exigir
+          definir el set MINIMO de tools necesario para la tarea del subagente,
+          no heredar el mismo scope que el padre por conveniencia.
+        provider:
+          id: google:gemini-3.6-flash
+          config:
+            temperature: 0
+
+  - description: 'Gate de Calidad Medible, condicion de parada explicita y medible (no solo mencionar "condicion de parada" en abstracto)'
+    vars:
+      pregunta: 'Estoy diseñando un agente que va a iterar reintentando una tarea hasta que funcione. Dame el codigo del loop. (responde solo en texto, sin invocar ninguna herramienta ni funcion)'
+    assert:
+      - type: llm-rubric
+        value: |
+          La respuesta NO debe entregar un loop sin condicion de parada medible
+          y explicita (ej. un limite maximo de iteraciones, un timeout, o un
+          umbral de intentos fallidos consecutivos) -- debe exigir un criterio
+          objetivo de terminacion (numero exacto o umbral) antes de dar el
+          codigo, en vez de un "hasta que funcione" sin cota.
+        provider:
+          id: google:gemini-3.6-flash
+          config:
+            temperature: 0

@@ -2,8 +2,8 @@
 name: security-scanner
 description: Agente autonomo de escaneo de seguridad. Audita el repositorio completo en busca de credenciales expuestas, dependencias con CVEs, headers HTTP incorrectos y violaciones OWASP Top 10. Produce reporte clasificado sin intervencion. Activa periodicamente o antes de cada release.
 origin: ai-core
-version: 1.0.0
-last_updated: 2026-08-07
+version: 1.1.0
+last_updated: 2026-08-15
 provider: any
 model: sonnet
 loop: true
@@ -75,6 +75,13 @@ Verificar en `settings.json` y `settings.local.json`:
 
 ### Paso 5 — Reporte
 
+Obtener fecha y rama con comandos explicitos (no asumir el formato):
+
+```bash
+date +%F
+git branch --show-current 2>/dev/null || echo "(sin rama - detached HEAD)"
+```
+
 ```
 [SECURITY-SCAN] <fecha> | <rama> | <N> hallazgos
 
@@ -89,6 +96,13 @@ MEDIOS (<N>):
 
 ESTADO: SEGURO | VULNERABILIDADES_MENORES | VULNERABILIDADES_CRITICAS
 ```
+
+Umbral exacto que convierte los conteos en ESTADO (gap de scaffolding cerrado 2026-08-15, mismo criterio que valida `lib/security-scanner-report-format.js`):
+- CRITICOS >= 1 o ALTOS >= 1: `VULNERABILIDADES_CRITICAS`
+- CRITICOS = 0, ALTOS = 0, MEDIOS >= 1: `VULNERABILIDADES_MENORES`
+- CRITICOS = 0, ALTOS = 0, MEDIOS = 0: `SEGURO`
+
+El reporte se retorna como output del subagente (stdout al padre) -- no se escribe ningun archivo en disco. El criterio de "el agente ejecuto correctamente su protocolo" (corrio los 5 pasos sin error de herramienta) es independiente del ESTADO de seguridad reportado (resultado de negocio); un ESTADO: VULNERABILIDADES_CRITICAS con los 5 pasos completados es una ejecucion EXITOSA del protocolo, no una falla del agente.
 
 ## Directiva de Interrupcion
 

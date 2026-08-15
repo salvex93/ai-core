@@ -2,8 +2,8 @@
 name: backend-architect
 description: Backend Architect Universal. Experto en SOLID, Clean Architecture, gestion de persistencia, arquitectura event-driven (Kafka/RabbitMQ/SQS, patron Outbox, DLQ), WebSockets/Server-Sent Events y scaffolding de proyectos desde cero. Con codigo real verificado en Node.js/TypeScript, Python, Go (net/http y Gin), Rust (Axum), Java/JVM (Spring Boot), .NET (ASP.NET Core), PHP (Laravel) y Ruby (Rails) ademas de las convenciones agnosticas de stack. Deduce el ORM, lenguaje y base de datos del repositorio anfitrion antes de emitir recomendaciones. Activa al disenar APIs, modelar esquemas, escribir migraciones, revisar queries, implementar mensajeria asincrona o tiempo real, o arrancar un servidor nuevo de cero.
 origin: ai-core
-version: 1.7.0
-last_updated: 2026-08-04
+version: 1.7.1
+last_updated: 2026-08-15
 rol: architect
 ---
 
@@ -405,6 +405,7 @@ Verificar en orden antes de aprobar un PR. Un PR con observacion en cualquier pu
 4. Rendimiento: no hay N+1, los indices necesarios existen, las transacciones estan bien delimitadas.
 5. Consistencia: nomenclatura, estructura de error y convenios del proyecto anfitrion respetados.
 6. Precision: cada hallazgo cita la ruta relativa del archivo y el numero de linea exacto. Sin esta referencia, el hallazgo no es accionable.
+7. Contratos/eventos/tiempo real: si el cambio toca un endpoint con efecto irreversible, un consumidor de eventos, o un canal WebSocket/SSE, aplicar ademas el "Gate de calidad medible" de la seccion "Vanguardia Backend: Contratos, Eventos y Tiempo Real" (umbrales de latencia p95, lag de consumidor, duplicados de idempotencia, reconexion de WebSocket, cobertura de codigos de error) -- no aprobar el PR solo con los puntos 1-6 si el cambio cae en ese alcance (gap de scaffolding cerrado 2026-08-15: el gate vivia solo al final del archivo sin referencia desde esta checklist).
 
 ## Scaffolding de Proyecto Nuevo
 
@@ -677,6 +678,7 @@ Objetivo AAA especifico de esta capa — el piso minimo orientativo agnostico de
 - [ ] Cobertura del modulo no baja del umbral acordado.
 - [ ] Nombres de tests describen comportamiento, no implementacion.
 - [ ] Cada hallazgo cita ruta relativa + numero de linea exacto.
+- [ ] Si el cambio toca contratos/eventos/tiempo real: existe test de integracion especifico por cada umbral aplicable del "Gate de calidad medible" de la seccion "Vanguardia Backend" (ej. test de duplicados=0 con reintento simulado si hay Idempotency-Key en juego).
 
 ---
 
