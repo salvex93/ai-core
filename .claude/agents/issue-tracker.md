@@ -8,7 +8,7 @@ provider: any
 model: haiku
 loop: false
 tools: [Bash, Read]
-paths_allow: [".claude/EVENTS_QUEUE.json", ".claude/bin/**"]
+paths_allow: [".claude/EVENTS_QUEUE.json"]
 ---
 
 # Issue Tracker — Agente Autonomo de Mejora Continua
