@@ -1,1 +1,0 @@
-{"agent_type":"code-reviewer","tool_name":"Bash","tool_input":{"command":"rm -rf /tmp/other/secret.txt"}}
