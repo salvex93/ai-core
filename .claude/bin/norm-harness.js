@@ -50,21 +50,38 @@ function sanitizeEnvironment() {
   });
 }
 
+function esLinkValidoAlCore(claudeMdPath, coreClaude) {
+  if (!fs.existsSync(claudeMdPath)) return false;
+  const stat = fs.lstatSync(claudeMdPath);
+  if (stat.isSymbolicLink()) return fs.realpathSync(claudeMdPath) === fs.realpathSync(coreClaude);
+  // Hardlink: mismo inode que el CLAUDE.md real del core.
+  return fs.statSync(claudeMdPath).ino === fs.statSync(coreClaude).ino;
+}
+
 function normalizeSymlinks() {
   const claudeMdPath = path.join(projectDir, "CLAUDE.md");
   const coreClaude = path.join(CORE_PATH, "CLAUDE.md");
 
-  // Evitar recreación si ya es un link válido
-  if (!fs.existsSync(claudeMdPath)) {
+  // No aplica al propio ai-core: ahi CLAUDE.md es el archivo real, no un link al host.
+  if (projectDir === CORE_PATH) return;
+
+  if (esLinkValidoAlCore(claudeMdPath, coreClaude)) return;
+
+  // Copia obsoleta o inexistente: reemplazar por un link al CLAUDE.md real del core.
+  if (fs.existsSync(claudeMdPath)) fs.unlinkSync(claudeMdPath);
+
+  try {
+    fs.symlinkSync(coreClaude, claudeMdPath, "file");
+    console.log("[+] Symlink CLAUDE.md creado/actualizado.");
+  } catch (e) {
+    // Windows sin modo desarrollador/admin no permite symlinks de archivo
+    // (requiere SeCreateSymbolicLinkPrivilege). Hardlink es el fallback
+    // correcto: mismo contenido siempre, sin privilegios especiales en NTFS.
     try {
-      if (platform === "win32") {
-        fs.symlinkSync(coreClaude, claudeMdPath, "file");
-      } else {
-        fs.symlinkSync(coreClaude, claudeMdPath);
-      }
-      console.log("[+] Simlink CLAUDE.md creado.");
-    } catch (e) {
-      console.error("[!] Error en symlinks. Ejecuta como Administrador.");
+      fs.linkSync(coreClaude, claudeMdPath);
+      console.log("[+] Hardlink CLAUDE.md creado/actualizado (symlink no disponible en este entorno).");
+    } catch (e2) {
+      console.error("[!] No se pudo vincular CLAUDE.md al core:", e2.message);
     }
   }
 }

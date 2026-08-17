@@ -49,6 +49,21 @@ describe('ContextIndex.js', () => {
   test('leerSiIndexado: retorna null para archivo no indexado', () => {
     assert.equal(leerSiIndexado('no-existe.md'), null);
   });
+
+  test('instalacion anidada: si el mapa del anfitrion no indexa un archivo, hace fallback al mapa de ai-core', () => {
+    // Regresion real: cargarMapa() se quedaba con el PRIMER candidato que
+    // existiera (el mapa del anfitrion tiene prioridad) y nunca probaba el
+    // segundo. En una instalacion anidada real (ai-core dentro de otro
+    // repo), el CONTEXT_MAP.json del anfitrion indexa los archivos DEL
+    // ANFITRION, no los de ai-core -- CLAUDE.md de ai-core (via symlink/
+    // hardlink en la raiz del anfitrion) podia no estar reflejado ahi,
+    // dejando resolver()/estaIndexado()/leerSiIndexado() ciegos a un
+    // archivo que si existe y esta indexado en el propio mapa de ai-core.
+    assert.ok(estaIndexado('CLAUDE.md'), 'CLAUDE.md debe resolverse por symlink/hardlink en el host o por el mapa propio de ai-core');
+    const r = leerSiIndexado('CLAUDE.md');
+    assert.ok(r, 'debe encontrar CLAUDE.md en al menos uno de los mapas candidatos');
+    assert.match(r.contenido, /AI-CORE/);
+  });
 });
 
 // ─── RateLimiter.js ───────────────────────────────────────────────────────────

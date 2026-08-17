@@ -61,6 +61,49 @@ describe('norm-harness.js', () => {
     assert.ok(fs.existsSync(claudeMdPath), 'debe crear CLAUDE.md en el anfitrion si no existia');
   });
 
+  function estaVinculadoAlCore(claudeMdPath, coreClaudePath) {
+    // symlink (Linux/macOS o Windows con modo dev/admin) o hardlink
+    // (fallback en Windows sin privilegios de symlink -- mismo inode).
+    const stat = fs.lstatSync(claudeMdPath);
+    if (stat.isSymbolicLink()) {
+      return fs.realpathSync(claudeMdPath) === fs.realpathSync(coreClaudePath);
+    }
+    return fs.statSync(claudeMdPath).ino === fs.statSync(coreClaudePath).ino;
+  }
+
+  test('reemplaza una copia obsoleta de CLAUDE.md (no vinculada) por un link al core', () => {
+    // Regresion real: normalizeSymlinks() solo actuaba si el archivo NO
+    // existia. Una copia estatica vieja del CLAUDE.md del core (ej. de una
+    // version anterior de ai-core, congelada antes de que existiera el
+    // link) quedaba huerfana para siempre -- ninguna corrida posterior la
+    // reemplazaba, asi que la sesion seguia leyendo reglas obsoletas.
+    tmpHost = crearProyectoAnfitrionTemporal();
+    fs.writeFileSync(path.join(tmpHost, 'CLAUDE.md'), '# AI-CORE v0.0.1-obsoleto\n');
+
+    const r = spawnSync('node', [SCRIPT], { encoding: 'utf8', cwd: tmpHost });
+    assert.equal(r.status, 0, `debe terminar sin error (stderr: ${r.stderr})`);
+
+    const claudeMdPath = path.join(tmpHost, 'CLAUDE.md');
+    const coreClaudePath = path.join(BIN, '..', '..', 'CLAUDE.md');
+    assert.ok(
+      estaVinculadoAlCore(claudeMdPath, coreClaudePath),
+      'debe reemplazar la copia obsoleta por un link (symlink o hardlink) al CLAUDE.md real del core'
+    );
+  });
+
+  test('no reescribe el link si ya apunta correctamente al CLAUDE.md del core', () => {
+    tmpHost = crearProyectoAnfitrionTemporal();
+    spawnSync('node', [SCRIPT], { encoding: 'utf8', cwd: tmpHost });
+
+    const claudeMdPath = path.join(tmpHost, 'CLAUDE.md');
+    const coreClaudePath = path.join(BIN, '..', '..', 'CLAUDE.md');
+    assert.ok(estaVinculadoAlCore(claudeMdPath, coreClaudePath), 'precondicion: la primera corrida debe dejar un link valido');
+
+    const r = spawnSync('node', [SCRIPT], { encoding: 'utf8', cwd: tmpHost });
+    assert.equal(r.status, 0);
+    assert.ok(estaVinculadoAlCore(claudeMdPath, coreClaudePath), 'debe seguir vinculado tras la segunda corrida');
+  });
+
   test('elimina archivos legacy de la blacklist en el proyecto anfitrion', () => {
     tmpHost = crearProyectoAnfitrionTemporal();
     fs.writeFileSync(path.join(tmpHost, 'SECURITY_CHANGES_v2.4.0.md'), 'legacy');
