@@ -158,13 +158,59 @@ function getHarnessVersion() {
 }
 
 // ---------------------------------------------------------------------------
+// Deduplicacion cross-sesion contra issues ya abiertos en GitHub
+// ---------------------------------------------------------------------------
+
+// Prefijo + herramienta + primeras palabras del error, sin el sufijo "(xN)"
+// de conteo -- issues #207-251: standards-guard bloqueando el mismo archivo
+// preexistente (pmo/assets/js/app.js) en sesiones distintas generaba un
+// titulo "nuevo" cada vez porque solo cambiaba el conteo. La clave de
+// comparacion ignora ese conteo para que sesiones distintas del mismo
+// problema recurrente se reconozcan como el mismo issue.
+function claveTitulo(title) {
+  return title.replace(/\s*\(x\d+\)\s*$/, '').trim().toLowerCase();
+}
+
+/**
+ * @param {string} tituloNuevo
+ * @param {string[]} titulosAbiertos - titulos de issues ya abiertos en el repo
+ * @returns {boolean}
+ */
+function esTituloDuplicado(tituloNuevo, titulosAbiertos) {
+  const clave = claveTitulo(tituloNuevo);
+  return titulosAbiertos.some(t => claveTitulo(t) === clave);
+}
+
+// Best-effort: si gh issue list falla (rate limit, sin red), retorna lista
+// vacia -- se prefiere el riesgo de un duplicado ocasional sobre bloquear
+// el reporte completo por un fallo de consulta.
+function listarTitulosAbiertos() {
+  try {
+    const salida = execFileSync(
+      'gh',
+      ['issue', 'list', '--repo', REPO_TARGET, '--state', 'open', '--limit', '200', '--json', 'title'],
+      { encoding: 'utf8', cwd: CORE_PATH }
+    );
+    return JSON.parse(salida).map(i => i.title);
+  } catch {
+    return [];
+  }
+}
+
+// ---------------------------------------------------------------------------
 // Abrir issue en GitHub
 // ---------------------------------------------------------------------------
 
-function openIssue(type, events) {
+function openIssue(type, events, titulosAbiertos) {
   const meta  = ISSUE_META[type] || ISSUE_META.harness_error;
   const count = events.length > 1 ? ` (x${events.length})` : '';
   const title = `${meta.prefix} ${events[0].tool} — ${events[0].error.slice(0, 60)}${count}`;
+
+  if (esTituloDuplicado(title, titulosAbiertos)) {
+    process.stderr.write(`[ISSUE] Omitido (ya existe issue abierto equivalente): ${title}\n`);
+    return true; // se marca reported=true -- no reintentar indefinidamente el mismo hallazgo recurrente
+  }
+
   const body  = formatIssueBody(type, events);
 
   // Escribir body a archivo temporal para evitar problemas de escaping en shell
