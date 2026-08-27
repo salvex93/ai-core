@@ -30,6 +30,7 @@
 const fs   = require('fs');
 const path = require('path');
 const { leerEventoDeStdin } = require('./lib/hook-stdin');
+const { redactarSecretos }  = require('./lib/patrones-secretos');
 
 const CORE_PATH  = path.resolve(__dirname, '../..');
 // AI_CORE_EVENTS_QUEUE_PATH permite operar sobre una cola temporal en tests
