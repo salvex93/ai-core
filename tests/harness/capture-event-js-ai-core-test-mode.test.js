@@ -51,6 +51,22 @@ describe('capture-event.js — AI_CORE_TEST_MODE', () => {
     assert.ok(colaTrasEjecutar.some(e => e.error === marcador), 'sin el gate de test, el evento si debe encolarse');
   });
 
+  test('issue #252: redacta un token/secreto real dentro de --context antes de escribirlo en la cola', () => {
+    const tokenReal = '908a9927a67bf4fa008bc877e98a8fe03163a2416393ec6a6151331be1d2ee38';
+    const contexto = `TOKEN="${tokenReal}"\ncurl -H "Authorization: Bearer $TOKEN" https://ejemplo.com`;
+    const r = spawnSync('node', [
+      SCRIPT, '--type', 'hook_failure', '--tool', 'bash', '--error', 'sin detalle', '--context', contexto,
+    ], { encoding: 'utf8', cwd: REPO, env: { ...process.env, ...QUEUE_ENV } });
+
+    assert.equal(r.status, 0);
+    const crudo = fs.readFileSync(QUEUE_PATH, 'utf8');
+    assert.ok(!crudo.includes(tokenReal), 'el token real nunca debe llegar a persistirse en EVENTS_QUEUE.json');
+
+    const evt = leerCola().find(e => e.tool === 'bash' && e.error === 'sin detalle');
+    assert.ok(evt, 'el evento debe encolarse igual, solo con el secreto redactado');
+    assert.ok(evt.context.includes('REDACTADO'), 'el context debe marcar explicitamente la redaccion');
+  });
+
   test('sin --tool/--error explicitos, completa el contexto con tool_name/tool_response del JSON de stdin', () => {
     // Regresion real: CLAUDE_TOOL_NAME/CLAUDE_TOOL_INPUT/CLAUDE_TOOL_ERROR
     // nunca existieron como variables de entorno reales -- solo importa en
