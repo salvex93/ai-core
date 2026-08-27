@@ -255,40 +255,49 @@ function cleanOldReported(events) {
 // Main
 // ---------------------------------------------------------------------------
 
-const queue = readQueue();
-const pending = queue.filter(e => !e.reported);
+function main() {
+  const queue = readQueue();
+  const pending = queue.filter(e => !e.reported);
 
-if (pending.length === 0) {
-  process.stderr.write('[ISSUE-REPORTER] Sin eventos pendientes.\n');
-  process.exit(0);
-}
-
-if (!ghAvailable()) {
-  process.stderr.write('[ISSUE-REPORTER] gh CLI no disponible o no autenticado — issues no enviados.\n');
-  process.stderr.write(`[ISSUE-REPORTER] ${pending.length} evento(s) en cola para el proximo intento.\n`);
-  if (pending.length > UMBRAL_ALERTA_COLA) {
-    process.stderr.write(
-      `[ALERTA_ARQUITECTONICA: REQUIERE_OPUSPLAN]\n` +
-      `${pending.length} eventos pendientes en cola (umbral: ${UMBRAL_ALERTA_COLA}) -- ` +
-      `motivo probable: gh CLI no autenticado o sin conectividad (verificar con "gh auth status"). ` +
-      `La cola de reporte crece sin resolverse.\n`
-    );
+  if (pending.length === 0) {
+    process.stderr.write('[ISSUE-REPORTER] Sin eventos pendientes.\n');
+    return;
   }
-  process.exit(0);
+
+  if (!ghAvailable()) {
+    process.stderr.write('[ISSUE-REPORTER] gh CLI no disponible o no autenticado — issues no enviados.\n');
+    process.stderr.write(`[ISSUE-REPORTER] ${pending.length} evento(s) en cola para el proximo intento.\n`);
+    if (pending.length > UMBRAL_ALERTA_COLA) {
+      process.stderr.write(
+        `[ALERTA_ARQUITECTONICA: REQUIERE_OPUSPLAN]\n` +
+        `${pending.length} eventos pendientes en cola (umbral: ${UMBRAL_ALERTA_COLA}) -- ` +
+        `motivo probable: gh CLI no autenticado o sin conectividad (verificar con "gh auth status"). ` +
+        `La cola de reporte crece sin resolverse.\n`
+      );
+    }
+    return;
+  }
+
+  const titulosAbiertos = listarTitulosAbiertos();
+  const groups = groupByType(queue);
+  let reportedIds = new Set();
+
+  for (const [type, events] of Object.entries(groups)) {
+    const ok = openIssue(type, events, titulosAbiertos);
+    if (ok) events.forEach(e => reportedIds.add(e.id));
+  }
+
+  // Marcar como reportados y limpiar viejos
+  const updated = cleanOldReported(
+    queue.map(e => reportedIds.has(e.id) ? { ...e, reported: true } : e)
+  );
+
+  writeQueue(updated);
+  process.stderr.write(`[ISSUE-REPORTER] ${reportedIds.size} evento(s) reportados a ${REPO_TARGET}.\n`);
 }
 
-const groups = groupByType(queue);
-let reportedIds = new Set();
-
-for (const [type, events] of Object.entries(groups)) {
-  const ok = openIssue(type, events);
-  if (ok) events.forEach(e => reportedIds.add(e.id));
+if (require.main === module) {
+  main();
 }
 
-// Marcar como reportados y limpiar viejos
-const updated = cleanOldReported(
-  queue.map(e => reportedIds.has(e.id) ? { ...e, reported: true } : e)
-);
-
-writeQueue(updated);
-process.stderr.write(`[ISSUE-REPORTER] ${reportedIds.size} evento(s) reportados a ${REPO_TARGET}.\n`);
+module.exports = { esTituloDuplicado, claveTitulo };
