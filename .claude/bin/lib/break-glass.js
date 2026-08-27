@@ -102,28 +102,30 @@ function confirmarBreakGlass(id) {
 }
 
 /**
- * Marca la accion (identificada por guardId + hash de contexto) como
+ * Marca la accion (identificada por guardId + contexto normalizado) como
  * aprobada para su proximo chequeo via accionAprobada() -- consumible una
  * sola vez, con el mismo TTL que el resto del mecanismo.
  */
-function marcarAprobada(guardId, hashContexto) {
+function marcarAprobada(guardId, contexto) {
   try {
     fs.mkdirSync(APROBACIONES_DIR, { recursive: true });
-    const clave = claveAprobacion(guardId, hashContexto);
+    const clave = claveAprobacion(guardId, contexto);
     fs.writeFileSync(path.join(APROBACIONES_DIR, `${clave}.json`), JSON.stringify({ ts: Date.now() }), 'utf8');
   } catch { /* best-effort, no bloquear la excepcion ya otorgada */ }
 }
 
 /**
- * Consulta si guardId+hashContexto ya fue aprobado via confirmarBreakGlass.
- * Consume la aprobacion al leerla (un solo reintento, no una excepcion
- * permanente para acciones futuras con el mismo hash).
+ * Consulta si guardId+contexto ya fue aprobado via confirmarBreakGlass. El
+ * contexto se normaliza igual que en claveAprobacion, asi que diferencias
+ * triviales (espacios, invisibles) entre el comando original y el reintento
+ * siguen reconociendose como la misma accion. Consume la aprobacion al
+ * leerla (un solo reintento, no una excepcion permanente).
  * @param {string} guardId
- * @param {string} hashContexto
+ * @param {string} contexto
  * @returns {boolean}
  */
-function accionAprobada(guardId, hashContexto) {
-  const clave = claveAprobacion(guardId, hashContexto);
+function accionAprobada(guardId, contexto) {
+  const clave = claveAprobacion(guardId, contexto);
   const archivo = path.join(APROBACIONES_DIR, `${clave}.json`);
   let datos;
   try { datos = JSON.parse(fs.readFileSync(archivo, 'utf8')); } catch { return false; }
