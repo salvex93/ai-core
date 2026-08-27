@@ -13,7 +13,7 @@ const assert = require('node:assert/strict');
 const path   = require('node:path');
 const { BIN } = require('./_shared');
 
-const { ALTA_CONFIANZA, buscarCredenciales } = require(path.join(BIN, 'lib', 'patrones-secretos.js'));
+const { ALTA_CONFIANZA, buscarCredenciales, redactarSecretos } = require(path.join(BIN, 'lib', 'patrones-secretos.js'));
 
 describe('lib/patrones-secretos.js', () => {
   test('ALTA_CONFIANZA incluye los patrones ya validados en secrets-guard.js', () => {
