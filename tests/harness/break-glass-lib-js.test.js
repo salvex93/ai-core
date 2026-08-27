@@ -105,4 +105,19 @@ describe('lib/break-glass.js', () => {
     assert.equal(mod.accionAprobada('otro-guard', hashAccion), false, 'una aprobacion de un guard no debe filtrarse a otro guard');
     fs.rmSync(dir, { recursive: true, force: true });
   });
+
+  test('issue #256: reintento con espacios extra/colapsables en el comando SI reconoce la aprobacion (contexto normalizado)', () => {
+    const { mod, dir } = cargarModuloAislado();
+    const comandoOriginal = 'docker volume rm  mi-volumen';
+    const comandoReintento = 'docker volume rm mi-volumen';
+    const id = mod.solicitarBreakGlass('destructive-op-guard', comandoOriginal);
+    mod.confirmarBreakGlass(id);
+
+    assert.equal(
+      mod.accionAprobada('destructive-op-guard', comandoReintento),
+      true,
+      'una diferencia de espacios entre el comando bloqueado y el reintento no debe invalidar la aprobacion ya confirmada'
+    );
+    fs.rmSync(dir, { recursive: true, force: true });
+  });
 });
