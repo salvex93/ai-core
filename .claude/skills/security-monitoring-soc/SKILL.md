@@ -240,6 +240,16 @@ Uso proactivo (alimentar reglas de deteccion antes de un ataque), no solo reacti
 
 No sustituye contratar un feed comercial de threat intelligence si el presupuesto y el perfil de riesgo del anfitrion lo justifican -- este skill cubre el uso tecnico de la senal, no la evaluacion comercial de proveedores (eso es un caso de VRA, coordinar con `ciso`).
 
+## Gate de Calidad Medible
+
+| Metrica | Umbral | Metodo de verificacion |
+|---|---|---|
+| Tiempo medio de deteccion (MTTD) de un patron con regla de correlacion activa | <= 5 minutos desde que el evento ocurre hasta que la alerta se genera | Comparar timestamp del evento fuente contra timestamp de generacion de la alerta en el SIEM |
+| Tasa de falsos positivos de una regla de correlacion nueva antes de promoverla a alerta activa | <= 10% durante el periodo de calibracion de 7 dias en modo silencioso | Triage manual de cada alerta silenciosa generada durante el periodo de calibracion |
+| Cumplimiento de SLA de remediacion por severidad | 100% de hallazgos criticos cerrados dentro del SLA de 7 dias definido en este documento (o el que el anfitrion haya calibrado) | Comparar fecha de deteccion vs fecha de cierre verificado en el tracker de vulnerabilidades |
+| Cobertura de mapeo a MITRE ATT&CK de las reglas de correlacion activas | 100% de reglas de correlacion documentadas con al menos una tecnica ATT&CK asociada | Revision del catalogo de reglas contra `attack.mitre.org` |
+| Completitud del post-mortem tras un incidente cerrado | 100% de incidentes con severidad alta/critica tienen post-mortem con las 5 secciones minimas (linea de tiempo, causa raiz, gap de deteccion, accion correctiva, regla nueva si aplica) | Revision manual del documento de post-mortem contra la estructura minima de este SKILL |
+
 ## Restricciones del Perfil
 
 Las Reglas Globales definidas en CLAUDE.md aplican sin excepcion a este perfil.
