@@ -11,6 +11,7 @@ const { REPO, BIN, SKILLS, SETTINGS, runScript, tmpFile } = require('./_shared')
 describe('issue-reporter.js', () => {
   const SCRIPT = path.join(BIN, 'issue-reporter.js');
   const content = fs.readFileSync(SCRIPT, 'utf8');
+  const { esTituloDuplicado } = require(SCRIPT);
 
   // Labels reales del repo (gh label list --repo salvex93/ai-core). Si esta
   // lista cambia, actualizarla aqui tras confirmar con el comando real —
