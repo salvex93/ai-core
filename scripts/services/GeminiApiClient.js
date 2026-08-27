@@ -186,6 +186,7 @@ async function compactarSiNecesario(parsed, modelo) {
 module.exports = {
   GEMINI_DEFAULT,
   loadEnv,
+  parseEnvContent,
   getModel,
   isRefusal,
   extractJson,
