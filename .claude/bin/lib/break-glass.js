@@ -29,6 +29,8 @@ const path   = require('node:path');
 const os     = require('node:os');
 const crypto = require('node:crypto');
 
+const { normalizarTexto } = require('./normalizar-texto');
+
 const TTL_MS = 5 * 60 * 1000; // 5 min -- mismo TTL que jailbreak-guard.js
 
 const LOCKS_DIR = process.env.AI_CORE_BREAK_GLASS_DIR
@@ -40,8 +42,14 @@ const LOCKS_DIR = process.env.AI_CORE_BREAK_GLASS_DIR
 // aprobacion ya otorgada.
 const APROBACIONES_DIR = path.join(LOCKS_DIR, 'aprobadas');
 
-function claveAprobacion(guardId, hashContexto) {
-  return crypto.createHash('sha256').update(`${guardId}:${hashContexto}`).digest('hex');
+// issue #256: la clave se calcula sobre el contexto NORMALIZADO (mismo
+// pipeline que jailbreak-guard.js -- colapso de espacios, invisibles,
+// homoglifos), no el string crudo. Sin esto, cualquier diferencia trivial
+// entre el comando bloqueado y el reintento (espacios, reconstruccion del
+// shell entre turnos) invalida el hash silenciosamente y el break-glass
+// nunca reconoce una confirmacion ya otorgada.
+function claveAprobacion(guardId, contexto) {
+  return crypto.createHash('sha256').update(`${guardId}:${normalizarTexto(contexto)}`).digest('hex');
 }
 
 // Fuera de tmpdir a proposito -- el registro de auditoria debe sobrevivir al
