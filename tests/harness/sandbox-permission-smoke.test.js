@@ -9,15 +9,14 @@ const { REPO, BIN } = require('./_shared');
 
 /**
  * Test de humo del sandboxing de hooks propios (Node.js Permission Model).
- * Solo aplica en POSIX -- ver nota de SANDBOX en hooks-definition.js: en
- * Windows el mecanismo no se activa aun (comportamiento de glob de shell no
- * verificado con la misma confianza), asi que este archivo no tiene nada que
- * probar ahi y se salta explicitamente en vez de fallar por una premisa que
- * nunca aplico en esa plataforma.
+ * Verificado real en Windows (2026-08-28, Node v24.19.0): --permission y
+ * --allow-fs-read con glob funcionan igual que en POSIX siempre que la ruta
+ * se pase con separadores nativos de la plataforma (path.join ya lo hace).
+ * El skip anterior asumia sin verificacion que el mecanismo no aplicaba en
+ * win32 -- reproducido manualmente y via spawnSync puro, el bloqueo (exit 2)
+ * y el EPERM (ERR_ACCESS_DENIED) ocurren identicos en ambas plataformas.
  */
-const ES_POSIX = process.platform !== 'win32';
-
-describe('sandboxing de hooks propios — Node.js Permission Model (smoke test)', { skip: !ES_POSIX && 'solo aplica en POSIX -- ver hooks-definition.js' }, () => {
+describe('sandboxing de hooks propios — Node.js Permission Model (smoke test)', () => {
   test('code-exec-guard.js con --allow-fs-read del directorio correcto: corre y bloquea normalmente', () => {
     // RIESGO_EJECUCION_JS exige un caracter antes de "eval(" que no sea /'"
     // (para no marcar falsos positivos en imports/strings) -- "eval(x)" al
