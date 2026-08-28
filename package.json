@@ -13,6 +13,7 @@
     "mcp-anthropic": "node scripts/mcp-anthropic.js",
     "map": "node .claude/bin/generate-map.js",
     "test": "node --test --test-concurrency=1",
+    "test:coverage": "node --experimental-test-coverage --test-reporter=spec --test-reporter-destination=stdout --test-concurrency=1 --test",
     "token-metrics": "node tests/token-metrics.js",
     "setup": "node .claude/bin/setup-settings.js",
     "validate-globals": "node .claude/bin/validate-globals.js",
