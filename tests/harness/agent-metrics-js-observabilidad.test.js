@@ -100,33 +100,32 @@ describe('agent-metrics.js (observabilidad)', () => {
     // Hallazgo real de auditoria: data.sessions ya rotaba a max 20 sesiones,
     // pero session.calls DENTRO de cada sesion nunca se podaba -- una sesion
     // larga (miles de tool calls) crece sin limite indefinidamente aunque el
-    // numero de sesiones este acotado. Aislado via AI_CORE_METRICS_PATH
-    // (mismo patron que AI_CORE_EVENTS_QUEUE_PATH en capture-event.js) para
-    // no competir con AGENT_METRICS.json real ni con los tests de arriba que
-    // dependen de acumulacion compartida dentro de la ventana horaria actual.
+    // numero de sesiones este acotado. Se llama cmdRecord() directo (in-process)
+    // en vez de spawnear un proceso node por llamada -- con 500+ llamadas,
+    // spawnSync por iteracion tardaba ~25s por test; misma cobertura, sin el
+    // costo de arrancar cientos de procesos node solo para poblar el fixture.
+    const { cmdRecord, MAX_CALLS_POR_SESION } = require(SCRIPT);
+
     function metricsPathAislado() {
-      return path.join(os.tmpdir(), `agent-metrics-rotacion-${process.pid}-${Date.now()}.json`);
+      return path.join(os.tmpdir(), `agent-metrics-rotacion-${process.pid}-${Date.now()}-${Math.random().toString(36).slice(2)}.json`);
     }
 
     test('con mas de MAX_CALLS_POR_SESION llamadas, calls[] se poda y conserva solo las mas recientes', () => {
       const metricsPath = metricsPathAislado();
-      const env = { AI_CORE_METRICS_PATH: metricsPath };
-      const MAX_CALLS_POR_SESION = 500; // debe coincidir con la constante real del script
+      process.env.AI_CORE_METRICS_PATH = metricsPath;
 
       for (let i = 0; i < MAX_CALLS_POR_SESION + 50; i++) {
-        const r = spawnSync('node', [SCRIPT, 'record', '--tool', `Tool${i}`, '--status', 'ok', '--ms', '1'], {
-          encoding: 'utf8', cwd: REPO, env: { ...process.env, ...env, AI_CORE_TEST_MODE: '1' },
-        });
-        assert.equal(r.status, 0);
+        cmdRecord({ '--tool': `Tool${i}`, '--status': 'ok', '--ms': '1' }, null);
       }
 
       const data    = JSON.parse(fs.readFileSync(metricsPath, 'utf8'));
       const session = data.sessions[data.sessions.length - 1];
       assert.ok(session.calls.length <= MAX_CALLS_POR_SESION, `calls.length (${session.calls.length}) no debe superar el cap de ${MAX_CALLS_POR_SESION}`);
-      // La ultima llamada registrada (Tool549) debe sobrevivir la poda -- se
-      // descartan las mas viejas, no las mas nuevas.
+      // La ultima llamada registrada debe sobrevivir la poda -- se descartan
+      // las mas viejas, no las mas nuevas.
       assert.equal(session.calls[session.calls.length - 1].tool, `Tool${MAX_CALLS_POR_SESION + 49}`);
 
+      delete process.env.AI_CORE_METRICS_PATH;
       fs.rmSync(metricsPath, { force: true });
     });
 
@@ -135,14 +134,11 @@ describe('agent-metrics.js (observabilidad)', () => {
       // reflejando TODAS las llamadas historicas de la sesion, no solo las
       // que sobreviven en calls[]. Sin esto, "totals.tokens" mentiria tras podar.
       const metricsPath = metricsPathAislado();
-      const env = { AI_CORE_METRICS_PATH: metricsPath };
-      const MAX_CALLS_POR_SESION = 500;
+      process.env.AI_CORE_METRICS_PATH = metricsPath;
       const N = MAX_CALLS_POR_SESION + 10;
 
       for (let i = 0; i < N; i++) {
-        spawnSync('node', [SCRIPT, 'record', '--tool', 'Bash', '--status', 'ok', '--ms', '1'], {
-          encoding: 'utf8', cwd: REPO, env: { ...process.env, ...env, AI_CORE_TEST_MODE: '1' },
-        });
+        cmdRecord({ '--tool': 'Bash', '--status': 'ok', '--ms': '1' }, null);
       }
 
       const data    = JSON.parse(fs.readFileSync(metricsPath, 'utf8'));
@@ -150,6 +146,7 @@ describe('agent-metrics.js (observabilidad)', () => {
       assert.equal(session.totals.ok, N, 'totals.ok debe contar todas las llamadas historicas, no solo las que sobreviven en calls[]');
       assert.ok(session.calls.length <= MAX_CALLS_POR_SESION);
 
+      delete process.env.AI_CORE_METRICS_PATH;
       fs.rmSync(metricsPath, { force: true });
     });
   });
