@@ -295,11 +295,16 @@ describe('sandboxing de hooks propios — Node.js Permission Model (smoke test)'
   });
 
   test('agent-paths-guard.js CON permisos: corre y deja pasar una ruta sin paths_allow declarado (retrocompatible)', () => {
+    // Requiere lectura de .claude/bin (sus propios requires: hook-stdin,
+    // agent-frontmatter, permission-decision, normalizar-texto) ADEMAS de
+    // .claude/agents (el frontmatter del agente que evalua).
     const evento = JSON.stringify({ agent_type: 'code-reviewer', tool_name: 'Write', tool_input: { file_path: 'cualquier/ruta.js' } });
+    const dirBin = path.join(BIN, '*');
     const dirAgents = path.join(REPO, '.claude', 'agents', '*');
 
     const r = spawnSync('node', [
       '--permission',
+      `--allow-fs-read=${dirBin}`,
       `--allow-fs-read=${dirAgents}`,
       path.join(BIN, 'agent-paths-guard.js'),
     ], { input: evento, encoding: 'utf8', cwd: REPO });
