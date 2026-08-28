@@ -1,11 +1,27 @@
 'use strict';
 
-const { test, describe } = require('node:test');
+const { test, describe, after } = require('node:test');
 const assert  = require('node:assert/strict');
 const path    = require('node:path');
+const fs      = require('node:fs');
 const os      = require('node:os');
 const { spawnSync } = require('node:child_process');
 const { REPO, BIN } = require('./_shared');
+
+// Directorios de lock aislados por test (nunca el tmpdir real compartido) --
+// evita que un guard que persiste estado en disco (bypass, cuarentena, lock
+// de subagente) contamine sesiones reales concurrentes en la misma maquina.
+const dirsTemporales = [];
+function nuevoDirTemporal(prefijo) {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), `${prefijo}-`));
+  dirsTemporales.push(dir);
+  return dir;
+}
+after(() => {
+  for (const dir of dirsTemporales) {
+    try { fs.rmSync(dir, { recursive: true, force: true }); } catch { /* best-effort */ }
+  }
+});
 
 /**
  * Test de humo del sandboxing de hooks propios (Node.js Permission Model).
