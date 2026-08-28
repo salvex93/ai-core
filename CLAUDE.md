@@ -240,7 +240,8 @@ Cuando se detecte una nueva capacidad (via `aiops-engineer` o documentacion):
 |---|---|---|
 | gemini-3.5-flash-lite | Si | $0.30 / $2.50 — reemplaza a 3.1 Flash-Lite como tier 0 mas barato de la familia 3.x |
 | gemini-3.1-flash-lite | Si | $0.25 / $1.50 — sigue vigente, no deprecado |
-| gemini-3.6-flash | Si (gratuito en API) | $1.50 / $7.50 — modelo Flash mas reciente, reemplaza a 3.5 Flash como tier general |
+| gemini-3.7-flash | Si (gratuito en API) | $0.75 / $3.75 introductorio hasta 2026-12-31 (luego $1.50 / $7.50) — modelo Flash mas reciente y capaz para coding/agentes, reemplaza a 3.6 Flash como tier general (verificado 2026-08-28) |
+| gemini-3.6-flash | Si (gratuito en API) | $1.50 / $7.50 — sigue Stable, no deprecado |
 | gemini-3.5-flash | Si (gratuito en API) | $1.50 / $9.00 — sigue vigente, no deprecado |
 | gemini-3.1-pro-preview | No disponible en tier gratuito | $2.00 / $12.00 |
 
