@@ -164,7 +164,7 @@ Asignar el modelo mas barato que complete cada subtarea:
 
 ```python
 MODELO_POR_COMPLEJIDAD = {
-    "lectura_masiva":    "gemini-3.6-flash",          # Gemini free — archivos grandes
+    "lectura_masiva":    "gemini-3.7-flash",          # Gemini free — archivos grandes
     "clasificacion":     "claude-haiku-4-5-20251001",  # Haiku — transformacion simple
     "razonamiento":      "claude-sonnet-5",           # Sonnet — analisis y diagnostico
     "arquitectura":      "claude-fable-5",              # Fable 5 — diseno de sistema nuevo (razonamiento profundo sin tools)
