@@ -86,7 +86,7 @@ describe('resumirBacklog', () => {
     // configurada en .env' de forma SINCRONA antes de cualquier llamada de
     // red -- permite disparar el catch sin mockear el SDK, siguiendo la
     // misma convencion ya documentada en este archivo (sin mocking de
-        // @google/genai). Se corre en un proceso hijo con env aislado para no
+    // @google/genai). Se corre en un proceso hijo con env aislado para no
     // depender de si el entorno local tiene GEMINI_API_KEY real cargada.
     const tmp = path.join(os.tmpdir(), `mcp-handlers-backlog-${Date.now()}.md`);
     fs.writeFileSync(tmp, '| #Tarea | Estatus |\n|---|---|\n| T1 | Pendiente |\n', 'utf8');
