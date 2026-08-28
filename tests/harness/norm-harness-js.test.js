@@ -131,21 +131,20 @@ describe('norm-harness.js', () => {
     assert.ok(estaVinculadoAlCore(claudeMdPath, coreClaudePath), 'debe seguir vinculado tras la segunda corrida');
   });
 
-  test('fallo al crear el symlink de CLAUDE.md se reporta visible, no queda enmascarado por [SUCCESS] (gap de production-readiness, 2026-08-27)', { skip: !symlinkFallaSinPrivilegios() && 'este entorno permite symlinks sin privilegios especiales -- no se puede reproducir el fallo real de forma deterministica aqui' }, () => {
+  test('fallo al vincular CLAUDE.md (symlink y hardlink) se reporta visible, no queda enmascarado por [SUCCESS] (gap de production-readiness, 2026-08-27)', { skip: !vinculacionFallaSinPrivilegios() && 'este entorno permite symlink o hardlink sin privilegios especiales -- no se puede reproducir el fallo real de forma deterministica aqui' }, () => {
     // Hallazgo real de auditoria: normalizeSymlinks() atrapaba el error de
     // fs.symlinkSync en un catch interno que solo hacia console.error, sin
     // relanzar -- el try/catch externo del entry point nunca se enteraba, y
-    // el script siempre terminaba con "[SUCCESS]" + exit 0 aunque el symlink
-    // jamas se hubiera creado. En Windows sin modo desarrollador/privilegios
-    // de administrador, fs.symlinkSync falla con EPERM de forma nativa y
-    // reproducible -- no hace falta mockear nada, es el escenario real que
-    // origino el gap.
+    // el script siempre terminaba con "[SUCCESS]" + exit 0 aunque el link
+    // jamas se hubiera creado. Con el fallback a hardlink ya incorporado,
+    // este gap solo reaparece si TAMBIEN el hardlink falla (ej. EXDEV
+    // cross-device o filesystem sin soporte).
     tmpHost = crearProyectoAnfitrionTemporal();
     const r = spawnSync('node', [SCRIPT], { encoding: 'utf8', cwd: tmpHost });
 
-    assert.equal(r.status, 0, 'un fallo de symlink es recuperable -- no debe bloquear el resto de la normalizacion');
-    assert.doesNotMatch(r.stdout, /\[SUCCESS\][^\n]*$/m, 'el mensaje final no debe declarar exito puro si el symlink fallo');
-    assert.match(r.stdout + r.stderr, /symlink/i, 'debe mencionar explicitamente el fallo de symlink en algun lugar de la salida');
+    assert.equal(r.status, 0, 'un fallo de vinculacion es recuperable -- no debe bloquear el resto de la normalizacion');
+    assert.doesNotMatch(r.stdout, /\[SUCCESS\][^\n]*$/m, 'el mensaje final no debe declarar exito puro si la vinculacion fallo');
+    assert.match(r.stdout + r.stderr, /symlink|hardlink|vincular/i, 'debe mencionar explicitamente el fallo de vinculacion en algun lugar de la salida');
   });
 
   test('elimina archivos legacy de la blacklist en el proyecto anfitrion', () => {
