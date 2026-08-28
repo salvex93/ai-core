@@ -12,20 +12,28 @@ describe('norm-harness.js', () => {
   const SCRIPT = path.join(BIN, 'norm-harness.js');
   let tmpHost;
 
-  // El gap de symlink silencioso solo se puede reproducir de forma real y
-  // deterministica en un entorno donde fs.symlinkSync efectivamente falla sin
-  // privilegios (Windows sin modo desarrollador/admin es el caso real que
-  // origino el hallazgo). En entornos donde symlinkSync SI funciona (ej.
-  // Linux/macOS en CI, o Windows con modo desarrollador activo) el test se
-  // skipea en vez de forzar un mock artificial del filesystem.
-  function symlinkFallaSinPrivilegios() {
-    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'symlink-probe-'));
+  // El gap de vinculacion silenciosa solo se puede reproducir de forma real y
+  // deterministica cuando AMBOS mecanismos fallan: symlink (sin privilegios)
+  // Y hardlink (linkSync falla cross-device con EXDEV, o el filesystem no lo
+  // soporta). Desde que normalizeSymlinks() cayo a hardlink como fallback de
+  // symlink, un symlink fallido ya no basta para reproducir el gap -- el
+  // hardlink lo resuelve en el mismo volumen NTFS/ext4/APFS. En entornos
+  // donde ambos funcionan (el caso comun) el test se skipea en vez de forzar
+  // un mock artificial del filesystem.
+  function vinculacionFallaSinPrivilegios() {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'link-probe-'));
     try {
       fs.writeFileSync(path.join(dir, 'target.txt'), 'x');
-      fs.symlinkSync(path.join(dir, 'target.txt'), path.join(dir, 'link.txt'), 'file');
-      return false; // symlink funciono -- no se puede reproducir el fallo aqui
+      try {
+        fs.symlinkSync(path.join(dir, 'target.txt'), path.join(dir, 'link.txt'), 'file');
+        return false; // symlink funciono -- no se puede reproducir el fallo aqui
+      } catch {
+        // symlink fallo -- probar si el fallback a hardlink tambien fallaria
+      }
+      fs.linkSync(path.join(dir, 'target.txt'), path.join(dir, 'hardlink.txt'));
+      return false; // hardlink funciono -- normalizeSymlinks() se recupera via fallback
     } catch {
-      return true;
+      return true; // ambos mecanismos fallaron -- gap real reproducible
     } finally {
       fs.rmSync(dir, { recursive: true, force: true });
     }
