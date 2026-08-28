@@ -132,24 +132,32 @@ function cmdReport(full) {
 }
 
 // ─── Entry point ──────────────────────────────────────────────────────────────
-const argv = process.argv.slice(2);
-const cmd  = argv[0];
-const args = {};
-for (let i = 1; i < argv.length; i += 2) {
-  if (argv[i]?.startsWith('--')) args[argv[i]] = argv[i + 1] || true;
+function main() {
+  const argv = process.argv.slice(2);
+  const cmd  = argv[0];
+  const args = {};
+  for (let i = 1; i < argv.length; i += 2) {
+    if (argv[i]?.startsWith('--')) args[argv[i]] = argv[i + 1] || true;
+  }
+
+  switch (cmd) {
+    case 'record': {
+      // Solo leer stdin si no vino --tool explicito y hay datos reales entrantes
+      // (pipe/redireccion) -- nunca bloquear en una TTY interactiva sin input.
+      const toolDesdeStdin = !args['--tool'] && !process.stdin.isTTY
+        ? leerToolNameDeStdin()
+        : null;
+      cmdRecord(args, toolDesdeStdin);
+      break;
+    }
+    case 'report': cmdReport(argv.includes('--full')); break;
+    default:
+      console.log('Uso: node agent-metrics.js [record --tool <t> --status <ok|fail> --ms <n>|report [--full]]');
+  }
 }
 
-switch (cmd) {
-  case 'record': {
-    // Solo leer stdin si no vino --tool explicito y hay datos reales entrantes
-    // (pipe/redireccion) -- nunca bloquear en una TTY interactiva sin input.
-    const toolDesdeStdin = !args['--tool'] && !process.stdin.isTTY
-      ? leerToolNameDeStdin()
-      : null;
-    cmdRecord(args, toolDesdeStdin);
-    break;
-  }
-  case 'report': cmdReport(argv.includes('--full')); break;
-  default:
-    console.log('Uso: node agent-metrics.js [record --tool <t> --status <ok|fail> --ms <n>|report [--full]]');
+if (require.main === module) {
+  main();
 }
+
+module.exports = { cmdRecord, loadMetrics, MAX_CALLS_POR_SESION };
