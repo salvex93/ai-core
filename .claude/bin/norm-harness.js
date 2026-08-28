@@ -265,11 +265,19 @@ function ensureHostSettings(corePath, hostProjectDir) {
 // Ejecución controlada
 try {
   sanitizeEnvironment();
-  normalizeSymlinks();
+  const symlinkOk = normalizeSymlinks();
   if (projectDir !== CORE_PATH) ensureHostGitignore(projectDir);
   ensureHostSettings(CORE_PATH, projectDir);
   // purgeSessions(); — deshabilitado: borra historial de sesiones sin confirmación
-  console.log(`[SUCCESS] AI-CORE v${version} | Entorno Blindado por salvex93.`);
+  if (symlinkOk) {
+    console.log(`[SUCCESS] AI-CORE v${version} | Entorno Blindado por salvex93.`);
+  } else {
+    // Fallo recuperable, no fatal: el resto de la normalizacion (settings,
+    // gitignore, permisos) ya se aplico igual -- pero CLAUDE.md del anfitrion
+    // sigue sin apuntar a las reglas de ai-core hasta que se resuelva el
+    // symlink, asi que el mensaje final NO puede ser un exito silencioso.
+    console.log(`[PARCIAL] AI-CORE v${version} | Normalizacion aplicada, pero el symlink de CLAUDE.md fallo -- ver mensaje de error arriba.`);
+  }
 } catch (err) {
   console.error("[ERROR] Fallo en la normalización:", err.message);
   process.exit(1);
