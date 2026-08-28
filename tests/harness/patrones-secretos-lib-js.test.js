@@ -13,7 +13,7 @@ const assert = require('node:assert/strict');
 const path   = require('node:path');
 const { BIN } = require('./_shared');
 
-const { ALTA_CONFIANZA, buscarCredenciales } = require(path.join(BIN, 'lib', 'patrones-secretos.js'));
+const { ALTA_CONFIANZA, buscarCredenciales, redactarSecretos } = require(path.join(BIN, 'lib', 'patrones-secretos.js'));
 
 describe('lib/patrones-secretos.js', () => {
   test('ALTA_CONFIANZA incluye los patrones ya validados en secrets-guard.js', () => {
@@ -39,5 +39,38 @@ describe('lib/patrones-secretos.js', () => {
     assert.deepEqual(buscarCredenciales(''), []);
     assert.deepEqual(buscarCredenciales(null), []);
     assert.deepEqual(buscarCredenciales(undefined), []);
+  });
+});
+
+describe('redactarSecretos() — issue #252: token generico expuesto en captura de evento', () => {
+  test('redacta un TOKEN="..." hex largo asignado a variable de shell', () => {
+    const original = 'TOKEN="908a9927a67bf4fa008bc877e98a8fe03163a2416393ec6a6151331be1d2ee38"\ncurl -H "Authorization: Bearer $TOKEN" https://ejemplo.com';
+    const redactado = redactarSecretos(original);
+    assert.ok(!redactado.includes('908a9927a67bf4fa008bc877e98a8fe03163a2416393ec6a6151331be1d2ee38'), 'el valor real del token no debe sobrevivir en el texto redactado');
+    assert.ok(redactado.includes('REDACTADO'), 'debe marcar explicitamente que hubo redaccion');
+    assert.ok(redactado.includes('curl -H'), 'el resto del texto no relacionado con el secreto debe preservarse');
+  });
+
+  test('redacta variables API_KEY/SECRET/PASSWORD con valor largo, sin distinguir mayus/minus', () => {
+    const original = 'export api_key=abcdef0123456789abcdef0123456789abcdef01';
+    const redactado = redactarSecretos(original);
+    assert.ok(!redactado.includes('abcdef0123456789abcdef0123456789abcdef01'));
+  });
+
+  test('redacta credenciales de ALTA_CONFIANZA ya conocidas (ej. GitHub PAT) dentro del mismo texto', () => {
+    const original = 'const token = "ghp_' + 'a'.repeat(36) + '";';
+    const redactado = redactarSecretos(original);
+    assert.ok(!redactado.includes('ghp_' + 'a'.repeat(36)));
+  });
+
+  test('no modifica texto sin secretos', () => {
+    const original = 'analizar_archivo llamado con archivo de 800 lineas';
+    assert.equal(redactarSecretos(original), original);
+  });
+
+  test('con input vacio o no-string retorna cadena vacia sin lanzar', () => {
+    assert.equal(redactarSecretos(''), '');
+    assert.equal(redactarSecretos(null), '');
+    assert.equal(redactarSecretos(undefined), '');
   });
 });

@@ -26,4 +26,35 @@ function buscarCredenciales(texto) {
   return ALTA_CONFIANZA.filter(({ re }) => re.test(texto));
 }
 
-module.exports = { ALTA_CONFIANZA, buscarCredenciales };
+// Patron generico para REDACCION (no para bloqueo -- por eso no vive en
+// ALTA_CONFIANZA, que exige formato inequivoco). Cubre asignaciones de
+// variable con nombre sensible (token/key/secret/password/auth) seguidas de
+// un valor largo alfanumerico, sin importar el proveedor. Caso real que
+// origino esta funcion (issue #252): un TOKEN="<hex de 64 chars>" filtrado en
+// texto plano a un issue publico de GitHub porque ningun patron de
+// ALTA_CONFIANZA (formato especifico de proveedor) lo cubria. El riesgo de
+// falso positivo (redactar algo que no era secreto) es aceptable aqui porque
+// el uso es sanitizar ANTES de publicar, no bloquear una accion del usuario.
+const VARIABLE_SENSIBLE = /((?:token|api[_-]?key|secret|password|passwd|auth)\s*[:=]\s*["']?)([A-Za-z0-9_\-./+=]{16,})(["']?)/gi;
+
+/**
+ * Reemplaza en el texto cualquier credencial de ALTA_CONFIANZA y cualquier
+ * asignacion de variable con nombre sensible + valor largo, preservando el
+ * resto del contenido. Pensado para sanitizar texto ANTES de persistirlo o
+ * publicarlo (ej. EVENTS_QUEUE.json / issues de GitHub), no para bloquear.
+ * @param {unknown} texto
+ * @returns {string} texto con los secretos reemplazados, cadena vacia si el input no es string
+ */
+function redactarSecretos(texto) {
+  if (typeof texto !== 'string' || !texto) return '';
+
+  let resultado = texto;
+  for (const { re } of ALTA_CONFIANZA) {
+    resultado = resultado.replace(new RegExp(re.source, re.flags.includes('g') ? re.flags : re.flags + 'g'), '[REDACTADO]');
+  }
+  resultado = resultado.replace(VARIABLE_SENSIBLE, (_, prefijo, _valor, sufijo) => `${prefijo}[REDACTADO]${sufijo}`);
+
+  return resultado;
+}
+
+module.exports = { ALTA_CONFIANZA, buscarCredenciales, redactarSecretos };

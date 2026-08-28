@@ -29,6 +29,8 @@ const path   = require('node:path');
 const os     = require('node:os');
 const crypto = require('node:crypto');
 
+const { normalizarTexto } = require('./normalizar-texto');
+
 const TTL_MS = 5 * 60 * 1000; // 5 min -- mismo TTL que jailbreak-guard.js
 
 const LOCKS_DIR = process.env.AI_CORE_BREAK_GLASS_DIR
@@ -40,8 +42,14 @@ const LOCKS_DIR = process.env.AI_CORE_BREAK_GLASS_DIR
 // aprobacion ya otorgada.
 const APROBACIONES_DIR = path.join(LOCKS_DIR, 'aprobadas');
 
-function claveAprobacion(guardId, hashContexto) {
-  return crypto.createHash('sha256').update(`${guardId}:${hashContexto}`).digest('hex');
+// issue #256: la clave se calcula sobre el contexto NORMALIZADO (mismo
+// pipeline que jailbreak-guard.js -- colapso de espacios, invisibles,
+// homoglifos), no el string crudo. Sin esto, cualquier diferencia trivial
+// entre el comando bloqueado y el reintento (espacios, reconstruccion del
+// shell entre turnos) invalida el hash silenciosamente y el break-glass
+// nunca reconoce una confirmacion ya otorgada.
+function claveAprobacion(guardId, contexto) {
+  return crypto.createHash('sha256').update(`${guardId}:${normalizarTexto(contexto)}`).digest('hex');
 }
 
 // Fuera de tmpdir a proposito -- el registro de auditoria debe sobrevivir al
@@ -94,28 +102,30 @@ function confirmarBreakGlass(id) {
 }
 
 /**
- * Marca la accion (identificada por guardId + hash de contexto) como
+ * Marca la accion (identificada por guardId + contexto normalizado) como
  * aprobada para su proximo chequeo via accionAprobada() -- consumible una
  * sola vez, con el mismo TTL que el resto del mecanismo.
  */
-function marcarAprobada(guardId, hashContexto) {
+function marcarAprobada(guardId, contexto) {
   try {
     fs.mkdirSync(APROBACIONES_DIR, { recursive: true });
-    const clave = claveAprobacion(guardId, hashContexto);
+    const clave = claveAprobacion(guardId, contexto);
     fs.writeFileSync(path.join(APROBACIONES_DIR, `${clave}.json`), JSON.stringify({ ts: Date.now() }), 'utf8');
   } catch { /* best-effort, no bloquear la excepcion ya otorgada */ }
 }
 
 /**
- * Consulta si guardId+hashContexto ya fue aprobado via confirmarBreakGlass.
- * Consume la aprobacion al leerla (un solo reintento, no una excepcion
- * permanente para acciones futuras con el mismo hash).
+ * Consulta si guardId+contexto ya fue aprobado via confirmarBreakGlass. El
+ * contexto se normaliza igual que en claveAprobacion, asi que diferencias
+ * triviales (espacios, invisibles) entre el comando original y el reintento
+ * siguen reconociendose como la misma accion. Consume la aprobacion al
+ * leerla (un solo reintento, no una excepcion permanente).
  * @param {string} guardId
- * @param {string} hashContexto
+ * @param {string} contexto
  * @returns {boolean}
  */
-function accionAprobada(guardId, hashContexto) {
-  const clave = claveAprobacion(guardId, hashContexto);
+function accionAprobada(guardId, contexto) {
+  const clave = claveAprobacion(guardId, contexto);
   const archivo = path.join(APROBACIONES_DIR, `${clave}.json`);
   let datos;
   try { datos = JSON.parse(fs.readFileSync(archivo, 'utf8')); } catch { return false; }

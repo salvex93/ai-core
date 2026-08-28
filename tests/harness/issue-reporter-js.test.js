@@ -11,6 +11,7 @@ const { REPO, BIN, SKILLS, SETTINGS, runScript, tmpFile } = require('./_shared')
 describe('issue-reporter.js', () => {
   const SCRIPT = path.join(BIN, 'issue-reporter.js');
   const content = fs.readFileSync(SCRIPT, 'utf8');
+  const { esTituloDuplicado } = require(SCRIPT);
 
   // Labels reales del repo (gh label list --repo salvex93/ai-core). Si esta
   // lista cambia, actualizarla aqui tras confirmar con el comando real —
@@ -64,6 +65,43 @@ describe('issue-reporter.js', () => {
         );
       }
     }
+  });
+
+  describe('esTituloDuplicado — deduplicacion cross-sesion contra issues ya abiertos (issues #207-251)', () => {
+    // Causa raiz real: docenas de issues [HARNESS-ERR] identicos abiertos dia
+    // tras dia porque standards-guard bloqueaba el mismo archivo preexistente
+    // (pmo/assets/js/app.js, 17k+ lineas) en sesiones distintas -- la
+    // deduplicacion de capture-event.js solo cubre una ventana de 5 min
+    // dentro de la MISMA sesion, nunca compara contra el titulo de issues ya
+    // abiertos en GitHub de sesiones anteriores.
+    const abiertos = [
+      '[HARNESS-ERR] standards-guard — archivo-largo (x7)',
+      '[HOOK-FAIL] bash — sin detalle (x2)',
+    ];
+
+    test('un titulo nuevo con el mismo prefijo+herramienta+prefijo de error se considera duplicado', () => {
+      const tituloNuevo = '[HARNESS-ERR] standards-guard — archivo-largo (x3)';
+      assert.equal(esTituloDuplicado(tituloNuevo, abiertos), true);
+    });
+
+    test('el conteo "(xN)" no afecta la comparacion de duplicado', () => {
+      const tituloNuevo = '[HARNESS-ERR] standards-guard — archivo-largo';
+      assert.equal(esTituloDuplicado(tituloNuevo, abiertos), true);
+    });
+
+    test('un titulo de una herramienta distinta NO es duplicado', () => {
+      const tituloNuevo = '[HARNESS-ERR] standards-guard — emoji-prohibido';
+      assert.equal(esTituloDuplicado(tituloNuevo, abiertos), false);
+    });
+
+    test('un titulo con prefijo distinto ([MCP-FAIL] vs [HARNESS-ERR]) NO es duplicado', () => {
+      const tituloNuevo = '[MCP-FAIL] standards-guard — archivo-largo';
+      assert.equal(esTituloDuplicado(tituloNuevo, abiertos), false);
+    });
+
+    test('lista de abiertos vacia nunca marca duplicado', () => {
+      assert.equal(esTituloDuplicado('[HARNESS-ERR] standards-guard — archivo-largo', []), false);
+    });
   });
 
   describe('umbral de 20 eventos pendientes -> ALERTA_ARQUITECTONICA (gap de scaffolding cerrado 2026-08-15)', () => {

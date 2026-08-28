@@ -24,7 +24,7 @@ const readline = require('readline');
 function loadEnv() {
   const envPath = path.resolve(__dirname, '../.env');
   if (!fs.existsSync(envPath)) return;
-  for (const line of fs.readFileSync(envPath, 'utf8').split('\n')) {
+  for (const line of fs.readFileSync(envPath, 'utf8').split(/\r?\n/)) {
     const m = line.match(/^([^#=\s][^=]*)=(.*)$/);
     if (!m) continue;
     const key = m[1].trim();

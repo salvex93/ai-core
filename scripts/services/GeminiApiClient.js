@@ -29,15 +29,26 @@ const MAX_RETRIES         = 2;
 const COMPACT_TOKEN_LIMIT = 1125; // ~1.500 tokens (1 token ≈ 0.75 palabras) — alineado con limite de output declarado en CLAUDE.md
 const MAX_COMPACT_ROUNDS  = 2;
 
-// Carga .env desde la raiz del proyecto (un nivel arriba de /scripts)
-function loadEnv() {
-  const envPath = path.resolve(__dirname, '../../.env');
-  if (!fs.existsSync(envPath)) return;
-  for (const line of fs.readFileSync(envPath, 'utf8').split('\n')) {
+// Parsea contenido estilo .env a pares clave/valor. Separado de loadEnv para
+// testear el parseo (incluye CRLF de Windows) sin depender del filesystem.
+function parseEnvContent(contenido) {
+  const pares = {};
+  for (const line of contenido.split(/\r?\n/)) {
     const m = line.match(/^([^#=\s][^=]*)=(.*)$/);
     if (!m) continue;
     const key = m[1].trim();
     const val = m[2].trim().replace(/^['"]|['"]$/g, '');
+    pares[key] = val;
+  }
+  return pares;
+}
+
+// Carga .env desde la raiz del proyecto (un nivel arriba de /scripts)
+function loadEnv() {
+  const envPath = path.resolve(__dirname, '../../.env');
+  if (!fs.existsSync(envPath)) return;
+  const pares = parseEnvContent(fs.readFileSync(envPath, 'utf8'));
+  for (const [key, val] of Object.entries(pares)) {
     if (!process.env[key]) process.env[key] = val;
   }
 }
@@ -175,6 +186,7 @@ async function compactarSiNecesario(parsed, modelo) {
 module.exports = {
   GEMINI_DEFAULT,
   loadEnv,
+  parseEnvContent,
   getModel,
   isRefusal,
   extractJson,

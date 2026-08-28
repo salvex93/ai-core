@@ -12,6 +12,25 @@ describe('norm-harness.js', () => {
   const SCRIPT = path.join(BIN, 'norm-harness.js');
   let tmpHost;
 
+  // El gap de symlink silencioso solo se puede reproducir de forma real y
+  // deterministica en un entorno donde fs.symlinkSync efectivamente falla sin
+  // privilegios (Windows sin modo desarrollador/admin es el caso real que
+  // origino el hallazgo). En entornos donde symlinkSync SI funciona (ej.
+  // Linux/macOS en CI, o Windows con modo desarrollador activo) el test se
+  // skipea en vez de forzar un mock artificial del filesystem.
+  function symlinkFallaSinPrivilegios() {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'symlink-probe-'));
+    try {
+      fs.writeFileSync(path.join(dir, 'target.txt'), 'x');
+      fs.symlinkSync(path.join(dir, 'target.txt'), path.join(dir, 'link.txt'), 'file');
+      return false; // symlink funciono -- no se puede reproducir el fallo aqui
+    } catch {
+      return true;
+    } finally {
+      fs.rmSync(dir, { recursive: true, force: true });
+    }
+  }
+
   function crearProyectoAnfitrionTemporal() {
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'norm-harness-test-'));
     execSync('git init -q', { cwd: dir });
@@ -102,6 +121,23 @@ describe('norm-harness.js', () => {
     const r = spawnSync('node', [SCRIPT], { encoding: 'utf8', cwd: tmpHost });
     assert.equal(r.status, 0);
     assert.ok(estaVinculadoAlCore(claudeMdPath, coreClaudePath), 'debe seguir vinculado tras la segunda corrida');
+  });
+
+  test('fallo al crear el symlink de CLAUDE.md se reporta visible, no queda enmascarado por [SUCCESS] (gap de production-readiness, 2026-08-27)', { skip: !symlinkFallaSinPrivilegios() && 'este entorno permite symlinks sin privilegios especiales -- no se puede reproducir el fallo real de forma deterministica aqui' }, () => {
+    // Hallazgo real de auditoria: normalizeSymlinks() atrapaba el error de
+    // fs.symlinkSync en un catch interno que solo hacia console.error, sin
+    // relanzar -- el try/catch externo del entry point nunca se enteraba, y
+    // el script siempre terminaba con "[SUCCESS]" + exit 0 aunque el symlink
+    // jamas se hubiera creado. En Windows sin modo desarrollador/privilegios
+    // de administrador, fs.symlinkSync falla con EPERM de forma nativa y
+    // reproducible -- no hace falta mockear nada, es el escenario real que
+    // origino el gap.
+    tmpHost = crearProyectoAnfitrionTemporal();
+    const r = spawnSync('node', [SCRIPT], { encoding: 'utf8', cwd: tmpHost });
+
+    assert.equal(r.status, 0, 'un fallo de symlink es recuperable -- no debe bloquear el resto de la normalizacion');
+    assert.doesNotMatch(r.stdout, /\[SUCCESS\][^\n]*$/m, 'el mensaje final no debe declarar exito puro si el symlink fallo');
+    assert.match(r.stdout + r.stderr, /symlink/i, 'debe mencionar explicitamente el fallo de symlink en algun lugar de la salida');
   });
 
   test('elimina archivos legacy de la blacklist en el proyecto anfitrion', () => {

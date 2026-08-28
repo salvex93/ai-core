@@ -14,11 +14,33 @@
 const { test, describe } = require('node:test');
 const assert = require('node:assert/strict');
 
-const { GEMINI_DEFAULT, isRefusal, extractJson } = require('../scripts/services/GeminiApiClient');
+const { GEMINI_DEFAULT, isRefusal, extractJson, parseEnvContent } = require('../scripts/services/GeminiApiClient');
 
 describe('GeminiApiClient — constantes', () => {
   test('GEMINI_DEFAULT es el modelo esperado', () => {
     assert.equal(GEMINI_DEFAULT, 'gemini-3.6-flash');
+  });
+});
+
+describe('parseEnvContent', () => {
+  test('parsea lineas con terminador LF (Unix)', () => {
+    const resultado = parseEnvContent('GEMINI_API_KEY=abc123\nOTRA=valor');
+    assert.deepEqual(resultado, { GEMINI_API_KEY: 'abc123', OTRA: 'valor' });
+  });
+
+  test('parsea lineas con terminador CRLF (Windows) — issue #254', () => {
+    const resultado = parseEnvContent('GEMINI_API_KEY=abc123\r\nOTRA=valor\r\n');
+    assert.deepEqual(resultado, { GEMINI_API_KEY: 'abc123', OTRA: 'valor' });
+  });
+
+  test('ignora comentarios y lineas vacias', () => {
+    const resultado = parseEnvContent('# comentario\r\nCLAVE=valor\r\n\r\n');
+    assert.deepEqual(resultado, { CLAVE: 'valor' });
+  });
+
+  test('quita comillas envolventes del valor', () => {
+    const resultado = parseEnvContent('CLAVE="valor con espacios"\r\n');
+    assert.deepEqual(resultado, { CLAVE: 'valor con espacios' });
   });
 });
 

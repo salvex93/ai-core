@@ -30,6 +30,7 @@
 const fs   = require('fs');
 const path = require('path');
 const { leerEventoDeStdin } = require('./lib/hook-stdin');
+const { redactarSecretos }  = require('./lib/patrones-secretos');
 
 const CORE_PATH  = path.resolve(__dirname, '../..');
 // AI_CORE_EVENTS_QUEUE_PATH permite operar sobre una cola temporal en tests
@@ -77,10 +78,18 @@ function buildEvent(args, hookCtx) {
   const error   = args.error   || hookCtx.toolError || 'sin detalle';
   const context = args.context || hookCtx.toolInput || '';
 
+  // Redactar ANTES de truncar/persistir -- issue #252: un Bearer token real
+  // quedo en texto plano dentro de --context (comando bash capturado por el
+  // hook) y termino publicado en un issue de GitHub, porque nada en el
+  // pipeline sanitizaba el contenido capturado. La redaccion aqui cubre
+  // tanto EVENTS_QUEUE.json en disco como cualquier issue que se abra despues.
+  const errorRedactado   = redactarSecretos(error);
+  const contextRedactado = redactarSecretos(context);
+
   // Truncar contexto para no inflar la cola
-  const contextTrunc = context.length > 500
-    ? context.slice(0, 500) + '...[truncado]'
-    : context;
+  const contextTrunc = contextRedactado.length > 500
+    ? contextRedactado.slice(0, 500) + '...[truncado]'
+    : contextRedactado;
 
   return {
     id:        `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
@@ -88,7 +97,7 @@ function buildEvent(args, hookCtx) {
     session:   hookCtx.sessionId,
     type,
     tool,
-    error:     error.slice(0, 300),
+    error:     errorRedactado.slice(0, 300),
     context:   contextTrunc,
     reported:  false, // false = pendiente de enviar a GitHub
   };
