@@ -3,7 +3,7 @@ name: cost-optimizer
 description: Optimizador de costos de inferencia LLM. Selecciona el modelo mas barato que completa la tarea, fuerza Gemini como tier 0, aplica prompt caching, prefill y batch inference. Activa al detectar consumo excesivo de tokens, al iniciar sesion con tareas multiples, o al disenar pipelines de agentes donde el costo es variable.
 origin: ai-core
 version: 1.3.0
-last_updated: 2026-08-05
+last_updated: 2026-08-28
 rol: architect
 ---
 
@@ -37,13 +37,13 @@ Tier 0A — Gemini 3.5 Flash-Lite (GRATUITO — escala masiva, verificado 2026-0
   Pipelines de alto throughput donde el costo por token es la variable critica
   Pricing paid: $0.30/$2.50 por 1M in/out — reemplaza a 3.1 Flash-Lite ($0.25/$1.50) como tier 0 mas barato de la familia 3.x. Si el proyecto ya tiene 3.1 Flash-Lite integrado y no requiere las mejoras de 3.5, no hay obligacion de migrar solo por version.
 
-Tier 0B — Gemini 3.6 Flash (GRATUITO en API — uso general, verificado 2026-08-03 en ai.google.dev/gemini-api/docs/pricing y /docs/models)
+Tier 0B — Gemini 3.7 Flash (GRATUITO en API — uso general, verificado 2026-08-28 en ai.google.dev/gemini-api/docs/pricing y /docs/models)
   Leer archivos > 200 lineas
   Analizar logs > 50 lineas
   Resumir repositorios completos
   Busqueda web e investigacion
   Comparar mas de 3 alternativas tecnicas
-  Pricing paid: $1.50/$7.50 por 1M in/out — es el Flash mas reciente, reemplaza a 3.5 Flash ($1.50/$9.00) como modelo agentico de tier general con mejor output pricing. Confirmar que el free tier de la API sigue vigente antes de asumirlo en produccion de alto volumen.
+  Pricing paid: $0.75/$3.75 introductorio hasta 2026-12-31 (luego $1.50/$7.50) por 1M in/out — es el Flash mas reciente y capaz para coding/agentes, reemplaza a 3.6 Flash ($1.50/$7.50) como tier general. 3.6 Flash sigue Stable (no deprecado) si el proyecto ya lo tiene integrado. Confirmar que el free tier de la API sigue vigente antes de asumirlo en produccion de alto volumen.
 
 Tier 1 — Haiku 4.5 (MAS BARATO PAGADO)
   Transformaciones simples < 8k tokens de contexto

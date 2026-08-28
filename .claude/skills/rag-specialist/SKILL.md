@@ -3,7 +3,7 @@ name: rag-specialist
 description: Especialista en pipelines RAG y Mission Manager del LLM Routing Bridge. Cubre Hybrid Search (BM25+denso+RRF), Contextual Retrieval, re-ranking con cross-encoders y Files API como complemento del bridge. Activa al delegar analisis documental masivo, construir o mejorar pipelines RAG, o evaluar la calidad de recuperacion semantica.
 origin: ai-core
 version: 2.6.0
-last_updated: 2026-08-15
+last_updated: 2026-08-28
 rol: architect
 compatibility: Requiere un proveedor de embeddings (gemini-embedding-2, voyage o equivalente) y conectividad de red hacia esa API; si usa reranking con cross-encoders, depende ademas del modelo de reranking configurado.
 ---
@@ -81,10 +81,11 @@ curl -s "https://generativelanguage.googleapis.com/v1beta/models?key=${GEMINI_AP
   | grep -E "gemini-(2\.[0-9]|3\.[0-9])"
 ```
 
-Criterio de seleccion (actualizado 2026-08-03, verificado contra ai.google.dev/gemini-api/docs/pricing y /docs/models):
-- `gemini-3.6-flash`: default. Modelo Flash mas reciente de la familia, mejor pricing de output que 3.5 Flash ($1.50/$7.50 vs $1.50/$9.00 por 1M in/out) con capacidad agentica equivalente o superior. Adecuado para corpus de documentacion tecnica de hasta ~100MB.
-- `gemini-3.5-flash`: fallback si `gemini-3.6-flash` no esta disponible en el proyecto. Sigue vigente, no deprecado.
-- `gemini-3.1-flash`: segundo fallback. Limite de archivo: 100MB.
+Criterio de seleccion (actualizado 2026-08-28, verificado contra ai.google.dev/gemini-api/docs/pricing y /docs/models):
+- `gemini-3.7-flash`: default. Modelo Flash mas reciente y capaz de la familia para coding/agentes, mejor pricing pagado que 3.6 Flash ($0.75/$3.75 introductorio hasta 2026-12-31 vs $1.50/$7.50 por 1M in/out) con capacidad agentica equivalente o superior. Adecuado para corpus de documentacion tecnica de hasta ~100MB.
+- `gemini-3.6-flash`: fallback si `gemini-3.7-flash` no esta disponible en el proyecto. Sigue Stable, no deprecado.
+- `gemini-3.5-flash`: segundo fallback. Sigue vigente, no deprecado.
+- `gemini-3.1-flash`: tercer fallback. Limite de archivo: 100MB.
 - `gemini-3.1-pro`: cuando la tarea requiere precision sobre throughput — relaciones complejas, razonamiento multi-documento, logica de negocio no trivial. Context window: 1M tokens. `gemini-3.5-pro` listado como "coming soon" en deepmind.google (verificado 2026-07-10, no revalidado en esta pasada) — verificar disponibilidad antes de usarlo como default.
 
 Nota: el limite de archivo de la Gemini API subio de 20MB a 100MB. Archivos entre 20MB y 100MB son ahora delegables sin preprocesamiento adicional.
@@ -94,7 +95,7 @@ node scripts/mcp-gemini.js \
   --mission "<orden-de-mision-redactada>" \
   --file <ruta-al-archivo> \
   --format <json|markdown> \
-  --model gemini-3.6-flash
+  --model gemini-3.7-flash
 ```
 
 ### Paso 4 — Validar y consumir el output

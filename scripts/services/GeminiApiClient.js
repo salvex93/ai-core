@@ -24,7 +24,7 @@
 const fs   = require('fs');
 const path = require('path');
 
-const GEMINI_DEFAULT      = 'gemini-3.6-flash';
+const GEMINI_DEFAULT      = 'gemini-3.7-flash';
 const MAX_RETRIES         = 2;
 const COMPACT_TOKEN_LIMIT = 1125; // ~1.500 tokens (1 token ≈ 0.75 palabras) — alineado con limite de output declarado en CLAUDE.md
 const MAX_COMPACT_ROUNDS  = 2;
