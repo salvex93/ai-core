@@ -50,6 +50,16 @@ jobs:
       - name: Validar conformidad de skills con CLAUDE.md
         run: node .claude/bin/validate-globals.js
 
+      - name: Reporte de code coverage (informativo, no bloqueante durante calibracion)
+        # Solo en ubuntu-latest: --experimental-test-coverage triplica el
+        # tiempo de suite, no aporta valor adicional correrlo en los 3 SO ya
+        # que la instrumentacion de Node es la misma. continue-on-error hasta
+        # fijar un umbral minimo con datos reales de varias corridas -- mismo
+        # patron de calibracion gradual que el job skill-evals de este archivo.
+        if: matrix.os == 'ubuntu-latest'
+        continue-on-error: true
+        run: npm run test:coverage
+
   skill-evals:
     name: Evals de conformidad de skills (piloto)
     if: github.event_name == 'pull_request'
