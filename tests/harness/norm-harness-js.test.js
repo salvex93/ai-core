@@ -12,6 +12,25 @@ describe('norm-harness.js', () => {
   const SCRIPT = path.join(BIN, 'norm-harness.js');
   let tmpHost;
 
+  // El gap de symlink silencioso solo se puede reproducir de forma real y
+  // deterministica en un entorno donde fs.symlinkSync efectivamente falla sin
+  // privilegios (Windows sin modo desarrollador/admin es el caso real que
+  // origino el hallazgo). En entornos donde symlinkSync SI funciona (ej.
+  // Linux/macOS en CI, o Windows con modo desarrollador activo) el test se
+  // skipea en vez de forzar un mock artificial del filesystem.
+  function symlinkFallaSinPrivilegios() {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'symlink-probe-'));
+    try {
+      fs.writeFileSync(path.join(dir, 'target.txt'), 'x');
+      fs.symlinkSync(path.join(dir, 'target.txt'), path.join(dir, 'link.txt'), 'file');
+      return false; // symlink funciono -- no se puede reproducir el fallo aqui
+    } catch {
+      return true;
+    } finally {
+      fs.rmSync(dir, { recursive: true, force: true });
+    }
+  }
+
   function crearProyectoAnfitrionTemporal() {
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'norm-harness-test-'));
     execSync('git init -q', { cwd: dir });
