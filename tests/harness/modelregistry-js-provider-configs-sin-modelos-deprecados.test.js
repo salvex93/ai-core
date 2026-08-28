@@ -54,6 +54,27 @@ describe('GeminiAdapter.js y ModelRouter.js — sin modelo Gemini desactualizado
     );
   });
 
+  // gemini-3.6-flash fue el default hasta 2026-08-28; verificado contra
+  // ai.google.dev/gemini-api/docs/models y /pricing que gemini-3.7-flash es
+  // "Stable (New)", mismo free tier, y pricing pagado mas barato
+  // ($0.75/$3.75 vs $1.50/$7.50 por 1M tokens, tier standard hasta 2026-12-31).
+  // 3.6 Flash sigue Stable (no deprecado), pero deja de ser el default.
+  test('GeminiAdapter.js no usa gemini-3.6-flash como default', () => {
+    assert.ok(
+      !/options\.model\s*\|\|\s*['"]gemini-3\.6-flash['"]/.test(adapterSrc),
+      'GeminiAdapter.js sigue usando gemini-3.6-flash como default -- actualizar a gemini-3.7-flash'
+    );
+  });
+
+  test('ModelRouter.js MODELOS.GEMINI no usa gemini-3.6-flash', () => {
+    const { MODELOS } = require(path.join(REPO, 'scripts', 'services', 'ModelRouter.js'));
+    assert.notEqual(
+      MODELOS.GEMINI,
+      'gemini-3.6-flash',
+      'ModelRouter.js MODELOS.GEMINI sigue apuntando a gemini-3.6-flash -- actualizar a gemini-3.7-flash'
+    );
+  });
+
   // @google/generative-ai fue renombrado por Google a deprecated-generative-ai-js;
   // el sucesor activo es @google/genai (confirmado 2026-08-03).
   test('GeminiAdapter.js no importa el SDK deprecado @google/generative-ai', () => {
