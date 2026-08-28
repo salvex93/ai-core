@@ -21,6 +21,7 @@ const {
   analizarArchivo,
   analizarRepositorio,
   resumirBacklog,
+  buscarWeb,
 } = require('../scripts/services/McpServerHandlers');
 
 describe('analizarArchivo', () => {
