@@ -50,6 +50,12 @@ function sanitizeEnvironment() {
   });
 }
 
+/**
+ * @returns {boolean} true si el symlink se creo o ya no hacia falta crearlo;
+ *   false si se intento y fallo (permisos insuficientes en Windows sin modo
+ *   desarrollador/administrador) -- el caller decide como reportarlo, esta
+ *   funcion nunca oculta el fallo tragandoselo en silencio.
+ */
 function normalizeSymlinks() {
   const claudeMdPath = path.join(projectDir, "CLAUDE.md");
   const coreClaude = path.join(CORE_PATH, "CLAUDE.md");
@@ -64,9 +70,11 @@ function normalizeSymlinks() {
       }
       console.log("[+] Simlink CLAUDE.md creado.");
     } catch (e) {
-      console.error("[!] Error en symlinks. Ejecuta como Administrador.");
+      console.error(`[!] Error en symlink de CLAUDE.md (${e.code || e.message}). Ejecuta como Administrador o activa el Modo Desarrollador en Windows.`);
+      return false;
     }
   }
+  return true;
 }
 
 function purgeSessions() {
