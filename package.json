@@ -36,8 +36,8 @@
     "scan-secrets-history": "node .claude/bin/git-history-secrets-scan.js"
   },
   "dependencies": {
-    "@anthropic-ai/sdk": "^0.115.0",
-    "@google/genai": "^2.15.0",
+    "@anthropic-ai/sdk": "^0.122.0",
+    "@google/genai": "^2.19.0",
     "@modelcontextprotocol/sdk": "^1.29.0"
   },
   "engines": {
