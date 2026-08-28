@@ -80,7 +80,6 @@ describe('norm-harness.js', () => {
     assert.ok(fs.existsSync(claudeMdPath), 'debe crear CLAUDE.md en el anfitrion si no existia');
   });
 
-<<<<<<< HEAD
   function estaVinculadoAlCore(claudeMdPath, coreClaudePath) {
     // symlink (Linux/macOS o Windows con modo dev/admin) o hardlink
     // (fallback en Windows sin privilegios de symlink -- mismo inode).
@@ -122,7 +121,8 @@ describe('norm-harness.js', () => {
     const r = spawnSync('node', [SCRIPT], { encoding: 'utf8', cwd: tmpHost });
     assert.equal(r.status, 0);
     assert.ok(estaVinculadoAlCore(claudeMdPath, coreClaudePath), 'debe seguir vinculado tras la segunda corrida');
-=======
+  });
+
   test('fallo al crear el symlink de CLAUDE.md se reporta visible, no queda enmascarado por [SUCCESS] (gap de production-readiness, 2026-08-27)', { skip: !symlinkFallaSinPrivilegios() && 'este entorno permite symlinks sin privilegios especiales -- no se puede reproducir el fallo real de forma deterministica aqui' }, () => {
     // Hallazgo real de auditoria: normalizeSymlinks() atrapaba el error de
     // fs.symlinkSync en un catch interno que solo hacia console.error, sin
@@ -138,7 +138,6 @@ describe('norm-harness.js', () => {
     assert.equal(r.status, 0, 'un fallo de symlink es recuperable -- no debe bloquear el resto de la normalizacion');
     assert.doesNotMatch(r.stdout, /\[SUCCESS\][^\n]*$/m, 'el mensaje final no debe declarar exito puro si el symlink fallo');
     assert.match(r.stdout + r.stderr, /symlink/i, 'debe mencionar explicitamente el fallo de symlink en algun lugar de la salida');
->>>>>>> c81fbd6 (fix(seguridad,gobierno-agentes,ci): cerrar 3 issues reportados + gaps AAA de produccion)
   });
 
   test('elimina archivos legacy de la blacklist en el proyecto anfitrion', () => {
