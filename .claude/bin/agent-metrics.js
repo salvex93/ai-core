@@ -22,7 +22,17 @@ const fs   = require('node:fs');
 const path = require('node:path');
 
 const REPO    = path.resolve(__dirname, '..', '..');
-const METRICS = path.join(REPO, '.claude', 'AGENT_METRICS.json');
+// AI_CORE_METRICS_PATH permite aislar en tests -- mismo patron que
+// AI_CORE_EVENTS_QUEUE_PATH en capture-event.js.
+const METRICS = process.env.AI_CORE_METRICS_PATH || path.join(REPO, '.claude', 'AGENT_METRICS.json');
+
+// Cap de detalle por-llamada dentro de una sesion -- gap real de
+// production-readiness: data.sessions ya rotaba a MAX_SESSIONS, pero
+// session.calls nunca se podaba, asi que una sesion larga (miles de tool
+// calls) crecia sin limite pese al cap de sesiones. Los totales agregados
+// (session.totals) se acumulan independientemente de calls[] y sobreviven
+// la poda -- solo se pierde el detalle por-llamada mas antiguo, no el conteo.
+const MAX_CALLS_POR_SESION = 500;
 
 // Costo estimado por tool call (tokens promedio por herramienta)
 const TOKEN_COST = {
