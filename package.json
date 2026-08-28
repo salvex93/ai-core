@@ -45,6 +45,6 @@
   },
   "allowScripts": {
     "protobufjs@7.6.5": true,
-    "@google/genai@2.15.0": true
+    "@google/genai@2.19.0": true
   }
 }
