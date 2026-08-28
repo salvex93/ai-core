@@ -3,7 +3,7 @@ name: security-monitoring-soc
 description: Monitorizacion de seguridad continua en produccion (SOC operativo) para la infraestructura del proyecto anfitrion. Cubre arquitectura SIEM (ingestion y correlacion de eventos de seguridad), deteccion de intrusiones IDS/IPS de red y de host, gestion de vulnerabilidades continua con SLA de remediacion por severidad, runbooks tecnicos de incident response (deteccion-contencion-erradicacion-recuperacion-post-mortem) y threat intelligence aplicado a deteccion proactiva. Agnostico de proveedor cloud. Activa al disenar o configurar deteccion de ataques en tiempo real, correlacionar eventos de seguridad de multiples fuentes, definir el proceso de respuesta a incidentes de seguridad, o establecer un programa de gestion de vulnerabilidades continua sobre infraestructura en produccion.
 origin: ai-core
 version: 1.0.0
-last_updated: 2026-08-27
+last_updated: 2026-08-28
 rol: auditor
 compatibility: Requiere acceso a los logs/eventos de la infraestructura del anfitrion (aplicacion, red, host, cloud audit logs) para cualquier trabajo de correlacion o deteccion real. Sin esa fuente de datos, el perfil solo puede asesorar en diseno de arquitectura.
 ---
