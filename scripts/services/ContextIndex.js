@@ -26,55 +26,60 @@ const MAP_CANDIDATES = [
   path.resolve(__dirname, '../../.claude/CONTEXT_MAP.json'),
 ];
 
-let _mapCache = null;
-let _mapRaiz  = null; // ruta absoluta al directorio raiz del mapa cargado
+let _mapasCache = null; // array de { map, raiz } de TODOS los candidatos existentes
 
 /**
- * Carga y cachea el CONTEXT_MAP. Usa el primer candidato que exista.
- * @returns {{ map: object, raiz: string } | null}
+ * Carga y cachea TODOS los CONTEXT_MAP candidatos que existan (no solo el
+ * primero). Necesario para instalaciones anidadas: el mapa del anfitrion
+ * indexa los archivos DEL ANFITRION y el mapa de ai-core indexa los suyos
+ * -- un archivo real (ej. CLAUDE.md de ai-core) puede faltar en el primero
+ * y estar en el segundo.
+ * @returns {Array<{ map: object, raiz: string }>}
  */
-function cargarMapa() {
-  if (_mapCache) return { map: _mapCache, raiz: _mapRaiz };
+function cargarMapas() {
+  if (_mapasCache) return _mapasCache;
 
+  const cargados = [];
   for (const candidato of MAP_CANDIDATES) {
     if (!fs.existsSync(candidato)) continue;
     try {
-      const raw  = fs.readFileSync(candidato, 'utf8');
-      const data = JSON.parse(raw);
-      _mapCache  = data;
+      const raw = fs.readFileSync(candidato, 'utf8');
+      const map = JSON.parse(raw);
       // La raiz del mapa es el directorio que contiene el .claude/ donde vive el mapa
-      _mapRaiz   = path.dirname(path.dirname(candidato));
-      return { map: _mapCache, raiz: _mapRaiz };
+      const raiz = path.dirname(path.dirname(candidato));
+      cargados.push({ map, raiz });
     } catch (_) {
       // JSON invalido — probar el siguiente candidato
     }
   }
-  return null;
+  _mapasCache = cargados;
+  return _mapasCache;
 }
 
 /**
- * Retorna todos los archivos indexados (lista plana de rutas relativas).
- * Esquema real de CONTEXT_MAP.json: { host: { root_files, directories,
- * total_files }, core: {...} | null } -- "host" es el proyecto anfitrion
- * (o el propio ai-core si standalone), no una clave "map" (esquema legacy
- * que ya no existe, causaba que este modulo nunca encontrara nada).
+ * Retorna todos los archivos indexados (lista plana de rutas relativas),
+ * combinando TODOS los mapas candidatos existentes. Esquema real de
+ * CONTEXT_MAP.json: { host: { root_files, directories, total_files },
+ * core: {...} | null } -- "host" es el proyecto anfitrion (o el propio
+ * ai-core si standalone), no una clave "map" (esquema legacy que ya no
+ * existe, causaba que este modulo nunca encontrara nada).
  * @returns {string[]}
  */
 function listarArchivos() {
-  const cargado = cargarMapa();
-  if (!cargado) return [];
-
-  const { map } = cargado;
-  const todos = [...(map.host?.root_files ?? [])];
-  for (const archivos of Object.values(map.host?.directories ?? {})) {
-    todos.push(...archivos);
+  const todos = [];
+  for (const { map } of cargarMapas()) {
+    todos.push(...(map.host?.root_files ?? []));
+    for (const archivos of Object.values(map.host?.directories ?? {})) {
+      todos.push(...archivos);
+    }
   }
   return todos;
 }
 
 /**
  * Resuelve una ruta relativa o nombre de archivo a su ruta absoluta consultando el indice.
- * Devuelve null si el archivo no esta en el mapa (evita intentos de lectura fallidos).
+ * Prueba cada mapa candidato en orden de prioridad hasta encontrar el archivo.
+ * Devuelve null si el archivo no esta en ningun mapa (evita intentos de lectura fallidos).
  *
  * PUNTO DE INJECCION: llamar esto ANTES de cualquier fs.readFileSync en los bridges.
  *
@@ -82,21 +87,21 @@ function listarArchivos() {
  * @returns {string | null} ruta absoluta si existe en el indice, null si no
  */
 function resolver(rutaRelativaONombre) {
-  const cargado = cargarMapa();
-  if (!cargado) return null;
+  const objetivo = rutaRelativaONombre.replace(/\\/g, '/');
+  const nombre   = path.basename(objetivo);
 
-  const { raiz } = cargado;
-  const archivos  = listarArchivos();
-  const objetivo  = rutaRelativaONombre.replace(/\\/g, '/');
+  for (const { map, raiz } of cargarMapas()) {
+    const archivos = [
+      ...(map.host?.root_files ?? []),
+      ...Object.values(map.host?.directories ?? {}).flat(),
+    ];
 
-  // Busqueda exacta primero
-  const exacto = archivos.find(a => a === objetivo || a.endsWith('/' + objetivo));
-  if (exacto) return path.resolve(raiz, exacto);
+    const exacto = archivos.find(a => a === objetivo || a.endsWith('/' + objetivo));
+    if (exacto) return path.resolve(raiz, exacto);
 
-  // Busqueda por nombre de archivo (sin directorio)
-  const nombre = path.basename(objetivo);
-  const porNombre = archivos.find(a => path.basename(a) === nombre);
-  if (porNombre) return path.resolve(raiz, porNombre);
+    const porNombre = archivos.find(a => path.basename(a) === nombre);
+    if (porNombre) return path.resolve(raiz, porNombre);
+  }
 
   return null;
 }
@@ -135,17 +140,19 @@ function leerSiIndexado(rutaRelativaONombre, encoding = 'utf8') {
  * @returns {object}
  */
 function diagnostico() {
-  const cargado = cargarMapa();
-  if (!cargado) {
+  const cargados = cargarMapas();
+  if (cargados.length === 0) {
     return { estado: 'sin_mapa', candidatos_probados: MAP_CANDIDATES };
   }
+  const principal = cargados[0].map;
   return {
     estado:          'cargado',
-    version:         cargado.map.version,
-    branch:          cargado.map.branch,
-    last_updated:    cargado.map.last_updated,
-    total_archivos:  cargado.map.host?.total_files ?? listarArchivos().length,
-    raiz_resuelta:   _mapRaiz,
+    version:         principal.version,
+    branch:          principal.branch,
+    last_updated:    principal.last_updated,
+    total_archivos:  listarArchivos().length,
+    raiz_resuelta:   cargados[0].raiz,
+    mapas_cargados:  cargados.length,
     mapa_origen:     MAP_CANDIDATES.find(c => fs.existsSync(c)),
   };
 }
