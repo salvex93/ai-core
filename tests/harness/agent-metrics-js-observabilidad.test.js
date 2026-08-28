@@ -104,15 +104,21 @@ describe('agent-metrics.js (observabilidad)', () => {
     // en vez de spawnear un proceso node por llamada -- con 500+ llamadas,
     // spawnSync por iteracion tardaba ~25s por test; misma cobertura, sin el
     // costo de arrancar cientos de procesos node solo para poblar el fixture.
-    const { cmdRecord, MAX_CALLS_POR_SESION } = require(SCRIPT);
-
-    function metricsPathAislado() {
-      return path.join(os.tmpdir(), `agent-metrics-rotacion-${process.pid}-${Date.now()}-${Math.random().toString(36).slice(2)}.json`);
+    // METRICS es una constante de modulo evaluada una sola vez al hacer
+    // require -- hay que fijar AI_CORE_METRICS_PATH y limpiar el cache de
+    // require ANTES de cada require() para que cada test tenga su propio
+    // archivo aislado (mismo patron que break-glass-lib-js.test.js).
+    function cargarModuloAislado() {
+      const metricsPath = path.join(os.tmpdir(), `agent-metrics-rotacion-${process.pid}-${Date.now()}-${Math.random().toString(36).slice(2)}.json`);
+      process.env.AI_CORE_METRICS_PATH = metricsPath;
+      delete require.cache[require.resolve(SCRIPT)];
+      const mod = require(SCRIPT);
+      delete process.env.AI_CORE_METRICS_PATH;
+      return { ...mod, metricsPath };
     }
 
     test('con mas de MAX_CALLS_POR_SESION llamadas, calls[] se poda y conserva solo las mas recientes', () => {
-      const metricsPath = metricsPathAislado();
-      process.env.AI_CORE_METRICS_PATH = metricsPath;
+      const { cmdRecord, MAX_CALLS_POR_SESION, metricsPath } = cargarModuloAislado();
 
       for (let i = 0; i < MAX_CALLS_POR_SESION + 50; i++) {
         cmdRecord({ '--tool': `Tool${i}`, '--status': 'ok', '--ms': '1' }, null);
@@ -125,7 +131,6 @@ describe('agent-metrics.js (observabilidad)', () => {
       // las mas viejas, no las mas nuevas.
       assert.equal(session.calls[session.calls.length - 1].tool, `Tool${MAX_CALLS_POR_SESION + 49}`);
 
-      delete process.env.AI_CORE_METRICS_PATH;
       fs.rmSync(metricsPath, { force: true });
     });
 
@@ -133,8 +138,7 @@ describe('agent-metrics.js (observabilidad)', () => {
       // La poda es solo del detalle por-llamada -- los agregados deben seguir
       // reflejando TODAS las llamadas historicas de la sesion, no solo las
       // que sobreviven en calls[]. Sin esto, "totals.tokens" mentiria tras podar.
-      const metricsPath = metricsPathAislado();
-      process.env.AI_CORE_METRICS_PATH = metricsPath;
+      const { cmdRecord, MAX_CALLS_POR_SESION, metricsPath } = cargarModuloAislado();
       const N = MAX_CALLS_POR_SESION + 10;
 
       for (let i = 0; i < N; i++) {
@@ -146,7 +150,6 @@ describe('agent-metrics.js (observabilidad)', () => {
       assert.equal(session.totals.ok, N, 'totals.ok debe contar todas las llamadas historicas, no solo las que sobreviven en calls[]');
       assert.ok(session.calls.length <= MAX_CALLS_POR_SESION);
 
-      delete process.env.AI_CORE_METRICS_PATH;
       fs.rmSync(metricsPath, { force: true });
     });
   });
