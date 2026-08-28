@@ -97,6 +97,7 @@ function cmdRecord(args, toolDesdeStdin) {
 
   const tokens = estimateTokens(tool);
   session.calls.push({ tool, status, ms, tokens, at: new Date().toISOString() });
+  if (session.calls.length > MAX_CALLS_POR_SESION) session.calls.shift();
   session.totals.ok     += status === 'ok' ? 1 : 0;
   session.totals.fail   += status === 'fail' ? 1 : 0;
   session.totals.tokens += tokens;
