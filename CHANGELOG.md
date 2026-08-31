@@ -27,6 +27,10 @@ Auditoria de cierre encontro que `.claude/agents/mcp-registry-navigator.md` ya d
 
 44/44 skills conformes, 1275 tests (1274 pass, 1 skipped, 0 fail) via `npm test`.
 
+### Sincronizado — documentacion y version
+
+`package.json`/`package-lock.json` a 3.33.2 (regenerado con `npm install --package-lock-only`, no editado a mano, para no repetir el gap del issue #255). Cifras de `README.md` y `CLAUDE.md` (conteo de skills, agentes y tests en comandos de referencia y arbol de directorios) actualizadas de 43/1212-1239/7 a 44/1275/6 -- las entradas historicas de este mismo CHANGELOG con cifras de versiones anteriores se dejan intactas, son registro cronologico, no estado actual.
+
 ### Agregado — 2 tests reales de cobertura de rama (deuda pendiente desde 2026-08-28)
 
 `tests/mcp-server-handlers.test.js`: cubre la rama catch de `resumirBacklog()` y `buscarWeb()` (sin `GEMINI_API_KEY`, `getModel()` lanza sincrono y se retorna `{ error }` en vez de propagar la excepcion) -- gap de cobertura de rama real en `McpServerHandlers.js`, antes sin ejercitar.
