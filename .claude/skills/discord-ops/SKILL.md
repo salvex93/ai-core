@@ -159,6 +159,7 @@ Si la tarea confirma que se necesita interactividad real, diseñar minimamente: 
 | URLs de webhook o tokens de bot en codigo fuente/logs | 0 ocurrencias | `secrets-guard.js` del propio arnes + revision manual de logs de la integracion |
 | Alertas enviadas sin pasar por el patron de agrupamiento/severidad minima | 0 — toda notificacion automatizada declara su severidad minima y ventana de agrupamiento antes de implementarse | Revision de la linea IDENTIDAD DISCORD-OPS completada para la integracion |
 | Manejo de rate limit basado en headers reales vs numero hardcodeado | 100% — ninguna implementacion asume un numero fijo de requests permitidos sin leer `X-RateLimit-*` | Revision de codigo del cliente HTTP que llama al webhook |
+| Emojis o iconos en cualquier ejemplo de embed propuesto | 0 ocurrencias en `title`/`description`/`fields`/`footer` | Revision visual de cada ejemplo de payload generado -- severidad se resuelve con `color` y texto plano, nunca con iconos |
 
 ## Restricciones del Perfil
 
