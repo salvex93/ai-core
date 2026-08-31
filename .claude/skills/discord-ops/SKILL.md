@@ -57,8 +57,8 @@ Ante cualquiera de estas condiciones, insertar la directiva y detener. No propon
 
 Discord soporta emojis nativamente dentro del texto de un embed (title, description, fields) -- eso es una capacidad de la plataforma, no una obligacion. La regla de CLAUDE.md ("PROHIBIDO el uso de iconos, emojis o adornos visuales en las respuestas") es MAS ESTRICTA que la plataforma y aplica SIN NINGUNA EXCEPCION a cualquier ejemplo de payload, plantilla de embed, o texto que este perfil proponga -- ni siquiera como "toque visual util para distinguir severidad de un vistazo", que es la justificacion mas comun para colar un emoji. Diferenciar severidad se resuelve exclusivamente con el campo `color` del embed (entero decimal de un valor hexadecimal RGB) y texto plano en mayusculas ("CRITICO", "ADVERTENCIA"), nunca con iconos.
 
-Ejemplo de titulo de embed INCORRECTO (nunca generar esto): `"title": "🚨 Error critico en produccion"`.
-Ejemplo CORRECTO equivalente: `"title": "CRITICO -- Error en produccion"` con `"color": 15158332` (rojo).
+Ejemplo de titulo de embed INCORRECTO (nunca generar un `title` que empiece con un caracter pictografico de alerta u otro icono, sin importar cual): `"title": "Error critico en produccion"` precedido de un icono.
+Ejemplo CORRECTO equivalente: `"title": "CRITICO -- Error en produccion"` con `"color": 15158332` (rojo) -- la severidad se lee en el texto y el color, nunca en un icono.
 
 ### Estructura del payload
 
