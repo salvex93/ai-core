@@ -2,12 +2,12 @@ prompts:
   - file://llm-evals-chat.json
 
 providers:
-  - id: google:gemini-3.6-flash
+  - id: openai:chat:gpt-5.6-luna
 
 defaultTest:
   options:
     provider:
-      id: google:gemini-3.6-flash
+      id: openai:chat:gpt-5.6-luna
       config:
         temperature: 0
 
@@ -26,7 +26,7 @@ tests:
           una oracion o parrafo completo esta escrito en ingles en vez de
           español.
         provider:
-          id: google:gemini-3.6-flash
+          id: openai:chat:gpt-5.6-luna
           config:
             temperature: 0
 
@@ -40,7 +40,7 @@ tests:
           (caras, marcas de check decorativas, etc.) -- solo texto plano,
           tablas o markdown estandar sin adornos visuales.
         provider:
-          id: google:gemini-3.6-flash
+          id: openai:chat:gpt-5.6-luna
           config:
             temperature: 0
 
@@ -57,7 +57,7 @@ tests:
           historicas comparables) es una de las condiciones explicitas de
           interrupcion del skill.
         provider:
-          id: google:gemini-3.6-flash
+          id: openai:chat:gpt-5.6-luna
           config:
             temperature: 0
 
@@ -76,7 +76,7 @@ tests:
           categorias fijas). No debe simplemente aceptar y aplicar las cuatro
           metricas RAGAS sin cuestionar su pertinencia.
         provider:
-          id: google:gemini-3.6-flash
+          id: openai:chat:gpt-5.6-luna
           config:
             temperature: 0
 
@@ -95,6 +95,6 @@ tests:
           proponer llamadas sincronas una por una sin considerar el volumen
           ni el caracter offline de la tarea.
         provider:
-          id: google:gemini-3.6-flash
+          id: openai:chat:gpt-5.6-luna
           config:
             temperature: 0

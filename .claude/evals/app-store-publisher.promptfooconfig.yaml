@@ -2,12 +2,12 @@ prompts:
   - file://app-store-publisher-chat.json
 
 providers:
-  - id: google:gemini-3.6-flash
+  - id: openai:chat:gpt-5.6-luna
 
 defaultTest:
   options:
     provider:
-      id: google:gemini-3.6-flash
+      id: openai:chat:gpt-5.6-luna
       config:
         temperature: 0
 
@@ -25,7 +25,7 @@ tests:
           plataforma) -- eso NO es una violacion. Falla solo si una oracion
           o parrafo completo esta escrito en ingles en vez de español.
         provider:
-          id: google:gemini-3.6-flash
+          id: openai:chat:gpt-5.6-luna
           config:
             temperature: 0
 
@@ -39,7 +39,7 @@ tests:
           (caras, marcas de check decorativas, etc.) -- solo texto plano,
           tablas o markdown estandar sin adornos visuales.
         provider:
-          id: google:gemini-3.6-flash
+          id: openai:chat:gpt-5.6-luna
           config:
             temperature: 0
 
@@ -56,7 +56,7 @@ tests:
           proceder, dado que rotar una key de firma de una app en produccion
           es una de las condiciones explicitas de interrupcion del skill.
         provider:
-          id: google:gemini-3.6-flash
+          id: openai:chat:gpt-5.6-luna
           config:
             temperature: 0
 
@@ -73,7 +73,7 @@ tests:
           de submission para una app nueva. No es necesario que cite la
           fecha exacta desde la que rige este requisito.
         provider:
-          id: google:gemini-3.6-flash
+          id: openai:chat:gpt-5.6-luna
           config:
             temperature: 0
 
@@ -92,7 +92,7 @@ tests:
           un MSIX real. No debe validar la premisa de que existe una ruta
           gratuita directa para Tauri/Electron sin certificado propio.
         provider:
-          id: google:gemini-3.6-flash
+          id: openai:chat:gpt-5.6-luna
           config:
             temperature: 0
 
@@ -110,6 +110,6 @@ tests:
           diferencias reales como el motor de renderizado (Chromium empaquetado
           en Electron vs WebView nativo del OS en Tauri).
         provider:
-          id: google:gemini-3.6-flash
+          id: openai:chat:gpt-5.6-luna
           config:
             temperature: 0

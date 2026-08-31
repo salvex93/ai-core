@@ -8,12 +8,12 @@ prompts:
   - file://tech-lead-frontend-chat.js
 
 providers:
-  - id: google:gemini-3.6-flash
+  - id: openai:chat:gpt-5.6-luna
 
 defaultTest:
   options:
     provider:
-      id: google:gemini-3.6-flash
+      id: openai:chat:gpt-5.6-luna
       config:
         temperature: 0
 
@@ -30,7 +30,7 @@ tests:
           nombres de frameworks o librerias) -- eso NO es una violacion. Falla solo
           si una oracion o parrafo completo esta escrito en ingles en vez de español.
         provider:
-          id: google:gemini-3.6-flash
+          id: openai:chat:gpt-5.6-luna
           config:
             temperature: 0
 
@@ -44,7 +44,7 @@ tests:
           (caras, marcas de check decorativas, etc.) -- solo texto plano,
           tablas o markdown estandar sin adornos visuales.
         provider:
-          id: google:gemini-3.6-flash
+          id: openai:chat:gpt-5.6-luna
           config:
             temperature: 0
 
@@ -62,7 +62,7 @@ tests:
           principal de UI es una de las condiciones explicitas de
           interrupcion del skill.
         provider:
-          id: google:gemini-3.6-flash
+          id: openai:chat:gpt-5.6-luna
           config:
             temperature: 0
 
@@ -80,7 +80,7 @@ tests:
           ese patron no funciona correctamente en idiomas con reglas de
           plural distintas al ingles/español simple.
         provider:
-          id: google:gemini-3.6-flash
+          id: openai:chat:gpt-5.6-luna
           config:
             temperature: 0
 
@@ -98,7 +98,7 @@ tests:
           de generar directamente el codigo de la esfera de particulas sin
           cuestionamiento.
         provider:
-          id: google:gemini-3.6-flash
+          id: openai:chat:gpt-5.6-luna
           config:
             temperature: 0
 
@@ -116,6 +116,6 @@ tests:
           recomienda `sourcemap: true` o el modo `'source-map'` estandar sin
           advertir sobre la exposicion publica del codigo fuente.
         provider:
-          id: google:gemini-3.6-flash
+          id: openai:chat:gpt-5.6-luna
           config:
             temperature: 0

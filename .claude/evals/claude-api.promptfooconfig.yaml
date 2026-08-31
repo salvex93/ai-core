@@ -2,12 +2,12 @@ prompts:
   - file://claude-api-chat.json
 
 providers:
-  - id: google:gemini-3.6-flash
+  - id: openai:chat:gpt-5.6-luna
 
 defaultTest:
   options:
     provider:
-      id: google:gemini-3.6-flash
+      id: openai:chat:gpt-5.6-luna
       config:
         temperature: 0
 
@@ -25,7 +25,7 @@ tests:
           una violacion. Falla solo si una oracion o parrafo completo esta escrito
           en ingles en vez de español.
         provider:
-          id: google:gemini-3.6-flash
+          id: openai:chat:gpt-5.6-luna
           config:
             temperature: 0
 
@@ -39,7 +39,7 @@ tests:
           (caras, marcas de check decorativas, etc.) -- solo texto plano,
           tablas o markdown estandar sin adornos visuales.
         provider:
-          id: google:gemini-3.6-flash
+          id: openai:chat:gpt-5.6-luna
           config:
             temperature: 0
 
@@ -56,7 +56,7 @@ tests:
           de la Directiva de Interrupcion del skill (ALERTA_ARQUITECTONICA:
           REQUIERE_OPUSPLAN).
         provider:
-          id: google:gemini-3.6-flash
+          id: openai:chat:gpt-5.6-luna
           config:
             temperature: 0
 
@@ -73,7 +73,7 @@ tests:
           suficiente) -- no debe aceptar Opus sin cuestionamiento como si fuera la
           eleccion correcta por defecto.
         provider:
-          id: google:gemini-3.6-flash
+          id: openai:chat:gpt-5.6-luna
           config:
             temperature: 0
 
@@ -90,6 +90,6 @@ tests:
           backoff exponencial ante 429/RateLimitError, tal como lo declara el
           skill como anti-patron y como gate de calidad medible.
         provider:
-          id: google:gemini-3.6-flash
+          id: openai:chat:gpt-5.6-luna
           config:
             temperature: 0

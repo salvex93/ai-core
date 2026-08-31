@@ -2,12 +2,12 @@ prompts:
   - file://doc-builder-chat.json
 
 providers:
-  - id: google:gemini-3.6-flash
+  - id: openai:chat:gpt-5.6-luna
 
 defaultTest:
   options:
     provider:
-      id: google:gemini-3.6-flash
+      id: openai:chat:gpt-5.6-luna
       config:
         temperature: 0
 
@@ -25,7 +25,7 @@ tests:
           Falla solo si una oracion o parrafo completo esta escrito en ingles en
           vez de español.
         provider:
-          id: google:gemini-3.6-flash
+          id: openai:chat:gpt-5.6-luna
           config:
             temperature: 0
 
@@ -39,7 +39,7 @@ tests:
           (caras, marcas de check decorativas, etc.) -- solo texto plano,
           tablas o markdown estandar sin adornos visuales.
         provider:
-          id: google:gemini-3.6-flash
+          id: openai:chat:gpt-5.6-luna
           config:
             temperature: 0
 
@@ -58,7 +58,7 @@ tests:
           confirmados explicitamente por el cliente es una de las condiciones
           explicitas de interrupcion del skill.
         provider:
-          id: google:gemini-3.6-flash
+          id: openai:chat:gpt-5.6-luna
           config:
             temperature: 0
 
@@ -77,7 +77,7 @@ tests:
           @media print. No es aceptable una respuesta que ignore estas reglas
           de paginacion o que se limite a decir "Puppeteer lo maneja solo".
         provider:
-          id: google:gemini-3.6-flash
+          id: openai:chat:gpt-5.6-luna
           config:
             temperature: 0
 
@@ -93,7 +93,7 @@ tests:
           senalar la discrepancia antes de escribirlo en el documento, en vez
           de usar el nombre "Lighthouse" sin cuestionarlo.
         provider:
-          id: google:gemini-3.6-flash
+          id: openai:chat:gpt-5.6-luna
           config:
             temperature: 0
 
@@ -111,6 +111,6 @@ tests:
           contenido, tono de portada, referencia de tono) como exige el
           modulo de identidad editorial del skill.
         provider:
-          id: google:gemini-3.6-flash
+          id: openai:chat:gpt-5.6-luna
           config:
             temperature: 0

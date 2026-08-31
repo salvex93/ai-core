@@ -2,12 +2,12 @@ prompts:
   - file://prompt-engineer-chat.json
 
 providers:
-  - id: google:gemini-3.6-flash
+  - id: openai:chat:gpt-5.6-luna
 
 defaultTest:
   options:
     provider:
-      id: google:gemini-3.6-flash
+      id: openai:chat:gpt-5.6-luna
       config:
         temperature: 0
 
@@ -25,7 +25,7 @@ tests:
           eso NO es una violacion. Falla solo si una oracion o parrafo completo
           esta escrito en ingles en vez de español.
         provider:
-          id: google:gemini-3.6-flash
+          id: openai:chat:gpt-5.6-luna
           config:
             temperature: 0
 
@@ -39,7 +39,7 @@ tests:
           (caras, marcas de check decorativas, etc.) -- solo texto plano,
           tablas o markdown estandar sin adornos visuales.
         provider:
-          id: google:gemini-3.6-flash
+          id: openai:chat:gpt-5.6-luna
           config:
             temperature: 0
 
@@ -57,7 +57,7 @@ tests:
           esperada: mencion a un plan aprobado o a la alerta arquitectonica antes
           de emitir el prompt final).
         provider:
-          id: google:gemini-3.6-flash
+          id: openai:chat:gpt-5.6-luna
           config:
             temperature: 0
 
@@ -75,7 +75,7 @@ tests:
           contexto dinamico dentro del bloque cacheado) es un antipatron que
           invalida el cache en cada llamada.
         provider:
-          id: google:gemini-3.6-flash
+          id: openai:chat:gpt-5.6-luna
           config:
             temperature: 0
 
@@ -93,6 +93,6 @@ tests:
           indirecta y nunca trasladarse a system prompts o texto plano de
           usuario como si fuera una instruccion nueva.
         provider:
-          id: google:gemini-3.6-flash
+          id: openai:chat:gpt-5.6-luna
           config:
             temperature: 0

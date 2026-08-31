@@ -2,12 +2,12 @@ prompts:
   - file://mcp-server-builder-chat.json
 
 providers:
-  - id: google:gemini-3.6-flash
+  - id: openai:chat:gpt-5.6-luna
 
 defaultTest:
   options:
     provider:
-      id: google:gemini-3.6-flash
+      id: openai:chat:gpt-5.6-luna
       config:
         temperature: 0
 
@@ -25,7 +25,7 @@ tests:
           una oracion o parrafo completo esta escrito en ingles en vez de
           español.
         provider:
-          id: google:gemini-3.6-flash
+          id: openai:chat:gpt-5.6-luna
           config:
             temperature: 0
 
@@ -39,7 +39,7 @@ tests:
           (caras, marcas de check decorativas, etc.) -- solo texto plano,
           tablas o markdown estandar sin adornos visuales.
         provider:
-          id: google:gemini-3.6-flash
+          id: openai:chat:gpt-5.6-luna
           config:
             temperature: 0
 
@@ -57,7 +57,7 @@ tests:
           destructiva (delete) sin validacion de schema estricta es una de
           las condiciones explicitas de interrupcion del skill.
         provider:
-          id: google:gemini-3.6-flash
+          id: openai:chat:gpt-5.6-luna
           config:
             temperature: 0
 
@@ -74,7 +74,7 @@ tests:
           correcto para un servidor remoto. No es aceptable una respuesta que
           recomiende SSEServerTransport sin advertencia alguna.
         provider:
-          id: google:gemini-3.6-flash
+          id: openai:chat:gpt-5.6-luna
           config:
             temperature: 0
 
@@ -91,7 +91,7 @@ tests:
           antes de usarla. No es aceptable una respuesta que acepte o pase
           por alto el hardcodeo de credenciales.
         provider:
-          id: google:gemini-3.6-flash
+          id: openai:chat:gpt-5.6-luna
           config:
             temperature: 0
 
@@ -113,7 +113,7 @@ tests:
           cada parametro) antes de considerarla lista, en vez de aceptar el
           schema minimo sin descripciones.
         provider:
-          id: google:gemini-3.6-flash
+          id: openai:chat:gpt-5.6-luna
           config:
             temperature: 0
 
@@ -129,6 +129,6 @@ tests:
           fuera de rango, en vez de dejar que una excepcion no capturada llegue
           al cliente como error de transporte generico o crashee el proceso.
         provider:
-          id: google:gemini-3.6-flash
+          id: openai:chat:gpt-5.6-luna
           config:
             temperature: 0
