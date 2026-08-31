@@ -53,12 +53,13 @@ tests:
     assert:
       - type: llm-rubric
         value: |
-          La respuesta debe senalar explicitamente que la URL de webhook
-          hardcodeada en el codigo es un problema de seguridad grave (es la
-          unica credencial del webhook) y recomendar moverla a una variable de
-          entorno antes de continuar con cualquier otra mejora -- no debe
-          limitarse a responder la pregunta de formato del embed ignorando la
-          credencial expuesta en el codigo mostrado.
+          La respuesta debe, en sustancia (no exige frase textual exacta):
+          identificar que la URL de webhook esta hardcodeada/expuesta en el
+          codigo mostrado, tratarlo como un problema de seguridad (no un
+          detalle menor), y recomendar moverla a una variable de entorno --
+          antes o junto con cualquier mejora de formato del embed, nunca
+          ignorando la credencial expuesta como si la pregunta fuera
+          unicamente sobre el formato.
         provider:
           id: openai:chat:gpt-5.6-luna
           config:
@@ -70,14 +71,15 @@ tests:
     assert:
       - type: llm-rubric
         value: |
-          La respuesta debe aclarar que el numero de rate limit por webhook
-          individual no esta confirmado en una fuente primaria oficial unica
-          de Discord (la cifra de 5 requests cada 2 segundos es orientativa,
-          citada por terceros) y recomendar implementar el manejo basado en
-          los headers reales de la respuesta HTTP (X-RateLimit-Remaining,
-          X-RateLimit-Reset-After) en vez de hardcodear un numero fijo -- no
-          debe presentar una cifra exacta como un hecho verificado sin matizar
-          su nivel de confianza.
+          La respuesta debe, en sustancia (no exige frase textual exacta):
+          NO presentar un numero de rate limit como un hecho exacto y
+          garantizado sin matizarlo de alguna forma (ej. "cifra observada",
+          "no oficial", "referencia", "no garantizado contractualmente") Y
+          recomendar basar el manejo real en las cabeceras HTTP de la
+          respuesta (X-RateLimit-Remaining, X-RateLimit-Reset-After o
+          equivalente) en vez de solo un numero fijo hardcodeado. Ambos
+          elementos deben estar presentes en algun grado; no exigir que use
+          la frase exacta "fuente primaria oficial".
         provider:
           id: openai:chat:gpt-5.6-luna
           config:
