@@ -11,6 +11,12 @@ El estado commiteado (revert a `google:gemini-3.6-flash` de la sesion del 2026-0
 
 Pendiente para una proxima sesion: diagnosticar si el colgado es de promptfoo (`google:*` provider) o de la API de Gemini directamente (probar con `@google/genai` sin pasar por promptfoo), antes de intentar revertir de nuevo a Gemini como juez de evals.
 
+### Corregido — `ciso`: gap de gobierno de contenido externo no confiable + eval desactualizado
+
+Auditoria previa a uso en produccion contra un tenant de cliente real detecto que `ciso` (`.claude/skills/ciso/SKILL.md`) no declaraba el tratamiento de "contenido externo no confiable por defecto" (Gobierno de Agentes, punto 7 de CLAUDE.md) pese a procesar por diseno evidencia de proveedores, respuestas de cuestionarios y documentos de politica de terceros -- superficie de exposicion real si un documento de proveedor contuviera texto formateado como instruccion. Agregada la misma declaracion que ya usan los otros 12 skills expuestos (patron de `rag-specialist`/`doc-builder`), en la seccion Restricciones del Perfil. Version 1.3.1 -> 1.3.2.
+
+El eval de `ciso` tenia evidencia de una corrida 4/4 en CHANGELOG (linea 272) de antes de que se ampliara a 5 tests con el Gate de Calidad Medible (linea 97) -- sin confirmacion posterior con el archivo actual. Re-ejecutado hoy contra `openai:chat:gpt-5.6-luna`: **6/6 (100%), 18s, 0 errores**.
+
 ### Agregado — 2 tests reales de cobertura de rama (deuda pendiente desde 2026-08-28)
 
 `tests/mcp-server-handlers.test.js`: cubre la rama catch de `resumirBacklog()` y `buscarWeb()` (sin `GEMINI_API_KEY`, `getModel()` lanza sincrono y se retorna `{ error }` en vez de propagar la excepcion) -- gap de cobertura de rama real en `McpServerHandlers.js`, antes sin ejercitar.
