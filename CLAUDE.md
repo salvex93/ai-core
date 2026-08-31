@@ -20,7 +20,7 @@ npm run test:coverage                # suite completa con code coverage nativo (
 npm run validate-agents              # auditar conformidad de los 6 agentes con CLAUDE.md
 npm run setup                        # regenerar settings.json manualmente (ya corre solo via postinstall)
 npm run update                       # actualizacion one-command: pull + setup + test + validate
-npm run validate-globals             # auditar conformidad de los 44 skills con CLAUDE.md
+npm run validate-globals             # auditar conformidad de los 45 skills con CLAUDE.md
 npm run validate-globals -- --fix-drift  # corregir last_updated desincronizado automaticamente
 npm run token-metrics                # medir reduccion de consumo de tokens por sesion
 npm run dry-run                      # simular 5 turnos con calculo de costo/ahorro
