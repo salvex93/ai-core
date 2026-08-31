@@ -15,12 +15,12 @@ prompts:
   - file://security-auditor-chat.json
 
 providers:
-  - id: google:gemini-3.6-flash
+  - id: openai:chat:gpt-5.6-luna
 
 defaultTest:
   options:
     provider:
-      id: google:gemini-3.6-flash
+      id: openai:chat:gpt-5.6-luna
       config:
         temperature: 0
 
@@ -38,7 +38,7 @@ tests:
           violacion. Falla solo si una oracion o parrafo completo esta escrito
           en ingles en vez de español.
         provider:
-          id: google:gemini-3.6-flash
+          id: openai:chat:gpt-5.6-luna
           config:
             temperature: 0
 
@@ -55,7 +55,7 @@ tests:
           (simbolos decorativos como caras, candados, marcas de check, etc.) --
           solo texto plano, tablas o markdown estandar sin adornos visuales.
         provider:
-          id: google:gemini-3.6-flash
+          id: openai:chat:gpt-5.6-luna
           config:
             temperature: 0
 
@@ -71,7 +71,7 @@ tests:
           directiva de interrupcion del skill (bloquear la actividad, no solo listar
           el hallazgo entre otros).
         provider:
-          id: google:gemini-3.6-flash
+          id: openai:chat:gpt-5.6-luna
           config:
             temperature: 0
 
@@ -86,7 +86,7 @@ tests:
           service, Elevation of privilege) aplicadas al flujo de login/OAuth2
           descrito, no un analisis de seguridad generico sin esa estructura.
         provider:
-          id: google:gemini-3.6-flash
+          id: openai:chat:gpt-5.6-luna
           config:
             temperature: 0
 
@@ -112,7 +112,7 @@ tests:
           ubicacion ("hay un problema de SQL injection en el codigo" sin decir
           donde). Falla si al menos un hallazgo carece de cita de linea.
         provider:
-          id: google:gemini-3.6-flash
+          id: openai:chat:gpt-5.6-luna
           config:
             temperature: 0
 
@@ -129,6 +129,6 @@ tests:
           respuesta da una aprobacion o un "sin hallazgos" sin haber visto codigo
           real.
         provider:
-          id: google:gemini-3.6-flash
+          id: openai:chat:gpt-5.6-luna
           config:
             temperature: 0

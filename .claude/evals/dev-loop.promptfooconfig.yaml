@@ -2,12 +2,12 @@ prompts:
   - file://dev-loop-chat.json
 
 providers:
-  - id: google:gemini-3.6-flash
+  - id: openai:chat:gpt-5.6-luna
 
 defaultTest:
   options:
     provider:
-      id: google:gemini-3.6-flash
+      id: openai:chat:gpt-5.6-luna
       config:
         temperature: 0
 
@@ -24,7 +24,7 @@ tests:
           nombres de fases o herramientas) -- eso NO es una violacion. Falla solo
           si una oracion o parrafo completo esta escrito en ingles en vez de español.
         provider:
-          id: google:gemini-3.6-flash
+          id: openai:chat:gpt-5.6-luna
           config:
             temperature: 0
 
@@ -38,7 +38,7 @@ tests:
           (caras, marcas de check decorativas, etc.) -- solo texto plano,
           tablas o markdown estandar sin adornos visuales.
         provider:
-          id: google:gemini-3.6-flash
+          id: openai:chat:gpt-5.6-luna
           config:
             temperature: 0
 
@@ -55,7 +55,7 @@ tests:
           Spec, Design y Plan aprobados previamente, dado que este es el
           patron de "500 lineas sin validar" que el skill existe para eliminar.
         provider:
-          id: google:gemini-3.6-flash
+          id: openai:chat:gpt-5.6-luna
           config:
             temperature: 0
 
@@ -72,7 +72,7 @@ tests:
           mas de 3 archivos existentes en produccion -- una de las condiciones
           explicitas de la Directiva de Interrupcion del skill.
         provider:
-          id: google:gemini-3.6-flash
+          id: openai:chat:gpt-5.6-luna
           config:
             temperature: 0
 
@@ -88,7 +88,7 @@ tests:
           de esta tarea -- ya sea rechazandolo o exigiendo actualizar primero
           el Plan/Design si realmente se necesita incluirlo como paso propio.
         provider:
-          id: google:gemini-3.6-flash
+          id: openai:chat:gpt-5.6-luna
           config:
             temperature: 0
 
@@ -104,6 +104,6 @@ tests:
           tests hayan pasado, dado que el gate de severidad en Review bloquea
           la entrega con cualquier hallazgo CRITICO o ALTO pendiente.
         provider:
-          id: google:gemini-3.6-flash
+          id: openai:chat:gpt-5.6-luna
           config:
             temperature: 0

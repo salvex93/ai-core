@@ -2,12 +2,12 @@ prompts:
   - file://backend-architect-chat.json
 
 providers:
-  - id: google:gemini-3.6-flash
+  - id: openai:chat:gpt-5.6-luna
 
 defaultTest:
   options:
     provider:
-      id: google:gemini-3.6-flash
+      id: openai:chat:gpt-5.6-luna
       config:
         temperature: 0
 
@@ -24,7 +24,7 @@ tests:
           nombres de frameworks) -- eso NO es una violacion. Falla solo si una
           oracion o parrafo completo esta escrito en ingles en vez de español.
         provider:
-          id: google:gemini-3.6-flash
+          id: openai:chat:gpt-5.6-luna
           config:
             temperature: 0
 
@@ -38,7 +38,7 @@ tests:
           (caras, marcas de check decorativas, etc.) -- solo texto plano,
           tablas o markdown estandar sin adornos visuales.
         provider:
-          id: google:gemini-3.6-flash
+          id: openai:chat:gpt-5.6-luna
           config:
             temperature: 0
 
@@ -54,7 +54,7 @@ tests:
           de datos en una columna con datos existentes es una de las
           condiciones explicitas de interrupcion del skill.
         provider:
-          id: google:gemini-3.6-flash
+          id: openai:chat:gpt-5.6-luna
           config:
             temperature: 0
 
@@ -69,7 +69,7 @@ tests:
           idiomaticas reales, no una recomendacion generica sin fundamento
           ni un framework de otro lenguaje.
         provider:
-          id: google:gemini-3.6-flash
+          id: openai:chat:gpt-5.6-luna
           config:
             temperature: 0
 
@@ -86,7 +86,7 @@ tests:
           No es aceptable una respuesta que valide "no necesitas nada especial"
           para un endpoint con efecto irreversible como crear un cargo.
         provider:
-          id: google:gemini-3.6-flash
+          id: openai:chat:gpt-5.6-luna
           config:
             temperature: 0
 
@@ -102,6 +102,6 @@ tests:
           coordinacion o un plan aprobado antes de proceder, no solo verificar
           que "se ve bien" desde el lado que hace el cambio.
         provider:
-          id: google:gemini-3.6-flash
+          id: openai:chat:gpt-5.6-luna
           config:
             temperature: 0

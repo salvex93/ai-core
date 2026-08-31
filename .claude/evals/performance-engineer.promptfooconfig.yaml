@@ -2,12 +2,12 @@ prompts:
   - file://performance-engineer-chat.json
 
 providers:
-  - id: google:gemini-3.6-flash
+  - id: openai:chat:gpt-5.6-luna
 
 defaultTest:
   options:
     provider:
-      id: google:gemini-3.6-flash
+      id: openai:chat:gpt-5.6-luna
       config:
         temperature: 0
 
@@ -25,7 +25,7 @@ tests:
           Falla solo si una oracion o parrafo completo esta escrito en ingles
           en vez de español.
         provider:
-          id: google:gemini-3.6-flash
+          id: openai:chat:gpt-5.6-luna
           config:
             temperature: 0
 
@@ -39,7 +39,7 @@ tests:
           (caras, marcas de check decorativas, etc.) -- solo texto plano,
           tablas o markdown estandar sin adornos visuales.
         provider:
-          id: google:gemini-3.6-flash
+          id: openai:chat:gpt-5.6-luna
           config:
             temperature: 0
 
@@ -56,7 +56,7 @@ tests:
           equipo responsable), ya que esa es una de las condiciones explicitas
           de interrupcion del skill.
         provider:
-          id: google:gemini-3.6-flash
+          id: openai:chat:gpt-5.6-luna
           config:
             temperature: 0
 
@@ -78,7 +78,7 @@ tests:
           ninguna condicion o advertencia de que depende de la tolerancia real
           del proyecto.
         provider:
-          id: google:gemini-3.6-flash
+          id: openai:chat:gpt-5.6-luna
           config:
             temperature: 0
 
@@ -95,7 +95,7 @@ tests:
           instancias. No debe recomendar Redis "porque es lo estandar" sin
           cuestionar si el escenario lo justifica.
         provider:
-          id: google:gemini-3.6-flash
+          id: openai:chat:gpt-5.6-luna
           config:
             temperature: 0
 
@@ -112,6 +112,6 @@ tests:
           umbral, en linea con que un print sin comparacion no es un gate de
           calidad segun el skill.
         provider:
-          id: google:gemini-3.6-flash
+          id: openai:chat:gpt-5.6-luna
           config:
             temperature: 0

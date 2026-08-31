@@ -2,12 +2,12 @@ prompts:
   - file://aiops-engineer-chat.json
 
 providers:
-  - id: google:gemini-3.6-flash
+  - id: openai:chat:gpt-5.6-luna
 
 defaultTest:
   options:
     provider:
-      id: google:gemini-3.6-flash
+      id: openai:chat:gpt-5.6-luna
       config:
         temperature: 0
 
@@ -25,7 +25,7 @@ tests:
           si una oracion o parrafo completo esta escrito en ingles en vez de
           español.
         provider:
-          id: google:gemini-3.6-flash
+          id: openai:chat:gpt-5.6-luna
           config:
             temperature: 0
 
@@ -39,7 +39,7 @@ tests:
           (caras, marcas de check decorativas, etc.) -- solo texto plano,
           tablas o markdown estandar sin adornos visuales.
         provider:
-          id: google:gemini-3.6-flash
+          id: openai:chat:gpt-5.6-luna
           config:
             temperature: 0
 
@@ -56,7 +56,7 @@ tests:
           skills simultaneamente, una de las condiciones explicitas de
           interrupcion del skill.
         provider:
-          id: google:gemini-3.6-flash
+          id: openai:chat:gpt-5.6-luna
           config:
             temperature: 0
 
@@ -74,7 +74,7 @@ tests:
           de Auto-Auditoria del skill. Falla si el reporte de auditoria
           arranca directo con hallazgos sin esa linea previa.
         provider:
-          id: google:gemini-3.6-flash
+          id: openai:chat:gpt-5.6-luna
           config:
             temperature: 0
 
@@ -91,7 +91,7 @@ tests:
           de 200 lineas) al bridge de Gemini -- en vez de proponer leer
           integramente todos los SKILL.md del ecosistema de una vez.
         provider:
-          id: google:gemini-3.6-flash
+          id: openai:chat:gpt-5.6-luna
           config:
             temperature: 0
 
@@ -108,6 +108,6 @@ tests:
           cualquier archivo del ai-core, conforme al Protocolo de
           Modificacion del Nucleo.
         provider:
-          id: google:gemini-3.6-flash
+          id: openai:chat:gpt-5.6-luna
           config:
             temperature: 0

@@ -2,12 +2,12 @@ prompts:
   - file://agent-testing-chat.json
 
 providers:
-  - id: google:gemini-3.6-flash
+  - id: openai:chat:gpt-5.6-luna
 
 defaultTest:
   options:
     provider:
-      id: google:gemini-3.6-flash
+      id: openai:chat:gpt-5.6-luna
       config:
         temperature: 0
 
@@ -25,7 +25,7 @@ tests:
           Falla solo si una oracion o parrafo completo esta escrito en ingles
           en vez de español.
         provider:
-          id: google:gemini-3.6-flash
+          id: openai:chat:gpt-5.6-luna
           config:
             temperature: 0
 
@@ -39,7 +39,7 @@ tests:
           (caras, marcas de check decorativas, etc.) -- solo texto plano,
           tablas o markdown estandar sin adornos visuales.
         provider:
-          id: google:gemini-3.6-flash
+          id: openai:chat:gpt-5.6-luna
           config:
             temperature: 0
 
@@ -56,7 +56,7 @@ tests:
           recomendar inspeccionar la traza de herramientas usadas, no solo
           la existencia de un resultado.
         provider:
-          id: google:gemini-3.6-flash
+          id: openai:chat:gpt-5.6-luna
           config:
             temperature: 0
 
@@ -72,7 +72,7 @@ tests:
           agente sin ejecutar los golden trace tests primero" es una de las
           condiciones explicitas de interrupcion del skill.
         provider:
-          id: google:gemini-3.6-flash
+          id: openai:chat:gpt-5.6-luna
           config:
             temperature: 0
 
@@ -90,7 +90,7 @@ tests:
           cubierto el comportamiento de recovery del agente ante fallos de
           herramientas.
         provider:
-          id: google:gemini-3.6-flash
+          id: openai:chat:gpt-5.6-luna
           config:
             temperature: 0
 
@@ -108,6 +108,6 @@ tests:
           directamente un diseno de test de faithfulness como si fuera
           territorio propio de este skill.
         provider:
-          id: google:gemini-3.6-flash
+          id: openai:chat:gpt-5.6-luna
           config:
             temperature: 0
