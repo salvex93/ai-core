@@ -91,9 +91,15 @@ tests:
         value: |
           La respuesta debe advertir explicitamente contra enviar una
           notificacion por cada una de las 200 ocurrencias por minuto (riesgo
-          real de exceder el rate limit del webhook y de fatiga de alertas) y
-          proponer un patron de agrupamiento por ventana de tiempo con un
-          contador de ocurrencias en vez de un mensaje individual por evento.
+          real de exceder el rate limit del webhook y de fatiga de alertas).
+          Es un PASS valido tanto si desarrolla directamente la propuesta de
+          agrupamiento por ventana de tiempo con contador de ocurrencias, como
+          si activa la Directiva de Interrupcion del skill (el volumen supera
+          lo que el patron de agrupamiento puede absorber sin definir uno
+          antes) y pide aprobar un plan antes de proponer la solucion en
+          detalle -- ambos comportamientos son correctos segun el SKILL.md.
+          Falla solo si la respuesta acepta enviar una notificacion por cada
+          ocurrencia sin objetar el volumen.
         provider:
           id: openai:chat:gpt-5.6-luna
           config:
