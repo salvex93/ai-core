@@ -55,6 +55,8 @@ Ante cualquiera de estas condiciones, insertar la directiva y detener. No propon
 
 ## Incoming Webhooks — Formato y Limites Reales (verificado 2026-08-31 contra discord.com/developers/docs)
 
+Discord soporta emojis nativamente dentro del texto de un embed (title, description, fields) -- eso es una capacidad de la plataforma, no una obligacion. La regla de CLAUDE.md ("PROHIBIDO el uso de iconos, emojis o adornos visuales en las respuestas") es MAS ESTRICTA que la plataforma y aplica sin excepcion a cualquier ejemplo de payload, plantilla de embed, o texto que este perfil proponga -- nunca incluir emojis (🚨, ✅, ❌, etc.) en el `title`, `description`, `fields` o `footer` de un ejemplo, ni sugerirlos como "buena practica visual". Diferenciar severidad se resuelve con el campo `color` del embed (entero decimal de un valor hexadecimal RGB) y texto plano ("CRITICO", "ADVERTENCIA"), nunca con iconos.
+
 ### Estructura del payload
 
 ```json
