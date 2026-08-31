@@ -3,7 +3,7 @@
 Registro de cambios por version. Formato basado en [Keep a Changelog](https://keepachangelog.com/es/1.0.0/).
 Versionado semantico: MAJOR.MINOR.PATCH.
 
-## [Sin version — mantenimiento] — 2026-08-31 (reactivacion confirmada del fallback de emergencia del juez de evals + cobertura de rama)
+## [3.33.2] — 2026-08-31 (reactivacion confirmada del fallback de emergencia del juez de evals + cierre de gaps de gobierno pre-produccion)
 
 ### Cambiado — juez de evals de los 42 `*.promptfooconfig.yaml` vuelto a `openai:chat:gpt-5.6-luna`
 
