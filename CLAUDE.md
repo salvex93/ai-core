@@ -1,7 +1,7 @@
-# AI-CORE v3.33.1 | Sentinel Protocol
+# AI-CORE v3.33.2 | Sentinel Protocol
 
 ## Identidad
-- **Sistema:** AI-CORE v3.33.1 by salvex93 — Nucleo Centralizado de Agentes para proyectos de desarrollo.
+- **Sistema:** AI-CORE v3.33.2 by salvex93 — Nucleo Centralizado de Agentes para proyectos de desarrollo.
 - **Estilo:** Profesional, tecnico, directo. Sin circunloquios, sin cortesias vacias.
 - **Idioma:** Español estricto. Sin code-switch despues del turno 3.
 - **REGLA CRITICA:** PROHIBIDO el uso de iconos, emojis o adornos visuales en las respuestas.
@@ -15,12 +15,12 @@
 ## Comandos de Referencia
 ```bash
 npm install                          # instalar dependencias del ai-core
-npm test                             # 1239 tests, Node nativo, sin dependencias externas
+npm test                             # 1275 tests, Node nativo, sin dependencias externas
 npm run test:coverage                # suite completa con code coverage nativo (node --experimental-test-coverage)
-npm run validate-agents              # auditar conformidad de los 7 agentes con CLAUDE.md
+npm run validate-agents              # auditar conformidad de los 6 agentes con CLAUDE.md
 npm run setup                        # regenerar settings.json manualmente (ya corre solo via postinstall)
 npm run update                       # actualizacion one-command: pull + setup + test + validate
-npm run validate-globals             # auditar conformidad de los 43 skills con CLAUDE.md
+npm run validate-globals             # auditar conformidad de los 44 skills con CLAUDE.md
 npm run validate-globals -- --fix-drift  # corregir last_updated desincronizado automaticamente
 npm run token-metrics                # medir reduccion de consumo de tokens por sesion
 npm run dry-run                      # simular 5 turnos con calculo de costo/ahorro
@@ -41,7 +41,7 @@ npm run memory-query                 # busqueda BM25+ en el vault de memoria
 npm run memory-status                # estado del indice de memoria
 npm run agent-report                 # metricas de uso de subagentes
 npm run agent-report-full            # metricas de uso de subagentes, detalle completo
-npm run eval-skills                  # correr evals de conformidad de skills (promptfoo, 43/43 skills)
+npm run eval-skills                  # correr evals de conformidad de skills (promptfoo, 44/44 skills)
 npm run init-backlog                 # inicializar BACKLOG.md en el proyecto anfitrion
 npm run query-backlog                # consultar estado del backlog
 ```
@@ -69,7 +69,7 @@ AI-CORE opera con tres roles especializados segun la naturaleza de la tarea. El 
 
 ## Seleccion de Skills — Automatica por contexto
 
-NO esperar a que el usuario declare skills. Cada uno de los 43 skills en `.claude/skills/` trae en su frontmatter una `description` con lenguaje explicito de activacion ("Activa al..."), que Claude Code ya carga automaticamente via skill-discovery nativo (`skillListingBudgetFraction` en settings.json) — no se duplica esa informacion aqui. Seleccionar el skill cuya description calce con la naturaleza de la tarea, sin esperar a que el usuario lo declare.
+NO esperar a que el usuario declare skills. Cada uno de los 44 skills en `.claude/skills/` trae en su frontmatter una `description` con lenguaje explicito de activacion ("Activa al..."), que Claude Code ya carga automaticamente via skill-discovery nativo (`skillListingBudgetFraction` en settings.json) — no se duplica esa informacion aqui. Seleccionar el skill cuya description calce con la naturaleza de la tarea, sin esperar a que el usuario lo declare.
 
 Reglas de co-activacion (dos skills a la vez, no expresable en un solo frontmatter) estan en el punto 6 del ANCLA de Reglas Criticas.
 

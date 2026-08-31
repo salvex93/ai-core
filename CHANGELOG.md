@@ -3,7 +3,7 @@
 Registro de cambios por version. Formato basado en [Keep a Changelog](https://keepachangelog.com/es/1.0.0/).
 Versionado semantico: MAJOR.MINOR.PATCH.
 
-## [Sin version — mantenimiento] — 2026-08-31 (reactivacion confirmada del fallback de emergencia del juez de evals + cobertura de rama)
+## [3.33.2] — 2026-08-31 (reactivacion confirmada del fallback de emergencia del juez de evals + cierre de gaps de gobierno pre-produccion)
 
 ### Cambiado — juez de evals de los 42 `*.promptfooconfig.yaml` vuelto a `openai:chat:gpt-5.6-luna`
 
@@ -26,6 +26,10 @@ Auditoria de cierre encontro que `.claude/agents/mcp-registry-navigator.md` ya d
 `npm run audit-market -- --only-stale` reportaba `SIN_DOMINIO_REGISTRADO` para este skill (agregado 2026-08-28, nunca sumado al dominio `security-owasp` donde ya vive `ciso`). Corregido agregandolo a la lista de skills de ese dominio. El otro hallazgo del mismo comando (`product-lifecycle-orchestrator`) se confirma como fuera de alcance del radar por diseno -- cita marcos de metodologia de producto (Patton, Wake, DSDM, North/Adzic, Evans/Fowler), no modelos/SDKs de IA que el Protocolo de Vigencia Tecnologica de CLAUDE.md cubre; no se fuerza un registro artificial.
 
 44/44 skills conformes, 1275 tests (1274 pass, 1 skipped, 0 fail) via `npm test`.
+
+### Sincronizado — documentacion y version
+
+`package.json`/`package-lock.json` a 3.33.2 (regenerado con `npm install --package-lock-only`, no editado a mano, para no repetir el gap del issue #255). Cifras de `README.md` y `CLAUDE.md` (conteo de skills, agentes y tests en comandos de referencia y arbol de directorios) actualizadas de 43/1212-1239/7 a 44/1275/6 -- las entradas historicas de este mismo CHANGELOG con cifras de versiones anteriores se dejan intactas, son registro cronologico, no estado actual.
 
 ### Agregado — 2 tests reales de cobertura de rama (deuda pendiente desde 2026-08-28)
 

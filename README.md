@@ -1,6 +1,6 @@
-# AI-CORE v3.33.1: Nucleo Multi-Agente
+# AI-CORE v3.33.2: Nucleo Multi-Agente
 
-`ai-core` es un nucleo de configuracion y comportamiento para agentes IA. Se usa como submodulo Git en un proyecto existente o como repositorio independiente. Define reglas globales, 43 skills especializados, 7 agentes autonomos, un orquestador Mixture-of-Agents (Gemini + DeepSeek + Claude), un mecanismo de excepcion auditable (break-glass) para operaciones de riesgo real, y un ciclo de mejora continua por uso, sin acoplarse al stack del proyecto anfitrion.
+`ai-core` es un nucleo de configuracion y comportamiento para agentes IA. Se usa como submodulo Git en un proyecto existente o como repositorio independiente. Define reglas globales, 44 skills especializados, 6 agentes autonomos, un orquestador Mixture-of-Agents (Gemini + DeepSeek + Claude), un mecanismo de excepcion auditable (break-glass) para operaciones de riesgo real, y un ciclo de mejora continua por uso, sin acoplarse al stack del proyecto anfitrion.
 
 `CLAUDE.md` es la unica fuente de verdad de reglas y enrutamiento de skills. Los skills lo referencian, no lo copian: si una regla cambia ahi, se propaga sin tocar ningun SKILL.md.
 
@@ -36,7 +36,7 @@ npm install
 npm run setup    # adapta settings.json a tu ruta exacta (cross-platform)
 
 # 3. Verificar que todo funciona
-npm test         # debe terminar: 1212 pass, 0 fail
+npm test         # debe terminar: 1274 pass, 1 skipped, 0 fail
 
 # 4. Autenticar gh CLI para el issue-tracker (una sola vez por maquina)
 gh auth login    # GitHub.com -> HTTPS -> Login with a web browser
@@ -84,7 +84,7 @@ Repositorio independiente:
 npm run update
 ```
 
-Esto corre `git pull`, regenera `settings.json` (purga automaticamente cualquier hook de una version anterior que referencie un script eliminado o renombrado — el objeto de hooks se construye desde cero y sobreescribe el archivo completo, nunca mergea, con la definicion compartida en `hooks-definition.js`), corre los 1212 tests, aplica migraciones de version, valida los 43 skills y los 7 agentes, y reporta que cambio. Si un test falla, el comando se detiene ahi.
+Esto corre `git pull`, regenera `settings.json` (purga automaticamente cualquier hook de una version anterior que referencie un script eliminado o renombrado — el objeto de hooks se construye desde cero y sobreescribe el archivo completo, nunca mergea, con la definicion compartida en `hooks-definition.js`), corre los 1275 tests, aplica migraciones de version, valida los 44 skills y los 6 agentes, y reporta que cambio. Si un test falla, el comando se detiene ahi.
 
 Instalado como submodulo:
 
@@ -152,12 +152,12 @@ Si no esta autenticado, los eventos se acumulan en `.claude/EVENTS_QUEUE.json` y
 
 ```bash
 npm install                               # instalar dependencias (corre postinstall -> npm run setup)
-npm test                                  # 1239 tests, Node nativo, sin deps externas
+npm test                                  # 1275 tests, Node nativo, sin deps externas
 npm run setup                             # regenerar settings.json con rutas locales (ya corre solo via postinstall)
 npm run update                            # actualizacion one-command desde GitHub
-npm run validate-globals                  # auditar conformidad de los 43 skills (incluye schema agentskills.io)
+npm run validate-globals                  # auditar conformidad de los 44 skills (incluye schema agentskills.io)
 npm run validate-globals -- --fix-drift   # corregir last_updated desincronizado
-npm run validate-agents                   # auditar conformidad de los 7 agentes con CLAUDE.md
+npm run validate-agents                   # auditar conformidad de los 6 agentes con CLAUDE.md
 npm run validate-agents -- --fix-drift    # corregir last_updated desincronizado en agentes
 npm run token-metrics                     # medir reduccion de consumo de tokens
 npm run dry-run                           # simular 5 turnos con calculo de costo
@@ -750,12 +750,12 @@ New-Item -ItemType SymbolicLink -Path './CLAUDE.md' -Target 'C:/ruta/a/ai-core/C
 │   │   │   ├── break-glass.js        Excepcion auditable de un solo uso (id, TTL 5min, log append-only) para guards de riesgo real
 │   │   │   └── permission-decision.js Formato permissionDecision:"deny" (JSON, exit 0) para guards de friccion operativa
 │   │   └── memory-vault-prune-check.js Hook Stop: avisa (sin borrar) cuando el vault supera 50 archivos
-│   └── skills/                  43 skills — enrutamiento via frontmatter description (agentskills.io), reglas en CLAUDE.md
-├── tests/                       1049 tests — tests/harness/*.test.js (dividido por modulo) + archivos dedicados
+│   └── skills/                  44 skills — enrutamiento via frontmatter description (agentskills.io), reglas en CLAUDE.md
+├── tests/                       1275 tests — tests/harness/*.test.js (dividido por modulo) + archivos dedicados
 ├── .github/workflows/ci.yml     CI: Ubuntu/Windows/macOS, Node 22 unicamente (sandboxing con Permission Model exige >= 22.13.0)
 ├── CLAUDE.md                    Autoridad unica: reglas globales, skills, enrutamiento
 ├── DEPRECATIONS.json            Contrato de migracion por version
-├── package.json                 v3.33.1, Node >= 22.13.0
+├── package.json                 v3.33.2, Node >= 22.13.0
 └── .env.example                 Plantilla de variables de entorno
 ```
 
