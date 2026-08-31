@@ -3,6 +3,22 @@
 Registro de cambios por version. Formato basado en [Keep a Changelog](https://keepachangelog.com/es/1.0.0/).
 Versionado semantico: MAJOR.MINOR.PATCH.
 
+## [3.34.0] — 2026-08-31 (deep research comparativo vs arneses AAA 2026: nuevo guard anti-loop + aclaracion de auto-compact nativo)
+
+Deep research con fuentes primarias (Anthropic docs, OpenAI Agents SDK, Google ADK, LangGraph/CrewAI, GitHub) comparando ai-core contra el estado del arte de arneses de agentes de nivel empresarial a la fecha. De 6 hallazgos evaluados, 2 eran gaps reales aplicables a las necesidades del proyecto (reduccion de tokens, ejecucion confiable), 1 ya estaba cubierto (resumenes condensados de subagentes via `truncarOutputGemini()`), y 3 se descartaron explicitamente por ser features de otro dominio (Memory for Managed Agents es exclusivo de la plataforma servidor de Anthropic, no de Claude Code; guardrails paralelos de OpenAI Agents SDK optimizan throughput a escala que no aplica a un consultor independiente; integraciones multi-tenant de Google ADK 2026 son para plataformas de equipo, no un arnes de un solo desarrollador).
+
+### Agregado — `tool-repeat-guard.js`: deteccion de loop de tool calls identicas dentro de un mismo agente
+
+Gap real confirmado: `subagent-guard.js` ya cubre fan-out descontrolado (max 3 subagentes paralelos) y recursion de spawn (A->B->A), pero ningun guard detectaba si un UNICO agente (hilo principal o subagente) repite la misma tool call con argumentos identicos varias veces seguidas sin avanzar -- el patron de "agente atascado reintentando ciegamente" que LangGraph y practicas de terceros manejan via limites de recursion/deteccion de tool calls repetidos.
+
+Nuevo hook `PreToolUse` (matcher `Bash|Write|Edit|Agent`) que bloquea (exit 2) cuando la combinacion sesion+agente+tool+hash de argumentos se repite mas de 3 veces en una ventana de 5 minutos. Excluye `Read`/`Grep`/`Glob` (releer o rebuscar no es loop peligroso). Un reintento con argumentos distintos (ej. `Edit` corregido tras fallo de `old_string` no unico) nunca cuenta como repeticion -- solo la repeticion EXACTA indica que el agente no aprendio del fallo anterior. 7 tests nuevos + 2 tests de sandboxing real con `--permission` (con y sin permisos, mismo patron que `subagent-guard.js`).
+
+### Aclarado — CLAUDE.md: la regla de `/compact` a 6/15 turnos es una heuristica, Claude Code ya tiene auto-compact nativo superior
+
+Verificado contra `code.claude.com/docs/en/context-window` y `/model-config`: Claude Code (la CLI) ya compacta la sesion interactiva de forma automatica y transparente al acercarse al limite real de tokens de la ventana de contexto del modelo activo (configurable via `autoCompactWindow` en `settings.json`, `CLAUDE_CODE_AUTO_COMPACT_WINDOW`, o el comando `/autocompact`) -- mecanismo que opera sobre tokens reales, superior al conteo heuristico de turnos (dos sesiones de 6 turnos pueden diferir en 10x de tokens reales segun cuanto se leyo). Documentado explicitamente en CLAUDE.md que el conteo de turnos ya NO decide cuando compactar -- eso lo resuelve el auto-compact nativo solo -- y que su unico valor restante es ser una capa informativa en prosa. El umbral de 15 turnos ("detener y pedir /clear") se mantiene sin cambios, sin equivalente nativo.
+
+1284 tests (1283 pass, 1 skipped, 0 fail), 44/44 skills conformes, 6/6 agentes conformes.
+
 ## [3.33.2] — 2026-08-31 (reactivacion confirmada del fallback de emergencia del juez de evals + cierre de gaps de gobierno pre-produccion)
 
 ### Cambiado — juez de evals de los 42 `*.promptfooconfig.yaml` vuelto a `openai:chat:gpt-5.6-luna`
