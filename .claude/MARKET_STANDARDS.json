@@ -18,7 +18,7 @@
     "security-owasp": {
       "verified": "2026-07-15",
       "sources": ["owasp.org (research placeholder — no se confirmo edicion vigente exacta contra fuente primaria en esta pasada, re-verificar antes de citar numero de categoria)"],
-      "skills": ["security-auditor", "attack-surface-analyst", "ai-guardrails", "ciso"]
+      "skills": ["security-auditor", "attack-surface-analyst", "ai-guardrails", "ciso", "security-monitoring-soc"]
     },
     "frontend-web-standards": {
       "verified": "2026-07-15",
