@@ -294,6 +294,36 @@ describe('sandboxing de hooks propios — Node.js Permission Model (smoke test)'
     assert.match(r.stderr, /ERR_ACCESS_DENIED|Access to this API has been restricted/);
   });
 
+  test('tool-repeat-guard.js CON permisos: permite una tool call normal sin historial de repeticion', () => {
+    const stateDir = nuevoDirTemporal('tool-repeat-test');
+    const evento = JSON.stringify({ session_id: 's1', tool_name: 'Bash', tool_input: { command: 'ls' } });
+    const dirBin = path.join(BIN, '*');
+    const dirState = path.join(stateDir, '**');
+
+    const r = spawnSync('node', [
+      '--permission',
+      `--allow-fs-read=${dirBin}`,
+      `--allow-fs-read=${dirState}`,
+      `--allow-fs-write=${dirState}`,
+      path.join(BIN, 'tool-repeat-guard.js'),
+    ], { input: evento, encoding: 'utf8', cwd: REPO, env: { ...process.env, AI_CORE_TOOL_REPEAT_DIR: stateDir } });
+
+    assert.equal(r.status, 0, 'una tool call sin historial previo de repeticion debe pasar');
+  });
+
+  test('tool-repeat-guard.js SIN ningun permiso: falla de forma controlada (EPERM), no silenciosa', () => {
+    const evento = JSON.stringify({ session_id: 's1', tool_name: 'Bash', tool_input: { command: 'ls' } });
+
+    const r = spawnSync('node', [
+      '--permission',
+      path.join(BIN, 'tool-repeat-guard.js'),
+    ], { input: evento, encoding: 'utf8', cwd: REPO });
+
+    assert.notEqual(r.status, 0, 'sin permiso de lectura, el hook no debe poder correr silenciosamente con exit 0');
+    assert.notEqual(r.status, 2, 'sin el permiso que su propio require necesita, el fallo debe ser por EPERM, no el bloqueo normal del guard');
+    assert.match(r.stderr, /ERR_ACCESS_DENIED|Access to this API has been restricted/);
+  });
+
   test('agent-paths-guard.js CON permisos: corre y deja pasar una ruta sin paths_allow declarado (retrocompatible)', () => {
     // Requiere lectura de .claude/bin (sus propios requires: hook-stdin,
     // agent-frontmatter, permission-decision, normalizar-texto) ADEMAS de

@@ -106,11 +106,18 @@ function buildHooksSection(bin, tmpDirReal) {
   const dirTmpSubagentLocks = tmpDirReal
     ? `"${tmpDirReal.replace(/\/$/, '')}/ai-core-locks/subagents/*"`
     : '"${TMPDIR:-/tmp}/ai-core-locks/subagents/*"';
+  // Mismo bug de glob de un solo nivel que dirTmpSubagentLocks arriba --
+  // tool-repeat-guard.js escribe su estado dos niveles bajo el tmpdir real
+  // (tmp/ai-core-locks/tool-repeat/*.json), dirTmp generico nunca lo cubriria.
+  const dirTmpToolRepeat = tmpDirReal
+    ? `"${tmpDirReal.replace(/\/$/, '')}/ai-core-locks/tool-repeat/*"`
+    : '"${TMPDIR:-/tmp}/ai-core-locks/tool-repeat/*"';
 
   const soloRead      = { fsRead: [dirBin] };
   const soloLeerRepo  = { fsRead: [dirBin, dirRepo] };
   const readYWrite    = { fsRead: [dirBin], fsWrite: [dirTmp] };
   const readYWriteSubagentLocks = { fsRead: [dirBin, dirTmpSubagentLocks], fsWrite: [dirTmpSubagentLocks] };
+  const readYWriteToolRepeat = { fsRead: [dirBin, dirTmpToolRepeat], fsWrite: [dirTmpToolRepeat] };
   // dirTmp tambien en fsRead (no solo fsWrite): los guards de break-glass
   // (lib/break-glass.js) escriben su lock en os.tmpdir() y despues necesitan
   // RELEERLO (fs.readFileSync/fs.existsSync) para confirmarlo -- bug real en
@@ -250,6 +257,17 @@ function buildHooksSection(bin, tmpDirReal) {
         matcher: 'Agent',
         hooks: [
           { type: 'command', command: nodeConPermiso(bin('subagent-guard.js'), readYWriteSubagentLocks) },
+        ],
+      },
+      {
+        // Deteccion de loop: misma tool + mismos argumentos repetidos sin
+        // avanzar, dentro de un mismo agente (hilo principal o subagente).
+        // Complementa a subagent-guard.js (fan-out y recursion de spawn) --
+        // este guard cubre el caso de un UNICO agente atascado reintentando
+        // ciegamente. Excluye Read/Grep/Glob internamente (bajo riesgo).
+        matcher: 'Bash|Write|Edit|Agent',
+        hooks: [
+          { type: 'command', command: nodeConPermiso(bin('tool-repeat-guard.js'), readYWriteToolRepeat) },
         ],
       },
       {
