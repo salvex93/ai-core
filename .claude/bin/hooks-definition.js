@@ -260,6 +260,17 @@ function buildHooksSection(bin, tmpDirReal) {
         ],
       },
       {
+        // Deteccion de loop: misma tool + mismos argumentos repetidos sin
+        // avanzar, dentro de un mismo agente (hilo principal o subagente).
+        // Complementa a subagent-guard.js (fan-out y recursion de spawn) --
+        // este guard cubre el caso de un UNICO agente atascado reintentando
+        // ciegamente. Excluye Read/Grep/Glob internamente (bajo riesgo).
+        matcher: 'Bash|Write|Edit|Agent',
+        hooks: [
+          { type: 'command', command: nodeConPermiso(bin('tool-repeat-guard.js'), readYWriteToolRepeat) },
+        ],
+      },
+      {
         // Enforcement de scope de herramientas por subagente (Gobierno de
         // Agentes, regla 2 de CLAUDE.md). agent_type solo esta presente en
         // el evento cuando la tool call se origina dentro de un subagente
