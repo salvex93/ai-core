@@ -17,6 +17,16 @@ Auditoria previa a uso en produccion contra un tenant de cliente real detecto qu
 
 El eval de `ciso` tenia evidencia de una corrida 4/4 en CHANGELOG (linea 272) de antes de que se ampliara a 5 tests con el Gate de Calidad Medible (linea 97) -- sin confirmacion posterior con el archivo actual. Re-ejecutado hoy contra `openai:chat:gpt-5.6-luna`: **6/6 (100%), 18s, 0 errores**.
 
+### Corregido — `mcp-registry-navigator`: mismo gap de gobierno detectado en su skill (no en su agente)
+
+Auditoria de cierre encontro que `.claude/agents/mcp-registry-navigator.md` ya declaraba el tratamiento de contenido externo no confiable, pero `.claude/skills/mcp-registry-navigator/SKILL.md` -- que analiza el mismo tipo de input (README y codigo fuente de MCPs de terceros) -- no lo tenia. Agregada la misma clausula ya usada en el agente, en Restricciones del Perfil. Version 1.0.1 -> 1.0.2.
+
+### Corregido — `security-monitoring-soc` sin dominio registrado en `MARKET_STANDARDS.json`
+
+`npm run audit-market -- --only-stale` reportaba `SIN_DOMINIO_REGISTRADO` para este skill (agregado 2026-08-28, nunca sumado al dominio `security-owasp` donde ya vive `ciso`). Corregido agregandolo a la lista de skills de ese dominio. El otro hallazgo del mismo comando (`product-lifecycle-orchestrator`) se confirma como fuera de alcance del radar por diseno -- cita marcos de metodologia de producto (Patton, Wake, DSDM, North/Adzic, Evans/Fowler), no modelos/SDKs de IA que el Protocolo de Vigencia Tecnologica de CLAUDE.md cubre; no se fuerza un registro artificial.
+
+44/44 skills conformes, 1275 tests (1274 pass, 1 skipped, 0 fail) via `npm test`.
+
 ### Agregado — 2 tests reales de cobertura de rama (deuda pendiente desde 2026-08-28)
 
 `tests/mcp-server-handlers.test.js`: cubre la rama catch de `resumirBacklog()` y `buscarWeb()` (sin `GEMINI_API_KEY`, `getModel()` lanza sincrono y se retorna `{ error }` en vez de propagar la excepcion) -- gap de cobertura de rama real en `McpServerHandlers.js`, antes sin ejercitar.
