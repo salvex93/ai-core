@@ -3,7 +3,19 @@
 Registro de cambios por version. Formato basado en [Keep a Changelog](https://keepachangelog.com/es/1.0.0/).
 Versionado semantico: MAJOR.MINOR.PATCH.
 
-## [3.34.0] — 2026-08-31 (deep research comparativo vs arneses AAA 2026: nuevo guard anti-loop + aclaracion de auto-compact nativo)
+## [3.35.0] — 2026-08-31 (skill nuevo: discord-ops -- canal de alertas via Discord webhooks/bots)
+
+Deep research con fuentes primarias (discord.com/developers/docs, Grafana Alerting, Sentry) sobre integracion de Discord como canal de notificaciones de infraestructura propia, a pedido explicito del usuario (monitoreo de servidores propios via Discord, hoy con un Incoming Webhook simple).
+
+### Agregado — skill `discord-ops` (45avo skill)
+
+Cubre: formato de embed y limites duros reales (title 256/description 4096/footer 2048 caracteres, 25 fields, 10 embeds por mensaje, suma total 6000 caracteres); tratamiento de la URL de webhook como unica credencial (nunca hardcodear, rotacion inmediata via regeneracion si se expone, riesgo documentado de uso como C2 en malware real); patron anti-spam de agrupamiento por severidad/ventana de tiempo (mismo principio que Grafana Alerting/Sentry, y que la deduplicacion ya usada en `issue-reporter.js` del propio arnes); manejo de rate limit basado en headers HTTP reales (`X-RateLimit-*`) en vez de un numero hardcodeado, dado que Discord no publica una cifra exacta por-webhook en fuente primaria unica (declarado explicitamente como no verificado); y un modulo opcional de diseno de bot con Gateway/Intents para casos que requieran interactividad real, no solo notificacion unidireccional.
+
+Sirve como canal de salida citable por `security-monitoring-soc`, `devops-infra` y `release-manager`. No calificó como agente autónomo (no cumple los 3 criterios de CLAUDE.md: es conversacional, no un loop autonomo recurrente) -- queda solo como skill.
+
+Gap real cerrado durante la verificacion con eval propio: el skill generaba ejemplos de embed con un emoji pictografico (🚨) en el titulo pese a la regla estricta de CLAUDE.md -- corregido con una clausula explicita ("Discord soporta emojis nativamente, la regla de CLAUDE.md es MAS ESTRICTA que la plataforma, sin excepcion") y un ejemplo incorrecto/correcto en el propio SKILL.md. Nuevo eval `.claude/evals/discord-ops.promptfooconfig.yaml` (5 casos: idioma, sin emojis, webhook hardcodeado activa Directiva de Interrupcion, rate limit sin cifra falsa, anti-spam ante alto volumen), verificado con multiples corridas reales tras el fix.
+
+1292 tests (1291 pass, 1 skipped, 0 fail), 45/45 skills conformes, 6/6 agentes conformes.
 
 Deep research con fuentes primarias (Anthropic docs, OpenAI Agents SDK, Google ADK, LangGraph/CrewAI, GitHub) comparando ai-core contra el estado del arte de arneses de agentes de nivel empresarial a la fecha. De 6 hallazgos evaluados, 2 eran gaps reales aplicables a las necesidades del proyecto (reduccion de tokens, ejecucion confiable), 1 ya estaba cubierto (resumenes condensados de subagentes via `truncarOutputGemini()`), y 3 se descartaron explicitamente por ser features de otro dominio (Memory for Managed Agents es exclusivo de la plataforma servidor de Anthropic, no de Claude Code; guardrails paralelos de OpenAI Agents SDK optimizan throughput a escala que no aplica a un consultor independiente; integraciones multi-tenant de Google ADK 2026 son para plataformas de equipo, no un arnes de un solo desarrollador).
 

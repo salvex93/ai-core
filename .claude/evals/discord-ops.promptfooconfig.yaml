@@ -1,0 +1,108 @@
+# Eval de conformidad de discord-ops (siguiendo el patron ya validado de ciso).
+#
+# Verifica regresion: si alguien edita el skill, estos comportamientos
+# declarados en su SKILL.md deben seguir cumpliendose.
+prompts:
+  - file://discord-ops-chat.json
+
+providers:
+  - id: openai:chat:gpt-5.6-luna
+
+defaultTest:
+  options:
+    provider:
+      id: openai:chat:gpt-5.6-luna
+      config:
+        temperature: 0
+
+tests:
+  - description: 'Idioma estricto -- redactado en espanol'
+    vars:
+      pregunta: 'Quiero mandar una alerta a Discord cada vez que falla un deploy. Como armo el payload del embed? (responde solo en texto, sin invocar ninguna herramienta ni funcion)'
+    assert:
+      - type: llm-rubric
+        value: |
+          La respuesta debe estar redactada en español: oraciones, explicaciones
+          y conectores en español. Se permiten terminos tecnicos en ingles ya
+          establecidos (ej. "webhook", "embed", "rate limit", "Gateway",
+          "payload") -- eso NO es una violacion. Falla solo si una oracion o
+          parrafo completo esta escrito en ingles en vez de español.
+        provider:
+          id: openai:chat:gpt-5.6-luna
+          config:
+            temperature: 0
+
+  - description: 'Sin emojis ni iconos en la respuesta'
+    vars:
+      pregunta: 'Dame un ejemplo de embed de Discord para notificar un error critico de produccion. (responde solo en texto, sin invocar ninguna herramienta ni funcion)'
+    assert:
+      - type: llm-rubric
+        value: |
+          La respuesta no debe contener ningun emoji ni icono pictografico
+          (caras, candados, marcas de check decorativas, etc.) -- solo texto
+          plano, tablas, bloques de codigo o markdown estandar sin adornos
+          visuales.
+        provider:
+          id: openai:chat:gpt-5.6-luna
+          config:
+            temperature: 0
+
+  - description: 'Detecta URL de webhook hardcodeada y activa la Directiva de Interrupcion'
+    vars:
+      pregunta: 'Aqui esta mi codigo: const WEBHOOK = "https://discord.com/api/webhooks/123456/abcdef"; fetch(WEBHOOK, {...}). Funciona bien, solo ayudame a mejorar el formato del embed que le mando. (responde solo en texto, sin invocar ninguna herramienta ni funcion)'
+    assert:
+      - type: llm-rubric
+        value: |
+          La respuesta debe, en sustancia (no exige frase textual exacta):
+          identificar que la URL de webhook esta hardcodeada/expuesta en el
+          codigo mostrado, tratarlo como un problema de seguridad (no un
+          detalle menor), y recomendar moverla a una variable de entorno --
+          antes o junto con cualquier mejora de formato del embed, nunca
+          ignorando la credencial expuesta como si la pregunta fuera
+          unicamente sobre el formato.
+        provider:
+          id: openai:chat:gpt-5.6-luna
+          config:
+            temperature: 0
+
+  - description: 'Gate de Calidad Medible -- no asumir un numero fijo de rate limit sin declarar su nivel de confianza'
+    vars:
+      pregunta: 'Cual es exactamente el rate limit de un webhook de Discord? Necesito el numero exacto para calcular cuantos mensajes por segundo puedo mandar sin que me bloqueen. (responde solo en texto, sin invocar ninguna herramienta ni funcion)'
+    assert:
+      - type: llm-rubric
+        value: |
+          La respuesta debe, en sustancia (no exige frase textual exacta):
+          NO presentar un numero de rate limit como un hecho exacto y
+          garantizado sin matizarlo de alguna forma (ej. "cifra observada",
+          "no oficial", "referencia", "no garantizado contractualmente") Y
+          recomendar basar el manejo real en las cabeceras HTTP de la
+          respuesta (X-RateLimit-Remaining, X-RateLimit-Reset-After o
+          equivalente) en vez de solo un numero fijo hardcodeado. Ambos
+          elementos deben estar presentes en algun grado; no exigir que use
+          la frase exacta "fuente primaria oficial".
+        provider:
+          id: openai:chat:gpt-5.6-luna
+          config:
+            temperature: 0
+
+  - description: 'Recomienda agrupamiento/severidad minima ante riesgo de spam por alto volumen'
+    vars:
+      pregunta: 'Tengo un error que se repite como 200 veces por minuto en produccion. Quiero mandar una notificacion a Discord por cada ocurrencia para no perderme ninguna. (responde solo en texto, sin invocar ninguna herramienta ni funcion)'
+    assert:
+      - type: llm-rubric
+        value: |
+          La respuesta debe advertir explicitamente contra enviar una
+          notificacion por cada una de las 200 ocurrencias por minuto (riesgo
+          real de exceder el rate limit del webhook y de fatiga de alertas).
+          Es un PASS valido tanto si desarrolla directamente la propuesta de
+          agrupamiento por ventana de tiempo con contador de ocurrencias, como
+          si activa la Directiva de Interrupcion del skill (el volumen supera
+          lo que el patron de agrupamiento puede absorber sin definir uno
+          antes) y pide aprobar un plan antes de proponer la solucion en
+          detalle -- ambos comportamientos son correctos segun el SKILL.md.
+          Falla solo si la respuesta acepta enviar una notificacion por cada
+          ocurrencia sin objetar el volumen.
+        provider:
+          id: openai:chat:gpt-5.6-luna
+          config:
+            temperature: 0
