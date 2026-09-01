@@ -3,6 +3,20 @@
 Registro de cambios por version. Formato basado en [Keep a Changelog](https://keepachangelog.com/es/1.0.0/).
 Versionado semantico: MAJOR.MINOR.PATCH.
 
+## [3.36.0] — 2026-09-01 (enforcement real de GEMINI PRIMERO para busqueda web + fallback en Read)
+
+Deep research comparativo contra Claude Agent SDK, OpenAI Agents SDK y Google ADK confirmo (fuente: code.claude.com/docs/en/hooks): ningun framework, incluido Claude Code, ofrece un mecanismo de hook que REDIRIJA una tool call a un proveedor externo -- `PreToolUse` solo permite `allow/deny/ask/updatedInput` sobre la misma tool. El patron viable, ya usado por `guard-read.js` para `Read`, es negar la tool nativa para que Claude reformule usando la alternativa MCP.
+
+### Agregado — `web-search-guard.js`: fuerza `buscar_web` (Gemini) sobre `WebSearch`/`WebFetch` nativos
+
+Gap real confirmado: la regla "GEMINI PRIMERO" de CLAUDE.md para busqueda web era solo prosa en el ANCLA (punto 7), sin ningun hook -- a diferencia de la lectura de archivos, que ya tenia `guard-read.js` desde antes. Nuevo hook `PreToolUse` (matcher `WebSearch|WebFetch`) que bloquea con `permissionDecision:"deny"` cuando `GEMINI_API_KEY` esta disponible. 5 tests + 2 de sandboxing real con `--permission`.
+
+### Corregido — `guard-read.js` y `web-search-guard.js` degradan con gracia sin `GEMINI_API_KEY`
+
+Ambos guards bloqueaban la tool nativa incondicionalmente, sin verificar si Gemini realmente estaba disponible -- sin la key, el deny dejaba a Claude sin ninguna forma de completar la tarea (peor que simplemente gastar los tokens de la tool nativa). Ahora ambos verifican `GEMINI_API_KEY` (via `loadEnv()` de `GeminiApiClient.js`, con `AI_CORE_ENV_PATH` inyectable para tests deterministas) y permiten la tool nativa si no esta configurada.
+
+1305 tests (1304 pass, 1 skipped, 0 fail), 45/45 skills conformes.
+
 ## [3.35.2] — 2026-09-01 (deep research GPT+Gemini: retry con backoff completa el fix de timeout + aclaracion cuota Pro/tokens)
 
 Deep research con GPT y Gemini (busqueda web real via cada API) comparando ai-core contra el mercado de hoy, a pedido explicito del usuario -- confirma que el arnes sigue al nivel del mercado, con 2 ajustes puntuales encontrados y cerrados en esta version:
