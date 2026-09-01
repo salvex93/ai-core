@@ -63,45 +63,53 @@ describe('isRefusal', () => {
 });
 
 describe('getModel — timeout real ante SDK colgado', () => {
-  test('generateContent() corta con error explicito si el SDK nunca resuelve (colgado real, confirmado en produccion 2026-09-01: @google/genai puede quedarse sin responder pese a que la misma llamada via REST directo responde en segundos)', async (t) => {
-    // Mock del SDK: generateContent() retorna una promesa que JAMAS resuelve,
-    // simulando el colgado real observado -- sin esto, el test dependeria de
-    // una llamada de red real y no reproduciria el bug de forma determinista.
-    const path = require('node:path');
-    const Module = require('node:module');
-    const originalResolve = Module._resolveFilename;
-    const mockPath = path.join(__dirname, '..', 'node_modules', '@google', 'genai');
+  const GENAI_PATH  = require.resolve('@google/genai');
+  const CLIENT_PATH = require.resolve('../scripts/services/GeminiApiClient');
 
-    t.mock.method(Module, '_resolveFilename', function (request, ...args) {
-      if (request === '@google/genai') return mockPath;
-      return originalResolve.call(this, request, ...args);
-    });
+  // Inyecta un mock de @google/genai en require.cache antes de cargar
+  // GeminiApiClient.js -- mismo mecanismo ya usado en model-dispatcher.test.js
+  // para ModelRegistry. Sin esto, el test dependeria de una llamada de red
+  // real y no reproduciria de forma determinista el colgado observado en
+  // produccion (confirmado 2026-09-01: la misma llamada via REST directo a
+  // la API de Gemini responde en segundos, pero @google/genai puede quedarse
+  // sin resolver ni rechazar indefinidamente).
+  function mockearGenaiColgado() {
+    delete require.cache[CLIENT_PATH];
+    require.cache[GENAI_PATH] = {
+      id: GENAI_PATH,
+      filename: GENAI_PATH,
+      loaded: true,
+      exports: {
+        GoogleGenAI: class GoogleGenAIColgado {
+          constructor() {
+            this.models = {
+              generateContent: () => new Promise(() => {}), // nunca resuelve ni rechaza
+            };
+          }
+        },
+      },
+    };
+  }
 
-    const genaiModule = require('@google/genai');
-    const originalGoogleGenAI = genaiModule.GoogleGenAI;
+  function restaurarModulos() {
+    delete require.cache[GENAI_PATH];
+    delete require.cache[CLIENT_PATH];
+  }
 
-    class GoogleGenAIColgado {
-      constructor() {
-        this.models = {
-          generateContent: () => new Promise(() => {}), // nunca resuelve ni rechaza
-        };
-      }
-    }
-    genaiModule.GoogleGenAI = GoogleGenAIColgado;
-    t.after(() => { genaiModule.GoogleGenAI = originalGoogleGenAI; });
-
+  test('generateContent() corta con error explicito en vez de colgarse indefinidamente', async () => {
+    mockearGenaiColgado();
     process.env.GEMINI_API_KEY = 'test-key-fake';
-    delete require.cache[require.resolve('../scripts/services/GeminiApiClient')];
-    const { getModel } = require('../scripts/services/GeminiApiClient');
 
+    const { getModel } = require('../scripts/services/GeminiApiClient');
     const model = getModel({ model: 'gemini-3.7-flash' });
+
     await assert.rejects(
       () => model.generateContent('di solo OK'),
-      /timeout|colgado|no respondio/i,
+      /timeout|no respondio|colgad/i,
       'debe rechazar con error explicito en vez de colgarse indefinidamente'
     );
 
-    delete require.cache[require.resolve('../scripts/services/GeminiApiClient')];
+    restaurarModulos();
   });
 });
 
