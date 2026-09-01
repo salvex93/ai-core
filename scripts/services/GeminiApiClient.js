@@ -207,6 +207,7 @@ async function compactarSiNecesario(parsed, modelo) {
 
 module.exports = {
   GEMINI_DEFAULT,
+  GEMINI_TIMEOUT_MS,
   loadEnv,
   parseEnvContent,
   getModel,
