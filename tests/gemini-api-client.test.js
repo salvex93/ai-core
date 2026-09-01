@@ -62,6 +62,49 @@ describe('isRefusal', () => {
   });
 });
 
+describe('getModel — timeout real ante SDK colgado', () => {
+  test('generateContent() corta con error explicito si el SDK nunca resuelve (colgado real, confirmado en produccion 2026-09-01: @google/genai puede quedarse sin responder pese a que la misma llamada via REST directo responde en segundos)', async (t) => {
+    // Mock del SDK: generateContent() retorna una promesa que JAMAS resuelve,
+    // simulando el colgado real observado -- sin esto, el test dependeria de
+    // una llamada de red real y no reproduciria el bug de forma determinista.
+    const path = require('node:path');
+    const Module = require('node:module');
+    const originalResolve = Module._resolveFilename;
+    const mockPath = path.join(__dirname, '..', 'node_modules', '@google', 'genai');
+
+    t.mock.method(Module, '_resolveFilename', function (request, ...args) {
+      if (request === '@google/genai') return mockPath;
+      return originalResolve.call(this, request, ...args);
+    });
+
+    const genaiModule = require('@google/genai');
+    const originalGoogleGenAI = genaiModule.GoogleGenAI;
+
+    class GoogleGenAIColgado {
+      constructor() {
+        this.models = {
+          generateContent: () => new Promise(() => {}), // nunca resuelve ni rechaza
+        };
+      }
+    }
+    genaiModule.GoogleGenAI = GoogleGenAIColgado;
+    t.after(() => { genaiModule.GoogleGenAI = originalGoogleGenAI; });
+
+    process.env.GEMINI_API_KEY = 'test-key-fake';
+    delete require.cache[require.resolve('../scripts/services/GeminiApiClient')];
+    const { getModel } = require('../scripts/services/GeminiApiClient');
+
+    const model = getModel({ model: 'gemini-3.7-flash' });
+    await assert.rejects(
+      () => model.generateContent('di solo OK'),
+      /timeout|colgado|no respondio/i,
+      'debe rechazar con error explicito en vez de colgarse indefinidamente'
+    );
+
+    delete require.cache[require.resolve('../scripts/services/GeminiApiClient')];
+  });
+});
+
 describe('extractJson', () => {
   test('parsea JSON plano sin markdown fence', () => {
     const resultado = extractJson('{"resumen": "ok", "hallazgos_clave": []}');
