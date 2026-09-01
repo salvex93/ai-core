@@ -6,6 +6,12 @@
  * oficialmente deprecado por Google, repo renombrado a deprecated-generative-ai-js).
  */
 
+// Mismo timeout real que GeminiApiClient.js (confirmado en produccion
+// 2026-09-01: @google/genai puede quedarse sin resolver ni rechazar
+// indefinidamente pese a que la misma llamada via REST directo responde en
+// segundos). Override via AI_CORE_GEMINI_TIMEOUT_MS solo para tests.
+const GEMINI_TIMEOUT_MS = Number(process.env.AI_CORE_GEMINI_TIMEOUT_MS) || 30_000;
+
 async function chatGemini(messages, options = {}) {
   const { GoogleGenAI } = require('@google/genai');
   const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
