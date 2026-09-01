@@ -23,6 +23,7 @@
 
 const fs   = require('fs');
 const path = require('path');
+const { reintentarConBackoff } = require('./lib/retry-with-backoff');
 
 const GEMINI_DEFAULT      = 'gemini-3.7-flash';
 const MAX_RETRIES         = 2;
