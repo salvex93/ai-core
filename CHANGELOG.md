@@ -3,6 +3,18 @@
 Registro de cambios por version. Formato basado en [Keep a Changelog](https://keepachangelog.com/es/1.0.0/).
 Versionado semantico: MAJOR.MINOR.PATCH.
 
+## [3.35.1] — 2026-09-01 (fix critico: Gemini se colgaba indefinidamente sin timeout real)
+
+Reproducido y confirmado en vivo: `@google/genai` (SDK oficial usado por `GeminiApiClient.js` y `GeminiAdapter.js`) puede quedarse sin resolver ni rechazar `ai.models.generateContent()` indefinidamente, pese a que la misma llamada via REST directo a `generativelanguage.googleapis.com` responde en segundos con la misma API key -- confirmado que el problema es el SDK/transporte, no la cuenta, la key ni la API en si. Ya se habia visto este sintoma en sesiones anteriores (colgados de 11+ minutos documentados), pero nunca se habia diagnosticado la causa raiz hasta hoy.
+
+### Corregido — `GeminiApiClient.js` y `GeminiAdapter.js`: timeout real independiente del SDK
+
+Ninguno de los dos puntos de llamada (`GeminiApiClient.js`, bridge MCP tier 0; `GeminiAdapter.js`, usado por `ModelRegistry.chat()` en `CrossVerifier.js`/`SubagentGrader.js`/cualquier consumidor del router general) tenia timeout. Se agrego `GEMINI_TIMEOUT_MS = 30_000` (override via `AI_CORE_GEMINI_TIMEOUT_MS` solo para tests) con `Promise.race()` entre la llamada real y un timer independiente -- deliberadamente NO se confio unicamente en `abortSignal` del SDK (aunque tambien se pasa, best-effort): si el SDK esta genuinamente colgado, no esta escuchando su propio signal, que es justo el fallo observado. El timer rechaza por su cuenta sin depender de que el SDK coopere.
+
+2 tests nuevos que mockean el SDK con una promesa que nunca resuelve ni rechaza (mismo mecanismo de `require.cache` ya usado en `model-dispatcher.test.js`) para reproducir el colgado de forma determinista sin llamada de red real. Verificado ademas contra la API real: respuesta en ~3s tras el fix (antes: colgado indefinido).
+
+1294 tests (1293 pass, 1 skipped, 0 fail), 45/45 skills conformes.
+
 ## [3.35.0] — 2026-08-31 (skill nuevo: discord-ops -- canal de alertas via Discord webhooks/bots)
 
 Deep research con fuentes primarias (discord.com/developers/docs, Grafana Alerting, Sentry) sobre integracion de Discord como canal de notificaciones de infraestructura propia, a pedido explicito del usuario (monitoreo de servidores propios via Discord, hoy con un Incoming Webhook simple).
