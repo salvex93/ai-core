@@ -82,15 +82,28 @@ function getModel(opts = {}) {
   return {
     async generateContent(promptOrMessage) {
       const contents = [{ role: 'user', parts: [{ text: promptOrMessage }] }];
+      const controller = new AbortController();
+      const timeoutId  = setTimeout(() => controller.abort(), GEMINI_TIMEOUT_MS);
       const config = {
         ...(systemInstruction && { systemInstruction }),
         ...(tools && { tools }),
+        abortSignal: controller.signal,
       };
-      const result = await ai.models.generateContent({
-        model,
-        contents,
-        ...(Object.keys(config).length > 0 && { config }),
-      });
+      let result;
+      try {
+        result = await ai.models.generateContent({
+          model,
+          contents,
+          config,
+        });
+      } catch (err) {
+        if (controller.signal.aborted) {
+          throw new Error(`Gemini no respondio en ${GEMINI_TIMEOUT_MS / 1000}s (timeout del SDK, no de la API -- ver GEMINI_TIMEOUT_MS en GeminiApiClient.js)`);
+        }
+        throw err;
+      } finally {
+        clearTimeout(timeoutId);
+      }
       return {
         response: {
           text: () => result.text || '',
