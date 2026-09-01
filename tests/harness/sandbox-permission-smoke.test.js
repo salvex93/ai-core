@@ -324,6 +324,39 @@ describe('sandboxing de hooks propios — Node.js Permission Model (smoke test)'
     assert.match(r.stderr, /ERR_ACCESS_DENIED|Access to this API has been restricted/);
   });
 
+  test('web-search-guard.js CON permisos: bloquea WebSearch cuando GEMINI_API_KEY esta disponible', () => {
+    const evento = JSON.stringify({ tool_name: 'WebSearch', tool_input: { query: 'algo' } });
+    const dirBin = path.join(BIN, '*');
+    const dirRepo = path.join(REPO, '**');
+    const dirTmp = path.join(require('node:os').tmpdir(), '*');
+
+    const r = spawnSync('node', [
+      '--permission',
+      `--allow-fs-read=${dirBin}`,
+      `--allow-fs-read=${dirRepo}`,
+      `--allow-fs-write=${dirRepo}`,
+      `--allow-fs-write=${dirTmp}`,
+      path.join(BIN, 'web-search-guard.js'),
+    ], { input: evento, encoding: 'utf8', cwd: REPO, env: { ...process.env, GEMINI_API_KEY: process.env.GEMINI_API_KEY || 'fake-key-para-smoke-test' } });
+
+    assert.equal(r.status, 0, 'permissionDecision:deny exige exit 0, no exit 2');
+    const parsed = JSON.parse(r.stdout);
+    assert.equal(parsed.hookSpecificOutput.permissionDecision, 'deny');
+  });
+
+  test('web-search-guard.js SIN ningun permiso: falla de forma controlada (EPERM), no silenciosa', () => {
+    const evento = JSON.stringify({ tool_name: 'WebSearch', tool_input: { query: 'algo' } });
+
+    const r = spawnSync('node', [
+      '--permission',
+      path.join(BIN, 'web-search-guard.js'),
+    ], { input: evento, encoding: 'utf8', cwd: REPO });
+
+    assert.notEqual(r.status, 0, 'sin permiso de lectura, el hook no debe poder correr silenciosamente con exit 0');
+    assert.notEqual(r.status, 2, 'sin el permiso que su propio require necesita, el fallo debe ser por EPERM, no el bloqueo normal del guard');
+    assert.match(r.stderr, /ERR_ACCESS_DENIED|Access to this API has been restricted/);
+  });
+
   test('agent-paths-guard.js CON permisos: corre y deja pasar una ruta sin paths_allow declarado (retrocompatible)', () => {
     // Requiere lectura de .claude/bin (sus propios requires: hook-stdin,
     // agent-frontmatter, permission-decision, normalizar-texto) ADEMAS de
