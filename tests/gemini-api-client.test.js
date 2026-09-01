@@ -99,6 +99,7 @@ describe('getModel — timeout real ante SDK colgado', () => {
   test('generateContent() corta con error explicito en vez de colgarse indefinidamente', async () => {
     mockearGenaiColgado();
     process.env.GEMINI_API_KEY = 'test-key-fake';
+    process.env.AI_CORE_GEMINI_TIMEOUT_MS = '200'; // timeout corto solo para este test
 
     const { getModel } = require('../scripts/services/GeminiApiClient');
     const model = getModel({ model: 'gemini-3.7-flash' });
