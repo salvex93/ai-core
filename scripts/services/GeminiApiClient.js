@@ -28,6 +28,15 @@ const GEMINI_DEFAULT      = 'gemini-3.7-flash';
 const MAX_RETRIES         = 2;
 const COMPACT_TOKEN_LIMIT = 1125; // ~1.500 tokens (1 token ≈ 0.75 palabras) — alineado con limite de output declarado en CLAUDE.md
 const MAX_COMPACT_ROUNDS  = 2;
+// Timeout real de la llamada al SDK (confirmado en produccion 2026-09-01):
+// @google/genai puede quedarse sin resolver ni rechazar indefinidamente
+// pese a que la misma llamada via REST directo a la API de Gemini responde
+// en segundos -- el problema esta en el SDK/transporte, no en la API ni en
+// la API key. Sin este timeout, un colgado del SDK bloqueaba la sesion de
+// Claude Code indefinidamente (visto en vivo: 2 corridas de mas de 11
+// minutos sin avanzar). abortSignal es soporte nativo del SDK (confirmado
+// contra sus tipos: "AbortSignal is a client-only operation").
+const GEMINI_TIMEOUT_MS = 30_000;
 
 // Parsea contenido estilo .env a pares clave/valor. Separado de loadEnv para
 // testear el parseo (incluye CRLF de Windows) sin depender del filesystem.
