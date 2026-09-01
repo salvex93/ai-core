@@ -86,24 +86,33 @@ function getModel(opts = {}) {
     async generateContent(promptOrMessage) {
       const contents = [{ role: 'user', parts: [{ text: promptOrMessage }] }];
       const controller = new AbortController();
-      const timeoutId  = setTimeout(() => controller.abort(), GEMINI_TIMEOUT_MS);
       const config = {
         ...(systemInstruction && { systemInstruction }),
         ...(tools && { tools }),
-        abortSignal: controller.signal,
+        abortSignal: controller.signal, // le pedimos al SDK que aborte -- best-effort, no la unica garantia
       };
+
+      // Carrera independiente del SDK: si @google/genai se queda colgado sin
+      // resolver NI rechazar (el bug real confirmado en produccion, distinto
+      // de un abort limpio), abortSignal por si solo no basta -- el SDK tiene
+      // que cooperar escuchando su propio signal, y ese es precisamente el
+      // fallo observado. Promise.race garantiza el corte real sin depender
+      // de que el SDK coopere: el timer rechaza por su cuenta sin importar
+      // que haga la promesa de generateContent().
+      let timeoutId;
+      const timeoutPromise = new Promise((_, reject) => {
+        timeoutId = setTimeout(() => {
+          controller.abort(); // best-effort, libera recursos del lado del SDK si escucha
+          reject(new Error(`Gemini no respondio en ${GEMINI_TIMEOUT_MS / 1000}s (timeout real, no de la API -- ver GEMINI_TIMEOUT_MS en GeminiApiClient.js)`));
+        }, GEMINI_TIMEOUT_MS);
+      });
+
       let result;
       try {
-        result = await ai.models.generateContent({
-          model,
-          contents,
-          config,
-        });
-      } catch (err) {
-        if (controller.signal.aborted) {
-          throw new Error(`Gemini no respondio en ${GEMINI_TIMEOUT_MS / 1000}s (timeout del SDK, no de la API -- ver GEMINI_TIMEOUT_MS en GeminiApiClient.js)`);
-        }
-        throw err;
+        result = await Promise.race([
+          ai.models.generateContent({ model, contents, config }),
+          timeoutPromise,
+        ]);
       } finally {
         clearTimeout(timeoutId);
       }
