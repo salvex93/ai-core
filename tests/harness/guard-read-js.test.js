@@ -115,9 +115,12 @@ describe('guard-read.js', () => {
     const lines = Array.from({ length: 250 }, (_, i) => `const x${i} = ${i};`).join('\n');
     const fjs = path.join(os.tmpdir(), `guard-test-sin-key-${Date.now()}.js`);
     fs.writeFileSync(fjs, lines);
-    const envSinKey = { GEMINI_API_KEY: '' };
-    const r = runScript(GUARD, [fjs], envSinKey);
+    // .env aislado y vacio -- AI_CORE_ENV_PATH evita que loadEnv() caiga al
+    // .env real del repo (que si tiene GEMINI_API_KEY configurada).
+    const envVacio = tmpFile('');
+    const r = runScript(GUARD, [fjs], { AI_CORE_ENV_PATH: envVacio, GEMINI_API_KEY: '' });
     fs.unlinkSync(fjs);
+    fs.unlinkSync(envVacio);
     assert.equal(r.status, 0);
     assert.equal(r.stdout.trim(), '', 'sin GEMINI_API_KEY no debe emitir permissionDecision:deny -- debe dejar pasar Read nativo');
   });
@@ -126,9 +129,10 @@ describe('guard-read.js', () => {
     const lines = Array.from({ length: 250 }, (_, i) => `const x${i} = ${i};`).join('\n');
     const fjs = path.join(os.tmpdir(), `guard-test-con-key-${Date.now()}.js`);
     fs.writeFileSync(fjs, lines);
-    const envConKey = { GEMINI_API_KEY: 'fake-key-para-test' };
-    const r = runScript(GUARD, [fjs], envConKey);
+    const envConKey = tmpFile('GEMINI_API_KEY=fake-key-para-test');
+    const r = runScript(GUARD, [fjs], { AI_CORE_ENV_PATH: envConKey, GEMINI_API_KEY: '' });
     fs.unlinkSync(fjs);
+    fs.unlinkSync(envConKey);
     assert.equal(r.status, 0);
     const parsed = JSON.parse(r.stdout);
     assert.equal(parsed.hookSpecificOutput.permissionDecision, 'deny', 'con Gemini disponible, el comportamiento original no cambia');
