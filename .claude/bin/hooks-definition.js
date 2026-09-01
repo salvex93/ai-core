@@ -242,6 +242,16 @@ function buildHooksSection(bin, tmpDirReal) {
         ],
       },
       {
+        // Fuerza mcp__gemini-bridge__buscar_web (tier 0 gratuito) en vez de
+        // WebSearch/WebFetch nativos -- mismo patron y permisos que
+        // guard-read.js (regla GEMINI PRIMERO, enforcement real en vez de
+        // solo prosa en CLAUDE.md, gap cerrado 2026-09-01).
+        matcher: 'WebSearch|WebFetch',
+        hooks: [
+          { type: 'command', command: nodeConPermiso(bin('web-search-guard.js'), repoReadWrite) },
+        ],
+      },
+      {
         matcher: 'Write|Edit',
         hooks: [
           { type: 'command', command: `${nodeConPermiso(bin('agent-snapshot.js'), repoReadWrite)} 2>/dev/null || true` },

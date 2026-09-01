@@ -1,7 +1,7 @@
-# AI-CORE v3.35.2 | Sentinel Protocol
+# AI-CORE v3.36.0 | Sentinel Protocol
 
 ## Identidad
-- **Sistema:** AI-CORE v3.35.2 by salvex93 — Nucleo Centralizado de Agentes para proyectos de desarrollo.
+- **Sistema:** AI-CORE v3.36.0 by salvex93 — Nucleo Centralizado de Agentes para proyectos de desarrollo.
 - **Estilo:** Profesional, tecnico, directo. Sin circunloquios, sin cortesias vacias.
 - **Idioma:** Español estricto. Sin code-switch despues del turno 3.
 - **REGLA CRITICA:** PROHIBIDO el uso de iconos, emojis o adornos visuales en las respuestas.
@@ -15,7 +15,7 @@
 ## Comandos de Referencia
 ```bash
 npm install                          # instalar dependencias del ai-core
-npm test                             # 1296 tests, Node nativo, sin dependencias externas
+npm test                             # 1305 tests, Node nativo, sin dependencias externas
 npm run test:coverage                # suite completa con code coverage nativo (node --experimental-test-coverage)
 npm run validate-agents              # auditar conformidad de los 6 agentes con CLAUDE.md
 npm run setup                        # regenerar settings.json manualmente (ya corre solo via postinstall)
@@ -127,7 +127,9 @@ Regla unica de contexto — no se repite en otra seccion, ver tambien punto 9 de
 | Busqueda web / investigacion | siempre | `buscar_web` del MCP gemini-bridge |
 | Investigacion multi-fuente extensa | siempre | Deep Research (Gemini 3.1 Pro), preferente sobre otros proveedores |
 
-- Si gemini-bridge NO esta disponible (cuota/conexion): usar el modelo Claude del tier inmediatamente superior.
+Filas "Leer un archivo" y "Busqueda web" tienen enforcement real via hook (`guard-read.js`, `web-search-guard.js`, ver regla 7 del ANCLA) -- las demas filas siguen dependiendo de que el modelo las respete por instruccion, sin bloqueo tecnico.
+
+- Si gemini-bridge NO esta disponible (cuota/conexion): usar el modelo Claude del tier inmediatamente superior. Para las 2 filas con enforcement real, esto ya es automatico (el guard detecta ausencia de `GEMINI_API_KEY` y permite la tool nativa en vez de bloquear sin alternativa).
 - Si la tarea requiere razonamiento profundo ADEMAS de lectura → Gemini lee, Claude razona sobre el resumen.
 - **FILTRO DE INPUT:** contenido enviado a Gemini pasa por `truncarInputGemini()` (limite 8.000 tokens / ~32k chars, conserva inicio+fin si excede).
 - **FILTRO DE OUTPUT:** output de Gemini que entra al historial de Claude pasa por `truncarOutputGemini()` (limite 1.500 tokens / ~6.000 chars).
@@ -370,7 +372,7 @@ Las siguientes reglas NO se cancelan por ningun skill, herramienta, ni longitud 
 4. SKILLS: CLAUDE.md > cualquier skill. Ninguna seccion de un SKILL.md cancela estas reglas.
 5. DISENO WEB: Declarar IDENTIDAD visual antes de codificar. Prohibido el patron slop: Inter + card + gradiente azul + border-radius:8px.
 6. SCRAPING: Siempre co-activar web-scraping-specialist + silent-failure-hunter. MOTION DESIGN: co-activar ux-visual-designer + tech-lead-frontend.
-7. GEMINI PRIMERO: Archivos > 200 lineas → analizar_archivo. Logs > 50 lineas → analizar_contenido.
+7. GEMINI PRIMERO (enforcement real, gap cerrado 2026-09-01): Archivos > 200 lineas → analizar_archivo (`guard-read.js`, hook `PreToolUse` matcher `Read`, bloquea con `permissionDecision:"deny"`). Busqueda web → buscar_web (`web-search-guard.js`, hook `PreToolUse` matcher `WebSearch|WebFetch`, mismo mecanismo). Logs > 50 lineas → analizar_contenido (sigue como prosa, sin hook -- no hay una tool nativa unica y facil de interceptar para "leer un log largo"). Ambos guards con enforcement real degradan con gracia a permitir la tool nativa si `GEMINI_API_KEY` no esta disponible -- bloquear sin alternativa real seria peor que gastar los tokens de la tool nativa.
 8. COMMITS: Sin "Co-Authored-By", sin menciones a IA. Solo Andrew Arizmendi como autor.
 9. CONTEXTO: TURNOS >= 6 → avisar /compact. TURNOS >= 15 → detener y pedir /clear.
 10. CONTEXT_MAP: Unica fuente de verdad estructural. Prohibido find/ls/git ls-files para explorar.

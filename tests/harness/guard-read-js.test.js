@@ -103,6 +103,40 @@ describe('guard-read.js', () => {
     fs.unlinkSync(f);
     assert.equal(r.status, 0, 'CRLF de 50 lineas reales no debe superar el limite de 200 (evitar doble conteo de \\r\\n)');
   });
+
+  // ─── Fallback sin Gemini disponible (2026-09-01) ─────────────────────────
+  // Bloquear Read para forzar analizar_archivo (Gemini) solo tiene sentido
+  // si Gemini esta realmente disponible -- sin GEMINI_API_KEY, el deny deja
+  // a Claude sin ninguna forma de leer el archivo (degradacion total, peor
+  // que gastar los tokens de Read nativo). Decision explicita del usuario:
+  // fallback automatico a permitir en vez de bloqueo estricto.
+
+  test('con mas de 200 lineas pero SIN GEMINI_API_KEY: permite Read en vez de bloquear (degradacion con gracia)', () => {
+    const lines = Array.from({ length: 250 }, (_, i) => `const x${i} = ${i};`).join('\n');
+    const fjs = path.join(os.tmpdir(), `guard-test-sin-key-${Date.now()}.js`);
+    fs.writeFileSync(fjs, lines);
+    // .env aislado y vacio -- AI_CORE_ENV_PATH evita que loadEnv() caiga al
+    // .env real del repo (que si tiene GEMINI_API_KEY configurada).
+    const envVacio = tmpFile('');
+    const r = runScript(GUARD, [fjs], { AI_CORE_ENV_PATH: envVacio, GEMINI_API_KEY: '' });
+    fs.unlinkSync(fjs);
+    fs.unlinkSync(envVacio);
+    assert.equal(r.status, 0);
+    assert.equal(r.stdout.trim(), '', 'sin GEMINI_API_KEY no debe emitir permissionDecision:deny -- debe dejar pasar Read nativo');
+  });
+
+  test('con mas de 200 lineas y CON GEMINI_API_KEY: sigue bloqueando normalmente', () => {
+    const lines = Array.from({ length: 250 }, (_, i) => `const x${i} = ${i};`).join('\n');
+    const fjs = path.join(os.tmpdir(), `guard-test-con-key-${Date.now()}.js`);
+    fs.writeFileSync(fjs, lines);
+    const envConKey = tmpFile('GEMINI_API_KEY=fake-key-para-test');
+    const r = runScript(GUARD, [fjs], { AI_CORE_ENV_PATH: envConKey, GEMINI_API_KEY: '' });
+    fs.unlinkSync(fjs);
+    fs.unlinkSync(envConKey);
+    assert.equal(r.status, 0);
+    const parsed = JSON.parse(r.stdout);
+    assert.equal(parsed.hookSpecificOutput.permissionDecision, 'deny', 'con Gemini disponible, el comportamiento original no cambia');
+  });
 });
 
 // ─── subagent-guard.js ───────────────────────────────────────────────────────

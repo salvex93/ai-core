@@ -56,9 +56,14 @@ function parseEnvContent(contenido) {
   return pares;
 }
 
-// Carga .env desde la raiz del proyecto (un nivel arriba de /scripts)
+// Carga .env desde la raiz del proyecto (un nivel arriba de /scripts).
+// AI_CORE_ENV_PATH permite apuntar a un .env aislado en tests -- sin esto,
+// un test que necesita simular "sin GEMINI_API_KEY configurada" no puede
+// hacerlo de forma real: loadEnv() solo sobreescribe process.env[key] si
+// esta vacio (!process.env[key]), asi que un test que intenta forzar
+// GEMINI_API_KEY='' termina igual sobreescrito por el .env real del repo.
 function loadEnv() {
-  const envPath = path.resolve(__dirname, '../../.env');
+  const envPath = process.env.AI_CORE_ENV_PATH || path.resolve(__dirname, '../../.env');
   if (!fs.existsSync(envPath)) return;
   const pares = parseEnvContent(fs.readFileSync(envPath, 'utf8'));
   for (const [key, val] of Object.entries(pares)) {
