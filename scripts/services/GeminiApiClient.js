@@ -36,7 +36,10 @@ const MAX_COMPACT_ROUNDS  = 2;
 // Claude Code indefinidamente (visto en vivo: 2 corridas de mas de 11
 // minutos sin avanzar). abortSignal es soporte nativo del SDK (confirmado
 // contra sus tipos: "AbortSignal is a client-only operation").
-const GEMINI_TIMEOUT_MS = 30_000;
+// Override via AI_CORE_GEMINI_TIMEOUT_MS solo para tests deterministas
+// (evita que el test del colgado real tarde 30s reales) -- en produccion
+// sin la variable, siempre usa el valor real de 30s.
+const GEMINI_TIMEOUT_MS = Number(process.env.AI_CORE_GEMINI_TIMEOUT_MS) || 30_000;
 
 // Parsea contenido estilo .env a pares clave/valor. Separado de loadEnv para
 // testear el parseo (incluye CRLF de Windows) sin depender del filesystem.
