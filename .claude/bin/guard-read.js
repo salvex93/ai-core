@@ -13,6 +13,16 @@
 const fs = require('fs');
 const path = require('path');
 const { denegarConRazon } = require('./lib/permission-decision');
+const { loadEnv } = require('../../scripts/services/GeminiApiClient');
+
+// Bloquear Read para forzar analizar_archivo (Gemini) solo tiene sentido si
+// Gemini esta realmente disponible -- sin GEMINI_API_KEY, el deny dejaria a
+// Claude sin ninguna forma de leer el archivo (degradacion total, peor que
+// simplemente permitir el Read nativo). Decision explicita del usuario
+// 2026-09-01: fallback automatico a permitir, nunca bloqueo estricto sin
+// alternativa real disponible.
+loadEnv();
+const GEMINI_DISPONIBLE = Boolean(process.env.GEMINI_API_KEY);
 
 const MAX_LINES = 200;
 // ~80 chars/linea es una estimacion conservadora de codigo/texto real -- un
