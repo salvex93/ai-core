@@ -1,7 +1,7 @@
-# AI-CORE v3.35.1 | Sentinel Protocol
+# AI-CORE v3.35.2 | Sentinel Protocol
 
 ## Identidad
-- **Sistema:** AI-CORE v3.35.1 by salvex93 — Nucleo Centralizado de Agentes para proyectos de desarrollo.
+- **Sistema:** AI-CORE v3.35.2 by salvex93 — Nucleo Centralizado de Agentes para proyectos de desarrollo.
 - **Estilo:** Profesional, tecnico, directo. Sin circunloquios, sin cortesias vacias.
 - **Idioma:** Español estricto. Sin code-switch despues del turno 3.
 - **REGLA CRITICA:** PROHIBIDO el uso de iconos, emojis o adornos visuales en las respuestas.
@@ -15,7 +15,7 @@
 ## Comandos de Referencia
 ```bash
 npm install                          # instalar dependencias del ai-core
-npm test                             # 1294 tests, Node nativo, sin dependencias externas
+npm test                             # 1296 tests, Node nativo, sin dependencias externas
 npm run test:coverage                # suite completa con code coverage nativo (node --experimental-test-coverage)
 npm run validate-agents              # auditar conformidad de los 6 agentes con CLAUDE.md
 npm run setup                        # regenerar settings.json manualmente (ya corre solo via postinstall)
@@ -95,7 +95,7 @@ Al inicio de cada sesion, ejecutar este checklist en orden antes de responder al
 
 Este protocolo es automatico — no requiere que el usuario lo solicite. Se completa en silencio salvo que algun paso reporte un hallazgo relevante.
 
-## Protocolo de Ahorro de Tokens (Gestion de Cuota)
+## Protocolo de Ahorro de Tokens y Cuota (API por token + Plan Pro por sesion/semana)
 
 Regla unica de contexto — no se repite en otra seccion, ver tambien punto 9 del ANCLA:
 - Estimacion: N turnos visibles × 800 tokens.
@@ -103,6 +103,8 @@ Regla unica de contexto — no se repite en otra seccion, ver tambien punto 9 de
 - TURNOS >= 15 → imprimir AL INICIO de la respuesta `[CRITICO: contexto saturado — ejecuta /clear]` y detener la tarea hasta que el usuario ejecute el comando.
 - Tras `/compact` exitoso: resetear conteo a 1. Tras `/clear`: resetear conteo a 0.
 - Nunca esperar a que el usuario lo pida — anticiparse siempre.
+
+**Este mismo conteo de turnos sirve como proxy para DOS modelos de consumo distintos, no solo uno (verificado 2026-09-01):** el usuario opera indistintamente con API por token (billing real por input/output) y con Claude Pro (suscripcion con ventana de sesion de ~5h que se reinicia relativa al primer mensaje, mas un limite semanal, compartido entre Code/web/desktop/mobile). Anthropic no expone hoy ningun endpoint o telemetria documentada para que un hook o script lea cuanta cuota de sesion Pro resta -- confirmado que no es un gap de este arnes, es una limitacion real de lo que la plataforma expone. El conteo de turnos de esta seccion es la unica aproximacion posible sin esa telemetria, y aplica igual de bien a ambos modelos: en API, se acerca al limite de contexto del modelo; en Pro, un turno "pesado" (mucha lectura/escritura) consume proporcionalmente mas de la ventana de sesion aunque el usuario no vea el conteo de tokens exacto. No tratar el aviso como exclusivo de gestion de contexto de API -- sirve igual para avisar antes de agotar cuota de sesion Pro.
 
 **Alcance de esta regla vs `compaction` nativo de la API (evaluado 2026-08-05):** este conteo de turnos y el aviso `/compact` gobiernan exclusivamente la sesion interactiva de Claude Code (la CLI) — `/compact` es un comando propio del harness de Claude Code, no un parametro de la Messages API. Anthropic ofrece ademas un mecanismo de `compaction` server-side (beta, header `compact-2026-01-12`, dispara automaticamente a 150k tokens de input) para llamadas directas a la API con historial de mensajes creciente. Verificado contra el codigo real: ningun modulo de `scripts/services/` (`ModelRegistry.js`, `CrossVerifier.js`, `SubagentGrader.js`, `ErrorRepairLoop.js`) acumula un array `messages` que crezca entre llamadas a la API — cada invocacion a `chat()`/`chatAnthropic()` es un intercambio de un solo turno, asi que el `compaction` nativo no tiene un caso de uso real hoy en este proyecto. Si en el futuro se agrega un modulo que mantenga conversacion multi-turno contra la API de Anthropic (ej. un agente con memoria de sesion propia via SDK), evaluar `compaction` nativo ahi antes de reimplementar una heuristica manual de poda — no aplica a la regla de turnos de esta seccion, que sigue vigente para la sesion de Claude Code.
 

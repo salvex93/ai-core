@@ -47,6 +47,20 @@ describe('lib/retry-with-backoff.js — esErrorReintentable()', () => {
   test('error generico sin status ni code reconocido NO es reintentable (evitar retry de bugs logicos)', () => {
     assert.equal(esErrorReintentable(new Error('algo broke')), false);
   });
+
+  test('timeout de SDK colgado (code ETIMEDOUT_SDK_COLGADO) es reintentable -- gap cerrado 2026-09-01', () => {
+    // GeminiApiClient.js/GeminiAdapter.js marcan explicitamente este code
+    // cuando su propio Promise.race corta un @google/genai colgado (que no
+    // es un ECONNRESET/ETIMEDOUT de red real, sino un timeout aplicado por
+    // el propio arnes ante un SDK que nunca resuelve ni rechaza) -- sin este
+    // marcador explicito, el error generico caeria en la regla de arriba
+    // (no reintentable) y el colgado nunca se recuperaria solo, aunque el
+    // siguiente intento real casi siempre responda en segundos (confirmado
+    // en produccion: la misma llamada via REST directo responde rapido).
+    const err = new Error('Gemini no respondio en 30s (timeout real)');
+    err.code = 'ETIMEDOUT_SDK_COLGADO';
+    assert.equal(esErrorReintentable(err), true);
+  });
 });
 
 describe('lib/retry-with-backoff.js — calcularBackoffMs()', () => {

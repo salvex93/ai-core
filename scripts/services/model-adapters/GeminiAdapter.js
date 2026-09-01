@@ -42,7 +42,9 @@ async function chatGemini(messages, options = {}) {
   let timeoutId;
   const timeoutPromise = new Promise((_, reject) => {
     timeoutId = setTimeout(() => {
-      reject(new Error(`Gemini no respondio en ${GEMINI_TIMEOUT_MS / 1000}s (timeout real, no de la API -- ver GEMINI_TIMEOUT_MS en GeminiAdapter.js)`));
+      const err = new Error(`Gemini no respondio en ${GEMINI_TIMEOUT_MS / 1000}s (timeout real, no de la API -- ver GEMINI_TIMEOUT_MS en GeminiAdapter.js)`);
+      err.code = 'ETIMEDOUT_SDK_COLGADO'; // marcador reconocido por lib/retry-with-backoff.js -- ModelRegistry.js ya envuelve chatGemini() con reintentarConBackoff
+      reject(err);
     }, GEMINI_TIMEOUT_MS);
   });
 

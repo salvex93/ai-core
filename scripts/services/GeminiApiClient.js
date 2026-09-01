@@ -23,6 +23,7 @@
 
 const fs   = require('fs');
 const path = require('path');
+const { reintentarConBackoff } = require('./lib/retry-with-backoff');
 
 const GEMINI_DEFAULT      = 'gemini-3.7-flash';
 const MAX_RETRIES         = 2;
@@ -76,6 +77,37 @@ function getGenAI() {
   return new GoogleGenAI({ apiKey });
 }
 
+// Una sola llamada al SDK con timeout real e independiente. Carrera
+// independiente del SDK: si @google/genai se queda colgado sin resolver NI
+// rechazar (el bug real confirmado en produccion, distinto de un abort
+// limpio), abortSignal por si solo no basta -- el SDK tiene que cooperar
+// escuchando su propio signal, y ese es precisamente el fallo observado.
+// Promise.race garantiza el corte real sin depender de que el SDK coopere:
+// el timer rechaza por su cuenta sin importar que haga la promesa de
+// generateContent(). El error queda marcado con code ETIMEDOUT_SDK_COLGADO
+// para que lib/retry-with-backoff.js lo reconozca como transitorio.
+async function unaLlamadaConTimeout(ai, model, contents, config) {
+  const controller = new AbortController();
+  let timeoutId;
+  const timeoutPromise = new Promise((_, reject) => {
+    timeoutId = setTimeout(() => {
+      controller.abort(); // best-effort, libera recursos del lado del SDK si escucha
+      const err = new Error(`Gemini no respondio en ${GEMINI_TIMEOUT_MS / 1000}s (timeout real, no de la API -- ver GEMINI_TIMEOUT_MS en GeminiApiClient.js)`);
+      err.code = 'ETIMEDOUT_SDK_COLGADO'; // marcador reconocido por lib/retry-with-backoff.js
+      reject(err);
+    }, GEMINI_TIMEOUT_MS);
+  });
+
+  try {
+    return await Promise.race([
+      ai.models.generateContent({ model, contents, config: { ...config, abortSignal: controller.signal } }),
+      timeoutPromise,
+    ]);
+  } finally {
+    clearTimeout(timeoutId);
+  }
+}
+
 // Shim de compatibilidad: expone .generateContent(prompt) con la misma forma
 // que el SDK viejo (result.response.text(), result.response.candidates) para
 // que McpServerHandlers.js no requiera cambios en su capa de consumo.
@@ -85,37 +117,24 @@ function getModel(opts = {}) {
   return {
     async generateContent(promptOrMessage) {
       const contents = [{ role: 'user', parts: [{ text: promptOrMessage }] }];
-      const controller = new AbortController();
       const config = {
         ...(systemInstruction && { systemInstruction }),
         ...(tools && { tools }),
-        abortSignal: controller.signal, // le pedimos al SDK que aborte -- best-effort, no la unica garantia
       };
 
-      // Carrera independiente del SDK: si @google/genai se queda colgado sin
-      // resolver NI rechazar (el bug real confirmado en produccion, distinto
-      // de un abort limpio), abortSignal por si solo no basta -- el SDK tiene
-      // que cooperar escuchando su propio signal, y ese es precisamente el
-      // fallo observado. Promise.race garantiza el corte real sin depender
-      // de que el SDK coopere: el timer rechaza por su cuenta sin importar
-      // que haga la promesa de generateContent().
-      let timeoutId;
-      const timeoutPromise = new Promise((_, reject) => {
-        timeoutId = setTimeout(() => {
-          controller.abort(); // best-effort, libera recursos del lado del SDK si escucha
-          reject(new Error(`Gemini no respondio en ${GEMINI_TIMEOUT_MS / 1000}s (timeout real, no de la API -- ver GEMINI_TIMEOUT_MS en GeminiApiClient.js)`));
-        }, GEMINI_TIMEOUT_MS);
-      });
+      // reintentarConBackoff cubre TODOS los consumidores de getModel()
+      // uniformemente (callWithRetry ya reintentaba fallos de parseo JSON
+      // para 3 de los 5 caminos de llamada reales; los otros 2 -- analizar
+      // buscarWeb y analizarRepositorio en McpServerHandlers.js -- llamaban
+      // generateContent() directo sin ningun retry, quedaban sin cobertura
+      // ante el timeout). Patron de industria confirmado (Google ADK,
+      // guias de resiliencia 2026): timeout + reintento con backoff
+      // exponencial y jitter, no timeout de intento unico aislado.
+      const result = await reintentarConBackoff(
+        () => unaLlamadaConTimeout(ai, model, contents, config),
+        { maxReintentos: 2 }
+      );
 
-      let result;
-      try {
-        result = await Promise.race([
-          ai.models.generateContent({ model, contents, config }),
-          timeoutPromise,
-        ]);
-      } finally {
-        clearTimeout(timeoutId);
-      }
       return {
         response: {
           text: () => result.text || '',

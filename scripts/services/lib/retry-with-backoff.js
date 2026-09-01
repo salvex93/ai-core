@@ -11,7 +11,13 @@
  * (https.request crudo, sin retry alguno).
  */
 
-const CODIGOS_TRANSITORIOS = new Set(['ECONNRESET', 'ETIMEDOUT', 'ECONNREFUSED', 'EAI_AGAIN']);
+// ETIMEDOUT_SDK_COLGADO: marcador propio (no de Node/red), usado por
+// GeminiApiClient.js/GeminiAdapter.js cuando su Promise.race corta un
+// @google/genai que se quedo sin resolver ni rechazar -- distinto de un
+// ETIMEDOUT de conexion real. Confirmado en produccion (2026-09-01) que el
+// siguiente intento casi siempre responde en segundos, asi que vale
+// reintentar como cualquier otro error transitorio.
+const CODIGOS_TRANSITORIOS = new Set(['ECONNRESET', 'ETIMEDOUT', 'ECONNREFUSED', 'EAI_AGAIN', 'ETIMEDOUT_SDK_COLGADO']);
 
 /**
  * Decide si un error de llamada a un proveedor de IA es transitorio (vale
