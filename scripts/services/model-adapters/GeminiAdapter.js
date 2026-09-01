@@ -34,11 +34,31 @@ async function chatGemini(messages, options = {}) {
 
   const systemInstruction = messages.find(m => m.role === 'system')?.content;
 
-  const result = await ai.models.generateContent({
-    model,
-    contents,
-    ...(systemInstruction && { config: { systemInstruction } }),
+  // Promise.race independiente del SDK: si @google/genai se cuelga sin
+  // resolver NI rechazar, un abortSignal por si solo no basta -- depende de
+  // que el SDK coopere escuchandolo, y ese es precisamente el fallo
+  // observado. El timer rechaza por su cuenta sin importar que haga la
+  // promesa de generateContent().
+  let timeoutId;
+  const timeoutPromise = new Promise((_, reject) => {
+    timeoutId = setTimeout(() => {
+      reject(new Error(`Gemini no respondio en ${GEMINI_TIMEOUT_MS / 1000}s (timeout real, no de la API -- ver GEMINI_TIMEOUT_MS en GeminiAdapter.js)`));
+    }, GEMINI_TIMEOUT_MS);
   });
+
+  let result;
+  try {
+    result = await Promise.race([
+      ai.models.generateContent({
+        model,
+        contents,
+        ...(systemInstruction && { config: { systemInstruction } }),
+      }),
+      timeoutPromise,
+    ]);
+  } finally {
+    clearTimeout(timeoutId);
+  }
 
   return {
     content:  result.text,
