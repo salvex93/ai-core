@@ -110,6 +110,7 @@ describe('getModel — timeout real ante SDK colgado', () => {
       'debe rechazar con error explicito en vez de colgarse indefinidamente'
     );
 
+    delete process.env.AI_CORE_GEMINI_TIMEOUT_MS;
     restaurarModulos();
   });
 });
