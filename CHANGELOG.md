@@ -3,6 +3,24 @@
 Registro de cambios por version. Formato basado en [Keep a Changelog](https://keepachangelog.com/es/1.0.0/).
 Versionado semantico: MAJOR.MINOR.PATCH.
 
+## [3.35.2] — 2026-09-01 (deep research GPT+Gemini: retry con backoff completa el fix de timeout + aclaracion cuota Pro/tokens)
+
+Deep research con GPT y Gemini (busqueda web real via cada API) comparando ai-core contra el mercado de hoy, a pedido explicito del usuario -- confirma que el arnes sigue al nivel del mercado, con 2 ajustes puntuales encontrados y cerrados en esta version:
+
+### Corregido — el fix de timeout de Gemini (3.35.1) le faltaba el retry con backoff que el patron de industria exige
+
+El patron de resiliencia 2026 confirmado (Google ADK `RetryConfig`, guias de la industria) es timeout + reintento con backoff exponencial y jitter, no un timeout de intento unico aislado -- lo aplicado en 3.35.1 (`Promise.race()` + 30s) resolvia el colgado pero fallaba una sola vez sin recuperarse, aunque el siguiente intento casi siempre responde en segundos (confirmado en produccion: la misma llamada via REST directo responde rapido).
+
+`lib/retry-with-backoff.js` ya existia en el proyecto (gap de mercado cerrado 2026-08-15) pero solo lo usaba `ModelRegistry.js` sobre `GeminiAdapter.js` -- `GeminiApiClient.js` (bridge MCP, usado directo por 2 de 5 caminos de llamada en `McpServerHandlers.js` sin pasar por `callWithRetry`) quedaba sin cobertura. Agregado nuevo codigo de error `ETIMEDOUT_SDK_COLGADO` (reconocido por `esErrorReintentable()`) y envuelta la llamada real de `GeminiApiClient.js` con `reintentarConBackoff()`, cubriendo uniformemente los 5 caminos de llamada. `GeminiAdapter.js` ya estaba envuelto por `ModelRegistry.js` pero su error de timeout no llevaba `code`, asi que nunca calificaba como reintentable -- corregido con el mismo marcador.
+
+2 tests nuevos: recuperacion tras un colgado transitorio (falla 1 vez, responde en el reintento) y el caso `ETIMEDOUT_SDK_COLGADO` en `esErrorReintentable()`.
+
+### Aclarado — CLAUDE.md: el conteo de turnos es proxy para AMBOS modelos de consumo (API por token y Claude Pro por sesion/semana)
+
+El usuario usa ambos modelos de consumo (API por token y suscripcion Pro) y pidio que el arnes maneje los dos. Confirmado contra fuentes publicas que Anthropic no expone telemetria de cuota de sesion Pro (ventana ~5h + limite semanal) via API/CLI -- no es un gap del arnes, es una limitacion real de la plataforma. El "Protocolo de Ahorro de Tokens" (renombrado a "...y Cuota") ya era la unica aproximacion posible; se documenta explicitamente que sirve como proxy para los dos modelos, no solo para gestion de contexto de API.
+
+1296 tests (1295 pass, 1 skipped, 0 fail), 45/45 skills conformes.
+
 ## [3.35.1] — 2026-09-01 (fix critico: Gemini se colgaba indefinidamente sin timeout real)
 
 Reproducido y confirmado en vivo: `@google/genai` (SDK oficial usado por `GeminiApiClient.js` y `GeminiAdapter.js`) puede quedarse sin resolver ni rechazar `ai.models.generateContent()` indefinidamente, pese a que la misma llamada via REST directo a `generativelanguage.googleapis.com` responde en segundos con la misma API key -- confirmado que el problema es el SDK/transporte, no la cuenta, la key ni la API en si. Ya se habia visto este sintoma en sesiones anteriores (colgados de 11+ minutos documentados), pero nunca se habia diagnosticado la causa raiz hasta hoy.
