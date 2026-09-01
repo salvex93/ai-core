@@ -113,6 +113,46 @@ describe('getModel — timeout real ante SDK colgado', () => {
     delete process.env.AI_CORE_GEMINI_TIMEOUT_MS;
     restaurarModulos();
   });
+
+  test('generateContent() se recupera solo si el colgado es transitorio (falla 1 vez, responde bien despues) -- patron de industria: timeout + retry con backoff, no timeout de intento unico', async () => {
+    // Escenario real confirmado en produccion: la primera llamada al SDK se
+    // cuelga, pero el siguiente intento responde en segundos (verificado
+    // contra la API real via REST directo). Sin retry, ese primer colgado
+    // se propagaba como fallo definitivo aunque el problema fuera transitorio.
+    delete require.cache[CLIENT_PATH];
+    let intento = 0;
+    require.cache[GENAI_PATH] = {
+      id: GENAI_PATH,
+      filename: GENAI_PATH,
+      loaded: true,
+      exports: {
+        GoogleGenAI: class GoogleGenAIIntermitente {
+          constructor() {
+            this.models = {
+              generateContent: () => {
+                intento++;
+                if (intento === 1) return new Promise(() => {}); // primer intento se cuelga
+                return Promise.resolve({ text: 'OK segundo intento', candidates: [] });
+              },
+            };
+          }
+        },
+      },
+    };
+
+    process.env.GEMINI_API_KEY = 'test-key-fake';
+    process.env.AI_CORE_GEMINI_TIMEOUT_MS = '150';
+
+    const { getModel } = require('../scripts/services/GeminiApiClient');
+    const model = getModel({ model: 'gemini-3.7-flash' });
+    const result = await model.generateContent('di solo OK');
+
+    assert.equal(result.response.text(), 'OK segundo intento', 'debe recuperarse en el reintento sin propagar el timeout del primer intento');
+    assert.equal(intento, 2, 'debe haber intentado exactamente 2 veces (1 colgado + 1 exitoso)');
+
+    delete process.env.AI_CORE_GEMINI_TIMEOUT_MS;
+    restaurarModulos();
+  });
 });
 
 describe('extractJson', () => {
