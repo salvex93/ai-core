@@ -103,7 +103,9 @@ function getModel(opts = {}) {
       const timeoutPromise = new Promise((_, reject) => {
         timeoutId = setTimeout(() => {
           controller.abort(); // best-effort, libera recursos del lado del SDK si escucha
-          reject(new Error(`Gemini no respondio en ${GEMINI_TIMEOUT_MS / 1000}s (timeout real, no de la API -- ver GEMINI_TIMEOUT_MS en GeminiApiClient.js)`));
+          const err = new Error(`Gemini no respondio en ${GEMINI_TIMEOUT_MS / 1000}s (timeout real, no de la API -- ver GEMINI_TIMEOUT_MS en GeminiApiClient.js)`);
+          err.code = 'ETIMEDOUT_SDK_COLGADO'; // marcador reconocido por lib/retry-with-backoff.js
+          reject(err);
         }, GEMINI_TIMEOUT_MS);
       });
 
