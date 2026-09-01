@@ -63,7 +63,7 @@ try {
   const excedePorLineas = lineCount > MAX_LINES;
   const excedePorTamano = content.length > MAX_LINES * MAX_CHARS_POR_LINEA && lineCount <= 1;
 
-  if (excedePorLineas || excedePorTamano) {
+  if ((excedePorLineas || excedePorTamano) && GEMINI_DISPONIBLE) {
     const motivo = excedePorLineas
       ? `${filePath} tiene ${lineCount} lineas (limite: ${MAX_LINES})`
       : `${filePath} tiene ${content.length} caracteres sin separadores de linea reales (equivalente a mas de ${MAX_LINES} lineas)`;
