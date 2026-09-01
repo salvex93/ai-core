@@ -28,6 +28,18 @@ const GEMINI_DEFAULT      = 'gemini-3.7-flash';
 const MAX_RETRIES         = 2;
 const COMPACT_TOKEN_LIMIT = 1125; // ~1.500 tokens (1 token ≈ 0.75 palabras) — alineado con limite de output declarado en CLAUDE.md
 const MAX_COMPACT_ROUNDS  = 2;
+// Timeout real de la llamada al SDK (confirmado en produccion 2026-09-01):
+// @google/genai puede quedarse sin resolver ni rechazar indefinidamente
+// pese a que la misma llamada via REST directo a la API de Gemini responde
+// en segundos -- el problema esta en el SDK/transporte, no en la API ni en
+// la API key. Sin este timeout, un colgado del SDK bloqueaba la sesion de
+// Claude Code indefinidamente (visto en vivo: 2 corridas de mas de 11
+// minutos sin avanzar). abortSignal es soporte nativo del SDK (confirmado
+// contra sus tipos: "AbortSignal is a client-only operation").
+// Override via AI_CORE_GEMINI_TIMEOUT_MS solo para tests deterministas
+// (evita que el test del colgado real tarde 30s reales) -- en produccion
+// sin la variable, siempre usa el valor real de 30s.
+const GEMINI_TIMEOUT_MS = Number(process.env.AI_CORE_GEMINI_TIMEOUT_MS) || 30_000;
 
 // Parsea contenido estilo .env a pares clave/valor. Separado de loadEnv para
 // testear el parseo (incluye CRLF de Windows) sin depender del filesystem.
@@ -73,15 +85,37 @@ function getModel(opts = {}) {
   return {
     async generateContent(promptOrMessage) {
       const contents = [{ role: 'user', parts: [{ text: promptOrMessage }] }];
+      const controller = new AbortController();
       const config = {
         ...(systemInstruction && { systemInstruction }),
         ...(tools && { tools }),
+        abortSignal: controller.signal, // le pedimos al SDK que aborte -- best-effort, no la unica garantia
       };
-      const result = await ai.models.generateContent({
-        model,
-        contents,
-        ...(Object.keys(config).length > 0 && { config }),
+
+      // Carrera independiente del SDK: si @google/genai se queda colgado sin
+      // resolver NI rechazar (el bug real confirmado en produccion, distinto
+      // de un abort limpio), abortSignal por si solo no basta -- el SDK tiene
+      // que cooperar escuchando su propio signal, y ese es precisamente el
+      // fallo observado. Promise.race garantiza el corte real sin depender
+      // de que el SDK coopere: el timer rechaza por su cuenta sin importar
+      // que haga la promesa de generateContent().
+      let timeoutId;
+      const timeoutPromise = new Promise((_, reject) => {
+        timeoutId = setTimeout(() => {
+          controller.abort(); // best-effort, libera recursos del lado del SDK si escucha
+          reject(new Error(`Gemini no respondio en ${GEMINI_TIMEOUT_MS / 1000}s (timeout real, no de la API -- ver GEMINI_TIMEOUT_MS en GeminiApiClient.js)`));
+        }, GEMINI_TIMEOUT_MS);
       });
+
+      let result;
+      try {
+        result = await Promise.race([
+          ai.models.generateContent({ model, contents, config }),
+          timeoutPromise,
+        ]);
+      } finally {
+        clearTimeout(timeoutId);
+      }
       return {
         response: {
           text: () => result.text || '',
@@ -185,6 +219,7 @@ async function compactarSiNecesario(parsed, modelo) {
 
 module.exports = {
   GEMINI_DEFAULT,
+  GEMINI_TIMEOUT_MS,
   loadEnv,
   parseEnvContent,
   getModel,

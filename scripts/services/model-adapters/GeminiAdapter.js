@@ -6,6 +6,12 @@
  * oficialmente deprecado por Google, repo renombrado a deprecated-generative-ai-js).
  */
 
+// Mismo timeout real que GeminiApiClient.js (confirmado en produccion
+// 2026-09-01: @google/genai puede quedarse sin resolver ni rechazar
+// indefinidamente pese a que la misma llamada via REST directo responde en
+// segundos). Override via AI_CORE_GEMINI_TIMEOUT_MS solo para tests.
+const GEMINI_TIMEOUT_MS = Number(process.env.AI_CORE_GEMINI_TIMEOUT_MS) || 30_000;
+
 async function chatGemini(messages, options = {}) {
   const { GoogleGenAI } = require('@google/genai');
   const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
@@ -28,11 +34,31 @@ async function chatGemini(messages, options = {}) {
 
   const systemInstruction = messages.find(m => m.role === 'system')?.content;
 
-  const result = await ai.models.generateContent({
-    model,
-    contents,
-    ...(systemInstruction && { config: { systemInstruction } }),
+  // Promise.race independiente del SDK: si @google/genai se cuelga sin
+  // resolver NI rechazar, un abortSignal por si solo no basta -- depende de
+  // que el SDK coopere escuchandolo, y ese es precisamente el fallo
+  // observado. El timer rechaza por su cuenta sin importar que haga la
+  // promesa de generateContent().
+  let timeoutId;
+  const timeoutPromise = new Promise((_, reject) => {
+    timeoutId = setTimeout(() => {
+      reject(new Error(`Gemini no respondio en ${GEMINI_TIMEOUT_MS / 1000}s (timeout real, no de la API -- ver GEMINI_TIMEOUT_MS en GeminiAdapter.js)`));
+    }, GEMINI_TIMEOUT_MS);
   });
+
+  let result;
+  try {
+    result = await Promise.race([
+      ai.models.generateContent({
+        model,
+        contents,
+        ...(systemInstruction && { config: { systemInstruction } }),
+      }),
+      timeoutPromise,
+    ]);
+  } finally {
+    clearTimeout(timeoutId);
+  }
 
   return {
     content:  result.text,
