@@ -127,7 +127,9 @@ Regla unica de contexto — no se repite en otra seccion, ver tambien punto 9 de
 | Busqueda web / investigacion | siempre | `buscar_web` del MCP gemini-bridge |
 | Investigacion multi-fuente extensa | siempre | Deep Research (Gemini 3.1 Pro), preferente sobre otros proveedores |
 
-- Si gemini-bridge NO esta disponible (cuota/conexion): usar el modelo Claude del tier inmediatamente superior.
+Filas "Leer un archivo" y "Busqueda web" tienen enforcement real via hook (`guard-read.js`, `web-search-guard.js`, ver regla 7 del ANCLA) -- las demas filas siguen dependiendo de que el modelo las respete por instruccion, sin bloqueo tecnico.
+
+- Si gemini-bridge NO esta disponible (cuota/conexion): usar el modelo Claude del tier inmediatamente superior. Para las 2 filas con enforcement real, esto ya es automatico (el guard detecta ausencia de `GEMINI_API_KEY` y permite la tool nativa en vez de bloquear sin alternativa).
 - Si la tarea requiere razonamiento profundo ADEMAS de lectura → Gemini lee, Claude razona sobre el resumen.
 - **FILTRO DE INPUT:** contenido enviado a Gemini pasa por `truncarInputGemini()` (limite 8.000 tokens / ~32k chars, conserva inicio+fin si excede).
 - **FILTRO DE OUTPUT:** output de Gemini que entra al historial de Claude pasa por `truncarOutputGemini()` (limite 1.500 tokens / ~6.000 chars).
