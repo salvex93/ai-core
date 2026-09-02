@@ -3,6 +3,22 @@
 Registro de cambios por version. Formato basado en [Keep a Changelog](https://keepachangelog.com/es/1.0.0/).
 Versionado semantico: MAJOR.MINOR.PATCH.
 
+## [3.37.0] — 2026-09-02 (2 guards nuevos: budget por subagente + deteccion de loop alternante, diseñados junto al usuario)
+
+Cierre del gap mas peligroso de la auditoria anterior: loop entre agentes/turnos con argumentos DISTINTOS cada vez (`tool-repeat-guard.js` solo cubre argumentos identicos). Investigacion previa a implementar (LangGraph `recursion_limit`, AutoGen `max_consecutive_auto_reply`, CrewAI `max_iter` -- ninguno resuelve esto, todos son contadores ciegos de pasos; OpenHands `StuckDetector` en produccion real si lo resuelve, sin embeddings ni LLM-as-judge por ronda; arXiv 2606.27009 confirma que anadir juez por ronda es contraproducente en costo). Diseño de 2 capas presentado y confirmado explicitamente con el usuario (umbral de llamadas y comportamiento de advertencia-antes-de-bloquear) antes de escribir codigo.
+
+### Agregado — `subagent-budget-guard.js`: techo de 40 llamadas por subagente
+
+Capa 1, independiente de semantica -- recomendacion explicita del propio post-mortem real de vectara/awesome-agent-failures ("Per-agent and per-pipeline budget caps are non-negotiable"): pipeline de 4 agentes en loop 264h, $47k gastados, solo detectado por el dashboard de billing. Techo fijo de 40 llamadas a tools por `session_id+agent_type` (solo dentro de subagentes, nunca al hilo principal). Al superarse, bloquea exit 2. Cero riesgo de falso positivo contra trabajo legitimo lento -- no mira contenido, solo cuenta.
+
+### Agregado — `loop-alternante-guard.js`: deteccion de patron A-B-A-B sin converger
+
+Capa 2, patron validado en produccion real por OpenHands `StuckDetector` (`docs.openhands.dev/sdk/guides/agent-stuck-detector`): compara firma de `tool_name` (no argumentos exactos) sobre ventana de 12 eventos -- 6+ ciclos alternantes entre 2 tools distintas dispara deteccion, aunque los argumentos cambien en cada vuelta. Comportamiento de 2 pasos confirmado por el usuario: la PRIMERA deteccion solo ADVIERTE (exit 0, oportunidad de auto-correccion); si el patron persiste en una segunda ventana completa, BLOQUEA (exit 2).
+
+9 tests nuevos entre ambos guards + 4 tests de sandboxing real con `--permission` (con y sin permisos, mismo patron que los guards ya existentes).
+
+1321 tests (1320 pass, 1 skipped, 0 fail), 45/45 skills conformes.
+
 ## [3.36.2] — 2026-09-02 (auditoria de errores comunes/raros de arneses agenticos, 3 gaps reales cerrados)
 
 Investigacion con casos documentados reales (postmortem $47k de LangChain/awesome-agent-failures, compromiso Cline 2026 via confused deputy, issues reales de anthropics/claude-code, AutoGen, MemoryGraft arXiv 2512.16962) auditando ai-core contra errores comunes y menos comunes de arneses/sistemas agenticos en produccion. De 6 categorias investigadas: 1 ya cubierta por diseno (confused deputy, via Gobierno de Agentes punto 7), 1 marcada NO_APLICA hoy (tool shadowing MCP, sin superficie real -- solo 2 servidores sin colision), 2 verificadas como FALSO POSITIVO del research contra el codigo real (truncado silencioso -- `truncarOutputGemini`/`truncarInputGemini` YA emiten marcador visible con conteo de tokens originales, no se toco), y 3 gaps reales confirmados y cerrados.
