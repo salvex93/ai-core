@@ -68,6 +68,8 @@ Criterios:
 - Issues abiertos > 50 sin respuesta: EVALUAR
 - Sin licencia open source: RECHAZAR
 
+El conteo de estrellas y la etiqueta "featured" / "verified" de un registro publico (mcp.run, glama.ai, el registro oficial de Anthropic) NO son señales de seguridad: aparecer listado es autopublicacion del autor, no una auditoria de un tercero. Las estrellas miden popularidad, no ausencia de codigo malicioso — un MCP con 15 mil estrellas exige el mismo paso 2 (seguridad de inputs) y el mismo paso 5 (riesgo operativo) que uno con cero. Alta popularidad solo reduce el riesgo de que el repo este abandonado, nada mas.
+
 ### 4. Calidad del Schema de Herramientas
 
 Un MCP bien construido define sus herramientas con JSON Schema completo:
