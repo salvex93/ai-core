@@ -45,6 +45,19 @@ Grep({ pattern: "api_key|apikey|api-key|secret|password|token|Bearer|ghp_|sk-|AI
 
 Excluir manualmente los matches en archivos `.example` del resultado. Cada match restante es un hallazgo critico hasta que se verifique que es un placeholder o ejemplo.
 
+### Escala de verificacion — witness ejecutable antes que argumento escrito
+
+Adoptado de la practica de campo del harness oficial de Anthropic para deteccion autonoma de vulnerabilidades (github.com/anthropics/defending-code-reference-harness, `docs/best-practices.md`, verificado 2026-09-02): "Prefer executable witnesses (a crash, a leaked value) over written arguments — they're much harder for the pipeline to fool itself about."
+
+Para cada hallazgo, subir la escala de confianza tanto como el hallazgo permita antes de reportarlo:
+
+1. **Patron detectado** (grep matcheo): confianza minima. Un match no es una vulnerabilidad.
+2. **Contexto confirmado**: leer las lineas alrededor del match — el patron esta en codigo vivo (no comentado, no en un test de ejemplo, no en un string de documentacion).
+3. **Precondiciones verificadas**: la ruta de codigo es alcanzable con input externo; la credencial responde / el endpoint existe; la dependencia con CVE esta en el arbol de `npm ls`, no solo en `package-lock.json` como transitiva no usada.
+4. **Witness ejecutable**: un valor concreto que demuestra el problema — el secreto real extraido (redactado en el reporte a los primeros 4 chars), el output de `npm audit` que nombra el paquete y la version exacta, la linea de `git-history-secrets-scan.js` con el commit hash. Este es el nivel objetivo siempre que sea alcanzable sin ejecutar codigo del repo.
+
+En el reporte, anotar el nivel alcanzado por hallazgo: `[witness: nivel 4 - npm audit nombra lodash@4.17.19]` o `[witness: nivel 2 - patron en codigo vivo, precondicion de alcance no verificada]`. Un hallazgo que no pasa de nivel 1 no se reporta como hallazgo — se descarta o se anota como "revisar manualmente" fuera del conteo.
+
 ### Paso 2 — Dependencias con CVEs
 
 ```bash
