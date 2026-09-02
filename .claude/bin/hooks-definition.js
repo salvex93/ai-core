@@ -112,12 +112,23 @@ function buildHooksSection(bin, tmpDirReal) {
   const dirTmpToolRepeat = tmpDirReal
     ? `"${tmpDirReal.replace(/\/$/, '')}/ai-core-locks/tool-repeat/*"`
     : '"${TMPDIR:-/tmp}/ai-core-locks/tool-repeat/*"';
+  // Mismo bug de glob de un solo nivel -- subagent-budget-guard.js y
+  // loop-alternante-guard.js escriben su estado dos niveles bajo el tmpdir
+  // real, cada uno en su propio subdirectorio.
+  const dirTmpBudget = tmpDirReal
+    ? `"${tmpDirReal.replace(/\/$/, '')}/ai-core-locks/subagent-budget/*"`
+    : '"${TMPDIR:-/tmp}/ai-core-locks/subagent-budget/*"';
+  const dirTmpAlternante = tmpDirReal
+    ? `"${tmpDirReal.replace(/\/$/, '')}/ai-core-locks/loop-alternante/*"`
+    : '"${TMPDIR:-/tmp}/ai-core-locks/loop-alternante/*"';
 
   const soloRead      = { fsRead: [dirBin] };
   const soloLeerRepo  = { fsRead: [dirBin, dirRepo] };
   const readYWrite    = { fsRead: [dirBin], fsWrite: [dirTmp] };
   const readYWriteSubagentLocks = { fsRead: [dirBin, dirTmpSubagentLocks], fsWrite: [dirTmpSubagentLocks] };
   const readYWriteToolRepeat = { fsRead: [dirBin, dirTmpToolRepeat], fsWrite: [dirTmpToolRepeat] };
+  const readYWriteBudget = { fsRead: [dirBin, dirTmpBudget], fsWrite: [dirTmpBudget] };
+  const readYWriteAlternante = { fsRead: [dirBin, dirTmpAlternante], fsWrite: [dirTmpAlternante] };
   // dirTmp tambien en fsRead (no solo fsWrite): los guards de break-glass
   // (lib/break-glass.js) escriben su lock en os.tmpdir() y despues necesitan
   // RELEERLO (fs.readFileSync/fs.existsSync) para confirmarlo -- bug real en
@@ -278,6 +289,21 @@ function buildHooksSection(bin, tmpDirReal) {
         matcher: 'Bash|Write|Edit|Agent',
         hooks: [
           { type: 'command', command: nodeConPermiso(bin('tool-repeat-guard.js'), readYWriteToolRepeat) },
+        ],
+      },
+      {
+        // Capas 1 y 2 de defensa contra runaway de subagentes (investigacion
+        // 2026-09-02, post-mortem real vectara/awesome-agent-failures:
+        // pipeline en loop 264h, $47k, solo detectado por billing). Solo
+        // aplican cuando agent_type esta presente (dentro de un subagente),
+        // ambos guards salen de inmediato en el hilo principal. Matcher
+        // amplio: necesitan ver TODAS las tool calls del subagente, no solo
+        // las mutantes, para contar presupuesto real y detectar el patron
+        // alternante que puede incluir Read/Grep.
+        matcher: 'Bash|Write|Edit|Read|Grep|Glob|WebFetch|Agent',
+        hooks: [
+          { type: 'command', command: nodeConPermiso(bin('subagent-budget-guard.js'), readYWriteBudget) },
+          { type: 'command', command: nodeConPermiso(bin('loop-alternante-guard.js'), readYWriteAlternante) },
         ],
       },
       {
