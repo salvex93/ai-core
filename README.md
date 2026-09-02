@@ -182,6 +182,40 @@ npm run eval-skills                       # correr los 42 evals de conformidad d
 
 ## Que trae cada version
 
+### v3.37.0 — guards de budget y deteccion de loop alternante entre subagentes
+
+Cierre del gap mas peligroso identificado en la auditoria de v3.36.2: un loop entre agentes/turnos con argumentos DISTINTOS cada vez, que `tool-repeat-guard.js` no cubre (ese guard solo detecta la misma tool con argumentos identicos). Investigado antes de implementar -- diseño de 2 capas presentado y confirmado explicitamente con el usuario antes de escribir codigo.
+
+`subagent-budget-guard.js`: techo fijo de 40 llamadas a tools por subagente, independiente de semantica -- recomendacion explicita del post-mortem real de `vectara/awesome-agent-failures` (pipeline de 4 agentes en loop 264h, $47k gastados, solo detectado por el dashboard de billing).
+
+`loop-alternante-guard.js`: detecta el patron A-B-A-B entre 2 tools distintas alternando 6+ ciclos sin converger, aunque los argumentos cambien -- mismo mecanismo validado en produccion real por OpenHands `StuckDetector` (sin embeddings ni LLM-as-judge por ronda, que el propio paper de semantic early-stopping confirma contraproducente en costo). Comportamiento de 2 pasos: la primera deteccion solo advierte, bloquea si el patron persiste.
+
+**1321 tests, 45/45 skills conformes, 6/6 agentes conformes.**
+
+### v3.36.2 — auditoria de errores comunes/raros de arneses agenticos
+
+Investigacion con casos documentados reales (postmortem $47k de LangChain, compromiso Cline 2026 via confused deputy, issues de `anthropics/claude-code`, AutoGen, MemoryGraft arXiv 2512.16962). `subagent-grader.js` distingue output VACIO de un subagente (posible fallo silencioso) de output trivial-pero-real -- antes ambos salian en silencio absoluto. `memory-manager` declara tratamiento de contenido externo no confiable para entradas del vault. `mcp-registry-navigator` suma criterio de colision de nombres de tools (tool shadowing) entre servidores MCP.
+
+### v3.36.1 — `autoCompactWindow` fijado por debajo del default nativo
+
+Deep research en repos de GitHub (Cline, OpenCode) buscando tecnicas para cuidar la cuota de sesion de Plan Pro -- confirmado que el umbral por defecto de auto-compact de Claude Code (~95%) es reportado como "a menudo demasiado tarde". Fijado explicitamente a 170k (~85% de una ventana tipica) en `settings.json`.
+
+### v3.36.0 — enforcement real de "GEMINI PRIMERO" para busqueda web
+
+Deep research confirmo que ningun framework de agentes (Claude Agent SDK, OpenAI Agents SDK, Google ADK) ofrece un hook que redirija una tool call a otro proveedor -- el patron viable es negar la tool nativa para forzar reformulacion. Nuevo `web-search-guard.js` fuerza `buscar_web` (Gemini) sobre `WebSearch`/`WebFetch` nativos. Tanto este guard como `guard-read.js` ahora degradan con gracia (permiten la tool nativa) si `GEMINI_API_KEY` no esta disponible.
+
+### v3.35.x — fix critico de timeout/retry en Gemini + skill discord-ops
+
+Reproducido y confirmado en vivo: `@google/genai` podia colgarse indefinidamente sin resolver ni rechazar, pese a que la misma llamada via REST directo respondia en segundos. Agregado timeout real (`Promise.race`, 30s) mas retry con backoff exponencial en `GeminiApiClient.js` y `GeminiAdapter.js`. Nuevo skill `discord-ops` (45avo) para integrar Discord como canal de alertas de infraestructura (webhooks, limites reales de embed, tratamiento de la URL como secreto, patron anti-spam).
+
+### v3.34.0 — guard anti-loop de tool calls + aclaracion de auto-compact nativo
+
+Deep research comparativo contra el estado del arte 2026 (Claude Agent SDK, OpenAI Agents SDK, Google ADK, LangGraph/CrewAI). Nuevo `tool-repeat-guard.js`: bloquea cuando un mismo agente repite la misma tool call con argumentos identicos mas de 3 veces. CLAUDE.md aclara que Claude Code ya tiene auto-compact nativo basado en tokens reales, superior al conteo heuristico de turnos.
+
+### v3.33.2 — reactivacion del fallback de emergencia del juez de evals
+
+Gemini se colgo en vivo durante la verificacion (2 corridas, 11+ minutos sin avanzar) pese a tener API keys pobladas -- reactivado `openai:chat:gpt-5.6-luna` como juez de los 42 evals hasta diagnosticar la causa exacta. Cerrados 2 gaps de gobierno de contenido externo no confiable en `ciso` y `mcp-registry-navigator`.
+
 ### v3.33.1 — retry/backoff en ModelRegistry, secret scanning retroactivo del historial de git, fix critico de permisos en locks de subagentes
 
 Segunda ronda de investigacion de mercado fresca (deliberadamente evitando repetir la auditoria de skills/agentes, el red-team de guards, la auditoria de tokens y el cierre de scaffolding ya hechos en v3.32.0) para confirmar si quedaba trabajo real pendiente. Encontro 2 gaps accionables y verificados contra el codigo real antes de reportarlos.
