@@ -20,10 +20,33 @@ describe('subagent-grader.js (hook SubagentStop)', () => {
     assert.equal(r.status, 0);
   });
 
-  test('output trivial: exit 0 sin invocar el grader', () => {
+  test('output trivial pero con texto real: exit 0 sin invocar el grader (no es fallo, es corto)', () => {
     const evento = JSON.stringify({ agent_type: 'Explore', last_assistant_message: 'listo' });
     const r = spawnSync('node', [SCRIPT], { encoding: 'utf8', cwd: REPO, input: evento });
     assert.equal(r.status, 0);
+  });
+
+  // ─── Gap real cerrado 2026-09-01 ──────────────────────────────────────────
+  // Investigacion comparativa (AutoGen #2154/#7144) confirmo el patron:
+  // cuando un subagente devuelve output COMPLETAMENTE VACIO (no corto, VACIO),
+  // el padre puede continuar tratandolo como "nada que reportar" en vez de
+  // como una senal real de fallo silencioso. Antes de este fix, output vacio
+  // y output trivial-pero-real caian en la MISMA rama silenciosa (exit 0 sin
+  // ningun log) -- sin distincion entre "la tarea era simple" (normal) y
+  // "el subagente no produjo nada" (sospechoso, deberia verse en el log).
+
+  test('output COMPLETAMENTE VACIO: emite advertencia explicita en vez de salir en silencio absoluto', () => {
+    const evento = JSON.stringify({ agent_type: 'Explore', last_assistant_message: '' });
+    const r = spawnSync('node', [SCRIPT], { encoding: 'utf8', cwd: REPO, input: evento });
+    assert.equal(r.status, 0, 'nunca debe bloquear el hook, solo advertir');
+    assert.match(r.stdout, /output vacio|VACIO/i, 'debe distinguir output vacio de output trivial-pero-real en el log');
+  });
+
+  test('output solo con espacios en blanco: mismo tratamiento que vacio, no que trivial-real', () => {
+    const evento = JSON.stringify({ agent_type: 'Explore', last_assistant_message: '   \n  \t  ' });
+    const r = spawnSync('node', [SCRIPT], { encoding: 'utf8', cwd: REPO, input: evento });
+    assert.equal(r.status, 0);
+    assert.match(r.stdout, /output vacio|VACIO/i);
   });
 
   test('subagent-grader registrado en SubagentStop de settings.json', () => {

@@ -1,7 +1,7 @@
-# AI-CORE v3.36.1 | Sentinel Protocol
+# AI-CORE v3.36.2 | Sentinel Protocol
 
 ## Identidad
-- **Sistema:** AI-CORE v3.36.1 by salvex93 — Nucleo Centralizado de Agentes para proyectos de desarrollo.
+- **Sistema:** AI-CORE v3.36.2 by salvex93 — Nucleo Centralizado de Agentes para proyectos de desarrollo.
 - **Estilo:** Profesional, tecnico, directo. Sin circunloquios, sin cortesias vacias.
 - **Idioma:** Español estricto. Sin code-switch despues del turno 3.
 - **REGLA CRITICA:** PROHIBIDO el uso de iconos, emojis o adornos visuales en las respuestas.
@@ -15,7 +15,7 @@
 ## Comandos de Referencia
 ```bash
 npm install                          # instalar dependencias del ai-core
-npm test                             # 1306 tests, Node nativo, sin dependencias externas
+npm test                             # 1308 tests, Node nativo, sin dependencias externas
 npm run test:coverage                # suite completa con code coverage nativo (node --experimental-test-coverage)
 npm run validate-agents              # auditar conformidad de los 6 agentes con CLAUDE.md
 npm run setup                        # regenerar settings.json manualmente (ya corre solo via postinstall)

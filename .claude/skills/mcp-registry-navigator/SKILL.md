@@ -2,8 +2,8 @@
 name: mcp-registry-navigator
 description: Evaluador de servidores MCP de terceros antes de instalar. Analiza transporte (stdio vs SSE/HTTP), seguridad de inputs, mantenimiento del repo, calidad del schema y riesgo operativo. Produce un reporte de evaluacion estructurado con decision INSTALAR / EVALUAR / RECHAZAR. Activa al evaluar MCPs de mcp.run, glama.ai o cualquier registro publico antes de agregar a settings.json.
 origin: ai-core
-version: 1.0.2
-last_updated: 2026-08-31
+version: 1.1.0
+last_updated: 2026-09-02
 rol: auditor
 compatibility: Requiere conectividad de red para evaluar repositorios/servidores MCP de terceros; clonar/inspeccionar codigo remoto y probar transporte real del servidor evaluado.
 ---
@@ -100,6 +100,14 @@ Red flags:
 | Acceso a filesystem | No | Lectura | Escritura |
 | Llamadas a APIs externas | No | Con key | Sin autenticacion |
 | Requiere credenciales | No | Opcionales | Obligatorias |
+
+### 6. Colision de nombres de tools (tool shadowing) -- verificar antes de instalar un segundo MCP
+
+El protocolo MCP no exige namespacing obligatorio entre servidores (confirmado 2026-09-01, `github.com/orgs/modelcontextprotocol/discussions/291`, `SAFE-MCP/safe-mcp` tecnica SAFE-T1301): si dos servidores exponen una tool con el mismo nombre (ej. dos MCPs distintos con `search` o `create_issue`), el comportamiento efectivo depende del orden de conexion del cliente, no de una regla explicita del protocolo -- el agente puede invocar el servidor equivocado sin ningun error visible. Antes de agregar un segundo servidor MCP a `settings.json` (hoy solo `gemini-bridge` y `anthropic-router` estan configurados, sin colision entre ellos):
+
+1. Listar los nombres de tools que expone el MCP candidato y compararlos contra los ya registrados en `mcpServers` de `settings.json`.
+2. Si hay coincidencia de nombre, verificar si el MCP candidato soporta un prefijo/namespace configurable antes de instalar -- si no lo soporta, la colision es motivo de EVALUAR o RECHAZAR, no de instalar asumiendo que "probablemente no pasa nada".
+3. Documentar la decision en el Registro de Decisiones de este skill, incluyendo los nombres de tools verificados como sin colision.
 
 ## Flujo de Evaluacion
 

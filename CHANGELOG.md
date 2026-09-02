@@ -3,6 +3,28 @@
 Registro de cambios por version. Formato basado en [Keep a Changelog](https://keepachangelog.com/es/1.0.0/).
 Versionado semantico: MAJOR.MINOR.PATCH.
 
+## [3.36.2] — 2026-09-02 (auditoria de errores comunes/raros de arneses agenticos, 3 gaps reales cerrados)
+
+Investigacion con casos documentados reales (postmortem $47k de LangChain/awesome-agent-failures, compromiso Cline 2026 via confused deputy, issues reales de anthropics/claude-code, AutoGen, MemoryGraft arXiv 2512.16962) auditando ai-core contra errores comunes y menos comunes de arneses/sistemas agenticos en produccion. De 6 categorias investigadas: 1 ya cubierta por diseno (confused deputy, via Gobierno de Agentes punto 7), 1 marcada NO_APLICA hoy (tool shadowing MCP, sin superficie real -- solo 2 servidores sin colision), 2 verificadas como FALSO POSITIVO del research contra el codigo real (truncado silencioso -- `truncarOutputGemini`/`truncarInputGemini` YA emiten marcador visible con conteo de tokens originales, no se toco), y 3 gaps reales confirmados y cerrados.
+
+### Corregido — `subagent-grader.js`: output VACIO de un subagente ya no sale en silencio absoluto
+
+Patron real documentado (AutoGen #2154/#7144): un subagente que devuelve output completamente vacio (fallo silencioso) caia en la misma rama de salida silenciosa que un output trivial-pero-legitimo ("listo", "OK") -- ningun log distinguia "tarea simple resuelta" de "el subagente no produjo nada". Ahora un output vacio (`!output.trim()`) emite `[subagent-grader] ALERTA: ... output VACIO -- posible fallo silencioso` antes de salir, sin bloquear el hook. 2 tests nuevos.
+
+### Agregado — `memory-manager`: declaracion de contenido externo no confiable para entradas del vault
+
+Gap identificado via investigacion de MemoryGraft (arXiv 2512.16962): menos de 5 registros de memoria envenenados contaminan mas del 90% de recuperaciones futuras via RAG semantico -- riesgo directamente aplicable al vault BM25+ de ai-core, que no tenia esta declaracion pese a que otros 12+ skills expuestos a contenido externo ya la tienen (patron `ciso`/`mcp-registry-navigator` cerrado en sesiones anteriores). Version 1.1.0 -> 1.2.0.
+
+### Agregado — `mcp-registry-navigator`: criterio 6, colision de nombres de tools (tool shadowing)
+
+El protocolo MCP no exige namespacing obligatorio entre servidores (`modelcontextprotocol/discussions/291`, tecnica SAFE-T1301 de SAFE-MCP) -- dos servidores con una tool del mismo nombre pueden hacer que el agente invoque el servidor equivocado sin error visible. No es un gap activo hoy (solo `gemini-bridge`/`anthropic-router` configurados, sin colision), pero el criterio de evaluacion queda documentado para antes de instalar cualquier MCP nuevo. Version 1.0.2 -> 1.1.0.
+
+### Sin accion (evaluado y descartado con evidencia)
+
+Loop entre 2+ agentes con argumentos DISTINTOS cada vez pero sin progreso real (patron exacto del caso $47k de LangChain) queda fuera de esta ronda -- `tool-repeat-guard.js` ya cubre repeticion EXACTA de argumentos, pero detectar "sin progreso" con argumentos variables requiere un criterio de disenio con alto riesgo de falsos positivos (progreso legitimo lento vs. estancamiento real) que no se construye sin validacion explicita del usuario.
+
+1308 tests (1307 pass, 1 skipped, 0 fail), 45/45 skills conformes.
+
 ## [3.36.1] — 2026-09-01 (autoCompactWindow fijado por debajo del default nativo, cuidando cuota de Plan Pro)
 
 Deep research en repos de GitHub (Cline, OpenCode, gist comparativo Claude Code/Codex CLI/OpenCode/Amp) buscando tecnicas para reducir consumo de cuota de sesion Claude Pro (recurso mas escaso para el usuario que tokens de billing API). Confirmado: el umbral por defecto de auto-compact de Claude Code (~95% de la ventana) es reportado como "a menudo demasiado tarde" por feedback real de usuarios documentado.
