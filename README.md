@@ -759,7 +759,15 @@ New-Item -ItemType SymbolicLink -Path './CLAUDE.md' -Target 'C:/ruta/a/ai-core/C
 │   │   │   ├── subagent-task-store.js Correlaciona PreToolUse/SubagentStop por session_id+prompt_id
 │   │   │   ├── guard-report.js       Esquema tipado {guard,verdict,severity} en JSONL, opt-in por guard (secrets-guard, injection-guard, pre-commit-tdd)
 │   │   │   ├── break-glass.js        Excepcion auditable de un solo uso (id, TTL 5min, log append-only) para guards de riesgo real
-│   │   │   └── permission-decision.js Formato permissionDecision:"deny" (JSON, exit 0) para guards de friccion operativa
+│   │   │   ├── permission-decision.js Formato permissionDecision:"deny" (JSON, exit 0) para guards de friccion operativa
+│   │   │   ├── agent-frontmatter.js  Parser compartido del frontmatter de un AGENT.md (agentType -> scope de tools:)
+│   │   │   ├── normalizar-texto.js   Normalizacion (NFKC, homoglifos, invisibles) antes de matchear regex en guards de deteccion textual
+│   │   │   ├── patrones-secretos.js  Fuente unica de patrones de credenciales de alta confianza, usada por secrets-guard.js y git-history-secrets-scan.js
+│   │   │   ├── deteccion-resolucion-previa.js Evalua lo que un comando PRODUCE al ejecutarse (decodificar base64/hex) antes de dejarlo pasar
+│   │   │   ├── code-reviewer-veredicto.js Regla objetiva de veredicto del Paso 3 de code-reviewer.md como funcion pura testeable
+│   │   │   ├── security-scanner-report-format.js Valida el contrato de formato del Paso 5 de security-scanner.md
+│   │   │   ├── self-healing-agent-report-format.js Valida el contrato de formato del Paso 4 de self-healing-agent.md
+│   │   │   └── contextual-retrieval-benchmark.js Mide recall@K real de BM25+ (con/sin Contextual Retrieval) sobre el corpus de SKILL.md
 │   │   └── memory-vault-prune-check.js Hook Stop: avisa (sin borrar) cuando el vault supera 50 archivos
 │   └── skills/                  45 skills — enrutamiento via frontmatter description (agentskills.io), reglas en CLAUDE.md
 ├── tests/                       1321 tests — tests/harness/*.test.js (dividido por modulo) + archivos dedicados
