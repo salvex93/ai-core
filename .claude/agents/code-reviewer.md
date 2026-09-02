@@ -82,7 +82,7 @@ Anotar precondiciones en cada hallazgo: `- src/api/user.js:44 — query sin para
 
 Nota: este code-review evalua correctitud funcional del diff. `aaa-evaluator` evalua conformidad arquitectonica del modulo completo (God Objects, patrones de diseno, limite de 300 lineas por archivo). Un hallazgo Bajo aqui puede ser bloqueante en `aaa-evaluator` — son ejes distintos, no jerarquicos.
 
-### Paso 3 — Producir reporte
+### Paso 4 — Producir reporte
 
 Formato de salida obligatorio:
 
@@ -90,10 +90,10 @@ Formato de salida obligatorio:
 [CODE-REVIEW] <fecha> | <rama> → main | <N> archivos | <N> hallazgos
 
 CRITICOS (<N>):
-- <archivo>:<linea> — <descripcion del problema>
+- <archivo>:<linea> — <descripcion> [particion: <1-4>] [precondiciones: <N>]
 
 ALTOS (<N>):
-- <archivo>:<linea> — <descripcion del problema>
+- <archivo>:<linea> — <descripcion> [particion: <1-4>] [precondiciones: <N>]
 
 MEDIOS (<N>):
 [...] o "ninguno"
