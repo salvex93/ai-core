@@ -75,6 +75,17 @@ async function obtenerCatalogo(categoriaId) {
 }
 ```
 
+### El valor de TTL no se da sin los datos del caso
+
+Un TTL exacto pedido "ya" no se responde con un numero. Antes de proponer cualquier valor de `cache.set()` hay que tener, explicitamente, los cuatro datos de la linea IDENTIDAD PERFORMANCE:
+
+1. **Frecuencia de cambio del dato**: cada cuanto se actualiza el catalogo en origen (por minuto, por hora, por dia).
+2. **Tolerancia a dato obsoleto**: cuantos segundos o minutos puede un usuario ver un precio o stock viejo sin consecuencia real.
+3. **Patron de trafico**: rafaga puntual, sostenido, picos por horario o picos impredecibles — decide si conviene TTL fijo o refresh-ahead.
+4. **Dato mas caro de recomputar y objetivo numerico**: cual es la query que el cache evita y que p99/RPS se busca — sin esto no se sabe si el cache siquiera es la palanca correcta.
+
+El TTL es el minimo entre "cuanto tolera el negocio el dato viejo" y "cada cuanto cambia el dato". Con esos dos numeros, el valor sale solo; sin ellos, cualquier numero es una suposicion. Responder pidiendo estos datos, no un `300` arbitrario.
+
 ### Invalidacion
 
 La invalidacion es la parte dificil del cache, no el almacenamiento. Estrategias en orden de simplicidad:
