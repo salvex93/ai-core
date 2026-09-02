@@ -76,8 +76,10 @@ describe('guard-read.js', () => {
     for (const ext of ['.jsx', '.tsx', '.mjs', '.rs']) {
       const f = path.join(os.tmpdir(), `guard-test-ext-${Date.now()}${ext}`);
       fs.writeFileSync(f, lines);
-      const r = runScript(GUARD, [f]);
+      const { env, cleanup } = conGeminiEnv();
+      const r = runScript(GUARD, [f], env);
       fs.unlinkSync(f);
+      cleanup();
       assert.equal(r.status, 0, `${ext}: exit debe ser 0`);
       const parsed = JSON.parse(r.stdout);
       assert.equal(parsed.hookSpecificOutput.permissionDecision, 'deny', `${ext} debia denegar, antes evadia la whitelist cerrada`);
@@ -88,8 +90,10 @@ describe('guard-read.js', () => {
     const contenido = JSON.stringify(Array.from({ length: 5000 }, (_, i) => ({ id: i, valor: `dato${i}` })));
     const f = path.join(os.tmpdir(), `guard-test-minificado-${Date.now()}.json`);
     fs.writeFileSync(f, contenido);
-    const r = runScript(GUARD, [f]);
+    const { env, cleanup } = conGeminiEnv();
+    const r = runScript(GUARD, [f], env);
     fs.unlinkSync(f);
+    cleanup();
     assert.equal(r.status, 0);
     const parsed = JSON.parse(r.stdout);
     assert.equal(parsed.hookSpecificOutput.permissionDecision, 'deny', 'JSON minificado sin \\n real debia denegar por tamaño en bytes');
@@ -99,8 +103,10 @@ describe('guard-read.js', () => {
     const lines = Array.from({ length: 250 }, (_, i) => `const x${i} = ${i};`).join('\r');
     const f = path.join(os.tmpdir(), `guard-test-cr-${Date.now()}.txt`);
     fs.writeFileSync(f, lines);
-    const r = runScript(GUARD, [f]);
+    const { env, cleanup } = conGeminiEnv();
+    const r = runScript(GUARD, [f], env);
     fs.unlinkSync(f);
+    cleanup();
     assert.equal(r.status, 0);
     const parsed = JSON.parse(r.stdout);
     assert.equal(parsed.hookSpecificOutput.permissionDecision, 'deny', 'CR puro debia contarse como separador de linea real');
