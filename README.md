@@ -1,4 +1,4 @@
-# AI-CORE v3.36.2: Nucleo Multi-Agente
+# AI-CORE v3.37.0: Nucleo Multi-Agente
 
 `ai-core` es un nucleo de configuracion y comportamiento para agentes IA. Se usa como submodulo Git en un proyecto existente o como repositorio independiente. Define reglas globales, 45 skills especializados, 6 agentes autonomos, un orquestador Mixture-of-Agents (Gemini + DeepSeek + Claude), un mecanismo de excepcion auditable (break-glass) para operaciones de riesgo real, y un ciclo de mejora continua por uso, sin acoplarse al stack del proyecto anfitrion.
 
@@ -84,7 +84,7 @@ Repositorio independiente:
 npm run update
 ```
 
-Esto corre `git pull`, regenera `settings.json` (purga automaticamente cualquier hook de una version anterior que referencie un script eliminado o renombrado — el objeto de hooks se construye desde cero y sobreescribe el archivo completo, nunca mergea, con la definicion compartida en `hooks-definition.js`), corre los 1308 tests, aplica migraciones de version, valida los 45 skills y los 6 agentes, y reporta que cambio. Si un test falla, el comando se detiene ahi.
+Esto corre `git pull`, regenera `settings.json` (purga automaticamente cualquier hook de una version anterior que referencie un script eliminado o renombrado — el objeto de hooks se construye desde cero y sobreescribe el archivo completo, nunca mergea, con la definicion compartida en `hooks-definition.js`), corre los 1321 tests, aplica migraciones de version, valida los 45 skills y los 6 agentes, y reporta que cambio. Si un test falla, el comando se detiene ahi.
 
 Instalado como submodulo:
 
@@ -152,7 +152,7 @@ Si no esta autenticado, los eventos se acumulan en `.claude/EVENTS_QUEUE.json` y
 
 ```bash
 npm install                               # instalar dependencias (corre postinstall -> npm run setup)
-npm test                                  # 1308 tests, Node nativo, sin deps externas
+npm test                                  # 1321 tests, Node nativo, sin deps externas
 npm run setup                             # regenerar settings.json con rutas locales (ya corre solo via postinstall)
 npm run update                            # actualizacion one-command desde GitHub
 npm run validate-globals                  # auditar conformidad de los 45 skills (incluye schema agentskills.io)
@@ -685,16 +685,19 @@ New-Item -ItemType SymbolicLink -Path './CLAUDE.md' -Target 'C:/ruta/a/ai-core/C
 │   │   ├── ModelDispatcher.js   Router MoA entre proveedores (Command/Port): executeMoATask fan-out/fan-in
 │   │   ├── model-adapters/      Adapters extraidos de ModelRegistry.js (SOLID, <300 lineas c/u)
 │   │   │   ├── AnthropicAdapter.js    Claude Haiku/Sonnet/Opus/Fable via @anthropic-ai/sdk
-│   │   │   ├── GeminiAdapter.js       Gemini 3.6/3.1 via @google/genai
+│   │   │   ├── GeminiAdapter.js       Gemini 3.7 Flash (default) via @google/genai — timeout real 30s + retry con backoff ante SDK colgado
 │   │   │   └── OpenAICompatAdapter.js OpenAI/DeepSeek/Kimi — maxTokensParam y soportaJSONMode por proveedor
 │   │   ├── CrossVerifier.js     Verificacion ciega de diffs con proveedor distinto al actor (code-reviewer)
-│   │   ├── SubagentGrader.js    Grader generico de calidad post-subagente via LLM-as-judge (Performance Outcomes)
+│   │   ├── SubagentGrader.js    Grader generico de calidad post-subagente via LLM-as-judge (Performance Outcomes) — output vacio se marca ALERTA, no silencio
 │   │   ├── AgentRoles.js        Perfiles Architect/Coder/Auditor — lee rol: de skills, exige SEARCH/REPLACE en Coder
 │   │   ├── IntentClassifier.js  Infiere herramienta y modelo desde el mensaje crudo del usuario
 │   │   ├── ContextIndex.js      Indice CONTEXT_MAP.json — resolucion de rutas sin I/O ciego
 │   │   ├── TokenManager.js      Conteo y truncado de tokens (Gemini input/output, estimacion de mensajes)
-│   │   ├── GeminiApiClient.js   Cliente SDK de Gemini puro — auth, reintentos, parseo JSON, compactado
+│   │   ├── GeminiApiClient.js   Cliente SDK de Gemini puro — auth, reintentos con backoff, timeout real 30s ante SDK colgado, parseo JSON, compactado
 │   │   ├── McpServerHandlers.js Las 5 herramientas MCP de mcp-gemini.js (logica de negocio, sin protocolo)
+│   │   ├── RateLimiter.js       Ventana deslizante de 60s contra limites de requests/tokens por minuto de la API Anthropic
+│   │   ├── ResponseValidator.js Valida el output del modelo contra reglas criticas (emojis, ingles, frases prohibidas) antes de entregarlo
+│   │   ├── StyleProfiler.js     Acumula fragmentos del usuario en sesion y extrae patrones de estilo para adaptar tono
 │   │   └── ErrorRepairLoop.js   Ciclo deteccion->diagnostico->propuesta de fix, conectado en mcp-gemini.js — nunca auto-aplica, requiere confirmacion humana (ver self-healing-agent)
 │   ├── anthropic-bridge.js      Bridge Anthropic SDK con prompt caching (<static_context>) y Model Router
 │   ├── mcp-gemini.js            Servidor MCP stdio — shell JSON-RPC, delega a McpServerHandlers.js
@@ -751,11 +754,11 @@ New-Item -ItemType SymbolicLink -Path './CLAUDE.md' -Target 'C:/ruta/a/ai-core/C
 │   │   │   └── permission-decision.js Formato permissionDecision:"deny" (JSON, exit 0) para guards de friccion operativa
 │   │   └── memory-vault-prune-check.js Hook Stop: avisa (sin borrar) cuando el vault supera 50 archivos
 │   └── skills/                  45 skills — enrutamiento via frontmatter description (agentskills.io), reglas en CLAUDE.md
-├── tests/                       1308 tests — tests/harness/*.test.js (dividido por modulo) + archivos dedicados
+├── tests/                       1321 tests — tests/harness/*.test.js (dividido por modulo) + archivos dedicados
 ├── .github/workflows/ci.yml     CI: Ubuntu/Windows/macOS, Node 22 unicamente (sandboxing con Permission Model exige >= 22.13.0)
 ├── CLAUDE.md                    Autoridad unica: reglas globales, skills, enrutamiento
 ├── DEPRECATIONS.json            Contrato de migracion por version
-├── package.json                 v3.36.2, Node >= 22.13.0
+├── package.json                 v3.37.0, Node >= 22.13.0
 └── .env.example                 Plantilla de variables de entorno
 ```
 
