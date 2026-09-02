@@ -72,7 +72,7 @@ Verificado 2026-08-03 contra `ai.google.dev/gemini-api/docs/pricing` y `/docs/mo
 Verificado 2026-08-14 contra `ai.google.dev/gemini-api/docs/models/gemini-3.7-flash` y `/docs/latest-model`: `gemini-3.7-flash` es GA, es el modelo Flash mas reciente y capaz de la familia para coding/agentes, con precio introductorio vigente hasta 2026-12-31 ($0.75/$3.75) que despues iguala el pricing final de 3.6 Flash ($1.50/$7.50). No hay evidencia en fuente oficial de que 3.6 Flash quede deprecado — 3.7 Flash coexiste como la opcion mas capaz dentro del mismo tier de costo final, similar al patron ya documentado entre 3.1 Flash-Lite y 3.5 Flash-Lite.
 
 Regla de seleccion:
-1. Tarea de alto volumen con logica simple → `gemini-3.5-flash-lite` con `thinking_level: "minimal"` o `"low"` (o `gemini-3.1-flash-lite` si el proyecto ya lo tiene integrado y no requiere las mejoras de 3.5).
+1. Tarea de clasificacion o categorizacion de alto volumen con logica simple → `gemini-3.5-flash-lite` con `thinking_level: "low"` (o `gemini-3.1-flash-lite` si el proyecto ya lo tiene integrado y no requiere las mejoras de 3.5). `"minimal"` se reserva exclusivamente para extraccion de campos o reformateo puro sin ninguna decision de categoria — en cuanto hay que elegir entre etiquetas, el nivel es `"low"`, no `"minimal"`.
 2. Tarea agentica multi-step o coding con presupuesto medio → `gemini-3.7-flash` (o `gemini-3.6-flash` si el proyecto ya lo tiene integrado y no requiere la mejora de capacidad).
 3. Live API / audio-to-audio → `gemini-3.1-flash-live-preview` (ver `audio-voice-engineer` para detalle; Affective Dialog no soportado a la fecha).
 4. Corpus > 500MB o razonamiento muy complejo → `gemini-3.1-pro-preview` con `thinking_level: "high"`.
