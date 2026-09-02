@@ -112,12 +112,23 @@ function buildHooksSection(bin, tmpDirReal) {
   const dirTmpToolRepeat = tmpDirReal
     ? `"${tmpDirReal.replace(/\/$/, '')}/ai-core-locks/tool-repeat/*"`
     : '"${TMPDIR:-/tmp}/ai-core-locks/tool-repeat/*"';
+  // Mismo bug de glob de un solo nivel -- subagent-budget-guard.js y
+  // loop-alternante-guard.js escriben su estado dos niveles bajo el tmpdir
+  // real, cada uno en su propio subdirectorio.
+  const dirTmpBudget = tmpDirReal
+    ? `"${tmpDirReal.replace(/\/$/, '')}/ai-core-locks/subagent-budget/*"`
+    : '"${TMPDIR:-/tmp}/ai-core-locks/subagent-budget/*"';
+  const dirTmpAlternante = tmpDirReal
+    ? `"${tmpDirReal.replace(/\/$/, '')}/ai-core-locks/loop-alternante/*"`
+    : '"${TMPDIR:-/tmp}/ai-core-locks/loop-alternante/*"';
 
   const soloRead      = { fsRead: [dirBin] };
   const soloLeerRepo  = { fsRead: [dirBin, dirRepo] };
   const readYWrite    = { fsRead: [dirBin], fsWrite: [dirTmp] };
   const readYWriteSubagentLocks = { fsRead: [dirBin, dirTmpSubagentLocks], fsWrite: [dirTmpSubagentLocks] };
   const readYWriteToolRepeat = { fsRead: [dirBin, dirTmpToolRepeat], fsWrite: [dirTmpToolRepeat] };
+  const readYWriteBudget = { fsRead: [dirBin, dirTmpBudget], fsWrite: [dirTmpBudget] };
+  const readYWriteAlternante = { fsRead: [dirBin, dirTmpAlternante], fsWrite: [dirTmpAlternante] };
   // dirTmp tambien en fsRead (no solo fsWrite): los guards de break-glass
   // (lib/break-glass.js) escriben su lock en os.tmpdir() y despues necesitan
   // RELEERLO (fs.readFileSync/fs.existsSync) para confirmarlo -- bug real en
