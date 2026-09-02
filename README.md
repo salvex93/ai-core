@@ -502,8 +502,8 @@ Skills reescritos con seccion "Cuando NO Activar Este Perfil" en todos, sistema 
 
 | Capa | Directorio | Que hace | Cuando se activa |
 |---|---|---|---|
-| Skills | `.claude/skills/` (43) | Perfil de comportamiento — como piensa Claude en un dominio | Claude lo adopta como rol dentro de la conversacion |
-| Agents | `.claude/agents/` (7) | Loop autonomo que ejecuta una tarea completa sin intervencion | Claude Code lo lanza como subagente con contexto cero |
+| Skills | `.claude/skills/` (45) | Perfil de comportamiento — como piensa Claude en un dominio | Claude lo adopta como rol dentro de la conversacion |
+| Agents | `.claude/agents/` (6) | Loop autonomo que ejecuta una tarea completa sin intervencion | Claude Code lo lanza como subagente con contexto cero |
 
 Un skill se convierte en agente solo si cumple los tres criterios a la vez: autonomia real (sin interaccion por turno), salida estructurada verificable, y uso recurrente. Si falta uno, se queda como skill.
 
