@@ -3,6 +3,18 @@
 Registro de cambios por version. Formato basado en [Keep a Changelog](https://keepachangelog.com/es/1.0.0/).
 Versionado semantico: MAJOR.MINOR.PATCH.
 
+## [3.36.1] — 2026-09-01 (autoCompactWindow fijado por debajo del default nativo, cuidando cuota de Plan Pro)
+
+Deep research en repos de GitHub (Cline, OpenCode, gist comparativo Claude Code/Codex CLI/OpenCode/Amp) buscando tecnicas para reducir consumo de cuota de sesion Claude Pro (recurso mas escaso para el usuario que tokens de billing API). Confirmado: el umbral por defecto de auto-compact de Claude Code (~95% de la ventana) es reportado como "a menudo demasiado tarde" por feedback real de usuarios documentado.
+
+### Cambiado — `autoCompactWindow: 170000` fijado explicitamente en `settings.json`
+
+Antes, el arnes dejaba pasar el default nativo sin fijarlo. Compactar antes (85% de una ventana tipica de 200k en vez de ~95%) estira mas la cuota de sesion/semana de Plan Pro. Ajuste de configuracion, no de arquitectura.
+
+Dos gaps adicionales identificados en el research (poda de lecturas de archivo duplicadas en historial, patron Cline; poda selectiva de outputs de tools nativas ya consumidos con proteccion de subagentes, patron OpenCode-DCP) quedan documentados pero NO implementados -- ninguna fuente primaria reporta una cifra de ahorro verificada, y ambos requieren logica de poda de historial de conversacion que puede degradar calidad si se hace mal; requieren diseño y validacion explicita con el usuario antes de construir.
+
+1306 tests (1305 pass, 1 skipped, 0 fail), 45/45 skills conformes.
+
 ## [3.36.0] — 2026-09-01 (enforcement real de GEMINI PRIMERO para busqueda web + fallback en Read)
 
 Deep research comparativo contra Claude Agent SDK, OpenAI Agents SDK y Google ADK confirmo (fuente: code.claude.com/docs/en/hooks): ningun framework, incluido Claude Code, ofrece un mecanismo de hook que REDIRIJA una tool call a un proveedor externo -- `PreToolUse` solo permite `allow/deny/ask/updatedInput` sobre la misma tool. El patron viable, ya usado por `guard-read.js` para `Read`, es negar la tool nativa para que Claude reformule usando la alternativa MCP.
