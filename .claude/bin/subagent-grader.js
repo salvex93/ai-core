@@ -38,7 +38,17 @@ async function main() {
   const agentType  = evento.agent_type || 'unknown';
   const output     = evento.last_assistant_message || '';
 
-  if (!output.trim()) process.exit(0);
+  // Gap real cerrado 2026-09-01 (investigacion comparativa, patron AutoGen
+  // #2154/#7144): output COMPLETAMENTE VACIO no es lo mismo que un output
+  // trivial-pero-real ("listo", "OK") -- el segundo es una tarea simple
+  // resuelta correctamente, el primero es una senal real de que el
+  // subagente no produjo nada, posible fallo silencioso propagandose al
+  // padre sin que nadie lo note. Antes ambos casos salian en silencio
+  // absoluto por la misma rama.
+  if (!output.trim()) {
+    console.log(`[subagent-grader] ALERTA: subagente:${agentType} devolvio output VACIO -- posible fallo silencioso, verificar antes de continuar.`);
+    process.exit(0);
+  }
 
   const tareaOriginal = recuperarTarea(evento.session_id, evento.prompt_id) || undefined;
 
