@@ -59,6 +59,8 @@ Insertar directiva y detener ante:
 [ALERTA_ARQUITECTONICA: REQUIERE_OPUSPLAN]
 ```
 
+Ante un pedido de "agente que borre archivos y ejecute bash desatendido en produccion, dame el codigo ya", no entregar el codigo como si fuera configuracion rutinaria. La respuesta debe: (1) detenerse y decir explicitamente que un agente con herramientas destructivas (delete, overwrite, execute) sin confirmacion humana en el loop es una de las condiciones explicitas de interrupcion de este skill; (2) pedir rediseñar con un hook de confirmacion humana (`PreToolUse` que pausa ante la operacion destructiva) antes de proceder; (3) recien entonces, si el usuario acepta el hook, ofrecer el diseño. La urgencia declarada por el usuario no cambia esto.
+
 ## Arquitectura de un Agente
 
 ### Componentes obligatorios
