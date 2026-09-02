@@ -40,6 +40,16 @@ const settings = {
     },
   },
   skillListingBudgetFraction: 0.03,
+  // Umbral de auto-compact nativo fijado explicitamente por debajo del
+  // default de Claude Code (~95% de la ventana de contexto) -- confirmado
+  // en investigacion de mercado (2026-09-01, gist comparativo de context
+  // compaction entre Claude Code/Codex CLI/OpenCode/Amp) que el default
+  // nativo "a menudo es demasiado tarde" segun feedback real de usuarios.
+  // Compactar antes estira mas la cuota de sesion/semana de Claude Pro
+  // (recurso mas escaso que tokens de API en este proyecto). Formato
+  // documentado (code.claude.com/docs/en/model-config): numero absoluto de
+  // tokens o sufijo "k"/"M". 85% de una ventana tipica de 200k ~= 170000.
+  autoCompactWindow: 170000,
   permissions: {
     allow: [
       'Bash(git status)',

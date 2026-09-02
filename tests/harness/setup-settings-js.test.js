@@ -30,6 +30,17 @@ describe('setup-settings.js', () => {
     assert.ok(parsed.permissions, 'debe tener permissions');
   });
 
+  test('autoCompactWindow fijado por debajo del default (~95%) de Claude Code -- gap de mercado cerrado 2026-09-01', () => {
+    // Investigacion comparativa (Cline/OpenCode, gist de context compaction)
+    // confirmo que el umbral por defecto de Claude Code (~95% de la ventana)
+    // "a menudo es demasiado tarde" segun feedback de usuarios documentado.
+    // Sin fijarlo explicitamente, el arnes deja pasar el default nativo en
+    // vez de compactar antes y estirar mas la cuota de sesion (Plan Pro).
+    runScript(SETUP);
+    const parsed = JSON.parse(fs.readFileSync(SETTINGS, 'utf8'));
+    assert.ok(parsed.autoCompactWindow, 'debe declarar autoCompactWindow explicitamente, no depender del default nativo');
+  });
+
   test('el cwd de los MCP servers apunta al repositorio real', () => {
     runScript(SETUP);
     const parsed = JSON.parse(fs.readFileSync(SETTINGS, 'utf8'));
