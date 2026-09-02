@@ -182,6 +182,19 @@ npm run eval-skills                       # correr los 45 evals de conformidad d
 
 ## Que trae cada version
 
+### v3.38.0 — 4 principios de campo del harness oficial de Anthropic para deteccion autonoma
+
+Evaluacion de `github.com/anthropics/defending-code-reference-harness` y del ecosistema de skills de ciberseguridad (verificado 2026-09-02). Descartado: clonar el harness completo de Docker/gVisor (infra pesada sin caso de uso aqui), los catalogos comunitarios de cientos de skills (ruido), y replicar `/security-review` (ya nativo en Claude Code). Adoptados 4 principios de campo de `docs/best-practices.md`, integrados donde ya habia enforcement:
+
+- **Escala de verificacion / witness ejecutable** en `security-scanner.md` (v1.3.0): cada hallazgo sube de "patron detectado" a "witness ejecutable" (secreto real redactado, linea de `npm audit`, commit hash) antes de contar. Un hallazgo que no pasa de nivel 1 no entra al conteo.
+- **Severidad por precondiciones, no por categoria** en `security-scanner.md` y `code-reviewer.md` (v1.2.0): cero precondiciones + remoto sin auth = CRITICO; una o dos, o autenticado = ALTO; tres o mas, o local = MEDIO. La categoria (credencial/CVE/estilo) ya no fija la severidad.
+- **Particionar el espacio de revision** en `code-reviewer.md`: el diff se divide en 4 particiones con foco distinto (superficie de entrada, datos sensibles, control de flujo, conformidad estructural) para no converger en los mismos bugs superficiales.
+- **Supervisor con presupuesto por hallazgo en contexto separado** en CLAUDE.md (Gobierno de Agentes, punto 3): politica de orquestacion sobre el techo ciego de `subagent-budget-guard.js` -- si un subagente agota su ventana sin hallazgos con witness nivel 2+, el hilo principal no lo relanza sobre la misma particion; costo marginal decreciente = detener.
+
+Ademas: reparado `guard-read-js.test.js` en CI (4 subtests asumian `GEMINI_API_KEY` presente; ahora crean un `.env` temporal via `AI_CORE_ENV_PATH`).
+
+**1320 pass, 1 skipped, 0 fail (1321 tests), 45/45 skills conformes, 6/6 agentes conformes.**
+
 ### v3.37.0 — guards de budget y deteccion de loop alternante entre subagentes
 
 Cierre del gap mas peligroso identificado en la auditoria de v3.36.2: un loop entre agentes/turnos con argumentos DISTINTOS cada vez, que `tool-repeat-guard.js` no cubre (ese guard solo detecta la misma tool con argumentos identicos). Investigado antes de implementar -- diseño de 2 capas presentado y confirmado explicitamente con el usuario antes de escribir codigo.
