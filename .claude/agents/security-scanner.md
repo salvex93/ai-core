@@ -109,7 +109,7 @@ git branch --show-current 2>/dev/null || echo "(sin rama - detached HEAD)"
 [SECURITY-SCAN] <fecha> | <rama> | <N> hallazgos
 
 CRITICOS (<N>):
-- <archivo>:<linea> — <descripcion> [OWASP: A02/A03/...]
+- <archivo>:<linea> — <descripcion> [OWASP: A02/A03/...] [precondiciones: <N>, alcance: <remoto sin auth|autenticado|local>] [witness: nivel <1-4> - <evidencia>]
 
 ALTOS (<N>):
 [...] o "ninguno"
@@ -119,6 +119,8 @@ MEDIOS (<N>):
 
 ESTADO: SEGURO | VULNERABILIDADES_MENORES | VULNERABILIDADES_CRITICAS
 ```
+
+El campo `[witness: ...]` y `[precondiciones: ...]` son obligatorios en cada hallazgo. Un hallazgo sin witness de nivel 2 o superior no entra al conteo (ver "Escala de verificacion").
 
 Umbral exacto que convierte los conteos en ESTADO (gap de scaffolding cerrado 2026-08-15, mismo criterio que valida `lib/security-scanner-report-format.js`):
 - CRITICOS >= 1 o ALTOS >= 1: `VULNERABILIDADES_CRITICAS`
