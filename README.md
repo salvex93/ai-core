@@ -735,6 +735,10 @@ New-Item -ItemType SymbolicLink -Path './CLAUDE.md' -Target 'C:/ruta/a/ai-core/C
 │   │   ├── cross-verify-gate.js Hook SubagentStop: segunda opinion cross-model tras code-reviewer
 │   │   ├── hooks-definition.js  Fuente unica de la seccion "hooks" de settings.json (usada por setup-settings.js y norm-harness.js)
 │   │   ├── subagent-guard.js    Hook PreToolUse(Agent): bloquea recursion y exceso de subagentes paralelos
+│   │   ├── subagent-budget-guard.js Hook PreToolUse (dentro de subagentes): techo de 40 llamadas a tools por subagente, red de seguridad final contra runaway
+│   │   ├── loop-alternante-guard.js Hook PreToolUse (dentro de subagentes): detecta 2 tools alternando 6+ ciclos sin converger (argumentos distintos) — advierte, bloquea si persiste
+│   │   ├── tool-repeat-guard.js Hook PreToolUse: bloquea (exit 2) la misma tool+argumentos identicos repetida mas de 3 veces (agente atascado reintentando)
+│   │   ├── web-search-guard.js  Hook PreToolUse(WebSearch|WebFetch): fuerza buscar_web (Gemini) sobre busqueda nativa, degrada con gracia sin GEMINI_API_KEY
 │   │   ├── agent-tools-guard.js Hook PreToolUse(Bash|Read|Write|Edit): bloquea herramientas fuera del scope `tools:` declarado por el subagente activo
 │   │   ├── bash-verbosity-guard.js Hook PreToolUse(Bash): bloquea comandos de alto riesgo de output masivo
 │   │   ├── destructive-op-guard.js Hook PreToolUse(Bash): bloquea rm -rf, git push --force, reset --hard, clean -f, branch -D, DROP TABLE/TRUNCATE — break-glass para 11 reglas sin alternativa segura
@@ -743,6 +747,10 @@ New-Item -ItemType SymbolicLink -Path './CLAUDE.md' -Target 'C:/ruta/a/ai-core/C
 │   │   ├── mcp-lifecycle-check.js Valida estado Active/Deprecated/Removed de servidores MCP propios contra MCP_LIFECYCLE.json
 │   │   ├── circuit-breaker.js   Hook PreToolUse(mcp__.*): avisa tras 3 fallos MCP consecutivos en 5 min (ASI08)
 │   │   ├── subagent-grader.js   Hook SubagentStop: grader de calidad via SubagentGrader.js (Performance Outcomes)
+│   │   ├── checkpoint-branch.js Hook PostToolUse(Write|Edit): auto-commit a rama de respaldo ai-core/checkpoints, nunca a la rama de trabajo real
+│   │   ├── diff-map-trigger.js  Hook PostToolUse(Write|Edit|Bash): regenera CONTEXT_MAP.json ante archivos nuevos/renombrados/eliminados
+│   │   ├── detox.js             Limpia .md legacy no trackeados de la raiz (TO_GEMINI.md, REPORT-*.md) que contaminan contexto entre sesiones
+│   │   ├── git-history-secrets-scan.js Escanea el HISTORIAL completo de git (no solo working tree) por credenciales commiteadas alguna vez
 │   │   ├── lib/                 Modulos compartidos entre hooks
 │   │   │   ├── hook-stdin.js         Lectura/parseo del JSON de evento que Claude Code entrega por stdin
 │   │   │   ├── risky-code-patterns.js Patrones de ejecucion arbitraria compartidos con code-exec-guard.js
