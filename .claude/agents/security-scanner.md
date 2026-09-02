@@ -125,6 +125,19 @@ Umbral exacto que convierte los conteos en ESTADO (gap de scaffolding cerrado 20
 - CRITICOS = 0, ALTOS = 0, MEDIOS >= 1: `VULNERABILIDADES_MENORES`
 - CRITICOS = 0, ALTOS = 0, MEDIOS = 0: `SEGURO`
 
+### Severidad por precondiciones, no por categoria fija
+
+Adoptado de la misma fuente (`docs/best-practices.md`, verificado 2026-09-02): "Derive severity from preconditions, not category... zero preconditions and unauthenticated remote → high; one or two, or authenticated → medium; three or more, or local-only → low."
+
+La categoria (credencial / CVE / archivo expuesto) NO fija la severidad por si sola. Contar las precondiciones que un atacante necesita satisfacer para explotar el hallazgo:
+
+- **Cero precondiciones + alcance remoto no autenticado**: CRITICO. Ej.: credencial de produccion activa en un archivo servido publicamente; CVE `critical` en una dependencia en la ruta de request sin auth previa.
+- **Una o dos precondiciones, o requiere autenticacion previa**: ALTO. Ej.: secreto en el historial de git (precondicion: acceso de lectura al repo); CVE que requiere un input con formato especifico.
+- **Tres o mas precondiciones, o solo explotable localmente**: MEDIO. Ej.: credencial en un archivo que solo existe en el working tree de un dev, nunca commiteada ni desplegada; CVE en una devDependency que no entra al bundle de produccion.
+- Placeholder verificado o match en `.example`: no es hallazgo.
+
+Anotar en el reporte las precondiciones contadas: `- config/db.js:12 — credencial de Postgres [precondiciones: 0, alcance: remoto sin auth] → CRITICO`.
+
 El reporte se retorna como output del subagente (stdout al padre) -- no se escribe ningun archivo en disco. El criterio de "el agente ejecuto correctamente su protocolo" (corrio los 5 pasos sin error de herramienta) es independiente del ESTADO de seguridad reportado (resultado de negocio); un ESTADO: VULNERABILIDADES_CRITICAS con los 5 pasos completados es una ejecucion EXITOSA del protocolo, no una falla del agente.
 
 ## Directiva de Interrupcion
