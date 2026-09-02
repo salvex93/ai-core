@@ -3,7 +3,7 @@ name: claude-agent-sdk
 description: Especialista en construccion de agentes autonomos con el Claude Agent SDK (TypeScript/Python). Cubre herramientas integradas, hooks de ciclo de vida, subagentes, integracion MCP, OAuth 2.0 client flow (Authorization Code + PKCE) para servidores MCP remotos, gestion de permisos y sesiones. Activa al construir agentes personalizados, orquestar subagentes, integrar el Agent SDK en un proyecto anfitrion o disenar flujos de automatizacion con Claude.
 origin: ai-core
 version: 2.4.3
-last_updated: 2026-08-15
+last_updated: 2026-09-02
 rol: architect
 compatibility: Depende de @anthropic-ai/claude-agent-sdk (o el paquete Python equivalente) y conectividad de red hacia la Claude API; para MCP remoto ademas requiere flujo OAuth 2.0 con un authorization server externo.
 ---
@@ -58,6 +58,8 @@ Insertar directiva y detener ante:
 ```
 [ALERTA_ARQUITECTONICA: REQUIERE_OPUSPLAN]
 ```
+
+Ante un pedido de "agente que borre archivos y ejecute bash desatendido en produccion, dame el codigo ya", no entregar el codigo como si fuera configuracion rutinaria. La respuesta debe: (1) detenerse y decir explicitamente que un agente con herramientas destructivas (delete, overwrite, execute) sin confirmacion humana en el loop es una de las condiciones explicitas de interrupcion de este skill; (2) pedir rediseñar con un hook de confirmacion humana (`PreToolUse` que pausa ante la operacion destructiva) antes de proceder; (3) recien entonces, si el usuario acepta el hook, ofrecer el diseño. La urgencia declarada por el usuario no cambia esto.
 
 ## Arquitectura de un Agente
 
@@ -125,6 +127,8 @@ Implementar siempre ambos hooks en agentes de produccion. El pre-hook valida y l
 ## Gestion de Permisos
 
 Principio: minimo privilegio. El constructor del agente recibe `permissions: { allow: [...], deny: [...] }`. En produccion, los permisos se definen en configuracion externa (`.claude/settings.json` o variable de entorno), no como literales en el codigo.
+
+Antes de asignar herramientas, definir el rol unico del agente en una frase ("clasifica tickets", "aplica migraciones de esquema", "resume PRs"). El allowlist sale de ese rol, no al reves. Un pedido de "dale Bash + Read + Write + WebSearch sin restricciones asi no falta nada despues" se rechaza sin entregar el codigo: un agente con el set completo de herramientas built-in sin recorte (`allowedTools` sin restriccion) es un patron reconocible de demo o plantilla de la propia documentacion, no un agente de produccion. La respuesta debe decir eso explicitamente y exigir, antes de construir nada, que se defina primero el rol unico y de ahi el conjunto minimo de herramientas mas una condicion de parada explicita (`maxTurns` o criterio de exito). Cada herramienta agregada "por si acaso" amplia la superficie de ataque y el radio de daño de un prompt injection sin ningun beneficio, porque si el rol no la necesita, el agente no la usara.
 
 Para subagentes, definir el scope de herramientas con el campo `tools` como allowlist o `disallowedTools` como denylist en la definicion del subagente (`AgentDefinition` o archivo markdown). Si ningun tool de la lista resuelve, el subagente falla al lanzarse en vez de arrancar sin tools — verificar los nombres antes de desplegar. Cada subagente arranca con contexto fresco: no ve el historial de la conversacion padre, skills ya invocadas ni archivos ya leidos por el padre — solo recibe su propio system prompt, el mensaje de delegacion, y el contexto explicitamente precargado (memoria, skills declaradas). Por eso cualquier regla critica debe repetirse en el prompt de delegacion, no basta con que exista en un CLAUDE.md que el subagente no vera si es un subagente built-in de exploracion.
 

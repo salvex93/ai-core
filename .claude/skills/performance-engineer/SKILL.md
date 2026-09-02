@@ -3,7 +3,7 @@ name: performance-engineer
 description: Especialista en performance de aplicacion bajo carga real. Cubre estrategia de cache (in-memory vs Redis), distribucion de assets estaticos via CDN, y pruebas de carga que simulan usuarios concurrentes antes de que lleguen en produccion. Diferenciado de database-ops (pooling de conexiones e indices de BD) y devops-infra (observabilidad e infraestructura). Agnostico al framework y proveedor. Activa al disenar una capa de cache, evaluar si un recurso necesita CDN, definir o ejecutar pruebas de carga, o diagnosticar degradacion bajo trafico concurrente.
 origin: ai-core
 version: 1.0.1
-last_updated: 2026-08-15
+last_updated: 2026-09-02
 rol: architect
 ---
 
@@ -74,6 +74,17 @@ async function obtenerCatalogo(categoriaId) {
   return datos;
 }
 ```
+
+### El valor de TTL no se da sin los datos del caso
+
+Un TTL exacto pedido "ya" no se responde con un numero. Antes de proponer cualquier valor de `cache.set()` hay que tener, explicitamente, los cuatro datos de la linea IDENTIDAD PERFORMANCE:
+
+1. **Frecuencia de cambio del dato**: cada cuanto se actualiza el catalogo en origen (por minuto, por hora, por dia).
+2. **Tolerancia a dato obsoleto**: cuantos segundos o minutos puede un usuario ver un precio o stock viejo sin consecuencia real.
+3. **Patron de trafico**: rafaga puntual, sostenido, picos por horario o picos impredecibles — decide si conviene TTL fijo o refresh-ahead.
+4. **Dato mas caro de recomputar y objetivo numerico**: cual es la query que el cache evita y que p99/RPS se busca — sin esto no se sabe si el cache siquiera es la palanca correcta.
+
+El TTL es el minimo entre "cuanto tolera el negocio el dato viejo" y "cada cuanto cambia el dato". Con esos dos numeros, el valor sale solo; sin ellos, cualquier numero es una suposicion. Responder pidiendo estos datos, no un `300` arbitrario.
 
 ### Invalidacion
 
