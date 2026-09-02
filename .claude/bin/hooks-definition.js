@@ -292,6 +292,21 @@ function buildHooksSection(bin, tmpDirReal) {
         ],
       },
       {
+        // Capas 1 y 2 de defensa contra runaway de subagentes (investigacion
+        // 2026-09-02, post-mortem real vectara/awesome-agent-failures:
+        // pipeline en loop 264h, $47k, solo detectado por billing). Solo
+        // aplican cuando agent_type esta presente (dentro de un subagente),
+        // ambos guards salen de inmediato en el hilo principal. Matcher
+        // amplio: necesitan ver TODAS las tool calls del subagente, no solo
+        // las mutantes, para contar presupuesto real y detectar el patron
+        // alternante que puede incluir Read/Grep.
+        matcher: 'Bash|Write|Edit|Read|Grep|Glob|WebFetch|Agent',
+        hooks: [
+          { type: 'command', command: nodeConPermiso(bin('subagent-budget-guard.js'), readYWriteBudget) },
+          { type: 'command', command: nodeConPermiso(bin('loop-alternante-guard.js'), readYWriteAlternante) },
+        ],
+      },
+      {
         // Enforcement de scope de herramientas por subagente (Gobierno de
         // Agentes, regla 2 de CLAUDE.md). agent_type solo esta presente en
         // el evento cuando la tool call se origina dentro de un subagente
