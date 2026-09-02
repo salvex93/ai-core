@@ -35,6 +35,15 @@ describe('guard-read.js', () => {
     assert.equal(r.status, 0, 'debe permitir archivos bajo el limite de 200 lineas');
   });
 
+  // El deny por tamaño solo se emite si Gemini esta disponible (ver guard-read.js
+  // y test de fallback mas abajo). En CI no hay .env real -- estos tests pasan
+  // un .env temporal con GEMINI_API_KEY para ejercitar el camino de bloqueo sin
+  // depender del entorno de la maquina que corre la suite.
+  const conGeminiEnv = (extra = {}) => {
+    const envConKey = tmpFile('GEMINI_API_KEY=fake-key-para-test');
+    return { env: { AI_CORE_ENV_PATH: envConKey, GEMINI_API_KEY: '', ...extra }, cleanup: () => fs.unlinkSync(envConKey) };
+  };
+
   test('sale con codigo 0 y emite permissionDecision:deny en stdout para .js con mas de 200 lineas', () => {
     // Friccion operativa (limite de tokens), no riesgo de seguridad -- usa
     // permissionDecision:"deny" (exit 0 + razon en JSON) en vez de exit 2,
@@ -44,8 +53,10 @@ describe('guard-read.js', () => {
     const lines = Array.from({ length: 250 }, (_, i) => `const x${i} = ${i};`).join('\n');
     const fjs = path.join(os.tmpdir(), `guard-test-${Date.now()}.js`);
     fs.writeFileSync(fjs, lines);
-    const r = runScript(GUARD, [fjs]);
+    const { env, cleanup } = conGeminiEnv();
+    const r = runScript(GUARD, [fjs], env);
     fs.unlinkSync(fjs);
+    cleanup();
     assert.equal(r.status, 0, 'permissionDecision:deny exige exit 0, no exit 2');
     const parsed = JSON.parse(r.stdout);
     assert.equal(parsed.hookSpecificOutput.hookEventName, 'PreToolUse');
@@ -65,8 +76,10 @@ describe('guard-read.js', () => {
     for (const ext of ['.jsx', '.tsx', '.mjs', '.rs']) {
       const f = path.join(os.tmpdir(), `guard-test-ext-${Date.now()}${ext}`);
       fs.writeFileSync(f, lines);
-      const r = runScript(GUARD, [f]);
+      const { env, cleanup } = conGeminiEnv();
+      const r = runScript(GUARD, [f], env);
       fs.unlinkSync(f);
+      cleanup();
       assert.equal(r.status, 0, `${ext}: exit debe ser 0`);
       const parsed = JSON.parse(r.stdout);
       assert.equal(parsed.hookSpecificOutput.permissionDecision, 'deny', `${ext} debia denegar, antes evadia la whitelist cerrada`);
@@ -77,8 +90,10 @@ describe('guard-read.js', () => {
     const contenido = JSON.stringify(Array.from({ length: 5000 }, (_, i) => ({ id: i, valor: `dato${i}` })));
     const f = path.join(os.tmpdir(), `guard-test-minificado-${Date.now()}.json`);
     fs.writeFileSync(f, contenido);
-    const r = runScript(GUARD, [f]);
+    const { env, cleanup } = conGeminiEnv();
+    const r = runScript(GUARD, [f], env);
     fs.unlinkSync(f);
+    cleanup();
     assert.equal(r.status, 0);
     const parsed = JSON.parse(r.stdout);
     assert.equal(parsed.hookSpecificOutput.permissionDecision, 'deny', 'JSON minificado sin \\n real debia denegar por tamaño en bytes');
@@ -88,8 +103,10 @@ describe('guard-read.js', () => {
     const lines = Array.from({ length: 250 }, (_, i) => `const x${i} = ${i};`).join('\r');
     const f = path.join(os.tmpdir(), `guard-test-cr-${Date.now()}.txt`);
     fs.writeFileSync(f, lines);
-    const r = runScript(GUARD, [f]);
+    const { env, cleanup } = conGeminiEnv();
+    const r = runScript(GUARD, [f], env);
     fs.unlinkSync(f);
+    cleanup();
     assert.equal(r.status, 0);
     const parsed = JSON.parse(r.stdout);
     assert.equal(parsed.hookSpecificOutput.permissionDecision, 'deny', 'CR puro debia contarse como separador de linea real');
