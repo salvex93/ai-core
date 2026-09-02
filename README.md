@@ -619,10 +619,12 @@ Categoria de `process-guard.js` propia (`moa`, no `intent`): `moa-context-gather
 
 ## Motor de ahorro de tokens
 
-- **Guard Read** (`guard-read.js`): bloquea la lectura directa de archivos de mas de 200 lineas, fuerza delegacion a Gemini.
+- **Guard Read** (`guard-read.js`): bloquea la lectura directa de archivos de mas de 200 lineas, fuerza delegacion a Gemini — degrada con gracia (permite Read nativo) si `GEMINI_API_KEY` no esta disponible.
+- **Web Search Guard** (`web-search-guard.js`): mismo patron para `WebSearch`/`WebFetch`, fuerza `buscar_web` (Gemini, tier 0 gratuito).
 - **Validate Map** (`validate-map.js`): regenera `CONTEXT_MAP.json` ante cualquier drift real (umbral 1 archivo) — evita exploracion ciega del repo.
 - **Modo Neanderthal**: en el rol Coder, maximo 3 lineas de prosa.
-- **Compact/Clear automatico**: aviso al turno 6, detencion al turno 15.
+- **Compact/Clear automatico**: aviso al turno 6, detencion al turno 15 — proxy tanto para cuota de API por token como de sesion/semana de Plan Pro. `autoCompactWindow` fijado en `settings.json` (85% de una ventana tipica, por debajo del ~95% default nativo de Claude Code).
+- **Presupuesto de subagentes** (`subagent-budget-guard.js`, `loop-alternante-guard.js`): techo de 40 llamadas por subagente y deteccion de patron alternante sin converger — evita runaway silencioso de tokens en un pipeline de subagentes.
 - **`token-metrics.js`**: mide la reduccion real de consumo por sesion.
 
 ### Stack del motor
