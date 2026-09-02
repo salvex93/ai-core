@@ -182,6 +182,40 @@ npm run eval-skills                       # correr los 42 evals de conformidad d
 
 ## Que trae cada version
 
+### v3.37.0 — guards de budget y deteccion de loop alternante entre subagentes
+
+Cierre del gap mas peligroso identificado en la auditoria de v3.36.2: un loop entre agentes/turnos con argumentos DISTINTOS cada vez, que `tool-repeat-guard.js` no cubre (ese guard solo detecta la misma tool con argumentos identicos). Investigado antes de implementar -- diseño de 2 capas presentado y confirmado explicitamente con el usuario antes de escribir codigo.
+
+`subagent-budget-guard.js`: techo fijo de 40 llamadas a tools por subagente, independiente de semantica -- recomendacion explicita del post-mortem real de `vectara/awesome-agent-failures` (pipeline de 4 agentes en loop 264h, $47k gastados, solo detectado por el dashboard de billing).
+
+`loop-alternante-guard.js`: detecta el patron A-B-A-B entre 2 tools distintas alternando 6+ ciclos sin converger, aunque los argumentos cambien -- mismo mecanismo validado en produccion real por OpenHands `StuckDetector` (sin embeddings ni LLM-as-judge por ronda, que el propio paper de semantic early-stopping confirma contraproducente en costo). Comportamiento de 2 pasos: la primera deteccion solo advierte, bloquea si el patron persiste.
+
+**1321 tests, 45/45 skills conformes, 6/6 agentes conformes.**
+
+### v3.36.2 — auditoria de errores comunes/raros de arneses agenticos
+
+Investigacion con casos documentados reales (postmortem $47k de LangChain, compromiso Cline 2026 via confused deputy, issues de `anthropics/claude-code`, AutoGen, MemoryGraft arXiv 2512.16962). `subagent-grader.js` distingue output VACIO de un subagente (posible fallo silencioso) de output trivial-pero-real -- antes ambos salian en silencio absoluto. `memory-manager` declara tratamiento de contenido externo no confiable para entradas del vault. `mcp-registry-navigator` suma criterio de colision de nombres de tools (tool shadowing) entre servidores MCP.
+
+### v3.36.1 — `autoCompactWindow` fijado por debajo del default nativo
+
+Deep research en repos de GitHub (Cline, OpenCode) buscando tecnicas para cuidar la cuota de sesion de Plan Pro -- confirmado que el umbral por defecto de auto-compact de Claude Code (~95%) es reportado como "a menudo demasiado tarde". Fijado explicitamente a 170k (~85% de una ventana tipica) en `settings.json`.
+
+### v3.36.0 — enforcement real de "GEMINI PRIMERO" para busqueda web
+
+Deep research confirmo que ningun framework de agentes (Claude Agent SDK, OpenAI Agents SDK, Google ADK) ofrece un hook que redirija una tool call a otro proveedor -- el patron viable es negar la tool nativa para forzar reformulacion. Nuevo `web-search-guard.js` fuerza `buscar_web` (Gemini) sobre `WebSearch`/`WebFetch` nativos. Tanto este guard como `guard-read.js` ahora degradan con gracia (permiten la tool nativa) si `GEMINI_API_KEY` no esta disponible.
+
+### v3.35.x — fix critico de timeout/retry en Gemini + skill discord-ops
+
+Reproducido y confirmado en vivo: `@google/genai` podia colgarse indefinidamente sin resolver ni rechazar, pese a que la misma llamada via REST directo respondia en segundos. Agregado timeout real (`Promise.race`, 30s) mas retry con backoff exponencial en `GeminiApiClient.js` y `GeminiAdapter.js`. Nuevo skill `discord-ops` (45avo) para integrar Discord como canal de alertas de infraestructura (webhooks, limites reales de embed, tratamiento de la URL como secreto, patron anti-spam).
+
+### v3.34.0 — guard anti-loop de tool calls + aclaracion de auto-compact nativo
+
+Deep research comparativo contra el estado del arte 2026 (Claude Agent SDK, OpenAI Agents SDK, Google ADK, LangGraph/CrewAI). Nuevo `tool-repeat-guard.js`: bloquea cuando un mismo agente repite la misma tool call con argumentos identicos mas de 3 veces. CLAUDE.md aclara que Claude Code ya tiene auto-compact nativo basado en tokens reales, superior al conteo heuristico de turnos.
+
+### v3.33.2 — reactivacion del fallback de emergencia del juez de evals
+
+Gemini se colgo en vivo durante la verificacion (2 corridas, 11+ minutos sin avanzar) pese a tener API keys pobladas -- reactivado `openai:chat:gpt-5.6-luna` como juez de los 42 evals hasta diagnosticar la causa exacta. Cerrados 2 gaps de gobierno de contenido externo no confiable en `ciso` y `mcp-registry-navigator`.
+
 ### v3.33.1 — retry/backoff en ModelRegistry, secret scanning retroactivo del historial de git, fix critico de permisos en locks de subagentes
 
 Segunda ronda de investigacion de mercado fresca (deliberadamente evitando repetir la auditoria de skills/agentes, el red-team de guards, la auditoria de tokens y el cierre de scaffolding ya hechos en v3.32.0) para confirmar si quedaba trabajo real pendiente. Encontro 2 gaps accionables y verificados contra el codigo real antes de reportarlos.
@@ -502,8 +536,8 @@ Skills reescritos con seccion "Cuando NO Activar Este Perfil" en todos, sistema 
 
 | Capa | Directorio | Que hace | Cuando se activa |
 |---|---|---|---|
-| Skills | `.claude/skills/` (43) | Perfil de comportamiento — como piensa Claude en un dominio | Claude lo adopta como rol dentro de la conversacion |
-| Agents | `.claude/agents/` (7) | Loop autonomo que ejecuta una tarea completa sin intervencion | Claude Code lo lanza como subagente con contexto cero |
+| Skills | `.claude/skills/` (45) | Perfil de comportamiento — como piensa Claude en un dominio | Claude lo adopta como rol dentro de la conversacion |
+| Agents | `.claude/agents/` (6) | Loop autonomo que ejecuta una tarea completa sin intervencion | Claude Code lo lanza como subagente con contexto cero |
 
 Un skill se convierte en agente solo si cumple los tres criterios a la vez: autonomia real (sin interaccion por turno), salida estructurada verificable, y uso recurrente. Si falta uno, se queda como skill.
 
@@ -582,9 +616,9 @@ Se dispara automaticamente en el hook `SubagentStop` cuando `code-reviewer` marc
 
 ### Herramientas de gobernanza
 
-- **`validate-globals.js`**: verifica que los 42 skills tengan la referencia inmutable a CLAUDE.md, las secciones obligatorias, `rol:` valido en frontmatter, ningun emoji, y conformidad con el schema abierto [agentskills.io](https://agentskills.io/specification) (`name` coincide con la carpeta, formato, limites de longitud). `--fix-drift` corrige `last_updated` desincronizado. Sale con exit 1 si hay hallazgos criticos o altos.
-- **`validate-agents.js`**: hermano de `validate-globals.js` para los 7 agentes de `.claude/agents/` — mismo criterio de referencia inmutable, copia literal de las 11 reglas del ANCLA (compartidas entre ambos validadores), emojis y drift de `last_updated`. Sale con exit 1 si hay hallazgos criticos o altos.
-- **`agent-tools-guard.js`**: enforcement real de scope de herramientas por subagente (Gobierno de Agentes, regla 2 de CLAUDE.md) — hook `PreToolUse` que lee `agent_type` del evento (presente cuando la tool call se origina dentro de un subagente) y deniega (`permissionDecision:"deny"`) si la herramienta usada no esta en el `tools:` declarado del `AGENT.md` correspondiente. Los 7 agentes de `.claude/agents/` declaran su scope; `self-healing-agent` no tiene `Write`/`Edit` en el suyo, consistente con que nunca aplica un fix por si solo.
+- **`validate-globals.js`**: verifica que los 45 skills tengan la referencia inmutable a CLAUDE.md, las secciones obligatorias, `rol:` valido en frontmatter, ningun emoji, y conformidad con el schema abierto [agentskills.io](https://agentskills.io/specification) (`name` coincide con la carpeta, formato, limites de longitud). `--fix-drift` corrige `last_updated` desincronizado. Sale con exit 1 si hay hallazgos criticos o altos.
+- **`validate-agents.js`**: hermano de `validate-globals.js` para los 6 agentes de `.claude/agents/` — mismo criterio de referencia inmutable, copia literal de las 11 reglas del ANCLA (compartidas entre ambos validadores), emojis y drift de `last_updated`. Sale con exit 1 si hay hallazgos criticos o altos.
+- **`agent-tools-guard.js`**: enforcement real de scope de herramientas por subagente (Gobierno de Agentes, regla 2 de CLAUDE.md) — hook `PreToolUse` que lee `agent_type` del evento (presente cuando la tool call se origina dentro de un subagente) y deniega (`permissionDecision:"deny"`) si la herramienta usada no esta en el `tools:` declarado del `AGENT.md` correspondiente. Los 6 agentes de `.claude/agents/` declaran su scope; `self-healing-agent` no tiene `Write`/`Edit` en el suyo, consistente con que nunca aplica un fix por si solo.
 - **`lib/break-glass.js`**: excepcion auditable de un solo uso para guards de riesgo real (`destructive-op-guard.js`, `mutating-action-guard.js`, `code-exec-guard.js`, `secrets-guard.js`). Al bloquear, genera un id de 8 hex con TTL de 5 min; el humano lo confirma respondiendo `CONFIRMAR-<id>` en su siguiente mensaje (`jailbreak-guard.js` lo intercepta en `UserPromptSubmit`), y solo entonces el REINTENTO EXACTO de esa misma accion pasa — nunca autoriza acciones futuras distintas. Cada uso exitoso queda registrado en `.claude/BREAK_GLASS_LOG.jsonl` (append-only, gitignored).
 - **`update.js`**: actualizacion cross-platform en un comando. Reporta version anterior vs nueva y si hay breaking changes que requieran accion manual.
 - **CI** (`.github/workflows/ci.yml`): corre tests y `validate-globals` en cada push a `main` y cada PR. Matriz: Ubuntu, Windows y macOS, Node 22 unicamente (Node 20 removido de toda la matriz -- el sandboxing con Permission Model exige Node >= 22.13.0, ya no existe estable en la rama 20.x). El step de tests usa `node --test` sin patrones de glob explicitos — descubrimiento automatico nativo, no depende de que el shell (PowerShell en Windows) expanda argumentos (ver CHANGELOG v3.17.3).
@@ -619,10 +653,12 @@ Categoria de `process-guard.js` propia (`moa`, no `intent`): `moa-context-gather
 
 ## Motor de ahorro de tokens
 
-- **Guard Read** (`guard-read.js`): bloquea la lectura directa de archivos de mas de 200 lineas, fuerza delegacion a Gemini.
+- **Guard Read** (`guard-read.js`): bloquea la lectura directa de archivos de mas de 200 lineas, fuerza delegacion a Gemini — degrada con gracia (permite Read nativo) si `GEMINI_API_KEY` no esta disponible.
+- **Web Search Guard** (`web-search-guard.js`): mismo patron para `WebSearch`/`WebFetch`, fuerza `buscar_web` (Gemini, tier 0 gratuito).
 - **Validate Map** (`validate-map.js`): regenera `CONTEXT_MAP.json` ante cualquier drift real (umbral 1 archivo) — evita exploracion ciega del repo.
 - **Modo Neanderthal**: en el rol Coder, maximo 3 lineas de prosa.
-- **Compact/Clear automatico**: aviso al turno 6, detencion al turno 15.
+- **Compact/Clear automatico**: aviso al turno 6, detencion al turno 15 — proxy tanto para cuota de API por token como de sesion/semana de Plan Pro. `autoCompactWindow` fijado en `settings.json` (85% de una ventana tipica, por debajo del ~95% default nativo de Claude Code).
+- **Presupuesto de subagentes** (`subagent-budget-guard.js`, `loop-alternante-guard.js`): techo de 40 llamadas por subagente y deteccion de patron alternante sin converger — evita runaway silencioso de tokens en un pipeline de subagentes.
 - **`token-metrics.js`**: mide la reduccion real de consumo por sesion.
 
 ### Stack del motor
@@ -685,16 +721,19 @@ New-Item -ItemType SymbolicLink -Path './CLAUDE.md' -Target 'C:/ruta/a/ai-core/C
 │   │   ├── ModelDispatcher.js   Router MoA entre proveedores (Command/Port): executeMoATask fan-out/fan-in
 │   │   ├── model-adapters/      Adapters extraidos de ModelRegistry.js (SOLID, <300 lineas c/u)
 │   │   │   ├── AnthropicAdapter.js    Claude Haiku/Sonnet/Opus/Fable via @anthropic-ai/sdk
-│   │   │   ├── GeminiAdapter.js       Gemini 3.6/3.1 via @google/genai
+│   │   │   ├── GeminiAdapter.js       Gemini 3.7 Flash (default) via @google/genai — timeout real 30s + retry con backoff ante SDK colgado
 │   │   │   └── OpenAICompatAdapter.js OpenAI/DeepSeek/Kimi — maxTokensParam y soportaJSONMode por proveedor
 │   │   ├── CrossVerifier.js     Verificacion ciega de diffs con proveedor distinto al actor (code-reviewer)
-│   │   ├── SubagentGrader.js    Grader generico de calidad post-subagente via LLM-as-judge (Performance Outcomes)
+│   │   ├── SubagentGrader.js    Grader generico de calidad post-subagente via LLM-as-judge (Performance Outcomes) — output vacio se marca ALERTA, no silencio
 │   │   ├── AgentRoles.js        Perfiles Architect/Coder/Auditor — lee rol: de skills, exige SEARCH/REPLACE en Coder
 │   │   ├── IntentClassifier.js  Infiere herramienta y modelo desde el mensaje crudo del usuario
 │   │   ├── ContextIndex.js      Indice CONTEXT_MAP.json — resolucion de rutas sin I/O ciego
 │   │   ├── TokenManager.js      Conteo y truncado de tokens (Gemini input/output, estimacion de mensajes)
-│   │   ├── GeminiApiClient.js   Cliente SDK de Gemini puro — auth, reintentos, parseo JSON, compactado
+│   │   ├── GeminiApiClient.js   Cliente SDK de Gemini puro — auth, reintentos con backoff, timeout real 30s ante SDK colgado, parseo JSON, compactado
 │   │   ├── McpServerHandlers.js Las 5 herramientas MCP de mcp-gemini.js (logica de negocio, sin protocolo)
+│   │   ├── RateLimiter.js       Ventana deslizante de 60s contra limites de requests/tokens por minuto de la API Anthropic
+│   │   ├── ResponseValidator.js Valida el output del modelo contra reglas criticas (emojis, ingles, frases prohibidas) antes de entregarlo
+│   │   ├── StyleProfiler.js     Acumula fragmentos del usuario en sesion y extrae patrones de estilo para adaptar tono
 │   │   └── ErrorRepairLoop.js   Ciclo deteccion->diagnostico->propuesta de fix, conectado en mcp-gemini.js — nunca auto-aplica, requiere confirmacion humana (ver self-healing-agent)
 │   ├── anthropic-bridge.js      Bridge Anthropic SDK con prompt caching (<static_context>) y Model Router
 │   ├── mcp-gemini.js            Servidor MCP stdio — shell JSON-RPC, delega a McpServerHandlers.js
@@ -732,6 +771,10 @@ New-Item -ItemType SymbolicLink -Path './CLAUDE.md' -Target 'C:/ruta/a/ai-core/C
 │   │   ├── cross-verify-gate.js Hook SubagentStop: segunda opinion cross-model tras code-reviewer
 │   │   ├── hooks-definition.js  Fuente unica de la seccion "hooks" de settings.json (usada por setup-settings.js y norm-harness.js)
 │   │   ├── subagent-guard.js    Hook PreToolUse(Agent): bloquea recursion y exceso de subagentes paralelos
+│   │   ├── subagent-budget-guard.js Hook PreToolUse (dentro de subagentes): techo de 40 llamadas a tools por subagente, red de seguridad final contra runaway
+│   │   ├── loop-alternante-guard.js Hook PreToolUse (dentro de subagentes): detecta 2 tools alternando 6+ ciclos sin converger (argumentos distintos) — advierte, bloquea si persiste
+│   │   ├── tool-repeat-guard.js Hook PreToolUse: bloquea (exit 2) la misma tool+argumentos identicos repetida mas de 3 veces (agente atascado reintentando)
+│   │   ├── web-search-guard.js  Hook PreToolUse(WebSearch|WebFetch): fuerza buscar_web (Gemini) sobre busqueda nativa, degrada con gracia sin GEMINI_API_KEY
 │   │   ├── agent-tools-guard.js Hook PreToolUse(Bash|Read|Write|Edit): bloquea herramientas fuera del scope `tools:` declarado por el subagente activo
 │   │   ├── bash-verbosity-guard.js Hook PreToolUse(Bash): bloquea comandos de alto riesgo de output masivo
 │   │   ├── destructive-op-guard.js Hook PreToolUse(Bash): bloquea rm -rf, git push --force, reset --hard, clean -f, branch -D, DROP TABLE/TRUNCATE — break-glass para 11 reglas sin alternativa segura
@@ -740,6 +783,10 @@ New-Item -ItemType SymbolicLink -Path './CLAUDE.md' -Target 'C:/ruta/a/ai-core/C
 │   │   ├── mcp-lifecycle-check.js Valida estado Active/Deprecated/Removed de servidores MCP propios contra MCP_LIFECYCLE.json
 │   │   ├── circuit-breaker.js   Hook PreToolUse(mcp__.*): avisa tras 3 fallos MCP consecutivos en 5 min (ASI08)
 │   │   ├── subagent-grader.js   Hook SubagentStop: grader de calidad via SubagentGrader.js (Performance Outcomes)
+│   │   ├── checkpoint-branch.js Hook PostToolUse(Write|Edit): auto-commit a rama de respaldo ai-core/checkpoints, nunca a la rama de trabajo real
+│   │   ├── diff-map-trigger.js  Hook PostToolUse(Write|Edit|Bash): regenera CONTEXT_MAP.json ante archivos nuevos/renombrados/eliminados
+│   │   ├── detox.js             Limpia .md legacy no trackeados de la raiz (TO_GEMINI.md, REPORT-*.md) que contaminan contexto entre sesiones
+│   │   ├── git-history-secrets-scan.js Escanea el HISTORIAL completo de git (no solo working tree) por credenciales commiteadas alguna vez
 │   │   ├── lib/                 Modulos compartidos entre hooks
 │   │   │   ├── hook-stdin.js         Lectura/parseo del JSON de evento que Claude Code entrega por stdin
 │   │   │   ├── risky-code-patterns.js Patrones de ejecucion arbitraria compartidos con code-exec-guard.js
@@ -748,7 +795,15 @@ New-Item -ItemType SymbolicLink -Path './CLAUDE.md' -Target 'C:/ruta/a/ai-core/C
 │   │   │   ├── subagent-task-store.js Correlaciona PreToolUse/SubagentStop por session_id+prompt_id
 │   │   │   ├── guard-report.js       Esquema tipado {guard,verdict,severity} en JSONL, opt-in por guard (secrets-guard, injection-guard, pre-commit-tdd)
 │   │   │   ├── break-glass.js        Excepcion auditable de un solo uso (id, TTL 5min, log append-only) para guards de riesgo real
-│   │   │   └── permission-decision.js Formato permissionDecision:"deny" (JSON, exit 0) para guards de friccion operativa
+│   │   │   ├── permission-decision.js Formato permissionDecision:"deny" (JSON, exit 0) para guards de friccion operativa
+│   │   │   ├── agent-frontmatter.js  Parser compartido del frontmatter de un AGENT.md (agentType -> scope de tools:)
+│   │   │   ├── normalizar-texto.js   Normalizacion (NFKC, homoglifos, invisibles) antes de matchear regex en guards de deteccion textual
+│   │   │   ├── patrones-secretos.js  Fuente unica de patrones de credenciales de alta confianza, usada por secrets-guard.js y git-history-secrets-scan.js
+│   │   │   ├── deteccion-resolucion-previa.js Evalua lo que un comando PRODUCE al ejecutarse (decodificar base64/hex) antes de dejarlo pasar
+│   │   │   ├── code-reviewer-veredicto.js Regla objetiva de veredicto del Paso 3 de code-reviewer.md como funcion pura testeable
+│   │   │   ├── security-scanner-report-format.js Valida el contrato de formato del Paso 5 de security-scanner.md
+│   │   │   ├── self-healing-agent-report-format.js Valida el contrato de formato del Paso 4 de self-healing-agent.md
+│   │   │   └── contextual-retrieval-benchmark.js Mide recall@K real de BM25+ (con/sin Contextual Retrieval) sobre el corpus de SKILL.md
 │   │   └── memory-vault-prune-check.js Hook Stop: avisa (sin borrar) cuando el vault supera 50 archivos
 │   └── skills/                  45 skills — enrutamiento via frontmatter description (agentskills.io), reglas en CLAUDE.md
 ├── tests/                       1321 tests — tests/harness/*.test.js (dividido por modulo) + archivos dedicados
