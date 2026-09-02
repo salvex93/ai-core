@@ -3,6 +3,37 @@
 Registro de cambios por version. Formato basado en [Keep a Changelog](https://keepachangelog.com/es/1.0.0/).
 Versionado semantico: MAJOR.MINOR.PATCH.
 
+## [3.38.0] — 2026-09-02 (4 principios de campo del harness oficial de Anthropic para deteccion autonoma, integrados en security-scanner + code-reviewer + Gobierno de Agentes)
+
+Evaluacion "con calma" de repos de ciberseguridad en GitHub. Revisado: `anthropics/defending-code-reference-harness` (harness oficial de Anthropic para deteccion autonoma de vulnerabilidades — 8 skills, pipeline de 7 etapas, sandbox gVisor), `anthropics/claude-code-security-review` (GitHub Action oficial + slash command nativo `/security-review`), catalogos comunitarios de 800+ skills de seguridad.
+
+### Veredicto de la evaluacion
+
+- **Rechazado:** clonar el harness Docker/gVisor completo (infra pesada, ya cubierto en parte por `npm run sandbox` patron OpenHands), los catalogos comunitarios de 800 skills (ruido, sin fuente primaria por skill), y `/security-review` como comando (ya es nativo de Claude Code, no requiere reimplementacion).
+- **Adoptado:** 4 principios de campo del `docs/best-practices.md` del harness oficial (fuente primaria: `github.com/anthropics/defending-code-reference-harness`, verificado 2026-09-02), integrados en los agentes de seguridad existentes sin agregar infra.
+
+### Agregado — `security-scanner.md`: escala de verificacion con witness ejecutable
+
+"Prefer executable witnesses (a crash, a leaked value) over written arguments." Escala de 4 niveles (patron detectado -> contexto confirmado -> precondiciones verificadas -> witness ejecutable) obligatoria por hallazgo; un hallazgo que no pasa de nivel 1 sale del conteo. Version 1.2.0 -> 1.3.0.
+
+### Agregado — `security-scanner.md` + `code-reviewer.md`: severidad derivada de precondiciones, no de categoria
+
+"Derive severity from preconditions, not category... zero preconditions and unauthenticated remote -> high; one or two, or authenticated -> medium; three or more, or local-only -> low." La categoria (credencial / CVE / correctitud / seguridad) ya no fija la severidad — se cuenta cuantas precondiciones necesita un atacante. Conformidad arquitectonica (funcion > 20 lineas) sigue siendo ALTO por regla dura de CLAUDE.md, independiente de precondiciones. Formato de reporte de ambos agentes actualizado con anotacion `[precondiciones: N]`.
+
+### Agregado — `code-reviewer.md`: particion explicita del espacio de revision antes de clasificar
+
+"Partition the search space. Parallel agents converge on the same shallow bugs unless each is told precisely which part of the codebase to search and what to look for." 4 particiones con foco distinto (superficie de entrada / rutas de datos sensibles / control de flujo y estado / conformidad estructural) en vez de barrer todo el diff con la misma lente. Version 1.1.0 -> 1.2.0.
+
+### Agregado — CLAUDE.md Gobierno de Agentes punto 3: supervisor con presupuesto por hallazgo, capa semantica sobre el techo fijo
+
+"The supervisor runs in a separate context from the worker" y "gates at a $/finding threshold". `subagent-budget-guard.js` es un techo ciego de llamadas; esta capa lo complementa con politica de orquestacion para el hilo principal: no relanzar un worker improductivo sobre la misma particion, detener cuando el costo marginal por hallazgo verificado cae. Sin hook propio — los guards de budget/loop siguen siendo la red dura por debajo.
+
+### CI — reparado guard-read-js.test.js (fallaba en las 3 plataformas)
+
+4 subtests asumian `GEMINI_API_KEY` presente (el guard emite `permissionDecision:deny` solo si Gemini esta disponible); CI no tiene `.env` real -> `JSON.parse('')` lanzaba `SyntaxError`. Local pasaba solo por el `.env` real del usuario. Fix: helper `conGeminiEnv()` que inyecta un `.env` temporal con key falsa via `AI_CORE_ENV_PATH`, mismo patron que el test de fallback ya existente. Cambio solo en tests, codigo de produccion del guard intacto.
+
+1321 tests (1320 pass, 1 skipped, 0 fail), 45/45 skills conformes.
+
 ## [3.37.0] — 2026-09-02 (2 guards nuevos: budget por subagente + deteccion de loop alternante, diseñados junto al usuario)
 
 Cierre del gap mas peligroso de la auditoria anterior: loop entre agentes/turnos con argumentos DISTINTOS cada vez (`tool-repeat-guard.js` solo cubre argumentos identicos). Investigacion previa a implementar (LangGraph `recursion_limit`, AutoGen `max_consecutive_auto_reply`, CrewAI `max_iter` -- ninguno resuelve esto, todos son contadores ciegos de pasos; OpenHands `StuckDetector` en produccion real si lo resuelve, sin embeddings ni LLM-as-judge por ronda; arXiv 2606.27009 confirma que anadir juez por ronda es contraproducente en costo). Diseño de 2 capas presentado y confirmado explicitamente con el usuario (umbral de llamadas y comportamiento de advertencia-antes-de-bloquear) antes de escribir codigo.
