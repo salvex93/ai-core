@@ -175,7 +175,7 @@ npm run memory-query "<terminos>"         # buscar en vault (BM25)
 npm run memory-status                     # estado del vault
 npm run agent-report                      # resumen de metricas de la sesion actual
 npm run agent-report-full                 # historial de metricas de todas las sesiones
-npm run eval-skills                       # correr los 45 evals de conformidad de skills (promptfoo)
+npm run eval-skills                       # correr los 43 evals de conformidad de skills (promptfoo)
 ```
 
 ---
