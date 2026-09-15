@@ -66,8 +66,8 @@
       "skills": ["discord-ops"]
     },
     "backend-architecture-generic": {
-      "verified": "2026-07-15",
-      "sources": ["orientativo, no verificado contra fuente primaria en esta pasada -- pendiente de primera verificacion real (patrones de arquitectura de backend, event-driven, WebSockets)"],
+      "verified": "2026-09-15",
+      "sources": ["developer.mozilla.org/docs/Web/API/Server-sent_events (EventSource reconexion nativa confirmada; limite de 6-8 conexiones HTTP/1.1 concurrentes por dominio documentado como advertencia nueva)", "patron Redis Pub/Sub para escalado horizontal de WebSocket: arquitectonico, no atado a version de producto, sin necesidad de reverificacion periodica"],
       "skills": ["backend-architect"]
     },
     "backend-languages-multi": {
