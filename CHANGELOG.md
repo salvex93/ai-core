@@ -7,6 +7,14 @@ Versionado semantico: MAJOR.MINOR.PATCH.
 
 Pedido explicito del usuario: un unico comando interactivo (`npm run wizard`) que reemplace la configuracion manual dispersa de API keys, tokens y validacion de estado del harness, sin fragmentarla en comandos separados.
 
+### Corregido — vigencia del dominio `security-owasp` y asociacion de `ciso` en `MARKET_STANDARDS.json`
+
+Protocolo de Vigencia Tecnologica aplicado sobre el hallazgo `STALE_MERCADO` que `audit-market.js` reportaba para el dominio `security-owasp`. Verificado contra fuente primaria (`genai.owasp.org`, 2026-09-15): existe una edicion OWASP GenAI LLM Top 10 2026, publicada 2026-09-01, con "updated rankings" respecto a la edicion 2025 vigente hasta ahora — la numeracion/nombre exacto de cada categoria de la edicion 2026 (incl. si Prompt Injection sigue siendo LLM01) NO se pudo confirmar contra el documento completo, solo landing pages, asi que ningun skill se migro a identificadores 2026: siguen citando LLM01:2025 Prompt Injection de la edicion 2025, unica confirmada con detalle exacto.
+
+`verified` del dominio actualizado a 2026-09-15 en `MARKET_STANDARDS.json`, con la fuente y la salvedad documentadas explicitamente. Efecto en cascada revisado skill por skill: `security-auditor`, `attack-surface-analyst` y `security-monitoring-soc` sincronizaron `last_updated` (su contenido sobre OWASP LLM Top 10 sigue vigente, solo no se habia tocado desde la re-verificacion del dominio). `ciso` se retiro de la lista de skills del dominio `security-owasp` — su `SKILL.md` no trata OWASP/LLM Top 10 como contenido propio, solo delega explicitamente a `ai-guardrails` ("La tarea es proteger un endpoint LLM contra prompt injection o fuga de PII — usar `ai-guardrails`"); la asociacion previa era incorrecta y generaba drift falso en cada re-verificacion del dominio. Test `audit-market-js.test.js:54` actualizado para filtrar por `ai-guardrails` en vez de `ciso`, con la razon del cambio documentada en el propio test.
+
+Eval de conformidad de `ai-guardrails` (`node .claude/evals/ai-guardrails.promptfooconfig.yaml`) re-verificado de forma aislada: 4/4 casos pasan. 1373 tests (1372 pass, 1 skip), 45/45 skills conformes.
+
 ### Agregado — `wizard-credentials.js`: validacion activa de credenciales, no solo formato
 
 `validarProveedorIA()` hace una llamada minima real via `ModelRegistry.chat()` (inyectado, testeable sin red) contra el proveedor cuya API key se esta configurando, en vez de solo chequear longitud/prefijo del string. Mismo criterio para `validarGitHubToken()` (llamada a la API de GitHub). Para SSH, `validarSshHostAlias()` deliberadamente NUNCA lee ni pide la clave privada — solo confirma que el alias ya existe en `~/.ssh/config` y que `ssh-add -L` lo reporta cargado en el agente; solo el alias se persiste en `.env`.
