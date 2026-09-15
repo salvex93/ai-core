@@ -17,6 +17,10 @@ Protocolo de Vigencia Tecnologica aplicado sobre `tech-lead-frontend` y `ux-visu
 
 Hallazgo real corregido: ambos SKILL.md etiquetaban `@view-transition { navigation: auto; }` (transicion cross-document/MPA) como "same-document (Baseline 2025)" — es en realidad **Limited Availability** (sin soporte en Firefox), distinta de `document.startViewTransition()` (same-document, esa si Baseline). Corregido en `tech-lead-frontend/SKILL.md` (Modulo 13) y `ux-visual-designer/SKILL.md` (Modulo 6), cada uno con seccion de vigencia fechada agregada. Container Queries y WCAG 2.2 confirmados vigentes sin cambios. `verified` de `frontend-web-standards` actualizado a 2026-09-15 en `MARKET_STANDARDS.json`. `last_updated` de ambos skills sincronizado via `npm run validate-globals -- --fix-drift`. 45/45 skills conformes.
 
+### Verificado — `rag-llm-eval`
+
+Protocolo de Vigencia Tecnologica aplicado. Los 3 skills asociados (`rag-specialist`, `llm-evals`, `llm-observability`) ya contaban con secciones "Vigencia" propias post-fecha del placeholder, citando fuentes primarias reales (Cohere Rerank v3.5, Anthropic Contextual Retrieval, RAGAS, deepeval G-Eval, OTel GenAI semantic conventions, Langfuse v4/v5). Verificacion en vivo adicional contra `promptfoo.dev/docs/configuration/guide/`: la estructura de ejemplo en `llm-evals/SKILL.md` (prompts/providers/tests, assert llm-rubric/javascript, comando `promptfoo eval`) coincide exactamente con la documentacion oficial actual, sin drift. `verified` de `rag-llm-eval` actualizado a 2026-09-15 en `MARKET_STANDARDS.json` con las 5 fuentes reales confirmadas; ningun SKILL.md requirio cambios de contenido. `node --test tests/harness/audit-market-js.test.js` — 8/8 pass.
+
 ## [3.40.1] — 2026-09-15 (vigencia de parametro max_tokens en OpenAICompatAdapter.js: DeepSeek y Kimi)
 
 Protocolo de Vigencia Tecnologica aplicado sobre `PROVIDER_CONFIGS.deepseek` y `PROVIDER_CONFIGS.kimi`, marcados desde su creacion como "no verificado contra fuente oficial". Verificado contra fuente primaria (2026-09-15):
