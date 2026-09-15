@@ -67,7 +67,7 @@ describe('OpenAICompatAdapter.js — construccion del body de la peticion', () =
     const body = JSON.parse(construirBodyOpenAICompat(
       [{ role: 'user', content: 'x' }], { forzarJSON: true }, { ...PROVIDER_CONFIGS.deepseek }
     ));
-    assert.equal('response_format' in body, false, 'deepseek no confirmado, no debe forzar el parametro');
+    assert.equal('response_format' in body, false, 'deepseek: JSON mode no confirmado contra fuente oficial, no debe forzar el parametro');
   });
 
   test('options.system antepone un mensaje role:system al array messages', () => {
