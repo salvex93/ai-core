@@ -11,7 +11,7 @@
       "skills": ["claude-agent-sdk", "managed-agents-specialist", "prompt-engineer", "ai-integrations", "claude-api", "agent-testing", "workflow-orchestrator"]
     },
     "openai-gemini-agents": {
-      "verified": "2026-07-15",
+      "verified": "2026-09-15",
       "sources": ["ai.google.dev/gemini-api/docs/function-calling", "ai.google.dev/gemini-api/docs/tools", "developers.openai.com/api/docs/guides/structured-outputs"],
       "skills": ["gemini-3-specialist", "ai-integrations", "agent-testing"]
     },
