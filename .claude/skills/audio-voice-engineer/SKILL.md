@@ -231,8 +231,8 @@ Las Reglas Globales definidas en CLAUDE.md aplican sin excepcion. Adicionales:
 > Reglas de sesion activas: CLAUDE.md > este skill. Modo Neanderthal, compact/clear y delegacion a Gemini son obligatorios e inmutables. Ver seccion 'Protocolo de Ahorro de Tokens' en CLAUDE.md.
 - Verificar especificar latencia objetivo y plan de medicion antes de disenar un voice system.
 - Verificar plan de migracion de clientes existentes antes de cambiar codec en produccion.
-- Prohibido recomendar `gemini-2.0-flash-live-001` o `gemini-2.5-flash-live-preview` — ambos apagados desde 2025-12-09, usar `gemini-3.1-flash-live-preview`.
-- Advertir explicitamente si el diseno requiere Affective Dialog: no soportado en `gemini-3.1-flash-live-preview` a la fecha de este skill (verificado 2026-07-10) — confirmar contra documentacion oficial antes de prometerlo.
+- Prohibido recomendar `gemini-2.0-flash-live-001`, `gemini-2.5-flash-live-preview` o `gemini-3.1-flash-live-preview` — los dos primeros apagados desde 2025-12-09, el tercero deprecado; usar `gemini-3.8-live` (o `gemini-3.8-live-extended-thinking` si el caso requiere mas razonamiento).
+- Verificar el soporte de Affective Dialog contra la documentacion del modelo especifico antes de prometerlo — no esta confirmado explicitamente para `gemini-3.8-live` a la fecha de este skill (verificado 2026-09-15), aunque ya no aparece excluido como en `gemini-3.1-flash-live-preview`.
 - Verificar streaming si duracion supera 60 segundos antes de serializar audio.
 
 ## Modulo — Vanguardia Transversal en Voice AI y Audio Real-Time
