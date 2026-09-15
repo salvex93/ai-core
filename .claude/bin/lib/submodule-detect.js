@@ -10,14 +10,22 @@
  * .gitmodules del padre declara "ai-core", y el padre tiene su propio
  * CLAUDE.md (senal de que es un proyecto real, no solo un checkout suelto).
  *
- * @param {string} corePath - ruta absoluta a la raiz de ai-core
- * @returns {{ esSubmodulo: boolean, hostDir: string|null, razon: string }}
+ * Dos puntos de entrada porque los dos callers conocen rutas distintas:
+ * scripts/update.js conoce la ruta de ai-core (REPO) y necesita resolver el
+ * padre; norm-harness.js, al correr con cwd en el propio proyecto anfitrion,
+ * ya conoce hostDir de forma directa -- forzarlo a pasar por corePath
+ * (resolve(corePath, '..', '..')) requeriria reconstruir una ruta sintetica,
+ * fragil en tests donde hostDir es un tmpdir sin relacion posicional real
+ * con ningun corePath.
  */
 const fs = require('node:fs');
 const path = require('node:path');
 
-function detectarSubmodulo(corePath) {
-  const hostDir = path.resolve(corePath, '..', '..');
+/**
+ * @param {string} hostDir - ruta absoluta al proyecto anfitrion (padre)
+ * @returns {{ esSubmodulo: boolean, hostDir: string|null, razon: string }}
+ */
+function esSubmoduloDeHost(hostDir) {
   const gitmodulesPath = path.join(hostDir, '.gitmodules');
   const hostClaudePath = path.join(hostDir, 'CLAUDE.md');
 
@@ -38,4 +46,12 @@ function detectarSubmodulo(corePath) {
   return { esSubmodulo: true, hostDir, razon: '.gitmodules declara ai-core y el padre tiene CLAUDE.md' };
 }
 
-module.exports = { detectarSubmodulo };
+/**
+ * @param {string} corePath - ruta absoluta a la raiz de ai-core
+ * @returns {{ esSubmodulo: boolean, hostDir: string|null, razon: string }}
+ */
+function detectarSubmodulo(corePath) {
+  return esSubmoduloDeHost(path.resolve(corePath, '..', '..'));
+}
+
+module.exports = { detectarSubmodulo, esSubmoduloDeHost };
