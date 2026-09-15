@@ -157,6 +157,8 @@ Señal de alarma: `cl_waiting > 0` en `SHOW POOLS` indica que el pool esta satur
 
 Usar PgBouncer >= 1.25.1 si el despliegue combina simultaneamente `track_extra_parameters` con `search_path`, `auth_user` configurado, y `auth_query` sin nombres fully-qualified — esa combinacion especifica de configuracion no-default es vulnerable a CVE-2025-12819 (corregido en 1.25.1); fuera de esas tres condiciones simultaneas, el CVE no aplica. Dimensionar `default_pool_size` segun la capacidad real de conexiones que Postgres puede sostener (revisar `max_connections` y recursos del servidor), no segun la demanda pico de la aplicacion. Monitorear en conjunto `SHOW POOLS` (`cl_waiting`) y `pg_stat_activity` del lado del servidor Postgres para confirmar que el cuello de botella esta donde se piensa antes de ajustar el tamano del pool.
 
+Nota de vigencia (verificado 2026-09-15 contra `postgresql.org/support/security`): lote de parches del 2026-08-13 corrige 7 CVEs de severidad alta (CVSS 8.8) en el propio motor Postgres — entre ellos `pg_dump`/`psql \unrestrict` (ejecucion de codigo arbitrario), type confusion en cursores y en argumentos "internal", e integer wraparound en `tsvector`/`tsquery` — en versiones 18.6, 17.11, 16.15, 15.19 y 14.24. Sin relacion con el CVE de PgBouncer citado arriba (componentes distintos). Confirmar la version exacta de Postgres del anfitrion contra ese lote antes de descartar el riesgo; no asumir que un CVE de cliente (PgBouncer) cubre el motor.
+
 ## Mantenimiento — Vacuum y Bloat
 
 ```sql
