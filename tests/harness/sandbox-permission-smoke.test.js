@@ -548,4 +548,52 @@ describe('sandboxing de hooks propios — Node.js Permission Model (smoke test)'
     assert.equal(r.status, 0, 'comportamiento real confirmado: degrada a exit 0 en vez de fallar visible (ver nota arriba)');
     assert.match(r.stderr, /no se puede validar drift/, 'debe dejar rastro del fallo en stderr aunque no bloquee');
   });
+
+  test('subagent-guard-release.js CON permisos: borra el lock real y termina exit 0', () => {
+    // Unico guard invocado en produccion con readYWriteSubagentLocks
+    // (hooks-definition.js linea 181) que no tenia cobertura --permission
+    // real -- su propio test (subagent-guard-release-js.test.js) usaba
+    // spawnSync sin --permission, el mismo gap ya cerrado para los demas
+    // guards en el commit 99413c4.
+    const dirLocks = nuevoDirTemporal('subagent-guard-release-con-permiso');
+    const lockFile = path.join(dirLocks, 's1__p1.lock');
+    fs.writeFileSync(lockFile, '');
+    const dirBin = path.join(BIN, '*');
+    const dirLocksGlob = path.join(dirLocks, '*');
+
+    const r = spawnSync('node', [
+      '--permission',
+      `--allow-fs-read=${dirBin},${dirLocksGlob}`,
+      `--allow-fs-write=${dirLocksGlob}`,
+      path.join(BIN, 'subagent-guard-release.js'),
+    ], {
+      input: JSON.stringify({ session_id: 's1', prompt_id: 'p1' }),
+      encoding: 'utf8',
+      cwd: REPO,
+      env: { ...process.env, AI_CORE_SUBAGENT_LOCK_DIR: dirLocks },
+    });
+
+    assert.equal(r.status, 0, 'con el permiso correcto debe terminar exit 0 como en produccion');
+    assert.equal(fs.existsSync(lockFile), false, 'debe haber borrado el lock real, no fallar en silencio sin efecto');
+  });
+
+  test('subagent-guard-release.js SIN ningun permiso: falla de forma controlada (EPERM), no cuelga ni lanza excepcion no capturada', () => {
+    // En produccion el hook lo invoca con "... 2>/dev/null || true" -- un
+    // EPERM aqui ya es tolerado a nivel de invocacion (a diferencia de los
+    // demas guards, donde un fallo silencioso seria el riesgo). Lo que este
+    // test verifica es que el proceso termine limpio (nunca cuelgue) y que
+    // el fallo sea realmente EPERM del Permission Model, no otro error oculto.
+    const r = spawnSync('node', [
+      '--permission',
+      path.join(BIN, 'subagent-guard-release.js'),
+    ], {
+      input: JSON.stringify({ session_id: 's1', prompt_id: 'p1' }),
+      encoding: 'utf8',
+      cwd: REPO,
+    });
+
+    assert.notEqual(r.status, null, 'no debe colgarse sin terminar');
+    assert.notEqual(r.status, 0, 'sin permiso de lectura, el require de lib/hook-stdin no debe poder correr silenciosamente con exit 0');
+    assert.match(r.stderr, /ERR_ACCESS_DENIED|Access to this API has been restricted/);
+  });
 });
