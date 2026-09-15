@@ -71,9 +71,10 @@
       "skills": ["backend-architect"]
     },
     "backend-languages-multi": {
-      "verified": "2026-08-04",
+      "verified": "2026-09-15",
       "sources": [
-        "go.dev/doc/devel/release (Go 1.26.0)",
+        "go.dev/doc/devel/release (Go 1.27.1)",
+        "go.dev/doc/go1.27 (ALPN en conexiones custom, HTTP/2 client priorities RFC 9218, auto-drenado Response.Body)",
         "go.dev/doc/go1.22 (enhanced routing net/http.ServeMux)",
         "go.dev/doc/go1.25 (WaitGroup.Go)",
         "github.com/gin-gonic/gin/releases (Gin v1.12.0)",
@@ -81,7 +82,7 @@
         "github.com/tokio-rs/axum/releases (Axum 0.8.9)",
         "tokio.rs/blog/2025-01-01-announcing-axum-0-8-0 (sintaxis path params {id})",
         "docs.rs/tokio/latest/tokio/sync/struct.Semaphore.html (orden acquire_owned antes de spawn)",
-        "spring.io/projects/spring-boot (Spring Boot 4.1.0)",
+        "spring.io/projects/spring-boot (Spring Boot 4.1.1)",
         "docs.spring.io/spring-boot/system-requirements.html (Java 17-26)",
         "github.com/spring-projects/spring-boot/wiki/Spring-Boot-4.0-Migration-Guide (remocion de @MockBean)",
         "oracle.com/java/technologies/java-se-support-roadmap.html (JDK 25 LTS)",
