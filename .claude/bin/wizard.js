@@ -117,14 +117,14 @@ function correrScript(rutaRelativa, args = []) {
   return { ok: res.status === 0, salida: `${res.stdout || ''}${res.stderr || ''}` };
 }
 
-function leerUltimaVersionChangelog() {
-  if (!fs.existsSync(CHANGELOG_PATH)) return null;
-  const m = fs.readFileSync(CHANGELOG_PATH, 'utf8').match(/^## \[(\d+\.\d+\.\d+)\]/m);
+function leerUltimaVersionChangelog(changelogPath = CHANGELOG_PATH) {
+  if (!fs.existsSync(changelogPath)) return null;
+  const m = fs.readFileSync(changelogPath, 'utf8').match(/^## \[(\d+\.\d+\.\d+)\]/m);
   return m ? m[1] : null;
 }
 
-function leerVersionPkg() {
-  return JSON.parse(fs.readFileSync(PKG_PATH, 'utf8')).version;
+function leerVersionPkg(pkgPath = PKG_PATH) {
+  return JSON.parse(fs.readFileSync(pkgPath, 'utf8')).version;
 }
 
 function seccionIntegridad() {
