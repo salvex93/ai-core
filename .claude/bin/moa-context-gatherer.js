@@ -133,4 +133,4 @@ if (require.main === module) {
   main();
 }
 
-module.exports = { ambasKeysDisponibles };
+module.exports = { ambasKeysDisponibles, contenidoUtil, construirContenidoMoA };
