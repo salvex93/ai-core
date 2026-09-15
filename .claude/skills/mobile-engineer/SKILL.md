@@ -199,14 +199,15 @@ Reglas de uso:
 - Usar `gemini-3.5-flash-lite` para edge (latencia minima, costo minimo — reemplaza a 3.1 Flash-Lite como tier 0 mas barato de la familia 3.x, verificado 2026-08-03). Reservar modelos mayores para el backend.
 - No enviar datos personales del usuario al modelo de edge sin consentimiento explicito — los datos pasan por Firebase.
 
-### Impeller (Renderer por Defecto — Flutter 3.32)
+### Impeller (Renderer por Defecto — Flutter 3.32, extendido en 3.47)
 
-Impeller es el renderer de produccion en Flutter 3.32 para iOS y Android. No requiere configuracion adicional. Implicaciones:
+Impeller es el renderer de produccion en Flutter 3.32 para iOS y Android. No requiere configuracion adicional. Desde Flutter 3.47 (verificado 2026-09-15 contra `flutter.dev/blog/whats-new-in-flutter-3-47`, publicado 2026-08-12) Impeller es ademas el renderer por defecto en **macOS, Windows y Linux**, reemplazando a Skia tambien en desktop. Implicaciones:
 
-- Eliminar `--enable-impeller` de scripts de build — activo por defecto.
+- Eliminar `--enable-impeller` de scripts de build — activo por defecto en todas las plataformas soportadas (movil y desktop).
 - Si el proyecto usa shaders SKSL precompilados (`--bundle-sksl-path`), estos ya no son necesarios con Impeller.
 - `RepaintBoundary` sigue siendo relevante para aislar capas de animacion costosas.
 - Reportar bugs de renderizado visuales con `flutter run --profile` antes de asumir que es un bug del codigo — Impeller tiene comportamiento diferente a Skia en degradados y sombras complejas.
+- Si el proyecto compila a desktop (macOS/Windows/Linux) y dependia de comportamiento especifico de Skia, revalidar visualmente tras actualizar a 3.47 — el cambio de renderer es transparente en API pero no en pixel-perfect output.
 
 ## Reglas de Calidad de Widget Tree
 
