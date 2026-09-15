@@ -56,8 +56,12 @@ function escribirEnvVar(clave, valor, envPath = ENV_PATH) {
 }
 
 async function preguntar(rl, texto) {
-  const r = await rl.question(texto);
-  return r.trim();
+  try {
+    const r = await rl.question(texto);
+    return r.trim();
+  } catch {
+    return '';
+  }
 }
 
 async function seccionProveedoresIA(rl) {
