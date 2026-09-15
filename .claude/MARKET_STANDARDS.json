@@ -118,9 +118,9 @@
       "skills": ["aaa-evaluator", "aiops-engineer", "cost-optimizer", "cross-model-verifier", "dev-loop", "memory-manager", "silent-failure-hunter"]
     },
     "multimodal-voice": {
-      "verified": "2026-07-10",
-      "sources": ["orientativo, verificado parcialmente en sesiones previas (ver last_updated historico de audio-voice-engineer/multimodal-engineer) -- no re-verificado en esta pasada"],
-      "skills": ["audio-voice-engineer", "multimodal-engineer"]
+      "verified": "2026-09-15",
+      "sources": ["ai.google.dev/gemini-api/docs/models (gemini-3.8-live Stable reemplaza a gemini-3.1-flash-live-preview deprecado; gemini-3.8-live-extended-thinking)", "ai.google.dev/gemini-api/docs/live-guide (Affective Dialog: exclusion explicita solo para gemini-3.1-flash-live-preview, sin tabla de compatibilidad para gemini-3.8-live)", "ai.google.dev/gemini-api/docs/speech-generation (gemini-3.1-flash-tts-preview y gemini-2.5-pro-preview-tts sin drift)"],
+      "skills": ["audio-voice-engineer", "multimodal-engineer", "gemini-3-specialist"]
     },
     "performance-load-testing": {
       "verified": "2026-07-15",
