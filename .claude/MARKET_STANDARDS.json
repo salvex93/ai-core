@@ -27,7 +27,7 @@
     },
     "devops-supply-chain": {
       "verified": "2026-09-15",
-      "sources": ["slsa.dev/spec/v1.2/about (SLSA v1.2 es la version vigente, estado Approved; v1.1 Retired). slsa.dev/spec/v1.1/levels (niveles del build track: L0 sin garantias, L1 provenance existe, L2 plataforma hospedada firma la provenance, L3 build hardened con aislamiento de builds). NOTA: ni devops-infra ni release-manager mencionan SLSA/SBOM/CycloneDX/SPDX/cosign/sigstore en su contenido actual (verificado por grep, cero coincidencias) -- el dominio queda verificado contra fuente primaria pero sin contenido correspondiente en los skills asignados. Pendiente: decidir si se agrega una seccion de supply chain security a devops-infra o release-manager, o si el dominio se reasigna/retira de MARKET_STANDARDS.json."],
+      "sources": ["slsa.dev/spec/v1.2/about (SLSA v1.2 es la version vigente, estado Approved; v1.1 Retired). slsa.dev/spec/v1.1/levels (niveles del build track: L0 sin garantias, L1 provenance existe, L2 plataforma hospedada firma la provenance, L3 build hardened con aislamiento de builds). Contenido de supply chain security (SLSA/cosign/SBOM/CycloneDX/SPDX) agregado 2026-09-15 a devops-infra (seccion nueva) y release-manager (extension de etapas build/approve del pipeline) -- gap de cobertura cerrado."],
       "skills": ["devops-infra", "release-manager"]
     },
     "rag-llm-eval": {
