@@ -53,4 +53,15 @@ describe('lib/submodule-detect.js', () => {
     assert.equal(r.esSubmodulo, true);
     assert.equal(r.hostDir, hostDir);
   });
+
+  test('esSubmoduloDeHost recibe hostDir directamente, sin resolver desde corePath', () => {
+    fs.writeFileSync(path.join(hostDir, '.gitmodules'), '[submodule "ai-core"]\n\tpath = .claude/ai-core\n');
+    fs.writeFileSync(path.join(hostDir, 'CLAUDE.md'), '# AI-CORE activo\n');
+    const r = esSubmoduloDeHost(hostDir);
+    fs.unlinkSync(path.join(hostDir, '.gitmodules'));
+    fs.unlinkSync(path.join(hostDir, 'CLAUDE.md'));
+
+    assert.equal(r.esSubmodulo, true);
+    assert.equal(r.hostDir, hostDir);
+  });
 });
