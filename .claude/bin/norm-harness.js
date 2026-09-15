@@ -6,7 +6,7 @@ const os = require("os");
 const { version } = require(path.resolve(__dirname, "../../package.json"));
 const { detectStack } = require("./detect-stack");
 const { buildHooksSection } = require("./hooks-definition");
-const { detectarSubmodulo } = require("./lib/submodule-detect");
+const { esSubmoduloDeHost } = require("./lib/submodule-detect");
 
 const platform = os.platform();
 const homeDir = os.homedir();
