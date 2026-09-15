@@ -824,9 +824,12 @@ if (!prefersReduced) {
 ### CSS Moderno 2026 — View Transitions y Anchor Positioning
 
 ```css
-/* View Transitions — same-document (Baseline 2025) */
+/* View Transitions cross-document (MPA) — limited availability, sin Firefox */
+/* verificado 2026-09-15: developer.mozilla.org/en-US/docs/Web/CSS/@view-transition */
 @view-transition { navigation: auto; }
 .hero-image { view-transition-name: hero; }
+/* Same-document (SPA), via document.startViewTransition() en JS, si es Baseline:
+   Chrome/Edge 111+, Safari 18+, Firefox 144+ — preferir esa via si el proyecto es SPA */
 
 /* Anchor Positioning — tooltips sin JS */
 .tooltip {
