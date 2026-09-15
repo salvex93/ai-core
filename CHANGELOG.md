@@ -5,11 +5,11 @@ Versionado semantico: MAJOR.MINOR.PATCH.
 
 ## [Unreleased] — vigencia de dominios de mercado STALE_MERCADO (barrido completo)
 
-### Verificado — `devops-supply-chain`
+### Verificado y corregido — `devops-supply-chain`: gap de contenido cerrado con implementacion real
 
 Protocolo de Vigencia Tecnologica aplicado. Fuente primaria: `slsa.dev/spec/v1.2/about` (v1.2 = version vigente del framework SLSA, estado "Approved"; v1.1 "Retired") y `slsa.dev/spec/v1.1/levels` (niveles build track L0-L3). `verified` actualizado a 2026-09-15 en `MARKET_STANDARDS.json` con ambas URLs.
 
-Hallazgo real durante la verificacion: ni `devops-infra` ni `release-manager` (los dos skills asociados a este dominio) mencionan SLSA, SBOM, CycloneDX, SPDX, cosign ni sigstore (confirmado por grep, cero coincidencias) — el dominio queda verificado pero sin contenido correspondiente en los skills que dice cubrir. Documentado explicitamente en `MARKET_STANDARDS.json` como gap conocido, sin fabricar contenido nuevo fuera del alcance de la tarea (agregar una seccion de supply chain security es una decision de alcance de skill, no una correccion de vigencia). `node --test tests/harness/audit-market-js.test.js` — 8/8 pass.
+Hallazgo real durante la verificacion previa: ni `devops-infra` ni `release-manager` mencionaban SLSA, SBOM, CycloneDX, SPDX, cosign ni sigstore (confirmado por grep, cero coincidencias) — el dominio quedaba verificado contra fuente primaria pero sin contenido correspondiente en los skills que dice cubrir. Cerrado en esta pasada, no solo documentado: `devops-infra/SKILL.md` (1.1.4 -> 1.2.0) suma una seccion nueva "Supply Chain Security en el Pipeline de Infraestructura" con la tabla de niveles L0-L3 del build track y su aplicacion practica (imagen por digest inmutable, `cosign sign`/`cosign verify` como gate previo a `kubectl apply`/`helm upgrade`, SBOM CycloneDX/SPDX como attestation). `release-manager/SKILL.md` (1.2.1 -> 1.3.0) extiende las etapas `build` (provenance firmada SLSA L2 minimo + SBOM) y `approve` (verificacion de firma via `cosign verify` con identidad OIDC keyless, mismo mecanismo ya usado para despliegue) de su Pipeline CI/CD. `node --test tests/harness/audit-market-js.test.js` — 8/8 pass.
 
 ### Verificado y corregido — `frontend-web-standards`
 
