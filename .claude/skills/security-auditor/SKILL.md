@@ -278,7 +278,7 @@ Controles:
 - Principio de minimo privilegio en herramientas: si el LLM solo necesita leer datos, no exponer herramientas de escritura o eliminacion.
 - Las herramientas de alto impacto (envio de emails, modificacion de registros, llamadas a APIs externas) requieren confirmacion humana explicita antes de ejecutarse. El LLM propone, el humano aprueba.
 
-### LLM07 — Fuga del System Prompt
+### LLM08 — Fuga del System Prompt
 
 Un atacante extrae el contenido del system prompt via instrucciones directas o indirectas al modelo.
 
