@@ -21,6 +21,26 @@ Hallazgo real corregido: ambos SKILL.md etiquetaban `@view-transition { navigati
 
 Protocolo de Vigencia Tecnologica aplicado. Los 3 skills asociados (`rag-specialist`, `llm-evals`, `llm-observability`) ya contaban con secciones "Vigencia" propias post-fecha del placeholder, citando fuentes primarias reales (Cohere Rerank v3.5, Anthropic Contextual Retrieval, RAGAS, deepeval G-Eval, OTel GenAI semantic conventions, Langfuse v4/v5). Verificacion en vivo adicional contra `promptfoo.dev/docs/configuration/guide/`: la estructura de ejemplo en `llm-evals/SKILL.md` (prompts/providers/tests, assert llm-rubric/javascript, comando `promptfoo eval`) coincide exactamente con la documentacion oficial actual, sin drift. `verified` de `rag-llm-eval` actualizado a 2026-09-15 en `MARKET_STANDARDS.json` con las 5 fuentes reales confirmadas; ningun SKILL.md requirio cambios de contenido. `node --test tests/harness/audit-market-js.test.js` — 8/8 pass.
 
+### Verificado — `backend-architecture-generic`
+
+Protocolo de Vigencia Tecnologica aplicado sobre `backend-architect`. Fuente primaria: `developer.mozilla.org/docs/Web/API/Server-sent_events` — reconexion nativa de `EventSource` confirmada, y el limite de 6-8 conexiones HTTP/1.1 concurrentes por dominio documentado como advertencia real (no en la version previa del skill). El patron de Redis Pub/Sub para escalado horizontal de WebSocket se documenta como arquitectonico, no atado a version de producto, sin necesidad de reverificacion periodica. `verified` actualizado a 2026-09-15 en `MARKET_STANDARDS.json`.
+
+### Verificado — 9 skills de `anthropic-agents`/`openai-gemini-agents`/`rag-llm-eval` reconfirmados sin drift de fondo
+
+Barrido de los 11 skills que `audit-market.js` reportaba en `DRIFT_VS_MERCADO` tras el cierre de los dominios compartidos en la pasada anterior. En 9 casos la re-lectura del contenido contra las fuentes ya verificadas del dominio confirmo que el contenido sigue exacto — se agrego un parrafo de reverificacion fechado en la seccion de vigencia existente de cada skill (nunca solo un bump de fecha sin revisar contenido):
+
+- `agent-testing` (1.2.0 -> 1.2.1): thinking blocks en tool use (`platform.claude.com/.../thinking-steering-and-cost`) sin cambio; confirmado agnostico de proveedor tambien contra Gemini function-calling y OpenAI structured outputs.
+- `ai-integrations` (2.5.1 -> 2.5.2): Prompt Caching GA (`cache_control: { type: "ephemeral" }`, sin header beta) sin cambio; patron de fallback multi-proveedor sin ajuste requerido.
+- `claude-api` (1.3.1 -> 1.3.2): Prompt Caching, definicion de tools y thinking blocks reverificados contra las 4 fuentes primarias del skill, sin drift.
+- `managed-agents-specialist` (1.2.2 -> 1.2.3): definicion de tools y thinking blocks heredados de Messages API sin drift; criterio de seleccion Managed Agents vs. tools integradas sigue vigente.
+- `workflow-orchestrator` (2.3.1 -> 2.3.2): conclusion de que el Agent SDK no provee durable execution nativa (Temporal/Prefect o Managed Agents como capa externa) sigue sin cambio.
+- `multimodal-engineer` (1.2.1 -> 1.2.2): hallazgo de mapeo — el dominio compartido `multimodal-voice` (gemini-3.8-live, TTS) cubre superficie de voz que este skill no trata; esa superficie vive en `audio-voice-engineer` (ya verificado). Documentado explicitamente en vez de forzar contenido de voz inexistente aqui.
+- `llm-evals` (1.2.3 -> 1.2.4): estructura `promptfooconfig.yaml` reverificada en vivo sin drift; confirmado que Rerank v3.5 y Contextual Retrieval (citados por `rag-specialist`) no alteran el set de evals documentado.
+- `llm-observability` (1.2.0 -> 1.2.1): convenciones `gen_ai.*` de OpenTelemetry sin impacto de las tecnicas de `rag-llm-eval` — capas complementarias (trazas vs. calidad de evals), sin solapamiento.
+- `rag-specialist` (2.6.0 -> 2.6.1): Rerank v3.5 y Contextual Retrieval sin cambio; metricas RAGAS/promptfoo citadas por `llm-evals` siguen alineadas.
+
+`node .claude/bin/audit-market.js` tras el barrido: 45 skills evaluados, 0 drift, 0 stale, solo los 2 `SIN_DOMINIO_REGISTRADO` esperados (`ciso`, `product-lifecycle-orchestrator`). `npm run validate-globals`: 45/45 conformes. `npm test`: 1373 tests (1372 pass, 1 skip).
+
 ## [3.40.1] — 2026-09-15 (vigencia de parametro max_tokens en OpenAICompatAdapter.js: DeepSeek y Kimi)
 
 Protocolo de Vigencia Tecnologica aplicado sobre `PROVIDER_CONFIGS.deepseek` y `PROVIDER_CONFIGS.kimi`, marcados desde su creacion como "no verificado contra fuente oficial". Verificado contra fuente primaria (2026-09-15):
