@@ -82,6 +82,26 @@ Regla de seleccion:
 
 Reglas de naming de funcion: nombres descriptivos sin espacios ni caracteres especiales (letras, numeros, guion bajo, punto o guion, maximo 64 caracteres). Las descripciones deben indicar CUANDO usar la funcion, no solo que hace (ejemplo oficial de Google: no "Gets data" sino "Retrieves the current stock price for a given ticker symbol. Use this when the user asks about stock prices or market data"). Usar `enum` para valores de conjunto finito en vez de describirlos en texto libre; usar `integer` en vez de `number` cuando el valor siempre es entero. Limitar el set activo de tools (guia practica de 10 a 20 herramientas) porque demasiadas aumentan el riesgo de seleccion incorrecta. Iterar sobre todas las function calls devueltas en la respuesta, ya que Gemini puede solicitar varias en un mismo turno, sean paralelas o composicionales encadenadas.
 
+## Control de Modo de Function Calling
+
+`tool_choice` (verificado 2026-09-15 contra ai.google.dev/gemini-api/docs/function-calling) controla si el modelo debe, puede o no puede invocar funciones — reemplaza la nomenclatura anterior `tool_config.function_calling_config.mode`, ya no vigente:
+
+```python
+generation_config = {
+    "tool_choice": {
+        "allowed_tools": {
+            "mode": "any",  # auto (default) | any | none | validated
+            "tools": ["get_current_temperature"]
+        }
+    }
+}
+```
+
+- `auto` (default): el modelo decide si llamar una funcion o responder directo.
+- `any`: fuerza al modelo a predecir siempre una function call — habilita ademas parallel function calling (varias funciones independientes en un mismo turno, ej. `power_disco_ball()` + `start_music()` + `dim_lights()` simultaneas).
+- `none`: prohibe al modelo hacer function calls, aunque haya tools declaradas.
+- `validated`: fuerza adherencia estricta al schema de la funcion.
+
 ## Structured Output con Gemini
 
 Usar `response_schema` junto con `response_mime_type: "application/json"` en `generation_config` para forzar el output a cumplir un JSON Schema. Nombrar los campos del schema de forma intuitiva. Los campos opcionales requieren `nullable: true` (subconjunto OpenAPI 3.0 que usa la API de Gemini) — no es el mismo mecanismo que el union-con-null de otros proveedores, aunque el principio de diseno de schema (marcar explicitamente que campos pueden faltar) es el mismo. Verificar que extraccion estructurada desde documentos (ej. clasificacion por severidad) usa `response_schema` explicito, no parsing de texto libre.
