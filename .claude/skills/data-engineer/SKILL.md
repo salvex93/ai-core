@@ -222,7 +222,7 @@ def pipeline_pedidos():
 pipeline_pedidos()
 ```
 
-Airflow 3.0 (GA abril 2025) incorpora DAG Versioning (permite que ejecuciones en curso terminen con la version del DAG con la que iniciaron, sin corrupcion de estado ante un deploy a mitad de ejecucion), Event-Driven Scheduling (DAGs disparados por eventos externos en vez de solo cron/intervalos) y Task SDKs. Verificar la version de Airflow del anfitrion antes de asumir disponibilidad de estas capacidades.
+Airflow 3.0 (GA abril 2025) incorpora DAG Versioning (permite que ejecuciones en curso terminen con la version del DAG con la que iniciaron, sin corrupcion de estado ante un deploy a mitad de ejecucion), Event-Driven Scheduling (DAGs disparados por eventos externos en vez de solo cron/intervalos) y Task SDKs — todas siguen vigentes en la serie 3.x. La version estable mas reciente es **Airflow 3.3.1** (verificado 2026-09-15 contra `airflow.apache.org/docs/apache-airflow/stable/release_notes.html`), que agrega sobre 3.0: persistencia de estado entre reintentos (`task_state_store` del Task SDK), mapeadores de particion con ventanas de tiempo (`RollupMapper`/`FanOutMapper`/`FixedKeyMapper`), politicas de reintento personalizables, y SDKs experimentales para tareas en Java/Go. Verificar la version de Airflow del anfitrion antes de asumir disponibilidad de cualquiera de estas capacidades.
 
 ### Dagster
 
