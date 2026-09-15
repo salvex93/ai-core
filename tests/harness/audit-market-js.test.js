@@ -55,12 +55,15 @@ describe('audit-market.js', () => {
     // Gap real: el protocolo de arranque de CLAUDE.md necesita correr esto en
     // cada sesion sin agregar ruido cuando no hay hallazgos -- --only-stale
     // sale con stdout vacio y exit 0 si no hay ningun STALE_MERCADO/DRIFT_VS_MERCADO.
-    // Filtrado a --skill ciso (tiene dominio registrado con "verified"
-    // reciente) para no depender de que TODOS los skills del repo tengan
-    // dominio -- product-lifecycle-orchestrator es metodologia pura (User
-    // Story Mapping/INVEST/MoSCoW/BDD/DDD, sin modelos ni SDKs que vigilar
-    // por vigencia) y correctamente no tiene entrada en MARKET_STANDARDS.json.
-    const r = runScript(SCRIPT, ['--only-stale', '--skill', 'ciso']);
+    // Filtrado a --skill ai-guardrails (tiene dominio registrado con
+    // "verified" reciente) para no depender de que TODOS los skills del
+    // repo tengan dominio -- product-lifecycle-orchestrator es metodologia
+    // pura (User Story Mapping/INVEST/MoSCoW/BDD/DDD, sin modelos ni SDKs
+    // que vigilar por vigencia) y correctamente no tiene entrada en
+    // MARKET_STANDARDS.json. ciso se uso antes pero se retiro del dominio
+    // security-owasp (2026-09-15): delega OWASP/prompt injection a
+    // ai-guardrails en vez de tratarlo como contenido propio.
+    const r = runScript(SCRIPT, ['--only-stale', '--skill', 'ai-guardrails']);
     assert.equal(r.status, 0);
     assert.equal(r.stdout.trim(), '');
   });
