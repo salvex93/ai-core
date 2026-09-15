@@ -243,6 +243,32 @@ function ensureHostGitignore(hostProjectDir) {
   console.log(`[+] .gitignore actualizado (${aAgregar.filter(e => !e.startsWith('#')).length} entradas nuevas) → ${gitignorePath}`);
 }
 
+/**
+ * Combina el settings.json generado para el anfitrion con lo que el anfitrion
+ * ya tenia escrito a mano, sin perder nada custom:
+ * - hooks/mcpServers propios del anfitrion sobreviven (el generado solo agrega
+ *   claves nuevas, nunca reemplaza el objeto completo).
+ * - permissions.allow se une (union de conjuntos), nunca se reemplaza.
+ * - el resto de campos generados (skillListingBudgetFraction, hooks de
+ *   ai-core) se toman del objeto nuevo, que es la fuente de verdad de la
+ *   infraestructura del arnes.
+ *
+ * @param {object} existing - settings.json previo del anfitrion, ya parseado
+ * @param {object} generado - resultado de buildSettingsForHost()
+ * @returns {object} settings.json final a escribir
+ */
+function mergeHostSettings(existing, generado) {
+  return {
+    ...generado,
+    mcpServers: { ...existing.mcpServers, ...generado.mcpServers },
+    hooks: { ...existing.hooks, ...generado.hooks },
+    permissions: {
+      ...existing.permissions,
+      allow: [...new Set([...(existing.permissions?.allow ?? []), ...generado.permissions.allow])],
+    },
+  };
+}
+
 function ensureHostSettings(corePath, hostProjectDir) {
   // Solo actua si el harness se ejecuta desde un proyecto anfitrion (no desde ai-core mismo)
   if (hostProjectDir === corePath) return;
@@ -256,21 +282,33 @@ function ensureHostSettings(corePath, hostProjectDir) {
 
   // Detectar path drift o permisos de stack desactualizados
   let needsWrite = true;
+  let existing = null;
   if (fs.existsSync(hostSettingsPath)) {
     try {
-      const existing    = JSON.parse(fs.readFileSync(hostSettingsPath, "utf8"));
+      existing = JSON.parse(fs.readFileSync(hostSettingsPath, "utf8"));
       const existingCwd = existing?.mcpServers?.["gemini-bridge"]?.cwd;
       // Regenerar si: path drift O hay permisos de stack nuevos no incluidos
       const existingAllow = existing?.permissions?.allow ?? [];
       const missingPerms  = stackPerms.filter(p => !existingAllow.includes(p));
       needsWrite = existingCwd !== corePath || missingPerms.length > 0;
     } catch {
+      // JSON invalido: no hay contenido custom recuperable, se regenera desde cero.
+      existing = null;
       needsWrite = true;
     }
   }
 
   if (needsWrite) {
-    const settings = buildSettingsForHost(corePath, stackPerms);
+    const generado = buildSettingsForHost(corePath, stackPerms);
+    const settings = existing ? mergeHostSettings(existing, generado) : generado;
+
+    // Backup antes de sobreescribir -- unica forma de recuperar hooks/mcpServers
+    // custom si el merge tuviera un gap no cubierto (ver regla 6 de Gobierno de
+    // Agentes en CLAUDE.md: ninguna sobreescritura sin red de recuperacion).
+    if (fs.existsSync(hostSettingsPath)) {
+      fs.copyFileSync(hostSettingsPath, `${hostSettingsPath}.bak`);
+    }
+
     fs.writeFileSync(hostSettingsPath, JSON.stringify(settings, null, 2), "utf8");
     const reason = stackLabels.length > 0 ? ` [stack: ${stackLabels.join(', ')}]` : '';
     console.log(`[+] settings.json generado/corregido${reason} → ${hostSettingsPath}`);
