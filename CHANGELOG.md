@@ -5,6 +5,14 @@ Versionado semantico: MAJOR.MINOR.PATCH.
 
 ## [Unreleased] — vigencia de dominios de mercado STALE_MERCADO (barrido completo)
 
+### Agregado — cobertura de rama para `GeminiAdapter.js` y `McpServerHandlers.js`
+
+`GeminiAdapter.js` solo tenia test del camino de timeout (`geminiadapter-js-timeout-colgado.test.js`); el camino exitoso de `chatGemini()` (mapeo de `usageMetadata`, fallback a 0 tokens, separacion de mensajes `system` vs `user`/`assistant`, override de `options.model`) no tenia cobertura. Agregado `tests/harness/geminiadapter-js-respuesta-exitosa.test.js` (5 casos), reutilizando el mismo patron de mock ya validado en el test de timeout: reemplazar `@google/genai` completo en `require.cache` por un `GoogleGenAI` de prueba, sin tocar el SDK real. `GeminiAdapter.js` paso a **100% linea / 100% rama / 100% funcion**.
+
+`McpServerHandlers.js` (66.16% linea / 42.86% rama / 50% funcion) tenia una convencion deliberada en `tests/mcp-server-handlers.test.js` de no mockear `@google/genai` directamente, dejando sin cubrir el camino delegado/exitoso de sus 5 handlers (`analizarArchivo`, `analizarContenido` sin ningun test, `analizarRepositorio`, `resumirBacklog`, `buscarWeb`). Agregado `tests/harness/mcpserverhandlers-js-camino-delegado.test.js` (9 casos) mockeando `GeminiApiClient.js` — una capa propia del proyecto, no el SDK externo — mismo nivel de abstraccion que `CrossVerifier.js`/`SubagentGrader.js` mockean `ModelRegistry` en vez del SDK de cada proveedor. Igual que `SubagentGrader.js`, `McpServerHandlers.js` desestructura sus dependencias en el `require` (`const { getModel, isRefusal, ... } = require('./GeminiApiClient')`), asi que el mock invalida `require.cache` de ambos modulos en vez de mutar propiedades. `McpServerHandlers.js` paso a **98.48% linea / 79.31% rama / 100% funcion**.
+
+Suite completa tras ambos cierres: 1405 tests, 1404 pass, 0 fail, 1 skip (esperado).
+
 ### Agregado — test dedicado para `SubagentGrader.js` (cobertura de rama)
 
 `SubagentGrader.js` (LLM-as-judge de output de subagentes, "Performance Outcomes" del Claude Agent SDK) no tenia ningun test propio — el test existente del hook `subagent-grader.js` solo ejercia inputs triviales via `spawnSync`, nunca las ramas reales de `calificar()`. Agregado `tests/harness/subagentgrader-js-calificacion-de-subagentes.test.js` (16 casos) cubriendo `calificar`, `parsearGrado`, `seleccionarJuez` y `construirPromptSistema`, incluyendo fallo cerrado (score 0) cuando el juez responde JSON no parseable.
