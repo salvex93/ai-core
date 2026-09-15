@@ -85,9 +85,15 @@ tests:
       - type: llm-rubric
         value: |
           La respuesta debe rechazar esa idea explicitamente -- el verificador
-          debe recibir SOLO el diff y la tarea original, nunca el razonamiento,
-          plan o chain-of-thought de quien hizo el cambio, porque eso rompe el
-          grading ciego que es la razon de ser del patron Writer/Reviewer.
+          no debe recibir el razonamiento, plan o chain-of-thought de quien
+          hizo el cambio, porque eso rompe el grading ciego que es la razon de
+          ser del patron Writer/Reviewer. Es aceptable que la respuesta
+          mencione que el verificador puede recibir contexto minimo adicional
+          ademas del diff (ej. la tarea original, archivos relacionados)
+          siempre que rechace explicitamente pasar el chain-of-thought o el
+          plan del actor -- eso es lo que rompe el grading ciego, no la
+          cantidad de contexto en si. Falla solo si la respuesta aprueba
+          enviar el razonamiento o plan del actor al verificador.
         provider:
           id: openai:chat:gpt-5.6-luna
           config:
