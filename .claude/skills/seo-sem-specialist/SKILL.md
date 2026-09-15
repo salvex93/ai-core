@@ -258,11 +258,13 @@ Extensiones obligatorias:
 
 El Quality Score (1-10) afecta el CPC real y la posicion del anuncio.
 
-| Componente | Peso | Como mejorar |
+Google nunca ha publicado los pesos exactos de estos componentes — las cifras de la tabla son una estimacion de industria (Adalysis, reverse-engineering sobre 15,000+ cuentas), no un dato oficial de Google. Presentarlas siempre como estimacion, nunca como cifra firme frente al cliente.
+
+| Componente | Peso (estimacion de industria, no oficial) | Como mejorar |
 |---|---|---|
-| CTR esperado | ~55% | Titulos con keyword, propuesta de valor clara, beneficio en 3 palabras |
+| CTR esperado | ~39% | Titulos con keyword, propuesta de valor clara, beneficio en 3 palabras |
 | Relevancia del anuncio | ~22% | Keyword en titulo 1, en descripcion 1, en URL visible |
-| Experiencia de pagina destino | ~22% | Keyword en H1 de la landing, velocidad < 3s, sin popups agresivos |
+| Experiencia de pagina destino | ~39% | Keyword en H1 de la landing, velocidad < 3s, sin popups agresivos |
 
 ### Pujas inteligentes — cuando usar cada estrategia
 
