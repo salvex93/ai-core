@@ -5,6 +5,10 @@ Versionado semantico: MAJOR.MINOR.PATCH.
 
 ## [Unreleased] — vigencia de dominios de mercado STALE_MERCADO (barrido completo)
 
+### Cerrado — gap de cobertura `--permission` real en `subagent-guard-release.js`
+
+Auditoria amplia de agosto (`proyecto_auditoria_amplia_2026_08_28`) dejo pendiente confirmar si los 11 guards de seguridad originales seguian sin cobertura del Node.js Permission Model real (`spawnSync` sin `--permission` nunca reproduce el Permission Model, un guard puede pasar tests y seguir roto en produccion). Verificado en esta sesion: los 11 originales y varios agregados despues (tool-repeat, subagent-budget, loop-alternante, web-search) ya tenian cobertura completa en `tests/harness/sandbox-permission-smoke.test.js` desde el commit `99413c4`. El unico gap real encontrado: `subagent-guard-release.js` (invocado en produccion con `readYWriteSubagentLocks` via `hooks-definition.js`) tenia solo un test con `spawnSync` sin `--permission`. Agregado el par CON/SIN permiso al smoke test centralizado, verificando el comportamiento real: con el permiso correcto borra el lock y termina exit 0; sin permiso falla EPERM controlado, nunca cuelga ni lanza excepcion no capturada (compatible con el `2>/dev/null || true` con el que el hook ya lo envuelve en produccion). `node --test tests/harness/sandbox-permission-smoke.test.js` — 34/34 pass (2 nuevos). Suite completa 1374/1375 (1 skip), 45/45 skills conformes.
+
 ### Verificado y corregido — `devops-supply-chain`: gap de contenido cerrado con implementacion real
 
 Protocolo de Vigencia Tecnologica aplicado. Fuente primaria: `slsa.dev/spec/v1.2/about` (v1.2 = version vigente del framework SLSA, estado "Approved"; v1.1 "Retired") y `slsa.dev/spec/v1.1/levels` (niveles build track L0-L3). `verified` actualizado a 2026-09-15 en `MARKET_STANDARDS.json` con ambas URLs.
