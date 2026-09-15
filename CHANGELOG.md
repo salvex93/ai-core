@@ -3,6 +3,15 @@
 Registro de cambios por version. Formato basado en [Keep a Changelog](https://keepachangelog.com/es/1.0.0/).
 Versionado semantico: MAJOR.MINOR.PATCH.
 
+## [3.40.1] — 2026-09-15 (vigencia de parametro max_tokens en OpenAICompatAdapter.js: DeepSeek y Kimi)
+
+Protocolo de Vigencia Tecnologica aplicado sobre `PROVIDER_CONFIGS.deepseek` y `PROVIDER_CONFIGS.kimi`, marcados desde su creacion como "no verificado contra fuente oficial". Verificado contra fuente primaria (2026-09-15):
+
+- DeepSeek (`api-docs.deepseek.com/api/create-chat-completion/`): sigue usando `max_tokens`, sin equivalente `max_completion_tokens` en esta API. Sin cambio de codigo, solo se retira la salvedad "no verificado" del comentario.
+- Kimi (`platform.kimi.ai/docs/api/chat`): `max_tokens` quedo deprecado, la API exige `max_completion_tokens`. `maxTokensParam` de `PROVIDER_CONFIGS.kimi` corregido de `'max_tokens'` a `'max_completion_tokens'` en `scripts/services/model-adapters/OpenAICompatAdapter.js`.
+
+Test asociado actualizado primero (TDD estricto): `tests/harness/openaicompatadapter-js-construccion-del-body-de-la-peticion.test.js`, caso de kimi ahora exige `max_completion_tokens` y ausencia de `max_tokens` en el body, con la fuente citada en el propio test. `.env.example` corregido (linea de OpenAI mencionaba GPT-4o/o1/o3, retirados; ahora refleja GPT-5.6 Luna/Sol). 1373 tests (1372 pass, 1 skip), 45/45 skills conformes.
+
 ## [3.40.0] — 2026-09-15 (wizard interactivo de configuracion: credenciales, integridad del harness, auditoria de providers)
 
 Pedido explicito del usuario: un unico comando interactivo (`npm run wizard`) que reemplace la configuracion manual dispersa de API keys, tokens y validacion de estado del harness, sin fragmentarla en comandos separados.
