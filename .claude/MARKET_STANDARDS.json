@@ -60,6 +60,11 @@
       "sources": ["docs.aws.amazon.com/apprunner (cerrado a clientes nuevos, verificado con fetch directo propio)", "docs.cloud.google.com/sdk/gcloud/reference/run/deploy", "learn.microsoft.com/en-us/azure/container-apps", "docs.digitalocean.com/products/app-platform", "developers.cloudflare.com/workers", "vercel.com/docs", "docs.railway.com", "render.com/docs", "fly.io/docs"],
       "skills": ["cloud-deployment-specialist"]
     },
+    "discord-api": {
+      "verified": "2026-08-31",
+      "sources": ["discord.com/developers/docs (estructura de embed, limites de caracteres/fields/embeds por mensaje, distincion Webhook vs Bot/Gateway; rate limit por webhook sin cifra oficial fija -- 5 req/2s tratado como orientativo de terceros, no confirmado en fuente primaria unica)"],
+      "skills": ["discord-ops"]
+    },
     "backend-architecture-generic": {
       "verified": "2026-07-15",
       "sources": ["orientativo, no verificado contra fuente primaria en esta pasada -- pendiente de primera verificacion real (patrones de arquitectura de backend, event-driven, WebSockets)"],
