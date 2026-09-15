@@ -133,8 +133,8 @@
       "skills": ["seo-sem-specialist"]
     },
     "doc-generation": {
-      "verified": "2026-07-15",
-      "sources": ["orientativo, no verificado contra fuente primaria en esta pasada -- pendiente de primera verificacion real (Puppeteer, generacion de PDF)"],
+      "verified": "2026-09-15",
+      "sources": ["pptr.dev/api/puppeteer.pdfoptions (tagged=true experimental sin drift; scale/printBackground/preferCSSPageSize confirmados)"],
       "skills": ["doc-builder"]
     },
     "web-scraping": {
