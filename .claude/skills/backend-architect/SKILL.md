@@ -702,7 +702,7 @@ Este perfil se declara agnostico al lenguaje, pero declarar agnosticismo sin eje
 
 ### Go — net/http (stdlib) y Gin
 
-Version verificada: Go 1.26.0 (fuente: `go.dev/doc/devel/release`). El router nativo `http.ServeMux` soporta patrones `"METODO /ruta"` y wildcards `{nombre}` desde Go 1.22 (fuente: `go.dev/doc/go1.22`) — no requiere un framework para casos simples.
+Version verificada: Go 1.27.1 (fuente: `go.dev/doc/devel/release`, verificado 2026-09-15). El router nativo `http.ServeMux` soporta patrones `"METODO /ruta"` y wildcards `{nombre}` desde Go 1.22 (fuente: `go.dev/doc/go1.22`) — no requiere un framework para casos simples.
 
 ```go
 // main.go — net/http estandar, sin framework
