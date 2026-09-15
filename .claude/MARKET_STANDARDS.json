@@ -139,7 +139,7 @@
     },
     "web-scraping": {
       "verified": "2026-09-15",
-      "sources": ["github.com/Kaliiiiiiiiii-Vinyzu/patchright (Patchright activo, solo Chromium, valida contra Cloudflare/Kasada/Akamai/Shape/Datadome/Fingerprint.com)", "pypi.org/pypi/curl_cffi/json (curl_cffi 0.16.3, 37 fingerprints open source)", "camoufox.com y github.com/daijro/camoufox (v146.0.1-beta.25, ya verificado en pasada previa, sin drift adicional en esta)", "developers.cloudflare.com/turnstile (Managed/Non-Interactive/Invisible, token expira 5 min, ya verificado en pasada previa)"],
+      "sources": ["github.com/Kaliiiiiiiiii-Vinyzu/patchright (reverificado 2026-09-15, activo, solo Chromium, valida contra Cloudflare/Kasada/Akamai/Shape/Datadome/Fingerprint.com/Brotector)", "pypi.org/pypi/curl_cffi/json (reverificado 2026-09-15, curl_cffi 0.16.3 sigue siendo la version mas reciente, 37 fingerprints open source)", "github.com/daijro/camoufox/releases (drift real cerrado 2026-09-15: v146.0.1-beta.25 -> v152.0.4-beta.30, publicada 2026-09-01, el numero base de Firefox tambien subio de 146 a 152)", "developers.cloudflare.com/turnstile (reverificado 2026-09-15: los 3 modos Managed/Non-Interactive/Invisible confirmados; duracion de 5 min del token NO aparecio en la pagina de overview consultada, queda pendiente de reverificar contra la referencia tecnica especifica)"],
       "skills": ["web-scraping-specialist"]
     }
   }
