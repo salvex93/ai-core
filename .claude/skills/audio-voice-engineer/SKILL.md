@@ -54,17 +54,17 @@ Ante cualquiera de estas condiciones, insertar la directiva y detener:
 [ALERTA_ARQUITECTONICA: REQUIERE_OPUSPLAN]
 ```
 
-## Gemini 3.1 Flash Live — Live API (Audio-to-Audio Nativo)
+## Gemini 3.8 Live — Live API (Audio-to-Audio Nativo)
 
-Modelo activo: `gemini-3.1-flash-live-preview`. Sucesor directo de `gemini-2.5-flash-live-preview` / `gemini-live-2.5-flash-preview`, ambos apagados el 2025-12-09. `gemini-2.0-flash-live-001` fue apagado en la misma fecha y ya no existe como fallback.
+Modelo activo: `gemini-3.8-live` (Stable, verificado 2026-09-15 contra `ai.google.dev/gemini-api/docs/models`). `gemini-3.1-flash-live-preview` quedo deprecado — la documentacion oficial lo marca "Legacy audio-to-audio preview model. We recommend updating to Gemini 3.8 Live." Existe ademas `gemini-3.8-live-extended-thinking` (Stable) para interacciones de voz que requieren mayor razonamiento, sin la latencia minima de la variante estandar.
 
-Si el usuario menciona en su prompt estar usando `gemini-2.0-flash-live-001` o `gemini-2.5-flash-live-preview` (aunque la pregunta sea sobre otro tema), senalar de inmediato que ese modelo esta apagado desde 2025-12-09 y recomendar la migracion a `gemini-3.1-flash-live-preview` antes de continuar con el resto de la respuesta.
+Si el usuario menciona en su prompt estar usando `gemini-2.0-flash-live-001`, `gemini-2.5-flash-live-preview` o `gemini-3.1-flash-live-preview` (aunque la pregunta sea sobre otro tema), senalar de inmediato que esos modelos estan apagados o deprecados y recomendar la migracion a `gemini-3.8-live` antes de continuar con el resto de la respuesta.
 
-Regresion de feature confirmada (verificado 2026-07-10 contra `ai.google.dev/gemini-api/docs/models/gemini-3.1-flash-live-preview`): **Affective Dialog no esta soportado en 3.1 Flash Live todavia** — la documentacion oficial lo lista explicitamente como "not yet supported". Ver seccion Affective Dialog abajo antes de prometer esta capacidad en un diseno nuevo.
+Regresion de feature ya no vigente (reverificado 2026-09-15 contra `ai.google.dev/gemini-api/docs/live-guide`): la exclusion de Affective Dialog documentada anteriormente aplicaba especificamente a `gemini-3.1-flash-live-preview` ("This feature is not supported in Gemini 3.1 Flash Live") — la fuente no confirma ni descarta explicitamente el soporte en `gemini-3.8-live` o su variante extended-thinking (no aparece una tabla de compatibilidad por modelo). Tratar el flag `enable_affective_dialog=True` como probablemente disponible en `gemini-3.8-live`, pero confirmar contra la documentacion del modelo especifico antes de prometerlo en un diseno de cliente.
 
 La Live API es arquitectura multimodal nativa que elimina el pipeline legado transcribe-reason-synthesize. Procesa entrada y salida de audio directamente en un proceso end-to-end.
 
-### Caracteristicas (verificado 2026-07-10)
+### Caracteristicas (verificado 2026-09-15)
 
 - Entrada: `audio/pcm` (16-bit, 16kHz), `audio/opus`, `audio/wav`, video frames (multimodal).
 - Salida: `audio/pcm` (24kHz) o texto — bidireccional real-time.
