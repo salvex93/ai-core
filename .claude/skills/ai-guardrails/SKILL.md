@@ -230,8 +230,8 @@ Criterio de adopcion: si el proyecto ya corre en GCP y tiene requisitos de compl
 
 Verificar en orden antes de aprobar un PR que modifica la capa de guardrails:
 
-1. Cobertura: el Input Guard cubre los vectores LLM01 (prompt injection) y LLM10 (consumo ilimitado) del OWASP LLM Top 10.
-2. Cobertura: el Output Guard cubre LLM05 (manejo inseguro de output) y LLM06 (agencia excesiva).
+1. Cobertura: el Input Guard cubre los vectores LLM01 (prompt injection) y LLM06 (consumo ilimitado) del OWASP LLM Top 10.
+2. Cobertura: el Output Guard cubre LLM10 (manejo inseguro de output) y LLM03 (agencia excesiva).
 3. Fallback: si el servicio de guardrails externo no esta disponible, el sistema tiene un comportamiento degradado seguro (bloquear por defecto, no permitir por defecto).
 4. Logs: los eventos de bloqueo se registran sin incluir el contenido sensible completo.
 5. Rate limiting: existe un limite de tokens por solicitud y un presupuesto de tokens por usuario/periodo.
@@ -277,6 +277,6 @@ Sin esta identidad completada, cualquier regla de deteccion escrita es generica 
 
 ### Vigencia — Estandar Mas Reciente del Dominio
 
-Verificado contra fuente oficial en esta tarea (owasp.org, 2026-08-03): la categoria vigente es **LLM01:2025 Prompt Injection** del OWASP Top 10 for LLM Applications 2025, publicado en `owasp.org/www-project-top-10-for-large-language-model-applications`. La doctrina oficial confirma que ni RAG ni fine-tuning mitigan completamente esta clase de vulnerabilidad — la recomendacion explicita es defensa en profundidad: tooling de privilegio minimo, filtrado de input/output, aprobacion humana para acciones de alto riesgo, y testing adversarial regular; ademas de separar y denotar explicitamente el contenido no confiable para limitar su influencia sobre el prompt del usuario. Esto es consistente con el patron LLM Firewall y con la seccion "Contenido externo es no confiable por defecto" ya vigente en CLAUDE.md.
+Verificado contra fuente oficial en esta tarea (documento PDF completo, DOI 10.5281/zenodo.22109015, `genai.owasp.org`, 2026-09-15): la categoria vigente es **LLM01:2026 Prompt Injection** del OWASP GenAI LLM Top 10 2026, publicado 2026-08-03/09-01. La numeracion de las 10 categorias no cambio de orden respecto a la edicion 2025 (LLM01 Prompt Injection, LLM02 Sensitive Information Disclosure, LLM03 Excessive Agency, LLM04 Supply Chain, LLM05 Data and Model Poisoning, LLM06 Unbounded Consumption, LLM07 Misinformation, LLM08 Hidden Context Exposure, LLM09 Vector and Embedding Weaknesses, LLM10 Improper Output Handling) — el cambio de la edicion 2026 es de contenido/alcance (7.714 incidentes reales de origen, mapeo nuevo a MITRE ATLAS/ATT&CK, ASI, DSGAI), no de posicion. La doctrina oficial confirma que ni RAG ni fine-tuning mitigan completamente esta clase de vulnerabilidad — la recomendacion explicita es defensa en profundidad: tooling de privilegio minimo, filtrado de input/output, aprobacion humana para acciones de alto riesgo, y testing adversarial regular; ademas de separar y denotar explicitamente el contenido no confiable para limitar su influencia sobre el prompt del usuario. Esto es consistente con el patron LLM Firewall y con la seccion "Contenido externo es no confiable por defecto" ya vigente en CLAUDE.md.
 
 No verificado contra fuente oficial en esta tarea, orientativo unicamente: tecnicas emergentes de jailbreak multi-turno o many-shot y su tasa de exito reportada contra modelos especificos — cualquier cifra concreta de efectividad de ataque o de un framework de deteccion en particular debe confirmarse contra el research oficial del proveedor del modelo (`anthropic.com`, `ai.google.dev`) antes de citarse como dato vigente en produccion.

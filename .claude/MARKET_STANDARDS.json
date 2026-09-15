@@ -17,7 +17,7 @@
     },
     "security-owasp": {
       "verified": "2026-09-15",
-      "sources": ["genai.owasp.org (confirmado 2026-09-15: existe edicion OWASP GenAI LLM Top 10 2026, publicada 2026-09-01, con 'updated rankings' respecto a la 2025 -- numeracion/nombre exacto de cada categoria, incl. Prompt Injection, NO confirmado contra el documento completo, solo landing pages; los skills de este dominio siguen citando LLM01:2025 Prompt Injection de la edicion 2025, pendiente de re-verificar categoria por categoria antes de migrar cualquier skill a identificadores 2026)"],
+      "sources": ["genai.owasp.org / DOI 10.5281/zenodo.22109015 (confirmado 2026-09-15 contra el PDF oficial completo, 122 paginas: OWASP GenAI LLM Top 10 2026, publicada 2026-08-03/09-01. Numeracion de las 10 categorias NO cambio de orden respecto a 2025 -- LLM01 Prompt Injection, LLM02 Sensitive Information Disclosure, LLM03 Excessive Agency, LLM04 Supply Chain, LLM05 Data and Model Poisoning, LLM06 Unbounded Consumption, LLM07 Misinformation, LLM08 Hidden Context Exposure, LLM09 Vector and Embedding Weaknesses, LLM10 Improper Output Handling. El cambio 2026 es de contenido/alcance -- 7714 incidentes reales de origen, mapeo nuevo a MITRE ATLAS/ATT&CK/ASI/DSGAI -- no de posicion)"],
       "skills": ["security-auditor", "attack-surface-analyst", "ai-guardrails", "security-monitoring-soc"]
     },
     "frontend-web-standards": {

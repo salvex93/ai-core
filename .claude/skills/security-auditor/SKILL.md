@@ -262,7 +262,7 @@ Controles:
 - El sistema valida que la respuesta del LLM sigue el schema esperado antes de ejecutar cualquier accion derivada de ella.
 - Las herramientas (tool_use) que el LLM puede invocar tienen una lista blanca de acciones permitidas. El LLM no puede invocar herramientas fuera de esa lista.
 
-### LLM05 — Manejo Inseguro de Output
+### LLM10 — Manejo Inseguro de Output
 
 El output del LLM se renderiza o ejecuta sin sanitizacion, permitiendo XSS si el output llega al DOM, o inyeccion de comandos si el output alimenta una shell.
 
@@ -270,7 +270,7 @@ Controles:
 - Todo output del LLM que se renderiza en HTML pasa por el mecanismo de escape del framework (React: JSX por defecto; Angular: interpolacion por defecto). Prohibido `dangerouslySetInnerHTML` con output de LLM sin sanitizacion explicita.
 - Si el output del LLM genera codigo que se ejecuta (eval, Function constructor, shell), el paso de ejecucion requiere un sandbox aislado sin acceso a filesystem ni red.
 
-### LLM06 — Agencia Excesiva
+### LLM03 — Agencia Excesiva
 
 El LLM tiene acceso a herramientas o permisos que superan lo necesario para la tarea, amplificando el impacto de un ataque de prompt injection exitoso.
 
@@ -278,14 +278,14 @@ Controles:
 - Principio de minimo privilegio en herramientas: si el LLM solo necesita leer datos, no exponer herramientas de escritura o eliminacion.
 - Las herramientas de alto impacto (envio de emails, modificacion de registros, llamadas a APIs externas) requieren confirmacion humana explicita antes de ejecutarse. El LLM propone, el humano aprueba.
 
-### LLM07 — Fuga del System Prompt
+### LLM08 — Fuga del System Prompt
 
 Un atacante extrae el contenido del system prompt via instrucciones directas o indirectas al modelo.
 
 Control:
 - El system prompt no contiene secretos (credenciales, instrucciones de evasion de seguridad, datos de clientes). Si el system prompt se filtra, el impacto debe ser cero o minimo.
 
-### LLM10 — Consumo Ilimitado
+### LLM06 — Consumo Ilimitado
 
 Un atacante genera solicitudes al endpoint del LLM a un ritmo que agota la cuota de tokens o genera facturas excesivas.
 
