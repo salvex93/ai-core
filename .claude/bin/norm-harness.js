@@ -210,13 +210,7 @@ function ensureHostClaude(corePath, hostProjectDir, stackLabels) {
  */
 function ensureHostGitignore(hostProjectDir) {
   const gitignorePath  = path.join(hostProjectDir, '.gitignore');
-  // detectarSubmodulo() espera la ruta de ai-core y resuelve el padre como
-  // resolve(corePath, '..', '..') -- aqui ya tenemos hostProjectDir de forma
-  // directa (parametro de esta funcion), asi que se construye una ruta
-  // sintetica de dos niveles por debajo para que esa resolucion aterrice
-  // exactamente en hostProjectDir. Usar CORE_PATH en su lugar seria incorrecto
-  // en tests (donde hostProjectDir es un tmpdir, no el padre real de ai-core).
-  const { esSubmodulo: esSubmoduloReal } = detectarSubmodulo(path.join(hostProjectDir, 'x', 'x'));
+  const { esSubmodulo: esSubmoduloReal } = esSubmoduloDeHost(hostProjectDir);
 
   const entradasNuevas = [
     ...(esSubmoduloReal ? [] : ['ai-core/']),
