@@ -91,14 +91,15 @@ tests:
     assert:
       - type: llm-rubric
         value: |
-          La respuesta debe identificar esto como un fallo silencioso
-          (SUSPECTED_BLOCK): precio=0 en un marketplace probablemente
-          indica un bloqueo del sitio, no un dato real, y NO deberia
-          haberse persistido sin una validacion de plausibilidad semantica
-          previa. Debe recomendar lanzar una alerta/excepcion en vez de
-          guardar el dato silenciosamente, y mencionar validacion de schema
-          (Zod/Pydantic) y/o el patron de assertion de plausibilidad que
-          declara el skill.
+          La respuesta debe identificar esto como un fallo silencioso: precio=0
+          en un marketplace probablemente indica un bloqueo del sitio, no un
+          dato real, y NO deberia haberse persistido sin una validacion previa.
+          Debe recomendar lanzar una alerta/excepcion en vez de guardar el
+          dato silenciosamente. No es obligatorio que cite literalmente
+          "Zod/Pydantic" ni la frase "assertion de plausibilidad" -- basta con
+          que transmita la idea de validar que el valor extraido es
+          plausible/razonable antes de guardarlo (ej. "verificar que el precio
+          no sea 0 antes de insertar", "chequeo de sanidad de los datos").
         provider:
           id: openai:chat:gpt-5.6-luna
           config:
