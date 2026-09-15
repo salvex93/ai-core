@@ -26,6 +26,7 @@
     "rollback-skill": "node scripts/rollback-skill.js",
     "rollback-agent": "node scripts/rollback-agent.js",
     "update": "node scripts/update.js",
+    "wizard": "node .claude/bin/wizard.js",
     "memory-index": "node .claude/bin/memory-index.js index",
     "memory-query": "node .claude/bin/memory-index.js query",
     "memory-status": "node .claude/bin/memory-index.js status",
