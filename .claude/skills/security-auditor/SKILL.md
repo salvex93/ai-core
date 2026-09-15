@@ -270,7 +270,7 @@ Controles:
 - Todo output del LLM que se renderiza en HTML pasa por el mecanismo de escape del framework (React: JSX por defecto; Angular: interpolacion por defecto). Prohibido `dangerouslySetInnerHTML` con output de LLM sin sanitizacion explicita.
 - Si el output del LLM genera codigo que se ejecuta (eval, Function constructor, shell), el paso de ejecucion requiere un sandbox aislado sin acceso a filesystem ni red.
 
-### LLM06 — Agencia Excesiva
+### LLM03 — Agencia Excesiva
 
 El LLM tiene acceso a herramientas o permisos que superan lo necesario para la tarea, amplificando el impacto de un ataque de prompt injection exitoso.
 
