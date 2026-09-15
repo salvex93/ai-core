@@ -564,6 +564,15 @@ El nombre "Tokens W3C" es impreciso y no debe repetirse sin la aclaracion: la es
 | Antiguedad de la ultima verificacion de vigencia registrada en este archivo | <= 90 dias antes de iniciar un design system nuevo | Comparar fecha de este modulo contra la fecha del proyecto |
 | Herramienta de tokens propuesta al cliente | Confirmada como activa (ultimo commit/release < 12 meses) | Revisar changelog o releases del repositorio oficial de la herramienta |
 
+### Vigencia de CSS Moderno 2026 citado en Modulo 6
+
+Verificado 2026-09-15 contra fuente primaria:
+
+| Afirmacion | Estado confirmado | Fuente |
+|---|---|---|
+| Container Queries — Baseline (soporte universal) | Correcto, ~95% global desde Chrome 106/Firefox 110/Safari 16 | developer.mozilla.org, caniuse.com/css-container-queries |
+| View Transitions same-document — corregido de "Baseline 2025" sin distincion | La sintaxis `@view-transition{navigation:auto}` es cross-document (MPA), **Limited Availability**, sin Firefox. Same-document real (`document.startViewTransition()`) si es Baseline: Chrome/Edge 111+, Safari 18+, Firefox 144+ | developer.mozilla.org/en-US/docs/Web/CSS/@view-transition |
+
 ---
 
 ## Restricciones del Perfil
