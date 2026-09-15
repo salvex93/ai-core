@@ -111,73 +111,58 @@ describe('SubagentGrader.js (calificacion de subagentes via LLM-as-judge)', () =
   });
 
   test('calificar: con proveedor disponible, invoca chat() con forzarJSON y devuelve el score parseado', async () => {
-    const ModelRegistry = require(path.join(REPO, 'scripts', 'services', 'ModelRegistry.js'));
     const llamadas = [];
-    const original = ModelRegistry.chat;
-    ModelRegistry.chat = async (provider, messages, options) => {
-      llamadas.push({ provider, messages, options });
-      return { content: '{"score": 92, "motivo": "output completo y coherente", "riesgos": []}' };
-    };
-
-    try {
-      const resultado = await calificar({
+    const resultado = await calificarConChatMockeado(
+      async (provider, messages, options) => {
+        llamadas.push({ provider, messages, options });
+        return { content: '{"score": 92, "motivo": "output completo y coherente", "riesgos": []}' };
+      },
+      {
         output: OUTPUT_LARGO,
         agentType: 'code-reviewer',
         disponibles: [{ provider: 'deepseek', available: true }],
-      });
-      assert.equal(resultado.proveedor, 'deepseek');
-      assert.equal(resultado.score, 92);
-      assert.equal(resultado.riesgos.length, 0);
-      assert.equal(llamadas.length, 1);
-      assert.equal(llamadas[0].provider, 'deepseek');
-      assert.equal(llamadas[0].options.forzarJSON, true);
-      assert.match(llamadas[0].messages[0].content, /OUTPUT A EVALUAR/);
-    } finally {
-      ModelRegistry.chat = original;
-    }
+      }
+    );
+    assert.equal(resultado.proveedor, 'deepseek');
+    assert.equal(resultado.score, 92);
+    assert.equal(resultado.riesgos.length, 0);
+    assert.equal(llamadas.length, 1);
+    assert.equal(llamadas[0].provider, 'deepseek');
+    assert.equal(llamadas[0].options.forzarJSON, true);
+    assert.match(llamadas[0].messages[0].content, /OUTPUT A EVALUAR/);
   });
 
   test('calificar: con tareaOriginal, el contenido enviado al juez la incluye y el prompt de sistema pide cumplimiento de tarea', async () => {
-    const ModelRegistry = require(path.join(REPO, 'scripts', 'services', 'ModelRegistry.js'));
     const llamadas = [];
-    const original = ModelRegistry.chat;
-    ModelRegistry.chat = async (provider, messages, options) => {
-      llamadas.push({ messages, options });
-      return { content: '{"score": 40, "motivo": "se desvio de la tarea", "riesgos": ["ignoro parte del pedido"]}' };
-    };
-
-    try {
-      const resultado = await calificar({
+    const resultado = await calificarConChatMockeado(
+      async (provider, messages, options) => {
+        llamadas.push({ messages, options });
+        return { content: '{"score": 40, "motivo": "se desvio de la tarea", "riesgos": ["ignoro parte del pedido"]}' };
+      },
+      {
         output: OUTPUT_LARGO,
         agentType: 'Explore',
         tareaOriginal: 'buscar todos los usos de X',
         disponibles: [{ provider: 'openai', available: true }],
-      });
-      assert.equal(resultado.score, 40);
-      assert.equal(resultado.riesgos.length, 1);
-      assert.match(llamadas[0].messages[0].content, /TAREA ORIGINAL:\nbuscar todos los usos de X/);
-      assert.match(llamadas[0].options.system, /Cumplimiento de tarea/);
-    } finally {
-      ModelRegistry.chat = original;
-    }
+      }
+    );
+    assert.equal(resultado.score, 40);
+    assert.equal(resultado.riesgos.length, 1);
+    assert.match(llamadas[0].messages[0].content, /TAREA ORIGINAL:\nbuscar todos los usos de X/);
+    assert.match(llamadas[0].options.system, /Cumplimiento de tarea/);
   });
 
   test('calificar: veredicto del juez no parseable falla cerrado (score 0) sin lanzar excepcion', async () => {
-    const ModelRegistry = require(path.join(REPO, 'scripts', 'services', 'ModelRegistry.js'));
-    const original = ModelRegistry.chat;
-    ModelRegistry.chat = async () => ({ content: 'respuesta no-JSON del proveedor' });
-
-    try {
-      const resultado = await calificar({
+    const resultado = await calificarConChatMockeado(
+      async () => ({ content: 'respuesta no-JSON del proveedor' }),
+      {
         output: OUTPUT_LARGO,
         agentType: 'Explore',
         disponibles: [{ provider: 'gemini', available: true }],
-      });
-      assert.equal(resultado.score, 0);
-      assert.equal(resultado.proveedor, 'gemini');
-    } finally {
-      ModelRegistry.chat = original;
-    }
+      }
+    );
+    assert.equal(resultado.score, 0);
+    assert.equal(resultado.proveedor, 'gemini');
   });
 
   test('PROVEEDORES_JUEZ: orden de preferencia es deepseek, openai, gemini (mas barato primero)', () => {
