@@ -8,7 +8,7 @@ const os     = require('node:os');
 const { REPO } = require('./_shared');
 
 describe('lib/submodule-detect.js', () => {
-  const { detectarSubmodulo } = require(path.join(REPO, '.claude', 'bin', 'lib', 'submodule-detect.js'));
+  const { detectarSubmodulo, esSubmoduloDeHost } = require(path.join(REPO, '.claude', 'bin', 'lib', 'submodule-detect.js'));
   let coreDir, hostDir;
 
   before(() => {
