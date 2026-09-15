@@ -64,7 +64,7 @@ El tier "Flash-Thinking" de la generacion 2.5 desaparecio como modelo separado: 
 | `gemini-3.1-pro-preview` | 1M tokens | `thinking_level` (low/medium/high, default high) | Razonamiento complejo, corpus muy largos, benchmarks exigentes | $2.00 / $12.00 |
 | `gemini-3.7-flash` | 1M tokens (output max 65.536) | `thinking_level` (low/medium/high, default medium) | Modelo Flash mas capaz y reciente para coding y agentes — coexiste con 3.6 Flash, ya es el default en casos especificos como el Antigravity agent | $0.75 / $3.75 introductorio hasta 2026-12-31; luego $1.50 / $7.50 |
 | `gemini-3.6-flash` | 1M tokens | `thinking_level` (minimal/low/medium/high, default medium) | Tareas agenticas multi-step, coding — sigue disponible, sucedido por 3.7 Flash como opcion mas capaz al mismo pricing final | $1.50 / $7.50 |
-| `gemini-3.1-flash-live-preview` | — (streaming) | Si | Live API audio-to-audio, conversacion en tiempo real | Ver `audio-voice-engineer` |
+| `gemini-3.8-live` | — (streaming) | Si | Live API audio-to-audio, conversacion en tiempo real (`gemini-3.1-flash-live-preview` deprecado) | Ver `audio-voice-engineer` |
 | `gemini-3.5-flash-lite` | 1M tokens | `thinking_level` (minimal/low/medium/high, default minimal) | Alta escala, throughput masivo, costo minimo — reemplaza a 3.1 Flash-Lite como tier 0 mas barato de la familia 3.x | $0.30 / $2.50 |
 
 Verificado 2026-08-03 contra `ai.google.dev/gemini-api/docs/pricing` y `/docs/models`. `gemini-3.1-flash-lite` ($0.25/$1.50) sigue disponible y vigente — no esta deprecado, pero 3.5 Flash-Lite es la opcion mas nueva dentro del mismo tier de costo. `gemini-3.5-flash` ($1.50/$9.00) tambien sigue disponible; 3.6 Flash lo mejora en pricing de output sin subir el de input.
