@@ -11,6 +11,12 @@ Protocolo de Vigencia Tecnologica aplicado. Fuente primaria: `slsa.dev/spec/v1.2
 
 Hallazgo real durante la verificacion: ni `devops-infra` ni `release-manager` (los dos skills asociados a este dominio) mencionan SLSA, SBOM, CycloneDX, SPDX, cosign ni sigstore (confirmado por grep, cero coincidencias) — el dominio queda verificado pero sin contenido correspondiente en los skills que dice cubrir. Documentado explicitamente en `MARKET_STANDARDS.json` como gap conocido, sin fabricar contenido nuevo fuera del alcance de la tarea (agregar una seccion de supply chain security es una decision de alcance de skill, no una correccion de vigencia). `node --test tests/harness/audit-market-js.test.js` — 8/8 pass.
 
+### Verificado y corregido — `frontend-web-standards`
+
+Protocolo de Vigencia Tecnologica aplicado sobre `tech-lead-frontend` y `ux-visual-designer`. Fuentes primarias: `developer.mozilla.org` (Container Queries, `@view-transition`), `developer.chrome.com/docs/web-platform/view-transitions`, `w3.org/TR/WCAG22/`.
+
+Hallazgo real corregido: ambos SKILL.md etiquetaban `@view-transition { navigation: auto; }` (transicion cross-document/MPA) como "same-document (Baseline 2025)" — es en realidad **Limited Availability** (sin soporte en Firefox), distinta de `document.startViewTransition()` (same-document, esa si Baseline). Corregido en `tech-lead-frontend/SKILL.md` (Modulo 13) y `ux-visual-designer/SKILL.md` (Modulo 6), cada uno con seccion de vigencia fechada agregada. Container Queries y WCAG 2.2 confirmados vigentes sin cambios. `verified` de `frontend-web-standards` actualizado a 2026-09-15 en `MARKET_STANDARDS.json`. `last_updated` de ambos skills sincronizado via `npm run validate-globals -- --fix-drift`. 45/45 skills conformes.
+
 ## [3.40.1] — 2026-09-15 (vigencia de parametro max_tokens en OpenAICompatAdapter.js: DeepSeek y Kimi)
 
 Protocolo de Vigencia Tecnologica aplicado sobre `PROVIDER_CONFIGS.deepseek` y `PROVIDER_CONFIGS.kimi`, marcados desde su creacion como "no verificado contra fuente oficial". Verificado contra fuente primaria (2026-09-15):
