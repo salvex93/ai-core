@@ -36,8 +36,8 @@
       "skills": ["rag-specialist", "llm-evals", "llm-observability"]
     },
     "data-database-ops": {
-      "verified": "2026-07-15",
-      "sources": ["docs.getdbt.com (Model Contracts)", "airflow.apache.org (Airflow 3.0)", "databricks.com (Medallion Architecture)", "postgresql.org/support/security (CVE-2025-12819)"],
+      "verified": "2026-09-15",
+      "sources": ["docs.getdbt.com/docs/mesh/govern/model-contracts (Model Contracts, sintaxis sin drift)", "airflow.apache.org/docs/apache-airflow/stable/release_notes.html (Airflow 3.3.1)", "databricks.com (Medallion Architecture)", "postgresql.org/support/security (lote 2026-08-13, 7 CVEs core 8.8, y CVE-2025-12819 de PgBouncer)"],
       "skills": ["data-engineer", "database-ops"]
     },
     "app-distribution-stores": {
