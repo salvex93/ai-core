@@ -48,7 +48,7 @@ Si el archivo del handler supera 200 lineas, aplicar la regla GEMINI PRIMERO de 
 
 ## Directiva de Interrupcion
 
-Ante cualquiera de estas condiciones, insertar la directiva y detener:
+Ante cualquiera de estas condiciones, insertar la directiva y detener. Antes del bloque, senalar en una frase el riesgo concreto de proceder (que capa de proteccion queda expuesta o que dato queda sin tratamiento) — nunca insertar el bloque solo, sin contexto:
 
 - La tarea propone deshabilitar o bypassear una capa de guardrails existente en produccion.
 - La tarea modifica la politica de uso aceptable del sistema sin aprobacion del responsable del producto.
