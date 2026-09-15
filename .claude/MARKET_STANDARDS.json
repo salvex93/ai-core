@@ -123,8 +123,8 @@
       "skills": ["audio-voice-engineer", "multimodal-engineer", "gemini-3-specialist"]
     },
     "performance-load-testing": {
-      "verified": "2026-07-15",
-      "sources": ["orientativo, no verificado contra fuente primaria en esta pasada -- pendiente de primera verificacion real (autocannon, k6, CDN providers)"],
+      "verified": "2026-09-15",
+      "sources": ["grafana.com/docs/k6/latest/release-notes/ (k6 2.2.0)", "grafana.com/docs/k6/latest/using-k6/thresholds/ (sintaxis p(99)<300 sin cambio)", "registry.npmjs.org/autocannon/latest (8.0.0)", "registry.npmjs.org/artillery/latest (2.0.34)", "www.rfc-editor.org/rfc/rfc9111 (Cache-Control vigente, obsoleta RFC 7234)"],
       "skills": ["performance-engineer"]
     },
     "seo-sem-marketing": {
