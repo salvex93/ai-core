@@ -491,13 +491,14 @@ Especificar estos patrones en el handoff cuando correspondan:
 }
 ```
 
-**View Transitions (same-document — Baseline 2025):**
+**View Transitions cross-document (MPA, sintaxis `@view-transition`) — limited availability, sin Firefox (verificado 2026-09-15):**
 ```css
-/* Transicion de pagina nativa sin JS adicional */
+/* Transicion de pagina nativa sin JS adicional — requiere same-origin en ambos documentos */
 @view-transition { navigation: auto; }
 
 .hero-image { view-transition-name: hero; }
 ```
+Same-document (SPA, via `document.startViewTransition()` en JS) si es Baseline: Chrome/Edge 111+, Safari 18+, Firefox 144+. Para SPA preferir esa via; para MPA, la at-rule de arriba no tiene soporte en Firefox — evaluar fallback.
 
 **Anchor Positioning (CSS 2026):**
 ```css
