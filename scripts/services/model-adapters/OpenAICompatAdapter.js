@@ -36,9 +36,9 @@ const PROVIDER_CONFIGS = Object.freeze({
     // "deepseek-chat" se deprecha 2026-07-24 15:59 UTC (mapea a modo
     // no-thinking de deepseek-v4-flash) -- usar el nombre nuevo directamente.
     defaultModel: 'deepseek-v4-flash',
-    // No verificado contra fuente oficial si DeepSeek migro a
-    // max_completion_tokens (limite de uso de API alcanzado) -- se asume
-    // que sigue con el formato clasico max_tokens hasta confirmar lo contrario.
+    // Confirmado 2026-09-15 contra api-docs.deepseek.com/api/create-chat-completion/:
+    // el parametro sigue siendo max_tokens, sin equivalente max_completion_tokens
+    // en esta API.
     maxTokensParam: 'max_tokens',
   },
   kimi: {
@@ -48,9 +48,9 @@ const PROVIDER_CONFIGS = Object.freeze({
     // La serie moonshot-v1 cierra a nuevos usuarios y sunset completo
     // 2026-08-31 -- kimi-k3 (2026-07-16, 1M contexto) es el flagship vigente.
     defaultModel: 'kimi-k3',
-    // No verificado contra fuente oficial (mismo motivo que deepseek) --
-    // se asume formato clasico max_tokens hasta confirmar lo contrario.
-    maxTokensParam: 'max_tokens',
+    // Confirmado 2026-09-15 contra platform.kimi.ai/docs/api/chat:
+    // max_tokens quedo deprecado, la API exige max_completion_tokens.
+    maxTokensParam: 'max_completion_tokens',
   },
 });
 
