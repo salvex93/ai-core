@@ -314,6 +314,13 @@ flutter build web --release
 flutter clean && flutter pub get
 ```
 
+### Requisitos vigentes de publicacion (Android/iOS)
+
+Verificado 2026-09-15 contra `developer.android.com/google/play/requirements/target-sdk` y `developer.apple.com/news/upcoming-requirements/` — ambos plazos ya vencieron a la fecha de hoy, son requisito activo, no futuro:
+
+- **Google Play (Android):** apps nuevas y actualizaciones deben apuntar a `targetSdk` **API level 36** (Android 16) como minimo desde el 31 de agosto de 2026. Excepciones: Wear OS/Android Automotive requieren API 35; TV/XR requieren API 34. Apps ya publicadas necesitan API 35+ para seguir siendo visibles a usuarios nuevos en dispositivos recientes. Configurar en `android/app/build.gradle` (`targetSdkVersion`), verificar contra el valor real del proyecto antes de cualquier release a producción.
+- **App Store Connect (iOS):** builds enviados deben compilarse con **Xcode 26 o posterior**, usando el SDK de iOS/iPadOS/tvOS/visionOS/watchOS 26, desde el 28 de abril de 2026. Confirmar version de Xcode instalada (`xcodebuild -version`) antes de un `flutter build ios --release` destinado a distribucion.
+
 ## Directiva de Interrupcion
 
 Detener emision de codigo e insertar la directiva ante cualquiera de estas condiciones:
