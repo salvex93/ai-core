@@ -41,6 +41,29 @@ Barrido de los 11 skills que `audit-market.js` reportaba en `DRIFT_VS_MERCADO` t
 
 `node .claude/bin/audit-market.js` tras el barrido: 45 skills evaluados, 0 drift, 0 stale, solo los 2 `SIN_DOMINIO_REGISTRADO` esperados (`ciso`, `product-lifecycle-orchestrator`). `npm run validate-globals`: 45/45 conformes. `npm test`: 1373 tests (1372 pass, 1 skip).
 
+### Verificado — `mobile-flutter`, `performance-load-testing`, `doc-generation`: sin drift real
+
+Protocolo de Vigencia Tecnologica aplicado sobre `mobile-engineer` (Flutter/Dart, Android/iOS toolchains) y `performance-engineer` (herramientas de load testing). Ambos dominios reverificados contra fuentes primarias (`flutter.dev`, `developer.android.com`, `developer.apple.com` para el primero) sin encontrar drift de contenido — solo actualizacion de `verified` a 2026-09-15 en `MARKET_STANDARDS.json`. `doc-generation` (`doc-builder`) reverificado de igual forma, sin drift; una sugerencia cosmetica de nomenclatura CSS reportada por el subagente se evaluo y se descarto por no bloquear ni afectar contenido tecnico real.
+
+### Verificado y corregido — `seo-sem-marketing`
+
+Protocolo de Vigencia Tecnologica aplicado sobre `seo-sem-specialist`. 3 hallazgos de drift real corregidos:
+
+- **Google Ads AI Max for Search / DSA:** el skill describia el plan pre-extension. Fuente primaria `blog.google/products/ads-commerce/dsa-upgrade-to-ai-max-2026` (actualizada 2026-06-11) confirma que el auto-upgrade masivo de DSA a AI Max se pospuso de septiembre 2026 a **febrero 2027**, con excepcion para campañas con Automatically Created Assets (ACA) y broad match a nivel de campaña (esas si mantienen septiembre 2026); la creacion de DSA nuevas se elimina en enero 2027.
+- **Quality Score de Google Ads:** la tabla citaba pesos 55/22/22 como si fueran oficiales. Google nunca publica los pesos exactos; corregido a la estimacion de industria mejor documentada (Adalysis, 15,000+ cuentas: ~39% CTR esperado / ~39% experiencia de landing page / ~22% relevancia del anuncio), explicitamente etiquetada como estimacion no oficial.
+- **Meta Ads specs de creatividades:** subtitulos en feed video corregidos de "obligatorios" a "opcionales pero recomendados", confirmado contra `facebook.com/business/ads-guide/video`. Quedan documentados como pendientes de verificar: resolucion Feed 1:1 vs. 4:5, specs exactas de Stories/Reels (URL oficial devolvio 404), vigencia de la regla "texto en imagen <20% del area".
+- Deadline IAB TCF v2.3 (2026-03-01): confirmado ya vencido y aplicado, pero con la fuente primaria correcta (`support.google.com/adsense/answer/16942036`, familia AdSense/AdMob) en vez de la pagina de Consent Mode de Google Ads citada originalmente.
+
+`seo-sem-specialist/SKILL.md` version 1.0.1 -> 1.1.0 (MINOR, contenido tecnico real corregido). `verified` de `seo-sem-marketing` actualizado a 2026-09-15 en `MARKET_STANDARDS.json` con las fuentes corregidas.
+
+### Verificado y corregido — `web-scraping`
+
+Protocolo de Vigencia Tecnologica aplicado sobre `web-scraping-specialist`. Drift real en Camoufox: version citada v146.0.1-beta.25 (enero 2026), version real vigente v152.0.4-beta.30 (publicada 2026-09-01, `github.com/daijro/camoufox/releases`) — el numero base de Firefox tambien subio de 146 a 152, no solo un bump de beta. curl-cffi (0.16.3) y Patchright (activo, exclusivo Chromium, valida contra Cloudflare/Kasada/Akamai/Shape-F5/Datadome/Fingerprint.com/Brotector) reconfirmados sin drift. Cloudflare Turnstile: los 3 modos (Managed/Non-Interactive/Invisible) reconfirmados; la duracion de 5 minutos del token queda documentada como no reverificada en esta pasada (no aparecio en la pagina de overview consultada). `verified` de `web-scraping` actualizado a 2026-09-15 en `MARKET_STANDARDS.json`.
+
+### Cierre del barrido completo de vigencia de mercado (2026-09-15)
+
+Con `mobile-flutter`, `performance-load-testing`, `doc-generation`, `seo-sem-marketing` y `web-scraping` cerrados, todos los dominios que `audit-market.js` reportaba en `STALE_MERCADO`/`DRIFT_VS_MERCADO` quedan resueltos con implementacion real, no solo re-fechados. `npm test`: 1373 tests (1372 pass, 1 skip). `npm run validate-globals`: 45/45 skills conformes. `npm run audit-market -- --only-stale`: unicamente los 2 `SIN_DOMINIO_REGISTRADO` esperados y aceptados (`ciso`, `product-lifecycle-orchestrator` — fuera de alcance de este protocolo, no describen vigencia de mercado externo).
+
 ## [3.40.1] — 2026-09-15 (vigencia de parametro max_tokens en OpenAICompatAdapter.js: DeepSeek y Kimi)
 
 Protocolo de Vigencia Tecnologica aplicado sobre `PROVIDER_CONFIGS.deepseek` y `PROVIDER_CONFIGS.kimi`, marcados desde su creacion como "no verificado contra fuente oficial". Verificado contra fuente primaria (2026-09-15):

@@ -2,7 +2,7 @@
 name: seo-sem-specialist
 description: Especialista en SEO tecnico y SEM de produccion. SEO: auditoria tecnica (Core Web Vitals, indexacion, canonicalizacion, Schema.org, sitemaps), SEO on-page y off-page, estrategia de contenido, link building etico. SEM: Google Ads (Search, Display, Performance Max), Meta Ads, LinkedIn Ads, estructura de campanas, pujas inteligentes, Quality Score, remarketing, UTMs y attribution. Analytics: GA4, Google Tag Manager, conversion tracking, dashboards de ROAS. Activa al auditar el posicionamiento SEO de un sitio, disenar o optimizar campanas de publicidad pagada, instrumentar analytics para tracking de conversiones, o definir la estrategia de adquisicion de trafico de un producto.
 origin: ai-core
-version: 1.0.1
+version: 1.1.0
 last_updated: 2026-09-15
 rol: architect
 ---
@@ -258,11 +258,13 @@ Extensiones obligatorias:
 
 El Quality Score (1-10) afecta el CPC real y la posicion del anuncio.
 
-| Componente | Peso | Como mejorar |
+Google nunca ha publicado los pesos exactos de estos componentes — las cifras de la tabla son una estimacion de industria (Adalysis, reverse-engineering sobre 15,000+ cuentas), no un dato oficial de Google. Presentarlas siempre como estimacion, nunca como cifra firme frente al cliente.
+
+| Componente | Peso (estimacion de industria, no oficial) | Como mejorar |
 |---|---|---|
-| CTR esperado | ~55% | Titulos con keyword, propuesta de valor clara, beneficio en 3 palabras |
+| CTR esperado | ~39% | Titulos con keyword, propuesta de valor clara, beneficio en 3 palabras |
 | Relevancia del anuncio | ~22% | Keyword en titulo 1, en descripcion 1, en URL visible |
-| Experiencia de pagina destino | ~22% | Keyword en H1 de la landing, velocidad < 3s, sin popups agresivos |
+| Experiencia de pagina destino | ~39% | Keyword en H1 de la landing, velocidad < 3s, sin popups agresivos |
 
 ### Pujas inteligentes — cuando usar cada estrategia
 
@@ -326,7 +328,7 @@ Campana (Objetivo: Conversiones / Leads / Trafico)
 | Formato | Resolucion | Relacion | Peso maximo | Texto en imagen |
 |---|---|---|---|---|
 | Feed imagen | 1080x1080px | 1:1 | 30MB | < 20% del area |
-| Feed video | 1080x1080px | 1:1 | 4GB | Subtitulos obligatorios |
+| Feed video | 1080x1080px | 1:1 | 4GB | Subtitulos opcionales pero recomendados |
 | Stories/Reels imagen | 1080x1920px | 9:16 | 30MB | Zona segura central 250px |
 | Stories/Reels video | 1080x1920px | 9:16 | 4GB | 15-30s optimo |
 | Carrusel | 1080x1080px | 1:1 | 30MB por card | 2-10 cards |
@@ -470,6 +472,8 @@ Sin esta identidad declarada, cualquier keyword, estructura de campana o copy ge
 Verificar contra fuente oficial de Google antes de escribir cualquier recomendacion de consentimiento o estructura de campana — no asumir por analogia con el ciclo anterior:
 
 - Consent Mode v2 es el estandar vigente para trafico EEA: agrega los parametros `ad_user_data` y `ad_personalization` sobre el Consent Mode original, y es requisito para conservar tags/SDKs de medicion, personalizacion de anuncios y remarketing sobre usuarios de la EEA. Confirmado contra `developers.google.com/tag-platform` y `support.google.com/google-ads` (answer/13695607). El deadline relacionado del IAB para TCF v2.3 es el 1 de marzo de 2026 — TC strings generados despues de esa fecha sin TCF v2.3 pueden degradar a "Limited Ads".
-- AI Max for Search esta reemplazando Dynamic Search Ads (DSA) como capa de optimizacion dentro de las campanas de Busqueda existentes (no es un tipo de campana nuevo): confirmado contra `blog.google/products/ads-commerce` y `support.google.com/google-ads` (answer/15910187). Las campanas con DSA, Automatically Created Assets y broad match a nivel de campana empiezan auto-upgrade a AI Max desde septiembre 2026; el sunset de DSA como configuracion independiente inicia en febrero 2027. Antes de estructurar una campana nueva basada en DSA, verificar el estado de esta migracion en la cuenta especifica del cliente.
+- AI Max for Search esta reemplazando Dynamic Search Ads (DSA) como capa de optimizacion dentro de las campanas de Busqueda existentes (no es un tipo de campana nuevo). Timeline corregido 2026-09-15 contra fuente oficial `blog.google/products/ads-commerce/dsa-upgrade-to-ai-max-2026/` (actualizada 2026-06-11): Google **pospuso** el auto-upgrade masivo original de septiembre 2026 a **febrero 2027**. Excepcion que si mantiene septiembre 2026: campanas con Automatically Created Assets (ACA) y broad match a nivel de campana. Enero 2027: se elimina la posibilidad de crear DSA nuevas. Febrero 2027: migracion automatica masiva + eliminacion definitiva de creacion de DSA. La version anterior de este skill describia el plan original pre-extension (septiembre 2026 / febrero 2027 sunset) sin reflejar el aplazamiento anunciado por Google Ads Liaison por feedback de anunciantes de cara a Q4. Antes de estructurar una campana nueva basada en DSA, verificar el estado de esta migracion en la cuenta especifica del cliente y confirmar contra la fuente oficial si hubo otra actualizacion posterior a esta verificacion.
 - Core Web Vitals verificado 2026-09-15 contra `web.dev/articles/vitals`: los umbrales de LCP (<= 2.5s), INP (<= 200ms) y CLS (<= 0.1) de la tabla del Modulo 1 siguen vigentes sin cambio, medidos en percentil 75 de cargas de pagina. Confirmado ademas contra `web.dev/blog/inp-cwv-launch` que INP reemplazo a FID como Core Web Vital estable el 12 de marzo de 2024 (fecha exacta, coincide con la ya citada en el checklist de rendimiento del Modulo 1) — sin drift en esta seccion.
+- Deadline TCF v2.3 (1 de marzo de 2026) confirmado 2026-09-15 contra `support.google.com/adsense/answer/16942036` — ya vencido y aplicado, sin extension. La fuente que prueba esta fecha es de la familia AdSense/AdMob, distinta de la pagina de Consent Mode de Google Ads ya citada arriba; el mecanismo de Consent Mode v2 es el mismo en ambas.
+- Especificaciones de creatividades Meta Ads (Modulo 4) reverificadas parcialmente 2026-09-15 contra `facebook.com/business/ads-guide/image` y `/video`: peso maximo de imagen (30MB) y video (4GB) confirmados sin cambio; subtitulos en feed video corregidos de "obligatorios" a "opcionales pero recomendados" (drift real, ya corregido en la tabla del Modulo 4). Pendiente de verificar contra fuente oficial: si 1080x1080 (1:1) sigue siendo la resolucion primaria de Feed frente a 1440x1800 (4:5, que la documentacion oficial actual de Meta presenta primero), las specs exactas de Stories/Reels (la URL oficial probada devolvio 404), y si la regla de "texto en imagen < 20% del area" sigue vigente como politica de rechazo o quedo solo como recomendacion de rendimiento — no tratar esos 3 puntos como confirmados hasta la proxima verificacion.
 - Cualquier pricing de plataformas de Ads o feature de GA4 no listado arriba con fuente citada es orientativo, no verificado contra fuente oficial en esta tarea — confirmar en `support.google.com` o `developers.google.com` antes de usarlo como dato firme frente al cliente.

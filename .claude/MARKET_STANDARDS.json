@@ -104,7 +104,7 @@
     },
     "mobile-flutter": {
       "verified": "2026-09-15",
-      "sources": ["docs.flutter.dev/release/archive (Flutter 3.47)", "flutter.dev/blog/whats-new-in-flutter-3-47 (Impeller default en macOS/Windows/Linux, publicado 2026-08-12)", "pub.dev/packages/flutter_riverpod (Riverpod 3.4.3 stable)", "pub.dev/packages/isar (ultimo stable 3.1.0+1, ~3 anos sin release estable nuevo -- gap de vigencia real documentado en el skill)"],
+      "sources": ["docs.flutter.dev/release/archive (Flutter 3.47)", "flutter.dev/blog/whats-new-in-flutter-3-47 (Impeller default en macOS/Windows/Linux, publicado 2026-08-12)", "pub.dev/packages/flutter_riverpod (Riverpod 3.4.3 stable)", "pub.dev/packages/isar (ultimo stable 3.1.0+1, ~3 anos sin release estable nuevo -- gap de vigencia real documentado en el skill)", "developer.android.com/google/play/requirements/target-sdk (targetSdk API 36 exigido desde 2026-08-31, gap de contenido cerrado 2026-09-15)", "developer.apple.com/news/upcoming-requirements/ (Xcode 26 / SDK iOS 26 exigido desde 2026-04-28, gap de contenido cerrado 2026-09-15)"],
       "skills": ["mobile-engineer"]
     },
     "mcp-protocol": {
@@ -129,7 +129,7 @@
     },
     "seo-sem-marketing": {
       "verified": "2026-09-15",
-      "sources": ["web.dev/articles/vitals (Core Web Vitals LCP/INP/CLS sin cambio de umbral)", "web.dev/blog/inp-cwv-launch (INP reemplazo a FID como estable el 12 de marzo de 2024, fecha confirmada)", "developers.google.com/tag-platform (Consent Mode v2, ad_user_data/ad_personalization)", "support.google.com/google-ads answer/13695607 (Consent Mode v2 requisito EEA, deadline IAB TCF v2.3 2026-03-01)", "blog.google/products/ads-commerce y support.google.com/google-ads answer/15910187 (AI Max for Search reemplaza DSA, auto-upgrade desde septiembre 2026, sunset DSA febrero 2027)"],
+      "sources": ["web.dev/articles/vitals (Core Web Vitals LCP/INP/CLS sin cambio de umbral)", "web.dev/blog/inp-cwv-launch (INP reemplazo a FID como estable el 12 de marzo de 2024, fecha confirmada)", "developers.google.com/tag-platform (Consent Mode v2, ad_user_data/ad_personalization)", "support.google.com/google-ads answer/13695607 (Consent Mode v2 requisito EEA)", "support.google.com/adsense answer/16942036 (deadline IAB TCF v2.3 2026-03-01, ya vencido y aplicado)", "blog.google/products/ads-commerce/dsa-upgrade-to-ai-max-2026 (actualizado 2026-06-11: auto-upgrade masivo DSA->AI Max pospuesto de septiembre 2026 a febrero 2027; excepcion ACA/broad-match a nivel de campana sigue en septiembre 2026; creacion de DSA nuevas se elimina en enero 2027 -- gap de contenido cerrado 2026-09-15, la fuente anterior describia el plan pre-extension)", "facebook.com/business/ads-guide/image y /video (specs Meta Ads reverificadas: subtitulos de feed video corregidos de obligatorios a opcionales-recomendados -- drift real cerrado 2026-09-15; resolucion Feed 1:1 vs 4:5, specs Stories/Reels y regla de texto <20% quedan sin verificar, documentado como pendiente en el skill)"],
       "skills": ["seo-sem-specialist"]
     },
     "doc-generation": {
@@ -139,7 +139,7 @@
     },
     "web-scraping": {
       "verified": "2026-09-15",
-      "sources": ["github.com/Kaliiiiiiiiii-Vinyzu/patchright (Patchright activo, solo Chromium, valida contra Cloudflare/Kasada/Akamai/Shape/Datadome/Fingerprint.com)", "pypi.org/pypi/curl_cffi/json (curl_cffi 0.16.3, 37 fingerprints open source)", "camoufox.com y github.com/daijro/camoufox (v146.0.1-beta.25, ya verificado en pasada previa, sin drift adicional en esta)", "developers.cloudflare.com/turnstile (Managed/Non-Interactive/Invisible, token expira 5 min, ya verificado en pasada previa)"],
+      "sources": ["github.com/Kaliiiiiiiiii-Vinyzu/patchright (reverificado 2026-09-15, activo, solo Chromium, valida contra Cloudflare/Kasada/Akamai/Shape/Datadome/Fingerprint.com/Brotector)", "pypi.org/pypi/curl_cffi/json (reverificado 2026-09-15, curl_cffi 0.16.3 sigue siendo la version mas reciente, 37 fingerprints open source)", "github.com/daijro/camoufox/releases (drift real cerrado 2026-09-15: v146.0.1-beta.25 -> v152.0.4-beta.30, publicada 2026-09-01, el numero base de Firefox tambien subio de 146 a 152)", "developers.cloudflare.com/turnstile (reverificado 2026-09-15: los 3 modos Managed/Non-Interactive/Invisible confirmados; duracion de 5 min del token NO aparecio en la pagina de overview consultada, queda pendiente de reverificar contra la referencia tecnica especifica)"],
       "skills": ["web-scraping-specialist"]
     }
   }

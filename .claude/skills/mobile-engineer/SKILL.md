@@ -2,7 +2,7 @@
 name: mobile-engineer
 description: Tech Lead Mobile Universal. Experto en aplicaciones moviles y multiplataforma con Flutter/Dart. Cubre arquitectura de features, state management (BLoC/Riverpod), navegacion, integracion con APIs REST, Firebase, mapas, graficos, persistencia offline-first/sincronizacion y testing. Agnostico a la capa de backend. Activa al construir pantallas Flutter, disenar la arquitectura de features moviles, integrar SDKs nativos, implementar offline-first o resolver problemas de rendimiento en el widget tree.
 origin: ai-core
-version: 1.6.0
+version: 1.7.0
 last_updated: 2026-09-15
 rol: coder
 compatibility: Requiere el SDK Flutter/Dart instalado localmente; depende de conectividad de red para dependencias pub.dev y servicios Firebase si el proyecto los usa.
@@ -314,6 +314,13 @@ flutter build web --release
 flutter clean && flutter pub get
 ```
 
+### Requisitos vigentes de publicacion (Android/iOS)
+
+Verificado 2026-09-15 contra `developer.android.com/google/play/requirements/target-sdk` y `developer.apple.com/news/upcoming-requirements/` — ambos plazos ya vencieron a la fecha de hoy, son requisito activo, no futuro:
+
+- **Google Play (Android):** apps nuevas y actualizaciones deben apuntar a `targetSdk` **API level 36** (Android 16) como minimo desde el 31 de agosto de 2026. Excepciones: Wear OS/Android Automotive requieren API 35; TV/XR requieren API 34. Apps ya publicadas necesitan API 35+ para seguir siendo visibles a usuarios nuevos en dispositivos recientes. Configurar en `android/app/build.gradle` (`targetSdkVersion`), verificar contra el valor real del proyecto antes de cualquier release a producción.
+- **App Store Connect (iOS):** builds enviados deben compilarse con **Xcode 26 o posterior**, usando el SDK de iOS/iPadOS/tvOS/visionOS/watchOS 26, desde el 28 de abril de 2026. Confirmar version de Xcode instalada (`xcodebuild -version`) antes de un `flutter build ios --release` destinado a distribucion.
+
 ## Directiva de Interrupcion
 
 Detener emision de codigo e insertar la directiva ante cualquiera de estas condiciones:
@@ -384,3 +391,5 @@ Verificado 2026-09-15 contra `pub.dev/packages/flutter_riverpod`: la version sta
 Verificado 2026-09-15 contra `pub.dev/packages/isar`: gap real de vigencia detectado — el ultimo release estable de Isar es 3.1.0+1, de hace aproximadamente 3 anos, sin ningun major posterior graduado a stable (solo existe un prerelease `4.0.0-dev.14` sin fecha de lanzamiento). Ver advertencia agregada en la tabla de "Base de datos local" arriba: no recomendar Isar para un proyecto nuevo sin esta salvedad.
 
 No se reverifico en esta pasada el estado de Drift ni Hive especificamente (sin señal de alerta detectada durante esta verificacion, a diferencia de Isar) — si se requiere una confirmacion exhaustiva de sus releases mas recientes, consultar `pub.dev/packages/drift` y `pub.dev/packages/hive` directamente antes de fijarlos como referencia permanente.
+
+Gap de cobertura cerrado 2026-09-15: este archivo no mencionaba ningun requisito de `targetSdk`/`compileSdk` de Google Play ni version de Xcode de App Store Connect — ver seccion nueva "Requisitos vigentes de publicacion (Android/iOS)" tras "Comandos de Build". Version de `firebase_ai` (3.15.0, seccion de arriba) no reverificada en esta pasada — fuera del alcance de `mobile-flutter` (dominio de modelos IA cubierto en otro registro de `MARKET_STANDARDS.json`).
