@@ -3,6 +3,24 @@
 Registro de cambios por version. Formato basado en [Keep a Changelog](https://keepachangelog.com/es/1.0.0/).
 Versionado semantico: MAJOR.MINOR.PATCH.
 
+## [3.39.0] — 2026-09-14 (validacion de contenido multi-proveedor en flujo MoA + merge no destructivo de settings.json en norm-harness.js)
+
+Auditoria propia sobre 2 gaps reales: (a) el patron MoA (`ModelDispatcher.js` -> `moa-context-gatherer.js`, hook `UserPromptSubmit`) usaba `Promise.allSettled` solo para aislar fallos HTTP entre proveedores, sin validar la calidad del contenido que si llegaba (documentado como deuda tecnica explicita en el propio codigo); (c) `ensureHostSettings()` en `norm-harness.js` sobreescribia el `.claude/settings.json` completo del proyecto anfitrion sin merge cuando detectaba drift, perdiendo cualquier hook, mcpServer o permiso custom que el anfitrion hubiera agregado a mano.
+
+### Agregado — `TokenManager.js`: `truncarOutputProveedor()`, generico para cualquier proveedor no-Anthropic
+
+El truncado de output (limite 1.500 tokens / ~6.000 chars, evitar envenenar el historial con tokens pagados) solo cubria Gemini (`truncarOutputGemini`). Se agrego una funcion paralela que reutiliza las mismas constantes sin duplicarlas ni tocar la funcion original — DeepSeek/OpenAI/Kimi en flujos MoA quedaban sin limite de tamaño antes de este cambio.
+
+### Agregado — `moa-context-gatherer.js`: filtro de contenido util + marca de no confiable antes de escribir `moa_context.md`
+
+Un proveedor puede responder 200 OK y devolver string vacio o solo whitespace; ese "exito" vacio se escribia igual al archivo de contexto efimero, indistinguible de un worker que si aporto algo. Ahora `construirContenidoMoA()` (funcion pura, testeable sin red) registra ese caso como fallo explicito en vez de escribirlo crudo, trunca cualquier contenido valido via `truncarOutputProveedor()`, y antepone siempre un aviso HTML-comment de "contenido externo no confiable" citando la regla 11 del ANCLA de CLAUDE.md.
+
+### Corregido — `norm-harness.js`: `ensureHostSettings()` ya no sobreescribe settings.json del anfitrion sin merge
+
+`mergeHostSettings()` une mcpServers y permissions.allow (conjunto), y fusiona los hooks evento por evento con `mergeHookEntries()` — un reemplazo de la clave completa perdia cualquier hook custom del anfitrion en un evento que ai-core tambien usa (ej. `PreToolUse`). Se agrega backup `.bak` del settings.json previo antes de cualquier sobreescritura (regla 6 de Gobierno de Agentes: ninguna sobreescritura sin red de recuperacion). Sin backup ni merge si el archivo no existia (primera corrida).
+
+1339 tests (1337 pass, 1 skipped, 1 fail preexistente y no relacionado — `audit-market-js.test.js` reporta un hallazgo real de vigencia de mercado en `security-owasp`, pendiente de verificacion contra fuente primaria bajo el Protocolo de Vigencia Tecnologica, fuera del alcance de este cambio).
+
 ## [3.38.0] — 2026-09-02 (4 principios de campo del harness oficial de Anthropic para deteccion autonoma, integrados en security-scanner + code-reviewer + Gobierno de Agentes)
 
 Evaluacion "con calma" de repos de ciberseguridad en GitHub. Revisado: `anthropics/defending-code-reference-harness` (harness oficial de Anthropic para deteccion autonoma de vulnerabilidades — 8 skills, pipeline de 7 etapas, sandbox gVisor), `anthropics/claude-code-security-review` (GitHub Action oficial + slash command nativo `/security-review`), catalogos comunitarios de 800+ skills de seguridad.

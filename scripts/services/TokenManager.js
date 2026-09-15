@@ -66,10 +66,33 @@ function truncarOutputGemini(outputGemini) {
   return `${truncado}\n\n[OUTPUT GEMINI TRUNCADO — ${tokensOriginal} tokens originales, mostrados primeros ${MAX_TOKENS_GEMINI_OUTPUT}. Si necesitas mas detalle, pide un resumen especifico.]`;
 }
 
+/**
+ * Trunca el output de cualquier proveedor no-Anthropic antes de que entre al
+ * historial de Claude o a un archivo de contexto efimero (ej. moa_context.md).
+ * Mismo limite que truncarOutputGemini() -- generalizado porque el gap
+ * original solo cubria Gemini y dejaba sin truncar el output de DeepSeek/
+ * OpenAI/Kimi en flujos MoA (ver ModelDispatcher.js), pese a que la razon de
+ * ser del limite (evitar envenenar el historial con tokens pagados) aplica
+ * igual a cualquier proveedor.
+ *
+ * @param {string} output - respuesta cruda del proveedor
+ * @param {string} [provider] - nombre del proveedor, solo para el mensaje de corte
+ * @returns {string} texto truncado listo para insertar en el historial o en un archivo de contexto
+ */
+function truncarOutputProveedor(output, provider = 'proveedor') {
+  if (!output || typeof output !== 'string') return '';
+  if (output.length <= MAX_CHARS_GEMINI_OUTPUT) return output;
+
+  const truncado = output.slice(0, MAX_CHARS_GEMINI_OUTPUT);
+  const tokensOriginal = Math.ceil(output.length / 4);
+  return `${truncado}\n\n[OUTPUT ${provider.toUpperCase()} TRUNCADO — ${tokensOriginal} tokens originales, mostrados primeros ${MAX_TOKENS_GEMINI_OUTPUT}. Si necesitas mas detalle, pide un resumen especifico.]`;
+}
+
 module.exports = {
   estimarTokensMensajes,
   truncarInputGemini,
   truncarOutputGemini,
+  truncarOutputProveedor,
   MAX_TOKENS_GEMINI_INPUT,
   MAX_TOKENS_GEMINI_OUTPUT,
 };
