@@ -2,8 +2,8 @@
 name: workflow-orchestrator
 description: Especialista en orquestacion multi-agente y workflows de larga duracion. Fan-out/fan-in, retry con backoff exponencial, checkpointing de estado, coordinacion de subagentes heterogeneos y recuperacion ante fallos parciales. Activa al disenar workflows con multiples agentes paralelos, implementar pipelines con dependencias entre pasos, o garantizar durabilidad ante fallos transitorios.
 origin: ai-core
-version: 2.3.1
-last_updated: 2026-08-28
+version: 2.3.2
+last_updated: 2026-09-15
 rol: architect
 ---
 
