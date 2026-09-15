@@ -2,8 +2,8 @@
 name: backend-architect
 description: Backend Architect Universal. Experto en SOLID, Clean Architecture, gestion de persistencia, arquitectura event-driven (Kafka/RabbitMQ/SQS, patron Outbox, DLQ), WebSockets/Server-Sent Events y scaffolding de proyectos desde cero. Con codigo real verificado en Node.js/TypeScript, Python, Go (net/http y Gin), Rust (Axum), Java/JVM (Spring Boot), .NET (ASP.NET Core), PHP (Laravel) y Ruby (Rails) ademas de las convenciones agnosticas de stack. Deduce el ORM, lenguaje y base de datos del repositorio anfitrion antes de emitir recomendaciones. Activa al disenar APIs, modelar esquemas, escribir migraciones, revisar queries, implementar mensajeria asincrona o tiempo real, o arrancar un servidor nuevo de cero.
 origin: ai-core
-version: 1.7.1
-last_updated: 2026-08-15
+version: 1.7.2
+last_updated: 2026-09-15
 rol: architect
 ---
 
@@ -308,7 +308,7 @@ Un proceso separado (poller o CDC via Debezium) lee `outbox_eventos` donde `publ
 
 | Patron | Direccion | Cuando usar |
 |---|---|---|
-| SSE (Server-Sent Events) | Servidor → cliente unicamente | Notificaciones, feeds de progreso, streaming de texto (LLM). Mas simple que WebSocket, reconexion automatica nativa del navegador via `EventSource`. |
+| SSE (Server-Sent Events) | Servidor → cliente unicamente | Notificaciones, feeds de progreso, streaming de texto (LLM). Mas simple que WebSocket, reconexion automatica nativa del navegador via `EventSource` (confirmado 2026-09-15 contra `developer.mozilla.org/docs/Web/API/Server-sent_events`). Limitacion real bajo HTTP/1.1: el navegador limita 6-8 conexiones concurrentes por dominio, y cada `EventSource` abierto cuenta contra ese limite — si la pagina abre varias pestañas o multiples streams SSE al mismo dominio puede agotarlo; HTTP/2 elimina esta limitacion al multiplexar streams sobre una sola conexion. |
 | WebSocket | Bidireccional | Chat, colaboracion en tiempo real, juegos, cualquier caso donde el cliente tambien emite eventos frecuentes al servidor. |
 | Polling / long-polling | Cliente → servidor en intervalos | Solo si SSE/WebSocket no son viables (proxy corporativo que los bloquea) — es el fallback, no el default. |
 
@@ -702,7 +702,7 @@ Este perfil se declara agnostico al lenguaje, pero declarar agnosticismo sin eje
 
 ### Go — net/http (stdlib) y Gin
 
-Version verificada: Go 1.26.0 (fuente: `go.dev/doc/devel/release`). El router nativo `http.ServeMux` soporta patrones `"METODO /ruta"` y wildcards `{nombre}` desde Go 1.22 (fuente: `go.dev/doc/go1.22`) — no requiere un framework para casos simples.
+Version verificada: Go 1.27.1 (fuente: `go.dev/doc/devel/release`, verificado 2026-09-15). El router nativo `http.ServeMux` soporta patrones `"METODO /ruta"` y wildcards `{nombre}` desde Go 1.22 (fuente: `go.dev/doc/go1.22`) — no requiere un framework para casos simples.
 
 ```go
 // main.go — net/http estandar, sin framework
@@ -824,7 +824,7 @@ func main() {
 }
 ```
 
-Con Gin (`go get github.com/gin-gonic/gin@v1.12.0`, version verificada en `github.com/gin-gonic/gin/releases`, `go.mod` minimo Go 1.25.0 — compatible con Go 1.26.0):
+Con Gin (`go get github.com/gin-gonic/gin@v1.12.0`, version verificada en `github.com/gin-gonic/gin/releases`, `go.mod` minimo Go 1.25.0 — compatible con Go 1.27.1):
 
 ```go
 r := gin.Default() // incluye middleware Logger() y Recovery()
@@ -1076,7 +1076,7 @@ pedidos-api/
 
 ### Java/JVM — Spring Boot
 
-Version verificada: Spring Boot 4.1.0 (fuente: `spring.io/projects/spring-boot`), requiere Java 17 minimo y es compatible hasta Java 26 (cita textual de `docs.spring.io/spring-boot/system-requirements.html`). JDK 25 es la LTS mas reciente (GA 2025-09-16, soporte NFTC hasta 2028, fuente `oracle.com/java/technologies/java-se-support-roadmap.html`).
+Version verificada: Spring Boot 4.1.1 (fuente: `spring.io/projects/spring-boot`, verificado 2026-09-15), requiere Java 17 minimo y es compatible hasta Java 26 (cita textual de `docs.spring.io/spring-boot/system-requirements.html`). JDK 25 es la LTS mas reciente (GA 2025-09-16, soporte NFTC hasta 2028, fuente `oracle.com/java/technologies/java-se-support-roadmap.html`).
 
 ```java
 @Entity
@@ -1695,3 +1695,4 @@ Verificar contra fuente oficial antes de escribir cualquier version o estado de 
 - **AsyncAPI** (especificacion para documentar contratos de eventos, equivalente a OpenAPI para mensajeria asincrona): version vigente **3.1.0**, verificado contra `asyncapi.com/docs/reference/specification/v3.1.0` en esta tarea. La version 3.0 (noviembre 2023) separo `operations` de `channels` respecto a la serie 2.x — no asumir que la sintaxis 2.x sigue siendo la forma recomendada.
 - **Idempotency-Key como header HTTP estandarizado**: a la fecha de verificacion en esta tarea sigue siendo un **Internet-Draft del IETF** (`draft-ietf-httpapi-idempotency-key-header`, grupo de trabajo HTTPAPI, revision 07), **no un RFC publicado**. El patron de implementacion de este skill (tabla `idempotency_keys` propia) sigue siendo valido independientemente del estado del draft, pero no describir el header como "estandar RFC" en documentacion de cara al cliente hasta que el draft se publique como tal.
 - Cualquier version de Kafka, RabbitMQ, motor de BD o SDK de cliente mencionada fuera de esta seccion en el resto del skill que no haya sido verificada en esta misma tarea: orientativo, verificar antes de uso contra la documentacion oficial del proveedor correspondiente.
+- **Tiempo real (WebSocket/SSE):** reverificado 2026-09-15 contra `developer.mozilla.org/docs/Web/API/Server-sent_events` — la reconexion automatica nativa de `EventSource` sigue vigente sin cambio. El patron de escalado horizontal via Redis Pub/Sub es arquitectonico (no atado a una version de producto especifica) y sigue siendo la solucion estandar de la industria para coordinar instancias stateful de WebSocket; no requiere reverificacion periodica salvo que cambie el mecanismo de pub/sub elegido en un proyecto especifico (Redis, NATS, Kafka).

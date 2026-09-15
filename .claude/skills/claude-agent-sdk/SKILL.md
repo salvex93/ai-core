@@ -3,7 +3,7 @@ name: claude-agent-sdk
 description: Especialista en construccion de agentes autonomos con el Claude Agent SDK (TypeScript/Python). Cubre herramientas integradas, hooks de ciclo de vida, subagentes, integracion MCP, OAuth 2.0 client flow (Authorization Code + PKCE) para servidores MCP remotos, gestion de permisos y sesiones. Activa al construir agentes personalizados, orquestar subagentes, integrar el Agent SDK en un proyecto anfitrion o disenar flujos de automatizacion con Claude.
 origin: ai-core
 version: 2.4.3
-last_updated: 2026-09-02
+last_updated: 2026-09-15
 rol: architect
 compatibility: Depende de @anthropic-ai/claude-agent-sdk (o el paquete Python equivalente) y conectividad de red hacia la Claude API; para MCP remoto ademas requiere flujo OAuth 2.0 con un authorization server externo.
 ---
@@ -253,26 +253,25 @@ No activar en flujos deterministas simples — el overhead de tokens no se justi
 
 Reglas: incluir bloques `thinking` del turno anterior en el historial del siguiente. Loguear tokens thinking separado. Requiere `claude-sonnet-5` o superior.
 
-## Adaptive Thinking — Opus 5 (antes Opus 4.8)
+## Adaptive Thinking — sintaxis vigente (verificado 2026-09-15 contra platform.claude.com/docs/en/build-with-claude/thinking-steering-and-cost)
 
-`claude-opus-5` (lanzado 24-jul-2026, mismo pricing que Opus 4.8: $5/$25 por millon de tokens) es ahora el default recomendado para agentes autonomos en Claude Max e introduce pensamiento adaptativo: el modelo asigna presupuesto de razonamiento de forma variable por paso, proporcional a la complejidad local de cada decision. Es la opcion optima para agentes con pasos de complejidad heterogenea. `claude-opus-4-8` sigue soportado como fallback documentado.
-
-Activar con `thinking: { type: "auto" }` en lugar de budget fijo:
+El thinking del modelo es adaptativo por defecto: en cada request el modelo evalua la complejidad y decide por si mismo si razonar y cuanto, sin que el llamador fije un presupuesto de tokens. El control real de intensidad es el parametro `output_config.effort` (no un campo dentro de `thinking`), con 5 niveles: `max` (siempre piensa, sin techo), `xhigh`, `high` (default, piensa casi siempre), `medium` (razonamiento moderado, puede omitirlo en consultas simples), `low` (lo omite salvo que la tarea lo amerite).
 
 ```typescript
 const respuesta = await cliente.messages.create({
   model: 'claude-opus-5',
-  thinking: { type: 'auto' },   // el modelo decide el budget por paso
+  thinking: { type: 'adaptive' },
+  output_config: { effort: 'medium' },  // control real de intensidad, no thinking.type
   max_tokens: 16000,
   messages: historial,
 });
 ```
 
-Cuando usar cada modo:
-- `{ type: "auto" }` (Opus 5, fallback Opus 4.8): pasos de complejidad variable — ahorra en pasos simples sin degradar calidad en pasos complejos.
-- `{ type: "enabled", budget_tokens: N }` (Opus/Sonnet 5): costo predecible por llamada o complejidad uniforme entre pasos.
+Corregido: `thinking: { type: "auto" }` NO es un valor valido de la API — el tipo correcto es `"adaptive"`. El modo `{ type: "enabled", budget_tokens: N }` sigue existiendo pero la fuente primaria lo describe como "legacy manual mode"; en modelos con thinking adaptativo (Opus 5 en adelante) preferir `thinking: { type: "adaptive" }` + `output_config.effort` sobre fijar `budget_tokens` a mano.
 
-Loguear `thinking_tokens` separado de `output_tokens` en ambos modos. La diferencia entre llamadas revela que porcion del costo es razonamiento adaptativo.
+Cambiar `effort` entre requests invalida el cache de prompt (mismo nivel de invalidacion que `tools`/`system`/`messages`) — fijar un nivel por conversacion y usar steering por mensaje (`"Piensa con cuidado antes de responder"` / `"Responde directo sin deliberar"`) para variar la profundidad turno a turno sin romper cache.
+
+Loguear `output_tokens_details.thinking_tokens` (no `thinking_tokens` suelto) separado de `output_tokens` — asi se ve que porcion del costo billeado es razonamiento interno vs texto de respuesta.
 
 ## Lista de Verificacion — Agentes
 

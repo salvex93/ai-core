@@ -2,8 +2,8 @@
 name: doc-builder
 description: Generador de documentacion profesional en HTML + PDF. Produce propuestas comerciales, documentos de requerimientos y entregables para clientes siguiendo el sistema visual Evolve (navy/azul, Segoe UI, paginacion controlada). Activa cuando se pide crear o modificar cualquier documento HTML/PDF destinado a un cliente o uso interno formal.
 origin: ai-core
-version: 1.0.0
-last_updated: 2026-08-05
+version: 1.0.1
+last_updated: 2026-09-15
 rol: architect
 ---
 
@@ -311,6 +311,8 @@ Si el proyecto ya tiene un HTML de referencia (ver "Primera Accion al Activar"),
 
 ### Vigencia — estandar mas reciente del dominio
 
-Verificado contra fuente oficial en esta tarea (`pptr.dev/api/puppeteer.pdfoptions`, dominio oficial del proyecto Puppeteer): `page.pdf()` expone la propiedad `tagged` (booleano, experimental, default `true` en la version documentada actualmente) para generar PDF etiquetado/accesible — es decir, Chrome ya adjunta estructura semantica (roles, alt text) al PDF exportado por defecto desde que esta opcion se activo, no solo un render plano de imagen de texto. Esto habilita lectores de pantalla sobre el PDF entregado sin herramienta adicional. Antes de desactivar `tagged` en `exportar_pdf.js` (ej. por peso de archivo), confirmar que el documento no requiere ese nivel de accesibilidad — desactivarlo es una regresion de capacidad, no una limpieza neutra.
+Reverificado 2026-09-15 contra fuente oficial (`pptr.dev/api/puppeteer.pdfoptions`, dominio oficial del proyecto Puppeteer): sin drift respecto a la verificacion anterior. `page.pdf()` sigue exponiendo la propiedad `tagged` (booleano, experimental, default `true`) para generar PDF etiquetado/accesible — Chrome adjunta estructura semantica (roles, alt text) al PDF exportado por defecto, no solo un render plano de imagen de texto. Esto habilita lectores de pantalla sobre el PDF entregado sin herramienta adicional. Antes de desactivar `tagged` en `exportar_pdf.js` (ej. por peso de archivo), confirmar que el documento no requiere ese nivel de accesibilidad — desactivarlo es una regresion de capacidad, no una limpieza neutra.
+
+Confirmadas ademas sin drift las demas propiedades usadas en la configuracion estandar de este skill: `scale` (default 1, estable), `printBackground` (default `false`, estable), `preferCSSPageSize` (default `false`, estable) — los valores fijados en `exportar_pdf.js` (`format: 'A4'`, `printBackground: true`, `preferCSSPageSize: false`, `scale: 0.9`) son overrides deliberados sobre esos defaults, no valores obsoletos.
 
 El resto del comportamiento fino de `page.pdf()` (compresion de imagenes, page ranges, headers/footers) esta documentado en la misma pagina oficial referenciada arriba; cualquier dato adicional sobre limites de tamano o comportamiento de compresion que no se haya verificado en esta pasada es orientativo, no verificado contra fuente oficial — confirmar en `pptr.dev` antes de escribirlo como definitivo en este skill.

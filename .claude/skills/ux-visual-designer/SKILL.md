@@ -3,7 +3,7 @@ name: ux-visual-designer
 description: Disenador UX/Visual AAA 2026. Cubre design systems desde cero (tokens W3C, componentes, documentacion), brand identity (logotipo, paleta, tipografia, iconografia), paradigmas visuales 2026 (glassmorphism, claymorphism, brutalismo, maximalismo, liquid glass, bento grid, spatial UI), motion design con principios Disney y Material Motion, accesibilidad visual WCAG 2.2 AA/AAA, diagramas de flujo UX, wireframes en texto/ASCII, especificaciones Figma-ready y handoff de diseno a codigo. Diferenciado de tech-lead-frontend (implementacion) — este skill gobierna las decisiones de diseno previas al codigo. Activa al disenar la identidad visual de un producto, crear un design system desde cero, definir la experiencia de usuario antes de implementar, auditar accesibilidad visual, o producir especificaciones de diseno para el equipo de frontend.
 origin: ai-core
 version: 2.1.0
-last_updated: 2026-08-04
+last_updated: 2026-09-15
 rol: architect
 ---
 
@@ -491,13 +491,14 @@ Especificar estos patrones en el handoff cuando correspondan:
 }
 ```
 
-**View Transitions (same-document — Baseline 2025):**
+**View Transitions cross-document (MPA, sintaxis `@view-transition`) — limited availability, sin Firefox (verificado 2026-09-15):**
 ```css
-/* Transicion de pagina nativa sin JS adicional */
+/* Transicion de pagina nativa sin JS adicional — requiere same-origin en ambos documentos */
 @view-transition { navigation: auto; }
 
 .hero-image { view-transition-name: hero; }
 ```
+Same-document (SPA, via `document.startViewTransition()` en JS) si es Baseline: Chrome/Edge 111+, Safari 18+, Firefox 144+. Para SPA preferir esa via; para MPA, la at-rule de arriba no tiene soporte en Firefox — evaluar fallback.
 
 **Anchor Positioning (CSS 2026):**
 ```css
@@ -562,6 +563,15 @@ El nombre "Tokens W3C" es impreciso y no debe repetirse sin la aclaracion: la es
 | Version de spec DTCG citada en handoff | Coincide con la version actual en `designtokens.org/tr/` al momento de la entrega | WebFetch a `designtokens.org/tr/` antes de finalizar el design system |
 | Antiguedad de la ultima verificacion de vigencia registrada en este archivo | <= 90 dias antes de iniciar un design system nuevo | Comparar fecha de este modulo contra la fecha del proyecto |
 | Herramienta de tokens propuesta al cliente | Confirmada como activa (ultimo commit/release < 12 meses) | Revisar changelog o releases del repositorio oficial de la herramienta |
+
+### Vigencia de CSS Moderno 2026 citado en Modulo 6
+
+Verificado 2026-09-15 contra fuente primaria:
+
+| Afirmacion | Estado confirmado | Fuente |
+|---|---|---|
+| Container Queries — Baseline (soporte universal) | Correcto, ~95% global desde Chrome 106/Firefox 110/Safari 16 | developer.mozilla.org, caniuse.com/css-container-queries |
+| View Transitions same-document — corregido de "Baseline 2025" sin distincion | La sintaxis `@view-transition{navigation:auto}` es cross-document (MPA), **Limited Availability**, sin Firefox. Same-document real (`document.startViewTransition()`) si es Baseline: Chrome/Edge 111+, Safari 18+, Firefox 144+ | developer.mozilla.org/en-US/docs/Web/CSS/@view-transition |
 
 ---
 

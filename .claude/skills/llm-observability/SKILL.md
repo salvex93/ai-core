@@ -2,8 +2,8 @@
 name: llm-observability
 description: Especialista en observabilidad de sistemas LLM en produccion. Cubre instrumentacion con OpenTelemetry, dashboards de costo por operacion, alertas de degradacion de calidad, tracing de prompts y completions, y plataformas de observabilidad IA (Langfuse, Helicone, Phoenix). Activa al instrumentar un sistema que usa LLMs, disenar dashboards de costo/calidad, configurar alertas de degradacion o diagnosticar regresiones de calidad en produccion.
 origin: ai-core
-version: 1.2.0
-last_updated: 2026-08-15
+version: 1.2.1
+last_updated: 2026-09-15
 rol: auditor
 compatibility: Depende de SDKs de terceros (@langfuse/tracing, @langfuse/otel, @opentelemetry/*, helicone) y conectividad de red hacia la plataforma de observabilidad elegida.
 ---
@@ -385,3 +385,5 @@ Sin este bloque completo, no iniciar la instrumentacion: la unidad de costo y la
 Verificado en esta tarea contra fuente oficial (`opentelemetry.io/docs/specs/semconv/gen-ai/` y `github.com/open-telemetry/semantic-conventions-genai`): las convenciones semanticas `gen_ai.*` se movieron fuera del repositorio principal `open-telemetry/semantic-conventions` hacia un repositorio dedicado, `open-telemetry/semantic-conventions-genai`. Las atribuciones `gen_ai.*` previas quedaron marcadas como deprecadas en su ubicacion original. El mecanismo de opt-in a la version experimental mas reciente es la variable de entorno `OTEL_SEMCONV_STABILITY_OPT_IN` con el valor `gen_ai_latest_experimental`; sin ese opt-in, la instrumentacion sigue emitiendo la version previa (1.34.0 o anterior) por compatibilidad. El conjunto de convenciones GenAI aun no esta marcado como estable — sigue en fase experimental con plan de transicion pendiente de publicacion.
 
 Antes de fijar un nombre de atributo exacto en codigo de produccion (mas alla de `gen_ai.request.model`, `gen_ai.usage.input_tokens`, `gen_ai.usage.output_tokens`, ya usados en este mismo archivo y estables en su forma actual), verificar el atributo puntual contra el repositorio `semantic-conventions-genai` en el momento de implementar — la superficie de atributos nuevos (`gen_ai.system_instructions`, `gen_ai.input.messages`, `gen_ai.output.messages`, `gen_ai.response.finish_reasons`) esta activa pero orientativo, no verificado contra fuente oficial en el nivel de detalle de schema JSON exacto en esta pasada — confirmar el schema antes de instrumentar un campo nuevo, no asumir por analogia con los atributos ya vigentes.
+
+Reverificado 2026-09-15 contra el dominio compartido `rag-llm-eval` (`docs.ragas.io`, `deepeval.com`, `promptfoo.dev`): sin impacto sobre las convenciones `gen_ai.*` de OpenTelemetry documentadas arriba — son capas complementarias (observabilidad de trazas vs. metricas de calidad de evals), sin solapamiento de superficie que requiera actualizar este archivo.

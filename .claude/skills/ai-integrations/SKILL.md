@@ -2,8 +2,8 @@
 name: ai-integrations
 description: Especialista en integracion de LLMs en aplicaciones de produccion. Cubre diseno de features de IA, gestion de costos por token, prompt versioning, streaming, fallback entre proveedores y evaluacion de outputs. Agnostico al proveedor. Activa al integrar Claude, Gemini u otro LLM en un proyecto anfitrion, disenar endpoints de IA o gestionar costos de inferencia.
 origin: ai-core
-version: 2.5.1
-last_updated: 2026-08-15
+version: 2.5.2
+last_updated: 2026-09-15
 rol: architect
 compatibility: Depende del SDK del proveedor LLM activo en el proyecto anfitrion (anthropic/@anthropic-ai/sdk, @google/genai, openai) y conectividad de red hacia la API de ese proveedor.
 ---
@@ -360,3 +360,5 @@ Sin esta declaracion no se escribe el primer endpoint, prompt de sistema ni cont
 Verificado contra `platform.claude.com/docs` en esta tarea: la Claude API expone **Strict tool use** (`strict: true` en la definicion de la tool, documentado en `agents-and-tools/tool-use/strict-tool-use`) como mecanismo GA para garantizar que las llamadas de Claude a una tool cumplan exactamente el schema declarado, sin requerir cabecera beta — esto refuerza y actualiza la seccion "Evaluacion de Outputs" ya presente en este skill: preferir `strict: true` sobre validacion post-hoc con Zod/Pydantic como primera linea de defensa, no como sustituto total (la validacion post-hoc sigue siendo necesaria para reglas de negocio que el schema no expresa).
 
 Antes de fijar cualquier otro dato de vigencia no verificado en esta tarea (pricing exacto, limites de rate, disponibilidad de un modelo especifico en un proveedor cloud) — orientativo, no verificado contra fuente oficial en este modulo: confirmar contra `platform.claude.com/docs`, `ai.google.dev` o el changelog oficial del proveedor correspondiente antes de escribir el dato como si fuera definitivo.
+
+Reverificado 2026-09-15 contra `platform.claude.com/docs/en/build-with-claude/prompt-caching`: la seccion "Prompt Caching (GA 2026)" de arriba sigue exacta — `cache_control: { type: "ephemeral" }` sin cabecera beta, compatible con tool use sin ruptura de cache. Confirmado ademas contra `ai.google.dev/gemini-api/docs/function-calling` y `developers.openai.com/api/docs/guides/structured-outputs` que el patron agnostico de proveedor de este skill (fallback entre Claude/Gemini/OpenAI, streaming, evaluacion de outputs estructurados) no requiere ajuste — ningun proveedor introdujo un cambio de contrato que rompa el diseno ya documentado aqui.

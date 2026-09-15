@@ -2,8 +2,8 @@
 name: agent-testing
 description: Especialista en testing de comportamiento de agentes LLM. Cubre mock de herramientas MCP, verificacion de loops de agente (infinite loop detection, unnecessary tool call detection), testing de recovery ante fallos de tool use, metricas de eficiencia de agente (tool calls por tarea, tokens por decision) e integracion con promptfoo para eval de tool use. Activa al disenar tests para agentes con herramientas, verificar comportamiento de loops, o medir eficiencia de un agente en produccion.
 origin: ai-core
-version: 1.2.0
-last_updated: 2026-08-15
+version: 1.2.1
+last_updated: 2026-09-15
 rol: auditor
 ---
 
@@ -458,5 +458,7 @@ Sin esta declaracion no hay caso de test valido — un test que no sabe cual es 
 Verificado contra `promptfoo.dev/docs/red-team/agents/` en esta tarea: promptfoo expone evaluacion basada en trazas (OTLP/OpenTelemetry) con assertions especificas `trajectory:tool-used`, `trajectory:tool-args-match` y `trajectory:tool-sequence`, ademas de plugins de red-team orientados a agentes — `agentic:memory-poisoning`, `excessive-agency`, `tool-discovery` — que superan el alcance de simple seleccion de herramienta ya cubierto en este skill. Esto habilita testing de comportamiento adversarial (memory poisoning en agentes stateful, exceso de autoridad) sin escribir el harness de trazas desde cero.
 
 La documentacion oficial consultada no confirma capacidad nativa de deteccion de loops infinitos como plugin dedicado — donde este modulo o el resto del skill mencionen esa capacidad en promptfoo especificamente, tratarla como orientativo, no verificado contra fuente oficial, y mantener la deteccion de loops via el contador de pasos instrumentado ya definido en este archivo como mecanismo primario, no dependiente de promptfoo.
+
+Reverificado 2026-09-15 contra `platform.claude.com/docs/en/build-with-claude/thinking-steering-and-cost`: el requisito de preservar integro el bloque `thinking` junto al `tool_use` del turno anterior al reenviar `tool_result` (seccion "Test de Integridad de Thinking Blocks en Tool Use" arriba) sigue vigente sin cambio — omitir o reordenar ese bloque continua produciendo error o comportamiento incorrecto de la API. Confirmado tambien contra `ai.google.dev/gemini-api/docs/function-calling` y `developers.openai.com/api/docs/guides/structured-outputs` que el patron de mock de tool use y verificacion de secuencia de herramientas de este skill es agnostico de proveedor — no requiere una seccion separada por SDK.
 
 Antes de adoptar `agentic:memory-poisoning`, `excessive-agency` o `tool-discovery` en un pipeline real: confirmar la version instalada de promptfoo soporta el plugin exacto (los nombres de plugin de red-team cambian entre releases) y no asumir por analogia con plugins de seguridad de aplicacion tradicional.

@@ -34,16 +34,16 @@ describe('OpenAICompatAdapter.js — construccion del body de la peticion', () =
     assert.equal('max_tokens' in body, false, 'openai no debe recibir max_tokens en el body');
   });
 
-  test('deepseek: usa max_tokens (formato clasico, no verificado si migro pero se asume compatibilidad)', () => {
+  test('deepseek: usa max_tokens (confirmado contra api-docs.deepseek.com, sin max_completion_tokens en esta API)', () => {
     const body = JSON.parse(construirBodyOpenAICompat([{ role: 'user', content: 'hola' }], { max_tokens: 500 }, PROVIDER_CONFIGS.deepseek));
     assert.equal(body.max_tokens, 500);
     assert.equal('max_completion_tokens' in body, false);
   });
 
-  test('kimi: usa max_tokens (formato clasico, no verificado si migro pero se asume compatibilidad)', () => {
+  test('kimi: usa max_completion_tokens (confirmado contra platform.kimi.ai/docs/api/chat: max_tokens deprecado)', () => {
     const body = JSON.parse(construirBodyOpenAICompat([{ role: 'user', content: 'hola' }], { max_tokens: 500 }, PROVIDER_CONFIGS.kimi));
-    assert.equal(body.max_tokens, 500);
-    assert.equal('max_completion_tokens' in body, false);
+    assert.equal(body.max_completion_tokens, 500);
+    assert.equal('max_tokens' in body, false, 'kimi no debe recibir max_tokens en el body, esta deprecado');
   });
 
   test('sin providerConfig (fallback): usa max_tokens', () => {
@@ -67,7 +67,7 @@ describe('OpenAICompatAdapter.js — construccion del body de la peticion', () =
     const body = JSON.parse(construirBodyOpenAICompat(
       [{ role: 'user', content: 'x' }], { forzarJSON: true }, { ...PROVIDER_CONFIGS.deepseek }
     ));
-    assert.equal('response_format' in body, false, 'deepseek no confirmado, no debe forzar el parametro');
+    assert.equal('response_format' in body, false, 'deepseek: JSON mode no confirmado contra fuente oficial, no debe forzar el parametro');
   });
 
   test('options.system antepone un mensaje role:system al array messages', () => {

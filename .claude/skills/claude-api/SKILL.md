@@ -2,8 +2,8 @@
 name: claude-api
 description: Especialista en Claude API y Anthropic SDK (Python/TypeScript). Cubre prompt caching, extended thinking, tool use, streaming, Batch API, Files API, Citations API, modelos Fable 5/Opus/Sonnet/Haiku, migracion entre versiones de modelo y optimizacion de costo por token. Activa al escribir codigo que importa anthropic/@anthropic-ai/sdk, disenar pipelines con cache de prompts, implementar tool use nativo, o migrar entre versiones de Claude.
 origin: ai-core
-version: 1.3.1
-last_updated: 2026-08-15
+version: 1.3.2
+last_updated: 2026-09-15
 rol: coder
 compatibility: Depende de @anthropic-ai/sdk (o el paquete Python `anthropic`) y conectividad de red hacia api.anthropic.com.
 ---
@@ -426,3 +426,5 @@ Verificado contra fuente oficial (`platform.claude.com/docs/en/build-with-claude
 - Tool Search Tool, Programmatic Tool Calling y `input_examples` ya incorporados en la seccion "Tool Use".
 - Pricing exacto por modelo (USD/MTok) no fue re-verificado linea por linea en esta pasada — orientativo, verificar contra `platform.claude.com/docs/en/about-claude/pricing` antes de escribir un numero de costo especifico en una propuesta o skill.
 - La sintaxis exacta de subcomandos de `ant CLI` (`ant prompts push/pull`) no pudo confirmarse contra el repositorio oficial (github.com/anthropics/anthropic-cli) en esta pasada — tratar como ilustrativo, no como sintaxis literal verificada, hasta confirmar contra el README del repo.
+
+Reverificado 2026-09-15 contra `platform.claude.com/docs/en/build-with-claude/prompt-caching`, `platform.claude.com/docs/en/agents-and-tools/tool-use/define-tools`, `platform.claude.com/docs/en/build-with-claude/thinking-steering-and-cost` y `anthropic.com/engineering/writing-tools-for-agents`: sin drift respecto a la pasada anterior — API de Prompt Caching (`cache_control: { type: "ephemeral" }`, limite de 4 breakpoints), definicion de tools y comportamiento de thinking blocks en tool use se mantienen exactos.

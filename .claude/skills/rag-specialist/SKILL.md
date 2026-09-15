@@ -2,8 +2,8 @@
 name: rag-specialist
 description: Especialista en pipelines RAG y Mission Manager del LLM Routing Bridge. Cubre Hybrid Search (BM25+denso+RRF), Contextual Retrieval, re-ranking con cross-encoders y Files API como complemento del bridge. Activa al delegar analisis documental masivo, construir o mejorar pipelines RAG, o evaluar la calidad de recuperacion semantica.
 origin: ai-core
-version: 2.6.0
-last_updated: 2026-08-28
+version: 2.6.1
+last_updated: 2026-09-15
 rol: architect
 compatibility: Requiere un proveedor de embeddings (gemini-embedding-2, voyage o equivalente) y conectividad de red hacia esa API; si usa reranking con cross-encoders, depende ademas del modelo de reranking configurado.
 ---
@@ -414,3 +414,5 @@ Verificado en esta pasada contra fuente oficial (`docs.cohere.com/changelog/rera
 Verificado 2026-08-15 contra `anthropic.com/engineering/contextual-retrieval` (fuente primaria del proveedor): el prompt literal, el desglose de mejora por combinacion (35%/49%/67%) y el costo de caching (~$1.02 por millon de tokens de documento) de la seccion "Contextual Retrieval" arriba quedaron actualizados contra esta fuente — la version previa de esta seccion citaba solo un rango generico ("35-50%") sin especificar a que combinacion de tecnicas correspondia, lo cual podia inducir a citar la cifra mas favorable (49% o mas) para una implementacion que en realidad solo aplica contextual embeddings solos (35%).
 
 El resto de datos tecnicos de esta seccion (parametro `k=60` para RRF, rangos de recall@K, umbrales de latencia de re-ranking) son practica estandar de la industria documentada en literatura tecnica, no un dato de version/pricing/deprecacion de proveedor puntual — no requieren la misma verificacion contra fuente oficial primaria que un identificador de modelo, pero siguen siendo orientativos: calibrar contra el corpus y caso de uso real antes de fijarlos como umbral de produccion. Cualquier mencion futura a un modelo de reranking o embedding especifico en este modulo debe pasar por el Protocolo de Vigencia Tecnologica de CLAUDE.md antes de escribirse como confirmado.
+
+Reverificado 2026-09-15 contra `docs.cohere.com/docs/rerank` (Rerank v3.5 sin cambio) y `anthropic.com/engineering/contextual-retrieval` (cifras de mejora y costo de caching sin cambio) — sin drift. Confirmado ademas contra `docs.ragas.io/en/stable/concepts/metrics/available_metrics/` y `promptfoo.dev/docs/configuration/guide/` que las metricas de evaluacion RAG citadas por `llm-evals` (skill hermano de este en el mismo dominio) siguen alineadas con las tecnicas de retrieval documentadas aqui.

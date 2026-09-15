@@ -2,8 +2,8 @@
 name: managed-agents-specialist
 description: Especialista en agentes gestionados de Anthropic (Managed Agents). Cubre configuracion via API/UI, herramientas integradas (web search, code execution, computer use 2025, files), diseño de system prompts para loops de agente, gestion de costos en iteraciones y seguridad. Activa al configurar un agente con herramientas integradas de Anthropic, evaluar si el caso de uso requiere Managed Agents vs Agent SDK, o diagnosticar comportamiento de un loop de agente gestionado.
 origin: ai-core
-version: 1.2.2
-last_updated: 2026-08-15
+version: 1.2.3
+last_updated: 2026-09-15
 rol: architect
 compatibility: Requiere @anthropic-ai/sdk con acceso a Managed Agents (beta); depende de conectividad de red hacia la Claude API.
 ---
@@ -231,3 +231,5 @@ Verificado contra `platform.claude.com` en esta tarea (2026-08-03): "Claude Mana
 El beta header de computer use tambien evoluciono: `computer-use-2025-11-24` aplica a los modelos vigentes (Opus 5 — lanzado 24-jul-2026, `claude-opus-5`, recomendado para agentes autonomos/computer use en Claude Max — Opus 4.8 como fallback documentado, Sonnet 5, y el resto de la familia 4.7/4.6/4.5), mientras `computer-use-2025-01-24` queda limitado a modelos legacy ya retirados (Sonnet 4.5, Haiku 4.5, Opus 4.1, Sonnet 4, Opus 4). Cualquier configuracion nueva de computer use debe fijar el header segun el modelo real de destino, no reusar el header de un ejemplo anterior.
 
 Dato no reverificado en esta pasada: precio y rate limits especificos de Managed Agents (RPM/RPD, costo del sandbox por hora) — orientativo, no verificado contra fuente oficial; consultar `/docs/en/managed-agents/reference` antes de dimensionar presupuesto en produccion.
+
+Reverificado 2026-09-15 contra `platform.claude.com/docs/en/agents-and-tools/tool-use/define-tools`, `platform.claude.com/docs/en/build-with-claude/thinking-steering-and-cost` y `anthropic.com/engineering/writing-tools-for-agents`: sin drift para el contenido de definicion de tools y comportamiento de thinking blocks que este skill hereda de Messages API — la distincion Managed Agents vs. tools integradas sobre Messages API (parrafo anterior) sigue siendo el criterio correcto de seleccion.

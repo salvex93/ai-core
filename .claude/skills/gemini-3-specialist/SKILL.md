@@ -2,8 +2,8 @@
 name: gemini-3-specialist
 description: Especialista en integracion avanzada con la familia Gemini 3.x (3.1 Pro, 3.7 Flash, 3.6 Flash, 3.5 Flash-Lite, 3.1 Flash Image). Cubre thinking_level (minimal/low/medium/high segun modelo), Live API con TTS nativo, generacion y edicion conversacional de imagenes (Nano Banana 2), contexto de 1M tokens, y seleccion de variante segun caso de uso y costo. Activa al integrar Gemini directamente (fuera del bridge MCP), disenar pipelines multimodales, o evaluar Flash-Lite como alternativa de escala masiva.
 origin: ai-core
-version: 2.3.1
-last_updated: 2026-09-02
+version: 2.3.2
+last_updated: 2026-09-15
 rol: architect
 compatibility: Requiere el SDK google-genai (sucesor de google-generativeai); depende de conectividad de red hacia la Gemini API (GEMINI_API_KEY).
 ---
@@ -64,7 +64,7 @@ El tier "Flash-Thinking" de la generacion 2.5 desaparecio como modelo separado: 
 | `gemini-3.1-pro-preview` | 1M tokens | `thinking_level` (low/medium/high, default high) | Razonamiento complejo, corpus muy largos, benchmarks exigentes | $2.00 / $12.00 |
 | `gemini-3.7-flash` | 1M tokens (output max 65.536) | `thinking_level` (low/medium/high, default medium) | Modelo Flash mas capaz y reciente para coding y agentes — coexiste con 3.6 Flash, ya es el default en casos especificos como el Antigravity agent | $0.75 / $3.75 introductorio hasta 2026-12-31; luego $1.50 / $7.50 |
 | `gemini-3.6-flash` | 1M tokens | `thinking_level` (minimal/low/medium/high, default medium) | Tareas agenticas multi-step, coding — sigue disponible, sucedido por 3.7 Flash como opcion mas capaz al mismo pricing final | $1.50 / $7.50 |
-| `gemini-3.1-flash-live-preview` | — (streaming) | Si | Live API audio-to-audio, conversacion en tiempo real | Ver `audio-voice-engineer` |
+| `gemini-3.8-live` | — (streaming) | Si | Live API audio-to-audio, conversacion en tiempo real (`gemini-3.1-flash-live-preview` deprecado) | Ver `audio-voice-engineer` |
 | `gemini-3.5-flash-lite` | 1M tokens | `thinking_level` (minimal/low/medium/high, default minimal) | Alta escala, throughput masivo, costo minimo — reemplaza a 3.1 Flash-Lite como tier 0 mas barato de la familia 3.x | $0.30 / $2.50 |
 
 Verificado 2026-08-03 contra `ai.google.dev/gemini-api/docs/pricing` y `/docs/models`. `gemini-3.1-flash-lite` ($0.25/$1.50) sigue disponible y vigente — no esta deprecado, pero 3.5 Flash-Lite es la opcion mas nueva dentro del mismo tier de costo. `gemini-3.5-flash` ($1.50/$9.00) tambien sigue disponible; 3.6 Flash lo mejora en pricing de output sin subir el de input.
@@ -74,13 +74,33 @@ Verificado 2026-08-14 contra `ai.google.dev/gemini-api/docs/models/gemini-3.7-fl
 Regla de seleccion:
 1. Tarea de clasificacion o categorizacion de alto volumen con logica simple → `gemini-3.5-flash-lite` con `thinking_level: "low"` (o `gemini-3.1-flash-lite` si el proyecto ya lo tiene integrado y no requiere las mejoras de 3.5). `"minimal"` se reserva exclusivamente para extraccion de campos o reformateo puro sin ninguna decision de categoria — en cuanto hay que elegir entre etiquetas, el nivel es `"low"`, no `"minimal"`.
 2. Tarea agentica multi-step o coding con presupuesto medio → `gemini-3.7-flash` (o `gemini-3.6-flash` si el proyecto ya lo tiene integrado y no requiere la mejora de capacidad).
-3. Live API / audio-to-audio → `gemini-3.1-flash-live-preview` (ver `audio-voice-engineer` para detalle; Affective Dialog no soportado a la fecha).
+3. Live API / audio-to-audio → `gemini-3.8-live` (o `gemini-3.8-live-extended-thinking` si el caso requiere mas razonamiento; ver `audio-voice-engineer` para detalle; `gemini-3.1-flash-live-preview` esta deprecado, soporte de Affective Dialog no confirmado explicitamente para el modelo vigente).
 4. Corpus > 500MB o razonamiento muy complejo → `gemini-3.1-pro-preview` con `thinking_level: "high"`.
 5. Nunca subir de tier sin medir primero el delta de calidad/costo en un dataset de evaluacion. Ver `llm-evals` para diseno del dataset de evaluacion representativo.
 
 ## Function Calling en Gemini 3.x
 
 Reglas de naming de funcion: nombres descriptivos sin espacios ni caracteres especiales (letras, numeros, guion bajo, punto o guion, maximo 64 caracteres). Las descripciones deben indicar CUANDO usar la funcion, no solo que hace (ejemplo oficial de Google: no "Gets data" sino "Retrieves the current stock price for a given ticker symbol. Use this when the user asks about stock prices or market data"). Usar `enum` para valores de conjunto finito en vez de describirlos en texto libre; usar `integer` en vez de `number` cuando el valor siempre es entero. Limitar el set activo de tools (guia practica de 10 a 20 herramientas) porque demasiadas aumentan el riesgo de seleccion incorrecta. Iterar sobre todas las function calls devueltas en la respuesta, ya que Gemini puede solicitar varias en un mismo turno, sean paralelas o composicionales encadenadas.
+
+## Control de Modo de Function Calling
+
+`tool_choice` (verificado 2026-09-15 contra ai.google.dev/gemini-api/docs/function-calling) controla si el modelo debe, puede o no puede invocar funciones — reemplaza la nomenclatura anterior `tool_config.function_calling_config.mode`, ya no vigente:
+
+```python
+generation_config = {
+    "tool_choice": {
+        "allowed_tools": {
+            "mode": "any",  # auto (default) | any | none | validated
+            "tools": ["get_current_temperature"]
+        }
+    }
+}
+```
+
+- `auto` (default): el modelo decide si llamar una funcion o responder directo.
+- `any`: fuerza al modelo a predecir siempre una function call — habilita ademas parallel function calling (varias funciones independientes en un mismo turno, ej. `power_disco_ball()` + `start_music()` + `dim_lights()` simultaneas).
+- `none`: prohibe al modelo hacer function calls, aunque haya tools declaradas.
+- `validated`: fuerza adherencia estricta al schema de la funcion.
 
 ## Structured Output con Gemini
 
@@ -229,7 +249,7 @@ Regla: para proyectos con datos de clientes finales o contratos de confidenciali
 - [ ] Para datos de clientes finales: Vertex AI, no Google AI Studio.
 - [ ] Concurrencia limitada con `Semaphore` en batch (Flash: max 20, Flash-Lite: max 50).
 - [ ] Corpus > 100MB usa File API de Google — no retransmitir en cada request.
-- [ ] Live API usa modelo `gemini-3.1-flash-live-preview` — no `gemini-2.5-flash-live-preview` ni `gemini-2.0-flash-live-001` (ambos apagados 2025-12-09).
+- [ ] Live API usa modelo `gemini-3.8-live` — no `gemini-3.1-flash-live-preview` (deprecado), `gemini-2.5-flash-live-preview` ni `gemini-2.0-flash-live-001` (ambos apagados 2025-12-09).
 - [ ] Outputs criticos (financiero, legal) no dependen exclusivamente de Gemini sin validacion humana.
 - [ ] Nombres de funcion sin espacios/caracteres especiales, descripciones indican CUANDO usar la funcion, no solo que hace.
 - [ ] Extraccion de multiples items desde corpus largo (>1 needle) evalua dividir en varias solicitudes en vez de una sola pasada.
@@ -242,7 +262,7 @@ Las Reglas Globales definidas en CLAUDE.md aplican sin excepcion. Adicionales:
 - Verificar justificacion documentada antes de fijar `thinking_level: "high"` en un flujo de alto volumen.
 - Asegurar que no se ejecuta: usar Flash-Lite con `thinking_level: "low"` para tareas que requieren razonamiento condicional entre pasos.
 - Verificar medir delta de calidad en un dataset de evaluacion representativo antes de subir de tier.
-- Prohibido usar `gemini-2.0-flash-live-001` o `gemini-2.5-flash-live-preview` — ambos apagados desde 2025-12-09; usar `gemini-3.1-flash-live-preview`.
+- Prohibido usar `gemini-2.0-flash-live-001`, `gemini-2.5-flash-live-preview` o `gemini-3.1-flash-live-preview` — los dos primeros apagados desde 2025-12-09, el tercero deprecado; usar `gemini-3.8-live` (o `gemini-3.8-live-extended-thinking`).
 
 ## Modulo — Vanguardia Transversal en Integracion Gemini 3.x
 

@@ -2,8 +2,8 @@
 name: mobile-engineer
 description: Tech Lead Mobile Universal. Experto en aplicaciones moviles y multiplataforma con Flutter/Dart. Cubre arquitectura de features, state management (BLoC/Riverpod), navegacion, integracion con APIs REST, Firebase, mapas, graficos, persistencia offline-first/sincronizacion y testing. Agnostico a la capa de backend. Activa al construir pantallas Flutter, disenar la arquitectura de features moviles, integrar SDKs nativos, implementar offline-first o resolver problemas de rendimiento en el widget tree.
 origin: ai-core
-version: 1.5.2
-last_updated: 2026-08-15
+version: 1.6.0
+last_updated: 2026-09-15
 rol: coder
 compatibility: Requiere el SDK Flutter/Dart instalado localmente; depende de conectividad de red para dependencias pub.dev y servicios Firebase si el proyecto los usa.
 ---
@@ -123,7 +123,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 }
 ```
 
-Si `pubspec.yaml` incluye `flutter_riverpod`, usar `AsyncNotifier` con `NotifierProvider` (Riverpod 2.x+). `StateNotifierProvider` esta deprecado desde Riverpod 2.0 — migrar a `Notifier`/`AsyncNotifier`.
+Si `pubspec.yaml` incluye `flutter_riverpod`, usar `AsyncNotifier` con `NotifierProvider`. La version stable actual es Riverpod 3.4.3 (verificado 2026-09-15 contra `pub.dev/packages/flutter_riverpod`), major 3.x. La API de `Notifier`/`AsyncNotifier` se mantiene desde 2.x, pero confirmar con `flutter pub outdated` si el proyecto anfitrion sigue en 2.x antes de escribir codigo que asuma mecanismos de code-gen (`riverpod_generator`) o imports especificos de 3.x. `StateNotifierProvider` esta deprecado desde Riverpod 2.0 — migrar a `Notifier`/`AsyncNotifier`.
 
 ### Navegacion con GoRouter
 
@@ -199,14 +199,15 @@ Reglas de uso:
 - Usar `gemini-3.5-flash-lite` para edge (latencia minima, costo minimo — reemplaza a 3.1 Flash-Lite como tier 0 mas barato de la familia 3.x, verificado 2026-08-03). Reservar modelos mayores para el backend.
 - No enviar datos personales del usuario al modelo de edge sin consentimiento explicito — los datos pasan por Firebase.
 
-### Impeller (Renderer por Defecto — Flutter 3.32)
+### Impeller (Renderer por Defecto — Flutter 3.32, extendido en 3.47)
 
-Impeller es el renderer de produccion en Flutter 3.32 para iOS y Android. No requiere configuracion adicional. Implicaciones:
+Impeller es el renderer de produccion en Flutter 3.32 para iOS y Android. No requiere configuracion adicional. Desde Flutter 3.47 (verificado 2026-09-15 contra `flutter.dev/blog/whats-new-in-flutter-3-47`, publicado 2026-08-12) Impeller es ademas el renderer por defecto en **macOS, Windows y Linux**, reemplazando a Skia tambien en desktop. Implicaciones:
 
-- Eliminar `--enable-impeller` de scripts de build — activo por defecto.
+- Eliminar `--enable-impeller` de scripts de build — activo por defecto en todas las plataformas soportadas (movil y desktop).
 - Si el proyecto usa shaders SKSL precompilados (`--bundle-sksl-path`), estos ya no son necesarios con Impeller.
 - `RepaintBoundary` sigue siendo relevante para aislar capas de animacion costosas.
 - Reportar bugs de renderizado visuales con `flutter run --profile` antes de asumir que es un bug del codigo — Impeller tiene comportamiento diferente a Skia en degradados y sombras complejas.
+- Si el proyecto compila a desktop (macOS/Windows/Linux) y dependia de comportamiento especifico de Skia, revalidar visualmente tras actualizar a 3.47 — el cambio de renderer es transparente en API pero no en pixel-perfect output.
 
 ## Reglas de Calidad de Widget Tree
 
@@ -242,8 +243,10 @@ Offline-first significa que la app funciona con la base de datos local como fuen
 | Herramienta | Cuando usar |
 |---|---|
 | Drift (sobre SQLite) | Esquema relacional, queries complejas, se necesita SQL real y migraciones tipadas |
-| Isar | NoSQL embebido, mayor velocidad en escritura masiva, esquema mas flexible sin relaciones complejas |
+| Isar | NoSQL embebido, mayor velocidad en escritura masiva, esquema mas flexible sin relaciones complejas — advertencia de vigencia abajo antes de elegirlo para un proyecto nuevo |
 | Hive | Cache clave-valor simple, configuracion de usuario, no para el dataset principal sincronizado |
+
+Advertencia de vigencia sobre Isar (verificado 2026-09-15 contra `pub.dev/packages/isar`): el ultimo release estable publicado es 3.1.0+1, de hace aproximadamente 3 anos — no ha llegado a stable ningun major posterior desde entonces, solo existe un prerelease `4.0.0-dev.14` sin fecha de graduacion a stable anunciada. pub.dev lo marca como "activo" (publisher verificado, actividad en el repositorio), pero la ausencia de un release estable nuevo en 3 anos es una señal real de riesgo para un proyecto que recien comienza. Para un proyecto nuevo, evaluar Drift como default mas seguro salvo que el caso de uso justifique especificamente NoSQL embebido; si el proyecto anfitrion ya usa Isar 3.1.0+1 en produccion, no es necesario migrar solo por esto, pero no recomendar Isar sin esta advertencia para una decision nueva.
 
 ### Patron de sincronizacion basico
 
@@ -374,8 +377,10 @@ Si `ux-visual-designer` ya declaro una `IDENTIDAD:` visual para el proyecto, est
 
 ### Vigencia — estandar mas reciente del dominio
 
-Verificado contra `docs.flutter.dev` en esta tarea: la version estable de Flutter documentada actualmente es la serie 3.44 (pagina de archivo de releases oficial, con fecha de actualizacion 2026-05-20) — orientativo, no verificado contra el numero de patch exacto ni contra un release note especifico fechado mas alla de esa pagina indice, confirmar version exacta con `flutter --version` en el entorno real antes de fijarla en CI o documentacion de release.
+Verificado 2026-09-15 contra `docs.flutter.dev/release/archive` y `flutter.dev/blog/whats-new-in-flutter-3-47`: la version estable actual es **Flutter 3.47**, publicada 2026-08-12, que reemplaza a la serie 3.44 citada anteriormente en este archivo. Cambio real de esta version: Impeller pasa a ser renderer por defecto tambien en macOS, Windows y Linux (ver seccion Impeller arriba, ya actualizada). Confirmar version exacta con `flutter --version` en el entorno real antes de fijarla en CI o documentacion de release — la pagina de archivo no expone el numero de patch.
 
-Verificado contra `pub.dev` (registro oficial de paquetes Dart) en esta tarea: `riverpod`/`flutter_riverpod` tiene la version 3.x como major estable actual en el listado de pub.dev, lo cual reemplaza la referencia a "Riverpod 2.x+" que este mismo archivo documenta mas arriba (seccion de State Management) — antes de escribir codigo Riverpod nuevo, confirmar en `flutter pub outdated` si el proyecto anfitrion ya migro a 3.x o sigue en 2.x, porque `NotifierProvider`/`AsyncNotifier` mantienen la API pero el mecanismo de code-gen (`riverpod_generator`) y algunos imports cambiaron entre majors — orientativo, no verificado linea por linea del changelog contra el codigo de ejemplo de este archivo.
+Verificado 2026-09-15 contra `pub.dev/packages/flutter_riverpod`: la version stable actual es **3.4.3**, confirmando el major 3.x (ya reflejado en la seccion de State Management arriba). Confirmar en `flutter pub outdated` si el proyecto anfitrion ya migro a 3.x o sigue en 2.x antes de escribir codigo que asuma mecanismos de code-gen o imports especificos del major nuevo.
 
-No se verifico en esta tarea, por falta de tiempo disponible para research adicional, el estado de vigencia de Impeller mas alla de lo ya documentado en este mismo archivo (seccion Impeller/Flutter 3.32), ni el estado actual de Drift/Isar/Hive frente a alternativas mas nuevas de persistencia local — cualquier afirmacion sobre esos paquetes especificamente en este modulo se limita a lo ya presente en el resto del SKILL.md y no debe tratarse como reverificado hoy.
+Verificado 2026-09-15 contra `pub.dev/packages/isar`: gap real de vigencia detectado — el ultimo release estable de Isar es 3.1.0+1, de hace aproximadamente 3 anos, sin ningun major posterior graduado a stable (solo existe un prerelease `4.0.0-dev.14` sin fecha de lanzamiento). Ver advertencia agregada en la tabla de "Base de datos local" arriba: no recomendar Isar para un proyecto nuevo sin esta salvedad.
+
+No se reverifico en esta pasada el estado de Drift ni Hive especificamente (sin señal de alerta detectada durante esta verificacion, a diferencia de Isar) — si se requiere una confirmacion exhaustiva de sus releases mas recientes, consultar `pub.dev/packages/drift` y `pub.dev/packages/hive` directamente antes de fijarlos como referencia permanente.

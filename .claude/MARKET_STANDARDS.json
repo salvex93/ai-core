@@ -6,12 +6,12 @@
   },
   "domains": {
     "anthropic-agents": {
-      "verified": "2026-07-15",
-      "sources": ["platform.claude.com/docs/en/build-with-claude/prompt-caching", "platform.claude.com/docs/en/agents-and-tools/tool-use/implement-tool-use", "platform.claude.com/docs/en/build-with-claude/adaptive-thinking", "anthropic.com/engineering/writing-tools-for-agents"],
+      "verified": "2026-09-15",
+      "sources": ["platform.claude.com/docs/en/build-with-claude/prompt-caching", "platform.claude.com/docs/en/agents-and-tools/tool-use/define-tools", "platform.claude.com/docs/en/build-with-claude/thinking-steering-and-cost", "anthropic.com/engineering/writing-tools-for-agents"],
       "skills": ["claude-agent-sdk", "managed-agents-specialist", "prompt-engineer", "ai-integrations", "claude-api", "agent-testing", "workflow-orchestrator"]
     },
     "openai-gemini-agents": {
-      "verified": "2026-07-15",
+      "verified": "2026-09-15",
       "sources": ["ai.google.dev/gemini-api/docs/function-calling", "ai.google.dev/gemini-api/docs/tools", "developers.openai.com/api/docs/guides/structured-outputs"],
       "skills": ["gemini-3-specialist", "ai-integrations", "agent-testing"]
     },
@@ -21,23 +21,23 @@
       "skills": ["security-auditor", "attack-surface-analyst", "ai-guardrails", "security-monitoring-soc"]
     },
     "frontend-web-standards": {
-      "verified": "2026-07-15",
-      "sources": ["web.dev, w3.org (research placeholder — no se confirmo contra fuente primaria en esta pasada)"],
+      "verified": "2026-09-15",
+      "sources": ["developer.mozilla.org/en-US/docs/Web/CSS/CSS_containment/Container_queries y caniuse.com/css-container-queries (Container Queries confirmado Baseline widely available, soporte Chrome 106/Firefox 110/Safari 16, ~95% global -- afirmacion previa del skill correcta). developer.mozilla.org/en-US/docs/Web/CSS/@view-transition (hallazgo real: ambos skills citaban `@view-transition{navigation:auto}` como 'same-document Baseline 2025' -- es sintaxis cross-document/MPA, estado real Limited Availability, SIN soporte en Firefox; corregido en ambos SKILL.md, distinguiendo de same-document real via document.startViewTransition(), que si es Baseline en Chrome/Edge 111+, Safari 18+, Firefox 144+, fuente developer.chrome.com/docs/web-platform/view-transitions). w3.org/TR/WCAG22/ (WCAG 2.2 confirmado W3C Recommendation 2024-12-12; criterios 2.4.11 Focus Not Obscured, 2.5.8 Target Size Minimum, 3.3.8 Accessible Authentication confirmados nuevos en 2.2 nivel AA -- afirmacion previa del skill correcta, sin cambios)."],
       "skills": ["tech-lead-frontend", "ux-visual-designer"]
     },
     "devops-supply-chain": {
-      "verified": "2026-07-15",
-      "sources": ["slsa.dev (research placeholder — no se confirmo contra fuente primaria en esta pasada)"],
+      "verified": "2026-09-15",
+      "sources": ["slsa.dev/spec/v1.2/about (SLSA v1.2 es la version vigente, estado Approved; v1.1 Retired). slsa.dev/spec/v1.1/levels (niveles del build track: L0 sin garantias, L1 provenance existe, L2 plataforma hospedada firma la provenance, L3 build hardened con aislamiento de builds). Contenido de supply chain security (SLSA/cosign/SBOM/CycloneDX/SPDX) agregado 2026-09-15 a devops-infra (seccion nueva) y release-manager (extension de etapas build/approve del pipeline) -- gap de cobertura cerrado."],
       "skills": ["devops-infra", "release-manager"]
     },
     "rag-llm-eval": {
-      "verified": "2026-07-15",
-      "sources": ["community benchmarks: RAGAS, deepeval, promptfoo (research placeholder — no se confirmo contra fuente primaria en esta pasada)"],
+      "verified": "2026-09-15",
+      "sources": ["docs.ragas.io/en/stable/concepts/metrics/available_metrics/", "deepeval.com/docs/metrics-llm-evals (G-Eval)", "promptfoo.dev/docs/configuration/guide/ (verificado en vivo: estructura prompts/providers/tests, assert llm-rubric/javascript, comando promptfoo eval sin drift)", "docs.cohere.com/docs/rerank (Rerank v3.5, citado por rag-specialist)", "anthropic.com/engineering/contextual-retrieval (citado por rag-specialist)"],
       "skills": ["rag-specialist", "llm-evals", "llm-observability"]
     },
     "data-database-ops": {
-      "verified": "2026-07-15",
-      "sources": ["docs.getdbt.com (Model Contracts)", "airflow.apache.org (Airflow 3.0)", "databricks.com (Medallion Architecture)", "postgresql.org/support/security (CVE-2025-12819)"],
+      "verified": "2026-09-15",
+      "sources": ["docs.getdbt.com/docs/mesh/govern/model-contracts (Model Contracts, sintaxis sin drift)", "airflow.apache.org/docs/apache-airflow/stable/release_notes.html (Airflow 3.3.1)", "databricks.com (Medallion Architecture)", "postgresql.org/support/security (lote 2026-08-13, 7 CVEs core 8.8, y CVE-2025-12819 de PgBouncer)"],
       "skills": ["data-engineer", "database-ops"]
     },
     "app-distribution-stores": {
@@ -60,15 +60,21 @@
       "sources": ["docs.aws.amazon.com/apprunner (cerrado a clientes nuevos, verificado con fetch directo propio)", "docs.cloud.google.com/sdk/gcloud/reference/run/deploy", "learn.microsoft.com/en-us/azure/container-apps", "docs.digitalocean.com/products/app-platform", "developers.cloudflare.com/workers", "vercel.com/docs", "docs.railway.com", "render.com/docs", "fly.io/docs"],
       "skills": ["cloud-deployment-specialist"]
     },
+    "discord-api": {
+      "verified": "2026-08-31",
+      "sources": ["discord.com/developers/docs (estructura de embed, limites de caracteres/fields/embeds por mensaje, distincion Webhook vs Bot/Gateway; rate limit por webhook sin cifra oficial fija -- 5 req/2s tratado como orientativo de terceros, no confirmado en fuente primaria unica)"],
+      "skills": ["discord-ops"]
+    },
     "backend-architecture-generic": {
-      "verified": "2026-07-15",
-      "sources": ["orientativo, no verificado contra fuente primaria en esta pasada -- pendiente de primera verificacion real (patrones de arquitectura de backend, event-driven, WebSockets)"],
+      "verified": "2026-09-15",
+      "sources": ["developer.mozilla.org/docs/Web/API/Server-sent_events (EventSource reconexion nativa confirmada; limite de 6-8 conexiones HTTP/1.1 concurrentes por dominio documentado como advertencia nueva)", "patron Redis Pub/Sub para escalado horizontal de WebSocket: arquitectonico, no atado a version de producto, sin necesidad de reverificacion periodica"],
       "skills": ["backend-architect"]
     },
     "backend-languages-multi": {
-      "verified": "2026-08-04",
+      "verified": "2026-09-15",
       "sources": [
-        "go.dev/doc/devel/release (Go 1.26.0)",
+        "go.dev/doc/devel/release (Go 1.27.1)",
+        "go.dev/doc/go1.27 (ALPN en conexiones custom, HTTP/2 client priorities RFC 9218, auto-drenado Response.Body)",
         "go.dev/doc/go1.22 (enhanced routing net/http.ServeMux)",
         "go.dev/doc/go1.25 (WaitGroup.Go)",
         "github.com/gin-gonic/gin/releases (Gin v1.12.0)",
@@ -76,7 +82,7 @@
         "github.com/tokio-rs/axum/releases (Axum 0.8.9)",
         "tokio.rs/blog/2025-01-01-announcing-axum-0-8-0 (sintaxis path params {id})",
         "docs.rs/tokio/latest/tokio/sync/struct.Semaphore.html (orden acquire_owned antes de spawn)",
-        "spring.io/projects/spring-boot (Spring Boot 4.1.0)",
+        "spring.io/projects/spring-boot (Spring Boot 4.1.1)",
         "docs.spring.io/spring-boot/system-requirements.html (Java 17-26)",
         "github.com/spring-projects/spring-boot/wiki/Spring-Boot-4.0-Migration-Guide (remocion de @MockBean)",
         "oracle.com/java/technologies/java-se-support-roadmap.html (JDK 25 LTS)",
@@ -97,8 +103,8 @@
       "skills": ["backend-architect"]
     },
     "mobile-flutter": {
-      "verified": "2026-07-15",
-      "sources": ["orientativo, no verificado contra fuente primaria en esta pasada -- pendiente de primera verificacion real (flutter.dev, developer.android.com, developer.apple.com para requisitos moviles)"],
+      "verified": "2026-09-15",
+      "sources": ["docs.flutter.dev/release/archive (Flutter 3.47)", "flutter.dev/blog/whats-new-in-flutter-3-47 (Impeller default en macOS/Windows/Linux, publicado 2026-08-12)", "pub.dev/packages/flutter_riverpod (Riverpod 3.4.3 stable)", "pub.dev/packages/isar (ultimo stable 3.1.0+1, ~3 anos sin release estable nuevo -- gap de vigencia real documentado en el skill)"],
       "skills": ["mobile-engineer"]
     },
     "mcp-protocol": {
@@ -112,28 +118,28 @@
       "skills": ["aaa-evaluator", "aiops-engineer", "cost-optimizer", "cross-model-verifier", "dev-loop", "memory-manager", "silent-failure-hunter"]
     },
     "multimodal-voice": {
-      "verified": "2026-07-10",
-      "sources": ["orientativo, verificado parcialmente en sesiones previas (ver last_updated historico de audio-voice-engineer/multimodal-engineer) -- no re-verificado en esta pasada"],
-      "skills": ["audio-voice-engineer", "multimodal-engineer"]
+      "verified": "2026-09-15",
+      "sources": ["ai.google.dev/gemini-api/docs/models (gemini-3.8-live Stable reemplaza a gemini-3.1-flash-live-preview deprecado; gemini-3.8-live-extended-thinking)", "ai.google.dev/gemini-api/docs/live-guide (Affective Dialog: exclusion explicita solo para gemini-3.1-flash-live-preview, sin tabla de compatibilidad para gemini-3.8-live)", "ai.google.dev/gemini-api/docs/speech-generation (gemini-3.1-flash-tts-preview y gemini-2.5-pro-preview-tts sin drift)"],
+      "skills": ["audio-voice-engineer", "multimodal-engineer", "gemini-3-specialist"]
     },
     "performance-load-testing": {
-      "verified": "2026-07-15",
-      "sources": ["orientativo, no verificado contra fuente primaria en esta pasada -- pendiente de primera verificacion real (autocannon, k6, CDN providers)"],
+      "verified": "2026-09-15",
+      "sources": ["grafana.com/docs/k6/latest/release-notes/ (k6 2.2.0)", "grafana.com/docs/k6/latest/using-k6/thresholds/ (sintaxis p(99)<300 sin cambio)", "registry.npmjs.org/autocannon/latest (8.0.0)", "registry.npmjs.org/artillery/latest (2.0.34)", "www.rfc-editor.org/rfc/rfc9111 (Cache-Control vigente, obsoleta RFC 7234)"],
       "skills": ["performance-engineer"]
     },
     "seo-sem-marketing": {
-      "verified": "2026-07-15",
-      "sources": ["orientativo, no verificado contra fuente primaria en esta pasada -- pendiente de primera verificacion real (Google Ads, GA4, Core Web Vitals)"],
+      "verified": "2026-09-15",
+      "sources": ["web.dev/articles/vitals (Core Web Vitals LCP/INP/CLS sin cambio de umbral)", "web.dev/blog/inp-cwv-launch (INP reemplazo a FID como estable el 12 de marzo de 2024, fecha confirmada)", "developers.google.com/tag-platform (Consent Mode v2, ad_user_data/ad_personalization)", "support.google.com/google-ads answer/13695607 (Consent Mode v2 requisito EEA, deadline IAB TCF v2.3 2026-03-01)", "blog.google/products/ads-commerce y support.google.com/google-ads answer/15910187 (AI Max for Search reemplaza DSA, auto-upgrade desde septiembre 2026, sunset DSA febrero 2027)"],
       "skills": ["seo-sem-specialist"]
     },
     "doc-generation": {
-      "verified": "2026-07-15",
-      "sources": ["orientativo, no verificado contra fuente primaria en esta pasada -- pendiente de primera verificacion real (Puppeteer, generacion de PDF)"],
+      "verified": "2026-09-15",
+      "sources": ["pptr.dev/api/puppeteer.pdfoptions (tagged=true experimental sin drift; scale/printBackground/preferCSSPageSize confirmados)"],
       "skills": ["doc-builder"]
     },
     "web-scraping": {
-      "verified": "2026-07-15",
-      "sources": ["orientativo, no verificado contra fuente primaria en esta pasada -- pendiente de primera verificacion real (Stagehand, Crawlee, Browserbase, proveedores anti-bot)"],
+      "verified": "2026-09-15",
+      "sources": ["github.com/Kaliiiiiiiiii-Vinyzu/patchright (Patchright activo, solo Chromium, valida contra Cloudflare/Kasada/Akamai/Shape/Datadome/Fingerprint.com)", "pypi.org/pypi/curl_cffi/json (curl_cffi 0.16.3, 37 fingerprints open source)", "camoufox.com y github.com/daijro/camoufox (v146.0.1-beta.25, ya verificado en pasada previa, sin drift adicional en esta)", "developers.cloudflare.com/turnstile (Managed/Non-Interactive/Invisible, token expira 5 min, ya verificado en pasada previa)"],
       "skills": ["web-scraping-specialist"]
     }
   }

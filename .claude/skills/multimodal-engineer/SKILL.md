@@ -2,8 +2,8 @@
 name: multimodal-engineer
 description: Especialista en pipelines de procesamiento multimodal con LLMs. Cubre analisis de imagenes con Claude Opus 5 (vision 3.75MP) y Gemini 3.1 Pro (1M tokens), extraccion estructurada desde PDFs y documentos con Citations API, pipelines OCR semanticos, optimizacion de costo por token visual y arquitectura de sistemas que procesan entradas mixtas (texto + imagen + documento). Activa al construir pipelines que procesan imagenes o documentos, integrar vision en agentes, comparar capacidades multimodales entre Claude y Gemini, o disenar extraccion estructurada desde contratos, facturas o diagramas tecnicos.
 origin: ai-core
-version: 1.2.1
-last_updated: 2026-08-15
+version: 1.2.2
+last_updated: 2026-09-15
 rol: architect
 compatibility: Requiere el SDK de vision del proveedor activo (anthropic o google-genai); depende de conectividad de red hacia esa API, y opcionalmente voyageai para embeddings multimodales de Voyage.
 ---
@@ -352,3 +352,5 @@ Si el proyecto ya tiene un pipeline multimodal previo documentado, esta identida
 Verificado en esta tarea contra fuente oficial `platform.claude.com/docs/en/docs/build-with-claude/pdf-support` (redirect confirmado desde `docs.anthropic.com`, mismo dominio del proveedor): el limite vigente de la Claude API para procesamiento de PDF es maximo 32 MB por request y maximo 600 paginas por request (reducido a 100 paginas si la ventana de contexto efectiva de la request es menor a 1M tokens). El PDF debe ser estandar, sin password ni cifrado. Para documentos grandes, la recomendacion oficial es subir via Files API y referenciar por `file_id` para mantener el payload de la request liviano — documentos densos (fuente pequena, tablas complejas, muchos graficos) pueden agotar la ventana de contexto antes de llegar al limite de paginas.
 
 Pricing exacto de Files API, limites de retencion del archivo subido mas alla de las 48 horas ya mencionadas en este skill, y el detalle de limites de Citations API sobre documentos multi-archivo no se verificaron de forma independiente en esta pasada — tratar como orientativo, verificar antes de uso contra `platform.claude.com` (Claude) y `ai.google.dev` (Gemini) antes de dimensionar un pipeline de produccion con esos parametros especificos.
+
+Reverificado 2026-09-15 contra el dominio compartido `multimodal-voice` (`ai.google.dev/gemini-api/docs/models`, `ai.google.dev/gemini-api/docs/live-guide`, `ai.google.dev/gemini-api/docs/speech-generation` — gemini-3.8-live Stable, Affective Dialog, TTS): ese dominio cubre modelos de voz/audio en tiempo real (`gemini-3.8-live`, `gemini-3.1-flash-tts-preview`), superficie que este skill no cubre — el procesamiento de voz/audio vive en `audio-voice-engineer`, ya verificado sin drift contra el mismo dominio. Este skill se mantiene enfocado en vision/documentos/OCR (secciones de arriba), sin cambio de contenido pendiente de ese dominio.

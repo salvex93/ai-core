@@ -3,7 +3,7 @@ name: prompt-engineer
 description: Especialista en arquitectura de prompts de produccion. Cubre diseno de system prompts, few-shot examples, chain-of-thought, prefill de respuesta, cache breakpoints estrategicos, output estructurado con JSON Schema, versionado de prompts y testing antes de despliegue. Complementa ai-integrations (integracion del LLM), llm-evals (medicion de calidad) y rag-specialist (contexto documental). Activa al disenar o refactorizar un system prompt, definir la estrategia de few-shot, implementar output estructurado o versionar prompts para produccion.
 origin: ai-core
 version: 1.9.1
-last_updated: 2026-08-15
+last_updated: 2026-09-15
 rol: architect
 ---
 
@@ -107,7 +107,7 @@ Antes de emitir tu respuesta final, razona paso a paso:
 Emite primero el razonamiento dentro de <thinking>...</thinking> y luego el output final en el formato especificado.
 ```
 
-En modelos con soporte nativo de extended thinking (claude-sonnet-5, claude-opus-5, claude-fable-5; claude-opus-4-8 como fallback documentado), el CoT explicito en el prompt puede omitirse si se activa el thinking via API. En ese caso, el bloque `<thinking>` lo genera el modelo internamente sin consumir tokens del output visible. En `claude-opus-5` (o `claude-opus-4-8` en fallback) y `claude-fable-5`, usar `thinking: { type: "auto" }` permite que el modelo asigne presupuesto de razonamiento de forma adaptativa por paso, sin requerir un budget fijo.
+En modelos con soporte nativo de extended thinking (claude-sonnet-5, claude-opus-5, claude-fable-5; claude-opus-4-8 como fallback documentado), el CoT explicito en el prompt puede omitirse si se activa el thinking via API. En ese caso, el bloque `<thinking>` lo genera el modelo internamente sin consumir tokens del output visible. El thinking es adaptativo por defecto (`thinking: { type: "adaptive" }`, no `"auto"` — verificado 2026-09-15 contra platform.claude.com/docs/en/build-with-claude/thinking-steering-and-cost): el modelo decide por si mismo si razonar y cuanto, sin budget fijo. El control real de intensidad es `output_config.effort` (`max/xhigh/high/medium/low`), un parametro separado de `thinking`.
 
 Al combinar extended thinking con tool use, es obligatorio preservar tanto el bloque `thinking` como el `tool_use` del turno anterior al construir el siguiente mensaje del assistant — omitir el `thinking_block` al reenviar el `tool_result` produce comportamiento incorrecto o error. No modificar ni reordenar los bloques de thinking entre turnos: pasarlos integros tal cual los devolvio la API.
 

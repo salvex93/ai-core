@@ -2,8 +2,8 @@
 name: release-manager
 description: Release Manager Universal. Gestiona el ciclo de vida de entregas de software: versionado semantico, estrategia de branching, pipelines CI/CD, resolucion de conflictos Git y planes de rollback. Agnóstico a la plataforma de CI/CD. Activa al planificar releases, gestionar ramas, configurar pipelines o coordinar despliegues.
 origin: ai-core
-version: 1.2.1
-last_updated: 2026-08-15
+version: 1.3.0
+last_updated: 2026-09-15
 rol: architect
 ---
 
@@ -423,3 +423,5 @@ Verificado en esta tarea contra fuente oficial: la especificacion Semantic Versi
 Verificado en esta tarea contra documentacion oficial de GitHub (docs.github.com): OpenID Connect (OIDC) para despliegues permite que un pipeline de CI/CD se autentique contra el proveedor de nube sin almacenar credenciales de larga duracion como secretos del repositorio — el pipeline solicita un token OIDC de corta vida por cada ejecucion, el proveedor de nube lo valida contra una relacion de confianza federada preconfigurada. Detalle tecnico verificado: los repositorios creados despues del 15 de julio de 2026 usan un formato de subject claim inmutable que incluye el ID del owner y el ID del repositorio, para prevenir problemas de reutilizacion de namespace. Aplica al pipeline CI/CD de este perfil: preferir OIDC sobre secretos estaticos de larga duracion (`AWS_ACCESS_KEY_ID`, tokens de service account) en las etapas `deploy:staging` y `deploy:production` cuando la plataforma de nube lo soporte.
 
 Cualquier otro dato de plataforma especifica (limites de Merge Queue por plan, pricing de runners, disponibilidad de OIDC en un proveedor de nube puntual distinto de AWS/GCP/PyPI) es orientativo, no verificado contra fuente oficial en esta tarea — confirmar contra la documentacion del proveedor correspondiente antes de escribirlo como hecho en un plan de release real.
+
+Verificado 2026-09-15 contra `slsa.dev/spec/v1.2/about` (SLSA v1.2, estado Approved, v1.1 Retired): la etapa `build` del Pipeline CI/CD de arriba etiqueta el artefacto con el SHA del commit, pero eso solo cubre trazabilidad de nombre — no equivale a provenance verificable. Extender la etapa `build` para que ademas emita provenance firmada (SLSA L2 minimo, si el runner es una plataforma de build hospedada como GitHub Actions/GitLab CI gestionado) y adjunte un SBOM (CycloneDX o SPDX) como attestation del artefacto. Extender la etapa `approve` para que el gate de aprobacion humana pueda verificar la firma (`cosign verify`, identidad OIDC keyless — mismo mecanismo de OIDC ya documentado arriba para despliegue, aplicado ahora a la firma del artefacto en si) antes de autorizar `deploy:production`. Sin esto, un artefacto que llega a produccion con SHA valido pero sin provenance firmada no es distinguible de uno inyectado en una etapa intermedia comprometida del pipeline.

@@ -2,8 +2,8 @@
 name: web-scraping-specialist
 description: Especialista en extraccion de datos desde plataformas web y aplicaciones retail. Herramientas 2026: Stagehand (IA-nativo), browser-use (Python/LLM-driven), Crawlee (Node.js profesional), Browserbase (headless cloud), Camoufox, curl-cffi. Estrategias por proveedor anti-bot: Cloudflare, Datadome, Imperva, PerimeterX. Session state pooling, storage state reutilizable, OCR con Google Vision y Tesseract, rotacion de proxies residenciales. Activa al extraer datos de plataformas sin API oficial, construir monitores de precios, implementar pipelines OCR, o disenar scrapers resilientes con evasion avanzada.
 origin: ai-core
-version: 2.1.1
-last_updated: 2026-08-15
+version: 2.1.2
+last_updated: 2026-09-15
 rol: architect
 compatibility: Requiere las herramientas de scraping configuradas (Stagehand, Playwright, browser-use u otras) y conectividad de red hacia los sitios objetivo.
 ---
@@ -991,7 +991,11 @@ Camoufox: confirmado via `camoufox.com` y el repositorio oficial `github.com/dai
 
 Cloudflare Turnstile: confirmado via `developers.cloudflare.com/turnstile` que el widget opera en tres modos oficiales (Managed, Non-Interactive, Invisible) y que la validacion server-side contra la API `siteverify` es obligatoria — el widget del lado del cliente por si solo no protege nada. El token de validacion expira a los 5 minutos; cualquier flujo de bypass que asuma un token reutilizable esta desactualizado.
 
-Patchright, curl-cffi (impersonate de versiones especificas de Chrome/Firefox), y el pricing exacto de los servicios de CAPTCHA solving (2captcha, CapSolver, AntiCaptcha, NopeCHA) listados en este skill: orientativo, no verificado contra fuente oficial en esta pasada — confirmar version vigente y disponibilidad de impersonate targets contra el repositorio oficial de cada proyecto antes de fijar una version en codigo de produccion.
+Patchright: reverificado 2026-09-15 contra `github.com/Kaliiiiiiiiii-Vinyzu/patchright` — proyecto activo (deploy de versiones automatico), valida exitosamente contra Cloudflare, Kasada, Akamai, Shape/F5, Datadome y Fingerprint.com. Limitacion real confirmada en el propio README: "Patchright only patches CHROMIUM based browsers. Firefox and Webkit are not supported" — no usarlo como alternativa de stealth si el pipeline requiere Firefox/Webkit, en ese caso Camoufox (fork de Firefox) sigue siendo la opcion correcta.
+
+curl-cffi: reverificado 2026-09-15 contra `registry` oficial de PyPI (`pypi.org/pypi/curl_cffi/json`) — version actual 0.16.3. El repositorio (`github.com/lexiforest/curl_cffi`) confirma 37 fingerprints de impersonate disponibles en la version open source (Chrome, Safari, Firefox con targets especificos como `chrome124`; targets adicionales solo en el plan comercial) — usar `curl-cffi list` para la lista exacta vigente en el entorno de instalacion antes de fijar un target especifico en codigo de produccion, ya que la lista de versiones soportadas cambia con cada release.
+
+Pricing exacto de los servicios de CAPTCHA solving (2captcha, CapSolver, AntiCaptcha, NopeCHA): no verificable en esta pasada (las paginas de pricing de estos proveedores no son accesibles via fetch estatico) — sigue siendo orientativo, no verificado contra fuente oficial. Confirmar el pricing vigente directamente en el dashboard de cada proveedor antes de presentarlo como cifra firme frente a un cliente.
 
 ### Checklist de verificacion — vanguardia en extraccion/evasion
 

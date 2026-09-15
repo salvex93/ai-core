@@ -2,8 +2,8 @@
 name: llm-evals
 description: Especialista en evaluacion sistematica de outputs de LLM. Cubre diseno de datasets de evaluacion, metricas automatizadas (faithfulness, answer relevancy, hallucination rate), LLM-as-judge, integracion de evals en CI/CD y frameworks de evaluacion (deepeval, promptfoo, RAGAS). Activa al disenar un pipeline de evals, detectar regresiones en calidad de outputs, evaluar cambios de modelo o prompt, o medir la calidad de un sistema RAG.
 origin: ai-core
-version: 1.2.3
-last_updated: 2026-08-05
+version: 1.2.4
+last_updated: 2026-09-15
 rol: auditor
 ---
 
@@ -452,3 +452,5 @@ Verificado contra fuente oficial en esta tarea: la documentacion actual de RAGAS
 Verificado contra fuente oficial en esta tarea: la documentacion de deepeval (`deepeval.com/docs/metrics-llm-evals`) confirma `G-Eval` como metrica de chain-of-thought para criterios custom (brand voice, rubricas de dominio) cuando ninguna metrica generica built-in cubre el caso — util para el `Fallo critico` declarado en la Identidad Eval cuando no es faithfulness ni formato, sino un criterio propio del negocio.
 
 Version exacta de paquete, changelog de release y pricing de plataformas SaaS mencionadas en este skill (Langfuse, Braintrust) — orientativo, no verificado contra fuente oficial en esta tarea. Confirmar version instalada y pricing vigente antes de fijar un numero en una propuesta o config de CI.
+
+Reverificado 2026-09-15 contra `promptfoo.dev/docs/configuration/guide/` (verificado en vivo): la estructura `prompts/providers/tests` de `promptfooconfig.yaml` y el comando `promptfoo eval` de la seccion "promptfoo (Node.js / CLI)" siguen sin drift. Confirmado tambien contra `docs.cohere.com/docs/rerank` (Rerank v3.5) y `anthropic.com/engineering/contextual-retrieval` que las tecnicas de retrieval citadas por `rag-specialist` (skill hermano de este en el mismo dominio) no introducen ningun cambio de metrica que afecte el set de evals ya documentado aqui.

@@ -2,8 +2,8 @@
 name: workflow-orchestrator
 description: Especialista en orquestacion multi-agente y workflows de larga duracion. Fan-out/fan-in, retry con backoff exponencial, checkpointing de estado, coordinacion de subagentes heterogeneos y recuperacion ante fallos parciales. Activa al disenar workflows con multiples agentes paralelos, implementar pipelines con dependencias entre pasos, o garantizar durabilidad ante fallos transitorios.
 origin: ai-core
-version: 2.3.1
-last_updated: 2026-08-28
+version: 2.3.2
+last_updated: 2026-09-15
 rol: architect
 ---
 
@@ -298,3 +298,5 @@ Verificado contra fuente oficial en esta tarea: `docs.temporal.io` (Temporal Wor
 Tambien verificado: el Claude Agent SDK de Anthropic no provee durable execution ni persistencia de estado entre sesiones de forma nativa — esa capacidad queda del lado de Managed Agents o de una plataforma de orquestacion externa (Temporal, Prefect) construida encima. Antes de prometer "reanudacion automatica" usando solo el Agent SDK sin store externo, corregir la expectativa: el SDK aporta el loop de agente y subagentes, no la durabilidad.
 
 Pricing y limites de RPM/RPD de los proveedores de modelo referenciados en este skill (Gemini, Claude): orientativo, no verificado contra fuente oficial en esta tarea — confirmar en `ai.google.dev` y `anthropic.com` antes de dimensionar el `Semaphore` de un pipeline de alto volumen.
+
+Reverificado 2026-09-15 contra `platform.claude.com/docs/en/agents-and-tools/tool-use/define-tools` y `anthropic.com/engineering/writing-tools-for-agents`: sin cambio en la conclusion de arriba — el Agent SDK sigue sin proveer durable execution nativa, la orquestacion de larga duracion sigue requiriendo Temporal/Prefect o Managed Agents como capa externa de estado.

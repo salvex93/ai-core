@@ -2,8 +2,8 @@
 name: devops-infra
 description: DevOps Infra Universal. Especialista en infraestructura como codigo (Terraform, Pulumi, Helm), gestion de secretos en contenedores, networking de servicios y observabilidad (OpenTelemetry, Prometheus, Grafana). Agnostico al proveedor de nube. Activa al disenar infraestructura, configurar observabilidad, gestionar secretos en Kubernetes o definir estrategias de despliegue en contenedores.
 origin: ai-core
-version: 1.1.4
-last_updated: 2026-08-04
+version: 1.2.0
+last_updated: 2026-09-15
 rol: architect
 ---
 
@@ -289,3 +289,21 @@ Las Reglas Globales definidas en CLAUDE.md aplican sin excepcion a este perfil.
 **VIGENCIA — ESTANDAR MAS RECIENTE DEL DOMINIO:** Antes de escribir cualquier version de API de Kubernetes, campo de manifiesto o convencion de OpenTelemetry, verificar contra `kubernetes.io/releases` o `opentelemetry.io/docs/specs/semconv` — nunca interpolar por analogia con una version anterior. Verificado en esta tarea contra fuente oficial: Kubernetes se encuentra en la serie 1.36 (kubernetes.io/releases, con soporte activo N-2 sobre las tres minor mas recientes bajo ciclo de 15 semanas); las Semantic Conventions de OpenTelemetry publicadas en opentelemetry.io/docs/specs/semconv se encuentran en la version 1.43.0, con las convenciones HTTP en estado stable desde la v1.23.0 — el atributo `http.url` quedo deprecado en favor de `url.full`, por lo que cualquier instrumentacion nueva debe emitir `url.full` y no asumir el atributo legado por analogia con ejemplos previos. Pricing y limites especificos de servicios gestionados de nube (EKS/GKE/AKS) no se verificaron en esta pasada — orientativo, verificar antes de uso contra la consola de billing del proveedor correspondiente.
 
 Fuentes consultadas: kubernetes.io/releases, opentelemetry.io/docs/specs/semconv, opentelemetry.io/docs/specs/semconv/http.
+
+## Supply Chain Security en el Pipeline de Infraestructura
+
+Verificado 2026-09-15 contra `slsa.dev/spec/v1.2/about` y `slsa.dev/spec/v1.1/levels` (fuente oficial primaria): SLSA v1.2 es la version vigente del framework (estado Approved), con v1.1 marcada Retired — cualquier referencia nueva a SLSA debe apuntar a v1.2. El build track define cuatro niveles de garantia creciente:
+
+| Nivel | Garantia | Aplicacion en este perfil |
+|---|---|---|
+| L0 | Sin garantias — build no verificable | Baseline inaceptable para produccion; cualquier pipeline sin provenance firmada parte de aqui |
+| L1 | Existe provenance del build (que se construyo, con que, de donde) | Minimo exigible: el pipeline de CI/CD debe emitir provenance por cada artefacto de imagen o binario desplegado |
+| L2 | Provenance firmada por una plataforma de build hospedada (GitHub Actions, GitLab CI gestionado) | Objetivo por defecto para servicios de produccion — evita que un build local sin control de acceso genere el artefacto final |
+| L3 | Build hardened con aislamiento fuerte entre builds (sin acceso cruzado a secretos/cache de otro build) | Exigible en servicios que manejan datos regulados o PII (ver Cifrado Fernet en CLAUDE.md) |
+
+Aplicacion practica en manifiestos de este skill:
+- Imagen de contenedor referenciada siempre por digest inmutable (`image: registro/app@sha256:...`), nunca por tag mutable (`:latest`, `:main`) — ya cubierto como antipatron en "PROHIBIDO — PATRONES RECONOCIBLES DE DEMO/PLANTILLA" arriba, ahora con el respaldo formal de por que SLSA lo exige (un tag mutable rompe la trazabilidad build-a-artefacto que la provenance certifica).
+- Firma de artefactos con `cosign sign` (Sigstore) sobre la imagen por digest, y verificacion de firma (`cosign verify`) como gate en el pipeline antes de `kubectl apply` o `helm upgrade` — bloquear el despliegue si la firma no valida contra la identidad esperada (OIDC keyless, no clave estatica en secretos).
+- SBOM (Software Bill of Materials) generado en build time en formato CycloneDX o SPDX y adjunto como attestation al artefacto — permite auditar dependencias transitivas de la imagen sin reconstruirla, y es prerequisito para responder rapido ante un CVE de una dependencia de terceros.
+
+Pricing, disponibilidad regional y limites de cuota de servicios especificos de attestation gestionada (GitHub Artifact Attestations, GCP Binary Authorization) no verificados en esta pasada — orientativo, confirmar contra la documentacion del proveedor antes de dimensionar el pipeline.

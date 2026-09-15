@@ -2,8 +2,8 @@
 name: performance-engineer
 description: Especialista en performance de aplicacion bajo carga real. Cubre estrategia de cache (in-memory vs Redis), distribucion de assets estaticos via CDN, y pruebas de carga que simulan usuarios concurrentes antes de que lleguen en produccion. Diferenciado de database-ops (pooling de conexiones e indices de BD) y devops-infra (observabilidad e infraestructura). Agnostico al framework y proveedor. Activa al disenar una capa de cache, evaluar si un recurso necesita CDN, definir o ejecutar pruebas de carga, o diagnosticar degradacion bajo trafico concurrente.
 origin: ai-core
-version: 1.0.1
-last_updated: 2026-09-02
+version: 1.0.2
+last_updated: 2026-09-15
 rol: architect
 ---
 
@@ -242,6 +242,6 @@ Reverificado 2026-08-14 contra `grafana.com/docs/k6/latest/release-notes/` (fuen
 
 Breaking changes reales de la 2.0.0 (no aplican al patron de este skill, que solo usa `autocannon` como ejemplo de codigo embebido y menciona `k6` como alternativa, sin invocar CLI ni modulos afectados — documentado por transparencia si se expande el uso de k6 en el futuro): modulo Go renombrado a `go.k6.io/k6/v2`; comandos removidos `k6 pause`/`resume`/`scale`/`status`/`login`; forma posicional `k6 cloud script.js` eliminada (usar `k6 cloud run script.js`); flags removidos `--upload-only`, `--no-summary`, `--summary-mode=legacy`; executor `externally-controlled` eliminado; `options.ext.loadimpact` reemplazado por `options.cloud`; modulo `k6/experimental/redis` removido (usar `k6/x/redis`); exit code de aborto por cloud run sin threshold cambia de `0` a `97`. Las versiones 2.1.0 y 2.2.0 no introducen breaking changes adicionales segun sus propias release notes. Antes de fijar una version exacta en `package.json` o pipeline de CI, releer el archivo de esa version puntual en `release-notes/`, no asumir por analogia con versiones previas.
 
-Para `autocannon` y `Artillery`: la vigencia de version/pricing de estas dos herramientas no se verifico contra fuente oficial en esta tarea — orientativo, no verificado contra fuente oficial. Confirmar version instalada real (`npm ls autocannon`) y el registro npm oficial antes de fijar un numero de version en documentacion o `package.json`.
+Verificado 2026-09-15 contra `registry.npmjs.org/autocannon/latest` y `registry.npmjs.org/artillery/latest`: version actual de `autocannon` es **8.0.0**, de `artillery` es **2.0.34**. Ambas son majors superiores a cualquier version implicita en el patron de codigo de este skill (que no fija numero de version) — sin breaking change conocido que afecte la sintaxis del patron minimo de prueba de carga documentado arriba; confirmar `npm ls autocannon` en el proyecto anfitrion antes de asumir compatibilidad exacta de API si el proyecto fija una version anterior en `package.json`.
 
-Para headers de cache HTTP (`Cache-Control: immutable`, `max-age`): la sintaxis usada en este skill corresponde a la especificacion HTTP vigente (RFC 9111, que obsoleta RFC 7234) — no se re-verifico el RFC exacto contra IETF en esta tarea puntual; orientativo, no verificado contra fuente oficial en esta pasada. Antes de auditar compliance estricto de headers, confirmar contra `www.rfc-editor.org` o `developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cache-Control`.
+Verificado 2026-09-15 contra `www.rfc-editor.org/rfc/rfc9111`: RFC 9111 es la especificacion HTTP Caching vigente y confirma explicitamente que obsoleta a RFC 7234. La sintaxis de `Cache-Control: public, max-age=31536000, immutable` usada en este skill es conforme a esa especificacion vigente.
