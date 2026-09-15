@@ -37,22 +37,22 @@ const PROVIDERS = [
   { key: 'KIMI_API_KEY', provider: 'kimi' },
 ];
 
-function leerEnv() {
-  if (!fs.existsSync(ENV_PATH)) return {};
+function leerEnv(envPath = ENV_PATH) {
+  if (!fs.existsSync(envPath)) return {};
   const vars = {};
-  for (const line of fs.readFileSync(ENV_PATH, 'utf8').split(/\r?\n/)) {
+  for (const line of fs.readFileSync(envPath, 'utf8').split(/\r?\n/)) {
     const m = line.match(/^([^#=\s][^=]*)=(.*)$/);
     if (m) vars[m[1].trim()] = m[2].trim();
   }
   return vars;
 }
 
-function escribirEnvVar(clave, valor) {
-  const actual = fs.existsSync(ENV_PATH) ? fs.readFileSync(ENV_PATH, 'utf8') : '';
+function escribirEnvVar(clave, valor, envPath = ENV_PATH) {
+  const actual = fs.existsSync(envPath) ? fs.readFileSync(envPath, 'utf8') : '';
   const patron = new RegExp(`^${clave}=.*$`, 'm');
   const linea = `${clave}=${valor}`;
   const nuevo = patron.test(actual) ? actual.replace(patron, linea) : `${actual}\n${linea}\n`;
-  fs.writeFileSync(ENV_PATH, nuevo);
+  fs.writeFileSync(envPath, nuevo);
 }
 
 async function preguntar(rl, texto) {
