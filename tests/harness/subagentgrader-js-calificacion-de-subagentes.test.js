@@ -8,9 +8,30 @@ const { REPO, BIN } = require('./_shared');
 
 describe('SubagentGrader.js (calificacion de subagentes via LLM-as-judge)', () => {
   const SCRIPT = path.join(REPO, 'scripts', 'services', 'SubagentGrader.js');
+  const MODEL_REGISTRY_PATH = path.join(REPO, 'scripts', 'services', 'ModelRegistry.js');
   const { calificar, parsearGrado, seleccionarJuez, construirPromptSistema, PROVEEDORES_JUEZ } = require(SCRIPT);
 
   const OUTPUT_LARGO = Array.from({ length: 20 }, (_, i) => `linea ${i} del output real del subagente`).join('\n');
+
+  // SubagentGrader.js desestructura `chat` de ModelRegistry en el require
+  // (const { chat } = require('./ModelRegistry')), asi que mutar la propiedad
+  // del objeto exportado no alcanza -- hay que invalidar el cache de ambos
+  // modulos para que SubagentGrader vuelva a desestructurar el chat mockeado.
+  function calificarConChatMockeado(chatMock, params) {
+    delete require.cache[MODEL_REGISTRY_PATH];
+    delete require.cache[SCRIPT];
+    const ModelRegistry = require(MODEL_REGISTRY_PATH);
+    const original = ModelRegistry.chat;
+    ModelRegistry.chat = chatMock;
+    try {
+      const { calificar: calificarMockeado } = require(SCRIPT);
+      return calificarMockeado(params);
+    } finally {
+      ModelRegistry.chat = original;
+      delete require.cache[MODEL_REGISTRY_PATH];
+      delete require.cache[SCRIPT];
+    }
+  }
 
   test('el script existe', () => {
     assert.ok(fs.existsSync(SCRIPT));
