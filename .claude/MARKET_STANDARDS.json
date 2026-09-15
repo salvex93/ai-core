@@ -128,8 +128,8 @@
       "skills": ["performance-engineer"]
     },
     "seo-sem-marketing": {
-      "verified": "2026-07-15",
-      "sources": ["orientativo, no verificado contra fuente primaria en esta pasada -- pendiente de primera verificacion real (Google Ads, GA4, Core Web Vitals)"],
+      "verified": "2026-09-15",
+      "sources": ["web.dev/articles/vitals (Core Web Vitals LCP/INP/CLS sin cambio de umbral)", "web.dev/blog/inp-cwv-launch (INP reemplazo a FID como estable el 12 de marzo de 2024, fecha confirmada)", "developers.google.com/tag-platform (Consent Mode v2, ad_user_data/ad_personalization)", "support.google.com/google-ads answer/13695607 (Consent Mode v2 requisito EEA, deadline IAB TCF v2.3 2026-03-01)", "blog.google/products/ads-commerce y support.google.com/google-ads answer/15910187 (AI Max for Search reemplaza DSA, auto-upgrade desde septiembre 2026, sunset DSA febrero 2027)"],
       "skills": ["seo-sem-specialist"]
     },
     "doc-generation": {
