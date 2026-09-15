@@ -115,10 +115,7 @@ async function main() {
 
   try {
     const { resultado, fallos } = await executeMoATask(userPrompt);
-    const encabezado = fallos.length > 0
-      ? `<!-- MoA parcial — fallos: ${fallos.join(' | ')} -->\n`
-      : '';
-    fs.writeFileSync(MOA_CONTEXT, encabezado + resultado, 'utf8');
+    fs.writeFileSync(MOA_CONTEXT, construirContenidoMoA({ resultado, fallos }), 'utf8');
   } catch (err) {
     // executeMoATask nunca deberia rechazar (Promise.allSettled interno),
     // pero si el propio dispatcher lanza (ej. tipo de sub-tarea invalido),
