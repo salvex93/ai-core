@@ -1076,7 +1076,7 @@ pedidos-api/
 
 ### Java/JVM — Spring Boot
 
-Version verificada: Spring Boot 4.1.0 (fuente: `spring.io/projects/spring-boot`), requiere Java 17 minimo y es compatible hasta Java 26 (cita textual de `docs.spring.io/spring-boot/system-requirements.html`). JDK 25 es la LTS mas reciente (GA 2025-09-16, soporte NFTC hasta 2028, fuente `oracle.com/java/technologies/java-se-support-roadmap.html`).
+Version verificada: Spring Boot 4.1.1 (fuente: `spring.io/projects/spring-boot`, verificado 2026-09-15), requiere Java 17 minimo y es compatible hasta Java 26 (cita textual de `docs.spring.io/spring-boot/system-requirements.html`). JDK 25 es la LTS mas reciente (GA 2025-09-16, soporte NFTC hasta 2028, fuente `oracle.com/java/technologies/java-se-support-roadmap.html`).
 
 ```java
 @Entity
