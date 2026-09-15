@@ -189,16 +189,16 @@ audio_data = response.candidates[0].content.parts[0].inline_data.data
 
 Voces disponibles (30 en 70+ idiomas): Aoede, Charon, Fenrir, Kore, Puck — entre otras. Verificar lista completa en `ai.google.dev/gemini-api/docs/speech-generation`.
 
-## Affective Dialog — Estado Actual (Regresion Confirmada)
+## Affective Dialog — Estado Actual
 
-`gemini-2.5-flash` con Live API soportaba deteccion y respuesta al tono emocional del usuario (urgencia, frustracion, entusiasmo) de forma nativa. Ese modelo fue apagado el 2025-12-09.
+`gemini-2.5-flash` con Live API soportaba deteccion y respuesta al tono emocional del usuario (urgencia, frustracion, entusiasmo) de forma nativa. Ese modelo fue apagado el 2025-12-09. Su sucesor inmediato, `gemini-3.1-flash-live-preview` (ahora tambien deprecado), no soportaba la capacidad — confirmado explicitamente como "not yet supported" en su momento.
 
-**`gemini-3.1-flash-live-preview`, el sucesor vigente, NO soporta Affective Dialog** — confirmado explicitamente como "not yet supported" en la documentacion oficial (verificado 2026-07-10). No disenar un flujo que dependa de esta capacidad sobre el modelo actual sin volver a verificar si Google la restauro.
+**Estado en el modelo vigente `gemini-3.8-live` (reverificado 2026-09-15):** la documentacion oficial (`ai.google.dev/gemini-api/docs/live-guide`) describe el flag `enable_affective_dialog=True` como disponible en general y solo excluye explicitamente a `gemini-3.1-flash-live-preview` — no hay una tabla de compatibilidad que confirme o descarte el soporte especificamente para `gemini-3.8-live` o su variante extended-thinking. Tratar como probablemente restaurado, pero confirmar contra la documentacion del modelo especifico antes de prometer la capacidad en un diseno de cliente.
 
-Alternativa disponible hoy: los audio tags expresivos de `gemini-3.1-flash-tts-preview` (ej. `[frustration]`, `[determination]`) permiten controlar el tono de la *salida* generada por el modelo, pero no reemplazan la deteccion automatica del tono de *entrada* del usuario que ofrecia Affective Dialog en 2.5.
+Alternativa si Affective Dialog no esta disponible en el momento de la verificacion: los audio tags expresivos de `gemini-3.1-flash-tts-preview` (ej. `[frustration]`, `[determination]`) permiten controlar el tono de la *salida* generada por el modelo, pero no reemplazan la deteccion automatica del tono de *entrada* del usuario que ofrece Affective Dialog.
 
 ```python
-# Patron de fallback manual mientras 3.1 Flash Live no soporta Affective Dialog:
+# Patron de fallback manual si Affective Dialog no esta disponible para el modelo verificado:
 # clasificar tono del input con una llamada de texto liviana antes del turno de audio.
 config = {
     "response_modalities": ["AUDIO"],
