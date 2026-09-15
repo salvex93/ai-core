@@ -25,6 +25,7 @@
 const { spawnSync } = require('node:child_process');
 const fs   = require('node:fs');
 const path = require('node:path');
+const { detectarSubmodulo } = require('../.claude/bin/lib/submodule-detect');
 
 const REPO      = path.resolve(__dirname, '..');
 const PKG       = path.join(REPO, 'package.json');
