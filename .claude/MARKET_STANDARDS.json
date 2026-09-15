@@ -138,8 +138,8 @@
       "skills": ["doc-builder"]
     },
     "web-scraping": {
-      "verified": "2026-07-15",
-      "sources": ["orientativo, no verificado contra fuente primaria en esta pasada -- pendiente de primera verificacion real (Stagehand, Crawlee, Browserbase, proveedores anti-bot)"],
+      "verified": "2026-09-15",
+      "sources": ["github.com/Kaliiiiiiiiii-Vinyzu/patchright (Patchright activo, solo Chromium, valida contra Cloudflare/Kasada/Akamai/Shape/Datadome/Fingerprint.com)", "pypi.org/pypi/curl_cffi/json (curl_cffi 0.16.3, 37 fingerprints open source)", "camoufox.com y github.com/daijro/camoufox (v146.0.1-beta.25, ya verificado en pasada previa, sin drift adicional en esta)", "developers.cloudflare.com/turnstile (Managed/Non-Interactive/Invisible, token expira 5 min, ya verificado en pasada previa)"],
       "skills": ["web-scraping-specialist"]
     }
   }
