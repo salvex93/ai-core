@@ -285,7 +285,7 @@ Un atacante extrae el contenido del system prompt via instrucciones directas o i
 Control:
 - El system prompt no contiene secretos (credenciales, instrucciones de evasion de seguridad, datos de clientes). Si el system prompt se filtra, el impacto debe ser cero o minimo.
 
-### LLM10 — Consumo Ilimitado
+### LLM06 — Consumo Ilimitado
 
 Un atacante genera solicitudes al endpoint del LLM a un ritmo que agota la cuota de tokens o genera facturas excesivas.
 
