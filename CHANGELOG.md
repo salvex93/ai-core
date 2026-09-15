@@ -3,6 +3,14 @@
 Registro de cambios por version. Formato basado en [Keep a Changelog](https://keepachangelog.com/es/1.0.0/).
 Versionado semantico: MAJOR.MINOR.PATCH.
 
+## [Unreleased] — vigencia de dominios de mercado STALE_MERCADO (barrido completo)
+
+### Verificado — `devops-supply-chain`
+
+Protocolo de Vigencia Tecnologica aplicado. Fuente primaria: `slsa.dev/spec/v1.2/about` (v1.2 = version vigente del framework SLSA, estado "Approved"; v1.1 "Retired") y `slsa.dev/spec/v1.1/levels` (niveles build track L0-L3). `verified` actualizado a 2026-09-15 en `MARKET_STANDARDS.json` con ambas URLs.
+
+Hallazgo real durante la verificacion: ni `devops-infra` ni `release-manager` (los dos skills asociados a este dominio) mencionan SLSA, SBOM, CycloneDX, SPDX, cosign ni sigstore (confirmado por grep, cero coincidencias) — el dominio queda verificado pero sin contenido correspondiente en los skills que dice cubrir. Documentado explicitamente en `MARKET_STANDARDS.json` como gap conocido, sin fabricar contenido nuevo fuera del alcance de la tarea (agregar una seccion de supply chain security es una decision de alcance de skill, no una correccion de vigencia). `node --test tests/harness/audit-market-js.test.js` — 8/8 pass.
+
 ## [3.40.1] — 2026-09-15 (vigencia de parametro max_tokens en OpenAICompatAdapter.js: DeepSeek y Kimi)
 
 Protocolo de Vigencia Tecnologica aplicado sobre `PROVIDER_CONFIGS.deepseek` y `PROVIDER_CONFIGS.kimi`, marcados desde su creacion como "no verificado contra fuente oficial". Verificado contra fuente primaria (2026-09-15):
