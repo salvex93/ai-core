@@ -74,7 +74,7 @@ Verificado 2026-08-14 contra `ai.google.dev/gemini-api/docs/models/gemini-3.7-fl
 Regla de seleccion:
 1. Tarea de clasificacion o categorizacion de alto volumen con logica simple → `gemini-3.5-flash-lite` con `thinking_level: "low"` (o `gemini-3.1-flash-lite` si el proyecto ya lo tiene integrado y no requiere las mejoras de 3.5). `"minimal"` se reserva exclusivamente para extraccion de campos o reformateo puro sin ninguna decision de categoria — en cuanto hay que elegir entre etiquetas, el nivel es `"low"`, no `"minimal"`.
 2. Tarea agentica multi-step o coding con presupuesto medio → `gemini-3.7-flash` (o `gemini-3.6-flash` si el proyecto ya lo tiene integrado y no requiere la mejora de capacidad).
-3. Live API / audio-to-audio → `gemini-3.1-flash-live-preview` (ver `audio-voice-engineer` para detalle; Affective Dialog no soportado a la fecha).
+3. Live API / audio-to-audio → `gemini-3.8-live` (o `gemini-3.8-live-extended-thinking` si el caso requiere mas razonamiento; ver `audio-voice-engineer` para detalle; `gemini-3.1-flash-live-preview` esta deprecado, soporte de Affective Dialog no confirmado explicitamente para el modelo vigente).
 4. Corpus > 500MB o razonamiento muy complejo → `gemini-3.1-pro-preview` con `thinking_level: "high"`.
 5. Nunca subir de tier sin medir primero el delta de calidad/costo en un dataset de evaluacion. Ver `llm-evals` para diseno del dataset de evaluacion representativo.
 
