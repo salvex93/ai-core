@@ -824,7 +824,7 @@ func main() {
 }
 ```
 
-Con Gin (`go get github.com/gin-gonic/gin@v1.12.0`, version verificada en `github.com/gin-gonic/gin/releases`, `go.mod` minimo Go 1.25.0 — compatible con Go 1.26.0):
+Con Gin (`go get github.com/gin-gonic/gin@v1.12.0`, version verificada en `github.com/gin-gonic/gin/releases`, `go.mod` minimo Go 1.25.0 — compatible con Go 1.27.1):
 
 ```go
 r := gin.Default() // incluye middleware Logger() y Recovery()
