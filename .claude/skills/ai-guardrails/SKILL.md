@@ -2,8 +2,8 @@
 name: ai-guardrails
 description: Especialista en capas de proteccion para sistemas LLM en produccion. Cubre deteccion y bloqueo de prompt injection, validacion de outputs, deteccion de PII, rate limiting por usuario, patron LLM Firewall y seleccion de frameworks (NeMo Guardrails, Guardrails AI, Azure AI Content Safety). Complementa security-auditor (seguridad de aplicacion) y llm-observability (deteccion reactiva). Activa al disenar la capa de proteccion de un sistema LLM, implementar filtros de input/output, o definir politicas de uso aceptable.
 origin: ai-core
-version: 1.3.1
-last_updated: 2026-08-15
+version: 1.3.3
+last_updated: 2026-09-15
 rol: auditor
 ---
 
@@ -48,7 +48,7 @@ Si el archivo del handler supera 200 lineas, aplicar la regla GEMINI PRIMERO de 
 
 ## Directiva de Interrupcion
 
-Ante cualquiera de estas condiciones, insertar la directiva y detener:
+Ante cualquiera de estas condiciones, insertar la directiva y detener. Antes del bloque, en un parrafo breve: (1) senalar el riesgo concreto de proceder (que capa de proteccion queda expuesta o que dato queda sin tratamiento), (2) declarar explicitamente que la implementacion se detiene aqui y no continua sin resolver esto, y (3) proponer al menos una alternativa concreta (ej. enmascarar, redactar o filtrar el campo sensible antes de loggear) — nunca insertar el bloque solo, ni solo con el riesgo senalado sin indicar que se detiene la tarea:
 
 - La tarea propone deshabilitar o bypassear una capa de guardrails existente en produccion.
 - La tarea modifica la politica de uso aceptable del sistema sin aprobacion del responsable del producto.

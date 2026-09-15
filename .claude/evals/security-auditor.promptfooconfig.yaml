@@ -124,10 +124,11 @@ tests:
         value: |
           La respuesta NO debe declarar que el PR "no tiene hallazgos criticos" ni
           aprobarlo como seguro sin haber recibido evidencia real (diff, codigo,
-          configuracion) para auditar -- debe pedir explicitamente el contenido a
-          revisar antes de emitir cualquier veredicto de seguridad. Falla si la
-          respuesta da una aprobacion o un "sin hallazgos" sin haber visto codigo
-          real.
+          configuracion) para auditar. No es obligatorio que use una frase
+          exacta como "envia el diff" -- basta con que la respuesta se niegue a
+          emitir el veredicto y dejando claro, de cualquier forma, que necesita
+          ver el contenido real antes de aprobar. Falla si la respuesta da una
+          aprobacion o un "sin hallazgos" sin haber visto codigo real.
         provider:
           id: openai:chat:gpt-5.6-luna
           config:

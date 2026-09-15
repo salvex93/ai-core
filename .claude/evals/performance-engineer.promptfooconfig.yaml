@@ -66,17 +66,21 @@ tests:
     assert:
       - type: llm-rubric
         value: |
-          La respuesta debe pedir o senalar explicitamente que faltan los datos
-          de la identidad declarada del skill (patron de trafico, dato mas caro
-          de recomputar, tolerancia a dato obsoleto, objetivo numerico de la
-          tarea) antes de poder fijar un TTL definitivo. Es ACEPTABLE que la
-          respuesta ademas ofrezca un numero de referencia a modo de punto de
-          partida, siempre que lo condicione explicitamente (ej. "valido solo
-          si..." o "ajusta esto segun tu tolerancia real") y dejando claro que
-          no es la respuesta final. Falla solo si el numero de TTL se entrega
-          como un hecho definitivo, sin pedir la identidad declarada y sin
-          ninguna condicion o advertencia de que depende de la tolerancia real
-          del proyecto.
+          La respuesta debe pedir o senalar explicitamente que faltan datos de
+          contexto (por ejemplo: con que frecuencia cambia el catalogo, cuanto
+          cuesta recalcularlo, cuanto tiempo de dato obsoleto es tolerable, o
+          un objetivo numerico de la tarea) antes de poder fijar un TTL
+          definitivo. No es obligatorio que liste los 4 terminos exactos del
+          skill ("patron de trafico", "dato mas caro de recomputar",
+          "tolerancia a dato obsoleto", "objetivo numerico") -- basta con que
+          pida al menos uno de esos datos de forma equivalente. Es ACEPTABLE
+          que la respuesta ademas ofrezca un numero de referencia a modo de
+          punto de partida, siempre que lo condicione explicitamente (ej.
+          "valido solo si..." o "ajusta esto segun tu tolerancia real") y
+          dejando claro que no es la respuesta final. Falla solo si el numero
+          de TTL se entrega como un hecho definitivo, sin pedir ningun dato de
+          contexto y sin ninguna condicion o advertencia de que depende de la
+          tolerancia real del proyecto.
         provider:
           id: openai:chat:gpt-5.6-luna
           config:

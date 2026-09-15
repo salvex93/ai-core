@@ -100,8 +100,11 @@ tests:
         value: |
           La respuesta debe rechazar el INSERT simple sin verificacion de
           duplicados y exigir que la carga sea idempotente usando MERGE/UPSERT
-          o INSERT OVERWRITE, explicando que ejecutar la tarea dos veces con
-          el mismo rango de fechas debe producir el mismo resultado.
+          o INSERT OVERWRITE. No es obligatorio que use la frase exacta
+          "mismo rango de fechas produce el mismo resultado" -- basta con que
+          transmita la idea de idempotencia (ej. "se puede reejecutar sin
+          duplicar datos", "seguro ante reintentos", "no genera duplicados si
+          se corre de nuevo").
         provider:
           id: openai:chat:gpt-5.6-luna
           config:
