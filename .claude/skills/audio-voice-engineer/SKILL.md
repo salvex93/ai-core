@@ -216,7 +216,7 @@ config = {
 ## Lista de Verificacion — Voice Systems
 
 1. Latencia end-to-end documentada y < 300ms en ruta critica.
-2. Modelo activo es `gemini-3.1-flash-live-preview` — `gemini-2.5-flash-live-preview` y `gemini-2.0-flash-live-001` fueron apagados el 2025-12-09.
+2. Modelo activo es `gemini-3.8-live` — `gemini-3.1-flash-live-preview` esta deprecado, `gemini-2.5-flash-live-preview` y `gemini-2.0-flash-live-001` fueron apagados el 2025-12-09.
 3. Codec seleccionado es compatible con todos los clientes objetivo (mobile, web, desktop).
 4. Sincronizacion audio-video (si aplica) usa reloj comun.
 5. Timeout: si Gemini no responde en 10s, reintentar una vez antes de fallar al usuario.
