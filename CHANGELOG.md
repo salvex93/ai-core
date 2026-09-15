@@ -3,6 +3,28 @@
 Registro de cambios por version. Formato basado en [Keep a Changelog](https://keepachangelog.com/es/1.0.0/).
 Versionado semantico: MAJOR.MINOR.PATCH.
 
+## [3.40.0] — 2026-09-15 (wizard interactivo de configuracion: credenciales, integridad del harness, auditoria de providers)
+
+Pedido explicito del usuario: un unico comando interactivo (`npm run wizard`) que reemplace la configuracion manual dispersa de API keys, tokens y validacion de estado del harness, sin fragmentarla en comandos separados.
+
+### Agregado — `wizard-credentials.js`: validacion activa de credenciales, no solo formato
+
+`validarProveedorIA()` hace una llamada minima real via `ModelRegistry.chat()` (inyectado, testeable sin red) contra el proveedor cuya API key se esta configurando, en vez de solo chequear longitud/prefijo del string. Mismo criterio para `validarGitHubToken()` (llamada a la API de GitHub). Para SSH, `validarSshHostAlias()` deliberadamente NUNCA lee ni pide la clave privada — solo confirma que el alias ya existe en `~/.ssh/config` y que `ssh-add -L` lo reporta cargado en el agente; solo el alias se persiste en `.env`.
+
+### Agregado — `wizard-provider-audit.js`: auditoria + fix de bypass de `ModelRegistry.js`
+
+Recorre `scripts/` buscando imports directos de `@anthropic-ai/sdk` o `@google/genai` fuera de una lista blanca de 5 archivos que legitimamente son la capa de adapter (`ModelRegistry.js`, `AnthropicAdapter.js`, `GeminiAdapter.js`, `GeminiApiClient.js`, `anthropic-bridge.js`). Cualquier otro archivo que importe un SDK de proveedor directamente es un hallazgo bloqueante — bypasea la jerarquia de costo Gemini -> Haiku -> Sonnet -> Opus declarada en CLAUDE.md.
+
+### Agregado — `wizard-integrity.js`: chequeo de integridad del harness
+
+Corre `detox` (codigo legacy purgado, informativo), `validate-globals` (conformidad de skills, bloqueante), `audit-market --only-stale` (vigencia de mercado, bloqueante), confirma instalacion como submodulo del proyecto anfitrion via `submodule-detect.js`, y compara `package.json` contra la ultima entrada de `CHANGELOG.md` — un desface de version es sintoma real de un paso de cierre de sesion olvidado (ver memoria "Bump de version -> regenerar CONTEXT_MAP").
+
+### Agregado — `wizard.js` + `npm run wizard`: orquestador interactivo de un solo comando
+
+Cinco secciones en orden: API keys de proveedores de IA (Gemini/Anthropic/OpenAI/DeepSeek/Kimi), token de GitHub, alias de host SSH, integridad del harness, auditoria de providers. Cada seccion delega su logica pura a la lib correspondiente; el script solo orquesta prompts de `readline/promises` y lectura/escritura de `.env`. `preguntar()` captura `ERR_USE_AFTER_CLOSE` (stdin llega a EOF con una pregunta pendiente, comportamiento real de `readline/promises` en entornos no interactivos) y lo trata como "omitir" en vez de crashear — encontrado y corregido en verificacion manual end-to-end (`node .claude/bin/wizard.js < /dev/null`), no solo por tests unitarios.
+
+1373 tests (1371 pass, 1 skipped, 1 fail preexistente y no relacionado — mismo hallazgo de `audit-market-js.test.js` en `security-owasp` ya documentado en 3.39.0, aun pendiente de verificacion contra fuente primaria).
+
 ## [3.39.0] — 2026-09-14 (validacion de contenido multi-proveedor en flujo MoA + merge no destructivo de settings.json en norm-harness.js)
 
 Auditoria propia sobre 2 gaps reales: (a) el patron MoA (`ModelDispatcher.js` -> `moa-context-gatherer.js`, hook `UserPromptSubmit`) usaba `Promise.allSettled` solo para aislar fallos HTTP entre proveedores, sin validar la calidad del contenido que si llegaba (documentado como deuda tecnica explicita en el propio codigo); (c) `ensureHostSettings()` en `norm-harness.js` sobreescribia el `.claude/settings.json` completo del proyecto anfitrion sin merge cuando detectaba drift, perdiendo cualquier hook, mcpServer o permiso custom que el anfitrion hubiera agregado a mano.
