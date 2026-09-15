@@ -249,7 +249,7 @@ Regla: para proyectos con datos de clientes finales o contratos de confidenciali
 - [ ] Para datos de clientes finales: Vertex AI, no Google AI Studio.
 - [ ] Concurrencia limitada con `Semaphore` en batch (Flash: max 20, Flash-Lite: max 50).
 - [ ] Corpus > 100MB usa File API de Google — no retransmitir en cada request.
-- [ ] Live API usa modelo `gemini-3.1-flash-live-preview` — no `gemini-2.5-flash-live-preview` ni `gemini-2.0-flash-live-001` (ambos apagados 2025-12-09).
+- [ ] Live API usa modelo `gemini-3.8-live` — no `gemini-3.1-flash-live-preview` (deprecado), `gemini-2.5-flash-live-preview` ni `gemini-2.0-flash-live-001` (ambos apagados 2025-12-09).
 - [ ] Outputs criticos (financiero, legal) no dependen exclusivamente de Gemini sin validacion humana.
 - [ ] Nombres de funcion sin espacios/caracteres especiales, descripciones indican CUANDO usar la funcion, no solo que hace.
 - [ ] Extraccion de multiples items desde corpus largo (>1 needle) evalua dividir en varias solicitudes en vez de una sola pasada.
