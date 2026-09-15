@@ -27,7 +27,7 @@ function verificarIntegridad(deps) {
   const hallazgos = [];
 
   const detox = runDetox();
-  if (detox.salida && detox.salida.trim()) {
+  if (detox.salida && /purgad/i.test(detox.salida)) {
     hallazgos.push({ bloqueante: false, detalle: detox.salida.trim() });
   }
 
