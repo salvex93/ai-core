@@ -210,10 +210,13 @@ function ensureHostClaude(corePath, hostProjectDir, stackLabels) {
  */
 function ensureHostGitignore(hostProjectDir) {
   const gitignorePath  = path.join(hostProjectDir, '.gitignore');
-  // norm-harness corre DESDE el proyecto anfitrion (hostProjectDir es el padre,
-  // no ai-core) -- detectarSubmodulo() espera la ruta de ai-core y resuelve el
-  // padre relativo a ella, asi que aqui se pasa CORE_PATH, no hostProjectDir.
-  const { esSubmodulo: esSubmoduloReal } = detectarSubmodulo(CORE_PATH);
+  // detectarSubmodulo() espera la ruta de ai-core y resuelve el padre como
+  // resolve(corePath, '..', '..') -- aqui ya tenemos hostProjectDir de forma
+  // directa (parametro de esta funcion), asi que se construye una ruta
+  // sintetica de dos niveles por debajo para que esa resolucion aterrice
+  // exactamente en hostProjectDir. Usar CORE_PATH en su lugar seria incorrecto
+  // en tests (donde hostProjectDir es un tmpdir, no el padre real de ai-core).
+  const { esSubmodulo: esSubmoduloReal } = detectarSubmodulo(path.join(hostProjectDir, 'x', 'x'));
 
   const entradasNuevas = [
     ...(esSubmoduloReal ? [] : ['ai-core/']),
