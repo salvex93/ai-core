@@ -25,6 +25,7 @@
 const { spawnSync } = require('node:child_process');
 const fs   = require('node:fs');
 const path = require('node:path');
+const { detectarSubmodulo } = require('../.claude/bin/lib/submodule-detect');
 
 const REPO      = path.resolve(__dirname, '..');
 const PKG       = path.join(REPO, 'package.json');
@@ -147,12 +148,11 @@ ok(`${resumenMatch ? resumenMatch[1] : 'todos los'} skills conformes con CLAUDE.
 // Si ai-core se ejecuta como submodulo, sincronizar el CLAUDE.md del padre.
 step('6/6 — Verificando si se ejecuta como submodulo (norm-harness)');
 const normHarness = path.join(REPO, '.claude', 'bin', 'norm-harness.js');
-const parentClaude = path.resolve(REPO, '..', '..', 'CLAUDE.md');
-const esSubmodulo  = fs.existsSync(parentClaude) && !fs.existsSync(path.join(REPO, '..', '..', 'package.json'));
+const { esSubmodulo, hostDir } = detectarSubmodulo(REPO);
 
 if (esSubmodulo) {
   info('Ejecutando como submodulo — aplicando norm-harness en proyecto padre...');
-  const norm = run('node', [normHarness], { cwd: path.resolve(REPO, '..', '..'), silent: true });
+  const norm = run('node', [normHarness], { cwd: hostDir, silent: true });
   if (norm.status !== 0) {
     fail('norm-harness.js fallo en el proyecto padre. Revisa el symlink CLAUDE.md manualmente.');
     const normOut = (norm.stdout || '') + (norm.stderr || '');

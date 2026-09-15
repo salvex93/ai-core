@@ -3,6 +3,36 @@
 Registro de cambios por version. Formato basado en [Keep a Changelog](https://keepachangelog.com/es/1.0.0/).
 Versionado semantico: MAJOR.MINOR.PATCH.
 
+## [3.40.0] — 2026-09-15 (wizard interactivo de configuracion: credenciales, integridad del harness, auditoria de providers)
+
+Pedido explicito del usuario: un unico comando interactivo (`npm run wizard`) que reemplace la configuracion manual dispersa de API keys, tokens y validacion de estado del harness, sin fragmentarla en comandos separados.
+
+### Corregido — vigencia del dominio `security-owasp` y asociacion de `ciso` en `MARKET_STANDARDS.json`
+
+Protocolo de Vigencia Tecnologica aplicado sobre el hallazgo `STALE_MERCADO` que `audit-market.js` reportaba para el dominio `security-owasp`. Verificado contra fuente primaria (`genai.owasp.org`, 2026-09-15): existe una edicion OWASP GenAI LLM Top 10 2026, publicada 2026-09-01, con "updated rankings" respecto a la edicion 2025 vigente hasta ahora — la numeracion/nombre exacto de cada categoria de la edicion 2026 (incl. si Prompt Injection sigue siendo LLM01) NO se pudo confirmar contra el documento completo, solo landing pages, asi que ningun skill se migro a identificadores 2026: siguen citando LLM01:2025 Prompt Injection de la edicion 2025, unica confirmada con detalle exacto.
+
+`verified` del dominio actualizado a 2026-09-15 en `MARKET_STANDARDS.json`, con la fuente y la salvedad documentadas explicitamente. Efecto en cascada revisado skill por skill: `security-auditor`, `attack-surface-analyst` y `security-monitoring-soc` sincronizaron `last_updated` (su contenido sobre OWASP LLM Top 10 sigue vigente, solo no se habia tocado desde la re-verificacion del dominio). `ciso` se retiro de la lista de skills del dominio `security-owasp` — su `SKILL.md` no trata OWASP/LLM Top 10 como contenido propio, solo delega explicitamente a `ai-guardrails` ("La tarea es proteger un endpoint LLM contra prompt injection o fuga de PII — usar `ai-guardrails`"); la asociacion previa era incorrecta y generaba drift falso en cada re-verificacion del dominio. Test `audit-market-js.test.js:54` actualizado para filtrar por `ai-guardrails` en vez de `ciso`, con la razon del cambio documentada en el propio test.
+
+Eval de conformidad de `ai-guardrails` (`node .claude/evals/ai-guardrails.promptfooconfig.yaml`) re-verificado de forma aislada: 4/4 casos pasan. 1373 tests (1372 pass, 1 skip), 45/45 skills conformes.
+
+### Agregado — `wizard-credentials.js`: validacion activa de credenciales, no solo formato
+
+`validarProveedorIA()` hace una llamada minima real via `ModelRegistry.chat()` (inyectado, testeable sin red) contra el proveedor cuya API key se esta configurando, en vez de solo chequear longitud/prefijo del string. Mismo criterio para `validarGitHubToken()` (llamada a la API de GitHub). Para SSH, `validarSshHostAlias()` deliberadamente NUNCA lee ni pide la clave privada — solo confirma que el alias ya existe en `~/.ssh/config` y que `ssh-add -L` lo reporta cargado en el agente; solo el alias se persiste en `.env`.
+
+### Agregado — `wizard-provider-audit.js`: auditoria + fix de bypass de `ModelRegistry.js`
+
+Recorre `scripts/` buscando imports directos de `@anthropic-ai/sdk` o `@google/genai` fuera de una lista blanca de 5 archivos que legitimamente son la capa de adapter (`ModelRegistry.js`, `AnthropicAdapter.js`, `GeminiAdapter.js`, `GeminiApiClient.js`, `anthropic-bridge.js`). Cualquier otro archivo que importe un SDK de proveedor directamente es un hallazgo bloqueante — bypasea la jerarquia de costo Gemini -> Haiku -> Sonnet -> Opus declarada en CLAUDE.md.
+
+### Agregado — `wizard-integrity.js`: chequeo de integridad del harness
+
+Corre `detox` (codigo legacy purgado, informativo), `validate-globals` (conformidad de skills, bloqueante), `audit-market --only-stale` (vigencia de mercado, bloqueante), confirma instalacion como submodulo del proyecto anfitrion via `submodule-detect.js`, y compara `package.json` contra la ultima entrada de `CHANGELOG.md` — un desface de version es sintoma real de un paso de cierre de sesion olvidado (ver memoria "Bump de version -> regenerar CONTEXT_MAP").
+
+### Agregado — `wizard.js` + `npm run wizard`: orquestador interactivo de un solo comando
+
+Cinco secciones en orden: API keys de proveedores de IA (Gemini/Anthropic/OpenAI/DeepSeek/Kimi), token de GitHub, alias de host SSH, integridad del harness, auditoria de providers. Cada seccion delega su logica pura a la lib correspondiente; el script solo orquesta prompts de `readline/promises` y lectura/escritura de `.env`. `preguntar()` captura `ERR_USE_AFTER_CLOSE` (stdin llega a EOF con una pregunta pendiente, comportamiento real de `readline/promises` en entornos no interactivos) y lo trata como "omitir" en vez de crashear — encontrado y corregido en verificacion manual end-to-end (`node .claude/bin/wizard.js < /dev/null`), no solo por tests unitarios.
+
+1373 tests (1371 pass, 1 skipped, 1 fail preexistente y no relacionado — mismo hallazgo de `audit-market-js.test.js` en `security-owasp` ya documentado en 3.39.0, aun pendiente de verificacion contra fuente primaria).
+
 ## [3.39.0] — 2026-09-14 (validacion de contenido multi-proveedor en flujo MoA + merge no destructivo de settings.json en norm-harness.js)
 
 Auditoria propia sobre 2 gaps reales: (a) el patron MoA (`ModelDispatcher.js` -> `moa-context-gatherer.js`, hook `UserPromptSubmit`) usaba `Promise.allSettled` solo para aislar fallos HTTP entre proveedores, sin validar la calidad del contenido que si llegaba (documentado como deuda tecnica explicita en el propio codigo); (c) `ensureHostSettings()` en `norm-harness.js` sobreescribia el `.claude/settings.json` completo del proyecto anfitrion sin merge cuando detectaba drift, perdiendo cualquier hook, mcpServer o permiso custom que el anfitrion hubiera agregado a mano.

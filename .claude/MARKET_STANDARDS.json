@@ -16,9 +16,9 @@
       "skills": ["gemini-3-specialist", "ai-integrations", "agent-testing"]
     },
     "security-owasp": {
-      "verified": "2026-07-15",
-      "sources": ["owasp.org (research placeholder — no se confirmo edicion vigente exacta contra fuente primaria en esta pasada, re-verificar antes de citar numero de categoria)"],
-      "skills": ["security-auditor", "attack-surface-analyst", "ai-guardrails", "ciso", "security-monitoring-soc"]
+      "verified": "2026-09-15",
+      "sources": ["genai.owasp.org (confirmado 2026-09-15: existe edicion OWASP GenAI LLM Top 10 2026, publicada 2026-09-01, con 'updated rankings' respecto a la 2025 -- numeracion/nombre exacto de cada categoria, incl. Prompt Injection, NO confirmado contra el documento completo, solo landing pages; los skills de este dominio siguen citando LLM01:2025 Prompt Injection de la edicion 2025, pendiente de re-verificar categoria por categoria antes de migrar cualquier skill a identificadores 2026)"],
+      "skills": ["security-auditor", "attack-surface-analyst", "ai-guardrails", "security-monitoring-soc"]
     },
     "frontend-web-standards": {
       "verified": "2026-07-15",

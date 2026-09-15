@@ -6,6 +6,7 @@ const os = require("os");
 const { version } = require(path.resolve(__dirname, "../../package.json"));
 const { detectStack } = require("./detect-stack");
 const { buildHooksSection } = require("./hooks-definition");
+const { esSubmoduloDeHost } = require("./lib/submodule-detect");
 
 const platform = os.platform();
 const homeDir = os.homedir();
@@ -209,10 +210,7 @@ function ensureHostClaude(corePath, hostProjectDir, stackLabels) {
  */
 function ensureHostGitignore(hostProjectDir) {
   const gitignorePath  = path.join(hostProjectDir, '.gitignore');
-  const gitmodulesPath = path.join(hostProjectDir, '.gitmodules');
-
-  const esSubmoduloReal = fs.existsSync(gitmodulesPath)
-    && /\[submodule\s+"ai-core"\]/.test(fs.readFileSync(gitmodulesPath, 'utf8'));
+  const { esSubmodulo: esSubmoduloReal } = esSubmoduloDeHost(hostProjectDir);
 
   const entradasNuevas = [
     ...(esSubmoduloReal ? [] : ['ai-core/']),
