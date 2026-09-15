@@ -31,8 +31,8 @@
       "skills": ["devops-infra", "release-manager"]
     },
     "rag-llm-eval": {
-      "verified": "2026-07-15",
-      "sources": ["community benchmarks: RAGAS, deepeval, promptfoo (research placeholder — no se confirmo contra fuente primaria en esta pasada)"],
+      "verified": "2026-09-15",
+      "sources": ["docs.ragas.io/en/stable/concepts/metrics/available_metrics/", "deepeval.com/docs/metrics-llm-evals (G-Eval)", "promptfoo.dev/docs/configuration/guide/ (verificado en vivo: estructura prompts/providers/tests, assert llm-rubric/javascript, comando promptfoo eval sin drift)", "docs.cohere.com/docs/rerank (Rerank v3.5, citado por rag-specialist)", "anthropic.com/engineering/contextual-retrieval (citado por rag-specialist)"],
       "skills": ["rag-specialist", "llm-evals", "llm-observability"]
     },
     "data-database-ops": {
