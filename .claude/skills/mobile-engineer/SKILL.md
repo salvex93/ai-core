@@ -123,7 +123,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 }
 ```
 
-Si `pubspec.yaml` incluye `flutter_riverpod`, usar `AsyncNotifier` con `NotifierProvider` (Riverpod 2.x+). `StateNotifierProvider` esta deprecado desde Riverpod 2.0 — migrar a `Notifier`/`AsyncNotifier`.
+Si `pubspec.yaml` incluye `flutter_riverpod`, usar `AsyncNotifier` con `NotifierProvider`. La version stable actual es Riverpod 3.4.3 (verificado 2026-09-15 contra `pub.dev/packages/flutter_riverpod`), major 3.x. La API de `Notifier`/`AsyncNotifier` se mantiene desde 2.x, pero confirmar con `flutter pub outdated` si el proyecto anfitrion sigue en 2.x antes de escribir codigo que asuma mecanismos de code-gen (`riverpod_generator`) o imports especificos de 3.x. `StateNotifierProvider` esta deprecado desde Riverpod 2.0 — migrar a `Notifier`/`AsyncNotifier`.
 
 ### Navegacion con GoRouter
 
