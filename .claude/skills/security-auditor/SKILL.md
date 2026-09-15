@@ -262,7 +262,7 @@ Controles:
 - El sistema valida que la respuesta del LLM sigue el schema esperado antes de ejecutar cualquier accion derivada de ella.
 - Las herramientas (tool_use) que el LLM puede invocar tienen una lista blanca de acciones permitidas. El LLM no puede invocar herramientas fuera de esa lista.
 
-### LLM05 — Manejo Inseguro de Output
+### LLM10 — Manejo Inseguro de Output
 
 El output del LLM se renderiza o ejecuta sin sanitizacion, permitiendo XSS si el output llega al DOM, o inyeccion de comandos si el output alimenta una shell.
 
