@@ -14,7 +14,7 @@ Gobierna el diseno e implementacion de sistemas de audio real-time y Voice AI. G
 
 ## Cuando Activar Este Perfil
 
-- Al disenar una interfaz conversacional con Voice AI (Gemini 3.1 Flash Live API).
+- Al disenar una interfaz conversacional con Voice AI (Gemini 3.8 Live API).
 - Al implementar streaming de audio bidireccional en produccion.
 - Al configurar pipelines speech-to-text / text-to-speech con latencia critica.
 - Al optimizar el uso de ancho de banda en aplicaciones mobile con audio comprimido.
