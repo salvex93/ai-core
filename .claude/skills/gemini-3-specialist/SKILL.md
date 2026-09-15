@@ -262,7 +262,7 @@ Las Reglas Globales definidas en CLAUDE.md aplican sin excepcion. Adicionales:
 - Verificar justificacion documentada antes de fijar `thinking_level: "high"` en un flujo de alto volumen.
 - Asegurar que no se ejecuta: usar Flash-Lite con `thinking_level: "low"` para tareas que requieren razonamiento condicional entre pasos.
 - Verificar medir delta de calidad en un dataset de evaluacion representativo antes de subir de tier.
-- Prohibido usar `gemini-2.0-flash-live-001` o `gemini-2.5-flash-live-preview` — ambos apagados desde 2025-12-09; usar `gemini-3.1-flash-live-preview`.
+- Prohibido usar `gemini-2.0-flash-live-001`, `gemini-2.5-flash-live-preview` o `gemini-3.1-flash-live-preview` — los dos primeros apagados desde 2025-12-09, el tercero deprecado; usar `gemini-3.8-live` (o `gemini-3.8-live-extended-thinking`).
 
 ## Modulo — Vanguardia Transversal en Integracion Gemini 3.x
 
