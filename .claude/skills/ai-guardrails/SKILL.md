@@ -230,8 +230,8 @@ Criterio de adopcion: si el proyecto ya corre en GCP y tiene requisitos de compl
 
 Verificar en orden antes de aprobar un PR que modifica la capa de guardrails:
 
-1. Cobertura: el Input Guard cubre los vectores LLM01 (prompt injection) y LLM10 (consumo ilimitado) del OWASP LLM Top 10.
-2. Cobertura: el Output Guard cubre LLM05 (manejo inseguro de output) y LLM06 (agencia excesiva).
+1. Cobertura: el Input Guard cubre los vectores LLM01 (prompt injection) y LLM06 (consumo ilimitado) del OWASP LLM Top 10.
+2. Cobertura: el Output Guard cubre LLM10 (manejo inseguro de output) y LLM03 (agencia excesiva).
 3. Fallback: si el servicio de guardrails externo no esta disponible, el sistema tiene un comportamiento degradado seguro (bloquear por defecto, no permitir por defecto).
 4. Logs: los eventos de bloqueo se registran sin incluir el contenido sensible completo.
 5. Rate limiting: existe un limite de tokens por solicitud y un presupuesto de tokens por usuario/periodo.
