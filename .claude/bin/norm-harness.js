@@ -244,24 +244,51 @@ function ensureHostGitignore(hostProjectDir) {
 }
 
 /**
+ * Une las entradas de hooks de un mismo evento (ej. PreToolUse) entre el
+ * settings.json existente y el generado, por matcher: si el anfitrion agrego
+ * una entrada con un matcher que ai-core tambien define (ej. "Bash"), ambas
+ * sobreviven como entradas separadas en el array -- Claude Code ejecuta todas
+ * las entradas del array sin importar que compartan matcher, asi que no hace
+ * falta fusionar los hooks dentro de una misma entrada.
+ *
+ * @param {Array<object>} existentes - entradas del anfitrion para este evento
+ * @param {Array<object>} generadas - entradas generadas por ai-core para este evento
+ * @returns {Array<object>} union de ambas, sin duplicar entradas identicas
+ */
+function mergeHookEntries(existentes = [], generadas = []) {
+  const existentesStr = new Set(existentes.map((e) => JSON.stringify(e)));
+  const nuevas = generadas.filter((e) => !existentesStr.has(JSON.stringify(e)));
+  return [...existentes, ...nuevas];
+}
+
+/**
  * Combina el settings.json generado para el anfitrion con lo que el anfitrion
  * ya tenia escrito a mano, sin perder nada custom:
- * - hooks/mcpServers propios del anfitrion sobreviven (el generado solo agrega
+ * - hooks propios del anfitrion sobreviven evento por evento (union de
+ *   entradas, ver mergeHookEntries) -- un reemplazo directo de la clave
+ *   perdia cualquier hook custom del anfitrion en un evento que ai-core
+ *   tambien usa (ej. PreToolUse).
+ * - mcpServers propios del anfitrion sobreviven (el generado solo agrega
  *   claves nuevas, nunca reemplaza el objeto completo).
  * - permissions.allow se une (union de conjuntos), nunca se reemplaza.
- * - el resto de campos generados (skillListingBudgetFraction, hooks de
- *   ai-core) se toman del objeto nuevo, que es la fuente de verdad de la
- *   infraestructura del arnes.
+ * - el resto de campos generados (skillListingBudgetFraction) se toman del
+ *   objeto nuevo, que es la fuente de verdad de la infraestructura del arnes.
  *
  * @param {object} existing - settings.json previo del anfitrion, ya parseado
  * @param {object} generado - resultado de buildSettingsForHost()
  * @returns {object} settings.json final a escribir
  */
 function mergeHostSettings(existing, generado) {
+  const eventosHooks = new Set([...Object.keys(existing.hooks ?? {}), ...Object.keys(generado.hooks ?? {})]);
+  const hooksMerged = {};
+  for (const evento of eventosHooks) {
+    hooksMerged[evento] = mergeHookEntries(existing.hooks?.[evento], generado.hooks?.[evento]);
+  }
+
   return {
     ...generado,
     mcpServers: { ...existing.mcpServers, ...generado.mcpServers },
-    hooks: { ...existing.hooks, ...generado.hooks },
+    hooks: hooksMerged,
     permissions: {
       ...existing.permissions,
       allow: [...new Set([...(existing.permissions?.allow ?? []), ...generado.permissions.allow])],
