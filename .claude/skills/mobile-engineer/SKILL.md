@@ -243,8 +243,10 @@ Offline-first significa que la app funciona con la base de datos local como fuen
 | Herramienta | Cuando usar |
 |---|---|
 | Drift (sobre SQLite) | Esquema relacional, queries complejas, se necesita SQL real y migraciones tipadas |
-| Isar | NoSQL embebido, mayor velocidad en escritura masiva, esquema mas flexible sin relaciones complejas |
+| Isar | NoSQL embebido, mayor velocidad en escritura masiva, esquema mas flexible sin relaciones complejas — advertencia de vigencia abajo antes de elegirlo para un proyecto nuevo |
 | Hive | Cache clave-valor simple, configuracion de usuario, no para el dataset principal sincronizado |
+
+Advertencia de vigencia sobre Isar (verificado 2026-09-15 contra `pub.dev/packages/isar`): el ultimo release estable publicado es 3.1.0+1, de hace aproximadamente 3 anos — no ha llegado a stable ningun major posterior desde entonces, solo existe un prerelease `4.0.0-dev.14` sin fecha de graduacion a stable anunciada. pub.dev lo marca como "activo" (publisher verificado, actividad en el repositorio), pero la ausencia de un release estable nuevo en 3 anos es una señal real de riesgo para un proyecto que recien comienza. Para un proyecto nuevo, evaluar Drift como default mas seguro salvo que el caso de uso justifique especificamente NoSQL embebido; si el proyecto anfitrion ya usa Isar 3.1.0+1 en produccion, no es necesario migrar solo por esto, pero no recomendar Isar sin esta advertencia para una decision nueva.
 
 ### Patron de sincronizacion basico
 
