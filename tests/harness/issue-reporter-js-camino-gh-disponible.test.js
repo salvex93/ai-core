@@ -14,6 +14,13 @@
  * es un binario PE real: una copia de node.exe renombrada a gh.exe, cuyo
  * comportamiento se controla via NODE_OPTIONS=--require <hook>, que
  * intercepta antes de que Node intente resolver argv[1] como script.
+ *
+ * En POSIX (Linux/macOS) el mismo problema no existe -- execFileSync sin
+ * shell busca literalmente `gh` (sin extension) en el PATH, y cualquier
+ * archivo con el bit ejecutable alcanza. Ahi el fake es una copia de
+ * process.execPath nombrada `gh` (no `gh.exe`) con permisos 0o755,
+ * verificado en CI real (ubuntu-latest/macos-latest) tras el fallo del
+ * nombre fijo `gh.exe` heredado del diseño original en Windows.
  */
 
 const { test, describe } = require('node:test');
@@ -27,8 +34,12 @@ const { BIN } = require('./_shared');
 const SCRIPT = path.join(BIN, 'issue-reporter.js');
 
 function crearFakeGh(dir) {
-  const ghExe = path.join(dir, 'gh.exe');
+  const nombreGh = process.platform === 'win32' ? 'gh.exe' : 'gh';
+  const ghExe = path.join(dir, nombreGh);
   fs.copyFileSync(process.execPath, ghExe);
+  if (process.platform !== 'win32') {
+    fs.chmodSync(ghExe, 0o755);
+  }
 
   const hookScript = path.join(dir, 'fake-gh-hook.js');
   fs.writeFileSync(hookScript, `
@@ -36,9 +47,10 @@ function crearFakeGh(dir) {
 const fs = require('fs');
 
 // NODE_OPTIONS se hereda tambien al proceso principal (node issue-reporter.js),
-// que no es gh.exe -- sin este guard, el hook interferiria con el propio script
-// bajo prueba y lo terminaria antes de que arranque.
-if (!process.execPath.toLowerCase().endsWith('gh.exe')) {
+// que no es el binario gh -- sin este guard, el hook interferiria con el
+// propio script bajo prueba y lo terminaria antes de que arranque.
+const nombreBinario = ${JSON.stringify(nombreGh)}.toLowerCase();
+if (!process.execPath.toLowerCase().endsWith(nombreBinario)) {
   module.exports = {};
   return;
 }
