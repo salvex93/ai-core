@@ -21,7 +21,7 @@ Bloqueador real encontrado y resuelto: un fake `gh.cmd`/`gh.bat` antepuesto al `
 
 Agregado `tests/harness/issue-reporter-js-camino-gh-disponible.test.js` (7 casos) con un fake binario PE real: una copia de `process.execPath` (el propio `node.exe`) renombrada a `gh.exe`, cuyo comportamiento se controla via `NODE_OPTIONS=--require <hook>` — el `--require` intercepta antes de que Node intente resolver `argv[1]` como ruta de script. El hook reconstruye los argumentos reales concatenados en `argv[1]` (`cwd + primerArgumento`) y responde segun variables de entorno (`FAKE_GH_MODE`, `FAKE_GH_TITULOS_ABIERTOS`, `FAKE_GH_ULTIMO_BODY_FILE_OUT`). Como `NODE_OPTIONS` se hereda tambien al proceso principal que ejecuta `issue-reporter.js` (no solo al `gh.exe` fake que este invoca), el hook incluye un guard (`process.execPath` debe terminar en `gh.exe`) para no interceptar y terminar el propio script bajo prueba.
 
-`issue-reporter.js` paso a **98.68% linea / 100.00% rama / 100% funcion**. Suite completa: 1412 tests, 1411 pass, 0 fail, 1 skip (esperado).
+`issue-reporter.js` quedo en **98.68% linea / 70.00% rama / 100% funcion** (lineas 75-76 y 196-197 sin cubrir — ramas de error especificas de bajo riesgo, no bloqueantes para produccion). Suite completa: 1412 tests, 1411 pass, 0 fail, 1 skip (esperado).
 
 ### Agregado — test dedicado para `SubagentGrader.js` (cobertura de rama)
 
