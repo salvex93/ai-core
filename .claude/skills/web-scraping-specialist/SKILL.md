@@ -2,8 +2,8 @@
 name: web-scraping-specialist
 description: Especialista en extraccion de datos desde plataformas web y aplicaciones retail. Herramientas 2026: Stagehand (IA-nativo), browser-use (Python/LLM-driven), Crawlee (Node.js profesional), Browserbase (headless cloud), Camoufox, curl-cffi. Estrategias por proveedor anti-bot: Cloudflare, Datadome, Imperva, PerimeterX. Session state pooling, storage state reutilizable, OCR con Google Vision y Tesseract, rotacion de proxies residenciales. Activa al extraer datos de plataformas sin API oficial, construir monitores de precios, implementar pipelines OCR, o disenar scrapers resilientes con evasion avanzada.
 origin: ai-core
-version: 2.1.2
-last_updated: 2026-09-15
+version: 2.1.3
+last_updated: 2026-09-16
 rol: architect
 compatibility: Requiere las herramientas de scraping configuradas (Stagehand, Playwright, browser-use u otras) y conectividad de red hacia los sitios objetivo.
 ---
@@ -989,7 +989,7 @@ Un pipeline de scraping que no cumple estos umbrales se rechaza, sin importar qu
 
 Camoufox: reverificado 2026-09-15 contra `github.com/daijro/camoufox/releases` — release mas reciente es v152.0.4-beta.30 (1 septiembre 2026), no v146.0.1-beta.25 (enero 2026, dato ya obsoleto). El numero base de Firefox tambien subio de 146 a 152, no es solo un bump de beta. Desarrollo activo confirmado (releases mensuales). Sigue siendo un fork de Firefox que parchea a nivel C++ (no inyeccion JS), por lo que continua siendo la opcion recomendada contra fingerprinting JS profundo — pero el estado "beta" implica verificar estabilidad antes de comprometerlo a un pipeline critico de produccion.
 
-Cloudflare Turnstile: reverificado 2026-09-15 contra `developers.cloudflare.com/turnstile` — confirma que el widget opera en tres modos oficiales (Managed, Non-Interactive, Invisible) y que la validacion server-side contra la API `siteverify` es obligatoria — el widget del lado del cliente por si solo no protege nada. La duracion de 5 minutos del token NO aparecio en la pagina de overview consultada en esta pasada — queda como dato NO REVERIFICADO (heredado de una pasada anterior), no confirmar como vigente sin consultar la referencia tecnica especifica del token antes de comprometerlo a codigo de produccion.
+Cloudflare Turnstile: reverificado 2026-09-15 contra `developers.cloudflare.com/turnstile` — confirma que el widget opera en tres modos oficiales (Managed, Non-Interactive, Invisible) y que la validacion server-side contra la API `siteverify` es obligatoria — el widget del lado del cliente por si solo no protege nada. Duracion del token confirmada 2026-09-16 contra la referencia tecnica especifica `developers.cloudflare.com/turnstile/get-started/server-side-validation/` (la pagina de overview no lo cubre, por eso no aparecio en la pasada anterior): **300 segundos (5 minutos) desde su generacion**, de un solo uso — si expira o se reintenta un token ya usado, `siteverify` responde con el error `timeout-or-duplicate`. El dato de 5 minutos ya presente en el skill queda confirmado como vigente.
 
 Patchright: reverificado 2026-09-15 contra `github.com/Kaliiiiiiiiii-Vinyzu/patchright` — proyecto activo (deploy de versiones automatico), valida exitosamente contra Cloudflare, Kasada, Akamai, Shape/F5, Datadome y Fingerprint.com. Limitacion real confirmada en el propio README: "Patchright only patches CHROMIUM based browsers. Firefox and Webkit are not supported" — no usarlo como alternativa de stealth si el pipeline requiere Firefox/Webkit, en ese caso Camoufox (fork de Firefox) sigue siendo la opcion correcta.
 

@@ -3,6 +3,12 @@
 Registro de cambios por version. Formato basado en [Keep a Changelog](https://keepachangelog.com/es/1.0.0/).
 Versionado semantico: MAJOR.MINOR.PATCH.
 
+## [Unreleased] — vigencia token Turnstile (web-scraping-specialist)
+
+### Corregido — duracion del token de Cloudflare Turnstile confirmada como vigente
+
+La reverificacion de 2026-09-15 contra `developers.cloudflare.com/turnstile` (pagina de overview) confirmo el modelo de tres modos del widget pero dejo explicitamente sin confirmar la duracion de 5 minutos del token, heredada de una pasada anterior sin fuente especifica. Verificado 2026-09-16 contra la referencia tecnica exacta `developers.cloudflare.com/turnstile/get-started/server-side-validation/`: el token tiene validez de **300 segundos (5 minutos) desde su generacion**, es de un solo uso, y expira con el codigo de error `timeout-or-duplicate` en la respuesta de la API `siteverify`. El dato ya presente en el skill queda confirmado como vigente, no como drift.
+
 ## [Unreleased] — vigencia specs Meta Ads (seo-sem-specialist)
 
 ### Corregido — 3 puntos pendientes de verificacion en especificaciones de creatividades Meta Ads
