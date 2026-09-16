@@ -35,6 +35,14 @@ function crearFakeGh(dir) {
 'use strict';
 const fs = require('fs');
 
+// NODE_OPTIONS se hereda tambien al proceso principal (node issue-reporter.js),
+// que no es gh.exe -- sin este guard, el hook interferiria con el propio script
+// bajo prueba y lo terminaria antes de que arranque.
+if (!process.execPath.toLowerCase().endsWith('gh.exe')) {
+  module.exports = {};
+  return;
+}
+
 const crudo = process.argv[1];
 const cwd = process.cwd();
 let primerArg = crudo.slice(cwd.length).replace(/^[\\\\/]+/, '');
