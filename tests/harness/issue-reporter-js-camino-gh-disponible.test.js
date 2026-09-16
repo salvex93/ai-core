@@ -14,6 +14,13 @@
  * es un binario PE real: una copia de node.exe renombrada a gh.exe, cuyo
  * comportamiento se controla via NODE_OPTIONS=--require <hook>, que
  * intercepta antes de que Node intente resolver argv[1] como script.
+ *
+ * En POSIX (Linux/macOS) el mismo problema no existe -- execFileSync sin
+ * shell busca literalmente `gh` (sin extension) en el PATH, y cualquier
+ * archivo con el bit ejecutable alcanza. Ahi el fake es una copia de
+ * process.execPath nombrada `gh` (no `gh.exe`) con permisos 0o755,
+ * verificado en CI real (ubuntu-latest/macos-latest) tras el fallo del
+ * nombre fijo `gh.exe` heredado del diseño original en Windows.
  */
 
 const { test, describe } = require('node:test');
