@@ -3,10 +3,17 @@
 /**
  * issue-reporter-js-camino-gh-disponible.test.js — cubre el camino con `gh`
  * CLI disponible, ausente en issue-reporter-js.test.js (que solo ejercita
- * PATH vacio / gh no disponible). Se simula `gh` con un fake ejecutable
- * (gh.cmd en Windows, gh en POSIX) antepuesto al PATH, controlado por
- * variables de entorno para decidir la respuesta de cada subcomando
- * (auth status, issue list, issue create).
+ * PATH vacio / gh no disponible). issue-reporter.js invoca `gh` via
+ * execFileSync/execSync SIN shell (deliberado, ver comentario junto a
+ * openIssue() -- inmune a inyeccion de comandos), asi que un fake `gh.cmd`
+ * o `gh.bat` antepuesto al PATH nunca se resuelve en Windows: Node v24
+ * spawnSync/execFileSync sin shell:true solo invoca binarios PE (.exe/.com)
+ * directamente y prioriza el gh.exe real del sistema sin importar el orden
+ * del PATH (confirmado por experimentacion -- where.exe si resuelve el
+ * fake primero, pero el resolver interno de Node no). Por eso el fake aqui
+ * es un binario PE real: una copia de node.exe renombrada a gh.exe, cuyo
+ * comportamiento se controla via NODE_OPTIONS=--require <hook>, que
+ * intercepta antes de que Node intente resolver argv[1] como script.
  */
 
 const { test, describe } = require('node:test');
@@ -18,13 +25,21 @@ const { spawnSync } = require('node:child_process');
 const { BIN } = require('./_shared');
 
 const SCRIPT = path.join(BIN, 'issue-reporter.js');
-const ES_WINDOWS = process.platform === 'win32';
 
 function crearFakeGh(dir) {
-  const scriptFakeGh = path.join(dir, 'fake-gh.js');
-  fs.writeFileSync(scriptFakeGh, `
+  const ghExe = path.join(dir, 'gh.exe');
+  fs.copyFileSync(process.execPath, ghExe);
+
+  const hookScript = path.join(dir, 'fake-gh-hook.js');
+  fs.writeFileSync(hookScript, `
 'use strict';
-const args = process.argv.slice(2);
+const fs = require('fs');
+
+const crudo = process.argv[1];
+const cwd = process.cwd();
+let primerArg = crudo.slice(cwd.length).replace(/^[\\\\/]+/, '');
+const args = [primerArg, ...process.argv.slice(2)];
+
 const modo = process.env.FAKE_GH_MODE || 'ok';
 
 if (args[0] === 'auth' && args[1] === 'status') {
@@ -44,8 +59,10 @@ if (args[0] === 'issue' && args[1] === 'create') {
   }
   const bodyFileIdx = args.indexOf('--body-file');
   const bodyFile = args[bodyFileIdx + 1];
-  const bodyContenido = require('fs').readFileSync(bodyFile, 'utf8');
-  process.env.FAKE_GH_ULTIMO_BODY_FILE_OUT && require('fs').writeFileSync(process.env.FAKE_GH_ULTIMO_BODY_FILE_OUT, bodyContenido, 'utf8');
+  const bodyContenido = fs.readFileSync(bodyFile, 'utf8');
+  if (process.env.FAKE_GH_ULTIMO_BODY_FILE_OUT) {
+    fs.writeFileSync(process.env.FAKE_GH_ULTIMO_BODY_FILE_OUT, bodyContenido, 'utf8');
+  }
   process.stdout.write('https://github.com/salvex93/ai-core/issues/999\\n');
   process.exit(0);
 }
@@ -53,15 +70,7 @@ if (args[0] === 'issue' && args[1] === 'create') {
 process.exit(1);
 `, 'utf8');
 
-  if (ES_WINDOWS) {
-    const ghCmd = path.join(dir, 'gh.cmd');
-    fs.writeFileSync(ghCmd, `@echo off\r\nnode "${scriptFakeGh}" %*\r\n`, 'utf8');
-  } else {
-    const ghSh = path.join(dir, 'gh');
-    fs.writeFileSync(ghSh, `#!/bin/sh\nexec node "${scriptFakeGh}" "$@"\n`, 'utf8');
-    fs.chmodSync(ghSh, 0o755);
-  }
-  return dir;
+  return { ghExe, hookScript };
 }
 
 function crearCola(eventos) {
@@ -73,13 +82,14 @@ function crearCola(eventos) {
 
 function correr(queuePath, envExtra = {}) {
   const dirFakeGh = fs.mkdtempSync(path.join(os.tmpdir(), 'issue-reporter-fakebin-'));
-  crearFakeGh(dirFakeGh);
+  const { hookScript } = crearFakeGh(dirFakeGh);
   const r = spawnSync(process.execPath, [SCRIPT], {
     encoding: 'utf8',
     env: {
       ...process.env,
       AI_CORE_EVENTS_QUEUE_PATH: queuePath,
       PATH: `${dirFakeGh}${path.delimiter}${process.env.PATH || ''}`,
+      NODE_OPTIONS: `--require ${JSON.stringify(hookScript)}`,
       ...envExtra,
     },
   });
