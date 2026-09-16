@@ -13,6 +13,16 @@ Versionado semantico: MAJOR.MINOR.PATCH.
 
 Suite completa tras ambos cierres: 1405 tests, 1404 pass, 0 fail, 1 skip (esperado).
 
+### Agregado — cobertura del camino "gh CLI disponible" en `issue-reporter.js`
+
+`issue-reporter.js` (98.68% linea / 70.00% rama / 100% funcion antes de este cierre) solo tenia cobertura del camino "gh no disponible" (`issue-reporter-js.test.js`, PATH vacio) — el camino real de exito (autenticacion, listado de issues abiertos para deduplicar por titulo, creacion via `--body-file`, purga de eventos reportados con mas de 7 dias) no tenia ningun test, porque `gh` se invoca deliberadamente sin shell (`execFileSync`/`execSync` con array de argumentos, inmune a inyeccion de comandos — decision de seguridad documentada inline junto a `openIssue()`, no se toco).
+
+Bloqueador real encontrado y resuelto: un fake `gh.cmd`/`gh.bat` antepuesto al `PATH` nunca se resuelve en Windows bajo Node v24 — `execFileSync`/`spawnSync` sin `shell:true` solo invocan binarios PE reales (`.exe`/`.com`) directamente, y priorizan el `gh.exe` real del sistema sin importar el orden del `PATH` (confirmado por experimentacion: `where.exe` si resuelve el fake primero, pero el resolver interno de Node no; invocar el `.cmd`/`.bat` por ruta absoluta produce `EINVAL`). `shell:true` si lo resolveria, pero no aplica porque `issue-reporter.js` no usa shell por diseño.
+
+Agregado `tests/harness/issue-reporter-js-camino-gh-disponible.test.js` (7 casos) con un fake binario PE real: una copia de `process.execPath` (el propio `node.exe`) renombrada a `gh.exe`, cuyo comportamiento se controla via `NODE_OPTIONS=--require <hook>` — el `--require` intercepta antes de que Node intente resolver `argv[1]` como ruta de script. El hook reconstruye los argumentos reales concatenados en `argv[1]` (`cwd + primerArgumento`) y responde segun variables de entorno (`FAKE_GH_MODE`, `FAKE_GH_TITULOS_ABIERTOS`, `FAKE_GH_ULTIMO_BODY_FILE_OUT`). Como `NODE_OPTIONS` se hereda tambien al proceso principal que ejecuta `issue-reporter.js` (no solo al `gh.exe` fake que este invoca), el hook incluye un guard (`process.execPath` debe terminar en `gh.exe`) para no interceptar y terminar el propio script bajo prueba.
+
+`issue-reporter.js` paso a **98.68% linea / 100.00% rama / 100% funcion**. Suite completa: 1412 tests, 1411 pass, 0 fail, 1 skip (esperado).
+
 ### Agregado — test dedicado para `SubagentGrader.js` (cobertura de rama)
 
 `SubagentGrader.js` (LLM-as-judge de output de subagentes, "Performance Outcomes" del Claude Agent SDK) no tenia ningun test propio — el test existente del hook `subagent-grader.js` solo ejercia inputs triviales via `spawnSync`, nunca las ramas reales de `calificar()`. Agregado `tests/harness/subagentgrader-js-calificacion-de-subagentes.test.js` (16 casos) cubriendo `calificar`, `parsearGrado`, `seleccionarJuez` y `construirPromptSistema`, incluyendo fallo cerrado (score 0) cuando el juez responde JSON no parseable.
