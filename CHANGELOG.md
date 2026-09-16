@@ -3,6 +3,16 @@
 Registro de cambios por version. Formato basado en [Keep a Changelog](https://keepachangelog.com/es/1.0.0/).
 Versionado semantico: MAJOR.MINOR.PATCH.
 
+## [Unreleased] — vigencia specs Meta Ads (seo-sem-specialist)
+
+### Corregido — 3 puntos pendientes de verificacion en especificaciones de creatividades Meta Ads
+
+Cierra los 3 puntos que la verificacion parcial de 2026-09-15 dejo explicitamente sin confirmar en `seo-sem-specialist/SKILL.md` (Modulo 4). Contra fuente oficial (`facebook.com/business/ads-guide/image`, `/ads-guide/update/image/instagram-reels`, `/ads-guide/update/video/instagram-reels`, Meta Business Help):
+
+1. Feed imagen cambio su resolucion/relacion primaria de 1080x1080 (1:1) a **1440x1800 (4:5)** — drift real, tabla del Modulo 4 corregida.
+2. Stories/Reels (imagen y video) confirmado en **1440x2560px, 9:16**; imagen hasta 30MB, video hasta 4GB con duracion permitida 0s-15min; zona segura 14% superior / 35% inferior / 6% cada lado (reemplaza el dato generico de "zona segura central 250px").
+3. La regla de "texto en imagen < 20%" **no es politica de rechazo desde 2020** — Meta la retiro como limite obligatorio; hoy es solo recomendacion de rendimiento. Corregido en la tabla para no presentarla como bloqueo frente a un cliente.
+
 ## [Unreleased] — vigencia de dominios de mercado STALE_MERCADO (barrido completo)
 
 ### Agregado — cobertura de rama para `GeminiAdapter.js` y `McpServerHandlers.js`
