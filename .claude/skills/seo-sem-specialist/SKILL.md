@@ -327,10 +327,10 @@ Campana (Objetivo: Conversiones / Leads / Trafico)
 
 | Formato | Resolucion | Relacion | Peso maximo | Texto en imagen |
 |---|---|---|---|---|
-| Feed imagen | 1080x1080px | 1:1 | 30MB | < 20% del area |
+| Feed imagen | 1440x1800px | 4:5 | 30MB | Recomendado, no obligatorio (ver nota) |
 | Feed video | 1080x1080px | 1:1 | 4GB | Subtitulos opcionales pero recomendados |
-| Stories/Reels imagen | 1080x1920px | 9:16 | 30MB | Zona segura central 250px |
-| Stories/Reels video | 1080x1920px | 9:16 | 4GB | 15-30s optimo |
+| Stories/Reels imagen | 1440x2560px | 9:16 | 30MB | Zona segura: 14% superior, 35% inferior, 6% cada lado |
+| Stories/Reels video | 1440x2560px | 9:16 | 4GB | Duracion permitida 0s-15min |
 | Carrusel | 1080x1080px | 1:1 | 30MB por card | 2-10 cards |
 
 ### Framework de copy para anuncios
