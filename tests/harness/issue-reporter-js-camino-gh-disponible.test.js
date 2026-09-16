@@ -34,8 +34,12 @@ const { BIN } = require('./_shared');
 const SCRIPT = path.join(BIN, 'issue-reporter.js');
 
 function crearFakeGh(dir) {
-  const ghExe = path.join(dir, 'gh.exe');
+  const nombreGh = process.platform === 'win32' ? 'gh.exe' : 'gh';
+  const ghExe = path.join(dir, nombreGh);
   fs.copyFileSync(process.execPath, ghExe);
+  if (process.platform !== 'win32') {
+    fs.chmodSync(ghExe, 0o755);
+  }
 
   const hookScript = path.join(dir, 'fake-gh-hook.js');
   fs.writeFileSync(hookScript, `
@@ -43,9 +47,10 @@ function crearFakeGh(dir) {
 const fs = require('fs');
 
 // NODE_OPTIONS se hereda tambien al proceso principal (node issue-reporter.js),
-// que no es gh.exe -- sin este guard, el hook interferiria con el propio script
-// bajo prueba y lo terminaria antes de que arranque.
-if (!process.execPath.toLowerCase().endsWith('gh.exe')) {
+// que no es el binario gh -- sin este guard, el hook interferiria con el
+// propio script bajo prueba y lo terminaria antes de que arranque.
+const nombreBinario = ${JSON.stringify(nombreGh)}.toLowerCase();
+if (!process.execPath.toLowerCase().endsWith(nombreBinario)) {
   module.exports = {};
   return;
 }
