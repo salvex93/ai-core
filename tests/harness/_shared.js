@@ -8,6 +8,7 @@
 const path = require('node:path');
 const fs   = require('node:fs');
 const os   = require('node:os');
+const crypto = require('node:crypto');
 const { spawnSync } = require('node:child_process');
 
 const REPO     = path.resolve(__dirname, '..', '..');
