@@ -3,6 +3,14 @@
 Registro de cambios por version. Formato basado en [Keep a Changelog](https://keepachangelog.com/es/1.0.0/).
 Versionado semantico: MAJOR.MINOR.PATCH.
 
+## [Unreleased] — fix de CI en POSIX para el fake gh de issue-reporter
+
+### Corregido — fake `gh` CLI solo se activaba en Windows
+
+`tests/harness/issue-reporter-js-camino-gh-disponible.test.js` (agregado en la entrada de cobertura de `issue-reporter.js` de esta misma seccion) fue disenado y validado unicamente en Windows: el fake binario se creaba siempre como `gh.exe`, nombre fijo que nunca se ejecuto en CI real hasta el primer push. En `ubuntu-latest`/`macos-latest`, `execFileSync('gh', ...)` sin shell busca el nombre exacto `gh` (sin extension) en el `PATH` — jamas encuentra `gh.exe` — asi que el fake nunca se activaba y 5 de 7 subtests fallaban, cayendo siempre al mensaje real de "gh CLI no disponible".
+
+Corregido parametrizando el nombre del binario segun `process.platform` (`gh.exe` en Windows, `gh` en POSIX con `fs.chmodSync(ghExe, 0o755)` para marcarlo ejecutable) y ajustando el guard del hook script generado dinamicamente para comparar contra ese mismo nombre en vez de un literal hardcodeado. Confirmado verde en CI real (`ubuntu-latest` y `macos-latest`) tras el push. No se modifico `issue-reporter.js` — el bug era del arnes de test, no del script en produccion.
+
 ## [Unreleased] — vigencia token Turnstile (web-scraping-specialist)
 
 ### Corregido — duracion del token de Cloudflare Turnstile confirmada como vigente
