@@ -182,6 +182,20 @@ npm run eval-skills                       # correr los 43 evals de conformidad d
 
 ## Que trae cada version
 
+### v3.40.1 — barrido completo de vigencia de mercado
+
+Cierre de todos los hallazgos `STALE`/`DRIFT` pendientes en `MARKET_STANDARDS.json`: numeracion OWASP LLM Top 10 2026 corregida (mapeo cruzado real en `ai-guardrails` y `security-auditor`), specs de Meta Ads actualizadas (feed 1440x1800 4:5, Stories/Reels zona segura real 14%/35%/6%, regla de texto <20% retirada por Meta desde 2020), y duracion del token Turnstile confirmada contra la referencia tecnica exacta (300s, un solo uso). No quedan pendientes de vigencia externa conocidos.
+
+### v3.40.0 — wizard interactivo de configuracion
+
+`npm run wizard` consolida en un solo comando interactivo la configuracion de API keys (con validacion activa via `ModelRegistry`, no solo formato), token de GitHub, alias de host SSH (nunca lee la clave privada), chequeo de integridad del harness y auditoria de bypass de `ModelRegistry.js`. Corregido ademas el hallazgo `STALE_MERCADO` de OWASP GenAI LLM Top 10 2026 (numeracion confirmada en v3.40.1).
+
+### v3.39.0 — validacion de contenido MoA y merge no destructivo en norm-harness
+
+`moa-context-gatherer.js`: el fan-in de Gemini/DeepSeek podia escribir contenido vacio o solo whitespace como si fuera un resultado util. Ahora valida antes de escribir, marca el archivo como contenido externo no confiable (regla 11 del ANCLA) y registra fallos parciales en vez de ocultarlos.
+
+`norm-harness.js`: `ensureHostSettings()` sobrescribia `settings.json` completo del proyecto anfitrion sin merge, perdiendo hooks/mcpServers/permissions custom del anfitrion en cada drift detectado. Ahora hace merge no destructivo por entrada y crea backup `.bak` antes de escribir.
+
 ### v3.38.0 — 4 principios de campo del harness oficial de Anthropic para deteccion autonoma
 
 Evaluacion de `github.com/anthropics/defending-code-reference-harness` y del ecosistema de skills de ciberseguridad (verificado 2026-09-02). Descartado: clonar el harness completo de Docker/gVisor (infra pesada sin caso de uso aqui), los catalogos comunitarios de cientos de skills (ruido), y replicar `/security-review` (ya nativo en Claude Code). Adoptados 4 principios de campo de `docs/best-practices.md`, integrados donde ya habia enforcement:
