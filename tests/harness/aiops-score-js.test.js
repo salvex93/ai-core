@@ -87,13 +87,14 @@ describe('aiops-score.js', () => {
   });
 
   test('corrida normal: gate de verbosidad compacta cuando el score es estable', () => {
-    // Historial aislado via AI_CORE_SCORE_HISTORY_PATH -- sin esto, la
-    // comparacion "estable" corre contra .claude/AIOPS_SCORE_HISTORY.json
-    // real, que puede arrastrar una entrada con detalles (ej. drift) de una
-    // corrida anterior ajena a este test y romper la asercion de forma
-    // intermitente.
+    // Historial y cola de eventos aislados -- sin esto, la comparacion
+    // "estable" corre contra AIOPS_SCORE_HISTORY.json y EVENTS_QUEUE.json
+    // reales, que pueden arrastrar una entrada con detalles (ej. drift, o
+    // eventos pendientes reales del harness) ajena a este test y romper la
+    // asercion de forma intermitente.
     const historyPath = tmpFile('[]');
-    const env = { AI_CORE_SCORE_HISTORY_PATH: historyPath };
+    const queuePath = path.join(os.tmpdir(), `harness-test-queue-vacia-${Date.now()}.json`);
+    const env = { AI_CORE_SCORE_HISTORY_PATH: historyPath, AI_CORE_EVENTS_QUEUE_PATH: queuePath };
     runScript(SCRIPT, [], env); // primera corrida establece linea base
     const r = runScript(SCRIPT, [], env); // segunda corrida: estable, sin detalles
     assert.ok(r.stdout.includes('[AIOPS-SCORE]'), 'debe incluir linea de score');
