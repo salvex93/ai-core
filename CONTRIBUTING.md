@@ -74,7 +74,7 @@ El servidor MCP expone 5 herramientas que Claude Code usa automaticamente. Tambi
 | `resumir_backlog` | Parsear y priorizar `BACKLOG.md` | Siempre |
 | `buscar_web` | Busqueda web con Google Search grounding | Siempre |
 
-Estas herramientas usan **Gemini 2.5 Flash (tier 0 gratuito)** como primera opcion. Si Gemini falla por cuota o error de conexion, el sistema escala automaticamente al modelo Claude del tier inmediatamente superior.
+Estas herramientas usan **Gemini 3.5 Flash-Lite / 3.7 Flash (tier 0 gratuito)** como primera opcion, segun la jerarquia de costo de `CLAUDE.md`. Si Gemini falla por cuota o error de conexion, el sistema escala automaticamente al modelo Claude del tier inmediatamente superior. `analizar_archivo` y `buscar_web` tienen enforcement real via hooks `PreToolUse` (`guard-read.js`, `web-search-guard.js`) que bloquean la herramienta nativa equivalente cuando Gemini esta disponible.
 
 ---
 
