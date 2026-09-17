@@ -94,7 +94,7 @@ describe('aiops-score.js', () => {
     // eventos pendientes reales del harness) ajena a este test y romper la
     // asercion de forma intermitente.
     const historyPath = tmpFile('[]');
-    const queuePath = path.join(os.tmpdir(), `harness-test-queue-vacia-${Date.now()}.json`);
+    const queuePath = path.join(os.tmpdir(), `harness-test-queue-vacia-${Date.now()}-${crypto.randomBytes(4).toString('hex')}.json`);
     const env = { AI_CORE_SCORE_HISTORY_PATH: historyPath, AI_CORE_EVENTS_QUEUE_PATH: queuePath };
     runScript(SCRIPT, [], env); // primera corrida establece linea base
     const r = runScript(SCRIPT, [], env); // segunda corrida: estable, sin detalles
