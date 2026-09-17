@@ -167,9 +167,10 @@ origin: ai-core
    - **Directiva de Interrupcion** — cuando debe detenerse y pedir confirmacion
    - **Restricciones del Perfil** — que esta prohibido hacer en este rol
 
-4. Actualizar `CLAUDE.md`: agregar el skill a la tabla de seleccion automatica y a la lista de skills disponibles.
-5. Actualizar `README.md`: agregar fila en la tabla Auto-Routing con palabras clave y modelo base.
-6. Commit y push siguiendo las convenciones.
+4. Evaluar si el skill cumple los 3 criterios de agente (autonomia real, salida estructurada, recurrente) — si los cumple, crear tambien el `AGENT.md` correspondiente en `.claude/agents/`.
+5. Ejecutar `npm run validate-globals` para confirmar conformidad del skill nuevo con `CLAUDE.md`.
+6. Actualizar `README.md` si aplica (tabla de skills, arbol de directorios).
+7. Commit y push siguiendo las convenciones.
 
 ---
 
