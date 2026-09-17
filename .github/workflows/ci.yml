@@ -134,11 +134,31 @@ jobs:
           sleep 30
           node .claude/evals/runner.js .claude/evals/backend-architect.promptfooconfig.yaml
 
+  audit-market-semanal:
+    name: Vigencia de mercado (semanal)
+    if: github.event_name == 'schedule'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Setup Node.js 22
+        uses: actions/setup-node@v7
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Instalar dependencias
+        run: npm install
+
+      - name: Auditar vigencia (solo reporta hallazgos, no bloquea)
+        run: node .claude/bin/audit-market.js --only-stale
+
   summary:
     name: Resumen de CI
     needs: test
     runs-on: ubuntu-latest
-    if: always()
+    if: always() && github.event_name != 'schedule'
     steps:
       - name: Estado final
         run: |
