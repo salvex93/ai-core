@@ -1,4 +1,4 @@
-# AI-CORE v3.38.0: Nucleo Multi-Agente
+# AI-CORE v3.40.1: Nucleo Multi-Agente
 
 `ai-core` es un nucleo de configuracion y comportamiento para agentes IA. Se usa como submodulo Git en un proyecto existente o como repositorio independiente. Define reglas globales, 45 skills especializados, 6 agentes autonomos, un orquestador Mixture-of-Agents (Gemini + DeepSeek + Claude), un mecanismo de excepcion auditable (break-glass) para operaciones de riesgo real, y un ciclo de mejora continua por uso, sin acoplarse al stack del proyecto anfitrion.
 
@@ -36,7 +36,7 @@ npm install
 npm run setup    # adapta settings.json a tu ruta exacta (cross-platform)
 
 # 3. Verificar que todo funciona
-npm test         # debe terminar: 1320 pass, 1 skipped, 0 fail
+npm test         # debe terminar: 1411 pass, 1 skipped, 0 fail
 
 # 4. Autenticar gh CLI para el issue-tracker (una sola vez por maquina)
 gh auth login    # GitHub.com -> HTTPS -> Login with a web browser
@@ -84,7 +84,7 @@ Repositorio independiente:
 npm run update
 ```
 
-Esto corre `git pull`, regenera `settings.json` (purga automaticamente cualquier hook de una version anterior que referencie un script eliminado o renombrado — el objeto de hooks se construye desde cero y sobreescribe el archivo completo, nunca mergea, con la definicion compartida en `hooks-definition.js`), corre los 1321 tests, aplica migraciones de version, valida los 45 skills y los 6 agentes, y reporta que cambio. Si un test falla, el comando se detiene ahi.
+Esto corre `git pull`, regenera `settings.json` (purga automaticamente cualquier hook de una version anterior que referencie un script eliminado o renombrado — el objeto de hooks se construye desde cero y sobreescribe el archivo completo, nunca mergea, con la definicion compartida en `hooks-definition.js`), corre los 1412 tests, aplica migraciones de version, valida los 45 skills y los 6 agentes, y reporta que cambio. Si un test falla, el comando se detiene ahi.
 
 Instalado como submodulo:
 
@@ -152,7 +152,7 @@ Si no esta autenticado, los eventos se acumulan en `.claude/EVENTS_QUEUE.json` y
 
 ```bash
 npm install                               # instalar dependencias (corre postinstall -> npm run setup)
-npm test                                  # 1321 tests, Node nativo, sin deps externas
+npm test                                  # 1412 tests, Node nativo, sin deps externas
 npm run setup                             # regenerar settings.json con rutas locales (ya corre solo via postinstall)
 npm run update                            # actualizacion one-command desde GitHub
 npm run validate-globals                  # auditar conformidad de los 45 skills (incluye schema agentskills.io)
@@ -181,6 +181,22 @@ npm run eval-skills                       # correr los 43 evals de conformidad d
 ---
 
 ## Que trae cada version
+
+### v3.40.1 — fix de CI en POSIX + barrido completo de vigencia de mercado
+
+El fake `gh` CLI usado en `issue-reporter-js-camino-gh-disponible.test.js` se creaba siempre como `gh.exe`, nombre que `execFileSync` sin shell nunca busca en Linux/macOS (ahi resuelve el nombre exacto `gh`, sin extension). Esto rompio CI en `ubuntu-latest` y `macos-latest` tras el push que agrego el test -- el fake nunca se activaba y 5/7 subtests fallaban. Fix: nombre del binario condicional a `process.platform` (`gh.exe` en Windows, `gh` con `chmod 0o755` en POSIX). Confirmado verde en CI real tras el push.
+
+Cierre de todos los hallazgos `STALE`/`DRIFT` pendientes en `MARKET_STANDARDS.json`: numeracion OWASP LLM Top 10 2026 corregida (mapeo cruzado real en `ai-guardrails` y `security-auditor`), specs de Meta Ads actualizadas (feed 1440x1800 4:5, Stories/Reels zona segura real 14%/35%/6%, regla de texto <20% retirada por Meta desde 2020), y duracion del token Turnstile confirmada contra la referencia tecnica exacta (300s, un solo uso). No quedan pendientes de vigencia externa conocidos.
+
+### v3.40.0 — wizard interactivo de configuracion
+
+`npm run wizard` consolida en un solo comando interactivo la configuracion de API keys (con validacion activa via `ModelRegistry`, no solo formato), token de GitHub, alias de host SSH (nunca lee la clave privada), chequeo de integridad del harness y auditoria de bypass de `ModelRegistry.js`. Corregido ademas el hallazgo `STALE_MERCADO` de OWASP GenAI LLM Top 10 2026 (numeracion confirmada en v3.40.1).
+
+### v3.39.0 — validacion de contenido MoA y merge no destructivo en norm-harness
+
+`moa-context-gatherer.js`: el fan-in de Gemini/DeepSeek podia escribir contenido vacio o solo whitespace como si fuera un resultado util. Ahora valida antes de escribir, marca el archivo como contenido externo no confiable (regla 11 del ANCLA) y registra fallos parciales en vez de ocultarlos.
+
+`norm-harness.js`: `ensureHostSettings()` sobrescribia `settings.json` completo del proyecto anfitrion sin merge, perdiendo hooks/mcpServers/permissions custom del anfitrion en cada drift detectado. Ahora hace merge no destructivo por entrada y crea backup `.bak` antes de escribir.
 
 ### v3.38.0 — 4 principios de campo del harness oficial de Anthropic para deteccion autonoma
 
@@ -819,11 +835,11 @@ New-Item -ItemType SymbolicLink -Path './CLAUDE.md' -Target 'C:/ruta/a/ai-core/C
 │   │   │   └── contextual-retrieval-benchmark.js Mide recall@K real de BM25+ (con/sin Contextual Retrieval) sobre el corpus de SKILL.md
 │   │   └── memory-vault-prune-check.js Hook Stop: avisa (sin borrar) cuando el vault supera 50 archivos
 │   └── skills/                  45 skills — enrutamiento via frontmatter description (agentskills.io), reglas en CLAUDE.md
-├── tests/                       1321 tests — tests/harness/*.test.js (dividido por modulo) + archivos dedicados
+├── tests/                       1412 tests — tests/harness/*.test.js (dividido por modulo) + archivos dedicados
 ├── .github/workflows/ci.yml     CI: Ubuntu/Windows/macOS, Node 22 unicamente (sandboxing con Permission Model exige >= 22.13.0)
 ├── CLAUDE.md                    Autoridad unica: reglas globales, skills, enrutamiento
 ├── DEPRECATIONS.json            Contrato de migracion por version
-├── package.json                 v3.38.0, Node >= 22.13.0
+├── package.json                 v3.40.1, Node >= 22.13.0
 └── .env.example                 Plantilla de variables de entorno
 ```
 

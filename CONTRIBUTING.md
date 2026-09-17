@@ -6,7 +6,7 @@ Este documento cubre todo lo que un colaborador necesita para trabajar con el re
 
 ## Requisitos previos
 
-- Node.js >= 18.0.0
+- Node.js >= 22.13.0
 - Git configurado con nombre e email reales
 - Claves de API en un archivo `.env` local (nunca al repositorio)
 
@@ -74,7 +74,7 @@ El servidor MCP expone 5 herramientas que Claude Code usa automaticamente. Tambi
 | `resumir_backlog` | Parsear y priorizar `BACKLOG.md` | Siempre |
 | `buscar_web` | Busqueda web con Google Search grounding | Siempre |
 
-Estas herramientas usan **Gemini 2.5 Flash (tier 0 gratuito)** como primera opcion. Si Gemini falla por cuota o error de conexion, el sistema escala automaticamente al modelo Claude del tier inmediatamente superior.
+Estas herramientas usan **Gemini 3.5 Flash-Lite / 3.7 Flash (tier 0 gratuito)** como primera opcion, segun la jerarquia de costo de `CLAUDE.md`. Si Gemini falla por cuota o error de conexion, el sistema escala automaticamente al modelo Claude del tier inmediatamente superior. `analizar_archivo` y `buscar_web` tienen enforcement real via hooks `PreToolUse` (`guard-read.js`, `web-search-guard.js`) que bloquean la herramienta nativa equivalente cuando Gemini esta disponible.
 
 ---
 
@@ -167,9 +167,10 @@ origin: ai-core
    - **Directiva de Interrupcion** — cuando debe detenerse y pedir confirmacion
    - **Restricciones del Perfil** — que esta prohibido hacer en este rol
 
-4. Actualizar `CLAUDE.md`: agregar el skill a la tabla de seleccion automatica y a la lista de skills disponibles.
-5. Actualizar `README.md`: agregar fila en la tabla Auto-Routing con palabras clave y modelo base.
-6. Commit y push siguiendo las convenciones.
+4. Evaluar si el skill cumple los 3 criterios de agente (autonomia real, salida estructurada, recurrente) — si los cumple, crear tambien el `AGENT.md` correspondiente en `.claude/agents/`.
+5. Ejecutar `npm run validate-globals` para confirmar conformidad del skill nuevo con `CLAUDE.md`.
+6. Actualizar `README.md` si aplica (tabla de skills, arbol de directorios).
+7. Commit y push siguiendo las convenciones.
 
 ---
 
