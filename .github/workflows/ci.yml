@@ -5,6 +5,11 @@ on:
     branches: [main]
   pull_request:
     branches: [main]
+  schedule:
+    # Lunes 09:00 UTC -- vigencia de mercado no depende de que alguien haga
+    # push; sin esto, un drift real (modelo deprecado, SDK con breaking
+    # change) solo se detecta la proxima vez que alguien toque el repo.
+    - cron: '0 9 * * 1'
 
 jobs:
   test:
