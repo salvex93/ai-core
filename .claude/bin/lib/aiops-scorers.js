@@ -222,6 +222,38 @@ function scoreAgentes({ AGENTS_DIR }) {
   return { score: Math.min(score, 10), detalles };
 }
 
+// ── 7. EVENTOS (0-10) ────────────────────────────────────────────────────
+// Mide cuanta senal de fallo real se acumula sin resolver en EVENTS_QUEUE.json.
+// Tipos criticos (harness_error, hook_failure) pesan el doble de mcp_failure/
+// skill_gap/pattern porque indican una falla del propio arnes, no del entorno.
+const TIPOS_CRITICOS = ['harness_error', 'hook_failure'];
+
+function scoreEventos({ QUEUE_F }) {
+  const detalles = [];
+
+  if (!fs.existsSync(QUEUE_F)) return { score: 10, detalles };
+
+  let cola;
+  try { cola = JSON.parse(fs.readFileSync(QUEUE_F, 'utf8')); }
+  catch { return { score: 0, detalles: ['EVENTS_QUEUE.json no parseable'] }; }
+
+  const pendientes = cola.filter(e => !e.reported);
+  if (pendientes.length === 0) return { score: 10, detalles };
+
+  const conteoPorTipo = {};
+  let penalizacion = 0;
+  pendientes.forEach(e => {
+    conteoPorTipo[e.type] = (conteoPorTipo[e.type] || 0) + 1;
+    penalizacion += TIPOS_CRITICOS.includes(e.type) ? 2 : 1;
+  });
+
+  Object.entries(conteoPorTipo).forEach(([tipo, n]) => {
+    detalles.push(`${n} evento(s) '${tipo}' sin reportar`);
+  });
+
+  return { score: Math.max(10 - penalizacion, 0), detalles };
+}
+
 module.exports = {
   scoreRouting,
   scoreHooks,
@@ -229,4 +261,5 @@ module.exports = {
   scoreDrift,
   scoreSeguridad,
   scoreAgentes,
+  scoreEventos,
 };
