@@ -182,7 +182,9 @@ npm run eval-skills                       # correr los 43 evals de conformidad d
 
 ## Que trae cada version
 
-### v3.40.1 — barrido completo de vigencia de mercado
+### v3.40.1 — fix de CI en POSIX + barrido completo de vigencia de mercado
+
+El fake `gh` CLI usado en `issue-reporter-js-camino-gh-disponible.test.js` se creaba siempre como `gh.exe`, nombre que `execFileSync` sin shell nunca busca en Linux/macOS (ahi resuelve el nombre exacto `gh`, sin extension). Esto rompio CI en `ubuntu-latest` y `macos-latest` tras el push que agrego el test -- el fake nunca se activaba y 5/7 subtests fallaban. Fix: nombre del binario condicional a `process.platform` (`gh.exe` en Windows, `gh` con `chmod 0o755` en POSIX). Confirmado verde en CI real tras el push.
 
 Cierre de todos los hallazgos `STALE`/`DRIFT` pendientes en `MARKET_STANDARDS.json`: numeracion OWASP LLM Top 10 2026 corregida (mapeo cruzado real en `ai-guardrails` y `security-auditor`), specs de Meta Ads actualizadas (feed 1440x1800 4:5, Stories/Reels zona segura real 14%/35%/6%, regla de texto <20% retirada por Meta desde 2020), y duracion del token Turnstile confirmada contra la referencia tecnica exacta (300s, un solo uso). No quedan pendientes de vigencia externa conocidos.
 
