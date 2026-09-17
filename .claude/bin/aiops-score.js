@@ -53,6 +53,7 @@ function calcularScore() {
     drift:      scoreDrift({ MAP_F, CORE, exec }),
     seguridad:  scoreSeguridad({ CORE, SETTINGS_F }),
     agentes:    scoreAgentes({ AGENTS_DIR }),
+    eventos:    scoreEventos({ QUEUE_F }),
   };
 
   const total = Math.round(
