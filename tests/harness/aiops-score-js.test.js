@@ -5,6 +5,7 @@ const assert = require('node:assert/strict');
 const path   = require('node:path');
 const fs     = require('node:fs');
 const os     = require('node:os');
+const crypto = require('node:crypto');
 const { spawnSync } = require('node:child_process');
 const { REPO, BIN, SKILLS, SETTINGS, runScript, tmpFile } = require('./_shared');
 
