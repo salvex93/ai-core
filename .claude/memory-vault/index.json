@@ -355,7 +355,7 @@
     "actual": 1,
     "document": 2,
     "changelog": 2,
-    "nota": 2,
+    "nota": 1,
     "migr": 2,
     "existent": 1,
     "roadmap_aaa": 1,
@@ -604,10 +604,7 @@
     "anterior": 1,
     "routing": 1,
     "severidad": 1,
-    "próxima": 1,
-    "prueba": 1,
-    "conten": 1,
-    "minimo": 1
+    "próxima": 1
   },
   "inv": {
     "104": [
@@ -4528,10 +4525,6 @@
       {
         "id": "general/session-2026-07-06-upgrade-aaa#7",
         "tf": 1
-      },
-      {
-        "id": "auditor/_test-stop#0",
-        "tf": 1
       }
     ],
     "migr": [
@@ -6275,24 +6268,6 @@
         "id": "general/session-2026-07-07-auditoria-y-bm25plus#13",
         "tf": 1
       }
-    ],
-    "prueba": [
-      {
-        "id": "auditor/_test-stop#0",
-        "tf": 2
-      }
-    ],
-    "conten": [
-      {
-        "id": "auditor/_test-stop#0",
-        "tf": 1
-      }
-    ],
-    "minimo": [
-      {
-        "id": "auditor/_test-stop#0",
-        "tf": 1
-      }
     ]
   },
   "len": {
@@ -6330,11 +6305,10 @@
     "general/session-2026-07-07-auditoria-y-bm25plus#9": 24,
     "general/session-2026-07-07-auditoria-y-bm25plus#11": 19,
     "general/session-2026-07-07-auditoria-y-bm25plus#12": 87,
-    "general/session-2026-07-07-auditoria-y-bm25plus#13": 51,
-    "auditor/_test-stop#0": 5
+    "general/session-2026-07-07-auditoria-y-bm25plus#13": 51
   },
-  "avgLen": 38.388888888888886,
-  "N": 36,
+  "avgLen": 39.34285714285714,
+  "N": 35,
   "frags": {
     "general/session-2026-07-06-media-prioridad#1": {
       "id": "general/session-2026-07-06-media-prioridad#1",
@@ -7992,20 +7966,7 @@
         "sesión",
         "mantenimiento"
       ]
-    },
-    "auditor/_test-stop#0": {
-      "id": "auditor/_test-stop#0",
-      "source": "_test-stop",
-      "rol": "auditor",
-      "text": "# nota de prueba\n\ncontenido minimo de prueba.",
-      "tokens": [
-        "nota",
-        "prueba",
-        "conten",
-        "minimo",
-        "prueba"
-      ]
     }
   },
-  "builtAt": "2026-09-17T19:07:48.492Z"
+  "builtAt": "2026-09-17T19:10:39.057Z"
 }
