@@ -22,6 +22,7 @@ const {
   scoreDrift,
   scoreSeguridad,
   scoreAgentes,
+  scoreEventos,
 } = require('./lib/aiops-scorers');
 
 const CORE       = path.resolve(__dirname, '../..');
@@ -32,6 +33,8 @@ const MAP_F      = path.join(CORE, '.claude', 'CONTEXT_MAP.json');
 const SKILLS_DIR = path.join(CORE, '.claude', 'skills');
 const AGENTS_DIR = path.join(CORE, '.claude', 'agents');
 const IC_PATH    = path.join(CORE, 'scripts', 'services', 'IntentClassifier.js');
+// Misma variable que ya usa capture-event.js para permitir cola aislada en tests
+const QUEUE_F    = process.env.AI_CORE_EVENTS_QUEUE_PATH || path.join(CORE, '.claude', 'EVENTS_QUEUE.json');
 
 const MODO_REPORT = process.argv.includes('--report');
 const MAX_HISTORY = 30;
@@ -50,6 +53,7 @@ function calcularScore() {
     drift:      scoreDrift({ MAP_F, CORE, exec }),
     seguridad:  scoreSeguridad({ CORE, SETTINGS_F }),
     agentes:    scoreAgentes({ AGENTS_DIR }),
+    eventos:    scoreEventos({ QUEUE_F }),
   };
 
   const total = Math.round(

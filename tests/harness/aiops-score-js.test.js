@@ -45,7 +45,7 @@ describe('aiops-score.js', () => {
     assert.ok(score >= 0 && score <= 10, `score ${score} debe estar entre 0 y 10`);
   });
 
-  test('produce score en las 6 dimensiones esperadas (via --report)', () => {
+  test('produce score en las 7 dimensiones esperadas (via --report)', () => {
     // La corrida normal usa un gate de verbosidad: si el score es estable
     // (no baja y sin detalles nuevos) solo imprime una linea compacta para
     // no quemar tokens en cada Stop hook. El detalle completo por dimension
@@ -54,20 +54,47 @@ describe('aiops-score.js', () => {
     const env = { AI_CORE_SCORE_HISTORY_PATH: historyPath };
     runScript(SCRIPT, [], env);
     const r = runScript(SCRIPT, ['--report'], env);
-    const dimensiones = ['routing', 'hooks', 'skills', 'drift', 'seguridad', 'agentes'];
+    const dimensiones = ['routing', 'hooks', 'skills', 'drift', 'seguridad', 'agentes', 'eventos'];
     for (const dim of dimensiones) {
       assert.ok(r.stdout.includes(dim), `debe incluir dimension '${dim}'`);
     }
   });
 
-  test('corrida normal: gate de verbosidad compacta cuando el score es estable', () => {
-    // Historial aislado via AI_CORE_SCORE_HISTORY_PATH -- sin esto, la
-    // comparacion "estable" corre contra .claude/AIOPS_SCORE_HISTORY.json
-    // real, que puede arrastrar una entrada con detalles (ej. drift) de una
-    // corrida anterior ajena a este test y romper la asercion de forma
-    // intermitente.
+  test('dimension eventos: sin EVENTS_QUEUE.json, score maximo', () => {
     const historyPath = tmpFile('[]');
-    const env = { AI_CORE_SCORE_HISTORY_PATH: historyPath };
+    const queuePath = path.join(os.tmpdir(), `harness-test-queue-ausente-${Date.now()}.json`);
+    const env = { AI_CORE_SCORE_HISTORY_PATH: historyPath, AI_CORE_EVENTS_QUEUE_PATH: queuePath };
+    runScript(SCRIPT, [], env);
+    const r = runScript(SCRIPT, ['--report'], env);
+    assert.match(r.stdout, /eventos\s+█{10}░{0}\s*10\/10/, 'sin cola, la dimension eventos debe ser 10/10');
+  });
+
+  test('dimension eventos: penaliza el doble los tipos criticos sin reportar', () => {
+    const historyPath = tmpFile('[]');
+    const cola = [
+      { id: '1', ts: new Date().toISOString(), type: 'harness_error', reported: false },
+      { id: '2', ts: new Date().toISOString(), type: 'hook_failure',  reported: false },
+      { id: '3', ts: new Date().toISOString(), type: 'skill_gap',     reported: false },
+      { id: '4', ts: new Date().toISOString(), type: 'mcp_failure',   reported: true },
+    ];
+    const queuePath = tmpFile(JSON.stringify(cola));
+    const env = { AI_CORE_SCORE_HISTORY_PATH: historyPath, AI_CORE_EVENTS_QUEUE_PATH: queuePath };
+    runScript(SCRIPT, [], env);
+    const r = runScript(SCRIPT, ['--report'], env);
+    // penalizacion: harness_error(2) + hook_failure(2) + skill_gap(1) = 5 -> score 5/10
+    assert.match(r.stdout, /eventos\s+█{5}░{5}\s*5\/10/, 'debe penalizar -2 por tipo critico y -1 por tipo no critico, ignorando reportados');
+    assert.ok(r.stdout.includes("1 evento(s) 'harness_error' sin reportar"), 'debe listar el detalle por tipo');
+  });
+
+  test('corrida normal: gate de verbosidad compacta cuando el score es estable', () => {
+    // Historial y cola de eventos aislados -- sin esto, la comparacion
+    // "estable" corre contra AIOPS_SCORE_HISTORY.json y EVENTS_QUEUE.json
+    // reales, que pueden arrastrar una entrada con detalles (ej. drift, o
+    // eventos pendientes reales del harness) ajena a este test y romper la
+    // asercion de forma intermitente.
+    const historyPath = tmpFile('[]');
+    const queuePath = path.join(os.tmpdir(), `harness-test-queue-vacia-${Date.now()}.json`);
+    const env = { AI_CORE_SCORE_HISTORY_PATH: historyPath, AI_CORE_EVENTS_QUEUE_PATH: queuePath };
     runScript(SCRIPT, [], env); // primera corrida establece linea base
     const r = runScript(SCRIPT, [], env); // segunda corrida: estable, sin detalles
     assert.ok(r.stdout.includes('[AIOPS-SCORE]'), 'debe incluir linea de score');
