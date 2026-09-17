@@ -5,6 +5,7 @@ const assert = require('node:assert/strict');
 const path   = require('node:path');
 const fs     = require('node:fs');
 const os     = require('node:os');
+const crypto = require('node:crypto');
 const { spawnSync } = require('node:child_process');
 const { REPO, BIN, SKILLS, SETTINGS, runScript, tmpFile } = require('./_shared');
 
@@ -62,7 +63,7 @@ describe('aiops-score.js', () => {
 
   test('dimension eventos: sin EVENTS_QUEUE.json, score maximo', () => {
     const historyPath = tmpFile('[]');
-    const queuePath = path.join(os.tmpdir(), `harness-test-queue-ausente-${Date.now()}.json`);
+    const queuePath = path.join(os.tmpdir(), `harness-test-queue-ausente-${Date.now()}-${crypto.randomBytes(4).toString('hex')}.json`);
     const env = { AI_CORE_SCORE_HISTORY_PATH: historyPath, AI_CORE_EVENTS_QUEUE_PATH: queuePath };
     runScript(SCRIPT, [], env);
     const r = runScript(SCRIPT, ['--report'], env);
@@ -93,7 +94,7 @@ describe('aiops-score.js', () => {
     // eventos pendientes reales del harness) ajena a este test y romper la
     // asercion de forma intermitente.
     const historyPath = tmpFile('[]');
-    const queuePath = path.join(os.tmpdir(), `harness-test-queue-vacia-${Date.now()}.json`);
+    const queuePath = path.join(os.tmpdir(), `harness-test-queue-vacia-${Date.now()}-${crypto.randomBytes(4).toString('hex')}.json`);
     const env = { AI_CORE_SCORE_HISTORY_PATH: historyPath, AI_CORE_EVENTS_QUEUE_PATH: queuePath };
     runScript(SCRIPT, [], env); // primera corrida establece linea base
     const r = runScript(SCRIPT, [], env); // segunda corrida: estable, sin detalles

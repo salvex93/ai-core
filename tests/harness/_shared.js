@@ -8,6 +8,7 @@
 const path = require('node:path');
 const fs   = require('node:fs');
 const os   = require('node:os');
+const crypto = require('node:crypto');
 const { spawnSync } = require('node:child_process');
 
 const REPO     = path.resolve(__dirname, '..', '..');
@@ -32,7 +33,10 @@ function runScript(scriptPath, args = [], env = {}) {
 }
 
 function tmpFile(content = '') {
-  const f = path.join(os.tmpdir(), `harness-test-${Date.now()}.tmp`);
+  // Date.now() a solas colisiona entre llamadas sucesivas dentro del mismo
+  // milisegundo (confirmado: 19/20 colisiones en una rafaga sincrona) -- el
+  // sufijo aleatorio garantiza unicidad real por llamada.
+  const f = path.join(os.tmpdir(), `harness-test-${Date.now()}-${crypto.randomBytes(4).toString('hex')}.tmp`);
   fs.writeFileSync(f, content, 'utf8');
   return f;
 }
