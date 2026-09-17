@@ -6,7 +6,7 @@ Este documento cubre todo lo que un colaborador necesita para trabajar con el re
 
 ## Requisitos previos
 
-- Node.js >= 18.0.0
+- Node.js >= 22.13.0
 - Git configurado con nombre e email reales
 - Claves de API en un archivo `.env` local (nunca al repositorio)
 
