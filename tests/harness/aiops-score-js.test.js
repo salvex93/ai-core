@@ -63,7 +63,7 @@ describe('aiops-score.js', () => {
 
   test('dimension eventos: sin EVENTS_QUEUE.json, score maximo', () => {
     const historyPath = tmpFile('[]');
-    const queuePath = path.join(os.tmpdir(), `harness-test-queue-ausente-${Date.now()}.json`);
+    const queuePath = path.join(os.tmpdir(), `harness-test-queue-ausente-${Date.now()}-${crypto.randomBytes(4).toString('hex')}.json`);
     const env = { AI_CORE_SCORE_HISTORY_PATH: historyPath, AI_CORE_EVENTS_QUEUE_PATH: queuePath };
     runScript(SCRIPT, [], env);
     const r = runScript(SCRIPT, ['--report'], env);
