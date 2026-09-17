@@ -3,6 +3,14 @@
 Registro de cambios por version. Formato basado en [Keep a Changelog](https://keepachangelog.com/es/1.0.0/).
 Versionado semantico: MAJOR.MINOR.PATCH.
 
+## [Unreleased] — fix de CI: colision de archivos temporales en aiops-score
+
+### Corregido — `tmpFile()` colisionaba por depender solo de `Date.now()`
+
+CI fallo en la corrida del commit `0d389f0` (`tests/harness/aiops-score-js.test.js:72`, dimension `eventos`) con un resultado inconsistente frente a la corrida local. Diagnostico con log real de GitHub Actions (`gh run view --log-failed`): la logica de `scoreEventos()` en si era correcta; la causa era `tmpFile()` en `tests/harness/_shared.js`, que generaba el nombre de archivo temporal solo con `Date.now()`. Medicion real: 19/20 colisiones en una rafaga sincrona de 20 llamadas — dos tests que construian su propia ruta de `EVENTS_QUEUE.json` en el mismo milisegundo terminaban leyendo/escribiendo el archivo del otro.
+
+Corregido agregando un sufijo aleatorio (`crypto.randomBytes(4).toString('hex')`) a `tmpFile()` y a las dos rutas de queue construidas manualmente en `aiops-score-js.test.js`. Cambio quirurgico — no se toco `aiops-scorers.js` ni la logica de scoring. Confirmado verde en CI real tras el push (`fbef1df`, run `35271981120`, success).
+
 ## [Unreleased] — fix de CI en POSIX para el fake gh de issue-reporter
 
 ### Corregido — fake `gh` CLI solo se activaba en Windows
