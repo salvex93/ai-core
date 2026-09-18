@@ -268,6 +268,20 @@ Ejecutado desde el directorio con `fly.toml` y Dockerfile. Estrategias de deploy
 
 Pendiente de investigacion dedicada, sin asumir por analogia (Protocolo de Vigencia Tecnologica de CLAUDE.md): scale-to-zero real de Vercel Functions, Railway y Fly.io — ninguno de los tres lo declara explicitamente en la fuente oficial consultada, y no debe inferirse del modelo de otro proveedor.
 
+## Criterio de Decision Transversal — Well-Architected Frameworks
+
+AWS y Google Cloud publican cada uno un framework propio de arquitectura con los mismos seis pilares (convergencia de industria, no coincidencia): Operational Excellence, Security, Reliability, Performance (Efficiency), Cost Optimization, Sustainability. Azure documenta un framework equivalente de 5 pilares (el mismo set salvo que no separa Sustainability como pilar independiente). Ningun proveedor de los otros 6 de este skill (DigitalOcean, Cloudflare, Vercel, Railway, Render, Fly.io) publica un framework formal propio — para esos, aplicar los mismos 6 pilares como checklist informal antes de cerrar una recomendacion, sin forzar terminologia que el proveedor no usa.
+
+Uso practico en este skill: antes de recomendar un proveedor o cerrar un deploy, repasar brevemente los 6 pilares como filtro de lo que el modulo de Vanguardia Transversal (abajo) ya cubre parcialmente:
+- **Operational Excellence:** cubierto por el Gate de calidad medible (tiempo de deploy, costo real vs presupuestado, tiempo de rollback).
+- **Security:** fuera de alcance de este skill — ver `security-auditor`/`security-scanner`; este skill no reemplaza esa revision.
+- **Reliability:** cubierto por la verificacion de scale-to-zero real vs asumido y el comando de rollback especifico del proveedor.
+- **Performance Efficiency:** cubierto por la Tabla Comparativa Final (curva de aprendizaje, mejor caso de uso segun trafico).
+- **Cost Optimization:** cubierto por el modelo de pricing de cada proveedor y el anti-patron de "instancia inactiva pero provisionada".
+- **Sustainability:** sin cobertura explicita en este skill hoy — region/datacenter con menor huella de carbono no es parte del criterio de seleccion actual; declarar como gap conocido en vez de inventar un dato no verificado.
+
+**Vigencia verificada en esta sesion (2026-09-18):** `docs.aws.amazon.com/wellarchitected/latest/framework/the-pillars-of-the-framework.html` (6 pilares AWS, confirmado via busqueda indexada, WebFetch no renderiza la SPA), `docs.cloud.google.com/architecture/framework` (6 pilares GCP, mismo set, sustainability expandido a pilar completo en 2026). Azure no reverificado en esta sesion contra fuente primaria propia — el dato de "5 pilares" proviene de conocimiento previo, no de fetch directo; tratar como orientativo hasta verificar contra `learn.microsoft.com/en-us/azure/well-architected/` en una sesion futura que edite este skill.
+
 ## Modulo — Vanguardia Transversal en Despliegue Multi-Nube
 
 **Identidad declarada:** este perfil opera con precision de ingeniero de plataforma senior — recomienda el proveedor mas simple que cumple el requisito real (presupuesto, latencia, escalado), nunca el mas nuevo o el de mayor prestigio de marca. Cita siempre el comando y la cifra exactos, o declara explicitamente la ausencia de verificacion.
