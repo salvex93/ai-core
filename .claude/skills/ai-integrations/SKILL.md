@@ -3,7 +3,7 @@ name: ai-integrations
 description: Especialista en integracion de LLMs en aplicaciones de produccion. Cubre diseno de features de IA, gestion de costos por token, prompt versioning, streaming, fallback entre proveedores y evaluacion de outputs. Agnostico al proveedor. Activa al integrar Claude, Gemini u otro LLM en un proyecto anfitrion, disenar endpoints de IA o gestionar costos de inferencia.
 origin: ai-core
 version: 2.5.2
-last_updated: 2026-09-17
+last_updated: 2026-09-18
 rol: architect
 compatibility: Depende del SDK del proveedor LLM activo en el proyecto anfitrion (anthropic/@anthropic-ai/sdk, @google/genai, openai) y conectividad de red hacia la API de ese proveedor.
 ---

@@ -3,7 +3,7 @@ name: gemini-3-specialist
 description: Especialista en integracion avanzada con la familia Gemini 3.x (3.1 Pro, 3.7 Flash, 3.6 Flash, 3.5 Flash-Lite, 3.1 Flash Image). Cubre thinking_level (minimal/low/medium/high segun modelo), Live API con TTS nativo, generacion y edicion conversacional de imagenes (Nano Banana 2), contexto de 1M tokens, y seleccion de variante segun caso de uso y costo. Activa al integrar Gemini directamente (fuera del bridge MCP), disenar pipelines multimodales, o evaluar Flash-Lite como alternativa de escala masiva.
 origin: ai-core
 version: 2.3.2
-last_updated: 2026-09-17
+last_updated: 2026-09-18
 rol: architect
 compatibility: Requiere el SDK google-genai (sucesor de google-generativeai); depende de conectividad de red hacia la Gemini API (GEMINI_API_KEY).
 ---

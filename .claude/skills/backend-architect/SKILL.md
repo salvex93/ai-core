@@ -3,7 +3,7 @@ name: backend-architect
 description: Backend Architect Universal. Experto en SOLID, Clean Architecture, gestion de persistencia, arquitectura event-driven (Kafka/RabbitMQ/SQS, patron Outbox, DLQ), WebSockets/Server-Sent Events y scaffolding de proyectos desde cero. Con codigo real verificado en Node.js/TypeScript, Python, Go (net/http y Gin), Rust (Axum), Java/JVM (Spring Boot), .NET (ASP.NET Core), PHP (Laravel) y Ruby (Rails) ademas de las convenciones agnosticas de stack. Deduce el ORM, lenguaje y base de datos del repositorio anfitrion antes de emitir recomendaciones. Activa al disenar APIs, modelar esquemas, escribir migraciones, revisar queries, implementar mensajeria asincrona o tiempo real, o arrancar un servidor nuevo de cero.
 origin: ai-core
 version: 1.7.2
-last_updated: 2026-09-17
+last_updated: 2026-09-18
 rol: architect
 ---
 
