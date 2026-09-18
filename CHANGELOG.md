@@ -3,6 +3,20 @@
 Registro de cambios por version. Formato basado en [Keep a Changelog](https://keepachangelog.com/es/1.0.0/).
 Versionado semantico: MAJOR.MINOR.PATCH.
 
+## [Unreleased] — cloud-deployment-specialist: criterio Well-Architected transversal
+
+### Agregado — seccion "Criterio de Decision Transversal — Well-Architected Frameworks"
+
+Continuacion del mismo deep research comparativo. Hallazgo verificado: AWS y Google Cloud publican frameworks propios con los mismos 6 pilares (Operational Excellence, Security, Reliability, Performance, Cost Optimization, Sustainability), y ninguno de los otros 6 proveedores del skill (DigitalOcean, Cloudflare, Vercel, Railway, Render, Fly.io) tenia ese criterio como checklist transversal. Verificado contra fuente primaria antes de escribir (2026-09-18):
+
+- AWS: `docs.aws.amazon.com/wellarchitected/latest/framework/the-pillars-of-the-framework.html` — 6 pilares confirmados.
+- Google Cloud: `docs.cloud.google.com/architecture/framework` — mismos 6 pilares, sustainability expandido a pilar completo en 2026.
+- Azure (5 pilares) declarado explicitamente como NO reverificado contra fuente primaria propia en esta sesion — queda marcado como dato orientativo pendiente de fetch directo, no como hecho confirmado.
+
+Cada pilar se mapea contra lo que el Modulo de Vanguardia Transversal ya cubria (Gate de calidad, verificacion de scale-to-zero, Tabla Comparativa, modelo de pricing) y se documenta Security y Sustainability como fuera de alcance / gap conocido, sin inventar cobertura que el skill no tiene.
+
+Version 1.0.1 → 1.1.0. `npm run validate-globals`: 45/45 conformes. `npm test`: 1413/1414 (1 skip esperado).
+
 ## [Unreleased] — ux-visual-designer: vocabulario Apple HIG / Material Design 3
 
 ### Agregado — Modulo 8, frameworks de diseno de referencia de mercado
