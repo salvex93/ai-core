@@ -1,65 +1,5 @@
 [
   {
-    "ts": "2026-08-07T19:59:12.726Z",
-    "total": 10,
-    "dimensiones": {
-      "routing": {
-        "score": 10,
-        "detalles": []
-      },
-      "hooks": {
-        "score": 10,
-        "detalles": []
-      },
-      "skills": {
-        "score": 10,
-        "detalles": []
-      },
-      "drift": {
-        "score": 10,
-        "detalles": []
-      },
-      "seguridad": {
-        "score": 10,
-        "detalles": []
-      },
-      "agentes": {
-        "score": 10,
-        "detalles": []
-      }
-    }
-  },
-  {
-    "ts": "2026-08-07T19:59:12.861Z",
-    "total": 10,
-    "dimensiones": {
-      "routing": {
-        "score": 10,
-        "detalles": []
-      },
-      "hooks": {
-        "score": 10,
-        "detalles": []
-      },
-      "skills": {
-        "score": 10,
-        "detalles": []
-      },
-      "drift": {
-        "score": 10,
-        "detalles": []
-      },
-      "seguridad": {
-        "score": 10,
-        "detalles": []
-      },
-      "agentes": {
-        "score": 10,
-        "detalles": []
-      }
-    }
-  },
-  {
     "ts": "2026-08-07T19:59:12.999Z",
     "total": 10,
     "dimensiones": {
@@ -900,6 +840,76 @@
         "detalles": []
       },
       "agentes": {
+        "score": 10,
+        "detalles": []
+      }
+    }
+  },
+  {
+    "ts": "2026-09-17T18:52:19.939Z",
+    "total": 9,
+    "dimensiones": {
+      "routing": {
+        "score": 10,
+        "detalles": []
+      },
+      "hooks": {
+        "score": 10,
+        "detalles": []
+      },
+      "skills": {
+        "score": 10,
+        "detalles": []
+      },
+      "drift": {
+        "score": 10,
+        "detalles": []
+      },
+      "seguridad": {
+        "score": 10,
+        "detalles": []
+      },
+      "agentes": {
+        "score": 10,
+        "detalles": []
+      },
+      "eventos": {
+        "score": 0,
+        "detalles": [
+          "50 evento(s) 'harness_error' sin reportar"
+        ]
+      }
+    }
+  },
+  {
+    "ts": "2026-09-17T18:52:33.299Z",
+    "total": 10,
+    "dimensiones": {
+      "routing": {
+        "score": 10,
+        "detalles": []
+      },
+      "hooks": {
+        "score": 10,
+        "detalles": []
+      },
+      "skills": {
+        "score": 10,
+        "detalles": []
+      },
+      "drift": {
+        "score": 10,
+        "detalles": []
+      },
+      "seguridad": {
+        "score": 10,
+        "detalles": []
+      },
+      "agentes": {
+        "score": 10,
+        "detalles": []
+      },
+      "eventos": {
         "score": 10,
         "detalles": []
       }
