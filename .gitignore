@@ -46,3 +46,4 @@ scripts/premium/
 .claude/_issue_tmp_*.md
 .claude/.current_role
 .claude/AGENT_SNAPSHOTS/
+.claude/tmp/
