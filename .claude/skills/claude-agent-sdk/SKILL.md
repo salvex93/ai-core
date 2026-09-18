@@ -2,7 +2,7 @@
 name: claude-agent-sdk
 description: Especialista en construccion de agentes autonomos con el Claude Agent SDK (TypeScript/Python). Cubre herramientas integradas, hooks de ciclo de vida, subagentes, integracion MCP, OAuth 2.0 client flow (Authorization Code + PKCE) para servidores MCP remotos, gestion de permisos y sesiones. Activa al construir agentes personalizados, orquestar subagentes, integrar el Agent SDK en un proyecto anfitrion o disenar flujos de automatizacion con Claude.
 origin: ai-core
-version: 2.4.3
+version: 2.4.4
 last_updated: 2026-09-18
 rol: architect
 compatibility: Depende de @anthropic-ai/claude-agent-sdk (o el paquete Python equivalente) y conectividad de red hacia la Claude API; para MCP remoto ademas requiere flujo OAuth 2.0 con un authorization server externo.
@@ -123,6 +123,8 @@ Los hooks interceptan el ciclo antes o despues de cada llamada a herramienta. So
 `onPostToolCall(toolName, toolInput, toolOutput)` → para logging de resultado y deteccion de errores.
 
 Implementar siempre ambos hooks en agentes de produccion. El pre-hook valida y loguea la intencion; el post-hook registra el resultado y el exito/fallo.
+
+**Validacion externa del patron (2026-09-18):** el Agent Control Standard de OWASP GenAI Security Project (`genai.owasp.org/resource/agent-control-standard-acs/`, publicado 2026-09-01) formaliza como estandar de industria exactamente este mismo patron — middleware hooks portables que interceptan el ciclo de vida del agente para inspeccion, trazabilidad y control en runtime. No introduce una capacidad nueva que ai-core no tenga: los hooks de gobierno ya listados en CLAUDE.md (`destructive-op-guard.js`, `subagent-guard.js`, `injection-quarantine-guard.js`, etc.) ya implementan ese principio de forma nativa a Claude Code. Se documenta como confirmacion de que el diseño esta alineado con el estandar emergente, no como accion pendiente.
 
 ## Gestion de Permisos
 

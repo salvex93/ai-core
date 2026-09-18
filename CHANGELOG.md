@@ -3,6 +3,46 @@
 Registro de cambios por version. Formato basado en [Keep a Changelog](https://keepachangelog.com/es/1.0.0/).
 Versionado semantico: MAJOR.MINOR.PATCH.
 
+## [Unreleased] — security-auditor + claude-agent-sdk: OWASP Top 10 for Agentic Applications
+
+### Agregado — seccion "OWASP Top 10 for Agentic Applications" en security-auditor
+
+Fase 3 (ronda de Seguridad/Agentes) del mismo deep research comparativo. Gap real: ningun skill mencionaba el OWASP Top 10 for Agentic Applications (ASI01-ASI10), framework distinto y posterior al OWASP LLM Top 10 ya cubierto — riesgos exclusivos de agentes que planifican, sostienen memoria y actuan con autoridad delegada, en vez de LLMs pasivos de inferencia. Verificado contra fuente primaria (`genai.owasp.org/2025/12/09/owasp-top-10-for-agentic-applications-the-benchmark-for-agentic-security-in-the-age-of-autonomous-ai/`, publicado 2025-12-09, 2026-09-18):
+
+- ASI01/02/03/06/09/10 mapeados contra mecanismos ya existentes en ai-core (regla de contenido no confiable, allowlist de subagentes, break-glass, `destructive-op-guard.js`).
+- ASI04/05/07/08 documentados explicitamente como gaps sin cobertura hoy, en vez de forzar una cobertura inexistente.
+
+### Agregado — nota de validacion del Agent Control Standard en claude-agent-sdk
+
+Segundo hallazgo (2026-09-01, `genai.owasp.org/resource/agent-control-standard-acs/`): el ACS formaliza como estandar de industria el mismo patron de middleware hooks portables que la seccion "Hooks de Ciclo de Vida" ya documentaba. No es una capacidad nueva a adoptar — se registra como confirmacion externa del diseño existente.
+
+Versiones: security-auditor 1.4.2 → 1.5.0, claude-agent-sdk 2.4.3 → 2.4.4. `npm run validate-globals`: 45/45 conformes.
+
+## [Unreleased] — cloud-deployment-specialist: criterio Well-Architected transversal
+
+### Agregado — seccion "Criterio de Decision Transversal — Well-Architected Frameworks"
+
+Continuacion del mismo deep research comparativo. Hallazgo verificado: AWS y Google Cloud publican frameworks propios con los mismos 6 pilares (Operational Excellence, Security, Reliability, Performance, Cost Optimization, Sustainability), y ninguno de los otros 6 proveedores del skill (DigitalOcean, Cloudflare, Vercel, Railway, Render, Fly.io) tenia ese criterio como checklist transversal. Verificado contra fuente primaria antes de escribir (2026-09-18):
+
+- AWS: `docs.aws.amazon.com/wellarchitected/latest/framework/the-pillars-of-the-framework.html` — 6 pilares confirmados.
+- Google Cloud: `docs.cloud.google.com/architecture/framework` — mismos 6 pilares, sustainability expandido a pilar completo en 2026.
+- Azure (5 pilares) declarado explicitamente como NO reverificado contra fuente primaria propia en esta sesion — queda marcado como dato orientativo pendiente de fetch directo, no como hecho confirmado.
+
+Cada pilar se mapea contra lo que el Modulo de Vanguardia Transversal ya cubria (Gate de calidad, verificacion de scale-to-zero, Tabla Comparativa, modelo de pricing) y se documenta Security y Sustainability como fuera de alcance / gap conocido, sin inventar cobertura que el skill no tiene.
+
+Version 1.0.1 → 1.1.0. `npm run validate-globals`: 45/45 conformes. `npm test`: 1413/1414 (1 skip esperado).
+
+## [Unreleased] — ux-visual-designer: vocabulario Apple HIG / Material Design 3
+
+### Agregado — Modulo 8, frameworks de diseno de referencia de mercado
+
+Deep research comparativo (45 skills propios vs. contrapartes de mayor adopcion en GitHub/mercado) identifico un gap real de contenido en `ux-visual-designer`: cero menciones de Apple HIG o Material Design 3 pese a cubrir paradigmas Apple-adjacent (`liquid-glass`). Verificado contra fuente primaria antes de escribir (`developer.apple.com/design/human-interface-guidelines/foundations`, `m3.material.io/styles/color/roles`, 2026-09-18):
+
+- Apple HIG son **3 principios** (Clarity, Deference, Depth) con Consistency como tejido conectivo — no 4 pilares paralelos como circula en fuentes secundarias. Corregido antes de documentarlo.
+- Material 3 usa roles de color semanticos (`primary`/`secondary`/`tertiary`, `surface`, patron `on-*`, `*-container`), no valores hex sueltos — gap real de nomenclatura frente al sistema de 5 capas ya existente en Modulo 1, documentado como decision a evaluar por proyecto, no como reemplazo obligatorio.
+
+Version 2.1.0 → 2.2.0. `npm run validate-globals`: 45/45 conformes. `npm test`: 1413/1414 (1 skip esperado).
+
 ## [Unreleased] — fix de CI: colision de archivos temporales en aiops-score
 
 ### Corregido — `tmpFile()` colisionaba por depender solo de `Date.now()`
