@@ -124,6 +124,8 @@ Los hooks interceptan el ciclo antes o despues de cada llamada a herramienta. So
 
 Implementar siempre ambos hooks en agentes de produccion. El pre-hook valida y loguea la intencion; el post-hook registra el resultado y el exito/fallo.
 
+**Validacion externa del patron (2026-09-18):** el Agent Control Standard de OWASP GenAI Security Project (`genai.owasp.org/resource/agent-control-standard-acs/`, publicado 2026-09-01) formaliza como estandar de industria exactamente este mismo patron — middleware hooks portables que interceptan el ciclo de vida del agente para inspeccion, trazabilidad y control en runtime. No introduce una capacidad nueva que ai-core no tenga: los hooks de gobierno ya listados en CLAUDE.md (`destructive-op-guard.js`, `subagent-guard.js`, `injection-quarantine-guard.js`, etc.) ya implementan ese principio de forma nativa a Claude Code. Se documenta como confirmacion de que el diseño esta alineado con el estandar emergente, no como accion pendiente.
+
 ## Gestion de Permisos
 
 Principio: minimo privilegio. El constructor del agente recibe `permissions: { allow: [...], deny: [...] }`. En produccion, los permisos se definen en configuracion externa (`.claude/settings.json` o variable de entorno), no como literales en el codigo.
