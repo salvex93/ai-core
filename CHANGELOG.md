@@ -3,6 +3,17 @@
 Registro de cambios por version. Formato basado en [Keep a Changelog](https://keepachangelog.com/es/1.0.0/).
 Versionado semantico: MAJOR.MINOR.PATCH.
 
+## [Unreleased] — ux-visual-designer: vocabulario Apple HIG / Material Design 3
+
+### Agregado — Modulo 8, frameworks de diseno de referencia de mercado
+
+Deep research comparativo (45 skills propios vs. contrapartes de mayor adopcion en GitHub/mercado) identifico un gap real de contenido en `ux-visual-designer`: cero menciones de Apple HIG o Material Design 3 pese a cubrir paradigmas Apple-adjacent (`liquid-glass`). Verificado contra fuente primaria antes de escribir (`developer.apple.com/design/human-interface-guidelines/foundations`, `m3.material.io/styles/color/roles`, 2026-09-18):
+
+- Apple HIG son **3 principios** (Clarity, Deference, Depth) con Consistency como tejido conectivo — no 4 pilares paralelos como circula en fuentes secundarias. Corregido antes de documentarlo.
+- Material 3 usa roles de color semanticos (`primary`/`secondary`/`tertiary`, `surface`, patron `on-*`, `*-container`), no valores hex sueltos — gap real de nomenclatura frente al sistema de 5 capas ya existente en Modulo 1, documentado como decision a evaluar por proyecto, no como reemplazo obligatorio.
+
+Version 2.1.0 → 2.2.0. `npm run validate-globals`: 45/45 conformes. `npm test`: 1413/1414 (1 skip esperado).
+
 ## [Unreleased] — fix de CI: colision de archivos temporales en aiops-score
 
 ### Corregido — `tmpFile()` colisionaba por depender solo de `Date.now()`
