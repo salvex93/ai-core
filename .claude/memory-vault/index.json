@@ -2,32 +2,51 @@
   "df": {
     "104": 1,
     "110": 1,
+    "172": 1,
+    "197": 1,
     "206": 1,
+    "229": 1,
+    "282": 1,
+    "300": 1,
+    "301": 1,
+    "303": 1,
     "342": 3,
     "351": 3,
+    "364": 1,
+    "371": 1,
+    "380": 1,
+    "429": 2,
+    "500": 2,
     "592": 1,
+    "606": 1,
+    "626": 1,
     "778": 1,
-    "2026": 9,
-    "sesion": 3,
+    "1006": 1,
+    "1088": 1,
+    "1424": 1,
+    "1425": 1,
+    "1698": 1,
+    "2026": 16,
+    "sesion": 11,
     "item": 3,
-    "media": 3,
+    "media": 4,
     "prioridad": 7,
     "complet": 3,
-    "test": 9,
+    "test": 13,
     "coherencia": 6,
-    "setup": 9,
-    "setting": 7,
-    "json": 8,
-    "harnes": 13,
+    "setup": 11,
+    "setting": 11,
+    "json": 14,
+    "harnes": 18,
     "agreg": 4,
     "output": 5,
     "coherente": 1,
     "disco": 1,
-    "bloque": 1,
+    "bloque": 3,
     "verifica": 1,
     "todo": 6,
-    "hook": 7,
-    "key": 1,
+    "hook": 11,
+    "key": 2,
     "present": 1,
     "pretooluse": 2,
     "posttooluse": 1,
@@ -38,46 +57,46 @@
     "numero": 1,
     "grupo": 2,
     "consistente": 2,
-    "entre": 1,
-    "ejecucion": 1,
-    "mcpserver": 1,
-    "gemini": 3,
-    "bridge": 2,
-    "anthropic": 4,
-    "router": 3,
+    "entre": 2,
+    "ejecucion": 2,
+    "mcpserver": 4,
+    "gemini": 9,
+    "bridge": 10,
+    "anthropic": 8,
+    "router": 4,
     "post": 5,
     "update": 8,
-    "norm": 7,
-    "proyecto": 9,
-    "anfitrion": 3,
+    "norm": 9,
+    "proyecto": 11,
+    "anfitrion": 4,
     "paso": 3,
     "condicional": 1,
-    "final": 1,
-    "script": 5,
+    "final": 2,
+    "script": 8,
     "detecta": 4,
-    "core": 3,
+    "core": 9,
     "ejecuta": 3,
     "submodulo": 5,
-    "verific": 2,
-    "existe": 3,
-    "claude": 15,
+    "verific": 6,
+    "existe": 4,
+    "claude": 22,
     "padre": 3,
-    "tiene": 1,
+    "tiene": 3,
     "propio": 1,
     "package": 2,
     "otro": 1,
-    "modulo": 1,
-    "node": 3,
+    "modulo": 3,
+    "node": 6,
     "confirma": 1,
-    "cwd": 1,
+    "cwd": 2,
     "standalone": 2,
     "informa": 2,
     "omite": 1,
-    "skill": 13,
-    "mcp": 8,
+    "skill": 19,
+    "mcp": 16,
     "registry": 3,
     "navigator": 3,
-    "nuevo": 9,
+    "nuevo": 10,
     "cre": 1,
     "evaluador": 1,
     "tercero": 2,
@@ -93,130 +112,130 @@
     "http": 1,
     "seguridad": 2,
     "input": 1,
-    "eval": 2,
+    "eval": 4,
     "exec": 1,
     "shell": 1,
-    "sin": 5,
+    "sin": 12,
     "sanitizar": 1,
     "mantenimiento": 2,
     "repositorio": 1,
     "ultimo": 1,
-    "commit": 1,
+    "commit": 4,
     "issu": 1,
     "licencia": 1,
-    "calidad": 2,
+    "calidad": 5,
     "schema": 1,
-    "herramienta": 3,
+    "herramienta": 4,
     "inputschema": 1,
-    "completo": 2,
-    "riesgo": 1,
+    "completo": 3,
+    "riesgo": 2,
     "operativo": 1,
     "dependencia": 2,
     "filesystem": 1,
-    "api": 5,
-    "externa": 1,
+    "api": 6,
+    "externa": 3,
     "decision": 1,
     "instalar": 4,
-    "evaluar": 2,
+    "evaluar": 3,
     "rechazar": 1,
-    "registro": 1,
+    "registro": 6,
     "persistente": 1,
     "mcp_registry": 1,
     "sonnet": 5,
     "modelrouter": 7,
-    "via": 3,
+    "via": 5,
     "live": 1,
-    "desde": 5,
+    "desde": 7,
     "capacidad": 1,
     "max_input_token": 2,
     "max_token": 1,
     "128k": 1,
     "thinking": 3,
     "adaptativo": 2,
-    "code": 2,
+    "code": 5,
     "execution": 2,
     "structured": 1,
     "pricing": 2,
-    "mismo": 4,
+    "mismo": 5,
     "tier": 5,
     "mtok": 1,
     "actualiz": 6,
     "servic": 2,
-    "modelo": 5,
+    "modelo": 6,
     "reemplaza": 1,
     "conteo": 3,
     "conformidad": 1,
-    "archivo": 3,
+    "archivo": 5,
     "modific": 1,
     "entr": 5,
     "tabla": 6,
     "readme": 5,
     "aprendizaj": 1,
-    "verificar": 2,
+    "verificar": 4,
     "contexto": 2,
-    "ant": 3,
-    "corregir": 1,
-    "vault": 4,
+    "ant": 5,
+    "corregir": 2,
+    "vault": 5,
     "marcaba": 1,
     "referencia": 2,
-    "pendiente": 2,
+    "pendiente": 5,
     "corrección": 1,
     "leerlo": 1,
-    "real": 6,
-    "toda": 1,
+    "real": 8,
+    "toda": 2,
     "eran": 1,
     "correcta": 1,
     "produccion": 1,
     "general": 1,
-    "hallazgo": 2,
+    "hallazgo": 3,
     "era": 1,
-    "falso": 2,
-    "positivo": 2,
+    "falso": 3,
+    "positivo": 3,
     "registr": 1,
     "lección": 1,
     "siempre": 3,
     "leer": 1,
     "actuar": 1,
-    "sobre": 1,
+    "sobre": 4,
     "memoria": 3,
-    "confirm": 1,
+    "confirm": 2,
     "client": 1,
-    "model": 4,
-    "list": 1,
+    "model": 5,
+    "list": 3,
     "vivo": 1,
-    "cache": 2,
-    "tenia": 1,
+    "cache": 3,
+    "tenia": 2,
     "habia": 1,
     "incorpor": 1,
     "detección": 1,
-    "patron": 2,
+    "patron": 4,
     "suficiente": 1,
     "robusto": 1,
     "distinguir": 1,
     "depender": 1,
-    "git": 1,
+    "git": 3,
     "modul": 1,
-    "requieren": 2,
-    "seccion": 1,
+    "requieren": 3,
+    "seccion": 2,
     "obligatoria": 1,
-    "restriccion": 1,
+    "restriccion": 2,
     "perfil": 1,
     "directiva": 1,
     "interrupcion": 1,
     "primera": 3,
     "accion": 1,
     "activar": 1,
-    "marcador": 1,
+    "marcador": 2,
     "alerta_arquitectonica": 1,
     "requiere_opusplan": 1,
     "suite": 1,
     "inmediata": 3,
     "util": 1,
-    "gate": 1,
+    "gate": 4,
     "crear": 1,
-    "sed": 1,
+    "sed": 2,
     "múltipl": 2,
-    "puede": 1,
+    "puede": 2,
     "introducir": 1,
     "bug": 4,
     "parcial": 1,
@@ -224,15 +243,15 @@
     "dejó": 1,
     "combin": 1,
     "incorrecta": 1,
-    "c": 3,
+    "c": 4,
     "reemplazo": 1,
     "individual": 1,
-    "cu": 5,
-    "usan": 1,
+    "cu": 7,
+    "usan": 2,
     "generico": 1,
     "logica": 1,
-    "alta": 2,
-    "arn": 7,
+    "alta": 3,
+    "arn": 8,
     "manager": 8,
     "principal": 2,
     "arquitectura": 6,
@@ -247,25 +266,25 @@
     "fueron": 1,
     "descart": 3,
     "hay": 4,
-    "pendient": 1,
+    "pendient": 2,
     "cierre": 1,
-    "baja": 2,
+    "baja": 3,
     "resuelto": 2,
     "sesión": 4,
     "upgrade": 1,
     "aaa": 2,
     "auditoría": 7,
     "release": 2,
-    "mejora": 3,
+    "mejora": 4,
     "implement": 2,
     "ponytail": 1,
-    "check": 2,
-    "write": 1,
-    "edit": 1,
+    "check": 3,
+    "write": 2,
+    "edit": 2,
     "escalera": 1,
     "yagni": 1,
     "capa": 1,
-    "dev": 1,
+    "dev": 2,
     "loop": 1,
     "ciclo": 1,
     "spec": 1,
@@ -286,43 +305,43 @@
     "zero": 1,
     "dep": 1,
     "auto": 1,
-    "umbral": 1,
+    "umbral": 3,
     "score": 5,
     "activo": 2,
     "metric": 1,
     "observabilidad": 1,
-    "tool": 3,
+    "tool": 6,
     "call": 1,
     "statu": 1,
     "token": 2,
     "dur": 1,
     "house": 1,
     "subagent": 2,
-    "valid": 1,
+    "valid": 3,
     "adversarial": 1,
     "auditor": 2,
     "adversario": 1,
     "pragmático": 1,
     "exit": 1,
-    "critico": 1,
+    "critico": 2,
     "adverse": 1,
-    "visual": 1,
-    "designer": 1,
-    "tech": 2,
-    "lead": 2,
-    "frontend": 2,
+    "visual": 2,
+    "designer": 2,
+    "tech": 3,
+    "lead": 3,
+    "frontend": 3,
     "reescrito": 2,
     "paradigma": 1,
     "w3c": 1,
     "wcag": 1,
     "motion": 1,
     "v11": 1,
-    "import": 1,
+    "import": 2,
     "correcto": 2,
     "react": 1,
-    "correccion": 1,
+    "correccion": 2,
     "opu": 4,
-    "health": 3,
+    "health": 4,
     "sync": 2,
     "parsing": 1,
     "correg": 1,
@@ -333,9 +352,9 @@
     "aiop": 4,
     "exclu": 1,
     "scan": 1,
-    "version": 3,
+    "version": 5,
     "string": 2,
-    "sdk": 1,
+    "sdk": 2,
     "sincroniz": 1,
     "yml": 1,
     "engin": 1,
@@ -343,20 +362,20 @@
     "matrix": 1,
     "elimin": 1,
     "docs_maestra": 1,
-    "repo": 2,
+    "repo": 4,
     "fix": 1,
     "crítico": 1,
     "portabilidad": 1,
     "generaban": 1,
-    "solo": 6,
+    "solo": 10,
     "versión": 1,
     "ahora": 4,
     "producen": 2,
     "actual": 1,
-    "document": 2,
+    "document": 5,
     "changelog": 2,
     "nota": 1,
-    "migr": 2,
+    "migr": 3,
     "existent": 1,
     "roadmap_aaa": 1,
     "marc": 1,
@@ -366,21 +385,21 @@
     "frecuent": 1,
     "actualizar": 3,
     "bootstrap": 3,
-    "son": 4,
+    "son": 5,
     "primero": 1,
     "desincronizarse": 1,
     "agregan": 1,
     "porque": 3,
     "valide": 1,
     "coincide": 1,
-    "detect": 1,
+    "detect": 2,
     "manual": 2,
     "patrón": 3,
     "vigilar": 2,
-    "vez": 2,
+    "vez": 3,
     "modifique": 1,
     "directa": 1,
-    "result": 4,
+    "result": 5,
     "contienen": 1,
     "regex": 1,
     "dato": 1,
@@ -389,7 +408,7 @@
     "scorer": 1,
     "lista": 1,
     "excluir": 1,
-    "debe": 2,
+    "debe": 5,
     "actualizarse": 1,
     "agregue": 2,
     "checkskill": 1,
@@ -400,16 +419,16 @@
     "llevaba": 1,
     "detectarse": 1,
     "reporte": 1,
-    "bloquea": 1,
-    "n": 1,
+    "bloquea": 2,
+    "n": 2,
     "flujo": 1,
     "bin": 1,
     "anfitrión": 1,
     "automático": 1,
     "único": 1,
     "corre": 1,
-    "npm": 2,
-    "run": 3,
+    "npm": 5,
+    "run": 4,
     "candidato": 1,
     "automatizar": 3,
     "futuro": 2,
@@ -421,22 +440,22 @@
     "fastify": 1,
     "updater": 1,
     "clona": 1,
-    "abre": 1,
+    "abre": 2,
     "obsoleto": 1,
     "dependency": 1,
     "watcher": 1,
     "cv": 1,
     "deprec": 1,
     "dashboard": 1,
-    "web": 1,
-    "cli": 1,
+    "web": 7,
+    "cli": 3,
     "npx": 1,
     "init": 1,
     "deploy": 1,
     "railway": 1,
     "app": 1,
     "instalable": 1,
-    "base": 1,
+    "base": 2,
     "técnica": 1,
     "driver": 1,
     "worker": 1,
@@ -449,19 +468,19 @@
     "automática": 2,
     "vacío": 2,
     "inicio": 1,
-    "protocolo": 2,
+    "protocolo": 4,
     "arranque": 1,
     "consulta": 1,
     "raw": 2,
     "índice": 1,
-    "incluir": 1,
-    "est": 2,
-    "tenga": 2,
+    "incluir": 2,
+    "est": 3,
+    "tenga": 3,
     "ejecute": 2,
-    "compare": 2,
+    "compare": 3,
     "existente": 1,
-    "detectar": 1,
-    "quedan": 3,
+    "detectar": 2,
+    "quedan": 4,
     "desincroniz": 2,
     "completa": 2,
     "fable": 4,
@@ -488,22 +507,22 @@
     "query": 2,
     "expansion": 1,
     "sinón": 1,
-    "dominio": 1,
+    "dominio": 4,
     "conver": 1,
     "recall": 1,
     "queri": 1,
     "natural": 1,
-    "med": 1,
+    "med": 2,
     "pa": 1,
     "engineer": 2,
-    "regla": 1,
+    "regla": 5,
     "selección": 1,
     "workflow": 2,
-    "orchestrator": 2,
+    "orchestrator": 5,
     "mapeo": 1,
     "split": 1,
     "arquitectura_tool": 1,
-    "specialist": 1,
+    "specialist": 2,
     "flash": 1,
     "intermedio": 1,
     "integration": 2,
@@ -515,14 +534,14 @@
     "comentario": 2,
     "ejemplo": 2,
     "standard": 1,
-    "guard": 1,
+    "guard": 8,
     "catch": 1,
     "log": 1,
     "stderr": 1,
     "mensaje": 1,
     "error": 1,
     "tier_fable": 1,
-    "cubre": 1,
+    "cubre": 2,
     "disenar_sistema": 1,
     "refactorizar_arquitectura": 1,
     "tier_opu": 1,
@@ -545,10 +564,10 @@
     "retorna": 1,
     "acumul": 1,
     "ronda": 1,
-    "falla": 1,
+    "falla": 2,
     "return": 1,
     "getversion": 1,
-    "degrad": 1,
+    "degrad": 2,
     "graceful": 1,
     "intencional": 1,
     "distinción": 1,
@@ -556,17 +575,17 @@
     "razonamiento": 1,
     "profundo": 1,
     "mantenerse": 1,
-    "orden": 1,
+    "orden": 3,
     "costo_por_modelo": 1,
-    "rol": 1,
+    "rol": 2,
     "aplica": 1,
     "afect": 1,
     "decisión": 1,
     "difer": 1,
-    "oficial": 1,
+    "oficial": 3,
     "modelcontextprotocol": 1,
-    "server": 1,
-    "fue": 1,
+    "server": 2,
+    "fue": 2,
     "razón": 1,
     "grafo": 1,
     "queda": 1,
@@ -577,7 +596,7 @@
     "entidad": 1,
     "rel": 1,
     "cruz": 1,
-    "auditoria": 1,
+    "auditoria": 4,
     "muerto": 1,
     "módulo": 1,
     "contextindex": 1,
@@ -586,25 +605,350 @@
     "consum": 1,
     "elimina": 1,
     "huérfano": 1,
-    "tra": 1,
+    "tra": 3,
     "glama": 1,
     "transport": 1,
-    "caso": 1,
+    "caso": 2,
     "uso": 1,
     "directo": 1,
     "detectó": 1,
     "está": 1,
     "producción": 1,
     "agregarlo": 1,
-    "funciona": 1,
+    "funciona": 2,
     "llm": 1,
     "observability": 1,
     "testing": 1,
     "tienen": 1,
-    "anterior": 1,
+    "anterior": 3,
     "routing": 1,
     "severidad": 1,
-    "próxima": 1
+    "próxima": 1,
+    "gobierno": 3,
+    "modularidad": 2,
+    "marco": 2,
+    "previo": 2,
+    "push": 3,
+    "realiz": 1,
+    "ciso": 3,
+    "product": 3,
+    "lifecycle": 3,
+    "market_standard": 2,
+    "restaur": 1,
+    "linea": 3,
+    "divid": 1,
+    "lib": 1,
+    "definition": 2,
+    "destructive": 2,
+    "issue": 1,
+    "reporter": 1,
+    "sal": 1,
+    "identica": 1,
+    "contra": 6,
+    "baseline": 1,
+    "permiso": 1,
+    "allow": 1,
+    "unific": 1,
+    "permission": 3,
+    "estaban": 1,
+    "duplic": 1,
+    "roto": 1,
+    "host": 1,
+    "extraccion": 1,
+    "fake": 1,
+    "incompatible": 1,
+    "homebrew": 2,
+    "enlaz": 2,
+    "dinamica": 2,
+    "quality": 1,
+    "githook": 1,
+    "pre": 2,
+    "activ": 1,
+    "hookspath": 1,
+    "sigue": 1,
+    "compuerta": 2,
+    "break": 3,
+    "glas": 3,
+    "bypas": 2,
+    "total": 1,
+    "describe": 2,
+    "perder": 1,
+    "informe": 1,
+    "doc": 4,
+    "brecha": 1,
+    "resuelta": 1,
+    "compar": 1,
+    "merc": 4,
+    "pas": 1,
+    "fail": 1,
+    "skip": 1,
+    "validate": 3,
+    "global": 3,
+    "verde": 1,
+    "6063a95": 1,
+    "refactor": 1,
+    "modular": 1,
+    "9948acc": 1,
+    "da5fc8b": 1,
+    "cuarto": 1,
+    "vigencia": 5,
+    "aprend": 2,
+    "corren": 1,
+    "bajo": 2,
+    "proceso": 1,
+    "hijo": 1,
+    "heredan": 1,
+    "ejecutar": 2,
+    "ser": 1,
+    "nativo": 2,
+    "rpath": 1,
+    "libnode": 1,
+    "copiar": 1,
+    "binario": 1,
+    "rompe": 1,
+    "fak": 1,
+    "wrapper": 1,
+    "gnu": 1,
+    "maco": 1,
+    "usar": 2,
+    "huella": 1,
+    "conten": 1,
+    "trackear": 1,
+    "diff": 1,
+    "head": 1,
+    "tracke": 1,
+    "identificador": 1,
+    "cifra": 3,
+    "derivan": 1,
+    "aviso": 1,
+    "decia": 1,
+    "codigo": 2,
+    "hoy": 1,
+    "identidad": 3,
+    "nunca": 1,
+    "estuvo": 1,
+    "configur": 1,
+    "checkpoint": 1,
+    "salieron": 1,
+    "email": 1,
+    "maquina": 1,
+    "fijo": 1,
+    "local": 4,
+    "comitear": 1,
+    "texto": 2,
+    "literal": 2,
+    "dentro": 2,
+    "argumento": 1,
+    "cuya": 1,
+    "cadena": 1,
+    "mencionaba": 1,
+    "deneg": 1,
+    "resolvio": 1,
+    "escrib": 1,
+    "deadlock": 3,
+    "visto": 1,
+    "cuota": 2,
+    "search": 5,
+    "siguio": 1,
+    "webfetch": 3,
+    "sintaxi": 2,
+    "deny": 2,
+    "sandbox": 2,
+    "quedo": 1,
+    "eso": 1,
+    "escribieron": 1,
+    "esa": 1,
+    "clav": 2,
+    "fecha": 2,
+    "escriben": 2,
+    "utc": 1,
+    "dia": 2,
+    "atra": 1,
+    "instruccion": 1,
+    "atribucion": 1,
+    "authored": 1,
+    "inyecta": 1,
+    "contradice": 1,
+    "prevalece": 1,
+    "fuera": 1,
+    "alcance": 1,
+    "valen": 1,
+    "pena": 1,
+    "detalle": 1,
+    "evidencia": 1,
+    "g11": 2,
+    "degradar": 1,
+    "read": 3,
+    "devuelve": 1,
+    "conect": 3,
+    "ttl": 1,
+    "escrito": 2,
+    "desbloquea": 1,
+    "investig": 4,
+    "g13": 2,
+    "automatica": 1,
+    "msg": 1,
+    "determinista": 2,
+    "tambien": 2,
+    "humano": 1,
+    "g15": 2,
+    "barata": 1,
+    "g16": 2,
+    "residual": 1,
+    "new": 1,
+    "orig": 1,
+    "secreto": 1,
+    "working": 1,
+    "tree": 1,
+    "limite": 1,
+    "g12": 2,
+    "efecto": 2,
+    "generar": 2,
+    "g14": 1,
+    "destructivo": 1,
+    "cambiarlo": 1,
+    "evasion": 1,
+    "diferenciador": 1,
+    "frente": 1,
+    "conservar": 1,
+    "promptfoo": 1,
+    "recomend": 1,
+    "cerrar": 2,
+    "ca": 2,
+    "definir": 1,
+    "env": 2,
+    "ssh": 1,
+    "com": 1,
+    "escribir": 1,
+    "g10": 1,
+    "reverificar": 2,
+    "protocol": 3,
+    "internal": 3,
+    "governance": 3,
+    "cinco": 1,
+    "acercan": 1,
+    "dividir": 1,
+    "nucleo": 1,
+    "referenc": 1,
+    "backend": 1,
+    "architect": 1,
+    "scraping": 1,
+    "builder": 1,
+    "red": 1,
+    "enmendar": 1,
+    "exencion": 1,
+    "despu": 1,
+    "mover": 1,
+    "origin": 1,
+    "last_updated": 1,
+    "metadata": 1,
+    "ajustar": 1,
+    "audit": 2,
+    "market": 2,
+    "mejor": 1,
+    "practica": 1,
+    "fuente": 2,
+    "primaria": 2,
+    "repar": 2,
+    "carga": 1,
+    "interna": 1,
+    "conform": 1,
+    "alto": 1,
+    "migrate": 1,
+    "dry": 1,
+    "activa": 1,
+    "sin_dominio_registr": 1,
+    "ningun": 1,
+    "desactualiz": 1,
+    "cercano": 1,
+    "55d": 1,
+    "vence": 1,
+    "48d": 1,
+    "diagnostico": 1,
+    "bloqueo": 1,
+    "intento": 1,
+    "investigar": 1,
+    "sistema": 1,
+    "agentico": 1,
+    "websearch": 2,
+    "presencia": 1,
+    "gemini_api_key": 2,
+    "estaba": 2,
+    "mostraba": 1,
+    "google": 1,
+    "drive": 1,
+    "raiz": 2,
+    "aplic": 1,
+    "ambo": 2,
+    "servidor": 2,
+    "tocar": 2,
+    "add": 2,
+    "user": 2,
+    "andrewarizmendi": 1,
+    "reporta": 1,
+    "connected": 1,
+    "cargan": 2,
+    "reiniciar": 2,
+    "hizo": 1,
+    "cargara": 1,
+    "causa": 1,
+    "infer": 1,
+    "observ": 1,
+    "ubic": 1,
+    "soport": 1,
+    "scope": 1,
+    "project": 1,
+    "propia": 1,
+    "loadenv": 1,
+    "pasar": 1,
+    "gap": 2,
+    "degr": 1,
+    "permitir": 1,
+    "nativa": 2,
+    "falta": 1,
+    "comprueba": 1,
+    "presente": 1,
+    "alternativa": 1,
+    "probable": 1,
+    "grep": 1,
+    "disponible": 1,
+    "bash": 1,
+    "include": 1,
+    "entrecomill": 1,
+    "zsh": 1,
+    "expande": 1,
+    "glob": 1,
+    "comilla": 1,
+    "buscar_web": 1,
+    "analizar_conten": 1,
+    "tr": 1,
+    "frent": 1,
+    "github": 1,
+    "codex": 1,
+    "opencode": 1,
+    "cline": 1,
+    "openhand": 1,
+    "aider": 1,
+    "agentskill": 1,
+    "creador": 1,
+    "lider": 1,
+    "tecnico": 1,
+    "senior": 1,
+    "afirm": 1,
+    "tecnologica": 1,
+    "gener": 1,
+    "compart": 1,
+    "impacto": 1,
+    "generador": 1,
+    "lee": 1,
+    "afecta": 1,
+    "confirmar": 1,
+    "disponibilidad": 1,
+    "denegar": 1,
+    "registrar": 1,
+    "decidir": 1,
+    "documentar": 1,
+    "requiere": 1
   },
   "inv": {
     "104": [
@@ -619,9 +963,51 @@
         "tf": 1
       }
     ],
+    "172": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#2",
+        "tf": 1
+      }
+    ],
+    "197": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#2",
+        "tf": 1
+      }
+    ],
     "206": [
       {
         "id": "general/session-2026-07-07-auditoria-y-bm25plus#5",
+        "tf": 1
+      }
+    ],
+    "229": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#2",
+        "tf": 1
+      }
+    ],
+    "282": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#2",
+        "tf": 1
+      }
+    ],
+    "300": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#2",
+        "tf": 2
+      }
+    ],
+    "301": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#2",
+        "tf": 1
+      }
+    ],
+    "303": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#2",
         "tf": 1
       }
     ],
@@ -653,15 +1039,95 @@
         "tf": 1
       }
     ],
+    "364": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#2",
+        "tf": 1
+      }
+    ],
+    "371": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#2",
+        "tf": 1
+      }
+    ],
+    "380": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#2",
+        "tf": 1
+      }
+    ],
+    "429": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#3",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#4",
+        "tf": 1
+      }
+    ],
+    "500": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#4",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#5",
+        "tf": 1
+      }
+    ],
     "592": [
       {
         "id": "general/session-2026-07-07-auditoria-y-bm25plus#5",
         "tf": 1
       }
     ],
+    "606": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#5",
+        "tf": 1
+      }
+    ],
+    "626": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#5",
+        "tf": 1
+      }
+    ],
     "778": [
       {
         "id": "general/session-2026-07-07-auditoria-y-bm25plus#5",
+        "tf": 1
+      }
+    ],
+    "1006": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#5",
+        "tf": 1
+      }
+    ],
+    "1088": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#5",
+        "tf": 1
+      }
+    ],
+    "1424": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#2",
+        "tf": 1
+      }
+    ],
+    "1425": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#2",
+        "tf": 1
+      }
+    ],
+    "1698": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#5",
         "tf": 1
       }
     ],
@@ -701,6 +1167,34 @@
       {
         "id": "general/session-2026-07-07-auditoria-y-bm25plus#11",
         "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#1",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#2",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#4",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#5",
+        "tf": 3
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#1",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#3",
+        "tf": 2
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#7",
+        "tf": 2
       }
     ],
     "sesion": [
@@ -715,6 +1209,38 @@
       {
         "id": "general/session-2026-07-07-auditoria-y-bm25plus#3",
         "tf": 2
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#1",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#2",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#3",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#1",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#4",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#5",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#6",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#7",
+        "tf": 1
       }
     ],
     "item": [
@@ -743,6 +1269,10 @@
       {
         "id": "general/session-2026-07-07-auditoria-y-bm25plus#12",
         "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#4",
+        "tf": 4
       }
     ],
     "prioridad": [
@@ -825,6 +1355,22 @@
       {
         "id": "general/session-2026-07-07-auditoria-y-bm25plus#12",
         "tf": 3
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#2",
+        "tf": 8
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#3",
+        "tf": 2
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#4",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#7",
+        "tf": 4
       }
     ],
     "coherencia": [
@@ -889,6 +1435,14 @@
       {
         "id": "general/session-2026-07-07-auditoria-y-bm25plus#12",
         "tf": 2
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#2",
+        "tf": 2
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#7",
+        "tf": 2
       }
     ],
     "setting": [
@@ -919,6 +1473,22 @@
       {
         "id": "general/session-2026-07-07-auditoria-y-bm25plus#12",
         "tf": 4
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#2",
+        "tf": 4
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#4",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#6",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#7",
+        "tf": 3
       }
     ],
     "json": [
@@ -953,6 +1523,30 @@
       {
         "id": "general/session-2026-07-07-auditoria-y-bm25plus#12",
         "tf": 3
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#2",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#4",
+        "tf": 2
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#4",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#5",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#6",
+        "tf": 3
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#7",
+        "tf": 4
       }
     ],
     "harnes": [
@@ -1007,6 +1601,26 @@
       {
         "id": "general/session-2026-07-07-auditoria-y-bm25plus#13",
         "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#2",
+        "tf": 3
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#3",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#5",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#4",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#7",
+        "tf": 5
       }
     ],
     "agreg": [
@@ -1064,6 +1678,14 @@
     "bloque": [
       {
         "id": "general/session-2026-07-06-media-prioridad#3",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#3",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#6",
         "tf": 1
       }
     ],
@@ -1127,12 +1749,32 @@
       {
         "id": "general/session-2026-07-07-auditoria-y-bm25plus#12",
         "tf": 2
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#2",
+        "tf": 2
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#3",
+        "tf": 2
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#4",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#7",
+        "tf": 1
       }
     ],
     "key": [
       {
         "id": "general/session-2026-07-06-media-prioridad#3",
         "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#6",
+        "tf": 3
       }
     ],
     "present": [
@@ -1219,11 +1861,19 @@
       {
         "id": "general/session-2026-07-06-media-prioridad#3",
         "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#2",
+        "tf": 1
       }
     ],
     "ejecucion": [
       {
         "id": "general/session-2026-07-06-media-prioridad#3",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#2",
         "tf": 1
       }
     ],
@@ -1231,6 +1881,18 @@
       {
         "id": "general/session-2026-07-06-media-prioridad#3",
         "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#4",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#6",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#7",
+        "tf": 2
       }
     ],
     "gemini": [
@@ -1245,6 +1907,30 @@
       {
         "id": "general/session-2026-07-07-auditoria-y-bm25plus#5",
         "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#4",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#1",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#4",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#5",
+        "tf": 2
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#6",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#7",
+        "tf": 2
       }
     ],
     "bridge": [
@@ -1255,6 +1941,38 @@
       {
         "id": "general/session-2026-07-07-auditoria-y-bm25plus#9",
         "tf": 3
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#3",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#4",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#5",
+        "tf": 2
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#1",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#4",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#5",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#6",
+        "tf": 2
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#7",
+        "tf": 2
       }
     ],
     "anthropic": [
@@ -1273,6 +1991,22 @@
       {
         "id": "general/session-2026-07-07-auditoria-y-bm25plus#9",
         "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#2",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#5",
+        "tf": 2
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#6",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#7",
+        "tf": 1
       }
     ],
     "router": [
@@ -1286,6 +2020,10 @@
       },
       {
         "id": "general/session-2026-07-07-auditoria-y-bm25plus#7",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#5",
         "tf": 1
       }
     ],
@@ -1373,6 +2111,14 @@
       {
         "id": "general/session-2026-07-07-auditoria-y-bm25plus#12",
         "tf": 2
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#2",
+        "tf": 3
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#7",
+        "tf": 2
       }
     ],
     "proyecto": [
@@ -1411,6 +2157,14 @@
       {
         "id": "general/session-2026-07-07-auditoria-y-bm25plus#12",
         "tf": 2
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#5",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#7",
+        "tf": 1
       }
     ],
     "anfitrion": [
@@ -1424,6 +2178,10 @@
       },
       {
         "id": "general/session-2026-07-07-auditoria-y-bm25plus#12",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#7",
         "tf": 1
       }
     ],
@@ -1451,6 +2209,10 @@
       {
         "id": "general/session-2026-07-06-media-prioridad#4",
         "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#2",
+        "tf": 1
       }
     ],
     "script": [
@@ -1472,6 +2234,18 @@
       },
       {
         "id": "general/session-2026-07-06-upgrade-aaa#10",
+        "tf": 2
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#2",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#3",
+        "tf": 2
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#5",
         "tf": 2
       }
     ],
@@ -1504,6 +2278,30 @@
       },
       {
         "id": "general/session-2026-07-07-auditoria-y-bm25plus#3",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#2",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#3",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#5",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#3",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#5",
+        "tf": 3
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#7",
         "tf": 1
       }
     ],
@@ -1551,6 +2349,22 @@
       {
         "id": "general/session-2026-07-06-media-prioridad#6",
         "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#2",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#3",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#5",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#6",
+        "tf": 2
       }
     ],
     "existe": [
@@ -1564,6 +2378,10 @@
       },
       {
         "id": "general/session-2026-07-06-upgrade-aaa#16",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#4",
         "tf": 1
       }
     ],
@@ -1627,6 +2445,34 @@
       {
         "id": "general/session-2026-07-07-auditoria-y-bm25plus#13",
         "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#3",
+        "tf": 3
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#4",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#5",
+        "tf": 2
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#4",
+        "tf": 2
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#5",
+        "tf": 4
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#6",
+        "tf": 4
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#7",
+        "tf": 4
       }
     ],
     "padre": [
@@ -1646,6 +2492,14 @@
     "tiene": [
       {
         "id": "general/session-2026-07-06-media-prioridad#4",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#4",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#6",
         "tf": 1
       }
     ],
@@ -1675,6 +2529,14 @@
       {
         "id": "general/session-2026-07-06-media-prioridad#4",
         "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#2",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#7",
+        "tf": 1
       }
     ],
     "node": [
@@ -1689,6 +2551,18 @@
       {
         "id": "general/session-2026-07-06-upgrade-aaa#12",
         "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#2",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#3",
+        "tf": 2
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#5",
+        "tf": 2
       }
     ],
     "confirma": [
@@ -1700,6 +2574,10 @@
     "cwd": [
       {
         "id": "general/session-2026-07-06-media-prioridad#4",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#7",
         "tf": 1
       }
     ],
@@ -1781,6 +2659,30 @@
       {
         "id": "general/session-2026-07-07-auditoria-y-bm25plus#13",
         "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#2",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#4",
+        "tf": 2
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#5",
+        "tf": 4
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#3",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#4",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#7",
+        "tf": 2
       }
     ],
     "mcp": [
@@ -1815,6 +2717,38 @@
       {
         "id": "general/session-2026-07-07-auditoria-y-bm25plus#12",
         "tf": 3
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#2",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#4",
+        "tf": 2
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#5",
+        "tf": 2
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#3",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#4",
+        "tf": 2
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#5",
+        "tf": 6
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#6",
+        "tf": 3
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#7",
+        "tf": 7
       }
     ],
     "registry": [
@@ -1881,6 +2815,10 @@
       {
         "id": "general/session-2026-07-07-auditoria-y-bm25plus#12",
         "tf": 2
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#2",
+        "tf": 1
       }
     ],
     "cre": [
@@ -2041,6 +2979,14 @@
       {
         "id": "general/session-2026-07-07-auditoria-y-bm25plus#13",
         "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#4",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#5",
+        "tf": 2
       }
     ],
     "exec": [
@@ -2074,6 +3020,34 @@
       },
       {
         "id": "general/session-2026-07-07-auditoria-y-bm25plus#7",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#2",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#3",
+        "tf": 5
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#5",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#3",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#5",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#6",
+        "tf": 3
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#7",
         "tf": 1
       }
     ],
@@ -2109,6 +3083,18 @@
       {
         "id": "general/session-2026-07-06-media-prioridad#5",
         "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#2",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#3",
+        "tf": 2
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#4",
+        "tf": 4
       }
     ],
     "issu": [
@@ -2131,6 +3117,18 @@
       {
         "id": "general/session-2026-07-06-media-prioridad#9",
         "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#1",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#2",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#3",
+        "tf": 1
       }
     ],
     "schema": [
@@ -2151,6 +3149,10 @@
       {
         "id": "general/session-2026-07-07-auditoria-y-bm25plus#7",
         "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#3",
+        "tf": 1
       }
     ],
     "inputschema": [
@@ -2167,11 +3169,19 @@
       {
         "id": "general/session-2026-07-06-upgrade-aaa#6",
         "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#2",
+        "tf": 1
       }
     ],
     "riesgo": [
       {
         "id": "general/session-2026-07-06-media-prioridad#5",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#4",
         "tf": 1
       }
     ],
@@ -2217,11 +3227,23 @@
       {
         "id": "general/session-2026-07-07-auditoria-y-bm25plus#7",
         "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#6",
+        "tf": 1
       }
     ],
     "externa": [
       {
         "id": "general/session-2026-07-06-media-prioridad#5",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#5",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#7",
         "tf": 1
       }
     ],
@@ -2257,6 +3279,10 @@
       {
         "id": "general/session-2026-07-07-auditoria-y-bm25plus#12",
         "tf": 2
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#5",
+        "tf": 1
       }
     ],
     "rechazar": [
@@ -2268,6 +3294,26 @@
     "registro": [
       {
         "id": "general/session-2026-07-06-media-prioridad#5",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#2",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#4",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#5",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#6",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#7",
         "tf": 1
       }
     ],
@@ -2347,6 +3393,14 @@
       {
         "id": "general/session-2026-07-06-upgrade-aaa#14",
         "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#6",
+        "tf": 2
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#7",
+        "tf": 1
       }
     ],
     "live": [
@@ -2374,6 +3428,14 @@
       },
       {
         "id": "general/session-2026-07-07-auditoria-y-bm25plus#12",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#2",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#7",
         "tf": 1
       }
     ],
@@ -2437,6 +3499,18 @@
       {
         "id": "general/session-2026-07-06-media-prioridad#9",
         "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#5",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#6",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#7",
+        "tf": 2
       }
     ],
     "execution": [
@@ -2481,6 +3555,10 @@
       {
         "id": "general/session-2026-07-07-auditoria-y-bm25plus#3",
         "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#6",
+        "tf": 2
       }
     ],
     "tier": [
@@ -2567,6 +3645,10 @@
       {
         "id": "general/session-2026-07-07-auditoria-y-bm25plus#13",
         "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#3",
+        "tf": 1
       }
     ],
     "reemplaza": [
@@ -2606,6 +3688,14 @@
       },
       {
         "id": "general/session-2026-07-06-upgrade-aaa#5",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#2",
+        "tf": 2
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#3",
         "tf": 1
       }
     ],
@@ -2699,6 +3789,14 @@
       {
         "id": "general/session-2026-07-06-upgrade-aaa#9",
         "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#5",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#7",
+        "tf": 2
       }
     ],
     "contexto": [
@@ -2723,11 +3821,23 @@
       {
         "id": "general/session-2026-07-07-auditoria-y-bm25plus#12",
         "tf": 2
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#5",
+        "tf": 3
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#7",
+        "tf": 4
       }
     ],
     "corregir": [
       {
         "id": "general/session-2026-07-06-media-prioridad#9",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#7",
         "tf": 1
       }
     ],
@@ -2746,6 +3856,10 @@
       },
       {
         "id": "general/session-2026-07-07-auditoria-y-bm25plus#13",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#2",
         "tf": 1
       }
     ],
@@ -2772,6 +3886,18 @@
       },
       {
         "id": "general/session-2026-07-07-auditoria-y-bm25plus#11",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#2",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#5",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#7",
         "tf": 1
       }
     ],
@@ -2811,11 +3937,23 @@
       {
         "id": "general/session-2026-07-07-auditoria-y-bm25plus#13",
         "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#6",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#7",
+        "tf": 1
       }
     ],
     "toda": [
       {
         "id": "general/session-2026-07-06-media-prioridad#9",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#4",
         "tf": 1
       }
     ],
@@ -2851,6 +3989,10 @@
       {
         "id": "general/session-2026-07-07-auditoria-y-bm25plus#5",
         "tf": 2
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#3",
+        "tf": 1
       }
     ],
     "era": [
@@ -2867,6 +4009,10 @@
       {
         "id": "general/session-2026-07-06-upgrade-aaa#10",
         "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#4",
+        "tf": 1
       }
     ],
     "positivo": [
@@ -2876,6 +4022,10 @@
       },
       {
         "id": "general/session-2026-07-06-upgrade-aaa#10",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#4",
         "tf": 1
       }
     ],
@@ -2921,6 +4071,18 @@
       {
         "id": "general/session-2026-07-06-media-prioridad#9",
         "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#2",
+        "tf": 2
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#4",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#5",
+        "tf": 1
       }
     ],
     "memoria": [
@@ -2940,6 +4102,10 @@
     "confirm": [
       {
         "id": "general/session-2026-07-06-media-prioridad#9",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#3",
         "tf": 1
       }
     ],
@@ -2965,11 +4131,23 @@
       {
         "id": "general/session-2026-07-07-auditoria-y-bm25plus#12",
         "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#3",
+        "tf": 1
       }
     ],
     "list": [
       {
         "id": "general/session-2026-07-06-media-prioridad#9",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#4",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#5",
         "tf": 1
       }
     ],
@@ -2987,11 +4165,19 @@
       {
         "id": "general/session-2026-07-07-auditoria-y-bm25plus#12",
         "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#3",
+        "tf": 1
       }
     ],
     "tenia": [
       {
         "id": "general/session-2026-07-06-media-prioridad#9",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#3",
         "tf": 1
       }
     ],
@@ -3020,6 +4206,14 @@
       },
       {
         "id": "general/session-2026-07-06-upgrade-aaa#10",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#6",
+        "tf": 2
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#7",
         "tf": 1
       }
     ],
@@ -3051,6 +4245,14 @@
       {
         "id": "general/session-2026-07-06-media-prioridad#9",
         "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#2",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#3",
+        "tf": 3
       }
     ],
     "modul": [
@@ -3067,11 +4269,19 @@
       {
         "id": "general/session-2026-07-07-auditoria-y-bm25plus#5",
         "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#6",
+        "tf": 1
       }
     ],
     "seccion": [
       {
         "id": "general/session-2026-07-06-media-prioridad#9",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#4",
         "tf": 1
       }
     ],
@@ -3084,6 +4294,10 @@
     "restriccion": [
       {
         "id": "general/session-2026-07-06-media-prioridad#9",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#3",
         "tf": 1
       }
     ],
@@ -3135,6 +4349,10 @@
       {
         "id": "general/session-2026-07-06-media-prioridad#9",
         "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#4",
+        "tf": 1
       }
     ],
     "alerta_arquitectonica": [
@@ -3179,6 +4397,18 @@
       {
         "id": "general/session-2026-07-06-media-prioridad#9",
         "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#2",
+        "tf": 4
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#3",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#4",
+        "tf": 2
       }
     ],
     "crear": [
@@ -3190,6 +4420,10 @@
     "sed": [
       {
         "id": "general/session-2026-07-06-media-prioridad#9",
+        "tf": 2
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#3",
         "tf": 2
       }
     ],
@@ -3207,6 +4441,10 @@
       {
         "id": "general/session-2026-07-06-media-prioridad#9",
         "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#3",
+        "tf": 2
       }
     ],
     "introducir": [
@@ -3275,6 +4513,10 @@
       {
         "id": "general/session-2026-07-06-upgrade-aaa#10",
         "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#7",
+        "tf": 1
       }
     ],
     "reemplazo": [
@@ -3309,11 +4551,23 @@
       {
         "id": "general/session-2026-07-07-auditoria-y-bm25plus#12",
         "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#4",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#5",
+        "tf": 1
       }
     ],
     "usan": [
       {
         "id": "general/session-2026-07-06-media-prioridad#9",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#3",
         "tf": 1
       }
     ],
@@ -3337,6 +4591,10 @@
       {
         "id": "general/session-2026-07-07-auditoria-y-bm25plus#11",
         "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#4",
+        "tf": 2
       }
     ],
     "arn": [
@@ -3366,6 +4624,10 @@
       },
       {
         "id": "general/session-2026-07-07-auditoria-y-bm25plus#12",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#7",
         "tf": 1
       }
     ],
@@ -3597,6 +4859,10 @@
       {
         "id": "general/session-2026-07-06-media-prioridad#12",
         "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#3",
+        "tf": 1
       }
     ],
     "cierre": [
@@ -3613,6 +4879,10 @@
       {
         "id": "general/session-2026-07-07-auditoria-y-bm25plus#13",
         "tf": 2
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#4",
+        "tf": 1
       }
     ],
     "resuelto": [
@@ -3711,6 +4981,10 @@
       {
         "id": "general/session-2026-07-07-auditoria-y-bm25plus#3",
         "tf": 2
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#4",
+        "tf": 1
       }
     ],
     "implement": [
@@ -3737,17 +5011,29 @@
       {
         "id": "general/session-2026-07-07-auditoria-y-bm25plus#5",
         "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#7",
+        "tf": 1
       }
     ],
     "write": [
       {
         "id": "general/session-2026-07-06-upgrade-aaa#3",
         "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#3",
+        "tf": 1
       }
     ],
     "edit": [
       {
         "id": "general/session-2026-07-06-upgrade-aaa#3",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#3",
         "tf": 1
       }
     ],
@@ -3772,6 +5058,10 @@
     "dev": [
       {
         "id": "general/session-2026-07-06-upgrade-aaa#3",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#7",
         "tf": 1
       }
     ],
@@ -3931,6 +5221,14 @@
       {
         "id": "general/session-2026-07-06-upgrade-aaa#3",
         "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#5",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#3",
+        "tf": 1
       }
     ],
     "score": [
@@ -3989,6 +5287,18 @@
       {
         "id": "general/session-2026-07-07-auditoria-y-bm25plus#7",
         "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#5",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#6",
+        "tf": 2
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#7",
+        "tf": 1
       }
     ],
     "call": [
@@ -4039,6 +5349,14 @@
       {
         "id": "general/session-2026-07-06-upgrade-aaa#3",
         "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#1",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#3",
+        "tf": 1
       }
     ],
     "adversarial": [
@@ -4079,6 +5397,10 @@
       {
         "id": "general/session-2026-07-06-upgrade-aaa#3",
         "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#3",
+        "tf": 1
       }
     ],
     "adverse": [
@@ -4091,11 +5413,19 @@
       {
         "id": "general/session-2026-07-06-upgrade-aaa#3",
         "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#5",
+        "tf": 1
       }
     ],
     "designer": [
       {
         "id": "general/session-2026-07-06-upgrade-aaa#3",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#5",
         "tf": 1
       }
     ],
@@ -4107,6 +5437,10 @@
       {
         "id": "general/session-2026-07-07-auditoria-y-bm25plus#13",
         "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#5",
+        "tf": 1
       }
     ],
     "lead": [
@@ -4117,6 +5451,10 @@
       {
         "id": "general/session-2026-07-07-auditoria-y-bm25plus#13",
         "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#5",
+        "tf": 1
       }
     ],
     "frontend": [
@@ -4126,6 +5464,10 @@
       },
       {
         "id": "general/session-2026-07-07-auditoria-y-bm25plus#13",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#5",
         "tf": 1
       }
     ],
@@ -4173,6 +5515,10 @@
       {
         "id": "general/session-2026-07-06-upgrade-aaa#3",
         "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#2",
+        "tf": 1
       }
     ],
     "correcto": [
@@ -4195,6 +5541,10 @@
       {
         "id": "general/session-2026-07-06-upgrade-aaa#4",
         "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#2",
+        "tf": 2
       }
     ],
     "opu": [
@@ -4226,6 +5576,10 @@
       },
       {
         "id": "general/session-2026-07-07-auditoria-y-bm25plus#5",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#7",
         "tf": 1
       }
     ],
@@ -4341,6 +5695,14 @@
       {
         "id": "general/session-2026-07-06-upgrade-aaa#14",
         "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#5",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#3",
+        "tf": 1
       }
     ],
     "string": [
@@ -4356,6 +5718,10 @@
     "sdk": [
       {
         "id": "general/session-2026-07-06-upgrade-aaa#4",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#3",
         "tf": 1
       }
     ],
@@ -4409,6 +5775,14 @@
       {
         "id": "general/session-2026-07-06-upgrade-aaa#14",
         "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#3",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#5",
+        "tf": 1
       }
     ],
     "fix": [
@@ -4459,6 +5833,22 @@
       {
         "id": "general/session-2026-07-07-auditoria-y-bm25plus#9",
         "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#3",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#4",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#5",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#6",
+        "tf": 2
       }
     ],
     "versión": [
@@ -4509,6 +5899,18 @@
       {
         "id": "general/session-2026-07-06-upgrade-aaa#12",
         "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#2",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#3",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#6",
+        "tf": 1
       }
     ],
     "changelog": [
@@ -4534,6 +5936,10 @@
       },
       {
         "id": "general/session-2026-07-06-upgrade-aaa#12",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#3",
         "tf": 1
       }
     ],
@@ -4623,6 +6029,10 @@
       {
         "id": "general/session-2026-07-07-auditoria-y-bm25plus#13",
         "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#3",
+        "tf": 1
       }
     ],
     "primero": [
@@ -4673,6 +6083,10 @@
       {
         "id": "general/session-2026-07-06-upgrade-aaa#9",
         "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#4",
+        "tf": 1
       }
     ],
     "manual": [
@@ -4717,6 +6131,10 @@
       {
         "id": "general/session-2026-07-06-upgrade-aaa#10",
         "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#5",
+        "tf": 1
       }
     ],
     "modifique": [
@@ -4746,6 +6164,10 @@
       },
       {
         "id": "general/session-2026-07-07-auditoria-y-bm25plus#13",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#5",
         "tf": 1
       }
     ],
@@ -4804,6 +6226,18 @@
       },
       {
         "id": "general/session-2026-07-07-auditoria-y-bm25plus#7",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#3",
+        "tf": 2
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#4",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#7",
         "tf": 1
       }
     ],
@@ -4875,11 +6309,19 @@
       {
         "id": "general/session-2026-07-06-upgrade-aaa#11",
         "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#3",
+        "tf": 1
       }
     ],
     "n": [
       {
         "id": "general/session-2026-07-06-upgrade-aaa#11",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#3",
         "tf": 1
       }
     ],
@@ -4927,6 +6369,18 @@
       {
         "id": "general/session-2026-07-06-upgrade-aaa#14",
         "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#2",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#3",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#3",
+        "tf": 3
       }
     ],
     "run": [
@@ -4941,6 +6395,10 @@
       {
         "id": "general/session-2026-07-07-auditoria-y-bm25plus#12",
         "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#3",
+        "tf": 3
       }
     ],
     "candidato": [
@@ -5025,6 +6483,10 @@
       {
         "id": "general/session-2026-07-06-upgrade-aaa#14",
         "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#4",
+        "tf": 1
       }
     ],
     "obsoleto": [
@@ -5067,12 +6529,44 @@
       {
         "id": "general/session-2026-07-06-upgrade-aaa#14",
         "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#3",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#4",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#5",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#4",
+        "tf": 2
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#6",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#7",
+        "tf": 1
       }
     ],
     "cli": [
       {
         "id": "general/session-2026-07-06-upgrade-aaa#14",
         "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#3",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#7",
+        "tf": 2
       }
     ],
     "npx": [
@@ -5114,6 +6608,10 @@
     "base": [
       {
         "id": "general/session-2026-07-06-upgrade-aaa#14",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#2",
         "tf": 1
       }
     ],
@@ -5229,6 +6727,14 @@
       {
         "id": "general/session-2026-07-07-auditoria-y-bm25plus#5",
         "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#5",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#7",
+        "tf": 1
       }
     ],
     "arranque": [
@@ -5263,6 +6769,10 @@
       {
         "id": "general/session-2026-07-06-upgrade-aaa#16",
         "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#3",
+        "tf": 1
       }
     ],
     "est": [
@@ -5273,6 +6783,10 @@
       {
         "id": "general/session-2026-07-07-auditoria-y-bm25plus#13",
         "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#2",
+        "tf": 1
       }
     ],
     "tenga": [
@@ -5282,6 +6796,10 @@
       },
       {
         "id": "general/session-2026-07-07-auditoria-y-bm25plus#13",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#5",
         "tf": 1
       }
     ],
@@ -5303,6 +6821,10 @@
       {
         "id": "general/session-2026-07-07-auditoria-y-bm25plus#12",
         "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#4",
+        "tf": 1
       }
     ],
     "existente": [
@@ -5314,6 +6836,10 @@
     "detectar": [
       {
         "id": "general/session-2026-07-06-upgrade-aaa#17",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#4",
         "tf": 1
       }
     ],
@@ -5328,6 +6854,10 @@
       },
       {
         "id": "general/session-2026-07-07-auditoria-y-bm25plus#12",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#6",
         "tf": 1
       }
     ],
@@ -5519,6 +7049,18 @@
       {
         "id": "general/session-2026-07-07-auditoria-y-bm25plus#3",
         "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#5",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#3",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#7",
+        "tf": 2
       }
     ],
     "conver": [
@@ -5549,6 +7091,10 @@
       {
         "id": "general/session-2026-07-07-auditoria-y-bm25plus#3",
         "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#2",
+        "tf": 1
       }
     ],
     "pa": [
@@ -5570,6 +7116,22 @@
     "regla": [
       {
         "id": "general/session-2026-07-07-auditoria-y-bm25plus#4",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#2",
+        "tf": 2
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#3",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#4",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#6",
         "tf": 1
       }
     ],
@@ -5597,6 +7159,18 @@
       {
         "id": "general/session-2026-07-07-auditoria-y-bm25plus#7",
         "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#2",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#3",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#7",
+        "tf": 1
       }
     ],
     "mapeo": [
@@ -5620,6 +7194,10 @@
     "specialist": [
       {
         "id": "general/session-2026-07-07-auditoria-y-bm25plus#4",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#5",
         "tf": 1
       }
     ],
@@ -5717,6 +7295,34 @@
       {
         "id": "general/session-2026-07-07-auditoria-y-bm25plus#5",
         "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#2",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#3",
+        "tf": 4
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#4",
+        "tf": 3
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#5",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#4",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#6",
+        "tf": 2
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#7",
+        "tf": 2
       }
     ],
     "catch": [
@@ -5759,6 +7365,10 @@
       {
         "id": "general/session-2026-07-07-auditoria-y-bm25plus#5",
         "tf": 2
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#3",
+        "tf": 1
       }
     ],
     "disenar_sistema": [
@@ -5913,6 +7523,10 @@
       {
         "id": "general/session-2026-07-07-auditoria-y-bm25plus#5",
         "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#6",
+        "tf": 1
       }
     ],
     "return": [
@@ -5931,6 +7545,10 @@
       {
         "id": "general/session-2026-07-07-auditoria-y-bm25plus#5",
         "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#6",
+        "tf": 2
       }
     ],
     "graceful": [
@@ -5979,6 +7597,14 @@
       {
         "id": "general/session-2026-07-07-auditoria-y-bm25plus#7",
         "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#2",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#5",
+        "tf": 1
       }
     ],
     "costo_por_modelo": [
@@ -5990,6 +7616,10 @@
     "rol": [
       {
         "id": "general/session-2026-07-07-auditoria-y-bm25plus#7",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#5",
         "tf": 1
       }
     ],
@@ -6021,6 +7651,14 @@
       {
         "id": "general/session-2026-07-07-auditoria-y-bm25plus#8",
         "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#3",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#6",
+        "tf": 1
       }
     ],
     "modelcontextprotocol": [
@@ -6033,11 +7671,19 @@
       {
         "id": "general/session-2026-07-07-auditoria-y-bm25plus#8",
         "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#5",
+        "tf": 1
       }
     ],
     "fue": [
       {
         "id": "general/session-2026-07-07-auditoria-y-bm25plus#8",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#3",
         "tf": 1
       }
     ],
@@ -6105,6 +7751,18 @@
       {
         "id": "general/session-2026-07-07-auditoria-y-bm25plus#9",
         "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#1",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#2",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#4",
+        "tf": 1
       }
     ],
     "muerto": [
@@ -6159,6 +7817,14 @@
       {
         "id": "general/session-2026-07-07-auditoria-y-bm25plus#12",
         "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#2",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#4",
+        "tf": 1
       }
     ],
     "glama": [
@@ -6176,6 +7842,10 @@
     "caso": [
       {
         "id": "general/session-2026-07-07-auditoria-y-bm25plus#12",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#6",
         "tf": 1
       }
     ],
@@ -6219,6 +7889,10 @@
       {
         "id": "general/session-2026-07-07-auditoria-y-bm25plus#13",
         "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#3",
+        "tf": 1
       }
     ],
     "llm": [
@@ -6249,6 +7923,14 @@
       {
         "id": "general/session-2026-07-07-auditoria-y-bm25plus#13",
         "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#2",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#3",
+        "tf": 1
       }
     ],
     "routing": [
@@ -6266,6 +7948,2464 @@
     "próxima": [
       {
         "id": "general/session-2026-07-07-auditoria-y-bm25plus#13",
+        "tf": 1
+      }
+    ],
+    "gobierno": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#1",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#2",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#4",
+        "tf": 1
+      }
+    ],
+    "modularidad": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#1",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#2",
+        "tf": 1
+      }
+    ],
+    "marco": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#1",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#2",
+        "tf": 1
+      }
+    ],
+    "previo": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#1",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#2",
+        "tf": 1
+      }
+    ],
+    "push": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#1",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#2",
+        "tf": 3
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#4",
+        "tf": 1
+      }
+    ],
+    "realiz": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#2",
+        "tf": 1
+      }
+    ],
+    "ciso": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#2",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#3",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#7",
+        "tf": 1
+      }
+    ],
+    "product": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#2",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#3",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#7",
+        "tf": 1
+      }
+    ],
+    "lifecycle": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#2",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#3",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#7",
+        "tf": 1
+      }
+    ],
+    "market_standard": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#2",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#7",
+        "tf": 1
+      }
+    ],
+    "restaur": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#2",
+        "tf": 1
+      }
+    ],
+    "linea": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#2",
+        "tf": 2
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#4",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#5",
+        "tf": 1
+      }
+    ],
+    "divid": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#2",
+        "tf": 3
+      }
+    ],
+    "lib": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#2",
+        "tf": 2
+      }
+    ],
+    "definition": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#2",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#7",
+        "tf": 1
+      }
+    ],
+    "destructive": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#2",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#3",
+        "tf": 1
+      }
+    ],
+    "issue": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#2",
+        "tf": 2
+      }
+    ],
+    "reporter": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#2",
+        "tf": 2
+      }
+    ],
+    "sal": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#2",
+        "tf": 1
+      }
+    ],
+    "identica": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#2",
+        "tf": 1
+      }
+    ],
+    "contra": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#2",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#3",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#4",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#5",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#6",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#7",
+        "tf": 1
+      }
+    ],
+    "baseline": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#2",
+        "tf": 1
+      }
+    ],
+    "permiso": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#2",
+        "tf": 1
+      }
+    ],
+    "allow": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#2",
+        "tf": 2
+      }
+    ],
+    "unific": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#2",
+        "tf": 1
+      }
+    ],
+    "permission": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#2",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#3",
+        "tf": 2
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#5",
+        "tf": 2
+      }
+    ],
+    "estaban": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#2",
+        "tf": 1
+      }
+    ],
+    "duplic": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#2",
+        "tf": 1
+      }
+    ],
+    "roto": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#2",
+        "tf": 1
+      }
+    ],
+    "host": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#2",
+        "tf": 1
+      }
+    ],
+    "extraccion": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#2",
+        "tf": 1
+      }
+    ],
+    "fake": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#2",
+        "tf": 1
+      }
+    ],
+    "incompatible": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#2",
+        "tf": 1
+      }
+    ],
+    "homebrew": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#2",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#3",
+        "tf": 1
+      }
+    ],
+    "enlaz": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#2",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#3",
+        "tf": 1
+      }
+    ],
+    "dinamica": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#2",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#3",
+        "tf": 1
+      }
+    ],
+    "quality": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#2",
+        "tf": 3
+      }
+    ],
+    "githook": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#2",
+        "tf": 1
+      }
+    ],
+    "pre": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#2",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#4",
+        "tf": 2
+      }
+    ],
+    "activ": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#2",
+        "tf": 1
+      }
+    ],
+    "hookspath": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#2",
+        "tf": 1
+      }
+    ],
+    "sigue": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#2",
+        "tf": 1
+      }
+    ],
+    "compuerta": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#2",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#3",
+        "tf": 1
+      }
+    ],
+    "break": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#2",
+        "tf": 2
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#3",
+        "tf": 2
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#4",
+        "tf": 1
+      }
+    ],
+    "glas": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#2",
+        "tf": 2
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#3",
+        "tf": 2
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#4",
+        "tf": 1
+      }
+    ],
+    "bypas": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#2",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#3",
+        "tf": 1
+      }
+    ],
+    "total": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#2",
+        "tf": 1
+      }
+    ],
+    "describe": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#2",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#6",
+        "tf": 1
+      }
+    ],
+    "perder": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#2",
+        "tf": 1
+      }
+    ],
+    "informe": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#2",
+        "tf": 1
+      }
+    ],
+    "doc": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#2",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#4",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#5",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#4",
+        "tf": 1
+      }
+    ],
+    "brecha": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#2",
+        "tf": 1
+      }
+    ],
+    "resuelta": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#2",
+        "tf": 1
+      }
+    ],
+    "compar": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#2",
+        "tf": 1
+      }
+    ],
+    "merc": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#2",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#4",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#5",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#4",
+        "tf": 1
+      }
+    ],
+    "pas": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#2",
+        "tf": 1
+      }
+    ],
+    "fail": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#2",
+        "tf": 1
+      }
+    ],
+    "skip": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#2",
+        "tf": 1
+      }
+    ],
+    "validate": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#2",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#5",
+        "tf": 2
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#3",
+        "tf": 1
+      }
+    ],
+    "global": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#2",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#5",
+        "tf": 2
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#3",
+        "tf": 1
+      }
+    ],
+    "verde": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#2",
+        "tf": 1
+      }
+    ],
+    "6063a95": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#2",
+        "tf": 1
+      }
+    ],
+    "refactor": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#2",
+        "tf": 1
+      }
+    ],
+    "modular": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#2",
+        "tf": 1
+      }
+    ],
+    "9948acc": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#2",
+        "tf": 1
+      }
+    ],
+    "da5fc8b": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#2",
+        "tf": 1
+      }
+    ],
+    "cuarto": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#2",
+        "tf": 1
+      }
+    ],
+    "vigencia": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#2",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#5",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#1",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#3",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#7",
+        "tf": 2
+      }
+    ],
+    "aprend": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#3",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#6",
+        "tf": 1
+      }
+    ],
+    "corren": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#3",
+        "tf": 1
+      }
+    ],
+    "bajo": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#3",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#5",
+        "tf": 1
+      }
+    ],
+    "proceso": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#3",
+        "tf": 1
+      }
+    ],
+    "hijo": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#3",
+        "tf": 1
+      }
+    ],
+    "heredan": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#3",
+        "tf": 1
+      }
+    ],
+    "ejecutar": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#3",
+        "tf": 2
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#7",
+        "tf": 1
+      }
+    ],
+    "ser": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#3",
+        "tf": 1
+      }
+    ],
+    "nativo": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#3",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#5",
+        "tf": 1
+      }
+    ],
+    "rpath": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#3",
+        "tf": 1
+      }
+    ],
+    "libnode": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#3",
+        "tf": 1
+      }
+    ],
+    "copiar": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#3",
+        "tf": 1
+      }
+    ],
+    "binario": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#3",
+        "tf": 1
+      }
+    ],
+    "rompe": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#3",
+        "tf": 1
+      }
+    ],
+    "fak": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#3",
+        "tf": 1
+      }
+    ],
+    "wrapper": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#3",
+        "tf": 1
+      }
+    ],
+    "gnu": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#3",
+        "tf": 1
+      }
+    ],
+    "maco": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#3",
+        "tf": 1
+      }
+    ],
+    "usar": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#3",
+        "tf": 2
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#6",
+        "tf": 1
+      }
+    ],
+    "huella": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#3",
+        "tf": 1
+      }
+    ],
+    "conten": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#3",
+        "tf": 1
+      }
+    ],
+    "trackear": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#3",
+        "tf": 1
+      }
+    ],
+    "diff": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#3",
+        "tf": 1
+      }
+    ],
+    "head": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#3",
+        "tf": 1
+      }
+    ],
+    "tracke": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#3",
+        "tf": 1
+      }
+    ],
+    "identificador": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#3",
+        "tf": 1
+      }
+    ],
+    "cifra": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#3",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#4",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#5",
+        "tf": 1
+      }
+    ],
+    "derivan": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#3",
+        "tf": 1
+      }
+    ],
+    "aviso": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#3",
+        "tf": 1
+      }
+    ],
+    "decia": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#3",
+        "tf": 1
+      }
+    ],
+    "codigo": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#3",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#4",
+        "tf": 1
+      }
+    ],
+    "hoy": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#3",
+        "tf": 1
+      }
+    ],
+    "identidad": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#3",
+        "tf": 2
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#4",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#5",
+        "tf": 1
+      }
+    ],
+    "nunca": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#3",
+        "tf": 1
+      }
+    ],
+    "estuvo": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#3",
+        "tf": 1
+      }
+    ],
+    "configur": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#3",
+        "tf": 1
+      }
+    ],
+    "checkpoint": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#3",
+        "tf": 1
+      }
+    ],
+    "salieron": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#3",
+        "tf": 2
+      }
+    ],
+    "email": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#3",
+        "tf": 1
+      }
+    ],
+    "maquina": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#3",
+        "tf": 1
+      }
+    ],
+    "fijo": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#3",
+        "tf": 1
+      }
+    ],
+    "local": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#3",
+        "tf": 2
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#4",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#5",
+        "tf": 3
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#6",
+        "tf": 1
+      }
+    ],
+    "comitear": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#3",
+        "tf": 1
+      }
+    ],
+    "texto": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#3",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#4",
+        "tf": 1
+      }
+    ],
+    "literal": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#3",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#4",
+        "tf": 1
+      }
+    ],
+    "dentro": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#3",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#6",
+        "tf": 1
+      }
+    ],
+    "argumento": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#3",
+        "tf": 1
+      }
+    ],
+    "cuya": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#3",
+        "tf": 1
+      }
+    ],
+    "cadena": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#3",
+        "tf": 1
+      }
+    ],
+    "mencionaba": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#3",
+        "tf": 1
+      }
+    ],
+    "deneg": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#3",
+        "tf": 2
+      }
+    ],
+    "resolvio": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#3",
+        "tf": 1
+      }
+    ],
+    "escrib": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#3",
+        "tf": 1
+      }
+    ],
+    "deadlock": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#3",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#5",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#6",
+        "tf": 1
+      }
+    ],
+    "visto": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#3",
+        "tf": 1
+      }
+    ],
+    "cuota": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#3",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#5",
+        "tf": 2
+      }
+    ],
+    "search": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#3",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#4",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#4",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#6",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#7",
+        "tf": 1
+      }
+    ],
+    "siguio": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#3",
+        "tf": 1
+      }
+    ],
+    "webfetch": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#3",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#4",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#6",
+        "tf": 1
+      }
+    ],
+    "sintaxi": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#3",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#5",
+        "tf": 1
+      }
+    ],
+    "deny": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#3",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#5",
+        "tf": 1
+      }
+    ],
+    "sandbox": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#3",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#5",
+        "tf": 1
+      }
+    ],
+    "quedo": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#3",
+        "tf": 1
+      }
+    ],
+    "eso": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#3",
+        "tf": 1
+      }
+    ],
+    "escribieron": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#3",
+        "tf": 1
+      }
+    ],
+    "esa": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#3",
+        "tf": 1
+      }
+    ],
+    "clav": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#3",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#5",
+        "tf": 1
+      }
+    ],
+    "fecha": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#3",
+        "tf": 2
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#5",
+        "tf": 1
+      }
+    ],
+    "escriben": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#3",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#7",
+        "tf": 1
+      }
+    ],
+    "utc": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#3",
+        "tf": 1
+      }
+    ],
+    "dia": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#3",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#3",
+        "tf": 1
+      }
+    ],
+    "atra": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#3",
+        "tf": 1
+      }
+    ],
+    "instruccion": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#3",
+        "tf": 1
+      }
+    ],
+    "atribucion": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#3",
+        "tf": 2
+      }
+    ],
+    "authored": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#3",
+        "tf": 1
+      }
+    ],
+    "inyecta": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#3",
+        "tf": 1
+      }
+    ],
+    "contradice": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#3",
+        "tf": 1
+      }
+    ],
+    "prevalece": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#3",
+        "tf": 1
+      }
+    ],
+    "fuera": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#4",
+        "tf": 1
+      }
+    ],
+    "alcance": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#4",
+        "tf": 1
+      }
+    ],
+    "valen": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#4",
+        "tf": 1
+      }
+    ],
+    "pena": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#4",
+        "tf": 1
+      }
+    ],
+    "detalle": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#4",
+        "tf": 1
+      }
+    ],
+    "evidencia": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#4",
+        "tf": 1
+      }
+    ],
+    "g11": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#4",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#5",
+        "tf": 1
+      }
+    ],
+    "degradar": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#4",
+        "tf": 1
+      }
+    ],
+    "read": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#4",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#6",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#7",
+        "tf": 1
+      }
+    ],
+    "devuelve": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#4",
+        "tf": 1
+      }
+    ],
+    "conect": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#4",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#4",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#6",
+        "tf": 1
+      }
+    ],
+    "ttl": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#4",
+        "tf": 1
+      }
+    ],
+    "escrito": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#4",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#5",
+        "tf": 1
+      }
+    ],
+    "desbloquea": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#4",
+        "tf": 1
+      }
+    ],
+    "investig": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#4",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#5",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#4",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#7",
+        "tf": 1
+      }
+    ],
+    "g13": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#4",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#5",
+        "tf": 1
+      }
+    ],
+    "automatica": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#4",
+        "tf": 1
+      }
+    ],
+    "msg": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#4",
+        "tf": 1
+      }
+    ],
+    "determinista": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#4",
+        "tf": 2
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#5",
+        "tf": 1
+      }
+    ],
+    "tambien": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#4",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#7",
+        "tf": 1
+      }
+    ],
+    "humano": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#4",
+        "tf": 1
+      }
+    ],
+    "g15": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#4",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#5",
+        "tf": 1
+      }
+    ],
+    "barata": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#4",
+        "tf": 1
+      }
+    ],
+    "g16": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#4",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#5",
+        "tf": 1
+      }
+    ],
+    "residual": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#4",
+        "tf": 1
+      }
+    ],
+    "new": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#4",
+        "tf": 1
+      }
+    ],
+    "orig": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#4",
+        "tf": 1
+      }
+    ],
+    "secreto": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#4",
+        "tf": 1
+      }
+    ],
+    "working": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#4",
+        "tf": 1
+      }
+    ],
+    "tree": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#4",
+        "tf": 1
+      }
+    ],
+    "limite": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#4",
+        "tf": 1
+      }
+    ],
+    "g12": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#4",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#5",
+        "tf": 1
+      }
+    ],
+    "efecto": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#4",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#7",
+        "tf": 1
+      }
+    ],
+    "generar": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#4",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#7",
+        "tf": 1
+      }
+    ],
+    "g14": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#4",
+        "tf": 1
+      }
+    ],
+    "destructivo": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#4",
+        "tf": 1
+      }
+    ],
+    "cambiarlo": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#4",
+        "tf": 1
+      }
+    ],
+    "evasion": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#4",
+        "tf": 1
+      }
+    ],
+    "diferenciador": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#4",
+        "tf": 1
+      }
+    ],
+    "frente": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#4",
+        "tf": 1
+      }
+    ],
+    "conservar": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#4",
+        "tf": 1
+      }
+    ],
+    "promptfoo": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#4",
+        "tf": 1
+      }
+    ],
+    "recomend": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#5",
+        "tf": 1
+      }
+    ],
+    "cerrar": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#5",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#7",
+        "tf": 1
+      }
+    ],
+    "ca": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#5",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#6",
+        "tf": 1
+      }
+    ],
+    "definir": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#5",
+        "tf": 1
+      }
+    ],
+    "env": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#5",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#6",
+        "tf": 1
+      }
+    ],
+    "ssh": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#5",
+        "tf": 1
+      }
+    ],
+    "com": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#5",
+        "tf": 1
+      }
+    ],
+    "escribir": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#5",
+        "tf": 1
+      }
+    ],
+    "g10": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#5",
+        "tf": 1
+      }
+    ],
+    "reverificar": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#5",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#7",
+        "tf": 1
+      }
+    ],
+    "protocol": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#5",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#3",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#7",
+        "tf": 1
+      }
+    ],
+    "internal": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#5",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#3",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#7",
+        "tf": 1
+      }
+    ],
+    "governance": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#5",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#3",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#7",
+        "tf": 1
+      }
+    ],
+    "cinco": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#5",
+        "tf": 1
+      }
+    ],
+    "acercan": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#5",
+        "tf": 1
+      }
+    ],
+    "dividir": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#5",
+        "tf": 1
+      }
+    ],
+    "nucleo": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#5",
+        "tf": 1
+      }
+    ],
+    "referenc": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#5",
+        "tf": 1
+      }
+    ],
+    "backend": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#5",
+        "tf": 1
+      }
+    ],
+    "architect": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#5",
+        "tf": 1
+      }
+    ],
+    "scraping": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#5",
+        "tf": 1
+      }
+    ],
+    "builder": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#5",
+        "tf": 1
+      }
+    ],
+    "red": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#5",
+        "tf": 1
+      }
+    ],
+    "enmendar": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#5",
+        "tf": 1
+      }
+    ],
+    "exencion": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#5",
+        "tf": 1
+      }
+    ],
+    "despu": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#5",
+        "tf": 1
+      }
+    ],
+    "mover": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#5",
+        "tf": 1
+      }
+    ],
+    "origin": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#5",
+        "tf": 1
+      }
+    ],
+    "last_updated": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#5",
+        "tf": 1
+      }
+    ],
+    "metadata": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#5",
+        "tf": 1
+      }
+    ],
+    "ajustar": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#5",
+        "tf": 1
+      }
+    ],
+    "audit": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#5",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#3",
+        "tf": 1
+      }
+    ],
+    "market": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#5",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#3",
+        "tf": 1
+      }
+    ],
+    "mejor": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#5",
+        "tf": 1
+      }
+    ],
+    "practica": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#5",
+        "tf": 1
+      }
+    ],
+    "fuente": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#5",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#7",
+        "tf": 1
+      }
+    ],
+    "primaria": [
+      {
+        "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#5",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#7",
+        "tf": 1
+      }
+    ],
+    "repar": [
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#1",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#5",
+        "tf": 1
+      }
+    ],
+    "carga": [
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#1",
+        "tf": 1
+      }
+    ],
+    "interna": [
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#3",
+        "tf": 1
+      }
+    ],
+    "conform": [
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#3",
+        "tf": 1
+      }
+    ],
+    "alto": [
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#3",
+        "tf": 1
+      }
+    ],
+    "migrate": [
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#3",
+        "tf": 1
+      }
+    ],
+    "dry": [
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#3",
+        "tf": 1
+      }
+    ],
+    "activa": [
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#3",
+        "tf": 1
+      }
+    ],
+    "sin_dominio_registr": [
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#3",
+        "tf": 1
+      }
+    ],
+    "ningun": [
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#3",
+        "tf": 1
+      }
+    ],
+    "desactualiz": [
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#3",
+        "tf": 1
+      }
+    ],
+    "cercano": [
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#3",
+        "tf": 1
+      }
+    ],
+    "55d": [
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#3",
+        "tf": 1
+      }
+    ],
+    "vence": [
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#3",
+        "tf": 2
+      }
+    ],
+    "48d": [
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#3",
+        "tf": 1
+      }
+    ],
+    "diagnostico": [
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#4",
+        "tf": 1
+      }
+    ],
+    "bloqueo": [
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#4",
+        "tf": 2
+      }
+    ],
+    "intento": [
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#4",
+        "tf": 1
+      }
+    ],
+    "investigar": [
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#4",
+        "tf": 1
+      }
+    ],
+    "sistema": [
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#4",
+        "tf": 1
+      }
+    ],
+    "agentico": [
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#4",
+        "tf": 1
+      }
+    ],
+    "websearch": [
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#4",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#6",
+        "tf": 1
+      }
+    ],
+    "presencia": [
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#4",
+        "tf": 1
+      }
+    ],
+    "gemini_api_key": [
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#4",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#6",
+        "tf": 1
+      }
+    ],
+    "estaba": [
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#4",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#6",
+        "tf": 1
+      }
+    ],
+    "mostraba": [
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#4",
+        "tf": 1
+      }
+    ],
+    "google": [
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#4",
+        "tf": 1
+      }
+    ],
+    "drive": [
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#4",
+        "tf": 1
+      }
+    ],
+    "raiz": [
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#4",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#7",
+        "tf": 1
+      }
+    ],
+    "aplic": [
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#5",
+        "tf": 1
+      }
+    ],
+    "ambo": [
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#5",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#7",
+        "tf": 1
+      }
+    ],
+    "servidor": [
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#5",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#6",
+        "tf": 2
+      }
+    ],
+    "tocar": [
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#5",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#7",
+        "tf": 1
+      }
+    ],
+    "add": [
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#5",
+        "tf": 2
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#7",
+        "tf": 1
+      }
+    ],
+    "user": [
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#5",
+        "tf": 2
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#6",
+        "tf": 1
+      }
+    ],
+    "andrewarizmendi": [
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#5",
+        "tf": 2
+      }
+    ],
+    "reporta": [
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#5",
+        "tf": 1
+      }
+    ],
+    "connected": [
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#5",
+        "tf": 1
+      }
+    ],
+    "cargan": [
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#5",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#6",
+        "tf": 1
+      }
+    ],
+    "reiniciar": [
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#5",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#7",
+        "tf": 1
+      }
+    ],
+    "hizo": [
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#6",
+        "tf": 1
+      }
+    ],
+    "cargara": [
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#6",
+        "tf": 1
+      }
+    ],
+    "causa": [
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#6",
+        "tf": 1
+      }
+    ],
+    "infer": [
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#6",
+        "tf": 1
+      }
+    ],
+    "observ": [
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#6",
+        "tf": 1
+      }
+    ],
+    "ubic": [
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#6",
+        "tf": 1
+      }
+    ],
+    "soport": [
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#6",
+        "tf": 1
+      }
+    ],
+    "scope": [
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#6",
+        "tf": 2
+      }
+    ],
+    "project": [
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#6",
+        "tf": 1
+      }
+    ],
+    "propia": [
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#6",
+        "tf": 1
+      }
+    ],
+    "loadenv": [
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#6",
+        "tf": 1
+      }
+    ],
+    "pasar": [
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#6",
+        "tf": 1
+      }
+    ],
+    "gap": [
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#6",
+        "tf": 2
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#7",
+        "tf": 1
+      }
+    ],
+    "degr": [
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#6",
+        "tf": 1
+      }
+    ],
+    "permitir": [
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#6",
+        "tf": 1
+      }
+    ],
+    "nativa": [
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#6",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#7",
+        "tf": 1
+      }
+    ],
+    "falta": [
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#6",
+        "tf": 1
+      }
+    ],
+    "comprueba": [
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#6",
+        "tf": 1
+      }
+    ],
+    "presente": [
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#6",
+        "tf": 1
+      }
+    ],
+    "alternativa": [
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#6",
+        "tf": 1
+      }
+    ],
+    "probable": [
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#6",
+        "tf": 1
+      }
+    ],
+    "grep": [
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#6",
+        "tf": 2
+      }
+    ],
+    "disponible": [
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#6",
+        "tf": 1
+      }
+    ],
+    "bash": [
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#6",
+        "tf": 1
+      }
+    ],
+    "include": [
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#6",
+        "tf": 1
+      }
+    ],
+    "entrecomill": [
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#6",
+        "tf": 1
+      }
+    ],
+    "zsh": [
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#6",
+        "tf": 1
+      }
+    ],
+    "expande": [
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#6",
+        "tf": 1
+      }
+    ],
+    "glob": [
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#6",
+        "tf": 1
+      }
+    ],
+    "comilla": [
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#6",
+        "tf": 1
+      }
+    ],
+    "buscar_web": [
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#7",
+        "tf": 1
+      }
+    ],
+    "analizar_conten": [
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#7",
+        "tf": 1
+      }
+    ],
+    "tr": [
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#7",
+        "tf": 1
+      }
+    ],
+    "frent": [
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#7",
+        "tf": 1
+      }
+    ],
+    "github": [
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#7",
+        "tf": 1
+      }
+    ],
+    "codex": [
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#7",
+        "tf": 1
+      }
+    ],
+    "opencode": [
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#7",
+        "tf": 1
+      }
+    ],
+    "cline": [
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#7",
+        "tf": 1
+      }
+    ],
+    "openhand": [
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#7",
+        "tf": 1
+      }
+    ],
+    "aider": [
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#7",
+        "tf": 1
+      }
+    ],
+    "agentskill": [
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#7",
+        "tf": 1
+      }
+    ],
+    "creador": [
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#7",
+        "tf": 1
+      }
+    ],
+    "lider": [
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#7",
+        "tf": 1
+      }
+    ],
+    "tecnico": [
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#7",
+        "tf": 1
+      }
+    ],
+    "senior": [
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#7",
+        "tf": 1
+      }
+    ],
+    "afirm": [
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#7",
+        "tf": 1
+      }
+    ],
+    "tecnologica": [
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#7",
+        "tf": 1
+      }
+    ],
+    "gener": [
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#7",
+        "tf": 1
+      }
+    ],
+    "compart": [
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#7",
+        "tf": 1
+      }
+    ],
+    "impacto": [
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#7",
+        "tf": 1
+      }
+    ],
+    "generador": [
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#7",
+        "tf": 1
+      }
+    ],
+    "lee": [
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#7",
+        "tf": 1
+      }
+    ],
+    "afecta": [
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#7",
+        "tf": 1
+      }
+    ],
+    "confirmar": [
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#7",
+        "tf": 1
+      }
+    ],
+    "disponibilidad": [
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#7",
+        "tf": 1
+      }
+    ],
+    "denegar": [
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#7",
+        "tf": 1
+      }
+    ],
+    "registrar": [
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#7",
+        "tf": 1
+      }
+    ],
+    "decidir": [
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#7",
+        "tf": 1
+      }
+    ],
+    "documentar": [
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#7",
+        "tf": 1
+      }
+    ],
+    "requiere": [
+      {
+        "id": "general/session-2026-09-20-validacion-mcp-bridge#7",
         "tf": 1
       }
     ]
@@ -6305,10 +10445,21 @@
     "general/session-2026-07-07-auditoria-y-bm25plus#9": 24,
     "general/session-2026-07-07-auditoria-y-bm25plus#11": 19,
     "general/session-2026-07-07-auditoria-y-bm25plus#12": 87,
-    "general/session-2026-07-07-auditoria-y-bm25plus#13": 51
+    "general/session-2026-07-07-auditoria-y-bm25plus#13": 51,
+    "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#1": 9,
+    "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#2": 164,
+    "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#3": 165,
+    "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#4": 113,
+    "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#5": 119,
+    "general/session-2026-09-20-validacion-mcp-bridge#1": 8,
+    "general/session-2026-09-20-validacion-mcp-bridge#3": 49,
+    "general/session-2026-09-20-validacion-mcp-bridge#4": 37,
+    "general/session-2026-09-20-validacion-mcp-bridge#5": 52,
+    "general/session-2026-09-20-validacion-mcp-bridge#6": 106,
+    "general/session-2026-09-20-validacion-mcp-bridge#7": 142
   },
-  "avgLen": 39.34285714285714,
-  "N": 35,
+  "avgLen": 50.891304347826086,
+  "N": 46,
   "frags": {
     "general/session-2026-07-06-media-prioridad#1": {
       "id": "general/session-2026-07-06-media-prioridad#1",
@@ -6328,7 +10479,7 @@
       "id": "general/session-2026-07-06-media-prioridad#3",
       "source": "session-2026-07-06-media-prioridad",
       "rol": "general",
-      "text": "1. Test de coherencia setup-settings vs settings.json (harness.test.js)\r\n\r\nAgregado test `el output de setup-settings es coherente con settings.json en disco` al bloque\r\n`setup-settings.js` en `tests/harness.test.js`. Verifica:\r\n- Todos los hook keys presentes (PreToolUse, PostToolUse, Stop, SubagentStop, PostToolUseFailure, UserPromptSubmit)\r\n- Numero de grupos por hook consistente entre ejecuciones\r\n- mcpServers gemini-bridge y anthropic-router presentes",
+      "text": "1. Test de coherencia setup-settings vs settings.json (harness.test.js)\n\nAgregado test `el output de setup-settings es coherente con settings.json en disco` al bloque\n`setup-settings.js` en `tests/harness.test.js`. Verifica:\n- Todos los hook keys presentes (PreToolUse, PostToolUse, Stop, SubagentStop, PostToolUseFailure, UserPromptSubmit)\n- Numero de grupos por hook consistente entre ejecuciones\n- mcpServers gemini-bridge y anthropic-router presentes",
       "tokens": [
         "test",
         "coherencia",
@@ -6382,7 +10533,7 @@
       "id": "general/session-2026-07-06-media-prioridad#4",
       "source": "session-2026-07-06-media-prioridad",
       "rol": "general",
-      "text": "2. Hook post-update norm-harness en proyectos anfitriones (update.js)\r\n\r\nAgregado PASO 6 condicional al final de `scripts/update.js`. Detecta si ai-core se ejecuta como\r\nsubmodulo verificando:\r\n- Existe `../../CLAUDE.md` (proyecto padre tiene su propio CLAUDE.md)\r\n- NO existe `../../package.json` (el padre no es otro modulo Node)\r\n\r\nSi se confirma submodulo: ejecuta `norm-harness.js` en el cwd del padre.\r\nSi es standalone: informa y omite el paso.",
+      "text": "2. Hook post-update norm-harness en proyectos anfitriones (update.js)\n\nAgregado PASO 6 condicional al final de `scripts/update.js`. Detecta si ai-core se ejecuta como\nsubmodulo verificando:\n- Existe `../../CLAUDE.md` (proyecto padre tiene su propio CLAUDE.md)\n- NO existe `../../package.json` (el padre no es otro modulo Node)\n\nSi se confirma submodulo: ejecuta `norm-harness.js` en el cwd del padre.\nSi es standalone: informa y omite el paso.",
       "tokens": [
         "hook",
         "post",
@@ -6434,7 +10585,7 @@
       "id": "general/session-2026-07-06-media-prioridad#5",
       "source": "session-2026-07-06-media-prioridad",
       "rol": "general",
-      "text": "3. Skill mcp-registry-navigator (nuevo)\r\n\r\nCreado `.claude/skills/mcp-registry-navigator/SKILL.md` — evaluador de MCPs de terceros.\r\nCreado `.claude/agents/mcp-registry-navigator.md` — agente autonomo de evaluacion.\r\n\r\n5 criterios de evaluacion con puntuacion 0-10:\r\n- Transporte (stdio/SSE/HTTP)\r\n- Seguridad de inputs (eval/exec/shell sin sanitizar)\r\n- Mantenimiento del repositorio (ultimo commit, issues, licencia)\r\n- Calidad del schema de herramientas (inputSchema completo)\r\n- Riesgo operativo (dependencias, filesystem, APIs externas)\r\n\r\nDecision: INSTALAR (>=8) / EVALUAR (5-7) / RECHAZAR (<5).\r\nRegistro persistente en `.claude/MCP_REGISTRY.md`.",
+      "text": "3. Skill mcp-registry-navigator (nuevo)\n\nCreado `.claude/skills/mcp-registry-navigator/SKILL.md` — evaluador de MCPs de terceros.\nCreado `.claude/agents/mcp-registry-navigator.md` — agente autonomo de evaluacion.\n\n5 criterios de evaluacion con puntuacion 0-10:\n- Transporte (stdio/SSE/HTTP)\n- Seguridad de inputs (eval/exec/shell sin sanitizar)\n- Mantenimiento del repositorio (ultimo commit, issues, licencia)\n- Calidad del schema de herramientas (inputSchema completo)\n- Riesgo operativo (dependencias, filesystem, APIs externas)\n\nDecision: INSTALAR (>=8) / EVALUAR (5-7) / RECHAZAR (<5).\nRegistro persistente en `.claude/MCP_REGISTRY.md`.",
       "tokens": [
         "skill",
         "mcp",
@@ -6505,7 +10656,7 @@
       "id": "general/session-2026-07-06-media-prioridad#6",
       "source": "session-2026-07-06-media-prioridad",
       "rol": "general",
-      "text": "4. claude-sonnet-5 en ModelRouter\r\n\r\nVerificado via API live: `claude-sonnet-5` es GA desde 2026-06-29.\r\nCapacidades: max_input_tokens 1M, max_tokens 128k, thinking adaptativo, code execution, structured outputs.\r\nPricing: mismo tier que sonnet-4-6 ($3/$15 por MTok).\r\n\r\nActualizado `scripts/services/ModelRouter.js`:\r\n- `MODELOS.SONNET: 'claude-sonnet-5'` (reemplaza `claude-sonnet-4-6`)",
+      "text": "4. claude-sonnet-5 en ModelRouter\n\nVerificado via API live: `claude-sonnet-5` es GA desde 2026-06-29.\nCapacidades: max_input_tokens 1M, max_tokens 128k, thinking adaptativo, code execution, structured outputs.\nPricing: mismo tier que sonnet-4-6 ($3/$15 por MTok).\n\nActualizado `scripts/services/ModelRouter.js`:\n- `MODELOS.SONNET: 'claude-sonnet-5'` (reemplaza `claude-sonnet-4-6`)",
       "tokens": [
         "claude",
         "sonnet",
@@ -6550,7 +10701,7 @@
       "id": "general/session-2026-07-06-media-prioridad#7",
       "source": "session-2026-07-06-media-prioridad",
       "rol": "general",
-      "text": "Conteos actualizados\r\n\r\n- Skills: 34 → 35\r\n- Tests: 342 → 351 (9 nuevos: 1 de coherencia setup-settings + 8 de conformidad del skill nuevo)",
+      "text": "Conteos actualizados\n\n- Skills: 34 → 35\n- Tests: 342 → 351 (9 nuevos: 1 de coherencia setup-settings + 8 de conformidad del skill nuevo)",
       "tokens": [
         "conteo",
         "actualiz",
@@ -6571,7 +10722,7 @@
       "id": "general/session-2026-07-06-media-prioridad#8",
       "source": "session-2026-07-06-media-prioridad",
       "rol": "general",
-      "text": "Archivos modificados\r\n\r\n- `tests/harness.test.js` — test de coherencia setup-settings\r\n- `scripts/update.js` — paso 6 norm-harness + conteos actualizados\r\n- `scripts/services/ModelRouter.js` — SONNET: claude-sonnet-5\r\n- `.claude/skills/mcp-registry-navigator/SKILL.md` — skill nuevo\r\n- `.claude/agents/mcp-registry-navigator.md` — agente nuevo\r\n- `CLAUDE.md` — entrada mcp-registry-navigator en tabla de skills + conteos 35/351\r\n- `README.md` — conteos actualizados",
+      "text": "Archivos modificados\n\n- `tests/harness.test.js` — test de coherencia setup-settings\n- `scripts/update.js` — paso 6 norm-harness + conteos actualizados\n- `scripts/services/ModelRouter.js` — SONNET: claude-sonnet-5\n- `.claude/skills/mcp-registry-navigator/SKILL.md` — skill nuevo\n- `.claude/agents/mcp-registry-navigator.md` — agente nuevo\n- `CLAUDE.md` — entrada mcp-registry-navigator en tabla de skills + conteos 35/351\n- `README.md` — conteos actualizados",
       "tokens": [
         "archivo",
         "modific",
@@ -6628,7 +10779,7 @@
       "id": "general/session-2026-07-06-media-prioridad#9",
       "source": "session-2026-07-06-media-prioridad",
       "rol": "general",
-      "text": "Aprendizajes\r\n\r\n- **Verificar contexto antes de corregir:** El vault marcaba referencias a `claude-sonnet-4-6` en skills como pendiente de corrección. Al leerlos en contexto real, todas eran correctas (tier de produccion general). El hallazgo del vault era un falso positivo registrado antes de verificar. Lección: siempre leer el archivo antes de actuar sobre un pendiente de memoria.\r\n\r\n- **`claude-sonnet-5` es GA desde 2026-06-29:** Confirmado via `client.models.list()` en vivo. max_input_tokens 1M, thinking adaptativo, code execution. Mismo pricing que sonnet-4-6. El models-cache.json lo tenia registrado pero ModelRouter no lo habia incorporado.\r\n\r\n- **Detección de submodulo en update.js:** El patron `../../CLAUDE.md existe AND ../../package.json NO existe` es suficientemente robusto para",
+      "text": "Aprendizajes\n\n- **Verificar contexto antes de corregir:** El vault marcaba referencias a `claude-sonnet-4-6` en skills como pendiente de corrección. Al leerlos en contexto real, todas eran correctas (tier de produccion general). El hallazgo del vault era un falso positivo registrado antes de verificar. Lección: siempre leer el archivo antes de actuar sobre un pendiente de memoria.\n\n- **`claude-sonnet-5` es GA desde 2026-06-29:** Confirmado via `client.models.list()` en vivo. max_input_tokens 1M, thinking adaptativo, code execution. Mismo pricing que sonnet-4-6. El models-cache.json lo tenia registrado pero ModelRouter no lo habia incorporado.\n\n- **Detección de submodulo en update.js:** El patron `../../CLAUDE.md existe AND ../../package.json NO existe` es suficientemente robusto para disti",
       "tokens": [
         "aprendizaj",
         "verificar",
@@ -6770,7 +10921,7 @@
       "id": "general/session-2026-07-06-media-prioridad#11",
       "source": "session-2026-07-06-media-prioridad",
       "rol": "general",
-      "text": "Alta prioridad\r\n\r\n- **arnes-manager** — proyecto principal. Arquitectura decidida (ver session-2026-07-06).\r\n  Al arrancar: instalar MCP Memory como parte del setup inicial.",
+      "text": "Alta prioridad\n\n- **arnes-manager** — proyecto principal. Arquitectura decidida (ver session-2026-07-06).\n  Al arrancar: instalar MCP Memory como parte del setup inicial.",
       "tokens": [
         "alta",
         "prioridad",
@@ -6796,7 +10947,7 @@
       "id": "general/session-2026-07-06-media-prioridad#12",
       "source": "session-2026-07-06-media-prioridad",
       "rol": "general",
-      "text": "Media prioridad (remanente)\r\n\r\nTodos los items de media prioridad de session-2026-07-07 fueron completados o descartados.\r\nNo hay items de media prioridad pendientes al cierre de esta sesion.",
+      "text": "Media prioridad (remanente)\n\nTodos los items de media prioridad de session-2026-07-07 fueron completados o descartados.\nNo hay items de media prioridad pendientes al cierre de esta sesion.",
       "tokens": [
         "media",
         "prioridad",
@@ -6823,7 +10974,7 @@
       "id": "general/session-2026-07-06-media-prioridad#13",
       "source": "session-2026-07-06-media-prioridad",
       "rol": "general",
-      "text": "Baja prioridad\r\n\r\nTodos los items de baja prioridad resueltos o descartados.",
+      "text": "Baja prioridad\n\nTodos los items de baja prioridad resueltos o descartados.",
       "tokens": [
         "baja",
         "prioridad",
@@ -6854,7 +11005,7 @@
       "id": "general/session-2026-07-06-upgrade-aaa#3",
       "source": "session-2026-07-06-upgrade-aaa",
       "rol": "general",
-      "text": "6 mejoras AAA implementadas\r\n\r\n1. **ponytail-check.js** — hook PreToolUse Write|Edit con escalera YAGNI de 5 capas. 9 tests.\r\n2. **dev-loop skill v1.0.0** — ciclo Spec→Design→Plan→Build→Review. Basado en Superpowers (Jesse Vincent/obra) y agent-skills (Addy Osmani). 8 tests.\r\n3. **memory-index.js + memory-manager skill** — motor BM25 zero-deps en `.claude/memory-vault/`. Auto-index en Stop hook. Umbral score >2.0 para contexto activo. 10 tests.\r\n4. **agent-metrics.js** — observabilidad por tool call (herramienta, status, tokens, duración). Basado en agent-house (Addy Osmani). 7 tests.\r\n5. **subagent-review.js** — validación adversarial en SubagentStop: Auditor + Adversario + Pragmático. Exit 1 en CRITICO. Basado en adverse (Addy Osmani). 5 tests.\r\n6. **ux-visual-designer v2.0.0 + tech-lead",
+      "text": "6 mejoras AAA implementadas\n\n1. **ponytail-check.js** — hook PreToolUse Write|Edit con escalera YAGNI de 5 capas. 9 tests.\n2. **dev-loop skill v1.0.0** — ciclo Spec→Design→Plan→Build→Review. Basado en Superpowers (Jesse Vincent/obra) y agent-skills (Addy Osmani). 8 tests.\n3. **memory-index.js + memory-manager skill** — motor BM25 zero-deps en `.claude/memory-vault/`. Auto-index en Stop hook. Umbral score >2.0 para contexto activo. 10 tests.\n4. **agent-metrics.js** — observabilidad por tool call (herramienta, status, tokens, duración). Basado en agent-house (Addy Osmani). 7 tests.\n5. **subagent-review.js** — validación adversarial en SubagentStop: Auditor + Adversario + Pragmático. Exit 1 en CRITICO. Basado en adverse (Addy Osmani). 5 tests.\n6. **ux-visual-designer v2.0.0 + tech-lead-fronte",
       "tokens": [
         "mejora",
         "aaa",
@@ -6964,7 +11115,7 @@
       "id": "general/session-2026-07-06-upgrade-aaa#4",
       "source": "session-2026-07-06-upgrade-aaa",
       "rol": "general",
-      "text": "Auditoría post-release (5 correcciones)\r\n\r\n- `claude-opus-4-7` → `claude-opus-4-8` en ModelRouter.js y mcp-anthropic.js\r\n- `health-sync.js`: parsing de skills corregido (formato tabla markdown, no línea legacy)\r\n- `aiops-score.js`: subagent-review.js excluido del scan — score 10/10 real\r\n- `CLAUDE.md` línea 4: version string v3.9.1 → v3.10.0\r\n- `@anthropic-ai/sdk`: 0.104.1 → 0.110.0",
+      "text": "Auditoría post-release (5 correcciones)\n\n- `claude-opus-4-7` → `claude-opus-4-8` en ModelRouter.js y mcp-anthropic.js\n- `health-sync.js`: parsing de skills corregido (formato tabla markdown, no línea legacy)\n- `aiops-score.js`: subagent-review.js excluido del scan — score 10/10 real\n- `CLAUDE.md` línea 4: version string v3.9.1 → v3.10.0\n- `@anthropic-ai/sdk`: 0.104.1 → 0.110.0",
       "tokens": [
         "auditoría",
         "post",
@@ -7009,7 +11160,7 @@
       "id": "general/session-2026-07-06-upgrade-aaa#5",
       "source": "session-2026-07-06-upgrade-aaa",
       "rol": "general",
-      "text": "Sincronización de coherencia\r\n\r\n- Todos los archivos actualizados a 34 skills / 342 tests (README, CLAUDE.md, update.js, ci.yml, aiops-score.js)\r\n- Node engines: >=18 → >=20 (Node 18 EOL)\r\n- CI matrix: Node 18 eliminado\r\n- DOCS_MAESTRA.md legacy v2.6.4 eliminado del repo",
+      "text": "Sincronización de coherencia\n\n- Todos los archivos actualizados a 34 skills / 342 tests (README, CLAUDE.md, update.js, ci.yml, aiops-score.js)\n- Node engines: >=18 → >=20 (Node 18 EOL)\n- CI matrix: Node 18 eliminado\n- DOCS_MAESTRA.md legacy v2.6.4 eliminado del repo",
       "tokens": [
         "sincroniz",
         "coherencia",
@@ -7042,7 +11193,7 @@
       "id": "general/session-2026-07-06-upgrade-aaa#6",
       "source": "session-2026-07-06-upgrade-aaa",
       "rol": "general",
-      "text": "Fix crítico de portabilidad\r\n\r\n`setup-settings.js` y `norm-harness.js` generaban settings.json con solo 2 hooks (versión v3.9.0). Reescritos completos — ahora producen los 22 hooks del harness actual.",
+      "text": "Fix crítico de portabilidad\n\n`setup-settings.js` y `norm-harness.js` generaban settings.json con solo 2 hooks (versión v3.9.0). Reescritos completos — ahora producen los 22 hooks del harness actual.",
       "tokens": [
         "fix",
         "crítico",
@@ -7070,7 +11221,7 @@
       "id": "general/session-2026-07-06-upgrade-aaa#7",
       "source": "session-2026-07-06-upgrade-aaa",
       "rol": "general",
-      "text": "Documentación\r\n\r\n- CHANGELOG.md: entrada v3.10.0 con nota de migración para proyectos existentes\r\n- ROADMAP_AAA.md: 6 mejoras marcadas COMPLETADO + arquitectura arnes-manager decidida\r\n- README.md: actualizado a v3.10.0 con todos los comandos y novedades",
+      "text": "Documentación\n\n- CHANGELOG.md: entrada v3.10.0 con nota de migración para proyectos existentes\n- ROADMAP_AAA.md: 6 mejoras marcadas COMPLETADO + arquitectura arnes-manager decidida\n- README.md: actualizado a v3.10.0 con todos los comandos y novedades",
       "tokens": [
         "document",
         "changelog",
@@ -7098,7 +11249,7 @@
       "id": "general/session-2026-07-06-upgrade-aaa#9",
       "source": "session-2026-07-06-upgrade-aaa",
       "rol": "general",
-      "text": "Bugs silenciosos frecuentes al actualizar harness\r\n\r\nLos scripts de bootstrap (`setup-settings.js`, `norm-harness.js`) son los primeros en desincronizarse cuando se agregan hooks nuevos — porque no hay test que valide que su output coincide con el `settings.json` real. Detectado solo por auditoría manual.\r\n\r\n**Patrón a vigilar:** cada vez que se modifique `settings.json` directamente, verificar que `setup-settings.js` y `norm-harness.js` producen el mismo resultado.",
+      "text": "Bugs silenciosos frecuentes al actualizar harness\n\nLos scripts de bootstrap (`setup-settings.js`, `norm-harness.js`) son los primeros en desincronizarse cuando se agregan hooks nuevos — porque no hay test que valide que su output coincide con el `settings.json` real. Detectado solo por auditoría manual.\n\n**Patrón a vigilar:** cada vez que se modifique `settings.json` directamente, verificar que `setup-settings.js` y `norm-harness.js` producen el mismo resultado.",
       "tokens": [
         "bug",
         "silencioso",
@@ -7153,7 +11304,7 @@
       "id": "general/session-2026-07-06-upgrade-aaa#10",
       "source": "session-2026-07-06-upgrade-aaa",
       "rol": "general",
-      "text": "Falsos positivos en aiops-score\r\n\r\nScripts que contienen regex como *datos* (patrones de auditoría en strings) activan el scanner de seguridad del scorer. La lista `EXCLUIR` en `aiops-score.js` debe actualizarse cada vez que se agregue un script con este patrón.",
+      "text": "Falsos positivos en aiops-score\n\nScripts que contienen regex como *datos* (patrones de auditoría en strings) activan el scanner de seguridad del scorer. La lista `EXCLUIR` en `aiops-score.js` debe actualizarse cada vez que se agregue un script con este patrón.",
       "tokens": [
         "falso",
         "positivo",
@@ -7187,7 +11338,7 @@
       "id": "general/session-2026-07-06-upgrade-aaa#11",
       "source": "session-2026-07-06-upgrade-aaa",
       "rol": "general",
-      "text": "health-sync.js — formato legacy\r\n\r\n`health-sync.js:checkSkills()` buscaba la línea `\"Skills disponibles: ...\"` que existió hasta v3.7. Desde v3.8 el formato es tabla markdown. El bug llevaba ~3 versiones sin detectarse porque el reporte de health no bloquea nada (solo informa).",
+      "text": "health-sync.js — formato legacy\n\n`health-sync.js:checkSkills()` buscaba la línea `\"Skills disponibles: ...\"` que existió hasta v3.7. Desde v3.8 el formato es tabla markdown. El bug llevaba ~3 versiones sin detectarse porque el reporte de health no bloquea nada (solo informa).",
       "tokens": [
         "health",
         "sync",
@@ -7224,7 +11375,7 @@
       "id": "general/session-2026-07-06-upgrade-aaa#12",
       "source": "session-2026-07-06-upgrade-aaa",
       "rol": "general",
-      "text": "Flujo de migración para submodulos\r\n\r\nEl paso `node .claude/ai-core/.claude/bin/norm-harness.js` en el proyecto anfitrión NO es automático. Es el único paso manual que no corre `npm run update`. Documentado en CHANGELOG pero candidato a automatizar en el futuro.",
+      "text": "Flujo de migración para submodulos\n\nEl paso `node .claude/ai-core/.claude/bin/norm-harness.js` en el proyecto anfitrión NO es automático. Es el único paso manual que no corre `npm run update`. Documentado en CHANGELOG pero candidato a automatizar en el futuro.",
       "tokens": [
         "flujo",
         "migr",
@@ -7258,7 +11409,7 @@
       "id": "general/session-2026-07-06-upgrade-aaa#14",
       "source": "session-2026-07-06-upgrade-aaa",
       "rol": "general",
-      "text": "arnes-manager (próximo proyecto)\r\n\r\nGestor remoto de arneses. Arquitectura decidida:\r\n\r\n```\r\narnes-manager/\r\n  api/          → Express/Fastify\r\n  agents/\r\n    harness-updater    → clona repo, npm run update, abre PR\r\n    skill-auditor      → detecta skills obsoletos\r\n    dependency-watcher → CVEs, versiones deprecadas\r\n  dashboard/    → UI web\r\n  cli/          → npx arnes-manager init\r\n```\r\n\r\nDeploy: Railway.app. Instalable via `npx arnes-manager init`.\r\nBase técnica: claude-session-driver (obra/Jesse Vincent) para workers paralelos JSONL.",
+      "text": "arnes-manager (próximo proyecto)\n\nGestor remoto de arneses. Arquitectura decidida:\n\n```\narnes-manager/\n  api/          → Express/Fastify\n  agents/\n    harness-updater    → clona repo, npm run update, abre PR\n    skill-auditor      → detecta skills obsoletos\n    dependency-watcher → CVEs, versiones deprecadas\n  dashboard/    → UI web\n  cli/          → npx arnes-manager init\n```\n\nDeploy: Railway.app. Instalable via `npx arnes-manager init`.\nBase técnica: claude-session-driver (obra/Jesse Vincent) para workers paralelos JSONL.",
       "tokens": [
         "arn",
         "manager",
@@ -7326,7 +11477,7 @@
       "id": "general/session-2026-07-06-upgrade-aaa#15",
       "source": "session-2026-07-06-upgrade-aaa",
       "rol": "general",
-      "text": "Automatizar norm-harness en proyectos anfitriones\r\n\r\nConsiderar agregar un hook post-update en `update.js` que detecte si se ejecuta desde un submodulo y corra `norm-harness.js` automáticamente en el proyecto padre.",
+      "text": "Automatizar norm-harness en proyectos anfitriones\n\nConsiderar agregar un hook post-update en `update.js` que detecte si se ejecuta desde un submodulo y corra `norm-harness.js` automáticamente en el proyecto padre.",
       "tokens": [
         "automatizar",
         "norm",
@@ -7355,7 +11506,7 @@
       "id": "general/session-2026-07-06-upgrade-aaa#16",
       "source": "session-2026-07-06-upgrade-aaa",
       "rol": "general",
-      "text": "Vault de memoria vacío al inicio de sesión\r\n\r\nEl protocolo de arranque consulta el vault, pero si no hay entradas `.raw/` el índice no existe. Considerar incluir una entrada de bootstrap en el vault con el estado del harness para que la primera consulta siempre tenga resultados.",
+      "text": "Vault de memoria vacío al inicio de sesión\n\nEl protocolo de arranque consulta el vault, pero si no hay entradas `.raw/` el índice no existe. Considerar incluir una entrada de bootstrap en el vault con el estado del harness para que la primera consulta siempre tenga resultados.",
       "tokens": [
         "vault",
         "memoria",
@@ -7389,7 +11540,7 @@
       "id": "general/session-2026-07-06-upgrade-aaa#17",
       "source": "session-2026-07-06-upgrade-aaa",
       "rol": "general",
-      "text": "Test de coherencia setup-settings vs settings.json\r\n\r\nAgregar un test en `harness.test.js` que ejecute `setup-settings.js` y compare su output con el `settings.json` existente — para detectar inmediatamente cuando quedan desincronizados.",
+      "text": "Test de coherencia setup-settings vs settings.json\n\nAgregar un test en `harness.test.js` que ejecute `setup-settings.js` y compare su output con el `settings.json` existente — para detectar inmediatamente cuando quedan desincronizados.",
       "tokens": [
         "test",
         "coherencia",
@@ -7434,7 +11585,7 @@
       "id": "general/session-2026-07-07-auditoria-y-bm25plus#3",
       "source": "session-2026-07-07-auditoria-y-bm25plus",
       "rol": "general",
-      "text": "BM25+ — 3 mejoras al motor de memoria\r\n\r\n1. **Stemming mínimo en español** — sufijos comunes (`-aciones`, `-ando`, `-ado`, `-mente`, etc.). \"implementamos\" y \"implementado\" ahora matchean el mismo token.\r\n2. **Boost por campo (x3)** — tokens del frontmatter (`name` + `description`) se repiten 3 veces en el vector. Entradas bien tituladas suben en ranking.\r\n3. **Query expansion de sinónimos de dominio** — 15 grupos: `arnes=harness=ai-core`, `sesion=session=conversacion`, `agente=agent`, etc. Mejora recall en queries naturales.\r\n\r\nResultado medido: query \"sesion pasada implementado\" → score 2.78 (antes: sin resultados).",
+      "text": "BM25+ — 3 mejoras al motor de memoria\n\n1. **Stemming mínimo en español** — sufijos comunes (`-aciones`, `-ando`, `-ado`, `-mente`, etc.). \"implementamos\" y \"implementado\" ahora matchean el mismo token.\n2. **Boost por campo (x3)** — tokens del frontmatter (`name` + `description`) se repiten 3 veces en el vector. Entradas bien tituladas suben en ranking.\n3. **Query expansion de sinónimos de dominio** — 15 grupos: `arnes=harness=ai-core`, `sesion=session=conversacion`, `agente=agent`, etc. Mejora recall en queries naturales.\n\nResultado medido: query \"sesion pasada implementado\" → score 2.78 (antes: sin resultados).",
       "tokens": [
         "bm25",
         "mejora",
@@ -7504,7 +11655,7 @@
       "id": "general/session-2026-07-07-auditoria-y-bm25plus#4",
       "source": "session-2026-07-07-auditoria-y-bm25plus",
       "rol": "general",
-      "text": "Auditoría aiops-engineer\r\n\r\nSkills actualizados con Fable 5:\r\n- `claude-api` v1.2.0 — tabla de modelos con Fable 5 + regla de selección vs Opus\r\n- `workflow-orchestrator` v2.1.0 — mapeo split: `arquitectura` → Fable 5, `arquitectura_tools` → Opus 4.8\r\n- `memory-manager` v1.1.0 — description actualizada a \"BM25+\"\r\n- `gemini-2-5-specialist` v1.1.0 — Flash-Thinking agregado como tier intermedio\r\n- `ai-integrations` v2.4.0 — `opus-4-6` reemplazado por `fable-5`\r\n- `prompt-engineer` v1.7.0 — extended thinking actualizado con `fable-5`",
+      "text": "Auditoría aiops-engineer\n\nSkills actualizados con Fable 5:\n- `claude-api` v1.2.0 — tabla de modelos con Fable 5 + regla de selección vs Opus\n- `workflow-orchestrator` v2.1.0 — mapeo split: `arquitectura` → Fable 5, `arquitectura_tools` → Opus 4.8\n- `memory-manager` v1.1.0 — description actualizada a \"BM25+\"\n- `gemini-2-5-specialist` v1.1.0 — Flash-Thinking agregado como tier intermedio\n- `ai-integrations` v2.4.0 — `opus-4-6` reemplazado por `fable-5`\n- `prompt-engineer` v1.7.0 — extended thinking actualizado con `fable-5`",
       "tokens": [
         "auditoría",
         "aiop",
@@ -7556,7 +11707,7 @@
       "id": "general/session-2026-07-07-auditoria-y-bm25plus#5",
       "source": "session-2026-07-07-auditoria-y-bm25plus",
       "rol": "general",
-      "text": "Auditoría completa de código (agente autónomo)\r\n\r\nHallazgos resueltos:\r\n- `README.md:592` — `opus-4-7` en comentario de ejemplo → `opus-4-8`\r\n- `README.md:778` — tabla Model Router con `opus-4-7` → `fable-5`\r\n- `standards-guard.js:206` — `catch {}` vacío → log a stderr con mensaje de error\r\n- `ModelRouter.js` — FABLE agregado como tier nuevo. TIER_FABLE cubre `disenar_sistema` y `refactorizar_arquitectura`. TIER_OPUS ahora solo cubre `auditar_seguridad_critica` (tareas que requieren computer use o tools integradas).\r\n- `ModelRegistry.js` — ya tenía `claude-fable-5` en comentario; ahora ModelRouter lo soporta formalmente.\r\n\r\nHallazgos descartados (no son bugs reales):\r\n- `catch (_)` en mcp-anthropic stdin — JSON-RPC: líneas inválidas son ruido normal del protocolo\r\n- `catch (_)` en mcp-gemi",
+      "text": "Auditoría completa de código (agente autónomo)\n\nHallazgos resueltos:\n- `README.md:592` — `opus-4-7` en comentario de ejemplo → `opus-4-8`\n- `README.md:778` — tabla Model Router con `opus-4-7` → `fable-5`\n- `standards-guard.js:206` — `catch {}` vacío → log a stderr con mensaje de error\n- `ModelRouter.js` — FABLE agregado como tier nuevo. TIER_FABLE cubre `disenar_sistema` y `refactorizar_arquitectura`. TIER_OPUS ahora solo cubre `auditar_seguridad_critica` (tareas que requieren computer use o tools integradas).\n- `ModelRegistry.js` — ya tenía `claude-fable-5` en comentario; ahora ModelRouter lo soporta formalmente.\n\nHallazgos descartados (no son bugs reales):\n- `catch (_)` en mcp-anthropic stdin — JSON-RPC: líneas inválidas son ruido normal del protocolo\n- `catch (_)` en mcp-gemini compresi",
       "tokens": [
         "auditoría",
         "completa",
@@ -7656,7 +11807,7 @@
       "id": "general/session-2026-07-07-auditoria-y-bm25plus#7",
       "source": "session-2026-07-07-auditoria-y-bm25plus",
       "rol": "general",
-      "text": "Fable 5 vs Opus 4.8 — distinción clave\r\n\r\nFable 5 es el modelo de razonamiento profundo sin herramientas integradas.\r\nOpus 4.8 es para arquitectura CON computer use o tools integradas.\r\nEsta distinción debe mantenerse consistente en todos los skills y en ModelRouter.\r\n\r\n**Patrón a vigilar:** cuando se agregue un modelo nuevo, actualizar en este orden:\r\n1. `ModelRegistry.js` (comentario)\r\n2. `ModelRouter.js` (MODELOS + COSTO_POR_MODELO + tier)\r\n3. `CLAUDE.md` (tabla de roles si aplica)\r\n4. Skills afectados: `claude-api`, `workflow-orchestrator`, `ai-integrations`, `prompt-engineer`\r\n5. `README.md` (tabla Model Router)",
+      "text": "Fable 5 vs Opus 4.8 — distinción clave\n\nFable 5 es el modelo de razonamiento profundo sin herramientas integradas.\nOpus 4.8 es para arquitectura CON computer use o tools integradas.\nEsta distinción debe mantenerse consistente en todos los skills y en ModelRouter.\n\n**Patrón a vigilar:** cuando se agregue un modelo nuevo, actualizar en este orden:\n1. `ModelRegistry.js` (comentario)\n2. `ModelRouter.js` (MODELOS + COSTO_POR_MODELO + tier)\n3. `CLAUDE.md` (tabla de roles si aplica)\n4. Skills afectados: `claude-api`, `workflow-orchestrator`, `ai-integrations`, `prompt-engineer`\n5. `README.md` (tabla Model Router)",
       "tokens": [
         "fable",
         "opu",
@@ -7719,7 +11870,7 @@
       "id": "general/session-2026-07-07-auditoria-y-bm25plus#8",
       "source": "session-2026-07-07-auditoria-y-bm25plus",
       "rol": "general",
-      "text": "MCP Memory — decisión diferida\r\n\r\nMCP Memory oficial (@modelcontextprotocol/server-memory) fue evaluado y diferido.\r\nRazón: con un solo proyecto el grafo queda plano. El momento correcto es al arrancar arnes-manager\r\ndonde habrá múltiples proyectos con entidades y relaciones cruzadas.",
+      "text": "MCP Memory — decisión diferida\n\nMCP Memory oficial (@modelcontextprotocol/server-memory) fue evaluado y diferido.\nRazón: con un solo proyecto el grafo queda plano. El momento correcto es al arrancar arnes-manager\ndonde habrá múltiples proyectos con entidades y relaciones cruzadas.",
       "tokens": [
         "mcp",
         "memory",
@@ -7758,7 +11909,7 @@
       "id": "general/session-2026-07-07-auditoria-y-bm25plus#9",
       "source": "session-2026-07-07-auditoria-y-bm25plus",
       "rol": "general",
-      "text": "Auditoria de código muerto\r\n\r\nLos módulos `ContextIndex.js`, `StyleProfiler.js`, `ResponseValidator.js` solo son consumidos\r\npor `anthropic-bridge.js`. No son código muerto — son dependencias del bridge.\r\nSi el bridge se elimina en el futuro, estos 3 módulos quedan huérfanos.",
+      "text": "Auditoria de código muerto\n\nLos módulos `ContextIndex.js`, `StyleProfiler.js`, `ResponseValidator.js` solo son consumidos\npor `anthropic-bridge.js`. No son código muerto — son dependencias del bridge.\nSi el bridge se elimina en el futuro, estos 3 módulos quedan huérfanos.",
       "tokens": [
         "auditoria",
         "código",
@@ -7790,7 +11941,7 @@
       "id": "general/session-2026-07-07-auditoria-y-bm25plus#11",
       "source": "session-2026-07-07-auditoria-y-bm25plus",
       "rol": "general",
-      "text": "Alta prioridad\r\n\r\n- **arnes-manager** — proyecto principal pendiente. Arquitectura decidida (ver session-2026-07-06).\r\n  Al arrancar: instalar MCP Memory como parte del setup inicial.",
+      "text": "Alta prioridad\n\n- **arnes-manager** — proyecto principal pendiente. Arquitectura decidida (ver session-2026-07-06).\n  Al arrancar: instalar MCP Memory como parte del setup inicial.",
       "tokens": [
         "alta",
         "prioridad",
@@ -7817,7 +11968,7 @@
       "id": "general/session-2026-07-07-auditoria-y-bm25plus#12",
       "source": "session-2026-07-07-auditoria-y-bm25plus",
       "rol": "general",
-      "text": "Media prioridad\r\n\r\n- **Test de coherencia setup-settings vs settings.json** — agregar en `harness.test.js` un test que\r\n  ejecute `setup-settings.js` y compare su output con el `settings.json` real.\r\n  Detecta inmediatamente cuando quedan desincronizados tras agregar hooks nuevos.\r\n\r\n- **Automatizar norm-harness en proyectos anfitriones** — hook post-update en `update.js` que detecte\r\n  si se ejecuta desde un submodulo y corra `norm-harness.js` en el proyecto padre automáticamente.\r\n\r\n- **Skill `mcp-registry-navigator`** — nuevo skill para evaluar MCPs de terceros antes de instalar\r\n  (mcp.run, glama.ai, transportes stdio vs SSE). Caso de uso directo en arnes-manager.\r\n\r\n- **claude-sonnet-5 en ModelRouter** — el agente detectó `claude-sonnet-5` en models-cache.json\r\n  pero no está en MODEL",
+      "text": "Media prioridad\n\n- **Test de coherencia setup-settings vs settings.json** — agregar en `harness.test.js` un test que\n  ejecute `setup-settings.js` y compare su output con el `settings.json` real.\n  Detecta inmediatamente cuando quedan desincronizados tras agregar hooks nuevos.\n\n- **Automatizar norm-harness en proyectos anfitriones** — hook post-update en `update.js` que detecte\n  si se ejecuta desde un submodulo y corra `norm-harness.js` en el proyecto padre automáticamente.\n\n- **Skill `mcp-registry-navigator`** — nuevo skill para evaluar MCPs de terceros antes de instalar\n  (mcp.run, glama.ai, transportes stdio vs SSE). Caso de uso directo en arnes-manager.\n\n- **claude-sonnet-5 en ModelRouter** — el agente detectó `claude-sonnet-5` en models-cache.json\n  pero no está en MODELOS. Evaluar s",
       "tokens": [
         "media",
         "prioridad",
@@ -7912,7 +12063,7 @@
       "id": "general/session-2026-07-07-auditoria-y-bm25plus#13",
       "source": "session-2026-07-07-auditoria-y-bm25plus",
       "rol": "general",
-      "text": "Baja prioridad\r\n\r\n- **Bootstrap del vault** — agregar entrada inicial en `.raw/` con estado del harness para que\r\n  la primera query de sesión siempre tenga resultados (ahora funciona porque hay entradas reales).\r\n\r\n- **Referencias a `claude-sonnet-4-6` en ejemplos de skills** — llm-evals, llm-observability,\r\n  agent-testing, tech-lead-frontend tienen ejemplos con el modelo anterior. Son ejemplos de código,\r\n  no routing activo — severidad baja, actualizar en la próxima sesión de mantenimiento.",
+      "text": "Baja prioridad\n\n- **Bootstrap del vault** — agregar entrada inicial en `.raw/` con estado del harness para que\n  la primera query de sesión siempre tenga resultados (ahora funciona porque hay entradas reales).\n\n- **Referencias a `claude-sonnet-4-6` en ejemplos de skills** — llm-evals, llm-observability,\n  agent-testing, tech-lead-frontend tienen ejemplos con el modelo anterior. Son ejemplos de código,\n  no routing activo — severidad baja, actualizar en la próxima sesión de mantenimiento.",
       "tokens": [
         "baja",
         "prioridad",
@@ -7966,7 +12117,1059 @@
         "sesión",
         "mantenimiento"
       ]
+    },
+    "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#1": {
+      "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#1",
+      "source": "session-2026-09-20-auditoria-gobierno-y-quality-gate",
+      "rol": "general",
+      "text": "Sesion 2026-09-20 — Auditoria de gobierno, modularidad y marco de calidad previo a push",
+      "tokens": [
+        "sesion",
+        "2026",
+        "auditoria",
+        "gobierno",
+        "modularidad",
+        "marco",
+        "calidad",
+        "previo",
+        "push"
+      ]
+    },
+    "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#2": {
+      "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#2",
+      "source": "session-2026-09-20-auditoria-gobierno-y-quality-gate",
+      "rol": "general",
+      "text": "Realizado\n\n- Registro de `ciso` y `product-lifecycle-orchestrator` en `MARKET_STANDARDS.json` (pendiente de la sesion anterior) y correccion de sus SKILL.md.\n- Modularidad restaurada: 5 modulos sobre 300 lineas divididos en `lib/*` (`hooks-definition` 380 a 41, `destructive-op-guard` 371 a 229, `norm-harness` 364 a 172, `issue-reporter` 303 a 282, `mcp-anthropic` 301 a 197), con salida identica verificada contra un baseline de settings. Permisos `allow` unificados en `lib/base-permissions.js` (estaban duplicados entre `setup-settings` y `norm-harness`).\n- Correcciones: imports rotos de `host-settings` tras la extraccion (12 tests de norm-harness); fake `gh` del test de issue-reporter incompatible con node de Homebrew (enlazado dinamicamente).\n- Marco de calidad previo a push: `scripts/qual",
+      "tokens": [
+        "realiz",
+        "registro",
+        "ciso",
+        "product",
+        "lifecycle",
+        "orchestrator",
+        "market_standard",
+        "json",
+        "pendiente",
+        "sesion",
+        "anterior",
+        "correccion",
+        "skill",
+        "modularidad",
+        "restaur",
+        "modulo",
+        "sobre",
+        "300",
+        "linea",
+        "divid",
+        "lib",
+        "hook",
+        "definition",
+        "380",
+        "destructive",
+        "guard",
+        "371",
+        "229",
+        "norm",
+        "harnes",
+        "364",
+        "172",
+        "issue",
+        "reporter",
+        "303",
+        "282",
+        "mcp",
+        "anthropic",
+        "301",
+        "197",
+        "sal",
+        "identica",
+        "verific",
+        "contra",
+        "baseline",
+        "setting",
+        "permiso",
+        "allow",
+        "unific",
+        "lib",
+        "base",
+        "permission",
+        "estaban",
+        "duplic",
+        "entre",
+        "setup",
+        "setting",
+        "norm",
+        "harnes",
+        "correccion",
+        "import",
+        "roto",
+        "host",
+        "setting",
+        "tra",
+        "extraccion",
+        "test",
+        "norm",
+        "harnes",
+        "fake",
+        "test",
+        "issue",
+        "reporter",
+        "incompatible",
+        "node",
+        "homebrew",
+        "enlaz",
+        "dinamica",
+        "marco",
+        "calidad",
+        "previo",
+        "push",
+        "script",
+        "quality",
+        "gate",
+        "githook",
+        "pre",
+        "push",
+        "activ",
+        "core",
+        "hookspath",
+        "desde",
+        "setup",
+        "setting",
+        "git",
+        "push",
+        "sigue",
+        "allow",
+        "gate",
+        "compuerta",
+        "regla",
+        "break",
+        "glas",
+        "bypas",
+        "hook",
+        "regla",
+        "break",
+        "glas",
+        "total",
+        "test",
+        "nuevo",
+        "archivo",
+        "test",
+        "sobre",
+        "300",
+        "linea",
+        "divid",
+        "archivo",
+        "describe",
+        "sin",
+        "perder",
+        "test",
+        "informe",
+        "doc",
+        "auditoria",
+        "gobierno",
+        "2026",
+        "brecha",
+        "resuelta",
+        "compar",
+        "merc",
+        "orden",
+        "ejecucion",
+        "est",
+        "final",
+        "med",
+        "npm",
+        "test",
+        "1425",
+        "test",
+        "1424",
+        "pas",
+        "fail",
+        "skip",
+        "validate",
+        "global",
+        "quality",
+        "gate",
+        "completo",
+        "verde",
+        "commit",
+        "6063a95",
+        "refactor",
+        "modular",
+        "9948acc",
+        "quality",
+        "gate",
+        "da5fc8b",
+        "test",
+        "divid",
+        "cuarto",
+        "vigencia",
+        "document",
+        "vault"
+      ]
+    },
+    "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#3": {
+      "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#3",
+      "source": "session-2026-09-20-auditoria-gobierno-y-quality-gate",
+      "rol": "general",
+      "text": "Aprendido\n\n- Los guards corren bajo Node Permission Model y sus procesos hijos heredan las restricciones: un guard no puede ejecutar `npm test`. La compuerta de calidad debe ser un hook git nativo.\n- Node de Homebrew esta enlazado dinamicamente (`@rpath/libnode`): copiar el binario lo rompe. Los fakes de CLI en tests usan wrapper `sh`.\n- `sed -i` GNU no funciona en macOS; usar Edit o `sed -i ''`.\n- Un cache de gate por huella debe incluir el CONTENIDO de los archivos sin trackear: `git diff HEAD` solo cubre los trackeados.\n- Los identificadores de cifras en CLAUDE.md derivan sin aviso: decia 11 reglas break-glass y el codigo tenia 12 (hoy 13).\n- La identidad git nunca estuvo configurada en este repo: los commits de `ai-core/checkpoints` salieron con email de maquina. Se fijo la identidad l",
+      "tokens": [
+        "aprend",
+        "guard",
+        "corren",
+        "bajo",
+        "node",
+        "permission",
+        "model",
+        "proceso",
+        "hijo",
+        "heredan",
+        "restriccion",
+        "guard",
+        "puede",
+        "ejecutar",
+        "npm",
+        "test",
+        "compuerta",
+        "calidad",
+        "debe",
+        "ser",
+        "hook",
+        "git",
+        "nativo",
+        "node",
+        "homebrew",
+        "enlaz",
+        "dinamica",
+        "rpath",
+        "libnode",
+        "copiar",
+        "binario",
+        "rompe",
+        "fak",
+        "cli",
+        "test",
+        "usan",
+        "wrapper",
+        "sed",
+        "gnu",
+        "funciona",
+        "maco",
+        "usar",
+        "edit",
+        "sed",
+        "cache",
+        "gate",
+        "huella",
+        "debe",
+        "incluir",
+        "conten",
+        "archivo",
+        "sin",
+        "trackear",
+        "git",
+        "diff",
+        "head",
+        "solo",
+        "cubre",
+        "tracke",
+        "identificador",
+        "cifra",
+        "claude",
+        "derivan",
+        "sin",
+        "aviso",
+        "decia",
+        "regla",
+        "break",
+        "glas",
+        "codigo",
+        "tenia",
+        "hoy",
+        "identidad",
+        "git",
+        "nunca",
+        "estuvo",
+        "configur",
+        "repo",
+        "commit",
+        "core",
+        "checkpoint",
+        "salieron",
+        "email",
+        "maquina",
+        "fijo",
+        "identidad",
+        "local",
+        "comitear",
+        "destructive",
+        "guard",
+        "bloquea",
+        "texto",
+        "literal",
+        "dentro",
+        "argumento",
+        "script",
+        "cuya",
+        "cadena",
+        "mencionaba",
+        "bypas",
+        "hook",
+        "fue",
+        "deneg",
+        "sin",
+        "ejecutar",
+        "n",
+        "resolvio",
+        "escrib",
+        "script",
+        "write",
+        "sin",
+        "usar",
+        "break",
+        "glas",
+        "deadlock",
+        "confirm",
+        "visto",
+        "sesion",
+        "anterior",
+        "bridge",
+        "429",
+        "cuota",
+        "web",
+        "search",
+        "guard",
+        "siguio",
+        "deneg",
+        "webfetch",
+        "verific",
+        "sintaxi",
+        "permission",
+        "deny",
+        "sandbox",
+        "contra",
+        "document",
+        "oficial",
+        "quedo",
+        "bloque",
+        "eso",
+        "escribieron",
+        "esa",
+        "clav",
+        "fecha",
+        "escriben",
+        "herramienta",
+        "son",
+        "utc",
+        "fecha",
+        "local",
+        "puede",
+        "dia",
+        "atra",
+        "instruccion",
+        "atribucion",
+        "authored",
+        "inyecta",
+        "harnes",
+        "contradice",
+        "claude",
+        "prevalece",
+        "claude",
+        "commit",
+        "salieron",
+        "sin",
+        "atribucion"
+      ]
+    },
+    "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#4": {
+      "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#4",
+      "source": "session-2026-09-20-auditoria-gobierno-y-quality-gate",
+      "rol": "general",
+      "text": "Fuera de alcance detectado y mejoras que valen la pena\n\nDetalle y evidencia en `docs/AUDITORIA-GOBIERNO-2026-09.md`, seccion 3.\n\n- G11 (alta): degradar `web-search-guard` y `guard-read` cuando el bridge devuelve 429 o no esta conectado, con marcador con TTL escrito por `mcp-gemini.js`. Desbloquea toda la investigacion.\n- G13 (media-alta): identidad local automatica y hooks `commit-msg` y `pre-commit` para reglas de commit deterministas, tambien para commits humanos.\n- G15 (media, barata): test que compare cifras de CLAUDE.md contra el codigo.\n- G16 (media): el gate debe detectar residuales `*.new`/`*.orig`, secretos en working tree y, tras G4, el limite de 500 lineas de SKILL.md.\n- G12 (media): `mcpServers` en `settings.json` no tiene efecto; generar `.mcp.json`.\n- G14 (baja): falso positi",
+      "tokens": [
+        "fuera",
+        "alcance",
+        "detect",
+        "mejora",
+        "valen",
+        "pena",
+        "detalle",
+        "evidencia",
+        "doc",
+        "auditoria",
+        "gobierno",
+        "2026",
+        "seccion",
+        "g11",
+        "alta",
+        "degradar",
+        "web",
+        "search",
+        "guard",
+        "guard",
+        "read",
+        "cu",
+        "bridge",
+        "devuelve",
+        "429",
+        "conect",
+        "marcador",
+        "ttl",
+        "escrito",
+        "mcp",
+        "gemini",
+        "desbloquea",
+        "toda",
+        "investig",
+        "g13",
+        "media",
+        "alta",
+        "identidad",
+        "local",
+        "automatica",
+        "hook",
+        "commit",
+        "msg",
+        "pre",
+        "commit",
+        "regla",
+        "commit",
+        "determinista",
+        "tambien",
+        "commit",
+        "humano",
+        "g15",
+        "media",
+        "barata",
+        "test",
+        "compare",
+        "cifra",
+        "claude",
+        "contra",
+        "codigo",
+        "g16",
+        "media",
+        "gate",
+        "debe",
+        "detectar",
+        "residual",
+        "new",
+        "orig",
+        "secreto",
+        "working",
+        "tree",
+        "tra",
+        "limite",
+        "500",
+        "linea",
+        "skill",
+        "g12",
+        "media",
+        "mcpserver",
+        "setting",
+        "json",
+        "tiene",
+        "efecto",
+        "generar",
+        "mcp",
+        "json",
+        "g14",
+        "baja",
+        "falso",
+        "positivo",
+        "guard",
+        "destructivo",
+        "sobre",
+        "texto",
+        "literal",
+        "cambiarlo",
+        "abre",
+        "riesgo",
+        "evasion",
+        "diferenciador",
+        "frente",
+        "merc",
+        "conservar",
+        "eval",
+        "skill",
+        "promptfoo",
+        "break",
+        "glas",
+        "registro",
+        "gate",
+        "pre",
+        "push",
+        "determinista"
+      ]
+    },
+    "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#5": {
+      "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#5",
+      "source": "session-2026-09-20-auditoria-gobierno-y-quality-gate",
+      "rol": "general",
+      "text": "Pendiente (orden recomendado)\n\n1. G11: cerrar el deadlock del guard con bridge caido o sin cuota.\n2. G13 y G15: identidad y cifras deterministas.\n3. G2 y G3: definir `permissions.deny` para `.env*`, claves y `~/.ssh`, y evaluar `sandbox` nativo. Verificar sintaxis en `code.claude.com/docs/en/permissions` ANTES de escribir (Protocolo de Vigencia).\n4. G10 con fecha: reverificar `mcp-protocol` antes de ~2026-09-25 y `ai-core-internal-governance` antes de ~2026-10-02; cinco dominios de 2026-08-04 se acercan al umbral.\n5. G4: dividir 5 SKILL.md sobre 500 lineas en nucleo + `references/` (`backend-architect` 1698, `tech-lead-frontend` 1088, `web-scraping-specialist` 1006, `ux-visual-designer` 626, `mcp-server-builder` 606), un skill por vez con `eval-skills` y `validate-globals` como red; enmend",
+      "tokens": [
+        "pendiente",
+        "orden",
+        "recomend",
+        "g11",
+        "cerrar",
+        "deadlock",
+        "guard",
+        "bridge",
+        "ca",
+        "sin",
+        "cuota",
+        "g13",
+        "g15",
+        "identidad",
+        "cifra",
+        "determinista",
+        "definir",
+        "permission",
+        "deny",
+        "env",
+        "clav",
+        "ssh",
+        "evaluar",
+        "sandbox",
+        "nativo",
+        "verificar",
+        "sintaxi",
+        "code",
+        "claude",
+        "com",
+        "doc",
+        "permission",
+        "ant",
+        "escribir",
+        "protocolo",
+        "vigencia",
+        "g10",
+        "fecha",
+        "reverificar",
+        "mcp",
+        "protocol",
+        "ant",
+        "2026",
+        "core",
+        "internal",
+        "governance",
+        "ant",
+        "2026",
+        "cinco",
+        "dominio",
+        "2026",
+        "acercan",
+        "umbral",
+        "dividir",
+        "skill",
+        "sobre",
+        "500",
+        "linea",
+        "nucleo",
+        "referenc",
+        "backend",
+        "architect",
+        "1698",
+        "tech",
+        "lead",
+        "frontend",
+        "1088",
+        "web",
+        "scraping",
+        "specialist",
+        "1006",
+        "visual",
+        "designer",
+        "626",
+        "mcp",
+        "server",
+        "builder",
+        "606",
+        "skill",
+        "vez",
+        "eval",
+        "skill",
+        "validate",
+        "global",
+        "red",
+        "enmendar",
+        "exencion",
+        "claude",
+        "despu",
+        "g16",
+        "mover",
+        "origin",
+        "version",
+        "last_updated",
+        "rol",
+        "bajo",
+        "metadata",
+        "ajustar",
+        "validate",
+        "global",
+        "audit",
+        "market",
+        "eval",
+        "g12",
+        "investig",
+        "externa",
+        "merc",
+        "harnes",
+        "skill",
+        "mejor",
+        "practica",
+        "verific",
+        "contra",
+        "fuente",
+        "primaria",
+        "cu",
+        "bridge",
+        "tenga",
+        "cuota"
+      ]
+    },
+    "general/session-2026-09-20-validacion-mcp-bridge#1": {
+      "id": "general/session-2026-09-20-validacion-mcp-bridge#1",
+      "source": "session-2026-09-20-validacion-mcp-bridge",
+      "rol": "general",
+      "text": "Sesion 2026-09-20 — Validacion de vigencia y reparacion de carga del gemini-bridge",
+      "tokens": [
+        "sesion",
+        "2026",
+        "valid",
+        "vigencia",
+        "repar",
+        "carga",
+        "gemini",
+        "bridge"
+      ]
+    },
+    "general/session-2026-09-20-validacion-mcp-bridge#3": {
+      "id": "general/session-2026-09-20-validacion-mcp-bridge#3",
+      "source": "session-2026-09-20-validacion-mcp-bridge",
+      "rol": "general",
+      "text": "1. Validacion interna de vigencia\n\n- `npm run validate-globals`: 45/45 skills conformes, 0 criticos, 0 altos.\n- `npm run migrate-dry`: version 3.40.1 activa, sin migraciones pendientes.\n- `npm run audit-market`: 2 hallazgos `SIN_DOMINIO_REGISTRADO` (`ciso`, `product-lifecycle-orchestrator`). Ningun modelo o SDK desactualizado.\n- Dominios cercanos al umbral de 60 dias: `mcp-protocol` 55d (vence ~2026-09-25), `ai-core-internal-governance` 48d (vence ~2026-10-02).",
+      "tokens": [
+        "valid",
+        "interna",
+        "vigencia",
+        "npm",
+        "run",
+        "validate",
+        "global",
+        "skill",
+        "conform",
+        "critico",
+        "alto",
+        "npm",
+        "run",
+        "migrate",
+        "dry",
+        "version",
+        "activa",
+        "sin",
+        "migr",
+        "pendient",
+        "npm",
+        "run",
+        "audit",
+        "market",
+        "hallazgo",
+        "sin_dominio_registr",
+        "ciso",
+        "product",
+        "lifecycle",
+        "orchestrator",
+        "ningun",
+        "modelo",
+        "sdk",
+        "desactualiz",
+        "dominio",
+        "cercano",
+        "umbral",
+        "dia",
+        "mcp",
+        "protocol",
+        "55d",
+        "vence",
+        "2026",
+        "core",
+        "internal",
+        "governance",
+        "48d",
+        "vence",
+        "2026"
+      ]
+    },
+    "general/session-2026-09-20-validacion-mcp-bridge#4": {
+      "id": "general/session-2026-09-20-validacion-mcp-bridge#4",
+      "source": "session-2026-09-20-validacion-mcp-bridge",
+      "rol": "general",
+      "text": "2. Diagnostico del bloqueo de investigacion web\n\nSe intento investigar el mercado (harnesses, skills, sistemas agenticos) y `web-search-guard.js` bloqueo WebSearch/WebFetch por presencia de `GEMINI_API_KEY`. Pero `gemini-bridge` no estaba conectado en la sesion: `claude mcp list` solo mostraba Claude Docs y Google Drive, y no existe `.mcp.json` en la raiz.",
+      "tokens": [
+        "diagnostico",
+        "bloqueo",
+        "investig",
+        "web",
+        "intento",
+        "investigar",
+        "merc",
+        "harnes",
+        "skill",
+        "sistema",
+        "agentico",
+        "web",
+        "search",
+        "guard",
+        "bloqueo",
+        "websearch",
+        "webfetch",
+        "presencia",
+        "gemini_api_key",
+        "gemini",
+        "bridge",
+        "estaba",
+        "conect",
+        "sesion",
+        "claude",
+        "mcp",
+        "list",
+        "solo",
+        "mostraba",
+        "claude",
+        "doc",
+        "google",
+        "drive",
+        "existe",
+        "mcp",
+        "json",
+        "raiz"
+      ]
+    },
+    "general/session-2026-09-20-validacion-mcp-bridge#5": {
+      "id": "general/session-2026-09-20-validacion-mcp-bridge#5",
+      "source": "session-2026-09-20-validacion-mcp-bridge",
+      "rol": "general",
+      "text": "3. Reparacion aplicada\n\nRegistro local de ambos servidores, sin tocar el repo:\n- `claude mcp add -s local gemini-bridge -- node /Users/andrewarizmendi/ai-core/scripts/mcp-gemini.js`\n- `claude mcp add -s local anthropic-router -- node /Users/andrewarizmendi/ai-core/scripts/mcp-anthropic.js`\n- Resultado: escritos en `~/.claude.json` (proyecto ai-core). `claude mcp list` los reporta Connected. Las tools MCP solo cargan al reiniciar la sesion.",
+      "tokens": [
+        "repar",
+        "aplic",
+        "registro",
+        "local",
+        "ambo",
+        "servidor",
+        "sin",
+        "tocar",
+        "repo",
+        "claude",
+        "mcp",
+        "add",
+        "local",
+        "gemini",
+        "bridge",
+        "node",
+        "user",
+        "andrewarizmendi",
+        "core",
+        "script",
+        "mcp",
+        "gemini",
+        "claude",
+        "mcp",
+        "add",
+        "local",
+        "anthropic",
+        "router",
+        "node",
+        "user",
+        "andrewarizmendi",
+        "core",
+        "script",
+        "mcp",
+        "anthropic",
+        "result",
+        "escrito",
+        "claude",
+        "json",
+        "proyecto",
+        "core",
+        "claude",
+        "mcp",
+        "list",
+        "reporta",
+        "connected",
+        "tool",
+        "mcp",
+        "solo",
+        "cargan",
+        "reiniciar",
+        "sesion"
+      ]
+    },
+    "general/session-2026-09-20-validacion-mcp-bridge#6": {
+      "id": "general/session-2026-09-20-validacion-mcp-bridge#6",
+      "source": "session-2026-09-20-validacion-mcp-bridge",
+      "rol": "general",
+      "text": "Aprendido\n\n- `mcpServers` dentro de `.claude/settings.json` no hizo que Claude Code cargara los servidores. Causa inferida por observacion (no verificada contra la documentacion oficial): la ubicacion soportada es `.mcp.json` (scope project) o `~/.claude.json` (scope local/user).\n- Los servidores `mcp-gemini.js` y `mcp-anthropic.js` cargan su propia `.env` via `loadEnv` — no requieren pasar la API key en el registro.\n- Gap en `web-search-guard.js`: degrada a permitir la tool nativa solo si falta `GEMINI_API_KEY`, pero no comprueba que el bridge este realmente conectado. Con la key presente y el bridge caido, WebSearch y WebFetch quedan bloqueados sin alternativa (deadlock). CLAUDE.md regla 7 describe la degradacion solo para el caso sin key.\n- `guard-read.js` probablemente tiene el mismo g",
+      "tokens": [
+        "aprend",
+        "mcpserver",
+        "dentro",
+        "claude",
+        "setting",
+        "json",
+        "hizo",
+        "claude",
+        "code",
+        "cargara",
+        "servidor",
+        "causa",
+        "infer",
+        "observ",
+        "verific",
+        "contra",
+        "document",
+        "oficial",
+        "ubic",
+        "soport",
+        "mcp",
+        "json",
+        "scope",
+        "project",
+        "claude",
+        "json",
+        "scope",
+        "local",
+        "user",
+        "servidor",
+        "mcp",
+        "gemini",
+        "mcp",
+        "anthropic",
+        "cargan",
+        "propia",
+        "env",
+        "via",
+        "loadenv",
+        "requieren",
+        "pasar",
+        "api",
+        "key",
+        "registro",
+        "gap",
+        "web",
+        "search",
+        "guard",
+        "degr",
+        "permitir",
+        "tool",
+        "nativa",
+        "solo",
+        "falta",
+        "gemini_api_key",
+        "comprueba",
+        "bridge",
+        "real",
+        "conect",
+        "key",
+        "presente",
+        "bridge",
+        "ca",
+        "websearch",
+        "webfetch",
+        "quedan",
+        "bloque",
+        "sin",
+        "alternativa",
+        "deadlock",
+        "claude",
+        "regla",
+        "describe",
+        "degrad",
+        "solo",
+        "caso",
+        "sin",
+        "key",
+        "guard",
+        "read",
+        "probable",
+        "tiene",
+        "mismo",
+        "gap",
+        "mismo",
+        "patron",
+        "degrad",
+        "verific",
+        "sesion",
+        "tool",
+        "grep",
+        "estaba",
+        "disponible",
+        "usar",
+        "grep",
+        "via",
+        "bash",
+        "patron",
+        "include",
+        "entrecomill",
+        "zsh",
+        "expande",
+        "glob",
+        "sin",
+        "comilla",
+        "falla"
+      ]
+    },
+    "general/session-2026-09-20-validacion-mcp-bridge#7": {
+      "id": "general/session-2026-09-20-validacion-mcp-bridge#7",
+      "source": "session-2026-09-20-validacion-mcp-bridge",
+      "rol": "general",
+      "text": "Pendiente\n\n1. Reiniciar la sesion y ejecutar la investigacion externa via `buscar_web` / `analizar_contenido` en tres frentes: harnesses y skills de GitHub (Claude Code, Codex CLI, OpenCode, Cline, OpenHands, Gemini CLI, Aider, anthropics/skills, agentskills.io); creadores dev y lideres tecnicos senior; vigencia de MCP y Claude Code. Verificar cada afirmacion contra fuente primaria antes de tocar el arnes (Protocolo de Vigencia Tecnologica).\n2. Corregir de raiz la generacion de MCP: `setup-settings.js` y `norm-harness.js` escriben `mcpServers` en `settings.json` sin efecto. Generar `.mcp.json` desde un modulo compartido (patron de `hooks-definition.js`). Impacto: ambos generadores, `health-check.js` (lee `mcpServers.gemini-bridge.cwd`), `tests/harness/setup-settings-js.test.js`, `tests/har",
+      "tokens": [
+        "pendiente",
+        "reiniciar",
+        "sesion",
+        "ejecutar",
+        "investig",
+        "externa",
+        "via",
+        "buscar_web",
+        "analizar_conten",
+        "tr",
+        "frent",
+        "harnes",
+        "skill",
+        "github",
+        "claude",
+        "code",
+        "codex",
+        "cli",
+        "opencode",
+        "cline",
+        "openhand",
+        "gemini",
+        "cli",
+        "aider",
+        "anthropic",
+        "skill",
+        "agentskill",
+        "creador",
+        "dev",
+        "lider",
+        "tecnico",
+        "senior",
+        "vigencia",
+        "mcp",
+        "claude",
+        "code",
+        "verificar",
+        "c",
+        "afirm",
+        "contra",
+        "fuente",
+        "primaria",
+        "ant",
+        "tocar",
+        "arn",
+        "protocolo",
+        "vigencia",
+        "tecnologica",
+        "corregir",
+        "raiz",
+        "gener",
+        "mcp",
+        "setup",
+        "setting",
+        "norm",
+        "harnes",
+        "escriben",
+        "mcpserver",
+        "setting",
+        "json",
+        "sin",
+        "efecto",
+        "generar",
+        "mcp",
+        "json",
+        "desde",
+        "modulo",
+        "compart",
+        "patron",
+        "hook",
+        "definition",
+        "impacto",
+        "ambo",
+        "generador",
+        "health",
+        "check",
+        "lee",
+        "mcpserver",
+        "gemini",
+        "bridge",
+        "cwd",
+        "test",
+        "harnes",
+        "setup",
+        "setting",
+        "test",
+        "test",
+        "harnes",
+        "norm",
+        "harnes",
+        "test",
+        "afecta",
+        "tambien",
+        "proyecto",
+        "anfitrion",
+        "cerrar",
+        "gap",
+        "web",
+        "search",
+        "guard",
+        "verificar",
+        "guard",
+        "read",
+        "confirmar",
+        "disponibilidad",
+        "real",
+        "bridge",
+        "ant",
+        "denegar",
+        "tool",
+        "nativa",
+        "registrar",
+        "ciso",
+        "product",
+        "lifecycle",
+        "orchestrator",
+        "market_standard",
+        "json",
+        "dominio",
+        "reverificar",
+        "dominio",
+        "mcp",
+        "protocol",
+        "ant",
+        "2026",
+        "core",
+        "internal",
+        "governance",
+        "ant",
+        "2026",
+        "decidir",
+        "claude",
+        "debe",
+        "documentar",
+        "registro",
+        "mcp",
+        "requiere",
+        "claude",
+        "mcp",
+        "add",
+        "mcp",
+        "json"
+      ]
     }
   },
-  "builtAt": "2026-09-18T21:54:37.643Z"
+  "builtAt": "2026-09-21T05:59:22.965Z"
 }

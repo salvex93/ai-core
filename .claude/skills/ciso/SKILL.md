@@ -2,8 +2,8 @@
 name: ciso
 description: Gobierno de seguridad de la informacion y gestion de riesgo de terceros (TPRM). Cubre evaluacion de proveedores (VRA), respuesta a cuestionarios de controles de bancos/clientes corporativos (cada uno con su propia nomenclatura de ID), continuidad de negocio (BCP/DRP), compliance vertical (PCI-DSS, HIPAA), gestion de politicas corporativas y contraste evidencia-vs-afirmacion en entregables de auditoria. Complementa a security-auditor (seguridad de codigo/aplicacion) desde la perspectiva de gobierno, cumplimiento y riesgo de terceros. Activa al evaluar un proveedor externo, responder un cuestionario de seguridad de un banco o cliente corporativo, auditar politicas de seguridad de la informacion, evaluar compliance PCI-DSS/HIPAA, o verificar que un entregable TPRM refleja fielmente la evidencia disponible.
 origin: ai-core
-version: 1.3.2
-last_updated: 2026-08-31
+version: 1.3.3
+last_updated: 2026-09-21
 rol: auditor
 ---
 
@@ -73,13 +73,13 @@ Cada banco o cliente corporativo suele definir su propio prefijo de ID de contro
 2. No presentar la nomenclatura de un cliente especifico como si fuera un framework de la industria reconocido universalmente. Si se necesita comparar contra un estandar de industria real (ej. Shared Assessments SIG, ISO 27036, NIST SP 800-161), verificarlo contra fuente primaria antes de afirmarlo — ver Protocolo de Vigencia Tecnologica de CLAUDE.md, que aplica con el mismo criterio a marcos de gobierno/GRC.
 3. Los dominios de evaluacion tipicos (Usuario Final, IAM, Infraestructura, Gestion de Politicas, Continuidad del Negocio, Gestion de Registros, etc.) son un patron comun entre cuestionarios TPRM, pero su detalle exacto y ponderacion los define cada cliente en su propio cuestionario.
 
-### Marcos de referencia externos (verificado 2026-07-15)
+### Marcos de referencia externos (verificado 2026-09-21)
 
 Cuando se necesite comparar o mapear el cuestionario propio de un cliente contra un estandar reconocido de la industria — nunca para sustituir el cuestionario real del cliente, solo como vocabulario de referencia:
 
 | Marco | Alcance | Fuente primaria verificada |
 |---|---|---|
-| Shared Assessments SIG (Core 2025 / Lite 2025) | 21 dominios de riesgo agrupados en 4 areas: Governance & Risk Management, Information Protection, IT Operations & Business Resilience, Security Incident & Threat Management. SIG Core (627 preguntas) para terceros con datos sensibles/regulados; SIG Lite (128 preguntas) para proveedores de menor criticidad | sharedassessments.org |
+| Shared Assessments SIG (Core / Lite, ciclo anual; version vigente 2026) | SIG Core para terceros con datos sensibles/regulados; SIG Lite para proveedores de menor criticidad. Conteo de preguntas y agrupacion en dominios de riesgo de la edicion 2026 NO CONFIRMADOS en fuente publica (el contenido vigente se distribuye a miembros/suscriptores); el dato publico historico de la edicion 2023 es SIG Lite 126 / SIG Core 855 preguntas -- no citar cifras de edicion sin verificarlas contra la ficha oficial del producto | sharedassessments.org/sig-faq y /about-sig |
 | NIST SP 800-161 Rev. 1 (Update 1, 2024-11-01) | Cybersecurity Supply Chain Risk Management — gestion de riesgo de cadena de suministro, incluye SCRM Assessment Scoping Questionnaire | csrc.nist.gov/pubs/sp/800/161/r1/upd1/final |
 | ISO/IEC 27036 | 4 partes: Overview and concepts, Requirements, ICT supply chain security, Cloud services security | iso.org (verificado via fuentes secundarias consistentes — confianza media en el detalle exacto de edicion) |
 
@@ -196,4 +196,6 @@ Sin esta linea completada con datos reales del caso, prohibido avanzar a redacta
 
 Verificado en esta sesion contra fuente primaria oficial (`blog.pcisecuritystandards.org`): PCI DSS v4.0.1 es la version vigente unica del estandar — v4.0 fue retirada el 2024-12-31 y v4.0.1 no modifica la fecha de entrada en vigor de los requisitos "future-dated": 51 de los 64 requisitos nuevos de v4.x se volvieron obligatorios el 2025-03-31 (antes de esa fecha podian declararse "No Aplicable" via el Apendice C del SAQ). No hay version posterior anunciada por el Council a la fecha de esta verificacion.
 
-Cualquier otro dato de vigencia mencionado en este SKILL fuera de PCI-DSS (fechas HIPAA/HHS, revisiones de SIG, NIST SP 800-161, ISO 27036) permanece con el estado de verificacion ya declarado en la tabla "Marcos de referencia externos" de este archivo — orientativo, no verificado contra fuente oficial en esta sesion, reverificar antes de citar un detalle exacto en un entregable de cliente.
+Reverificado el 2026-09-21 contra fuentes primarias: NIST SP 800-161 Rev. 1 Update 1 (Final, 2024-11-01, `csrc.nist.gov`) sigue vigente sin Rev. 2 publicada; HIPAA Security Rule (`hhs.gov`) — la propuesta de refuerzo de ciberseguridad (NPRM, 2025-01-06) sigue como Proposed Rule y NO es regla final, la Security Rule vigente permanece en efecto; PCI DSS v4.0.1 sigue como version vigente en la biblioteca oficial, sin version posterior listada. SIG: la edicion vigente es 2026 y las cifras de preguntas no son publicas (ver tabla).
+
+Sin reverificar: ISO/IEC 27036 (edicion exacta), plazos y umbrales de notificacion de brecha HIPAA, y el desglose de los requisitos PCI "future-dated" (51 de 64) — orientativos, reverificar antes de citarlos en un entregable de cliente.

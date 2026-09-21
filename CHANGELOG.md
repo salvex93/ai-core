@@ -3,6 +3,50 @@
 Registro de cambios por version. Formato basado en [Keep a Changelog](https://keepachangelog.com/es/1.0.0/).
 Versionado semantico: MAJOR.MINOR.PATCH.
 
+## [Unreleased] — auditoria de gobierno: modularidad, permisos de fuente unica y correccion de tests
+
+### Cambiado — limite de 300 lineas restaurado en codigo fuente (5 archivos)
+
+- `hooks-definition.js` 380 a 41 lineas: helpers y perfiles de permiso Node en `lib/hooks-permissions.js`; eventos en `lib/hooks-events-session.js`, `lib/hooks-events-pre-tool-use.js` y `lib/hooks-events-post-tool-use.js`. Salida de `buildHooksSection` byte a byte identica al estado previo, mismo orden de eventos, `settings.json` regenerado sin diferencias.
+- `destructive-op-guard.js` 371 a 229: `REGLAS` en `lib/destructive-rules.js`.
+- `norm-harness.js` 364 a 172: logica de anfitrion en `lib/host-settings.js`.
+- `issue-reporter.js` 303 a 282: plantillas en `lib/issue-templates.js`.
+- `mcp-anthropic.js` 301 a 197: `TOOLS` en `mcp-anthropic-tools.js`.
+- Permisos base unificados en `lib/base-permissions.js` (antes duplicados entre `setup-settings.js` y `norm-harness.js`).
+
+### Agregado — marco de calidad previo a push
+
+- `scripts/quality-gate.js` (`npm run quality-gate`, `--fast` sin tests): limite de 300 lineas, validate-globals, validate-agents, audit-market --only-stale y npm test; cachea el pase por huella del repo.
+- `.githooks/pre-push` activado por `core.hooksPath` desde `setup-settings.js`. `Bash(git push*)` sigue en `allow`; el hook es la compuerta. Es hook git y no guard de Claude porque el Permission Model impide a los guards ejecutar `npm test`.
+- Regla break-glass para el bypass del hook pre-push en `destructive-rules.js` (13 reglas break-glass en total).
+- 10 tests en `quality-gate-js.test.js`; regla 11 de Gobierno en CLAUDE.md.
+
+### Cambiado — tests divididos por debajo de 300 lineas
+
+- `sandbox-permission-smoke`, `hooks-definition-js`, `destructive-op-guard-js`, `norm-harness-js` e `intent-classifier` divididos por describe en 12 archivos; conteo de tests preservado.
+
+### Corregido
+
+- `issue-reporter-js-camino-gh-disponible.test.js`: el fake `gh` en POSIX copiaba `process.execPath`, incompatible con node enlazado dinamicamente (Homebrew). Ahora es un wrapper `sh`; 7/7.
+- Emoji literal en una entrada anterior de este archivo (regla critica 1).
+- Auditoria completa en `docs/AUDITORIA-GOBIERNO-2026-09.md` con 10 brechas abiertas que requieren decision (permiso `git push`, `deny`/`ask` vacios, sandbox nativo, skills sobre 500 lineas, metadata agentskills.io, tests sobre 300 lineas, log con cadena de hash, escaner de skills, compuerta de memoria, vigencia proxima).
+
+`npm test`: 1425 tests, 1424 pass, 0 fail, 1 skip. `npm run validate-globals`: 45/45. `quality-gate`: cumple.
+
+## [Unreleased] — vigencia: registro de ciso y product-lifecycle-orchestrator en MARKET_STANDARDS.json
+
+### Cambiado — cobertura de vigencia completa (45/45 skills con dominio registrado)
+
+Reemplaza la nota anterior que daba por aceptados como fuera de alcance a `ciso` y `product-lifecycle-orchestrator` (ambos reportaban `SIN_DOMINIO_REGISTRADO` en `audit-market`).
+
+- Dominio `grc-third-party-risk` (skill `ciso`) y dominio `product-methodology-frameworks` (skill `product-lifecycle-orchestrator`), ambos con `verified: 2026-09-21`.
+- Verificacion contra fuentes primarias (pcisecuritystandards.org, csrc.nist.gov, hhs.gov, sharedassessments.org, agilebusiness.org, cucumber.io, dddcommunity.org). Gemini con cuota agotada (429) y busqueda nativa bloqueada por `web-search-guard.js`: se uso `web_search` de la Responses API de OpenAI como verificador de respaldo, cruzando cada afirmacion contra el dominio primario citado.
+- Correccion en `ciso`: la fila de Shared Assessments SIG declaraba la edicion 2025 con conteos de preguntas no confirmables; ahora indica edicion vigente 2026, marca como NO CONFIRMADOS el conteo y la agrupacion 2026, y conserva el dato historico 2023 (Lite 126 / Core 855) rotulado como tal.
+- Sin reverificar, declarado en el skill y en el dominio: ISO/IEC 27036, plazos y umbrales de notificacion de brecha HIPAA, requisitos PCI DSS con fecha futura (51 de 64).
+- Test de `audit-market` que asumia a `product-lifecycle-orchestrator` sin dominio reescrito con un `MARKET_STANDARDS.json` de fixture vacio.
+
+Versiones: ciso 1.3.2 → 1.3.3, product-lifecycle-orchestrator 1.0.0 → 1.0.1 (sincronizacion de `last_updated`, contenido sin cambios). `npm run validate-globals`: 45/45. `audit-market --only-stale`: sin hallazgos.
+
 ## [Unreleased] — security-auditor + claude-agent-sdk: OWASP Top 10 for Agentic Applications
 
 ### Agregado — seccion "OWASP Top 10 for Agentic Applications" en security-auditor
@@ -358,7 +402,7 @@ Cubre: formato de embed y limites duros reales (title 256/description 4096/foote
 
 Sirve como canal de salida citable por `security-monitoring-soc`, `devops-infra` y `release-manager`. No calificó como agente autónomo (no cumple los 3 criterios de CLAUDE.md: es conversacional, no un loop autonomo recurrente) -- queda solo como skill.
 
-Gap real cerrado durante la verificacion con eval propio: el skill generaba ejemplos de embed con un emoji pictografico (🚨) en el titulo pese a la regla estricta de CLAUDE.md -- corregido con una clausula explicita ("Discord soporta emojis nativamente, la regla de CLAUDE.md es MAS ESTRICTA que la plataforma, sin excepcion") y un ejemplo incorrecto/correcto en el propio SKILL.md. Nuevo eval `.claude/evals/discord-ops.promptfooconfig.yaml` (5 casos: idioma, sin emojis, webhook hardcodeado activa Directiva de Interrupcion, rate limit sin cifra falsa, anti-spam ante alto volumen), verificado con multiples corridas reales tras el fix.
+Gap real cerrado durante la verificacion con eval propio: el skill generaba ejemplos de embed con un emoji pictografico de alerta en el titulo pese a la regla estricta de CLAUDE.md -- corregido con una clausula explicita ("Discord soporta emojis nativamente, la regla de CLAUDE.md es MAS ESTRICTA que la plataforma, sin excepcion") y un ejemplo incorrecto/correcto en el propio SKILL.md. Nuevo eval `.claude/evals/discord-ops.promptfooconfig.yaml` (5 casos: idioma, sin emojis, webhook hardcodeado activa Directiva de Interrupcion, rate limit sin cifra falsa, anti-spam ante alto volumen), verificado con multiples corridas reales tras el fix.
 
 1292 tests (1291 pass, 1 skipped, 0 fail), 45/45 skills conformes, 6/6 agentes conformes.
 
