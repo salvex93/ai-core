@@ -28,8 +28,14 @@ const CODIGO = /\.(js|ts|py)$/;
 const ES_WINDOWS = process.platform === 'win32';
 const CACHE_PATH = path.join(os.tmpdir(), 'ai-core-locks', 'quality-gate.json');
 
+// Git inyecta GIT_DIR/GIT_INDEX_FILE al hook; heredadas, los tests que crean
+// repos temporales terminan operando sobre el repo real.
+function entornoSinGit(env = process.env) {
+  return Object.fromEntries(Object.entries(env).filter(([k]) => !k.startsWith('GIT_')));
+}
+
 function correr(cmd, args, cwd = REPO) {
-  const r = spawnSync(cmd, args, { cwd, encoding: 'utf8', shell: ES_WINDOWS && cmd === 'npm', maxBuffer: 64 * 1024 * 1024 });
+  const r = spawnSync(cmd, args, { cwd, env: entornoSinGit(), encoding: 'utf8', shell: ES_WINDOWS && cmd === 'npm', maxBuffer: 64 * 1024 * 1024 });
   return { status: r.status, salida: `${r.stdout || ''}${r.stderr || ''}` };
 }
 
@@ -116,4 +122,4 @@ function main() {
 
 if (require.main === module) process.exit(main());
 
-module.exports = { soloBorraRamas, revisarLimiteDeLineas, definirChecks };
+module.exports = { soloBorraRamas, revisarLimiteDeLineas, definirChecks, entornoSinGit };

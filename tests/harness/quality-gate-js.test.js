@@ -9,7 +9,7 @@ const { spawnSync } = require('node:child_process');
 const { REPO } = require('./_shared');
 
 const SCRIPT = path.join(REPO, 'scripts', 'quality-gate.js');
-const { soloBorraRamas, revisarLimiteDeLineas, definirChecks } = require(SCRIPT);
+const { soloBorraRamas, revisarLimiteDeLineas, definirChecks, entornoSinGit } = require(SCRIPT);
 
 const CEROS = '0'.repeat(40);
 const SHA = 'a'.repeat(40);
@@ -93,6 +93,19 @@ describe('quality-gate.js', () => {
       });
       assert.equal(r.status, 0);
       assert.doesNotMatch(r.stderr, /\[quality-gate\]/);
+    });
+  });
+
+  describe('entornoSinGit (aislamiento del hook git)', () => {
+    test('elimina las variables GIT_* que git inyecta al hook', () => {
+      const env = entornoSinGit({ GIT_DIR: '/x/.git', GIT_INDEX_FILE: 'i', GIT_PREFIX: '', PATH: '/bin', HOME: '/h' });
+      assert.deepEqual(Object.keys(env).sort(), ['HOME', 'PATH']);
+    });
+
+    test('no muta el entorno de origen', () => {
+      const origen = { GIT_DIR: '/x/.git', PATH: '/bin' };
+      entornoSinGit(origen);
+      assert.equal(origen.GIT_DIR, '/x/.git');
     });
   });
 });

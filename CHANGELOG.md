@@ -25,6 +25,11 @@ Versionado semantico: MAJOR.MINOR.PATCH.
 
 - `sandbox-permission-smoke`, `hooks-definition-js`, `destructive-op-guard-js`, `norm-harness-js` e `intent-classifier` divididos por describe en 12 archivos; conteo de tests preservado.
 
+### Corregido — quality-gate heredaba GIT_* del hook pre-push
+
+- Bajo un hook git, `GIT_DIR` e `GIT_INDEX_FILE` llegaban a los tests que crean repos temporales, que operaban sobre el repo real (commits de prueba en la rama activa, indice e identidad local pisados) y hacian fallar el gate de forma aparente intermitente.
+- `entornoSinGit` en `quality-gate.js` elimina las variables `GIT_*` de todo subproceso del gate; 2 tests nuevos. Total: 1436 tests.
+
 ### Corregido — break-glass y guards de UserPromptSubmit inertes
 
 - Causa: los hooks leian el prompt de `prompt_text` o `CLAUDE_USER_PROMPT`; el payload real de Claude Code trae el campo `prompt` (verificado por captura) y la variable nunca se establece. `jailbreak-guard`, `secrets-guard`, `detect-role` y `moa-context-gatherer` recibian cadena vacia, asi que `CONFIRMAR-<id>` nunca llegaba a `confirmarBreakGlass` y ninguna operacion bloqueada podia autorizarse.
