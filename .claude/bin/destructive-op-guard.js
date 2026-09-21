@@ -119,10 +119,26 @@ if (!cmdOriginal) process.exit(0);
 // documenta este mismo guard) -- eso no es un comando real de shell, es
 // contenido citado. Se descarta el argumento del mensaje antes de evaluar
 // las reglas para no bloquear el commit que las documenta.
-const cmdEnmascarado = /\bgit\s+commit\b/.test(cmdOriginal)
+const cmdSinMensajeCommit = /\bgit\s+commit\b/.test(cmdOriginal)
   ? cmdOriginal.replace(/-m\s+(["'])(?:(?!\1).)*\1/gs, '-m "..."')
                .replace(/-F\s+\S+/g, '-F ...')
   : cmdOriginal;
+
+// Mismo principio para el CUERPO de un heredoc (ej. "cat <<'EOF' > archivo.md
+// ... EOF" al escribir documentacion): el texto entre el delimitador de
+// apertura y su cierre es contenido citado a escribir en un archivo, no
+// comandos reales de shell -- puede mencionar "git branch -D"/"rm -rf" como
+// prosa explicativa sin que eso deba ejecutarse. Cubre las 3 formas reales
+// (<<EOF, <<'EOF'/<<"EOF" con expansion desactivada, <<-EOF con indentacion
+// del delimitador de cierre permitida) verificadas contra la gramatica de
+// heredoc de bash (gnu.org/software/bash/manual, seccion 3.6.6). El
+// delimitador de cierre debe estar solo en su linea (con indentacion opcional
+// solo si se uso <<-) para no cortar antes de tiempo si el propio contenido
+// citado incluye una linea que empieza igual.
+const cmdEnmascarado = cmdSinMensajeCommit.replace(
+  /<<-?\s*(['"]?)([A-Za-z_]\w*)\1([\s\S]*?)\n[ \t]*\2\b/g,
+  (match, _comillas, delimitador) => `<<'${delimitador}'\n...\n${delimitador}`
+);
 
 // Normalizacion Unicode antes de evaluar las REGLAS (hallazgo red-team
 // 2026-08-15): homoglifos cirilicos (ej. "О" en "DRОP TABLE"), zero-width

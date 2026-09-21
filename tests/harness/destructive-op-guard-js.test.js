@@ -116,6 +116,34 @@ describe('destructive-op-guard.js', () => {
     assert.equal(run('rm -rf build/ && git commit -m "limpiar build"').status, 2);
   });
 
+  test('no bloquea un heredoc que documenta un patron destructivo como texto dentro de un archivo .md', () => {
+    // Falso positivo real detectado en produccion (G14): escribir un
+    // documento de auditoria via "cat <<'EOF' > archivo.md" que menciona
+    // "git branch -D" como prosa (ej. una tabla explicando la regla del
+    // propio guard) se bloqueaba a si mismo -- igual que el caso ya resuelto
+    // de git commit -m, el contenido citado dentro del heredoc no es un
+    // comando real de shell.
+    const cmd = `cat <<'EOF' > docs/nota.md\nLa regla "git branch -D" borra una rama sin verificar merge.\nEOF`;
+    assert.equal(run(cmd).status, 0);
+  });
+
+  test('no bloquea un heredoc sin comillas en el delimitador (expansion de variables) que cita un patron destructivo', () => {
+    const cmd = `cat <<EOF > docs/nota.md\nEjemplo de comando prohibido: rm -rf /\nEOF`;
+    assert.equal(run(cmd).status, 0);
+  });
+
+  test('no bloquea un heredoc con delimitador indentado (<<-EOF) que cita un patron destructivo', () => {
+    const cmd = `cat <<-EOF > docs/nota.md\n\tNunca ejecutar: DROP TABLE usuarios\nEOF`;
+    assert.equal(run(cmd).status, 0);
+  });
+
+  test('SI bloquea un comando destructivo real fuera del cuerpo del heredoc, aunque el comando incluya uno', () => {
+    // El heredoc no es lo que se bloquea -- un rm -rf real encadenado fuera
+    // de su cuerpo si debe seguir bloqueado.
+    const cmd = `rm -rf build/ && cat <<'EOF' > docs/nota.md\ntexto normal sin patrones\nEOF`;
+    assert.equal(run(cmd).status, 2);
+  });
+
   test('sin CLAUDE_TOOL_INPUT_command, lee tool_input.command del JSON de stdin (contrato real de hooks Claude Code)', () => {
     const evento = JSON.stringify({ hook_event_name: 'PreToolUse', tool_name: 'Bash', tool_input: { command: 'rm -rf /tmp/algo' } });
     const r = spawnSync('node', [GUARD], { encoding: 'utf8', cwd: REPO, input: evento });

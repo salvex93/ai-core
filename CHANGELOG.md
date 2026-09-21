@@ -3,6 +3,15 @@
 Registro de cambios por version. Formato basado en [Keep a Changelog](https://keepachangelog.com/es/1.0.0/).
 Versionado semantico: MAJOR.MINOR.PATCH.
 
+## [Unreleased] — enmascarado de heredoc en destructive-op-guard.js (G14, 2026-09-21)
+
+### Corregido — falso positivo reincidente con contenido citado en heredocs
+
+- `destructive-op-guard.js`: el enmascarado que ya existia para `-m`/`-F` de `git commit` (contenido citado en un mensaje, no un comando real de shell) se generalizo a cuerpos de heredoc (`<<EOF`, `<<'EOF'`/`<<"EOF"`, `<<-EOF`) antes de evaluar las REGLAS de `lib/destructive-rules.js`. Cubre las 3 formas reales de la gramatica de heredoc de bash (gnu.org/software/bash/manual, 3.6.6).
+- Reincidencia real registrada dos veces (sesion 2026-09-20 y 2026-09-21): un heredoc que escribia documentacion citando "git branch -D" como prosa explicativa se bloqueaba por la regla `git branch -D` (sin `excepcion` declarada) como si fuera un comando real.
+- `extraerMensajeCommit`/`tieneRastroDeIA` (deteccion de Co-Authored-By/atribucion de IA) siguen operando sobre `cmdOriginal` sin enmascarar — el enmascarado de heredoc solo afecta la evaluacion de las REGLAS destructivas, no esa verificacion.
+- 4 tests nuevos en `tests/harness/destructive-op-guard-js.test.js` (heredoc con comillas simples, sin comillas, con `<<-` indentado, y confirmacion de que un comando destructivo real fuera del cuerpo del heredoc sigue bloqueado). 80 tests totales del guard en verde (31+41+8 entre los 3 archivos).
+
 ## [Unreleased] — campos propios del frontmatter migrados bajo metadata: en skills y agentes (G5, 2026-09-21)
 
 ### Cambiado — origin/version/last_updated/rol bajo metadata: (spec agentskills.io)
