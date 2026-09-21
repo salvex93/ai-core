@@ -3,6 +3,13 @@
 Registro de cambios por version. Formato basado en [Keep a Changelog](https://keepachangelog.com/es/1.0.0/).
 Versionado semantico: MAJOR.MINOR.PATCH.
 
+## [Unreleased] — verificacion de payloads reales de SubagentStop/Stop/PostToolUseFailure (G24, 2026-09-21)
+
+### Verificado — sin drift, sin cambio de codigo
+
+- Captura real de los 3 eventos con un hookprobe en un `settings.json` aislado (sesion `claude -p` anidada forzando `Bash false`, un subagente real via `Task`, y cierre de turno). Contrato confirmado: `SubagentStop` entrega `agent_type`/`last_assistant_message` (ademas de `agent_id`, `agent_transcript_path`, `stop_hook_active`); `PostToolUseFailure` entrega `tool_name`/`tool_input`/`error` (string)/`tool_use_id`/`is_interrupt`/`duration_ms`; `Stop` entrega `last_assistant_message`/`stop_hook_active`/`background_tasks`.
+- Los 5 consumidores existentes (`injection-guard.js`, `subagent-review.js`, `subagent-grader.js`, `cross-verify-gate.js`, `circuit-breaker.js`) ya leian exactamente los campos confirmados reales — el fix de G17 ya los habia corregido en la misma pasada. Sin drift, sin cambio de codigo necesario.
+
 ## [Unreleased] — enmascarado de heredoc en destructive-op-guard.js (G14, 2026-09-21)
 
 ### Corregido — falso positivo reincidente con contenido citado en heredocs
