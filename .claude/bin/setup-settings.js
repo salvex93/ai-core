@@ -59,11 +59,13 @@ const settings = {
 
 fs.writeFileSync(SETTINGS_PATH, JSON.stringify(settings, null, 2) + '\n', 'utf8');
 
-// Activa el hook pre-push versionado (marco de calidad). Solo cuando el repo
+// Activa los hooks git versionados (calidad, mensaje, identidad) y fija la
+// identidad de autor si falta. Solo cuando el repo
 // es un checkout propio; como submodulo de un anfitrion no se toca su git.
 if (fs.existsSync(path.join(REPO, '.git', 'config'))) {
   const r = require('child_process').spawnSync('git', ['config', 'core.hooksPath', '.githooks'], { cwd: REPO });
   console.log(`[setup-settings] core.hooksPath=.githooks ${r.status === 0 ? 'activo' : 'no pudo configurarse'}`);
+  require('./lib/git-identity').asegurarIdentidad(REPO);
 }
 console.log(`[setup-settings] settings.json actualizado — v3.10.0 hooks completos.`);
 console.log(`[setup-settings] REPO: ${fwd(REPO)}`);

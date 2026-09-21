@@ -25,6 +25,13 @@ Versionado semantico: MAJOR.MINOR.PATCH.
 
 - `sandbox-permission-smoke`, `hooks-definition-js`, `destructive-op-guard-js`, `norm-harness-js` e `intent-classifier` divididos por describe en 12 archivos; conteo de tests preservado.
 
+### Agregado — controles git deterministas de identidad y mensaje, y test de cifras (G13, G15)
+
+- `.githooks/commit-msg` y `.githooks/pre-commit` ejecutan `.claude/bin/check-commit.js`: rechazan Co-Authored-By y atribucion a IA en el mensaje, y exigen la identidad de autor del Protocolo de Commits Git. Cubren commits hechos fuera de Claude.
+- `lib/commit-attribution.js` (patrones extraidos de `destructive-op-guard.js`, fuente unica para guard y hook) y `lib/git-identity.js`; `setup-settings.js` fija la identidad local solo si falta, sin pisar valores existentes.
+- `tests/harness/claude-md-cifras-vs-codigo.test.js` compara las cifras de CLAUDE.md (reglas break-glass, skills, agentes) contra el codigo; detecto y corrigio "5 agentes autonomos" (son 6, faltaba `code-reviewer`).
+- 22 tests nuevos. Total: 1468 tests.
+
 ### Corregido — deadlock de investigacion con el bridge de Gemini sin cuota (G11)
 
 - `web-search-guard.js` y `guard-read.js` denegaban WebSearch/WebFetch/Read aunque el bridge respondiera 429, dejando a Claude sin via de busqueda ni de lectura.

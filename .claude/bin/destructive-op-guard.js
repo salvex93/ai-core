@@ -65,6 +65,7 @@
 const { solicitarBreakGlass, accionAprobada } = require('./lib/break-glass');
 const { normalizarTexto } = require('./lib/normalizar-texto');
 const { tieneIndicioDeResolucionPrevia } = require('./lib/deteccion-resolucion-previa');
+const { tieneRastroDeIA } = require('./lib/commit-attribution');
 
 const GUARD_ID = 'destructive-op-guard';
 
@@ -146,17 +147,7 @@ const cmd = normalizarTexto(cmdEnmascarado);
 // directo por Bash nunca pasaba por ese guard.
 const mensajeCommit = extraerMensajeCommit(cmdOriginal);
 if (mensajeCommit) {
-  // Co-Authored-By es un trailer de formato inequivoco (Nombre <email>) --
-  // nadie lo escribe como prosa casual, no necesita distincion de contexto.
-  const trailerCoAuthored = /^co-authored-by:\s*.+<.+>/im;
-  // Menciones de IA en CONTEXTO DE ATRIBUCION DE AUTORIA real (ej. "Generated
-  // with Claude", "sugerido por ChatGPT") -- deliberadamente mas estricto que
-  // una mencion neutra de la herramienta en prosa (ej. un commit que dice
-  // "prohibir menciones a Claude" esta hablando DE la regla, no atribuyendo
-  // autoria real, y no debe autobloquearse).
-  const atribucionIA = /(generated (with|by)|written (with|by)|co-authored|sugerido(s)? por|generado(s)? (con|por)|escrito(s)? (con|por))\s+(claude|anthropic|chatgpt|openai|gemini|copilot|gpt-\d)/i;
-
-  if (trailerCoAuthored.test(mensajeCommit) || atribucionIA.test(mensajeCommit)) {
+  if (tieneRastroDeIA(mensajeCommit)) {
     process.stderr.write(
       `[DESTRUCTIVE-OP-GUARD] BLOQUEADO (mensaje de commit con rastro de IA): "${mensajeCommit.slice(0, 200)}"\n` +
       `Motivo: CLAUDE.md prohibe Co-Authored-By y menciones de autoria de IA en mensajes de commit -- el mensaje debe parecer escrito enteramente por el autor humano.\n` +

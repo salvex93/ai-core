@@ -23,7 +23,7 @@ Fecha: 2026-09-21. Alcance: hooks, permisos, skills, agentes, tests y comparacio
 5. Vigencia: `ciso` y `product-lifecycle-orchestrator` no tenian dominio en `MARKET_STANDARDS.json`.
 6. Error propio detectado y corregido durante la verificacion: la extraccion de `norm-harness.js` dejo `ensureHostClaude` y `ensureHostGitignore` sin exportar, lo que rompia 12 tests. La suite completa lo detecto antes de cerrar.
 
-## 3. Brechas (G1, G6, G11 y G17 resueltas; el resto requiere ejecucion)
+## 3. Brechas (G1, G6, G11, G13, G15 y G17 resueltas; el resto requiere ejecucion)
 
 | Id | Brecha | Evidencia | Propuesta |
 |---|---|---|---|
@@ -39,9 +39,9 @@ Fecha: 2026-09-21. Alcance: hooks, permisos, skills, agentes, tests y comparacio
 | G10 | 6 dominios cerca del umbral de vigencia (mcp-protocol a 55 dias; cinco dominios de 2026-08-04 a 48 dias) | `audit-market` | Reverificar contra fuentes primarias antes de que venzan |
 | G11 | RESUELTA. `web-search-guard.js` y `guard-read.js` denegaban la tool nativa aunque el bridge respondiera 429. `scripts/mcp-gemini.js` escribe ahora un marcador con TTL de 10 min (`lib/gemini-cuota.js`) ante 429/RESOURCE_EXHAUSTED y ambos guards degradan a la tool nativa mientras este vigente. Verificado bajo el Node Permission Model real (perfil `repoReadWriteCuota`) | 10 tests en `gemini-cuota-guards-degradacion.test.js` | Ninguna. Abierto: evaluar proveedor alterno para `buscar_web` |
 | G12 | `mcpServers` dentro de `settings.json` no carga los servidores; la ubicacion efectiva es `.mcp.json` o `~/.claude.json` (inferido, sin verificar en documentacion). `setup-settings.js` y `norm-harness.js` generan una clave sin efecto y `health-check.js` la lee | vault, sesion 2026-09-20 | Verificar en fuente primaria y generar `.mcp.json` desde un modulo compartido (patron `hooks-definition.js`); ajustar `health-check.js` y tests |
-| G13 | Identidad git sin configurar en el repo: los commits de `ai-core/checkpoints` salieron con email de maquina, contra la regla de commits. La identidad depende de un paso manual y nada la verifica | `git log ai-core/checkpoints` | `setup-settings`/`norm-harness` fijan identidad local solo si esta vacia; `.githooks/commit-msg` (rechaza `Co-Authored-By` y menciones a IA) y `pre-commit` (identidad valida): control determinista tambien para commits humanos |
+| G13 | RESUELTA. `.githooks/commit-msg` y `pre-commit` (via `check-commit.js`) y `setup-settings` fija la identidad local si falta. Hallazgo original: identidad git sin configurar en el repo: los commits de `ai-core/checkpoints` salieron con email de maquina, contra la regla de commits. La identidad depende de un paso manual y nada la verifica | `git log ai-core/checkpoints` | `setup-settings`/`norm-harness` fijan identidad local solo si esta vacia; `.githooks/commit-msg` (rechaza `Co-Authored-By` y menciones a IA) y `pre-commit` (identidad valida): control determinista tambien para commits humanos |
 | G14 | `destructive-op-guard` bloquea texto literal dentro de argumentos (un script con la cadena del bypass del hook pre-push fue denegado aunque no ejecutaba nada) | sesion 2026-09-20 | Evaluar ignorar cuerpos de heredoc y argumentos de `node -e`; riesgo de abrir evasiones, exige tests adversariales. Alternativa: dejar como esta y escribir scripts con Write |
-| G15 | Cifras fijas en CLAUDE.md quedan obsoletas sin aviso: decia 11 reglas break-glass cuando el codigo tenia 12 y hoy son 13; conteo de tests y de skills igual | `grep -c "breakGlass: true"` | Test que compare las cifras de CLAUDE.md contra el codigo (reglas break-glass, skills, agentes), o eliminar las cifras |
+| G15 | RESUELTA. `claude-md-cifras-vs-codigo.test.js` cubre reglas break-glass, skills y agentes (el conteo de tests no se compara: la suite no puede contarse a si misma). Hallazgo original: cifras fijas en CLAUDE.md quedan obsoletas sin aviso: decia 11 reglas break-glass cuando el codigo tenia 12 y hoy son 13; conteo de tests y de skills igual | `grep -c "breakGlass: true"` | Test que compare las cifras de CLAUDE.md contra el codigo (reglas break-glass, skills, agentes), o eliminar las cifras |
 | G16 | El gate no cubre: archivos residuales (`*.new`, `*.orig`), secretos en el working tree, ni el limite de 500 lineas de SKILL.md (pendiente de G4) | `.new` residuales detectados al inicio de la sesion | Agregar los tres checks a `quality-gate.js` (el de SKILL.md solo tras completar G4) |
 | G17 | RESUELTA. Los hooks de `UserPromptSubmit` leian el texto del usuario de `prompt_text` o `CLAUDE_USER_PROMPT`; Claude Code envia el campo `prompt` y nunca establece esa variable. `jailbreak-guard`, `secrets-guard`, `detect-role` y `moa-context-gatherer` recibian cadena vacia: no bloqueaban nada y `CONFIRMAR-<id>` jamas llegaba al break-glass, por lo que ninguna operacion de alto nivel se podia autorizar. Los tests pasaban porque inyectaban `CLAUDE_USER_PROMPT` o `prompt_text`, rutas inexistentes en produccion | captura real del payload con `claude -p --settings` | `lib/hook-stdin.js` expone `extraerPrompt`/`leerPromptDeUsuario` (lee `prompt`); 4 consumidores migrados; 9 tests con el payload real incluido el flujo bloqueo, confirmacion, reintento unico y log. Tests aislados del tmpdir real de break-glass. Pendiente: verificar con captura real los campos de SubagentStop, Stop y PostToolUseFailure |
 
@@ -69,7 +69,7 @@ La comparacion proviene de investigacion web asistida. Lo no confirmado contra f
 
 ## 6. Orden de ejecucion recomendado
 
-Resueltas: G1, G6. Siguientes, en este orden:
+Resueltas: G1, G6, G11, G13, G15, G17. Siguientes, en este orden:
 
 1. G11 (desbloquea la investigacion web y con ella G2, G3 y G10; bajo esfuerzo).
 2. G13 y G15 (controles deterministas baratos; cierran deriva de identidad y de cifras).
