@@ -1,0 +1,3 @@
+#!/bin/sh
+# Marco de calidad previo a push: ver scripts/quality-gate.js
+exec node "$(git rev-parse --show-toplevel)/scripts/quality-gate.js" --pre-push

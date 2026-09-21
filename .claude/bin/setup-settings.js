@@ -14,6 +14,7 @@ const path = require('path');
 const fs   = require('fs');
 const os   = require('os');
 const { buildHooksSection } = require('./hooks-definition');
+const { BASE_PERMISSIONS, AI_CORE_EXTRA_PERMISSIONS } = require('./lib/base-permissions');
 
 const REPO          = path.resolve(__dirname, '..', '..');
 const SETTINGS_PATH = path.join(REPO, '.claude', 'settings.json');
@@ -51,36 +52,19 @@ const settings = {
   // tokens o sufijo "k"/"M". 85% de una ventana tipica de 200k ~= 170000.
   autoCompactWindow: 170000,
   permissions: {
-    allow: [
-      'Bash(git status)',
-      'Bash(git log*)',
-      'Bash(git diff*)',
-      'Bash(git push*)',
-      'Bash(git pull*)',
-      'Bash(git add*)',
-      'Bash(git commit*)',
-      'Bash(wc -l*)',
-      'Bash(grep*)',
-      'Bash(find*)',
-      'Bash(cat ~/.ssh/id_ed25519.pub)',
-      'Bash(ssh-keyscan*)',
-      'Bash(for f in .claude/skills*)',
-      'Bash(node*)',
-      'Bash(npm*)',
-      'Bash(python3*)',
-      'Bash(gh issue create*)',
-      'Bash(gh auth status*)',
-      'mcp__gemini-bridge__analizar_archivo',
-      'mcp__gemini-bridge__analizar_contenido',
-      'mcp__gemini-bridge__analizar_repositorio',
-      'mcp__gemini-bridge__resumir_backlog',
-      'mcp__gemini-bridge__buscar_web',
-    ],
+    allow: [...BASE_PERMISSIONS, ...AI_CORE_EXTRA_PERMISSIONS],
   },
   hooks: buildHooksSection(bin, fwd(os.tmpdir())),
 };
 
 fs.writeFileSync(SETTINGS_PATH, JSON.stringify(settings, null, 2) + '\n', 'utf8');
+
+// Activa el hook pre-push versionado (marco de calidad). Solo cuando el repo
+// es un checkout propio; como submodulo de un anfitrion no se toca su git.
+if (fs.existsSync(path.join(REPO, '.git', 'config'))) {
+  const r = require('child_process').spawnSync('git', ['config', 'core.hooksPath', '.githooks'], { cwd: REPO });
+  console.log(`[setup-settings] core.hooksPath=.githooks ${r.status === 0 ? 'activo' : 'no pudo configurarse'}`);
+}
 console.log(`[setup-settings] settings.json actualizado — v3.10.0 hooks completos.`);
 console.log(`[setup-settings] REPO: ${fwd(REPO)}`);
 console.log(`[setup-settings] Plataforma: ${os.platform()} | Node: ${process.version}`);

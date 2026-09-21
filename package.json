@@ -18,6 +18,7 @@
     "setup": "node .claude/bin/setup-settings.js",
     "validate-globals": "node .claude/bin/validate-globals.js",
     "validate-agents": "node .claude/bin/validate-agents.js",
+    "quality-gate": "node scripts/quality-gate.js",
     "audit-market": "node .claude/bin/audit-market.js",
     "score": "node .claude/bin/aiops-score.js",
     "score-report": "node .claude/bin/aiops-score.js --report",
