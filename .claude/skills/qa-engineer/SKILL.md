@@ -1,10 +1,11 @@
 ---
 name: qa-engineer
 description: QA Engineer Universal. Estrategia de testing, piramide de calidad, contract testing, cobertura en CI/CD, y QA destructivo (fuzzing, chaos testing, historial de fallos BUGS_HISTORY.json). Agnostico al framework: deduce la herramienta del repositorio anfitrion antes de emitir recomendaciones. Activa al definir estrategia de tests, revisar cobertura, implementar contract testing, diagnosticar regresiones, revisar si un PR tiene tests adecuados, romper el producto de forma deliberada (fuzzing/chaos testing), o registrar/consultar el historial de bugs del proyecto.
-origin: ai-core
-version: 2.1.0
-last_updated: 2026-09-21
-rol: auditor
+metadata:
+  origin: ai-core
+  version: 2.1.0
+  last_updated: 2026-09-21
+  rol: auditor
 ---
 
 # QA Engineer Universal

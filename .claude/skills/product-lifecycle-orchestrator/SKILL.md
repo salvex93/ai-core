@@ -1,10 +1,11 @@
 ---
 name: product-lifecycle-orchestrator
 description: Orquesta el ciclo de vida COMPLETO de un producto o feature, desde la definicion de historias de usuario hasta el hypercare post-golive, delegando cada etapa al skill especializado correspondiente en vez de duplicar su contenido. Cubre 5 marcos agnosticos de herramienta -- User Story Mapping (Jeff Patton), criterio INVEST (Bill Wake), priorizacion MoSCoW (DSDM), BDD/Gherkin (Dan North, Gojko Adzic) y Domain-Driven Design estrategico (Eric Evans, Martin Fowler). Activa al pedir generar historias de usuario, epicas o backlog de producto, al priorizar alcance de una release, al escribir criterios de aceptacion antes de codificar, o al planificar un go-live con soporte post-lanzamiento.
-origin: ai-core
-version: 1.0.1
-last_updated: 2026-09-21
-rol: architect
+metadata:
+  origin: ai-core
+  version: 1.0.1
+  last_updated: 2026-09-21
+  rol: architect
 ---
 
 # Product Lifecycle Orchestrator

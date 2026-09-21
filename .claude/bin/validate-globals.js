@@ -89,6 +89,21 @@ const VIOLACIONES = [
   { patron: EMOJI_PICTOGRAFICO,  desc: 'contiene emojis pictograficos (prohibido por CLAUDE.md)', sev: 'alta' },
 ];
 
+// ─── Bloque metadata: (G5) ─────────────────────────────────────────────────
+// origin/version/last_updated/rol viven bajo metadata: (spec agentskills.io,
+// mapa de campos propios), no como top-level del frontmatter. Se acota a las
+// lineas indentadas que siguen a "metadata:" para no leer un campo homonimo
+// fuera de ese bloque.
+function extraerBloqueMetadata(content) {
+  const bloque = content.match(/^metadata:\s*\n((?:[ \t]+.*\n?)*)/m);
+  return bloque ? bloque[1] : '';
+}
+
+function campoMetadata(bloqueMetadata, campo) {
+  const m = bloqueMetadata.match(new RegExp(`^\\s*${campo}:\\s*(\\S.*)$`, 'm'));
+  return m ? m[1].trim() : null;
+}
+
 // ─── Auditar un skill ─────────────────────────────────────────────────────────
 function auditarSkill(skillDir) {
   const nombre = path.basename(skillDir);
@@ -100,13 +115,15 @@ function auditarSkill(skillDir) {
   }
 
   const content = fs.readFileSync(file, 'utf8');
+  const metadata = extraerBloqueMetadata(content);
 
   // 1. Frontmatter
   if (!content.match(/^name:/m))        hallazgos.push({ sev: 'alta',   desc: 'frontmatter: falta "name:"' });
-  if (!content.match(/^version:/m))     hallazgos.push({ sev: 'alta',   desc: 'frontmatter: falta "version:"' });
-  if (!content.match(/^origin:/m))      hallazgos.push({ sev: 'alta',   desc: 'frontmatter: falta "origin:"' });
-  if (!content.match(/^last_updated:/m))hallazgos.push({ sev: 'media',  desc: 'frontmatter: falta "last_updated:"' });
-  if (!content.match(/^rol:\s*"?(architect|coder|auditor)"?\s*$/m))
+  if (!campoMetadata(metadata, 'version'))      hallazgos.push({ sev: 'alta',   desc: 'frontmatter: falta "version:"' });
+  if (!campoMetadata(metadata, 'origin'))       hallazgos.push({ sev: 'alta',   desc: 'frontmatter: falta "origin:"' });
+  if (!campoMetadata(metadata, 'last_updated')) hallazgos.push({ sev: 'media',  desc: 'frontmatter: falta "last_updated:"' });
+  const rolMetadata = campoMetadata(metadata, 'rol');
+  if (!rolMetadata || !/^"?(architect|coder|auditor)"?$/.test(rolMetadata))
     hallazgos.push({ sev: 'alta', desc: 'frontmatter: falta "rol:" valido (architect|coder|auditor)' });
 
   // 1b. Conformidad con el schema abierto agentskills.io (name/description) —
@@ -140,7 +157,7 @@ function auditarSkill(skillDir) {
 
   // 2b. Gate de Calidad Medible obligatorio solo para rol:auditor (skills de
   // diagnostico/seguridad/calidad -- ver nota de GATE_CALIDAD_MEDIBLE_RE).
-  const esRolAuditor = /^rol:\s*"?auditor"?\s*$/m.test(content);
+  const esRolAuditor = rolMetadata === 'auditor' || rolMetadata === '"auditor"';
   if (esRolAuditor && !GATE_CALIDAD_MEDIBLE_RE.test(content)) {
     hallazgos.push({ sev: 'alta', desc: 'falta seccion: "Gate de Calidad Medible" (obligatoria para rol:auditor)' });
   }
@@ -165,14 +182,13 @@ function auditarSkill(skillDir) {
   }
 
   // 6. Drift de last_updated vs git (via mtime como proxy)
-  const lastUpdatedMatch = content.match(/^last_updated:\s*(\S+)/m);
-  if (lastUpdatedMatch) {
-    const declared = lastUpdatedMatch[1];
-    const mtime    = fs.statSync(file).mtime.toISOString().slice(0, 10);
+  const declared = campoMetadata(metadata, 'last_updated');
+  if (declared) {
+    const mtime = fs.statSync(file).mtime.toISOString().slice(0, 10);
     if (declared < mtime && mtime === HOY) {
       hallazgos.push({ sev: 'baja', desc: `last_updated (${declared}) anterior a modificacion de hoy (${mtime})` });
       if (FIX_DRIFT) {
-        const fixed = content.replace(/^last_updated:\s*\S+/m, `last_updated: ${HOY}`);
+        const fixed = content.replace(/^(\s*last_updated:\s*)\S+/m, `$1${HOY}`);
         fs.writeFileSync(file, fixed, 'utf8');
         hallazgos[hallazgos.length - 1].desc += ' [AUTO-CORREGIDO]';
       }

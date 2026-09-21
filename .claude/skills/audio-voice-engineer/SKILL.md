@@ -1,10 +1,11 @@
 ---
 name: audio-voice-engineer
 description: Especialista en Voice AI y sistemas de audio real-time. Cubre streaming de audio, conversational interfaces nativas, Gemini 3.8 Live API, APIs de speech-to-text/text-to-speech, latencia submilisegundo, y orquestacion de voice workflows. Activa al disenar interfaces de voz, implementar streaming de audio en produccion, o integrar modelos speech de Gemini.
-origin: ai-core
-version: 1.4.0
-last_updated: 2026-09-21
-rol: architect
+metadata:
+  origin: ai-core
+  version: 1.4.0
+  last_updated: 2026-09-21
+  rol: architect
 compatibility: Requiere el SDK google-genai (Live API) o el proveedor de voz activo, y conectividad de red/streaming en tiempo real hacia esa API.
 ---
 

@@ -3,6 +3,16 @@
 Registro de cambios por version. Formato basado en [Keep a Changelog](https://keepachangelog.com/es/1.0.0/).
 Versionado semantico: MAJOR.MINOR.PATCH.
 
+## [Unreleased] — campos propios del frontmatter migrados bajo metadata: en skills y agentes (G5, 2026-09-21)
+
+### Cambiado — origin/version/last_updated/rol bajo metadata: (spec agentskills.io)
+
+- Los 45 `SKILL.md` (`origin`, `version`, `last_updated`, `rol`) y los 6 `.claude/agents/*.md` (`origin`, `version`, `last_updated`) pasan de campos top-level del frontmatter a un bloque `metadata:` anidado (formato YAML anidado, no flow-mapping), siguiendo la spec agentskills.io que reserva `metadata` para campos propios del proyecto. `name`/`description` (spec-reservados) y `provider`/`model`/`loop`/`tools`/`paths_allow` (infraestructura de Claude Code en agentes) quedan top-level, sin cambio.
+- `validate-globals.js`, `validate-agents.js`, `audit-market.js` y `AgentRoles.js` — los 4 lectores de estos campos — ajustados para extraer desde el bloque `metadata:` anidado via un extractor por regex compartido en cada script. `--fix-drift` en `validate-globals.js`/`validate-agents.js` sigue corrigiendo `last_updated` dentro del bloque.
+- Los evals (promptfoo) cargan `SKILL.md` como texto de system prompt y no parsean frontmatter — sin cambios necesarios ahi.
+- `tests/harness/validate-agents-js.test.js` y `tests/harness/skills-conformidad-estructural.test.js` actualizados para construir/verificar fixtures con el bloque `metadata:` anidado en vez de campos top-level.
+- Verificado con `npm run validate-globals` (45/45), `npm run validate-agents` (6/6), `npm test` (1497/1497, 1 skip).
+
 ## [Unreleased] — 5 SKILL.md largos divididos en nucleo + references/, limite de 500 lineas activado en el gate (G4, G16, 2026-09-21)
 
 ### Agregado — divulgacion progresiva en 5 skills (agentskills.io)

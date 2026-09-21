@@ -1,10 +1,11 @@
 ---
 name: cost-optimizer
 description: Optimizador de costos de inferencia LLM. Selecciona el modelo mas barato que completa la tarea, fuerza Gemini como tier 0, aplica prompt caching, prefill y batch inference. Activa al detectar consumo excesivo de tokens, al iniciar sesion con tareas multiples, o al disenar pipelines de agentes donde el costo es variable.
-origin: ai-core
-version: 1.3.0
-last_updated: 2026-09-21
-rol: architect
+metadata:
+  origin: ai-core
+  version: 1.3.0
+  last_updated: 2026-09-21
+  rol: architect
 ---
 
 # Cost Optimizer

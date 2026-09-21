@@ -30,8 +30,14 @@ const ROLES = Object.freeze({
 
 const SKILLS_DIR = path.resolve(__dirname, '..', '..', '.claude', 'skills');
 
+// G5: rol vive bajo metadata: (spec agentskills.io, campos propios anidados),
+// no como top-level del frontmatter. Se acota al bloque metadata (lineas
+// indentadas que siguen a "metadata:") para no leer un "rol:" fuera de ese
+// mapa por accidente.
 function extraerRolDeclarado(contenidoSkillMd) {
-  const m = contenidoSkillMd.match(/^rol:\s*"?([a-z]+)"?\s*$/m);
+  const bloque = contenidoSkillMd.match(/^metadata:\s*\n((?:[ \t]+.*\n?)*)/m);
+  if (!bloque) return null;
+  const m = bloque[1].match(/^\s*rol:\s*"?([a-z]+)"?\s*$/m);
   return m ? m[1] : null;
 }
 
@@ -221,4 +227,4 @@ function systemPromptParaRol(rol) {
   return SYSTEM_PROMPTS[rol] ?? SYSTEM_PROMPTS[ROLES.CODER];
 }
 
-module.exports = { ROLES, obtenerPerfil, inferirRol, inferirSkills, systemPromptParaRol, MODELO_POR_ROL, obtenerSkillsPorRol };
+module.exports = { ROLES, obtenerPerfil, inferirRol, inferirSkills, systemPromptParaRol, MODELO_POR_ROL, obtenerSkillsPorRol, extraerRolDeclarado };

@@ -1,10 +1,11 @@
 ---
 name: cloud-deployment-specialist
 description: Despliegue real y ejecutable en proveedores especificos de nube/hosting (AWS App Runner/ECS Express Mode, Google Cloud Run/Firebase, Azure Container Apps, DigitalOcean App Platform, Cloudflare Workers/Pages, Vercel, Railway, Render, Fly.io) -- comandos CLI reales, modelos de pricing, y criterio de seleccion de proveedor segun el proyecto. Diferenciado de devops-infra (IaC/Kubernetes/observabilidad generica y agnostica, ya cubierto ahi, este skill no lo repite) y release-manager (CI/CD generico). Activa al elegir donde desplegar un proyecto nuevo, migrar de proveedor, o ejecutar un deploy real a produccion en cualquiera de estos 9 proveedores.
-origin: ai-core
-version: 1.1.0
-last_updated: 2026-09-21
-rol: architect
+metadata:
+  origin: ai-core
+  version: 1.1.0
+  last_updated: 2026-09-21
+  rol: architect
 compatibility: Depende de las CLIs oficiales de cada proveedor de nube que se use (aws-cli, gcloud, az, flyctl, railway, vercel, etc. segun el proveedor elegido) y credenciales/conectividad hacia ese proveedor.
 ---
 

@@ -1,10 +1,11 @@
 ---
 name: app-store-publisher
 description: Activa al empaquetar builds de release para distribucion (APK/AAB, IPA, MSIX), gestionar certificados y firma de codigo, preparar submissions a Apple App Store/Google Play Store/Microsoft Store, verificar compliance contra guidelines de revision de cada tienda, o empaquetar una app web como aplicacion de escritorio nativa con Electron o Tauri. Cubre el tramo final de codigo listo hasta publicado en tienda, agnostico al framework de origen (Flutter, nativo, Electron, Tauri).
-origin: ai-core
-version: 1.0.0
-last_updated: 2026-09-21
-rol: coder
+metadata:
+  origin: ai-core
+  version: 1.0.0
+  last_updated: 2026-09-21
+  rol: coder
 ---
 
 # App Store Publisher

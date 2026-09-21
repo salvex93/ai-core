@@ -1,10 +1,11 @@
 ---
 name: managed-agents-specialist
 description: Especialista en agentes gestionados de Anthropic (Managed Agents). Cubre configuracion via API/UI, herramientas integradas (web search, code execution, computer use 2025, files), diseño de system prompts para loops de agente, gestion de costos en iteraciones y seguridad. Activa al configurar un agente con herramientas integradas de Anthropic, evaluar si el caso de uso requiere Managed Agents vs Agent SDK, o diagnosticar comportamiento de un loop de agente gestionado.
-origin: ai-core
-version: 1.2.3
-last_updated: 2026-09-21
-rol: architect
+metadata:
+  origin: ai-core
+  version: 1.2.3
+  last_updated: 2026-09-21
+  rol: architect
 compatibility: Requiere @anthropic-ai/sdk con acceso a Managed Agents (beta); depende de conectividad de red hacia la Claude API.
 ---
 

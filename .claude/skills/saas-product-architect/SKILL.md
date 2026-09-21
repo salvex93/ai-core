@@ -1,10 +1,11 @@
 ---
 name: saas-product-architect
 description: Activa al disenar la estrategia de negocio y producto de un SaaS -- multi-tenancy, billing/suscripciones (Stripe/Paddle/Lemon Squeezy, webhooks, dunning), onboarding y RBAC de producto (organizaciones, invitaciones, trials), entitlements por plan, provisioning de tenant nuevo, white-labeling, metricas (MRR/churn/LTV/CAC) y compliance B2B (SOC 2, ISO 27001, ToS/Privacy/DPA propios). Diferenciado de backend-architect (arquitectura tecnica generica), database-ops (RLS multi-tenant, referenciado no repetido), release-manager (feature flags de despliegue, referenciados no repetidos), seo-sem-specialist (LTV/CAC de marketing) y ciso (PCI-DSS/HIPAA). Activa tambien al decidir pricing (flat/per-seat/usage-based/hibrido) o entitlements vs feature flags.
-origin: ai-core
-version: 1.0.0
-last_updated: 2026-09-21
-rol: architect
+metadata:
+  origin: ai-core
+  version: 1.0.0
+  last_updated: 2026-09-21
+  rol: architect
 ---
 
 # SaaS Product Architect

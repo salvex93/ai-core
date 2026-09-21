@@ -1,9 +1,10 @@
 ---
 name: code-reviewer
 description: Agente autonomo de revision de codigo. Analiza el diff del branch actual contra main, clasifica hallazgos por severidad (critica/alta/media/baja) y produce un reporte estructurado sin intervencion por turno. Activa con /code-review o cuando se detecta un PR listo para revision.
-origin: ai-core
-version: 1.2.0
-last_updated: 2026-09-02
+metadata:
+  origin: ai-core
+  version: 1.2.0
+  last_updated: 2026-09-21
 provider: any
 model: sonnet
 loop: true
