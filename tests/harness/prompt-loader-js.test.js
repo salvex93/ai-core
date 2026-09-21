@@ -44,6 +44,22 @@ describe('.claude/evals/prompt-loader.js', () => {
 
     assert.equal(user.content, 'pregunta real del test');
   });
+
+  test('acepta un array de rutas y arma un mensaje system por archivo, mismo orden, antes del user', () => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'prompt-loader-'));
+    const nucleoPath = path.join(dir, 'SKILL.md');
+    const referenciaPath = path.join(dir, 'modulo-x.md');
+    fs.writeFileSync(nucleoPath, 'nucleo');
+    fs.writeFileSync(referenciaPath, 'modulo de referencia');
+
+    const mensajes = cargarSkillComoChat([nucleoPath, referenciaPath], { pregunta: 'hola' });
+
+    assert.deepEqual(mensajes, [
+      { role: 'system', content: '{% raw %}nucleo{% endraw %}' },
+      { role: 'system', content: '{% raw %}modulo de referencia{% endraw %}' },
+      { role: 'user', content: 'hola' },
+    ]);
+  });
 });
 
 describe('prompt functions de promptfoo (tech-lead-frontend-chat.js, web-scraping-specialist-chat.js)', () => {
@@ -54,9 +70,16 @@ describe('prompt functions de promptfoo (tech-lead-frontend-chat.js, web-scrapin
 
       assert.equal(typeof salida, 'string', 'debe retornar un string (promptfoo no debe re-templatizarlo)');
       const mensajes = JSON.parse(salida);
-      assert.equal(mensajes[0].role, 'system');
-      assert.ok(mensajes[0].content.length > 0, 'el system prompt debe contener el SKILL.md real, no vacio');
-      assert.deepEqual(mensajes[1], { role: 'user', content: 'pregunta de prueba' });
+      // uno o mas mensajes system (SKILL.md + references/*.md tras G4), siempre
+      // terminando en el mensaje user con la pregunta.
+      const ultimo = mensajes[mensajes.length - 1];
+      const systemMsgs = mensajes.slice(0, -1);
+      assert.ok(systemMsgs.length > 0, 'debe haber al menos un mensaje system');
+      for (const msg of systemMsgs) {
+        assert.equal(msg.role, 'system');
+        assert.ok(msg.content.length > 0, 'el system prompt debe contener contenido real, no vacio');
+      }
+      assert.deepEqual(ultimo, { role: 'user', content: 'pregunta de prueba' });
     });
   }
 });

@@ -6,7 +6,7 @@ Fecha: 2026-09-21. Alcance: hooks, permisos, skills, agentes, tests y comparacio
 
 | Dimension | Resultado | Comando |
 |---|---|---|
-| Suite de tests | 1496 tests, 1495 pass, 0 fail, 1 skip | `npm test` |
+| Suite de tests | 1497 tests, 1496 pass, 0 fail, 1 skip | `npm test` |
 | Conformidad de skills | 45/45, 0 criticos, 0 altos | `npm run validate-globals` |
 | Vigencia de mercado | sin hallazgos STALE, 45/45 skills con dominio registrado | `npm run audit-market -- --only-stale` |
 | Hooks activos | 45 (PreToolUse 22, PostToolUse 9, Stop 5, SubagentStop 5, UserPromptSubmit 4, PostToolUseFailure 4) | `.claude/settings.json` |
@@ -30,7 +30,7 @@ Fecha: 2026-09-21. Alcance: hooks, permisos, skills, agentes, tests y comparacio
 | G1 | RESUELTA. `Bash(git push*)` se mantiene en `allow` por decision del usuario; la publicacion queda condicionada al marco de calidad via hook git `.githooks/pre-push` (`scripts/quality-gate.js`). El bypass del hook esta bajo break-glass. | `npm run quality-gate`, regla 11 de Gobierno en CLAUDE.md | Ninguna |
 | G2 | RESUELTA. `DENY_PERMISSIONS` (fuente unica en `lib/base-permissions.js`) aplica `Read`/`Edit` deny a `.env` y variantes, `*.pem|*.key|*.p12|*.pfx`, y `Read` a claves SSH privadas y credenciales de aws/gh/npm/netrc; lo consumen `setup-settings`, `buildSettingsForHost`, `mergeHostSettings` y `norm-harness`. Hallazgo original: `permissions.deny` y `ask` vacios, todo el control preventivo dependia de hooks. Sin `ask`: no hay operacion que convenga confirmar en vez de bloquear | 9 tests; `Read` de un `.env.local` ficticio denegado en vivo | Ninguna. Nota: un `rm` sobre un `.env.local` tambien fue denegado (la regla cubre `rm`, no solo Read/Edit) |
 | G3 | EVALUADA, NO ACTIVADA. Verificada la clave `sandbox` (`enabled`, `autoAllowBashIfSandboxed`, `filesystem`, `network`, `excludedCommands`). Con el sandbox activo, `.claude/skills|agents|hooks`, `.mcp.json`, `.git/hooks` y `.git/config` quedan de solo lectura para Bash, lo que rompe `npm run setup`, `rollback-*` y el pre-push (hereda restricciones); `gh` y TLS requieren `excludedCommands` | `docs/en/sandboxing` | Decision del usuario: activar con `excludedCommands` acotados, o mantener Docker opcional (`npm run sandbox`) |
-| G4 | 5 SKILL.md superan 500 lineas (backend-architect 1698, tech-lead-frontend 1088, web-scraping-specialist 1006, ux-visual-designer 626, mcp-server-builder 606). agentskills.io recomienda menos de 500 lineas y detalle en `references/` (divulgacion progresiva) | `wc -l` | Dividir en SKILL.md (nucleo + indice) y `references/*.md`. CLAUDE.md exime hoy a los `.md`; enmendar esa exencion |
+| G4 | PARCIAL. Hecho 2026-09-21: los 5 SKILL.md (backend-architect 1698, tech-lead-frontend 1088, web-scraping-specialist 1006, ux-visual-designer 626, mcp-server-builder 606) se dividieron en nucleo + `references/*.md` (19 archivos nuevos). `validate-globals.js` lee solo SKILL.md por substring/regex de secciones fijas -- el nucleo conserva integras las 5 secciones obligatorias, el gate de calidad medible y el frontmatter; solo modulos tematicos expansivos se movieron. Los evals (promptfoo) cargan SKILL.md via `file://` como system prompt sin seguir `references/`: donde un caso de eval dependia de un modulo movido (backend-architect Go/Rust/Java, tech-lead-frontend motion+3D), se actualizo el `-chat.json` correspondiente para incluir tambien esa referencia (`prompt-loader.js` ahora acepta array de rutas). Resultado: backend-architect 704 lineas nucleo, tech-lead-frontend 571, web-scraping-specialist 500, ux-visual-designer 402, mcp-server-builder 403 -- los 2 primeros siguen sobre 500 por priorizar cobertura de evals sin mover mas contenido evaluado. `validate-globals` 45/45 y los 5 evals reales (promptfoo) 100% tras la division | `wc -l`, `npm run validate-globals`, `node .claude/evals/runner.js <skill>.promptfooconfig.yaml` x5 (31/31 casos pasaron) | Evaluar si vale la pena reducir mas backend-architect/tech-lead-frontend moviendo tambien secciones cubiertas por evals (requeriria ampliar mas `-chat.json`); luego G16 resto (activar el check de 500 lineas en el gate) |
 | G5 | Campos `origin`, `version`, `last_updated`, `rol` fuera de `metadata` en el frontmatter. La especificacion define `metadata` como mapa string a string para campos propios | spec agentskills.io | Migrar bajo `metadata` y ajustar `validate-globals`, `audit-market` y evals |
 | G6 | RESUELTA. Los 5 tests se dividieron por describe en 12 archivos (todos bajo 300 lineas; conteo de tests preservado; 1446 en total tras G11). El limite se hace cumplir ahora tambien en pre-push. | `quality-gate.js --fast` | Ninguna |
 | G7 | Log de auditoria (`BREAK_GLASS_LOG.jsonl`, metricas) sin cadena de hash ni exportacion estandar | inspeccion | Cadena de hash por entrada (evidencia de manipulacion) y exportacion OpenTelemetry opcional |
@@ -59,7 +59,7 @@ La comparacion proviene de investigacion web asistida. Lo no confirmado contra f
 | Telemetria y curacion de skills | `validate-globals`, `audit-market`, `eval-skills` | Hermes: Curator con telemetria de uso (segun investigacion) | Parcial |
 | Aprobacion de escritura a memoria/skills | Snapshot y checkpoint, sin compuerta | Hermes: aprobacion de escritura | Brecha (G9) |
 | Sandbox | Docker opcional; sin sandbox nativo activo | Varios arneses con sandbox por defecto | Brecha (G3) |
-| Cumplimiento del estandar de skills | Conforme en campos obligatorios; 5 skills sobre 500 lineas; campos propios fuera de `metadata` | agentskills.io | Parcial (G4, G5) |
+| Cumplimiento del estandar de skills | Conforme en campos obligatorios; 2 skills sobre 500 lineas (bajaron de 5 tras G4); campos propios fuera de `metadata` | agentskills.io | Parcial (G4, G5) |
 
 ## 5. Escalabilidad y estabilidad
 
@@ -75,7 +75,7 @@ Resueltas: G1, G2, G6, G11, G13, G15, G17 a G22. El detalle de lo abierto, con p
 2. G13 y G15 (controles deterministas baratos; cierran deriva de identidad y de cifras).
 3. G2 y G3 (requieren verificar sintaxis contra code.claude.com/docs antes de escribir; depende de G11 o de cuota Gemini).
 4. G10 con fecha limite: `mcp-protocol` vence alrededor de 2026-09-25 y `ai-core-internal-governance` alrededor de 2026-10-02.
-5. G4 y G5 (calidad de skills; mayor esfuerzo, por skill con `npm run eval-skills` y `validate-globals` como red; luego G16 para el limite de 500 lineas).
+5. G4 (PARCIAL, 2026-09-21: 5 SKILL.md divididos en nucleo + `references/`; backend-architect y tech-lead-frontend siguen sobre 500 lineas por cobertura de evals) y G5 (calidad de skills; mayor esfuerzo, por skill con `npm run eval-skills` y `validate-globals` como red; luego G16 para el limite de 500 lineas).
 6. G12, G8, G9, G7 (paridad con el mercado y generacion correcta de MCP).
 7. G14 solo si la friccion se repite.
 
@@ -101,7 +101,7 @@ Vista unica de todo lo detectado, resuelto, abierto y descartado por alcance. Lo
 
 | Prioridad | Id | Oportunidad | Esfuerzo | Nota |
 |---|---|---|---|---|
-| 3 | G4/G5/G16 | 5 SKILL.md sobre 500 lineas, campos propios fuera de `metadata`, check faltante del gate (limite de SKILL.md; residuales y secretos ya cubiertos) | Alto | Activar el limite de SKILL.md en el gate solo despues de partir los skills; enmendar la exencion de `.md` en CLAUDE.md |
+| 3 | G4/G5/G16 | G4 PARCIAL (2026-09-21): 2 SKILL.md sobre 500 lineas (bajaron de 5), campos propios fuera de `metadata`, check faltante del gate (limite de SKILL.md; residuales y secretos ya cubiertos) | Alto | Activar el limite de SKILL.md en el gate solo despues de que los 2 restantes bajen de 500 o se decida que el estado actual alcanza; enmendar la exencion de `.md` en CLAUDE.md |
 | 4 | G12 | Ubicacion efectiva de `mcpServers` (`.mcp.json`) y su generacion | Medio | Verificar en documentacion oficial primero |
 | 5 | G24 | Verificar con captura real los payloads de `SubagentStop`, `Stop` y `PostToolUseFailure` | Bajo | Misma clase de defecto que G17 y G18: guards que pasan sus tests pero podrian no recibir datos reales |
 | 6 | G8, G9, G7 | Escaner de contenido de skills, compuerta de aprobacion de escrituras a skills/vault, cadena de hash del log de break-glass | Medio cada uno | Paridad con el mercado; sin incidente asociado |

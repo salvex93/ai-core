@@ -3,6 +3,19 @@
 Registro de cambios por version. Formato basado en [Keep a Changelog](https://keepachangelog.com/es/1.0.0/).
 Versionado semantico: MAJOR.MINOR.PATCH.
 
+## [Unreleased] — 5 SKILL.md largos divididos en nucleo + references/ (G4, parcial, 2026-09-21)
+
+### Agregado — divulgacion progresiva en 5 skills (agentskills.io)
+
+- `backend-architect`, `tech-lead-frontend`, `web-scraping-specialist`, `ux-visual-designer` y `mcp-server-builder` movieron modulos tematicos expansivos a `references/*.md` (19 archivos nuevos), preservando integras las 5 secciones obligatorias, el gate de calidad medible y el frontmatter en el nucleo. `validate-globals.js` sigue auditando solo `SKILL.md` — no sigue enlaces, por lo que el nucleo tenia que conservar toda seccion que el script verifica.
+- Cifras finales de nucleo: backend-architect 1698→704 lineas, tech-lead-frontend 1088→571, web-scraping-specialist 1006→500, ux-visual-designer 626→402, mcp-server-builder 606→403. Los dos primeros siguen sobre 500 lineas por priorizar cobertura de evals sin mover mas contenido evaluado.
+
+### Cambiado — evals con cobertura de references/ donde un caso dependia del contenido movido
+
+- `.claude/evals/prompt-loader.js`: `cargarSkillComoChat` acepta ahora `string|string[]` (retrocompatible), un mensaje `system` por archivo en el mismo orden.
+- `.claude/evals/backend-architect-chat.json` y `.claude/evals/tech-lead-frontend-chat.js` incluyen tambien las `references/*.md` cubiertas por sus casos de eval (Go/Rust/Java; motion design y 3D web). `web-scraping-specialist-chat.js`, `ux-visual-designer-chat.json` y `mcp-server-builder-chat.json` no requirieron cambio: ningun caso de eval dependia del contenido movido en esos tres.
+- Verificado con `npm run validate-globals` (45/45) y los 5 evals reales de promptfoo (31/31 casos).
+
 ## [Unreleased] — guard-read operativo, CI con marco de calidad y registro consolidado (2026-09-21)
 
 ### Corregido — guard-read.js nunca bloqueaba un Read real (G18)
