@@ -36,6 +36,12 @@ Versionado semantico: MAJOR.MINOR.PATCH.
 - Fuente: code.claude.com/docs/en/settings-reference y sandboxing (2026-09-21). En macOS usa Seatbelt; con `sandbox.enabled` los comandos Bash solo escriben en el directorio de trabajo y el tmp de sesion, y `.claude/skills|agents|hooks`, `.mcp.json`, `.git/hooks` y `.git/config` quedan de solo lectura.
 - Choca con el flujo del arnes: `npm run setup` (escribe `.git/config` y `.claude/settings.json`), `rollback-skill`/`rollback-agent`, `git` que reemplaza archivos protegidos, y `gh`/`git push` (TLS y red). El pre-push heredaria las restricciones. Activarlo cambia el flujo de sesion: requiere decision explicita del usuario antes de incorporarlo.
 
+### Cambiado — reverificacion de vigencia (G10, 2026-09-21)
+
+- `mcp-protocol`: fuente primaria modelcontextprotocol.io/specification/versioning confirma 2026-07-28 como version Current (ya no release candidate). `mcp-server-builder` 1.5.2 corrige el titulo y el texto de la seccion de especificacion y cierra la ventana de migracion del RC.
+- `ai-core-internal-governance`: reverificado contra el codigo del repo (sin fuente externa). `aiops-engineer` corrige el alcance de auditoria de 42 a 45 skills.
+- Los siete skills de esos dominios suben `last_updated` a 2026-09-21 para que `audit-market` no los marque en DRIFT_VS_MERCADO.
+
 ### Agregado — controles git deterministas de identidad y mensaje, y test de cifras (G13, G15)
 
 - `.githooks/commit-msg` y `.githooks/pre-commit` ejecutan `.claude/bin/check-commit.js`: rechazan Co-Authored-By y atribucion a IA en el mensaje, y exigen la identidad de autor del Protocolo de Commits Git. Cubren commits hechos fuera de Claude.

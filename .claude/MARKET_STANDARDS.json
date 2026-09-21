@@ -108,12 +108,12 @@
       "skills": ["mobile-engineer"]
     },
     "mcp-protocol": {
-      "verified": "2026-07-28",
-      "sources": ["modelcontextprotocol.io/changelog (release candidate 2026-07-28, protocolo stateless)"],
+      "verified": "2026-09-21",
+      "sources": ["modelcontextprotocol.io/specification/versioning (2026-07-28 es la version Current, protocolo stateless)"],
       "skills": ["mcp-server-builder", "mcp-registry-navigator"]
     },
     "ai-core-internal-governance": {
-      "verified": "2026-08-04",
+      "verified": "2026-09-21",
       "sources": ["no aplica fuente externa -- son skills que gobiernan el propio arnes ai-core (aaa-evaluator, aiops-engineer, cost-optimizer, cross-model-verifier, dev-loop, memory-manager, silent-failure-hunter), su vigencia se mide contra el propio codigo del repo, no contra un estandar de mercado externo"],
       "skills": ["aaa-evaluator", "aiops-engineer", "cost-optimizer", "cross-model-verifier", "dev-loop", "memory-manager", "silent-failure-hunter"]
     },

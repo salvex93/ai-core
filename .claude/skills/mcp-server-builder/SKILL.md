@@ -2,8 +2,8 @@
 name: mcp-server-builder
 description: Especialista en construccion de servidores MCP (Model Context Protocol). Cubre ciclo de vida del protocolo, transportes stdio y SSE/HTTP, definicion de herramientas con JSON Schema, seguridad de inputs, testing con MCP Inspector y despliegue. Activa al construir un servidor MCP propio, exponer herramientas internas a Claude, o publicar un servidor MCP en el registro oficial.
 origin: ai-core
-version: 1.5.1
-last_updated: 2026-08-15
+version: 1.5.2
+last_updated: 2026-09-21
 rol: coder
 compatibility: Requiere @modelcontextprotocol/sdk (TypeScript) o mcp (Python) compatible con especificacion MCP 2026-07-28; depende de conectividad de red para transporte Streamable HTTP.
 ---
@@ -67,11 +67,11 @@ Ante cualquiera de estas condiciones, insertar la directiva y detener. No emitir
 [ALERTA_ARQUITECTONICA: REQUIERE_OPUSPLAN]
 ```
 
-## Especificacion Vigente: Release Candidate 2026-07-28
+## Especificacion Vigente: 2026-07-28 (Current)
 
-La especificacion 2026-07-28 (RC publicado 2026-05-21, final el 2026-07-28) reemplaza a 2025-03-26 como base de este skill. Cambio de fondo: el protocolo pasa de sesion con estado a stateless por request. Ver detalle en `blog.modelcontextprotocol.io/posts/2026-07-28-release-candidate/`.
+La especificacion 2026-07-28 es la version Current del protocolo (`modelcontextprotocol.io/specification/versioning`, verificado 2026-09-21; RC publicado 2026-05-21, release final 2026-07-28) y reemplaza a 2025-03-26 como base de este skill. Cambio de fondo: el protocolo pasa de sesion con estado a stateless por request. Ver detalle en `blog.modelcontextprotocol.io/posts/2026-07-28-release-candidate/`.
 
-Ventana de migracion: 10 semanas desde el RC. Servidores nuevos deben construirse directamente contra 2026-07-28; servidores existentes en 2025-03-26 siguen funcionando (garantia minima de 12 meses antes de remocion), pero migrar antes del final de la ventana evita trabajo de doble mantenimiento.
+Ventana de migracion: la del RC (10 semanas) ya cerro. Servidores nuevos se construyen directamente contra 2026-07-28; servidores existentes en 2025-03-26 siguen funcionando mientras no se remuevan (garantia minima de 12 meses de deprecacion), pero migrar evita el doble mantenimiento.
 
 ### Ciclo de vida de la conexion (stateless)
 
