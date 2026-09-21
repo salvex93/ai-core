@@ -11,6 +11,10 @@ Versionado semantico: MAJOR.MINOR.PATCH.
 - Un Read con `limit` menor o igual a 200 se permite: ya acota los tokens y es la unica forma de leer un tramo de un archivo grande (Edit exige lectura previa).
 - Efecto: los Read sin `limit` de archivos de texto sobre 200 lineas se deniegan y redirigen a `analizar_archivo`, salvo cuota agotada o sin `GEMINI_API_KEY`.
 
+### Corregido — el bridge de Gemini no marcaba la cuota agotada (G30)
+
+- Los handlers de `McpServerHandlers.js` devuelven `{ error }` en vez de lanzar, por lo que el `catch` de `mcp-gemini.js` que escribia el marcador de `lib/gemini-cuota.js` nunca corria ante un 429 real. Con la cuota agotada, `web-search-guard` y `guard-read` no degradaban a la tool nativa. Ahora `errorDeGemini` marca la cuota en los 5 `catch`.
+
 ### Corregido — bash-verbosity-guard y cola de eventos
 
 - `cat archivo | sed -n 1,60p` cuenta como acotado (G19). `sed` sin `-n` sigue bloqueado.

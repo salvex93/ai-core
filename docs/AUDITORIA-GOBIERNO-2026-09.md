@@ -6,7 +6,7 @@ Fecha: 2026-09-21. Alcance: hooks, permisos, skills, agentes, tests y comparacio
 
 | Dimension | Resultado | Comando |
 |---|---|---|
-| Suite de tests | 1485 tests, 1484 pass, 0 fail, 1 skip | `npm test` |
+| Suite de tests | 1488 tests, 1487 pass, 0 fail, 1 skip | `npm test` |
 | Conformidad de skills | 45/45, 0 criticos, 0 altos | `npm run validate-globals` |
 | Vigencia de mercado | sin hallazgos STALE, 45/45 skills con dominio registrado | `npm run audit-market -- --only-stale` |
 | Hooks activos | 45 (PreToolUse 22, PostToolUse 9, Stop 5, SubagentStop 5, UserPromptSubmit 4, PostToolUseFailure 4) | `.claude/settings.json` |
@@ -94,6 +94,7 @@ Vista unica de todo lo detectado, resuelto, abierto y descartado por alcance. Lo
 | G20 | CI sin el marco de calidad: un push con el hook omitido no tenia contraparte en GitHub | `ci.yml` ejecutaba suite y `validate-globals`, no `quality-gate` | Paso `npm run quality-gate -- --fast` en ubuntu (limite de 300 lineas, agentes, vigencia); la suite ya la corre la matriz |
 | G21 | `EVENTS_QUEUE.json` contaminada con eventos falsos (`standards-guard`, `emoji-prohibido`) generados por un test | Un test invocaba el guard con `spawnSync` directo, sin `AI_CORE_TEST_MODE`; una entrada por corrida de suite. El agente `issue-tracker` habria abierto issues reales a partir de ellos | Test corregido (cola estable en 11 a 11 tras correrlo); 9 eventos de test purgados de la cola local |
 | G22 | 6 tests fallaban en Windows en CI | `GIT_CONFIG_GLOBAL=os.devNull` no lo lee git para Windows; NTFS no expone el bit de ejecucion en `fs.stat` | Config global vacia real (`entornoGitAislado` en `_shared.js`) y verificacion del modo 100755 desde el indice de git |
+| G30 | Con la cuota de Gemini agotada, `web-search-guard` seguia bloqueando WebFetch y `guard-read` seguia denegando Read: Claude sin via de busqueda ni de lectura | Los 5 handlers de `McpServerHandlers.js` capturan el error y devuelven `{ error }`, asi que el `catch` de `mcp-gemini.js` que llamaba a `marcarCuotaAgotada` nunca se ejecutaba con un 429 real; el marcador no se escribia. Descubierto en vivo al recibir un 429 y no degradar | `errorDeGemini` en `McpServerHandlers.js` marca la cuota en los 5 `catch`; `tests/harness/mcpserverhandlers-js-cuota.test.js` (3 tests). El bridge en ejecucion necesita `/mcp` para cargar el codigo nuevo |
 
 ### 7.2 Abierto, en orden de prioridad
 

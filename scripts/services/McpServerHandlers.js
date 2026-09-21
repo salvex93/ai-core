@@ -13,6 +13,14 @@ const path = require('path');
 
 const { GEMINI_DEFAULT, getModel, isRefusal, extractJson, callWithRetry, compactarSiNecesario } = require('./GeminiApiClient');
 const { truncarInputGemini, truncarOutputGemini } = require('./TokenManager');
+const { marcarCuotaAgotada, esErrorDeCuota } = require('../../.claude/bin/lib/gemini-cuota');
+
+// El catch de mcp-gemini.js no ve estos errores (se devuelven, no se lanzan):
+// el marcador de cuota debe escribirse aqui para que los guards degraden.
+function errorDeGemini(prefijo, err) {
+  if (esErrorDeCuota(err)) marcarCuotaAgotada();
+  return { error: `${prefijo}: ${err.message}` };
+}
 
 const LINE_THRESHOLD = 500;
 const SIZE_THRESHOLD = 50 * 1024; // 50 KB
@@ -111,7 +119,7 @@ async function analizarArchivo({ ruta, mision }) {
     if (result.resumen) result.resumen = truncarOutputGemini(result.resumen);
     return result;
   } catch (err) {
-    return { error: `Gemini error: ${err.message}` };
+    return errorDeGemini('Gemini error', err);
   }
 }
 
@@ -134,7 +142,7 @@ async function analizarContenido({ contenido, mision }) {
     if (result.resumen) result.resumen = truncarOutputGemini(result.resumen);
     return result;
   } catch (err) {
-    return { error: `Gemini error: ${err.message}` };
+    return errorDeGemini('Gemini error', err);
   }
 }
 
@@ -182,7 +190,7 @@ async function analizarRepositorio({ ruta_raiz, mision }) {
     if (result.resumen) result.resumen = truncarOutputGemini(result.resumen);
     return result;
   } catch (err) {
-    return { error: `Gemini error: ${err.message}` };
+    return errorDeGemini('Gemini error', err);
   }
 }
 
@@ -211,7 +219,7 @@ async function resumirBacklog({ ruta_backlog }) {
     if (result.resumen) result.resumen = truncarOutputGemini(result.resumen);
     return result;
   } catch (err) {
-    return { error: `Gemini error: ${err.message}` };
+    return errorDeGemini('Gemini error', err);
   }
 }
 
@@ -250,7 +258,7 @@ async function buscarWeb({ consulta, mision }) {
       },
     };
   } catch (err) {
-    return { error: `Gemini web search error: ${err.message}` };
+    return errorDeGemini('Gemini web search error', err);
   }
 }
 
