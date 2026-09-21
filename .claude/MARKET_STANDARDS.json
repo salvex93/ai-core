@@ -41,22 +41,22 @@
       "skills": ["data-engineer", "database-ops"]
     },
     "app-distribution-stores": {
-      "verified": "2026-08-04",
+      "verified": "2026-09-21",
       "sources": ["developer.apple.com/news/?id=ueeok6yw", "support.google.com/googleplay/android-developer/answer/11926878", "azure.microsoft.com/en-us/products/artifact-signing", "learn.microsoft.com/en-us/windows/apps/publish/whats-new-individual-developer"],
       "skills": ["app-store-publisher"]
     },
     "saas-business-architecture": {
-      "verified": "2026-08-04",
+      "verified": "2026-09-21",
       "sources": ["docs.aws.amazon.com/whitepapers (SaaS Tenant Isolation Strategies)", "learn.microsoft.com/azure/architecture/guide/multitenant (tenancy models, domain names, throttling pattern)", "docs.stripe.com/billing/subscriptions", "workos.com/docs (RBAC/SSO B2B)", "lemonsqueezy.com/blog/2026-update"],
       "skills": ["saas-product-architect"]
     },
     "qa-destructive-testing": {
-      "verified": "2026-08-04",
-      "sources": ["owasp.org (WSTG)", "principlesofchaos.org", "cncf.io/projects (Chaos Mesh/LitmusChaos: Incubating)", "go.dev (fuzzing GA desde Go 1.18)", "openapis.org/blog (OpenAPI 3.2.0)"],
+      "verified": "2026-09-21",
+      "sources": ["owasp.org (WSTG)", "principlesofchaos.org", "cncf.io/projects (Chaos Mesh/LitmusChaos: Incubating)", "go.dev (fuzzing GA desde Go 1.18)", "spec.openapis.org (OpenAPI 3.2.1, 2026-09-10)"],
       "skills": ["qa-engineer"]
     },
     "cloud-provider-deployment": {
-      "verified": "2026-08-04",
+      "verified": "2026-09-21",
       "sources": ["docs.aws.amazon.com/apprunner (cerrado a clientes nuevos, verificado con fetch directo propio)", "docs.cloud.google.com/sdk/gcloud/reference/run/deploy", "learn.microsoft.com/en-us/azure/container-apps", "docs.digitalocean.com/products/app-platform", "developers.cloudflare.com/workers", "vercel.com/docs", "docs.railway.com", "render.com/docs", "fly.io/docs"],
       "skills": ["cloud-deployment-specialist"]
     },

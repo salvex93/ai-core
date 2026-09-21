@@ -3,7 +3,7 @@ name: cloud-deployment-specialist
 description: Despliegue real y ejecutable en proveedores especificos de nube/hosting (AWS App Runner/ECS Express Mode, Google Cloud Run/Firebase, Azure Container Apps, DigitalOcean App Platform, Cloudflare Workers/Pages, Vercel, Railway, Render, Fly.io) -- comandos CLI reales, modelos de pricing, y criterio de seleccion de proveedor segun el proyecto. Diferenciado de devops-infra (IaC/Kubernetes/observabilidad generica y agnostica, ya cubierto ahi, este skill no lo repite) y release-manager (CI/CD generico). Activa al elegir donde desplegar un proyecto nuevo, migrar de proveedor, o ejecutar un deploy real a produccion en cualquiera de estos 9 proveedores.
 origin: ai-core
 version: 1.1.0
-last_updated: 2026-09-18
+last_updated: 2026-09-21
 rol: architect
 compatibility: Depende de las CLIs oficiales de cada proveedor de nube que se use (aws-cli, gcloud, az, flyctl, railway, vercel, etc. segun el proveedor elegido) y credenciales/conectividad hacia ese proveedor.
 ---
@@ -168,7 +168,7 @@ npx wrangler deploy
 - CPU time: 10 ms por request HTTP o Cron Trigger.
 - Memoria: 128 MB por isolate.
 - Subrequests: 50 por invocacion.
-- Tamano de script: 3 MB comprimido / 64 MB sin comprimir.
+- Tamano de Worker: 64 MiB sin comprimir en Free y Paid; sin limite de tamano comprimido (verificado 2026-09-21, el limite previo de 3 MB comprimido ya no aparece en la fuente).
 - Conexiones simultaneas: 6. Workers por cuenta: 100. Cron Triggers: 5 por cuenta.
 - Scale-to-zero: si, por diseno — el modelo de facturacion es por request/CPU-tiempo, sin instancia persistente que facturar en reposo.
 

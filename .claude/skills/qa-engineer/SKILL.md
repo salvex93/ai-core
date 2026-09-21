@@ -3,7 +3,7 @@ name: qa-engineer
 description: QA Engineer Universal. Estrategia de testing, piramide de calidad, contract testing, cobertura en CI/CD, y QA destructivo (fuzzing, chaos testing, historial de fallos BUGS_HISTORY.json). Agnostico al framework: deduce la herramienta del repositorio anfitrion antes de emitir recomendaciones. Activa al definir estrategia de tests, revisar cobertura, implementar contract testing, diagnosticar regresiones, revisar si un PR tiene tests adecuados, romper el producto de forma deliberada (fuzzing/chaos testing), o registrar/consultar el historial de bugs del proyecto.
 origin: ai-core
 version: 2.1.0
-last_updated: 2026-08-04
+last_updated: 2026-09-21
 rol: auditor
 ---
 
@@ -298,7 +298,7 @@ Ningun umbral de esta tabla sustituye los umbrales de cobertura por capa ya defi
 
 ### Vigencia — estandar mas reciente del dominio
 
-Verificado contra fuente oficial en esta sesion: la especificacion OpenAPI vigente es la version 3.2.0, publicada el 2025-09-23 segun el blog oficial de la OpenAPI Initiative (`openapis.org/blog`) y el documento normativo en `spec.openapis.org/oas/v3.2.0.html`. Es una release menor sin cambios que rompan compatibilidad respecto a 3.1 — cualquier contract testing basado en validacion de schema OpenAPI puede seguir usando specs 3.1 existentes sin migracion obligatoria. Antes de fijar una version de spec como requisito de un contrato nuevo, confirmar contra ese dominio oficial si aplica una version mas reciente al momento de la implementacion.
+Verificado contra fuente oficial el 2026-09-21: la especificacion OpenAPI vigente es la version 3.2.1 (patch publicado el 2026-09-10 en `spec.openapis.org/oas/v3.2.1.html`) sobre la 3.2.0 del 2025-09-23 (`openapis.org/blog`). La 3.2.0 es una release menor sin cambios que rompan compatibilidad respecto a 3.1 — cualquier contract testing basado en validacion de schema OpenAPI puede seguir usando specs 3.1 existentes sin migracion obligatoria. Antes de fijar una version de spec como requisito de un contrato nuevo, confirmar contra ese dominio oficial si aplica una version mas reciente al momento de la implementacion.
 
 Sobre la version exacta de Pact/Pact Specification vigente para cada lenguaje (Pact JS, pact-python, Pact JVM) y el detalle de PactFlow como servicio de broker gestionado: orientativo, no verificado contra fuente oficial en esta sesion — confirmar version exacta en `docs.pact.io` antes de fijarla como dependencia en un `package.json` o manifiesto equivalente, en vez de asumir la version mencionada en blogs de terceros.
 

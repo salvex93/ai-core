@@ -11,6 +11,17 @@ Versionado semantico: MAJOR.MINOR.PATCH.
 - Un Read con `limit` menor o igual a 200 se permite: ya acota los tokens y es la unica forma de leer un tramo de un archivo grande (Edit exige lectura previa).
 - Efecto: los Read sin `limit` de archivos de texto sobre 200 lineas se deniegan y redirigen a `analizar_archivo`, salvo cuota agotada o sin `GEMINI_API_KEY`.
 
+### Cambiado — CI fijado a ubuntu-24.04 (G23)
+
+- Los 7 usos de `ubuntu-latest` en `ci.yml` pasan a `ubuntu-24.04` para que la migracion de `ubuntu-latest` a Ubuntu 26 (~2026-10-19) no cambie el runner sin una prueba previa.
+
+### Verificado — vigencia de 4 dominios (G10, 2026-09-21)
+
+- `app-distribution-stores`, `saas-business-architecture`, `qa-destructive-testing` y `cloud-provider-deployment` reverificados contra fuente primaria (Apple, Google Play, Microsoft, Stripe, WorkOS, CNCF, go.dev, spec.openapis.org, AWS, Cloudflare, Azure, Render, Fly.io).
+- `qa-engineer`: OpenAPI vigente 3.2.1 (patch del 2026-09-10 sobre 3.2.0). Chaos Mesh y LitmusChaos siguen Incubating; Go fuzzing nativo sin cambios.
+- `cloud-deployment-specialist`: el limite de 3 MB comprimido de Workers ya no existe; 64 MiB sin comprimir y sin limite comprimido. App Runner sigue cerrado a clientes nuevos.
+- `saas-product-architect`: la comision de Lemon Squeezy (3.5% vs 5%) queda como no reconfirmada.
+
 ### Corregido — el bridge de Gemini no marcaba la cuota agotada (G30)
 
 - Los handlers de `McpServerHandlers.js` devuelven `{ error }` en vez de lanzar, por lo que el `catch` de `mcp-gemini.js` que escribia el marcador de `lib/gemini-cuota.js` nunca corria ante un 429 real. Con la cuota agotada, `web-search-guard` y `guard-read` no degradaban a la tool nativa. Ahora `errorDeGemini` marca la cuota en los 5 `catch`.
