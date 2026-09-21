@@ -17,10 +17,10 @@
  *
  * En POSIX (Linux/macOS) el mismo problema no existe -- execFileSync sin
  * shell busca literalmente `gh` (sin extension) en el PATH, y cualquier
- * archivo con el bit ejecutable alcanza. Ahi el fake es una copia de
- * process.execPath nombrada `gh` (no `gh.exe`) con permisos 0o755,
- * verificado en CI real (ubuntu-latest/macos-latest) tras el fallo del
- * nombre fijo `gh.exe` heredado del diseño original en Windows.
+ * archivo con el bit ejecutable alcanza. Ahi el fake es un wrapper de shell
+ * (`gh`, 0o755) que delega en node + el script fake. Copiar process.execPath
+ * como antes fallaba con node enlazado dinamicamente (Homebrew: @rpath a
+ * libnode.dylib se rompe al mover el binario), sin relacion con issue-reporter.
  */
 
 const { test, describe } = require('node:test');
@@ -33,23 +33,16 @@ const { BIN } = require('./_shared');
 
 const SCRIPT = path.join(BIN, 'issue-reporter.js');
 
-function crearFakeGh(dir) {
-  const nombreGh = process.platform === 'win32' ? 'gh.exe' : 'gh';
-  const ghExe = path.join(dir, nombreGh);
-  fs.copyFileSync(process.execPath, ghExe);
-  if (process.platform !== 'win32') {
-    fs.chmodSync(ghExe, 0o755);
-  }
-
-  const hookScript = path.join(dir, 'fake-gh-hook.js');
-  fs.writeFileSync(hookScript, `
-'use strict';
-const fs = require('fs');
+const ES_WINDOWS = process.platform === 'win32';
 
 // NODE_OPTIONS se hereda tambien al proceso principal (node issue-reporter.js),
 // que no es el binario gh -- sin este guard, el hook interferiria con el
 // propio script bajo prueba y lo terminaria antes de que arranque.
-const nombreBinario = ${JSON.stringify(nombreGh)}.toLowerCase();
+const PROLOGO_WINDOWS = `
+'use strict';
+const fs = require('fs');
+
+const nombreBinario = 'gh.exe';
 if (!process.execPath.toLowerCase().endsWith(nombreBinario)) {
   module.exports = {};
   return;
@@ -59,7 +52,16 @@ const crudo = process.argv[1];
 const cwd = process.cwd();
 let primerArg = crudo.slice(cwd.length).replace(/^[\\\\/]+/, '');
 const args = [primerArg, ...process.argv.slice(2)];
+`;
 
+const PROLOGO_POSIX = `
+'use strict';
+const fs = require('fs');
+
+const args = process.argv.slice(2);
+`;
+
+const LOGICA_FAKE = `
 const modo = process.env.FAKE_GH_MODE || 'ok';
 
 if (args[0] === 'auth' && args[1] === 'status') {
@@ -88,8 +90,21 @@ if (args[0] === 'issue' && args[1] === 'create') {
 }
 
 process.exit(1);
-`, 'utf8');
+`;
 
+function crearFakeGh(dir) {
+  const ghExe = path.join(dir, ES_WINDOWS ? 'gh.exe' : 'gh');
+  const hookScript = path.join(dir, 'fake-gh-hook.js');
+
+  if (ES_WINDOWS) {
+    fs.copyFileSync(process.execPath, ghExe);
+  } else {
+    const wrapper = `#!/bin/sh\nexec ${JSON.stringify(process.execPath)} ${JSON.stringify(hookScript)} "$@"\n`;
+    fs.writeFileSync(ghExe, wrapper, 'utf8');
+    fs.chmodSync(ghExe, 0o755);
+  }
+
+  fs.writeFileSync(hookScript, (ES_WINDOWS ? PROLOGO_WINDOWS : PROLOGO_POSIX) + LOGICA_FAKE, 'utf8');
   return { ghExe, hookScript };
 }
 
@@ -109,7 +124,7 @@ function correr(queuePath, envExtra = {}) {
       ...process.env,
       AI_CORE_EVENTS_QUEUE_PATH: queuePath,
       PATH: `${dirFakeGh}${path.delimiter}${process.env.PATH || ''}`,
-      NODE_OPTIONS: `--require ${JSON.stringify(hookScript)}`,
+      ...(ES_WINDOWS ? { NODE_OPTIONS: `--require ${JSON.stringify(hookScript)}` } : {}),
       ...envExtra,
     },
   });
