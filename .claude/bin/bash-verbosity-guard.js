@@ -60,7 +60,7 @@ const REGLAS = [
   {
     nombre: 'git log sin acotar',
     disparo: /\bgit\s+log\b/i,
-    excepcion: /-n\s*\d+|--oneline|--max-count|\|\s*head|\|\s*tail/i,
+    excepcion: /-n\s*\d+|(?:^|\s)-\d+\b|--oneline|--max-count|\|\s*head|\|\s*tail/i,
     sugerencia: 'git log --oneline -n 10 (o agrega | head -N)',
   },
   {

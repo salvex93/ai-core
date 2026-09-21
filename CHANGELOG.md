@@ -36,6 +36,10 @@ Versionado semantico: MAJOR.MINOR.PATCH.
 - Fuente: code.claude.com/docs/en/settings-reference y sandboxing (2026-09-21). En macOS usa Seatbelt; con `sandbox.enabled` los comandos Bash solo escriben en el directorio de trabajo y el tmp de sesion, y `.claude/skills|agents|hooks`, `.mcp.json`, `.git/hooks` y `.git/config` quedan de solo lectura.
 - Choca con el flujo del arnes: `npm run setup` (escribe `.git/config` y `.claude/settings.json`), `rollback-skill`/`rollback-agent`, `git` que reemplaza archivos protegidos, y `gh`/`git push` (TLS y red). El pre-push heredaria las restricciones. Activarlo cambia el flujo de sesion: requiere decision explicita del usuario antes de incorporarlo.
 
+### Corregido — bash-verbosity-guard bloqueaba `git log -1` y `git log -5`
+
+- La excepcion de acotado solo reconocia `-n N`; la forma corta `-N` ya limita la salida y se bloqueaba como falso positivo. Se acepta `-N` precedido de espacio, para que un `-09` dentro de una fecha (`--since=2026-09-21`) siga sin contar como limite. 2 tests nuevos.
+
 ### Cambiado — reverificacion de vigencia (G10, 2026-09-21)
 
 - `mcp-protocol`: fuente primaria modelcontextprotocol.io/specification/versioning confirma 2026-07-28 como version Current (ya no release candidate). `mcp-server-builder` 1.5.2 corrige el titulo y el texto de la seccion de especificacion y cierra la ventana de migracion del RC.
