@@ -8,7 +8,7 @@ const path = require('node:path');
 const { spawnSync } = require('node:child_process');
 const { REPO } = require('./_shared');
 
-const { revisarResiduales, revisarSecretos } = require(path.join(REPO, 'scripts', 'quality-gate-checks.js'));
+const { revisarResiduales, revisarSecretos, revisarLimiteSkills } = require(path.join(REPO, 'scripts', 'quality-gate-checks.js'));
 
 // Se arma en runtime para que el propio archivo de test no contenga un patron literal.
 const CLAVE_GITHUB = `ghp_${'A'.repeat(36)}`;
@@ -78,6 +78,28 @@ describe('quality-gate-checks.js', () => {
     test('un binario no se escanea', () => {
       fs.writeFileSync(path.join(dir, 'img.bin'), Buffer.concat([Buffer.from([0]), Buffer.from(CLAVE_GITHUB)]));
       assert.equal(revisarSecretos(dir).ok, true);
+    });
+  });
+
+  describe('revisarLimiteSkills', () => {
+    after(() => fs.rmSync(path.join(dir, '.claude'), { recursive: true, force: true }));
+
+    test('un SKILL.md de 500 lineas o menos cumple', () => {
+      escribir(dir, '.claude/skills/foo/SKILL.md', `${'x\n'.repeat(500)}`);
+      assert.equal(revisarLimiteSkills(dir).ok, true);
+    });
+
+    test('un SKILL.md de mas de 500 lineas falla y cita ruta + conteo', () => {
+      escribir(dir, '.claude/skills/bar/SKILL.md', `${'x\n'.repeat(501)}`);
+      const r = revisarLimiteSkills(dir);
+      assert.equal(r.ok, false);
+      assert.match(r.detalle, /501 lineas: \.claude\/skills\/bar\/SKILL\.md/);
+    });
+
+    test('archivos dentro de references/ no cuentan para el limite', () => {
+      fs.rmSync(path.join(dir, '.claude', 'skills', 'bar'), { recursive: true });
+      escribir(dir, '.claude/skills/foo/references/extenso.md', `${'x\n'.repeat(2000)}`);
+      assert.equal(revisarLimiteSkills(dir).ok, true);
     });
   });
 });

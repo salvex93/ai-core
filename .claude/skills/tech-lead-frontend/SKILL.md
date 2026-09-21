@@ -252,70 +252,6 @@ Limite: 150 lineas por componente — mas estricto que el limite general de 300 
 
 ---
 
-## Modulo 6 — Tests Frontend
-
-### Piramide de tests
-
-```
-        /e2e\        Flujos criticos (login, checkout) — Playwright. Pocos y estables.
-       /------\
-      /integra \     Componentes con DOM real + API mockeada — Testing Library + MSW.
-     /----------\
-    /    unit    \   Hooks, utils, stores — Vitest o Jest. Muchos y rapidos.
-   /--------------\
-```
-
-### Tests de integracion — patron correcto
-
-```typescript
-// PROHIBIDO — test de implementacion interna
-expect(wrapper.vm.isLoading).toBe(false);
-
-// CORRECTO — test de comportamiento visible
-expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
-```
-
-Mock de API con MSW:
-
-```typescript
-import { http, HttpResponse } from 'msw';
-import { setupServer } from 'msw/node';
-
-const server = setupServer(
-  http.get('/api/usuario/:id', ({ params }) => {
-    return HttpResponse.json({ id: params.id, nombre: 'Ana Lopez', rol: 'admin' });
-  })
-);
-beforeAll(() => server.listen());
-afterEach(() => server.resetHandlers());
-afterAll(() => server.close());
-```
-
-### Tests de accesibilidad automatizados
-
-```typescript
-import { axe, toHaveNoViolations } from 'jest-axe';
-expect.extend(toHaveNoViolations);
-
-it('no tiene violaciones de accesibilidad', async () => {
-  const { container } = render(<FormularioContacto />);
-  expect(await axe(container)).toHaveNoViolations();
-});
-```
-
-### Cobertura minima
-
-Objetivo AAA especifico de frontend — el piso minimo orientativo agnostico de stack esta en `qa-engineer`. Usar esta tabla como meta; si el proyecto no puede alcanzarla aun, el minimo de `qa-engineer` es aceptable como punto de partida documentado.
-
-| Capa | Umbral |
-|---|---|
-| Hooks y composables con logica | 90% |
-| Funciones de utilidad | 95% |
-| Componentes con formularios | 80% |
-| Stores | 85% |
-
----
-
 ## Modulo 7 — Estrategias de Renderizado 2026
 
 | Estrategia | Cuando usar |
@@ -417,39 +353,6 @@ function conectarWebSocket(url: string, onMensaje: (data: unknown) => void) {
 ```
 
 Al reconectar tras una desconexion, el cliente debe re-sincronizar estado (pedir el estado actual completo o los eventos perdidos) — no asumir que no se perdio nada durante el tiempo desconectado.
-
----
-
-## Modulo 10 — SEO Tecnico
-
-### Meta tags obligatorios (toda pagina publica)
-
-```html
-<title>Titulo de pagina | Nombre del sitio</title>
-<meta name="description" content="Descripcion de 150-160 caracteres con keyword primaria.">
-<link rel="canonical" href="https://dominio.com/url-canonica/">
-<meta property="og:title" content="Titulo">
-<meta property="og:description" content="Descripcion hasta 200 caracteres.">
-<meta property="og:image" content="https://dominio.com/og-image.jpg">
-<meta property="og:url" content="https://dominio.com/url-canonica/">
-<meta name="twitter:card" content="summary_large_image">
-<meta name="robots" content="index, follow">
-```
-
-### Lighthouse CI como gate de PR
-
-```yaml
-ci:
-  assert:
-    assertions:
-      'categories:performance':    ['error', { minScore: 0.85 }]
-      'categories:accessibility':  ['error', { minScore: 0.95 }]
-      'categories:best-practices': ['error', { minScore: 0.90 }]
-      'categories:seo':            ['error', { minScore: 0.90 }]
-      'largest-contentful-paint':  ['error', { maxNumericValue: 2500 }]
-      'cumulative-layout-shift':   ['error', { maxNumericValue: 0.1 }]
-      'total-blocking-time':       ['error', { maxNumericValue: 300 }]
-```
 
 ---
 
@@ -565,7 +468,9 @@ Restricciones adicionales:
 Contenido expansivo movido a `references/` (divulgacion progresiva, agentskills.io) para mantener este SKILL.md nucleo por debajo del limite recomendado. Cargar el archivo correspondiente cuando la tarea lo requiera:
 
 - `references/excelencia-visual-paradigmas.md` — Modulo 2: excelencia visual y paradigmas de interfaz 2026.
+- `references/tests-frontend.md` — Modulo 6: tests frontend, piramide, integracion, accesibilidad automatizada y cobertura minima.
 - `references/componentes-llm-streaming.md` — Modulo 9: componentes LLM con streaming (Anthropic SDK v3+ / Gemini Live).
+- `references/seo-tecnico.md` — Modulo 10: SEO tecnico, meta tags obligatorios y Lighthouse CI como gate de PR.
 - `references/motion-design.md` — Modulo 12: motion design 2026.
 - `references/design-tokens-tipografia.md` — Modulo 13: design tokens W3C y tipografia variable.
 - `references/3d-web-shaders.md` — Modulo 14: 3D web, shaders y experiencias inmersivas.

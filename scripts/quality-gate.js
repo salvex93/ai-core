@@ -4,9 +4,11 @@
  * quality-gate.js — Marco de calidad previo a publicar cambios.
  *
  * Ejecuta, en orden y sin cortocircuitar, los mismos validadores que rigen el
- * proyecto: limite de 300 lineas en codigo, conformidad de skills y agentes,
- * vigencia de mercado, archivos residuales, credenciales en el working tree
- * y la suite completa de tests. Sale 1 si alguno falla.
+ * proyecto: limite de 300 lineas en codigo, archivos residuales, credenciales
+ * en el working tree, limite de 500 lineas en SKILL.md (references/*.md
+ * exento, contenido movido a proposito por G4), conformidad de skills y
+ * agentes, vigencia de mercado y la suite completa de tests. Sale 1 si alguno
+ * falla.
  *
  * Un pase completo se cachea por estado exacto del repo (HEAD + diff +
  * untracked): un push sin cambios desde el ultimo pase no repite la suite.
@@ -22,7 +24,7 @@ const os = require('node:os');
 const path = require('node:path');
 const crypto = require('node:crypto');
 const { spawnSync } = require('node:child_process');
-const { revisarResiduales, revisarSecretos } = require('./quality-gate-checks');
+const { revisarResiduales, revisarSecretos, revisarLimiteSkills } = require('./quality-gate-checks');
 
 const REPO = path.resolve(__dirname, '..');
 const LIMITE_LINEAS = 300;
@@ -65,6 +67,7 @@ function definirChecks(rapido) {
     { nombre: `limite de ${LIMITE_LINEAS} lineas en codigo`, ejecutar: () => revisarLimiteDeLineas() },
     { nombre: 'archivos residuales', ejecutar: () => revisarResiduales(REPO) },
     { nombre: 'credenciales en el working tree', ejecutar: () => revisarSecretos(REPO) },
+    { nombre: 'limite de 500 lineas en SKILL.md', ejecutar: () => revisarLimiteSkills(REPO) },
     { nombre: 'conformidad de skills', ejecutar: () => revisarComando(process.execPath, ['.claude/bin/validate-globals.js']) },
     { nombre: 'conformidad de agentes', ejecutar: () => revisarComando(process.execPath, ['.claude/bin/validate-agents.js']) },
     { nombre: 'vigencia de mercado', ejecutar: () => revisarComando(process.execPath, ['.claude/bin/audit-market.js', '--only-stale'], { fallaConSalida: true }) },

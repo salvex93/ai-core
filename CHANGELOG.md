@@ -3,18 +3,20 @@
 Registro de cambios por version. Formato basado en [Keep a Changelog](https://keepachangelog.com/es/1.0.0/).
 Versionado semantico: MAJOR.MINOR.PATCH.
 
-## [Unreleased] — 5 SKILL.md largos divididos en nucleo + references/ (G4, parcial, 2026-09-21)
+## [Unreleased] — 5 SKILL.md largos divididos en nucleo + references/, limite de 500 lineas activado en el gate (G4, G16, 2026-09-21)
 
 ### Agregado — divulgacion progresiva en 5 skills (agentskills.io)
 
-- `backend-architect`, `tech-lead-frontend`, `web-scraping-specialist`, `ux-visual-designer` y `mcp-server-builder` movieron modulos tematicos expansivos a `references/*.md` (19 archivos nuevos), preservando integras las 5 secciones obligatorias, el gate de calidad medible y el frontmatter en el nucleo. `validate-globals.js` sigue auditando solo `SKILL.md` — no sigue enlaces, por lo que el nucleo tenia que conservar toda seccion que el script verifica.
-- Cifras finales de nucleo: backend-architect 1698→704 lineas, tech-lead-frontend 1088→571, web-scraping-specialist 1006→500, ux-visual-designer 626→402, mcp-server-builder 606→403. Los dos primeros siguen sobre 500 lineas por priorizar cobertura de evals sin mover mas contenido evaluado.
+- `backend-architect`, `tech-lead-frontend`, `web-scraping-specialist`, `ux-visual-designer` y `mcp-server-builder` movieron modulos tematicos expansivos a `references/*.md` (21 archivos nuevos), preservando integras las 5 secciones obligatorias, el gate de calidad medible y el frontmatter en el nucleo. `validate-globals.js` sigue auditando solo `SKILL.md` — no sigue enlaces, por lo que el nucleo tenia que conservar toda seccion que el script verifica.
+- Cifras finales de nucleo: backend-architect 1698→498 lineas, tech-lead-frontend 1088→476, web-scraping-specialist 1006→500, ux-visual-designer 626→402, mcp-server-builder 606→403. Los 5 en o bajo el limite de 500 lineas (G4 cerrada).
+- Cierre 2026-09-21: backend-architect movio ademas "Modulo de Testing Backend" a `references/backend-testing.md`; tech-lead-frontend movio "Modulo 6 — Tests Frontend" y "Modulo 10 — SEO Tecnico" a `references/tests-frontend.md` y `references/seo-tecnico.md`. Ningun caso de eval dependia de ese contenido, por lo que no requirieron ampliar los `-chat.json`.
+- `scripts/quality-gate-checks.js`: nueva funcion `revisarLimiteSkills` — falla si algun `SKILL.md` (solo nucleo, `references/*.md` exento a proposito) supera 500 lineas. Registrada en `scripts/quality-gate.js` como septimo check del gate (G16 cerrada).
 
 ### Cambiado — evals con cobertura de references/ donde un caso dependia del contenido movido
 
 - `.claude/evals/prompt-loader.js`: `cargarSkillComoChat` acepta ahora `string|string[]` (retrocompatible), un mensaje `system` por archivo en el mismo orden.
 - `.claude/evals/backend-architect-chat.json` y `.claude/evals/tech-lead-frontend-chat.js` incluyen tambien las `references/*.md` cubiertas por sus casos de eval (Go/Rust/Java; motion design y 3D web). `web-scraping-specialist-chat.js`, `ux-visual-designer-chat.json` y `mcp-server-builder-chat.json` no requirieron cambio: ningun caso de eval dependia del contenido movido en esos tres.
-- Verificado con `npm run validate-globals` (45/45) y los 5 evals reales de promptfoo (31/31 casos).
+- Verificado con `npm run validate-globals` (45/45), `npm run validate-agents` (6/6), los 5 evals reales de promptfoo (31/31 + 12/12 casos tras el cierre), `npm test` (1497/1497, 1 skip) y `quality-gate.js --fast` (7/7 checks).
 
 ## [Unreleased] — guard-read operativo, CI con marco de calidad y registro consolidado (2026-09-21)
 
