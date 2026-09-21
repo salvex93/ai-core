@@ -18,6 +18,7 @@
 const readline = require('readline');
 const { capturarError, ejecutarCicloReparacion } = require('./services/ErrorRepairLoop');
 const { loadEnv, GEMINI_DEFAULT } = require('./services/GeminiApiClient');
+const { marcarCuotaAgotada, esErrorDeCuota } = require('../.claude/bin/lib/gemini-cuota');
 const {
   analizarArchivo,
   analizarContenido,
@@ -163,6 +164,7 @@ async function dispatch(msg) {
       }
       send({ jsonrpc: '2.0', id, result: { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] } });
     } catch (err) {
+      if (esErrorDeCuota(err)) marcarCuotaAgotada();
       const meta = capturarError(err, { herramienta: params?.name });
       meta.reparacion = await intentarReparar(err, params?.name);
       send({ jsonrpc: '2.0', id, error: { code: -32603, message: err.message, data: meta } });

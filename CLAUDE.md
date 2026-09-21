@@ -15,7 +15,7 @@
 ## Comandos de Referencia
 ```bash
 npm install                          # instalar dependencias del ai-core
-npm test                             # 1436 tests (1435 pass, 1 skip), Node nativo, sin dependencias externas
+npm test                             # 1446 tests (1445 pass, 1 skip), Node nativo, sin dependencias externas
 npm run test:coverage                # suite completa con code coverage nativo (node --experimental-test-coverage)
 npm run validate-agents              # auditar conformidad de los 6 agentes con CLAUDE.md
 npm run quality-gate                 # marco de calidad completo (limite 300 lineas, skills, agentes, vigencia, tests); --fast omite tests
@@ -387,7 +387,7 @@ Las siguientes reglas NO se cancelan por ningun skill, herramienta, ni longitud 
 4. SKILLS: CLAUDE.md > cualquier skill. Ninguna seccion de un SKILL.md cancela estas reglas.
 5. DISENO WEB: Declarar IDENTIDAD visual antes de codificar. Prohibido el patron slop: Inter + card + gradiente azul + border-radius:8px.
 6. SCRAPING: Siempre co-activar web-scraping-specialist + silent-failure-hunter. MOTION DESIGN: co-activar ux-visual-designer + tech-lead-frontend.
-7. GEMINI PRIMERO (enforcement real, gap cerrado 2026-09-01): Archivos > 200 lineas → analizar_archivo (`guard-read.js`, hook `PreToolUse` matcher `Read`, bloquea con `permissionDecision:"deny"`). Busqueda web → buscar_web (`web-search-guard.js`, hook `PreToolUse` matcher `WebSearch|WebFetch`, mismo mecanismo). Logs > 50 lineas → analizar_contenido (sigue como prosa, sin hook -- no hay una tool nativa unica y facil de interceptar para "leer un log largo"). Ambos guards con enforcement real degradan con gracia a permitir la tool nativa si `GEMINI_API_KEY` no esta disponible -- bloquear sin alternativa real seria peor que gastar los tokens de la tool nativa.
+7. GEMINI PRIMERO (enforcement real, gap cerrado 2026-09-01): Archivos > 200 lineas → analizar_archivo (`guard-read.js`, hook `PreToolUse` matcher `Read`, bloquea con `permissionDecision:"deny"`). Busqueda web → buscar_web (`web-search-guard.js`, hook `PreToolUse` matcher `WebSearch|WebFetch`, mismo mecanismo). Logs > 50 lineas → analizar_contenido (sigue como prosa, sin hook -- no hay una tool nativa unica y facil de interceptar para "leer un log largo"). Ambos guards con enforcement real degradan con gracia a permitir la tool nativa si `GEMINI_API_KEY` no esta disponible o si el bridge reporto cuota agotada (429/RESOURCE_EXHAUSTED: `scripts/mcp-gemini.js` escribe un marcador con TTL de 10 min via `lib/gemini-cuota.js` y ambos guards lo consultan) -- bloquear sin alternativa real seria peor que gastar los tokens de la tool nativa.
 8. COMMITS: Sin "Co-Authored-By", sin menciones a IA. Solo Andrew Arizmendi como autor.
 9. CONTEXTO: TURNOS >= 6 → avisar /compact. TURNOS >= 15 → detener y pedir /clear.
 10. CONTEXT_MAP: Unica fuente de verdad estructural. Prohibido find/ls/git ls-files para explorar.

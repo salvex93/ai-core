@@ -100,6 +100,11 @@ function buildPermissionProfiles(bin, tmpDirReal) {
   const dirTmpBudget = tmpDirReal
     ? `"${tmpDirReal.replace(/\/$/, '')}/ai-core-locks/subagent-budget/*"`
     : '"${TMPDIR:-/tmp}/ai-core-locks/subagent-budget/*"';
+  // El marcador de cuota de Gemini vive dos niveles bajo el tmpdir real
+  // (mismo limite del glob de un nivel de dirTmp que los locks de arriba).
+  const dirTmpCuota = tmpDirReal
+    ? `"${tmpDirReal.replace(/\/$/, '')}/ai-core-locks/gemini-cuota/*"`
+    : '"${TMPDIR:-/tmp}/ai-core-locks/gemini-cuota/*"';
   const dirTmpAlternante = tmpDirReal
     ? `"${tmpDirReal.replace(/\/$/, '')}/ai-core-locks/loop-alternante/*"`
     : '"${TMPDIR:-/tmp}/ai-core-locks/loop-alternante/*"';
@@ -121,12 +126,13 @@ function buildPermissionProfiles(bin, tmpDirReal) {
   // NINGUN CONFIRMAR-<id> llegaba a autorizar nada, sin ningun aviso visible.
   const breakGlassRW = { fsRead: [dirBin, dirRepo, dirTmp], fsWrite: [dirRepo, dirTmp] };
   const repoReadWrite = { fsRead: [dirBin, dirRepo], fsWrite: [dirRepo, dirTmp] };
+  const repoReadWriteCuota = { fsRead: [dirBin, dirRepo, dirTmpCuota], fsWrite: [dirRepo, dirTmp] };
   // git status/diff/log/rev-parse/ls-files -- ningun hook de esta lista
   // ejecuta escritura via git (commit/push/reset quedan bloqueados aparte por
   // destructive-op-guard.js, que corre ANTES en la misma cadena de PreToolUse).
   const repoConGit = { fsRead: [dirBin, dirRepo], fsWrite: [dirRepo, dirTmp], childProcess: true };
 
-  return { dirBin, dirTmp, dirRepo, dirTmpSubagentLocks, dirTmpToolRepeat, dirTmpBudget, dirTmpAlternante, soloRead, soloLeerRepo, readYWrite, readYWriteSubagentLocks, readYWriteToolRepeat, readYWriteBudget, readYWriteAlternante, breakGlassRW, repoReadWrite, repoConGit };
+  return { dirBin, dirTmp, dirRepo, dirTmpSubagentLocks, dirTmpToolRepeat, dirTmpBudget, dirTmpAlternante, soloRead, soloLeerRepo, readYWrite, readYWriteSubagentLocks, readYWriteToolRepeat, readYWriteBudget, readYWriteAlternante, breakGlassRW, repoReadWrite, repoReadWriteCuota, repoConGit };
 }
 
 module.exports = { nodeConPermiso, globDir, buildPermissionProfiles };

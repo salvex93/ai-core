@@ -14,6 +14,7 @@ const fs = require('fs');
 const path = require('path');
 const { denegarConRazon } = require('./lib/permission-decision');
 const { loadEnv } = require('../../scripts/services/GeminiApiClient');
+const { cuotaAgotada } = require('./lib/gemini-cuota');
 
 // Bloquear Read para forzar analizar_archivo (Gemini) solo tiene sentido si
 // Gemini esta realmente disponible -- sin GEMINI_API_KEY, el deny dejaria a
@@ -22,7 +23,8 @@ const { loadEnv } = require('../../scripts/services/GeminiApiClient');
 // 2026-09-01: fallback automatico a permitir, nunca bloqueo estricto sin
 // alternativa real disponible.
 loadEnv();
-const GEMINI_DISPONIBLE = Boolean(process.env.GEMINI_API_KEY);
+// Una cuota agotada (429 reciente del bridge) cuenta como no disponible.
+const GEMINI_DISPONIBLE = Boolean(process.env.GEMINI_API_KEY) && !cuotaAgotada();
 
 const MAX_LINES = 200;
 // ~80 chars/linea es una estimacion conservadora de codigo/texto real -- un

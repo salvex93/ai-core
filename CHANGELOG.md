@@ -25,6 +25,12 @@ Versionado semantico: MAJOR.MINOR.PATCH.
 
 - `sandbox-permission-smoke`, `hooks-definition-js`, `destructive-op-guard-js`, `norm-harness-js` e `intent-classifier` divididos por describe en 12 archivos; conteo de tests preservado.
 
+### Corregido — deadlock de investigacion con el bridge de Gemini sin cuota (G11)
+
+- `web-search-guard.js` y `guard-read.js` denegaban WebSearch/WebFetch/Read aunque el bridge respondiera 429, dejando a Claude sin via de busqueda ni de lectura.
+- `lib/gemini-cuota.js`: marcador con TTL de 10 min que escribe `mcp-gemini.js` ante 429/RESOURCE_EXHAUSTED; ambos guards permiten la tool nativa mientras este vigente. Perfil de permisos `repoReadWriteCuota` (lectura de `ai-core-locks/gemini-cuota`), verificado bajo el Permission Model real.
+- 10 tests nuevos. Total: 1446 tests.
+
 ### Corregido — quality-gate heredaba GIT_* del hook pre-push
 
 - Bajo un hook git, `GIT_DIR` e `GIT_INDEX_FILE` llegaban a los tests que crean repos temporales, que operaban sobre el repo real (commits de prueba en la rama activa, indice e identidad local pisados) y hacian fallar el gate de forma aparente intermitente.

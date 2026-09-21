@@ -1,7 +1,7 @@
 'use strict';
 
 // Guards previos a la ejecucion de herramientas. Recibe el contexto de perfiles de permisos de hooks-permissions.js.
-function buildPreToolUseHooks({ bin, nodeConPermiso, soloRead, soloLeerRepo, readYWriteSubagentLocks, readYWriteToolRepeat, readYWriteBudget, readYWriteAlternante, breakGlassRW, repoReadWrite, repoConGit }) {
+function buildPreToolUseHooks({ bin, nodeConPermiso, soloRead, soloLeerRepo, readYWriteSubagentLocks, readYWriteToolRepeat, readYWriteBudget, readYWriteAlternante, breakGlassRW, repoReadWrite, repoReadWriteCuota, repoConGit }) {
   return {
     PreToolUse: [
       {
@@ -40,7 +40,7 @@ function buildPreToolUseHooks({ bin, nodeConPermiso, soloRead, soloLeerRepo, rea
       {
         matcher: 'Read',
         hooks: [
-          { type: 'command', command: `${nodeConPermiso(bin('guard-read.js'), repoReadWrite)} "$CLAUDE_TOOL_INPUT_file_path"` },
+          { type: 'command', command: `${nodeConPermiso(bin('guard-read.js'), repoReadWriteCuota)} "$CLAUDE_TOOL_INPUT_file_path"` },
         ],
       },
       {
@@ -50,7 +50,7 @@ function buildPreToolUseHooks({ bin, nodeConPermiso, soloRead, soloLeerRepo, rea
         // solo prosa en CLAUDE.md, gap cerrado 2026-09-01).
         matcher: 'WebSearch|WebFetch',
         hooks: [
-          { type: 'command', command: nodeConPermiso(bin('web-search-guard.js'), repoReadWrite) },
+          { type: 'command', command: nodeConPermiso(bin('web-search-guard.js'), repoReadWriteCuota) },
         ],
       },
       {
