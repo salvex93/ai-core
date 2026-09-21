@@ -11,6 +11,11 @@ Versionado semantico: MAJOR.MINOR.PATCH.
 - Un Read con `limit` menor o igual a 200 se permite: ya acota los tokens y es la unica forma de leer un tramo de un archivo grande (Edit exige lectura previa).
 - Efecto: los Read sin `limit` de archivos de texto sobre 200 lineas se deniegan y redirigen a `analizar_archivo`, salvo cuota agotada o sin `GEMINI_API_KEY`.
 
+### Agregado — el gate cubre residuales y credenciales en el working tree (G16, parcial)
+
+- `scripts/quality-gate-checks.js`: `revisarResiduales` rechaza `*.new`, `*.orig` y `*.rej` (trackeados o sin ignorar) y `revisarSecretos` rechaza credenciales de alta confianza reusando `ALTA_CONFIANZA` de `patrones-secretos.js`. `tests/` queda exento (credenciales falsas a proposito); binarios y archivos de mas de 1 MB no se escanean.
+- Ambos checks corren tambien con `--fast`. El limite de 500 lineas de `SKILL.md` sigue pendiente hasta cerrar G4.
+
 ### Cambiado — CI fijado a ubuntu-24.04 (G23)
 
 - Los 7 usos de `ubuntu-latest` en `ci.yml` pasan a `ubuntu-24.04` para que la migracion de `ubuntu-latest` a Ubuntu 26 (~2026-10-19) no cambie el runner sin una prueba previa.

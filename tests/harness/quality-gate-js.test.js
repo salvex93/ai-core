@@ -72,6 +72,12 @@ describe('quality-gate.js', () => {
       assert.ok(!definirChecks(true).some((c) => c.nombre === 'suite de tests'));
     });
 
+    test('incluye los checks de residuales y secretos incluso en modo rapido', () => {
+      const nombres = definirChecks(true).map((c) => c.nombre);
+      assert.ok(nombres.includes('archivos residuales'));
+      assert.ok(nombres.includes('credenciales en el working tree'));
+    });
+
     test('modo completo incluye la suite de tests como ultimo check', () => {
       const checks = definirChecks(false);
       assert.equal(checks[checks.length - 1].nombre, 'suite de tests');
