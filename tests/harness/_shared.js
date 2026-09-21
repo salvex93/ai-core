@@ -15,6 +15,11 @@ const REPO     = path.resolve(__dirname, '..', '..');
 const BIN      = path.join(REPO, '.claude', 'bin');
 const SKILLS   = path.join(REPO, '.claude', 'skills');
 const SETTINGS = path.join(REPO, '.claude', 'settings.json');
+// Aislado por proceso de test: sin esto, cada guard bajo prueba deja
+// solicitudes de break-glass en el tmpdir real (670 acumuladas) mezcladas con
+// las del uso interactivo. Lo heredan los hijos lanzados con spawnSync.
+process.env.AI_CORE_BREAK_GLASS_DIR = process.env.AI_CORE_BREAK_GLASS_DIR
+  || path.join(os.tmpdir(), 'ai-core-test-break-glass', String(process.pid));
 
 function runScript(scriptPath, args = [], env = {}) {
   const result = spawnSync('node', [scriptPath, ...args], {

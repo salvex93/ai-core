@@ -25,6 +25,14 @@ Versionado semantico: MAJOR.MINOR.PATCH.
 
 - `sandbox-permission-smoke`, `hooks-definition-js`, `destructive-op-guard-js`, `norm-harness-js` e `intent-classifier` divididos por describe en 12 archivos; conteo de tests preservado.
 
+### Corregido — break-glass y guards de UserPromptSubmit inertes
+
+- Causa: los hooks leian el prompt de `prompt_text` o `CLAUDE_USER_PROMPT`; el payload real de Claude Code trae el campo `prompt` (verificado por captura) y la variable nunca se establece. `jailbreak-guard`, `secrets-guard`, `detect-role` y `moa-context-gatherer` recibian cadena vacia, asi que `CONFIRMAR-<id>` nunca llegaba a `confirmarBreakGlass` y ninguna operacion bloqueada podia autorizarse.
+- `lib/hook-stdin.js`: nuevos `extraerPrompt` y `leerPromptDeUsuario` (fuente unica); los 4 hooks migrados. `prompt_text` se conserva solo como campo legado.
+- `hook-stdin-payload-real-userpromptsubmit.test.js` (9 tests): payload real, flujo completo bloqueo, id, confirmacion, reintento exacto una sola vez, log de auditoria; id inexistente no autoriza.
+- Tests aislados del tmpdir real de break-glass (`_shared.js`); fixtures con `prompt_text` alineados al payload real. Total: 1434 tests.
+- Efecto: `jailbreak-guard` y `secrets-guard` ahora actuan sobre prompts reales. Verificado sin falsos positivos con los mensajes de esta sesion.
+
 ### Corregido
 
 - `issue-reporter-js-camino-gh-disponible.test.js`: el fake `gh` en POSIX copiaba `process.execPath`, incompatible con node enlazado dinamicamente (Homebrew). Ahora es un wrapper `sh`; 7/7.

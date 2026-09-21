@@ -4,12 +4,9 @@
  * secrets-guard.js — Detecta credenciales en el prompt del usuario antes de enviarlo.
  * Corre en hook UserPromptSubmit.
  *
- * El prompt llega por JSON en stdin (campo prompt_text) -- CLAUDE_USER_PROMPT
- * nunca existio como variable de entorno real (confirmado contra
- * code.claude.com/docs/en/hooks: UserPromptSubmit expone prompt_text via
- * stdin, no env var). Bug real: este guard nunca vio el prompt real en
- * produccion, `prompt` siempre era '' y el guard quedaba inerte pese a que
- * el bloqueo (exit 2) si funciona para UserPromptSubmit cuando recibe datos.
+ * El prompt llega por JSON en stdin (campo `prompt`, verificado capturando el
+ * payload real) -- CLAUDE_USER_PROMPT nunca existio como variable de entorno
+ * real. Leer `prompt_text` dejaba el guard inerte: el prompt siempre era ''.
  *
  * Los patrones de ALTA_CONFIANZA tienen formato inequivoco de credencial real
  * (sin lectura plausible como texto/codigo de ejemplo) y bloquean. El resto
@@ -23,7 +20,7 @@
  * credencial.
  */
 
-const { leerEventoDeStdin } = require('./lib/hook-stdin');
+const { leerPromptDeUsuario } = require('./lib/hook-stdin');
 const { emitirReporte }     = require('./lib/guard-report');
 const { solicitarBreakGlass, accionAprobada } = require('./lib/break-glass');
 const { normalizarTexto } = require('./lib/normalizar-texto');
@@ -31,7 +28,7 @@ const { ALTA_CONFIANZA } = require('./lib/patrones-secretos');
 
 const GUARD_ID = 'secrets-guard';
 
-const promptOriginal = process.env.CLAUDE_USER_PROMPT || leerEventoDeStdin().prompt_text || '';
+const promptOriginal = leerPromptDeUsuario();
 if (!promptOriginal) process.exit(0);
 
 // Normalizacion Unicode antes de matchear (hallazgo red-team 2026-08-15):

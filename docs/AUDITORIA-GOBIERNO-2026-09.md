@@ -23,7 +23,7 @@ Fecha: 2026-09-21. Alcance: hooks, permisos, skills, agentes, tests y comparacio
 5. Vigencia: `ciso` y `product-lifecycle-orchestrator` no tenian dominio en `MARKET_STANDARDS.json`.
 6. Error propio detectado y corregido durante la verificacion: la extraccion de `norm-harness.js` dejo `ensureHostClaude` y `ensureHostGitignore` sin exportar, lo que rompia 12 tests. La suite completa lo detecto antes de cerrar.
 
-## 3. Brechas (G1 y G6 resueltas; el resto requiere ejecucion)
+## 3. Brechas (G1, G6 y G17 resueltas; el resto requiere ejecucion)
 
 | Id | Brecha | Evidencia | Propuesta |
 |---|---|---|---|
@@ -32,7 +32,7 @@ Fecha: 2026-09-21. Alcance: hooks, permisos, skills, agentes, tests y comparacio
 | G3 | Sin clave `sandbox` nativa de Claude Code en settings | `settings.json` | Verificar contra code.claude.com/docs antes de activar; complementa a `npm run sandbox` (Docker) |
 | G4 | 5 SKILL.md superan 500 lineas (backend-architect 1698, tech-lead-frontend 1088, web-scraping-specialist 1006, ux-visual-designer 626, mcp-server-builder 606). agentskills.io recomienda menos de 500 lineas y detalle en `references/` (divulgacion progresiva) | `wc -l` | Dividir en SKILL.md (nucleo + indice) y `references/*.md`. CLAUDE.md exime hoy a los `.md`; enmendar esa exencion |
 | G5 | Campos `origin`, `version`, `last_updated`, `rol` fuera de `metadata` en el frontmatter. La especificacion define `metadata` como mapa string a string para campos propios | spec agentskills.io | Migrar bajo `metadata` y ajustar `validate-globals`, `audit-market` y evals |
-| G6 | RESUELTA. Los 5 tests se dividieron por describe en 12 archivos (todos bajo 300 lineas; conteo de tests preservado, 1425 en total con los nuevos). El limite se hace cumplir ahora tambien en pre-push. | `quality-gate.js --fast` | Ninguna |
+| G6 | RESUELTA. Los 5 tests se dividieron por describe en 12 archivos (todos bajo 300 lineas; conteo de tests preservado; 1434 en total tras G17). El limite se hace cumplir ahora tambien en pre-push. | `quality-gate.js --fast` | Ninguna |
 | G7 | Log de auditoria (`BREAK_GLASS_LOG.jsonl`, metricas) sin cadena de hash ni exportacion estandar | inspeccion | Cadena de hash por entrada (evidencia de manipulacion) y exportacion OpenTelemetry opcional |
 | G8 | Sin escaner de contenido de skills al instalarse o modificarse | no existe hook | Escaner estatico (patrones de inyeccion, exfiltracion, comandos destructivos) como PostToolUse sobre `.claude/skills/**` |
 | G9 | Escrituras a memoria y skills sin compuerta de aprobacion | `agent-snapshot` respalda pero no pide confirmacion | Compuerta tipo break-glass para escrituras del hilo principal en `.claude/skills/**` y vault |
@@ -43,6 +43,7 @@ Fecha: 2026-09-21. Alcance: hooks, permisos, skills, agentes, tests y comparacio
 | G14 | `destructive-op-guard` bloquea texto literal dentro de argumentos (un script con la cadena del bypass del hook pre-push fue denegado aunque no ejecutaba nada) | sesion 2026-09-20 | Evaluar ignorar cuerpos de heredoc y argumentos de `node -e`; riesgo de abrir evasiones, exige tests adversariales. Alternativa: dejar como esta y escribir scripts con Write |
 | G15 | Cifras fijas en CLAUDE.md quedan obsoletas sin aviso: decia 11 reglas break-glass cuando el codigo tenia 12 y hoy son 13; conteo de tests y de skills igual | `grep -c "breakGlass: true"` | Test que compare las cifras de CLAUDE.md contra el codigo (reglas break-glass, skills, agentes), o eliminar las cifras |
 | G16 | El gate no cubre: archivos residuales (`*.new`, `*.orig`), secretos en el working tree, ni el limite de 500 lineas de SKILL.md (pendiente de G4) | `.new` residuales detectados al inicio de la sesion | Agregar los tres checks a `quality-gate.js` (el de SKILL.md solo tras completar G4) |
+| G17 | RESUELTA. Los hooks de `UserPromptSubmit` leian el texto del usuario de `prompt_text` o `CLAUDE_USER_PROMPT`; Claude Code envia el campo `prompt` y nunca establece esa variable. `jailbreak-guard`, `secrets-guard`, `detect-role` y `moa-context-gatherer` recibian cadena vacia: no bloqueaban nada y `CONFIRMAR-<id>` jamas llegaba al break-glass, por lo que ninguna operacion de alto nivel se podia autorizar. Los tests pasaban porque inyectaban `CLAUDE_USER_PROMPT` o `prompt_text`, rutas inexistentes en produccion | captura real del payload con `claude -p --settings` | `lib/hook-stdin.js` expone `extraerPrompt`/`leerPromptDeUsuario` (lee `prompt`); 4 consumidores migrados; 9 tests con el payload real incluido el flujo bloqueo, confirmacion, reintento unico y log. Tests aislados del tmpdir real de break-glass. Pendiente: verificar con captura real los campos de SubagentStop, Stop y PostToolUseFailure |
 
 ## 4. Comparacion con arneses del mercado
 
