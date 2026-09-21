@@ -142,6 +142,58 @@ describe('guard-read.js', () => {
     assert.equal(r.stdout.trim(), '', 'sin GEMINI_API_KEY no debe emitir permissionDecision:deny -- debe dejar pasar Read nativo');
   });
 
+  // ─── Contrato real de hooks: la ruta llega por stdin (2026-09-21) ────────
+  // CLAUDE_TOOL_INPUT_file_path nunca existio en runtime real (issue
+  // anthropics/claude-code#9567): el hook recibe argv[2] vacio y la ruta solo
+  // esta en tool_input.file_path del JSON de stdin. Sin este fallback el guard
+  // pasaba sus tests (que inyectan argv) pero nunca bloqueaba un Read real.
+
+  test('sin argv, lee tool_input.file_path del JSON de stdin y deniega archivo de mas de 200 lineas', () => {
+    const lines = Array.from({ length: 250 }, (_, i) => `const x${i} = ${i};`).join('\n');
+    const fjs = path.join(os.tmpdir(), `guard-test-stdin-${Date.now()}.js`);
+    fs.writeFileSync(fjs, lines);
+    const { env, cleanup } = conGeminiEnv();
+    const evento = JSON.stringify({ hook_event_name: 'PreToolUse', tool_name: 'Read', tool_input: { file_path: fjs } });
+    const r = spawnSync('node', [GUARD, ''], { encoding: 'utf8', cwd: REPO, input: evento, env: { ...process.env, AI_CORE_TEST_MODE: '1', ...env } });
+    fs.unlinkSync(fjs);
+    cleanup();
+    assert.equal(r.status, 0);
+    const parsed = JSON.parse(r.stdout);
+    assert.equal(parsed.hookSpecificOutput.permissionDecision, 'deny');
+  });
+
+  // Un Read con limit <= 200 ya acota los tokens que entran al contexto: es
+  // la forma correcta de leer un tramo de un archivo grande (y Edit exige una
+  // lectura previa), asi que no se deniega.
+  const leerConLimit = (limit) => {
+    const lines = Array.from({ length: 250 }, (_, i) => `const x${i} = ${i};`).join('\n');
+    const fjs = path.join(os.tmpdir(), `guard-test-limit-${Date.now()}-${limit}.js`);
+    fs.writeFileSync(fjs, lines);
+    const { env, cleanup } = conGeminiEnv();
+    const evento = JSON.stringify({ tool_name: 'Read', tool_input: { file_path: fjs, limit } });
+    const r = spawnSync('node', [GUARD, ''], { encoding: 'utf8', cwd: REPO, input: evento, env: { ...process.env, AI_CORE_TEST_MODE: '1', ...env } });
+    fs.unlinkSync(fjs);
+    cleanup();
+    return r;
+  };
+
+  test('Read con limit <= 200 sobre archivo grande: permite (lectura acotada)', () => {
+    const r = leerConLimit(200);
+    assert.equal(r.status, 0);
+    assert.equal(r.stdout.trim(), '');
+  });
+
+  test('Read con limit > 200 sobre archivo grande: sigue denegando', () => {
+    const r = leerConLimit(500);
+    assert.equal(JSON.parse(r.stdout).hookSpecificOutput.permissionDecision, 'deny');
+  });
+
+  test('sin argv y con evento de stdin sin file_path: sale 0 sin emitir nada', () => {
+    const r = spawnSync('node', [GUARD, ''], { encoding: 'utf8', cwd: REPO, input: '{}' });
+    assert.equal(r.status, 0);
+    assert.equal(r.stdout.trim(), '');
+  });
+
   test('con mas de 200 lineas y CON GEMINI_API_KEY: sigue bloqueando normalmente', () => {
     const lines = Array.from({ length: 250 }, (_, i) => `const x${i} = ${i};`).join('\n');
     const fjs = path.join(os.tmpdir(), `guard-test-con-key-${Date.now()}.js`);

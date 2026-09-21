@@ -80,7 +80,7 @@ const REGLAS = [
     // uso legitimo como si fuera el mismo riesgo.
     nombre: 'cat de archivo sin acotar',
     disparo: /\bcat\s+(?!.*\/dev\/null)(?!\s*>)\S/i,
-    excepcion: /\|\s*head|\|\s*tail|\|\s*grep|\|\s*wc|<<\s*['"]?\w/i,
+    excepcion: /\|\s*head|\|\s*tail|\|\s*grep|\|\s*wc|\|\s*sed\s+-n\b|<<\s*['"]?\w/i,
     sugerencia: 'usa la herramienta Read (con limit/offset) en vez de cat, o acota con | head -N',
   },
   {

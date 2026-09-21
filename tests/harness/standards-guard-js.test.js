@@ -92,7 +92,8 @@ describe('standards-guard.js', () => {
     const renamed = f.replace(/\.tmp$/, '.js');
     fs.renameSync(f, renamed);
     const evento = JSON.stringify({ tool_input: { file_path: renamed } });
-    const r = spawnSync('node', [SCRIPT], { encoding: 'utf8', cwd: REPO, input: evento });
+    // AI_CORE_TEST_MODE evita que el bloqueo por emoji se encole como fallo real en EVENTS_QUEUE.json.
+    const r = spawnSync('node', [SCRIPT], { encoding: 'utf8', cwd: REPO, input: evento, env: { ...process.env, AI_CORE_TEST_MODE: '1' } });
     fs.unlinkSync(renamed);
     assert.equal(r.status, 2, 'debe leer la ruta real desde stdin y bloquear por el emoji');
   });

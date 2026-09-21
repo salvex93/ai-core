@@ -3,6 +3,28 @@
 Registro de cambios por version. Formato basado en [Keep a Changelog](https://keepachangelog.com/es/1.0.0/).
 Versionado semantico: MAJOR.MINOR.PATCH.
 
+## [Unreleased] — guard-read operativo, CI con marco de calidad y registro consolidado (2026-09-21)
+
+### Corregido — guard-read.js nunca bloqueaba un Read real (G18)
+
+- El hook le pasa `"$CLAUDE_TOOL_INPUT_file_path"`, variable que Claude Code no establece (anthropics/claude-code#9567), y el script solo leia argv: llegaba vacio y salia 0. Ahora lee `tool_input.file_path` del JSON de stdin via `lib/hook-stdin.js`. Los otros scripts con esa variable ya tenian el fallback.
+- Un Read con `limit` menor o igual a 200 se permite: ya acota los tokens y es la unica forma de leer un tramo de un archivo grande (Edit exige lectura previa).
+- Efecto: los Read sin `limit` de archivos de texto sobre 200 lineas se deniegan y redirigen a `analizar_archivo`, salvo cuota agotada o sin `GEMINI_API_KEY`.
+
+### Corregido — bash-verbosity-guard y cola de eventos
+
+- `cat archivo | sed -n 1,60p` cuenta como acotado (G19). `sed` sin `-n` sigue bloqueado.
+- `standards-guard-js.test.js` invocaba el guard sin `AI_CORE_TEST_MODE` y encolaba un fallo falso por corrida en `EVENTS_QUEUE.json` (G21).
+
+### Agregado — CI
+
+- Paso `npm run quality-gate -- --fast` en ubuntu: limite de 300 lineas, agentes y vigencia de mercado, en paridad con el hook pre-push (G20).
+- Verificado en GitHub Actions: la corrida de `03bf2af` quedo en verde en ubuntu, windows y macos tras el fix de Windows (G22).
+
+### Agregado — registro consolidado
+
+- `docs/AUDITORIA-GOBIERNO-2026-09.md` seccion 7: hallazgos G18 a G22, oportunidades abiertas priorizadas (G23 a G27), descartes por alcance con motivo y acciones que solo puede ejecutar el usuario.
+
 ## [Unreleased] — auditoria de gobierno: modularidad, permisos de fuente unica y correccion de tests
 
 ### Cambiado — limite de 300 lineas restaurado en codigo fuente (5 archivos)

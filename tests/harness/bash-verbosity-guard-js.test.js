@@ -72,6 +72,14 @@ describe('bash-verbosity-guard.js', () => {
     assert.equal(run('cat file.txt | head -50').status, 0);
   });
 
+  test('permite "cat archivo | sed -n 1,60p" (sed -n acota como head)', () => {
+    assert.equal(run('cat lib/hook-stdin.js | sed -n 1,60p').status, 0);
+  });
+
+  test('"cat archivo | sed s/a/b/" sin -n sigue bloqueado (no acota)', () => {
+    assert.equal(run('cat package.json | sed s/a/b/').status, 2);
+  });
+
   test('permite "cat /dev/null"', () => {
     assert.equal(run('cat /dev/null').status, 0);
   });

@@ -6,7 +6,7 @@ Fecha: 2026-09-21. Alcance: hooks, permisos, skills, agentes, tests y comparacio
 
 | Dimension | Resultado | Comando |
 |---|---|---|
-| Suite de tests | 1414 tests, 1413 pass, 0 fail, 1 skip | `npm test` |
+| Suite de tests | 1485 tests, 1484 pass, 0 fail, 1 skip | `npm test` |
 | Conformidad de skills | 45/45, 0 criticos, 0 altos | `npm run validate-globals` |
 | Vigencia de mercado | sin hallazgos STALE, 45/45 skills con dominio registrado | `npm run audit-market -- --only-stale` |
 | Hooks activos | 45 (PreToolUse 22, PostToolUse 9, Stop 5, SubagentStop 5, UserPromptSubmit 4, PostToolUseFailure 4) | `.claude/settings.json` |
@@ -23,7 +23,7 @@ Fecha: 2026-09-21. Alcance: hooks, permisos, skills, agentes, tests y comparacio
 5. Vigencia: `ciso` y `product-lifecycle-orchestrator` no tenian dominio en `MARKET_STANDARDS.json`.
 6. Error propio detectado y corregido durante la verificacion: la extraccion de `norm-harness.js` dejo `ensureHostClaude` y `ensureHostGitignore` sin exportar, lo que rompia 12 tests. La suite completa lo detecto antes de cerrar.
 
-## 3. Brechas (G1, G6, G11, G13, G15 y G17 resueltas; el resto requiere ejecucion)
+## 3. Brechas (G1, G2, G6, G11, G13, G15 y G17 resueltas; el resto requiere ejecucion; hallazgos posteriores en la seccion 7)
 
 | Id | Brecha | Evidencia | Propuesta |
 |---|---|---|---|
@@ -64,12 +64,12 @@ La comparacion proviene de investigacion web asistida. Lo no confirmado contra f
 ## 5. Escalabilidad y estabilidad
 
 - Modularidad restaurada: ningun `.js` de codigo sobre 300 lineas. Cada evento de hook tiene su modulo (`lib/hooks-events-*.js`) y los perfiles de permiso Node estan aislados en `lib/hooks-permissions.js`. Agregar un hook sigue siendo editar un solo modulo de evento.
-- Riesgo de estabilidad principal detectado: divisiones de modulos con dependencias implicitas (ocurrio con `norm-harness`). Mitigacion vigente: la suite de 1425 tests lo capturo. Recomendacion: mantener `npm test` como paso obligatorio tras cualquier extraccion.
+- Riesgo de estabilidad principal detectado: divisiones de modulos con dependencias implicitas (ocurrio con `norm-harness`). Mitigacion vigente: la suite completa lo capturo. Recomendacion: mantener `npm test` como paso obligatorio tras cualquier extraccion.
 - Riesgo de escala: 45 hooks en cada evento de herramienta agregan latencia por invocacion (un proceso Node por hook). No medido en esta pasada; se recomienda medir antes de agregar hooks nuevos.
 
 ## 6. Orden de ejecucion recomendado
 
-Resueltas: G1, G6, G11, G13, G15, G17. Siguientes, en este orden:
+Resueltas: G1, G2, G6, G11, G13, G15, G17 a G22. El detalle de lo abierto, con prioridad, esta en la seccion 7. Orden original de ejecucion:
 
 1. G11 (desbloquea la investigacion web y con ella G2, G3 y G10; bajo esfuerzo).
 2. G13 y G15 (controles deterministas baratos; cierran deriva de identidad y de cifras).
@@ -80,3 +80,49 @@ Resueltas: G1, G6, G11, G13, G15, G17. Siguientes, en este orden:
 7. G14 solo si la friccion se repite.
 
 Nota: las fechas escritas por las herramientas usan UTC; la fecha local puede ir un dia atras.
+
+## 7. Registro consolidado de oportunidades (2026-09-21)
+
+Vista unica de todo lo detectado, resuelto, abierto y descartado por alcance. Los ids G1 a G17 estan en la seccion 3; aqui se agregan los hallazgos posteriores (G18 a G22) y el resto de oportunidades que no tenian id.
+
+### 7.1 Hallazgos nuevos, resueltos en esta pasada
+
+| Id | Hallazgo | Causa raiz | Resolucion |
+|---|---|---|---|
+| G18 | `guard-read.js` inerte en produccion: nunca bloqueo un Read real (al activarse, deniegaba tambien lecturas con `limit`; ahora se permiten si `limit` <= 200) | El hook le pasa `"$CLAUDE_TOOL_INPUT_file_path"` (variable que Claude Code no establece) y el script solo leia argv; sus tests inyectaban argv. Mismo patron que G17. Verificado: los otros 5 scripts con esa variable (`syntax-check`, `standards-guard`, `security-check`, `dependency-tracer`, `pre-commit-tdd`) ya leian stdin | Fallback a `tool_input.file_path` de stdin via `lib/hook-stdin.js`; 2 tests con el payload real. Efecto visible: los Read de archivos de codigo/texto sobre 200 lineas ahora se deniegan (con Gemini disponible) y se redirigen a `analizar_archivo` |
+| G19 | `bash-verbosity-guard` bloqueaba `git log -1`, `git log -5` y `cat archivo` seguido de `sed -n 1,60p` | Regex de excepcion sin la forma corta `-N` ni `sed -n` | Ambas formas cuentan como acotadas; 4 tests. Un `-NN` dentro de una fecha no cuenta |
+| G20 | CI sin el marco de calidad: un push con el hook omitido no tenia contraparte en GitHub | `ci.yml` ejecutaba suite y `validate-globals`, no `quality-gate` | Paso `npm run quality-gate -- --fast` en ubuntu (limite de 300 lineas, agentes, vigencia); la suite ya la corre la matriz |
+| G21 | `EVENTS_QUEUE.json` contaminada con eventos falsos (`standards-guard`, `emoji-prohibido`) generados por un test | Un test invocaba el guard con `spawnSync` directo, sin `AI_CORE_TEST_MODE`; una entrada por corrida de suite. El agente `issue-tracker` habria abierto issues reales a partir de ellos | Test corregido (cola estable en 11 a 11 tras correrlo); 9 eventos de test purgados de la cola local |
+| G22 | 6 tests fallaban en Windows en CI | `GIT_CONFIG_GLOBAL=os.devNull` no lo lee git para Windows; NTFS no expone el bit de ejecucion en `fs.stat` | Config global vacia real (`entornoGitAislado` en `_shared.js`) y verificacion del modo 100755 desde el indice de git |
+
+### 7.2 Abierto, en orden de prioridad
+
+| Prioridad | Id | Oportunidad | Esfuerzo | Nota |
+|---|---|---|---|---|
+| 1 | G10 resto | 4 dominios de vigencia (`app-distribution-stores`, `saas-business-architecture`, `qa-destructive-testing`, `cloud-provider-deployment`) | Medio | Fecha limite 2026-10-03; requiere fuente primaria externa. Si vence, el gate bloquea todo push |
+| 2 | G23 | Runner `ubuntu-latest` migra a Ubuntu 26 alrededor de 2026-10-19 (aviso del propio CI) | Bajo | Correr la matriz en la version nueva antes de la fecha o fijar `ubuntu-24.04`; decidir con la primera corrida |
+| 3 | G4/G5/G16 | 5 SKILL.md sobre 500 lineas, campos propios fuera de `metadata`, checks faltantes del gate (residuales `*.new`/`*.orig`, secretos en working tree, limite de SKILL.md) | Alto | Activar el limite de SKILL.md en el gate solo despues de partir los skills; enmendar la exencion de `.md` en CLAUDE.md |
+| 4 | G12 | Ubicacion efectiva de `mcpServers` (`.mcp.json`) y su generacion | Medio | Verificar en documentacion oficial primero |
+| 5 | G24 | Verificar con captura real los payloads de `SubagentStop`, `Stop` y `PostToolUseFailure` | Bajo | Misma clase de defecto que G17 y G18: guards que pasan sus tests pero podrian no recibir datos reales |
+| 6 | G8, G9, G7 | Escaner de contenido de skills, compuerta de aprobacion de escrituras a skills/vault, cadena de hash del log de break-glass | Medio cada uno | Paridad con el mercado; sin incidente asociado |
+| 7 | G25 | Medir la latencia de los 45 hooks (un proceso Node por hook y evento) | Bajo | Hacerlo antes de agregar hooks nuevos |
+| 8 | G26 | Suite de ~4.4 min: cada push nuevo la ejecuta completa en el gate | Medio | Opciones: paralelizar archivos, aislar tests lentos, cache por archivos tocados |
+| 9 | G11b | Proveedor alterno para `buscar_web` cuando Gemini agota cuota | Medio | Hoy degrada a la tool nativa, sin alternativa gratuita |
+| 10 | G27 | Modos de aprobacion configurables por usuario (`smart/manual/off`) | Medio | Brecha menor frente a Hermes (dato de investigacion, sin fuente primaria) |
+| 11 | G14 | Falso positivo de `destructive-op-guard` en texto literal de argumentos | Medio | Volvio a ocurrir el 2026-09-21 al escribir este documento con un heredoc que citaba el borrado forzado de rama; se resolvio usando Edit. Reconsiderar ahora que hay reincidencia |
+
+### 7.3 Descartado por alcance (con motivo)
+
+| Id | Tema | Por que no se hizo | Cuando reconsiderar |
+|---|---|---|---|
+| G3 | Activar el sandbox nativo en ai-core | Rompe `npm run setup`, `rollback-*` y el pre-push; habria que excluir git, gh, npm y node | Ver G3b |
+| G3b | Perfil de sandbox nativo opcional para anfitriones con codigo no confiable | Sin anfitrion que lo pida; Docker (`npm run sandbox`) cubre el caso | Al primer anfitrion con codigo no confiable |
+| G28 | Rama local `ai-core/checkpoints` contaminada (autor "Test User") | Su borrado forzado exige break-glass; no afecta al flujo | Borrarla con confirmacion del usuario |
+| G29 | `ask` en `permissions` | No hay operacion que convenga confirmar en vez de bloquear | Si aparece una operacion de riesgo intermedio |
+
+### 7.4 Acciones que solo puede hacer el usuario
+
+- `rm -r .claude/tmp-deny-probe`: residuo de la prueba de G2; la regla deny cubre `rm` sobre `.env.local` y por eso no se pudo borrar desde el agente.
+- `/mcp` para reconectar el bridge de Gemini y cargar el marcador de cuota.
+- Borrar la rama `ai-core/checkpoints` (G28) si se confirma.
+- Tener presente que `jailbreak-guard` y `secrets-guard` ya actuan sobre prompts reales (G17): un falso positivo se libera respondiendo `CONFIRMAR-<id>`; y que desde G18 el Read de archivos sobre 200 lineas se redirige a Gemini.

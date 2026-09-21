@@ -15,7 +15,7 @@
 ## Comandos de Referencia
 ```bash
 npm install                          # instalar dependencias del ai-core
-npm test                             # 1479 tests (1478 pass, 1 skip), Node nativo, sin dependencias externas
+npm test                             # 1485 tests (1484 pass, 1 skip), Node nativo, sin dependencias externas
 npm run test:coverage                # suite completa con code coverage nativo (node --experimental-test-coverage)
 npm run validate-agents              # auditar conformidad de los 6 agentes con CLAUDE.md
 npm run quality-gate                 # marco de calidad completo (limite 300 lineas, skills, agentes, vigencia, tests); --fast omite tests

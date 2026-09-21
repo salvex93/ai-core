@@ -15,6 +15,7 @@ const path = require('path');
 const { denegarConRazon } = require('./lib/permission-decision');
 const { loadEnv } = require('../../scripts/services/GeminiApiClient');
 const { cuotaAgotada } = require('./lib/gemini-cuota');
+const { leerEventoDeStdin } = require('./lib/hook-stdin');
 
 // Bloquear Read para forzar analizar_archivo (Gemini) solo tiene sentido si
 // Gemini esta realmente disponible -- sin GEMINI_API_KEY, el deny dejaria a
@@ -32,9 +33,14 @@ const MAX_LINES = 200;
 // supere MAX_LINES * MAX_CHARS_POR_LINEA bytes se trata como voluminoso
 // igual, aunque el conteo de '\n' de lo cuente (red-team 2026-08-15).
 const MAX_CHARS_POR_LINEA = 80;
-const filePath = process.argv[2];
+// argv[2] llega vacio en runtime real (Claude Code no expone
+// CLAUDE_TOOL_INPUT_file_path); la ruta viene en el JSON de stdin.
+const entrada = leerEventoDeStdin().tool_input || {};
+const filePath = process.argv[2] || entrada.file_path;
 
 if (!filePath) process.exit(0);
+// Una lectura con limit dentro del tope ya acota los tokens: se permite.
+if (Number.isFinite(entrada.limit) && entrada.limit <= MAX_LINES) process.exit(0);
 
 // Solo archivos de texto con extensión relevante (red-team 2026-08-15:
 // whitelist ampliada con extensiones de codigo fuente de texto plano que

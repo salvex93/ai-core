@@ -56,6 +56,13 @@ jobs:
       - name: Validar conformidad de skills con CLAUDE.md
         run: node .claude/bin/validate-globals.js
 
+      - name: Marco de calidad (paridad con el hook pre-push, sin repetir la suite)
+        # Los checks del gate que la suite no cubre: limite de 300 lineas,
+        # conformidad de agentes y vigencia de mercado. Un solo SO basta, son
+        # deterministas y no dependen de la plataforma.
+        if: matrix.os == 'ubuntu-latest'
+        run: npm run quality-gate -- --fast
+
       - name: Reporte de code coverage (informativo, no bloqueante durante calibracion)
         # Solo en ubuntu-latest: --experimental-test-coverage triplica el
         # tiempo de suite, no aporta valor adicional correrlo en los 3 SO ya
