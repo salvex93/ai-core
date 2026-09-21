@@ -14,7 +14,7 @@ const path = require('path');
 const fs   = require('fs');
 const os   = require('os');
 const { buildHooksSection } = require('./hooks-definition');
-const { BASE_PERMISSIONS, AI_CORE_EXTRA_PERMISSIONS } = require('./lib/base-permissions');
+const { BASE_PERMISSIONS, AI_CORE_EXTRA_PERMISSIONS, DENY_PERMISSIONS } = require('./lib/base-permissions');
 
 const REPO          = path.resolve(__dirname, '..', '..');
 const SETTINGS_PATH = path.join(REPO, '.claude', 'settings.json');
@@ -53,6 +53,7 @@ const settings = {
   autoCompactWindow: 170000,
   permissions: {
     allow: [...BASE_PERMISSIONS, ...AI_CORE_EXTRA_PERMISSIONS],
+    deny: [...DENY_PERMISSIONS],
   },
   hooks: buildHooksSection(bin, fwd(os.tmpdir())),
 };

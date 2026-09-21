@@ -30,4 +30,19 @@ const AI_CORE_EXTRA_PERMISSIONS = [
   "Bash(gh auth status*)",
 ];
 
-module.exports = { BASE_PERMISSIONS, AI_CORE_EXTRA_PERMISSIONS };
+// Secretos que las tools de archivo de Claude no deben leer ni escribir. Se lista cada
+// variante de .env por nombre: un comodin .env.* bloquearia tambien .env.example. La clave
+// publica ~/.ssh/*.pub queda fuera a proposito porque el allow de cat la necesita.
+const ENV_FILES = ['.env', '.env.local', '.env.development', '.env.staging', '.env.test', '.env.production', '.env.*.local'];
+const KEY_FILES = ['**/*.pem', '**/*.key', '**/*.p12', '**/*.pfx'];
+const HOME_SECRETS = [
+  '~/.ssh/id_rsa', '~/.ssh/id_ed25519', '~/.ssh/id_ecdsa', '~/.ssh/id_dsa',
+  '~/.aws/credentials', '~/.config/gh/hosts.yml', '~/.npmrc', '~/.netrc',
+];
+
+const DENY_PERMISSIONS = Object.freeze([
+  ...[...ENV_FILES, ...KEY_FILES].flatMap(ruta => [`Read(${ruta})`, `Edit(${ruta})`]),
+  ...HOME_SECRETS.map(ruta => `Read(${ruta})`),
+]);
+
+module.exports = { BASE_PERMISSIONS, AI_CORE_EXTRA_PERMISSIONS, DENY_PERMISSIONS };

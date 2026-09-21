@@ -4,7 +4,7 @@ const fs = require("fs");
 const path = require("path");
 const os = require("os");
 const { buildHooksSection } = require("../hooks-definition");
-const { BASE_PERMISSIONS } = require("./base-permissions");
+const { BASE_PERMISSIONS, DENY_PERMISSIONS } = require("./base-permissions");
 const { esSubmoduloDeHost } = require("./submodule-detect");
 
 function buildSettingsForHost(corePath, stackPermissions) {
@@ -25,7 +25,7 @@ function buildSettingsForHost(corePath, stackPermissions) {
       },
     },
     skillListingBudgetFraction: 0.03,
-    permissions: { allow: allPermissions },
+    permissions: { allow: allPermissions, deny: [...DENY_PERMISSIONS] },
     hooks: buildHooksSection(bin, os.tmpdir().split(path.sep).join('/')),
   };
 }
@@ -172,6 +172,7 @@ function mergeHostSettings(existing, generado) {
     permissions: {
       ...existing.permissions,
       allow: [...new Set([...(existing.permissions?.allow ?? []), ...generado.permissions.allow])],
+      deny: [...new Set([...(existing.permissions?.deny ?? []), ...generado.permissions.deny])],
     },
   };
 }

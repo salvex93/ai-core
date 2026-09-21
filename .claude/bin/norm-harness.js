@@ -4,6 +4,7 @@ const path = require("path");
 const os = require("os");
 const { version } = require(path.resolve(__dirname, "../../package.json"));
 const { detectStack } = require("./detect-stack");
+const { DENY_PERMISSIONS } = require("./lib/base-permissions");
 const { ensureHostClaude, ensureHostGitignore, mergeHostSettings, buildSettingsForHost } = require("./lib/host-settings");
 
 const platform = os.platform();
@@ -122,8 +123,10 @@ function ensureHostSettings(corePath, hostProjectDir) {
       const existingCwd = existing?.mcpServers?.["gemini-bridge"]?.cwd;
       // Regenerar si: path drift O hay permisos de stack nuevos no incluidos
       const existingAllow = existing?.permissions?.allow ?? [];
+      const existingDeny  = existing?.permissions?.deny ?? [];
       const missingPerms  = stackPerms.filter(p => !existingAllow.includes(p));
-      needsWrite = existingCwd !== corePath || missingPerms.length > 0;
+      const missingDeny   = DENY_PERMISSIONS.filter(p => !existingDeny.includes(p));
+      needsWrite = existingCwd !== corePath || missingPerms.length > 0 || missingDeny.length > 0;
     } catch {
       // JSON invalido: no hay contenido custom recuperable, se regenera desde cero.
       existing = null;
