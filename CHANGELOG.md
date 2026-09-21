@@ -36,6 +36,11 @@ Versionado semantico: MAJOR.MINOR.PATCH.
 - Fuente: code.claude.com/docs/en/settings-reference y sandboxing (2026-09-21). En macOS usa Seatbelt; con `sandbox.enabled` los comandos Bash solo escriben en el directorio de trabajo y el tmp de sesion, y `.claude/skills|agents|hooks`, `.mcp.json`, `.git/hooks` y `.git/config` quedan de solo lectura.
 - Choca con el flujo del arnes: `npm run setup` (escribe `.git/config` y `.claude/settings.json`), `rollback-skill`/`rollback-agent`, `git` que reemplaza archivos protegidos, y `gh`/`git push` (TLS y red). El pre-push heredaria las restricciones. Activarlo cambia el flujo de sesion: requiere decision explicita del usuario antes de incorporarlo.
 
+### Corregido — CI en Windows: tests de identidad git y bit de ejecucion de hooks
+
+- `GIT_CONFIG_GLOBAL=os.devNull` no lo lee bien git para Windows y la identidad salia vacia (4 tests). Ahora los tests usan un archivo vacio real via `entornoGitAislado()` en `_shared.js`, compartido por `check-commit` y `git-identity`.
+- `fs.stat` no expone el bit de ejecucion en NTFS (2 tests de `.githooks`). Ahora se verifica el modo 100755 del indice con `git ls-files --stage`.
+
 ### Corregido — bash-verbosity-guard bloqueaba `git log -1` y `git log -5`
 
 - La excepcion de acotado solo reconocia `-n N`; la forma corta `-N` ya limita la salida y se bloqueaba como falso positivo. Se acepta `-N` precedido de espacio, para que un `-09` dentro de una fecha (`--since=2026-09-21`) siga sin contar como limite. 2 tests nuevos.

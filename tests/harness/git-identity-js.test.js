@@ -6,18 +6,11 @@ const fs     = require('node:fs');
 const os     = require('node:os');
 const path   = require('node:path');
 const { spawnSync } = require('node:child_process');
-const { BIN } = require('./_shared');
+const { BIN, entornoGitAislado: entornoAislado } = require('./_shared');
 
 const {
   IDENTIDAD_REQUERIDA, identidadValida, leerIdentidad, asegurarIdentidad,
 } = require(path.join(BIN, 'lib', 'git-identity'));
-
-// Sin GIT_* heredado (operaria sobre el repo real) y sin config global/sistema
-// (la identidad del equipo que corre el test no debe influir en el resultado).
-function entornoAislado() {
-  const limpio = Object.fromEntries(Object.entries(process.env).filter(([k]) => !k.startsWith('GIT_')));
-  return { ...limpio, GIT_CONFIG_GLOBAL: os.devNull, GIT_CONFIG_NOSYSTEM: '1' };
-}
 
 function repoTemporal() {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'git-identity-'));

@@ -46,4 +46,13 @@ function tmpFile(content = '') {
   return f;
 }
 
-module.exports = { REPO, BIN, SKILLS, SETTINGS, runScript, tmpFile };
+// Config global vacia real: git para Windows no lee bien os.devNull ('\\.\nul')
+// como GIT_CONFIG_GLOBAL y devolvia identidad vacia en CI.
+let configGlobalVacia;
+function entornoGitAislado() {
+  configGlobalVacia ||= tmpFile('');
+  const limpio = Object.fromEntries(Object.entries(process.env).filter(([k]) => !k.startsWith('GIT_')));
+  return { ...limpio, GIT_CONFIG_GLOBAL: configGlobalVacia, GIT_CONFIG_NOSYSTEM: '1' };
+}
+
+module.exports = { REPO, BIN, SKILLS, SETTINGS, runScript, tmpFile, entornoGitAislado };

@@ -6,14 +6,9 @@ const fs     = require('node:fs');
 const os     = require('node:os');
 const path   = require('node:path');
 const { spawnSync } = require('node:child_process');
-const { BIN, REPO } = require('./_shared');
+const { BIN, REPO, entornoGitAislado: entornoAislado } = require('./_shared');
 
 const SCRIPT = path.join(BIN, 'check-commit.js');
-
-function entornoAislado() {
-  const limpio = Object.fromEntries(Object.entries(process.env).filter(([k]) => !k.startsWith('GIT_')));
-  return { ...limpio, GIT_CONFIG_GLOBAL: os.devNull, GIT_CONFIG_NOSYSTEM: '1' };
-}
 
 function correr(args, cwd = os.tmpdir()) {
   return spawnSync('node', [SCRIPT, ...args], { cwd, env: entornoAislado(), encoding: 'utf8' });
@@ -83,7 +78,9 @@ describe('hooks git versionados', () => {
   for (const [hook, modo] of [['commit-msg', 'mensaje'], ['pre-commit', 'identidad']]) {
     test(`.githooks/${hook} es ejecutable e invoca check-commit.js ${modo}`, () => {
       const ruta = path.join(REPO, '.githooks', hook);
-      assert.ok(fs.statSync(ruta).mode & 0o111, 'debe tener bit de ejecucion');
+      // El modo del indice es portable; fs.stat en NTFS no expone el bit de ejecucion.
+      const indice = spawnSync('git', ['ls-files', '--stage', '--', `.githooks/${hook}`], { cwd: REPO, encoding: 'utf8' });
+      assert.match(indice.stdout, /^100755 /, 'debe estar versionado con bit de ejecucion (100755)');
       assert.match(fs.readFileSync(ruta, 'utf8'), new RegExp(`check-commit\\.js" ${modo}`));
     });
   }
