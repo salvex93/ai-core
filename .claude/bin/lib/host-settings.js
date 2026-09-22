@@ -12,18 +12,6 @@ function buildSettingsForHost(corePath, stackPermissions) {
   const bin = (script) => `"${path.join(corePath, ".claude/bin", script)}"`;
 
   return {
-    mcpServers: {
-      "gemini-bridge": {
-        command: "node",
-        args: ["scripts/mcp-gemini.js"],
-        cwd: corePath,
-      },
-      "anthropic-router": {
-        command: "node",
-        args: ["scripts/mcp-anthropic.js"],
-        cwd: corePath,
-      },
-    },
     skillListingBudgetFraction: 0.03,
     permissions: { allow: allPermissions, deny: [...DENY_PERMISSIONS] },
     hooks: buildHooksSection(bin, os.tmpdir().split(path.sep).join('/')),
@@ -148,8 +136,6 @@ function mergeHookEntries(existentes = [], generadas = []) {
  *   entradas, ver mergeHookEntries) -- un reemplazo directo de la clave
  *   perdia cualquier hook custom del anfitrion en un evento que ai-core
  *   tambien usa (ej. PreToolUse).
- * - mcpServers propios del anfitrion sobreviven (el generado solo agrega
- *   claves nuevas, nunca reemplaza el objeto completo).
  * - permissions.allow se une (union de conjuntos), nunca se reemplaza.
  * - el resto de campos generados (skillListingBudgetFraction) se toman del
  *   objeto nuevo, que es la fuente de verdad de la infraestructura del arnes.
@@ -167,7 +153,6 @@ function mergeHostSettings(existing, generado) {
 
   return {
     ...generado,
-    mcpServers: { ...existing.mcpServers, ...generado.mcpServers },
     hooks: hooksMerged,
     permissions: {
       ...existing.permissions,

@@ -6,18 +6,21 @@ const path   = require('node:path');
 const fs     = require('node:fs');
 const os     = require('node:os');
 const { spawnSync } = require('node:child_process');
-const { REPO, BIN, SKILLS, SETTINGS, runScript, tmpFile } = require('./_shared');
+const { REPO, BIN, SKILLS, SETTINGS, MCP_JSON, runScript, tmpFile } = require('./_shared');
 
 describe('setup-settings.js', () => {
   const SETUP = path.join(BIN, 'setup-settings.js');
   let backupContent;
+  let backupMcpJson;
 
   before(() => {
     backupContent = fs.readFileSync(SETTINGS, 'utf8');
+    backupMcpJson = fs.existsSync(MCP_JSON) ? fs.readFileSync(MCP_JSON, 'utf8') : null;
   });
 
   after(() => {
     fs.writeFileSync(SETTINGS, backupContent, 'utf8');
+    if (backupMcpJson !== null) fs.writeFileSync(MCP_JSON, backupMcpJson, 'utf8');
   });
 
   test('genera settings.json valido y parseable', () => {
@@ -25,9 +28,16 @@ describe('setup-settings.js', () => {
     assert.equal(r.status, 0, 'setup-settings debe salir con codigo 0');
     const raw = fs.readFileSync(SETTINGS, 'utf8');
     const parsed = JSON.parse(raw);
-    assert.ok(parsed.mcpServers, 'debe tener mcpServers');
+    assert.ok(!parsed.mcpServers, 'settings.json no debe tener mcpServers -- sin efecto real, ver .mcp.json (G12)');
     assert.ok(parsed.hooks, 'debe tener hooks');
     assert.ok(parsed.permissions, 'debe tener permissions');
+  });
+
+  test('genera .mcp.json valido y parseable con ambos servidores', () => {
+    runScript(SETUP);
+    const parsed = JSON.parse(fs.readFileSync(MCP_JSON, 'utf8'));
+    assert.ok(parsed.mcpServers['gemini-bridge'], 'debe tener gemini-bridge');
+    assert.ok(parsed.mcpServers['anthropic-router'], 'debe tener anthropic-router');
   });
 
   test('autoCompactWindow fijado por debajo del default (~95%) de Claude Code -- gap de mercado cerrado 2026-09-01', () => {
@@ -43,7 +53,7 @@ describe('setup-settings.js', () => {
 
   test('el cwd de los MCP servers apunta al repositorio real', () => {
     runScript(SETUP);
-    const parsed = JSON.parse(fs.readFileSync(SETTINGS, 'utf8'));
+    const parsed = JSON.parse(fs.readFileSync(MCP_JSON, 'utf8'));
     const cwd = parsed.mcpServers['gemini-bridge'].cwd;
     assert.ok(
       fs.existsSync(cwd),
@@ -96,9 +106,10 @@ describe('setup-settings.js', () => {
       );
     }
 
-    // MCP servers deben seguir presentes
-    assert.ok(afterRun.mcpServers['gemini-bridge'], 'gemini-bridge debe estar en mcpServers');
-    assert.ok(afterRun.mcpServers['anthropic-router'], 'anthropic-router debe estar en mcpServers');
+    // MCP servers deben seguir presentes en .mcp.json (no en settings.json)
+    const mcpJson = JSON.parse(fs.readFileSync(MCP_JSON, 'utf8'));
+    assert.ok(mcpJson.mcpServers['gemini-bridge'], 'gemini-bridge debe estar en .mcp.json');
+    assert.ok(mcpJson.mcpServers['anthropic-router'], 'anthropic-router debe estar en .mcp.json');
   });
 
   test('Zero-Dead-Code: regenerar purga hooks obsoletos de una version anterior', () => {

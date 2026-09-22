@@ -41,7 +41,6 @@ describe('norm-harness.js — settings del anfitrion', () => {
       const claudeDir = path.join(tmpHost, '.claude');
       fs.mkdirSync(claudeDir, { recursive: true });
       fs.writeFileSync(path.join(claudeDir, 'settings.json'), JSON.stringify({
-        mcpServers: { 'gemini-bridge': { cwd: 'ruta-vieja-que-fuerza-drift' } },
         permissions: { allow: ['Bash(npx*)'] },
         hooks: { PreToolUse: [{ matcher: 'CustomTool', hooks: [{ type: 'command', command: 'node mi-hook-custom.js' }] }] },
       }, null, 2));
@@ -53,23 +52,26 @@ describe('norm-harness.js — settings del anfitrion', () => {
       assert.match(JSON.stringify(settings.hooks), /mi-hook-custom\.js/, 'el hook custom del anfitrion debe sobrevivir al merge');
     });
 
-    test('preserva un mcpServer custom del anfitrion', () => {
+    test('preserva un mcpServer custom del anfitrion en .mcp.json', () => {
       tmpHost = crearProyectoAnfitrionTemporal();
       const claudeDir = path.join(tmpHost, '.claude');
       fs.mkdirSync(claudeDir, { recursive: true });
       fs.writeFileSync(path.join(claudeDir, 'settings.json'), JSON.stringify({
+        permissions: { allow: [] },
+        hooks: {},
+      }, null, 2));
+      fs.writeFileSync(path.join(tmpHost, '.mcp.json'), JSON.stringify({
         mcpServers: {
           'gemini-bridge': { cwd: 'ruta-vieja-que-fuerza-drift' },
           'mcp-propio-del-anfitrion': { command: 'node', args: ['propio.js'] },
         },
-        permissions: { allow: [] },
-        hooks: {},
       }, null, 2));
 
       spawnSync('node', [SCRIPT], { encoding: 'utf8', cwd: tmpHost });
 
-      const settings = leerSettings(tmpHost);
-      assert.ok(settings.mcpServers['mcp-propio-del-anfitrion'], 'el mcpServer custom del anfitrion debe sobrevivir al merge');
+      const mcpJson = JSON.parse(fs.readFileSync(path.join(tmpHost, '.mcp.json'), 'utf8'));
+      assert.ok(mcpJson.mcpServers['mcp-propio-del-anfitrion'], 'el mcpServer custom del anfitrion debe sobrevivir al merge');
+      assert.notEqual(mcpJson.mcpServers['gemini-bridge'].cwd, 'ruta-vieja-que-fuerza-drift', 'el drift de gemini-bridge debe corregirse');
     });
 
     test('permissions.allow se une (custom + stack), nunca se reemplaza', () => {
@@ -77,7 +79,6 @@ describe('norm-harness.js — settings del anfitrion', () => {
       const claudeDir = path.join(tmpHost, '.claude');
       fs.mkdirSync(claudeDir, { recursive: true });
       fs.writeFileSync(path.join(claudeDir, 'settings.json'), JSON.stringify({
-        mcpServers: { 'gemini-bridge': { cwd: 'ruta-vieja-que-fuerza-drift' } },
         permissions: { allow: ['Bash(mi-comando-custom*)'] },
         hooks: {},
       }, null, 2));
@@ -95,7 +96,6 @@ describe('norm-harness.js — settings del anfitrion', () => {
       fs.mkdirSync(claudeDir, { recursive: true });
       const settingsPath = path.join(claudeDir, 'settings.json');
       const original = JSON.stringify({
-        mcpServers: { 'gemini-bridge': { cwd: 'ruta-vieja-que-fuerza-drift' } },
         permissions: { allow: [] },
         hooks: {},
       }, null, 2);

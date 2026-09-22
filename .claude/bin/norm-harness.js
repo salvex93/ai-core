@@ -6,6 +6,7 @@ const { version } = require(path.resolve(__dirname, "../../package.json"));
 const { detectStack } = require("./detect-stack");
 const { DENY_PERMISSIONS } = require("./lib/base-permissions");
 const { ensureHostClaude, ensureHostGitignore, mergeHostSettings, buildSettingsForHost } = require("./lib/host-settings");
+const { writeMcpJson, readGeminiBridgeCwd } = require("./lib/mcp-config");
 
 const platform = os.platform();
 const homeDir = os.homedir();
@@ -114,13 +115,17 @@ function ensureHostSettings(corePath, hostProjectDir) {
 
   const { permissions: stackPerms, labels: stackLabels } = detectStack(hostProjectDir);
 
-  // Detectar path drift o permisos de stack desactualizados
+  // mcpServers vive en .mcp.json (unica ubicacion efectiva, ver mcp-config.js
+  // y hallazgo de gobierno G12) -- se escribe siempre, idempotente por si solo.
+  writeMcpJson(hostProjectDir, corePath);
+
+  // Detectar path drift (via .mcp.json) o permisos de stack desactualizados
   let needsWrite = true;
   let existing = null;
   if (fs.existsSync(hostSettingsPath)) {
     try {
       existing = JSON.parse(fs.readFileSync(hostSettingsPath, "utf8"));
-      const existingCwd = existing?.mcpServers?.["gemini-bridge"]?.cwd;
+      const existingCwd = readGeminiBridgeCwd(hostProjectDir);
       // Regenerar si: path drift O hay permisos de stack nuevos no incluidos
       const existingAllow = existing?.permissions?.allow ?? [];
       const existingDeny  = existing?.permissions?.deny ?? [];
@@ -138,8 +143,8 @@ function ensureHostSettings(corePath, hostProjectDir) {
     const generado = buildSettingsForHost(corePath, stackPerms);
     const settings = existing ? mergeHostSettings(existing, generado) : generado;
 
-    // Backup antes de sobreescribir -- unica forma de recuperar hooks/mcpServers
-    // custom si el merge tuviera un gap no cubierto (ver regla 6 de Gobierno de
+    // Backup antes de sobreescribir -- unica forma de recuperar hooks custom
+    // si el merge tuviera un gap no cubierto (ver regla 6 de Gobierno de
     // Agentes en CLAUDE.md: ninguna sobreescritura sin red de recuperacion).
     if (fs.existsSync(hostSettingsPath)) {
       fs.copyFileSync(hostSettingsPath, `${hostSettingsPath}.bak`);

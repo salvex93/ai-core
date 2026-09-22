@@ -73,8 +73,8 @@ async function analizarArchivo({ ruta, mision }) {
 
   // Esta tool esta declarada para "archivos del proyecto anfitrion" pero no
   // hay enforcement tecnico real: el proceso MCP (mcp-gemini.js) corre sin
-  // --permission (ver .claude/settings.json, mcpServers.gemini-bridge), a
-  // diferencia de los hooks propios que si usan el Node.js Permission Model
+  // --permission (ver .mcp.json, mcpServers.gemini-bridge), a diferencia de
+  // los hooks propios que si usan el Node.js Permission Model
   // (hooks-definition.js). No se bloquea (romperia el caso legitimo de
   // analizar archivos en os.tmpdir() u otras rutas absolutas fuera del
   // repo), pero se deja evidencia en stderr para poder auditar despues si

@@ -3,6 +3,17 @@
 Registro de cambios por version. Formato basado en [Keep a Changelog](https://keepachangelog.com/es/1.0.0/).
 Versionado semantico: MAJOR.MINOR.PATCH.
 
+## [Unreleased] — generacion real de .mcp.json en vez de mcpServers en settings.json (G12, 2026-09-22)
+
+### Corregido — mcpServers dentro de settings.json no tiene efecto real
+
+- Verificado contra `code.claude.com/docs/en/mcp` (fuente primaria, fetch 2026-09-22): la clave `mcpServers` dentro de `.claude/settings.json` no carga servidores MCP. Las ubicaciones efectivas son `.mcp.json` (scope de proyecto) o `~/.claude.json` (scope local/usuario). Cruzado contra el `~/.claude.json` real del repo: `gemini-bridge`/`anthropic-router` ya cargaban por scope local -- la clave que escribia `setup-settings.js` era codigo muerto desde su introduccion.
+- Nuevo `lib/mcp-config.js`: `buildMcpServersBlock()`, `mergeMcpServers()` (preserva servidores custom del anfitrion), `writeMcpJson()` (idempotente, solo reescribe si el contenido difiere) y `readGeminiBridgeCwd()` (lectura tolerante a archivo ausente o malformado).
+- `setup-settings.js` y `norm-harness.js`: dejan de escribir `mcpServers` en `settings.json`, generan/mergean `.mcp.json` via el modulo compartido.
+- `host-settings.js` (4to archivo afectado, no listado en el hallazgo original): `buildSettingsForHost()` y `mergeHostSettings()` ya no incluyen `mcpServers`.
+- `health-check.js`: la deteccion de drift de `cwd` lee `.mcp.json` via `readGeminiBridgeCwd()` en vez de parsear `mcpServers` desde `settings.json`.
+- 10 tests nuevos en `tests/harness/mcp-config-lib-js.test.js`; tests existentes de `setup-settings-js.test.js` y `norm-harness-js-settings-anfitrion.test.js` actualizados para verificar `.mcp.json` en vez de `settings.json.mcpServers`. `npm test`: 1551/1551 (1550 pass, 1 skip).
+
 ## [Unreleased] — escaner de contenido de skills/agents al escribirse (G8, 2026-09-22)
 
 ### Agregado — deteccion de patrones sospechosos en .claude/skills/** y .claude/agents/**

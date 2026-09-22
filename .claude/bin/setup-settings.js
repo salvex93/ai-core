@@ -15,6 +15,7 @@ const fs   = require('fs');
 const os   = require('os');
 const { buildHooksSection } = require('./hooks-definition');
 const { BASE_PERMISSIONS, AI_CORE_EXTRA_PERMISSIONS, DENY_PERMISSIONS } = require('./lib/base-permissions');
+const { writeMcpJson } = require('./lib/mcp-config');
 
 const REPO          = path.resolve(__dirname, '..', '..');
 const SETTINGS_PATH = path.join(REPO, '.claude', 'settings.json');
@@ -28,18 +29,6 @@ const bin     = (s) => `"${fwd(path.join(BIN, s))}"`;
 const scripts = (s) => `"${fwd(path.join(SCRIPTS, s))}"`;
 
 const settings = {
-  mcpServers: {
-    'gemini-bridge': {
-      command: 'node',
-      args: ['scripts/mcp-gemini.js'],
-      cwd: fwd(REPO),
-    },
-    'anthropic-router': {
-      command: 'node',
-      args: ['scripts/mcp-anthropic.js'],
-      cwd: fwd(REPO),
-    },
-  },
   skillListingBudgetFraction: 0.03,
   // Umbral de auto-compact nativo fijado explicitamente por debajo del
   // default de Claude Code (~95% de la ventana de contexto) -- confirmado
@@ -59,6 +48,11 @@ const settings = {
 };
 
 fs.writeFileSync(SETTINGS_PATH, JSON.stringify(settings, null, 2) + '\n', 'utf8');
+
+// mcpServers no tiene efecto dentro de settings.json (verificado contra
+// code.claude.com/docs/en/mcp, 2026-09-22, hallazgo de gobierno G12) -- la
+// unica ubicacion efectiva es .mcp.json (project scope) en la raiz del repo.
+writeMcpJson(REPO, REPO);
 
 // Activa los hooks git versionados (calidad, mensaje, identidad) y fija la
 // identidad de autor si falta. Solo cuando el repo

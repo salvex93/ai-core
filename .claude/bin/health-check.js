@@ -24,6 +24,7 @@ const REPORT_PATH = isStandalone
 const { checkDependencies, checkSkills, checkMcpServers } = require('./health-sync');
 const { buildSyncReport, buildBanner }                    = require('./health-report');
 const { verificarIntegridad }                             = require('./mcp-integrity-check');
+const { readGeminiBridgeCwd }                              = require('./lib/mcp-config');
 
 // -------------------------------------------------------------------
 // Check de path drift — autocorrige settings.json del anfitrion
@@ -32,6 +33,9 @@ const { verificarIntegridad }                             = require('./mcp-integ
 function checkAndFixPathDrift() {
   if (isStandalone) return { ok: true, fixed: false };
 
+  // mcpServers vive en .mcp.json (unica ubicacion efectiva, ver
+  // lib/mcp-config.js y hallazgo de gobierno G12) -- settings.json ya no lo
+  // lleva, solo se usa para confirmar que el anfitrion fue inicializado.
   const hostSettings = path.join(HOST_PATH, '.claude', 'settings.json');
   if (!fs.existsSync(hostSettings)) {
     // No existe — lo crea el norm-harness; aqui solo reportamos
@@ -39,11 +43,10 @@ function checkAndFixPathDrift() {
   }
 
   try {
-    const s = JSON.parse(fs.readFileSync(hostSettings, 'utf8'));
-    const cwd = s?.mcpServers?.['gemini-bridge']?.cwd;
+    const cwd = readGeminiBridgeCwd(HOST_PATH);
     if (cwd === CORE_PATH) return { ok: true, fixed: false };
 
-    // Drift detectado — autocorregir via norm-harness
+    // Drift detectado (o .mcp.json inexistente/malformado) — autocorregir via norm-harness
     const { execSync } = require('child_process');
     execSync(`node ${path.join(CORE_PATH, '.claude/bin/norm-harness.js')}`, {
       cwd: HOST_PATH, stdio: 'pipe',

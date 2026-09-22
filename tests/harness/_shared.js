@@ -15,6 +15,7 @@ const REPO     = path.resolve(__dirname, '..', '..');
 const BIN      = path.join(REPO, '.claude', 'bin');
 const SKILLS   = path.join(REPO, '.claude', 'skills');
 const SETTINGS = path.join(REPO, '.claude', 'settings.json');
+const MCP_JSON = path.join(REPO, '.mcp.json');
 // Aislado por proceso de test: sin esto, cada guard bajo prueba deja
 // solicitudes de break-glass en el tmpdir real (670 acumuladas) mezcladas con
 // las del uso interactivo. Lo heredan los hijos lanzados con spawnSync.
@@ -55,4 +56,4 @@ function entornoGitAislado() {
   return { ...limpio, GIT_CONFIG_GLOBAL: configGlobalVacia, GIT_CONFIG_NOSYSTEM: '1' };
 }
 
-module.exports = { REPO, BIN, SKILLS, SETTINGS, runScript, tmpFile, entornoGitAislado };
+module.exports = { REPO, BIN, SKILLS, SETTINGS, MCP_JSON, runScript, tmpFile, entornoGitAislado };
