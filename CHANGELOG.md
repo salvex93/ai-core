@@ -3,6 +3,15 @@
 Registro de cambios por version. Formato basado en [Keep a Changelog](https://keepachangelog.com/es/1.0.0/).
 Versionado semantico: MAJOR.MINOR.PATCH.
 
+## [Unreleased] — drift infinito de settings.json en Windows por separador de ruta (G42, 2026-09-22)
+
+### Corregido — CI en rojo en windows-latest por comparacion cruda de rutas
+
+- Reporte real: `Tests + Validacion global (windows-latest)` fallando en CI desde varios push atras, invisible en local (macOS/Linux) porque `path.sep` ya es `/` en esas plataformas. `buildMcpServersBlock()` normaliza el `cwd` de `gemini-bridge` a forward-slash antes de persistirlo en `.mcp.json` (portabilidad del archivo), pero `ensureHostSettings()` en `norm-harness.js` comparaba ese valor ya normalizado contra `corePath` crudo (`path.resolve()`, que en Windows usa `\`) -- la igualdad nunca se cumplia, forzando `needsWrite = true` en toda corrida y rompiendo la garantia de idempotencia que cubre el test `segunda corrida sin drift no reescribe ni genera backup nuevo`.
+- `toForwardSlash()` extraida de `buildMcpServersBlock()` a funcion compartida y exportada en `lib/mcp-config.js`; `norm-harness.js` normaliza `corePath` con la misma funcion antes de comparar contra `existingCwd`.
+- Bug preexistente desde la migracion de G12 (`.mcp.json` real), no introducido por cambios recientes de esta sesion -- simplemente no habia corrido CI en `windows-latest` sobre ese codigo hasta ahora.
+- 2 tests nuevos en `tests/harness/mcp-config-lib-js.test.js` (ruta estilo Windows hardcodeada, determinista en cualquier SO) y 1 en `tests/harness/norm-harness-js-settings-anfitrion.test.js`. `npm test`: 1573/1573 (1 skip, sin regresiones); `npm run quality-gate` 8/8.
+
 ## [Unreleased] — advertencia de reintento con contenido modificado en break-glass de Write/Edit (G41, 2026-09-22)
 
 ### Corregido — ciclo de confirmacion break-glass silencioso al reescribir contenido entre reintentos

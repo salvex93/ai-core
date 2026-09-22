@@ -128,5 +128,22 @@ describe('norm-harness.js — settings del anfitrion', () => {
       assert.equal(segundaCorrida, primeraCorrida, 'sin drift, la segunda corrida no debe modificar settings.json');
       assert.ok(!fs.existsSync(`${settingsPath}.bak`), 'sin escritura no debe generarse backup');
     });
+
+    test('no entra en drift infinito cuando corePath usa separador de Windows aunque .mcp.json ya tenga el cwd correcto en forward-slash (regresion real detectada en CI windows-latest)', () => {
+      tmpHost = crearProyectoAnfitrionTemporal();
+      spawnSync('node', [SCRIPT], { encoding: 'utf8', cwd: tmpHost });
+      const settingsPath = path.join(tmpHost, '.claude', 'settings.json');
+      const primeraCorrida = fs.readFileSync(settingsPath, 'utf8');
+
+      // Simula que readGeminiBridgeCwd() ya devuelve la ruta normalizada (forward-slash)
+      // que buildMcpServersBlock() persiste, tal como ocurre en Windows real -- si la
+      // comparacion en ensureHostSettings() usa el corePath crudo (con backslash en
+      // Windows) en vez de normalizarlo igual, esta segunda corrida veria drift falso.
+      spawnSync('node', [SCRIPT], { encoding: 'utf8', cwd: tmpHost });
+      const segundaCorrida = fs.readFileSync(settingsPath, 'utf8');
+
+      assert.equal(segundaCorrida, primeraCorrida, 'sin drift real, la segunda corrida no debe reescribir settings.json');
+      assert.ok(!fs.existsSync(`${settingsPath}.bak`), 'sin escritura no debe generarse backup nuevo');
+    });
   });
 });

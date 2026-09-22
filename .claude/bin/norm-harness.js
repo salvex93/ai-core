@@ -6,7 +6,7 @@ const { version } = require(path.resolve(__dirname, "../../package.json"));
 const { detectStack } = require("./detect-stack");
 const { DENY_PERMISSIONS } = require("./lib/base-permissions");
 const { ensureHostClaude, ensureHostGitignore, mergeHostSettings, buildSettingsForHost } = require("./lib/host-settings");
-const { writeMcpJson, readGeminiBridgeCwd } = require("./lib/mcp-config");
+const { writeMcpJson, readGeminiBridgeCwd, toForwardSlash } = require("./lib/mcp-config");
 
 const platform = os.platform();
 const homeDir = os.homedir();
@@ -127,11 +127,15 @@ function ensureHostSettings(corePath, hostProjectDir) {
       existing = JSON.parse(fs.readFileSync(hostSettingsPath, "utf8"));
       const existingCwd = readGeminiBridgeCwd(hostProjectDir);
       // Regenerar si: path drift O hay permisos de stack nuevos no incluidos
+      // existingCwd viene normalizado a forward-slash (buildMcpServersBlock lo
+      // persiste asi en .mcp.json) -- corePath se compara igual normalizado,
+      // porque en Windows path.resolve() usa backslash y la comparacion cruda
+      // nunca coincidia, forzando needsWrite=true en toda corrida (CI windows-latest).
       const existingAllow = existing?.permissions?.allow ?? [];
       const existingDeny  = existing?.permissions?.deny ?? [];
       const missingPerms  = stackPerms.filter(p => !existingAllow.includes(p));
       const missingDeny   = DENY_PERMISSIONS.filter(p => !existingDeny.includes(p));
-      needsWrite = existingCwd !== corePath || missingPerms.length > 0 || missingDeny.length > 0;
+      needsWrite = existingCwd !== toForwardSlash(corePath) || missingPerms.length > 0 || missingDeny.length > 0;
     } catch {
       // JSON invalido: no hay contenido custom recuperable, se regenera desde cero.
       existing = null;

@@ -10,6 +10,7 @@ const {
   mergeMcpServers,
   writeMcpJson,
   readGeminiBridgeCwd,
+  toForwardSlash,
 } = require('../../.claude/bin/lib/mcp-config');
 
 describe('mcp-config.js — .mcp.json como unica ubicacion efectiva (G12)', () => {
@@ -24,6 +25,18 @@ describe('mcp-config.js — .mcp.json como unica ubicacion efectiva (G12)', () =
     assert.deepEqual(bloque['gemini-bridge'].args, ['scripts/mcp-gemini.js']);
     assert.equal(bloque['gemini-bridge'].cwd, repoPath);
     assert.equal(bloque['anthropic-router'].cwd, repoPath);
+  });
+
+  test('buildMcpServersBlock normaliza separadores de Windows a forward-slash en cwd (regresion real: norm-harness.js comparaba un corePath con backslash contra este cwd, needsWrite quedaba true en toda corrida de Windows)', () => {
+    const repoPathEstiloWindows = 'C:\\Users\\dev\\proyecto\\.claude\\ai-core';
+    const bloque = buildMcpServersBlock(repoPathEstiloWindows);
+    assert.equal(bloque['gemini-bridge'].cwd, 'C:/Users/dev/proyecto/.claude/ai-core');
+    assert.ok(!bloque['gemini-bridge'].cwd.includes('\\'), 'el cwd persistido en .mcp.json nunca debe llevar backslash');
+  });
+
+  test('toForwardSlash expuesto para que los callers comparen corePath contra el cwd normalizado sin reimplementar la conversion', () => {
+    assert.equal(toForwardSlash('C:\\Users\\dev\\ai-core'), 'C:/Users/dev/ai-core');
+    assert.equal(toForwardSlash('/ya/es/forward-slash'), '/ya/es/forward-slash');
   });
 
   test('mergeMcpServers preserva un servidor custom no generado por ai-core', () => {

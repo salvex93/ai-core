@@ -17,8 +17,12 @@
 const fs = require('fs');
 const path = require('path');
 
+function toForwardSlash(p) {
+  return p.split(path.sep).join('/').split('\\').join('/');
+}
+
 function buildMcpServersBlock(repoPath) {
-  const fwd = (p) => p.split(path.sep).join('/');
+  const fwd = toForwardSlash;
   return {
     'gemini-bridge': {
       command: 'node',
@@ -93,4 +97,4 @@ function readGeminiBridgeCwd(targetDir) {
   }
 }
 
-module.exports = { buildMcpServersBlock, mergeMcpServers, writeMcpJson, readGeminiBridgeCwd };
+module.exports = { buildMcpServersBlock, mergeMcpServers, writeMcpJson, readGeminiBridgeCwd, toForwardSlash };
