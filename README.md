@@ -180,6 +180,28 @@ npm run eval-skills                       # correr los 43 evals de conformidad d
 
 ---
 
+## Flujo de trabajo con Claude CLI
+
+Patrones de uso directo del binario `claude` fuera de la sesion interactiva. Cada flag listada abajo esta verificada contra `claude --help` de la version instalada — antes de adoptar cualquier flag nueva, confirmar que existe en la salida real de ese comando, no solo en documentacion de terceros.
+
+```bash
+# Modo one-shot: imprime la respuesta y termina, util para pipes/scripts
+claude -p "resume los cambios sin commitear" < /dev/null
+
+# Encadenar con otras herramientas via stdin/stdout
+git diff | claude -p "revisa este diff en busca de bugs obvios"
+
+# Continuar la conversacion mas reciente del directorio actual (no ingesta un archivo, retoma la sesion previa)
+claude -c
+
+# Dar acceso a directorios adicionales sin cambiar el cwd de la sesion
+claude --add-dir ../otro-proyecto
+```
+
+No existe una flag `--clear` en el CLI — para limpiar contexto dentro de una sesion interactiva se usa el comando `/clear`, no un flag de arranque.
+
+---
+
 ## Que trae cada version
 
 ### v3.40.1 — fix de CI en POSIX + barrido completo de vigencia de mercado

@@ -4,7 +4,7 @@ description: Backend Architect Universal. Experto en SOLID, Clean Architecture, 
 metadata:
   origin: ai-core
   version: 1.7.2
-  last_updated: 2026-09-21
+  last_updated: 2026-09-22
   rol: architect
 ---
 
@@ -482,7 +482,7 @@ Las Reglas Globales definidas en CLAUDE.md aplican sin excepcion a este perfil.
 > Reglas de sesion activas: CLAUDE.md > este skill. Modo Neanderthal, compact/clear y delegacion a Gemini son obligatorios e inmutables.
 - Leer los manifiestos del anfitrion antes de recomendar ORM o query builder.
 - En modo scaffolding, declarar el stack antes de emitir cualquier codigo.
-- Confirmar explicitamente con el usuario antes de escribir en `BACKLOG.md`.
+- Confirmar explicitamente con el usuario antes de registrar hallazgos en `memory/` o `EVENTS_QUEUE.json` (fuente de estado de sesion desde v3.9, reemplaza a `BACKLOG.md`).
 - Incluir los tests unitarios correspondientes en todo modulo nuevo entregado.
 - Documentar la justificacion antes de aprobar un PR que reduzca cobertura.
 
