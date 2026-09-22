@@ -120,4 +120,90 @@ describe('lib/break-glass.js', () => {
     );
     fs.rmSync(dir, { recursive: true, force: true });
   });
+
+  describe('cadena de hash del log (G7)', () => {
+    test('cada entrada registrada incluye hashPrevio y hash propio', () => {
+      const { mod, dir } = cargarModuloAislado();
+      const id = mod.solicitarBreakGlass('test-guard', 'comando de prueba');
+      mod.confirmarBreakGlass(id);
+
+      const entrada = JSON.parse(fs.readFileSync(mod.LOG_PATH, 'utf8').trim());
+      assert.equal(entrada.hashPrevio, '0'.repeat(64), 'la primera entrada encadena contra un hash inicial fijo (genesis)');
+      assert.match(entrada.hash, /^[a-f0-9]{64}$/, 'hash SHA-256 en hex');
+      fs.rmSync(dir, { recursive: true, force: true });
+    });
+
+    test('la segunda entrada encadena hashPrevio contra el hash de la primera', () => {
+      const { mod, dir } = cargarModuloAislado();
+      const id1 = mod.solicitarBreakGlass('test-guard', 'comando 1');
+      mod.confirmarBreakGlass(id1);
+      const id2 = mod.solicitarBreakGlass('test-guard', 'comando 2');
+      mod.confirmarBreakGlass(id2);
+
+      const [linea1, linea2] = fs.readFileSync(mod.LOG_PATH, 'utf8').trim().split('\n');
+      const entrada1 = JSON.parse(linea1);
+      const entrada2 = JSON.parse(linea2);
+      assert.equal(entrada2.hashPrevio, entrada1.hash, 'cada entrada encadena contra el hash real de la anterior');
+      fs.rmSync(dir, { recursive: true, force: true });
+    });
+
+    test('verificarCadenaLog() retorna integra: true sobre un log no manipulado', () => {
+      const { mod, dir } = cargarModuloAislado();
+      const id1 = mod.solicitarBreakGlass('test-guard', 'comando 1');
+      mod.confirmarBreakGlass(id1);
+      const id2 = mod.solicitarBreakGlass('test-guard', 'comando 2');
+      mod.confirmarBreakGlass(id2);
+
+      const resultado = mod.verificarCadenaLog();
+      assert.equal(resultado.integra, true);
+      assert.equal(resultado.totalEntradas, 2);
+      assert.equal(resultado.primeraRota, null);
+      fs.rmSync(dir, { recursive: true, force: true });
+    });
+
+    test('verificarCadenaLog() detecta una entrada intermedia editada (hash ya no coincide con su propio contenido)', () => {
+      const { mod, dir } = cargarModuloAislado();
+      const id1 = mod.solicitarBreakGlass('test-guard', 'comando 1');
+      mod.confirmarBreakGlass(id1);
+      const id2 = mod.solicitarBreakGlass('test-guard', 'comando 2');
+      mod.confirmarBreakGlass(id2);
+
+      const lineas = fs.readFileSync(mod.LOG_PATH, 'utf8').trim().split('\n');
+      const entrada1 = JSON.parse(lineas[0]);
+      entrada1.contexto = 'comando 1 MANIPULADO';
+      lineas[0] = JSON.stringify(entrada1);
+      fs.writeFileSync(mod.LOG_PATH, lineas.join('\n') + '\n', 'utf8');
+
+      const resultado = mod.verificarCadenaLog();
+      assert.equal(resultado.integra, false);
+      assert.equal(resultado.primeraRota, 0, 'reporta el indice de la primera entrada rota');
+      fs.rmSync(dir, { recursive: true, force: true });
+    });
+
+    test('verificarCadenaLog() detecta una entrada eliminada del medio (rompe hashPrevio de la siguiente)', () => {
+      const { mod, dir } = cargarModuloAislado();
+      const id1 = mod.solicitarBreakGlass('test-guard', 'comando 1');
+      mod.confirmarBreakGlass(id1);
+      const id2 = mod.solicitarBreakGlass('test-guard', 'comando 2');
+      mod.confirmarBreakGlass(id2);
+      const id3 = mod.solicitarBreakGlass('test-guard', 'comando 3');
+      mod.confirmarBreakGlass(id3);
+
+      const lineas = fs.readFileSync(mod.LOG_PATH, 'utf8').trim().split('\n');
+      fs.writeFileSync(mod.LOG_PATH, [lineas[0], lineas[2]].join('\n') + '\n', 'utf8');
+
+      const resultado = mod.verificarCadenaLog();
+      assert.equal(resultado.integra, false);
+      assert.equal(resultado.primeraRota, 1, 'la entrada sobreviviente en indice 1 ya no encadena contra la 0');
+      fs.rmSync(dir, { recursive: true, force: true });
+    });
+
+    test('verificarCadenaLog() sobre un log inexistente retorna integra: true con 0 entradas (nada que romper)', () => {
+      const { mod, dir } = cargarModuloAislado();
+      const resultado = mod.verificarCadenaLog();
+      assert.equal(resultado.integra, true);
+      assert.equal(resultado.totalEntradas, 0);
+      fs.rmSync(dir, { recursive: true, force: true });
+    });
+  });
 });

@@ -22,6 +22,12 @@
  * Cada uso exitoso queda registrado en BREAK_GLASS_LOG.jsonl (append-only,
  * fuera de tmpdir para que sobreviva mas alla de la sesion) -- sin este
  * registro, un "break-glass" no es distinto de un bypass silencioso.
+ *
+ * Cada linea del log encadena un hash SHA-256 contra el hash de la linea
+ * anterior (patron blockchain simplificado, sin consenso distribuido --
+ * el unico objetivo es que una edicion o borrado retroactivo de una entrada
+ * sea detectable via verificarCadenaLog(), no impedirlo). La primera entrada
+ * encadena contra un hash genesis fijo (64 ceros).
  */
 
 const fs     = require('node:fs');
@@ -133,25 +139,84 @@ function accionAprobada(guardId, contexto) {
   return (Date.now() - datos.ts) <= TTL_MS;
 }
 
+const HASH_GENESIS = '0'.repeat(64);
+
+/**
+ * Hash de la ultima linea del log, o HASH_GENESIS si el log no existe o esta
+ * vacio -- ancla de la cadena para la proxima entrada a escribir.
+ * @returns {string}
+ */
+function hashUltimaEntrada() {
+  let contenido;
+  try { contenido = fs.readFileSync(LOG_PATH, 'utf8'); } catch { return HASH_GENESIS; }
+  const lineas = contenido.split('\n').filter(Boolean);
+  if (lineas.length === 0) return HASH_GENESIS;
+  try { return JSON.parse(lineas[lineas.length - 1]).hash || HASH_GENESIS; } catch { return HASH_GENESIS; }
+}
+
 /**
  * Append-only, nunca lanza -- un fallo al escribir el log de auditoria no
  * debe bloquear la excepcion ya otorgada (el break-glass ya se concedio; la
  * perdida del registro es un problema de observabilidad, no de seguridad
  * activa, y no debe convertirse en un segundo punto de fallo bloqueante).
+ *
+ * Cada entrada encadena hashPrevio (hash de la entrada anterior, o genesis)
+ * y hash (SHA-256 sobre el resto de los campos + hashPrevio) -- ver
+ * verificarCadenaLog() para la verificacion de integridad correspondiente.
  * @param {{id: string, guardId: string, contexto: string, ts: number}} entrada
  */
 function registrarUso(entrada) {
   try {
     fs.mkdirSync(path.dirname(LOG_PATH), { recursive: true });
-    const linea = JSON.stringify({
+    const hashPrevio = hashUltimaEntrada();
+    const campos = {
       confirmadoEn: Date.now(),
       solicitadoEn: entrada.ts,
       id: entrada.id,
       guardId: entrada.guardId,
       contexto: entrada.contexto,
-    });
-    fs.appendFileSync(LOG_PATH, linea + '\n', 'utf8');
+      hashPrevio,
+    };
+    const hash = crypto.createHash('sha256').update(JSON.stringify(campos)).digest('hex');
+    fs.appendFileSync(LOG_PATH, JSON.stringify({ ...campos, hash }) + '\n', 'utf8');
   } catch { /* best-effort, no bloquear la excepcion ya otorgada */ }
 }
 
-module.exports = { solicitarBreakGlass, confirmarBreakGlass, accionAprobada, LOCKS_DIR, LOG_PATH };
+/**
+ * Recorre BREAK_GLASS_LOG.jsonl y verifica que cada entrada conserve su
+ * integridad (su hash coincide con el contenido propio) y su encadenamiento
+ * (su hashPrevio coincide con el hash real de la entrada anterior). Un log
+ * inexistente se considera integro con 0 entradas -- nada que romper.
+ * @returns {{integra: boolean, totalEntradas: number, primeraRota: number|null}}
+ */
+function verificarCadenaLog() {
+  let contenido;
+  try { contenido = fs.readFileSync(LOG_PATH, 'utf8'); } catch {
+    return { integra: true, totalEntradas: 0, primeraRota: null };
+  }
+  const lineas = contenido.split('\n').filter(Boolean);
+
+  let hashPrevioEsperado = HASH_GENESIS;
+  for (let i = 0; i < lineas.length; i++) {
+    let entrada;
+    try { entrada = JSON.parse(lineas[i]); } catch {
+      return { integra: false, totalEntradas: lineas.length, primeraRota: i };
+    }
+    const { hash, ...campos } = entrada;
+    const hashRecalculado = crypto.createHash('sha256').update(JSON.stringify(campos)).digest('hex');
+    if (hash !== hashRecalculado || campos.hashPrevio !== hashPrevioEsperado) {
+      return { integra: false, totalEntradas: lineas.length, primeraRota: i };
+    }
+    hashPrevioEsperado = hash;
+  }
+  return { integra: true, totalEntradas: lineas.length, primeraRota: null };
+}
+
+module.exports = {
+  solicitarBreakGlass,
+  confirmarBreakGlass,
+  accionAprobada,
+  verificarCadenaLog,
+  LOCKS_DIR,
+  LOG_PATH,
+};

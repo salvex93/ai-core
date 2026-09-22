@@ -3,6 +3,15 @@
 Registro de cambios por version. Formato basado en [Keep a Changelog](https://keepachangelog.com/es/1.0.0/).
 Versionado semantico: MAJOR.MINOR.PATCH.
 
+## [Unreleased] — cadena de hash en BREAK_GLASS_LOG.jsonl (G7, 2026-09-22)
+
+### Agregado — deteccion de manipulacion retroactiva del log de auditoria
+
+- `lib/break-glass.js`: `registrarUso()` ahora encadena cada entrada con `hashPrevio` (hash SHA-256 de la entrada anterior, o el genesis `0` x64 en la primera linea del log) y `hash` propio (SHA-256 sobre el resto de los campos de la entrada + `hashPrevio`). Patron blockchain simplificado sin consenso distribuido — el objetivo es hacer detectable una edicion o borrado retroactivo de cualquier linea, no impedirlo.
+- Nueva funcion exportada `verificarCadenaLog()`: recorre `BREAK_GLASS_LOG.jsonl` y retorna `{ integra, totalEntradas, primeraRota }`. Un log inexistente se considera integro con 0 entradas.
+- 6 tests nuevos en `tests/harness/break-glass-lib-js.test.js`: hashPrevio/hash en la primera entrada, encadenamiento correcto entre dos entradas consecutivas, integridad sobre un log limpio, deteccion de una entrada intermedia editada, deteccion de una entrada eliminada del medio (rompe el hashPrevio de la siguiente), y comportamiento sobre un log inexistente.
+- Exportacion OpenTelemetry (mencionada en el hallazgo original) queda fuera de esta pasada — ningun consumidor real la necesita hoy.
+
 ## [Unreleased] — verificacion de payloads reales de SubagentStop/Stop/PostToolUseFailure (G24, 2026-09-21)
 
 ### Verificado — sin drift, sin cambio de codigo
