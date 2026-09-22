@@ -113,7 +113,7 @@ function bloquearOAprobar(detalle, mensajeContexto) {
   const hash = hashAccion(toolName, detalle);
   if (accionAprobada(GUARD_ID, hash)) process.exit(0);
 
-  const id = solicitarBreakGlass(GUARD_ID, hash);
+  const { id } = solicitarBreakGlass(GUARD_ID, hash);
   process.stderr.write(
     `[MUTATING-ACTION-GUARD] BLOQUEADO: el subagente "${agentType}" intento ${mensajeContexto} sin que el turno actual la solicitara explicitamente.\n` +
     'Motivo: crear/actualizar/borrar datos en un tenant o servicio externo requiere confirmacion humana explicita (Gobierno de Agentes, regla 6 de CLAUDE.md) -- el subagente no debe decidir por iniciativa propia cuando ejecutar esta accion.\n' +

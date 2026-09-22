@@ -222,7 +222,7 @@ for (const regla of REGLAS) {
     if (regla.breakGlass && accionAprobada(GUARD_ID, claveComando)) process.exit(0);
 
     if (regla.breakGlass) {
-      const id = solicitarBreakGlass(GUARD_ID, claveComando);
+      const { id } = solicitarBreakGlass(GUARD_ID, claveComando);
       process.stderr.write(
         `[DESTRUCTIVE-OP-GUARD] BLOQUEADO (${regla.nombre}): "${cmd}"\n` +
         `Motivo: ${regla.motivo}\n` +

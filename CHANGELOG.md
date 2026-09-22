@@ -3,6 +3,16 @@
 Registro de cambios por version. Formato basado en [Keep a Changelog](https://keepachangelog.com/es/1.0.0/).
 Versionado semantico: MAJOR.MINOR.PATCH.
 
+## [Unreleased] — advertencia de reintento con contenido modificado en break-glass de Write/Edit (G41, 2026-09-22)
+
+### Corregido — ciclo de confirmacion break-glass silencioso al reescribir contenido entre reintentos
+
+- Reporte en vivo del usuario: escribir a `.claude/memory-vault/` genero 5 ids de confirmacion consecutivos, cada uno aparentemente ignorado. Causa real, distinta de G37 (que normalizo orden de flags en comandos Bash): el agente reescribia el CONTENIDO del archivo entre el bloqueo y el reintento, y `skill-vault-write-guard.js`/`code-exec-guard.js` calculan su clave de aprobacion sobre `filePath:content` exacto -- correcto por diseno (debilitarlo aprobaria contenido no revisado), pero invalidaba la confirmacion ya otorgada sin ninguna señal visible.
+- `lib/break-glass.js`: `solicitarBreakGlass()` persiste ahora la ultima solicitud pendiente por `guardId` y retorna `{ id, reintentoModificado }` en vez de un string plano (cambio de forma deliberado). `reintentoModificado` es `true` cuando el mismo `guardId` tenia una solicitud vigente (TTL 5 min) con un `contexto` distinto al actual. Los 5 call sites existentes (`destructive-op-guard.js`, `secrets-guard.js`, `mutating-action-guard.js`, `code-exec-guard.js`, `skill-vault-write-guard.js`) migrados a destructuring `const { id } = solicitarBreakGlass(...)`.
+- `skill-vault-write-guard.js` y `code-exec-guard.js` agregan una linea `ALERTA` explicita en su stderr cuando `reintentoModificado` es `true`, indicando fijar el contenido final antes de pedir confirmacion.
+- Impacto transversal: `.claude/bin/` es el arnes compartido via submodulo en todos los proyectos externos del usuario -- el fix aplica en cualquiera de ellos, no solo en este repo.
+- 5 tests nuevos en `tests/harness/break-glass-lib-js.test.js`, 1 en `skill-vault-write-guard-js.test.js`, 1 en `code-exec-guard-js.test.js` (caso real reproducido). `npm test`: 1569/1570 (1 skip, sin regresiones); `validate-globals` 45/45, `validate-agents` 6/6.
+
 ## [Unreleased] — generacion real de .mcp.json en vez de mcpServers en settings.json (G12, 2026-09-22)
 
 ### Corregido — mcpServers dentro de settings.json no tiene efecto real

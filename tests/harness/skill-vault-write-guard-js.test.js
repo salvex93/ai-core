@@ -136,5 +136,23 @@ describe('skill-vault-write-guard.js', () => {
       assert.equal(segundoIntento.status, 2, 'la aprobacion de un solo uso no debe cubrir un segundo reintento');
       fs.rmSync(dir, { recursive: true, force: true });
     });
+
+    test('bloqueo real 2026-09-22: editar el contenido entre el bloqueo y el reintento advierte explicitamente en stderr', () => {
+      const dir = nuevoDirBreakGlass();
+      const env = { AI_CORE_BREAK_GLASS_DIR: dir, AI_CORE_BREAK_GLASS_LOG: path.join(dir, 'log.jsonl') };
+      const filePath = '.claude/memory-vault/.raw/sesion.md';
+
+      const primerBloqueo = run({ tool_input: { file_path: filePath, content: 'version 1' } }, env);
+      assert.doesNotMatch(primerBloqueo.stderr, /ALERTA/, 'la primera solicitud para este guard no tiene nada previo con que comparar');
+
+      const segundoBloqueo = run({ tool_input: { file_path: filePath, content: 'version 2, con una linea agregada' } }, env);
+      assert.equal(segundoBloqueo.status, 2);
+      assert.match(
+        segundoBloqueo.stderr,
+        /ALERTA.*contenido.*DISTINTO/s,
+        'reescribir el contenido entre reintentos debe advertirse en el momento del bloqueo, no despues de que el humano confirme a ciegas'
+      );
+      fs.rmSync(dir, { recursive: true, force: true });
+    });
   });
 });

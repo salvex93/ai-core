@@ -66,7 +66,7 @@ if (bloqueantes.length > 0) {
     process.exit(0);
   }
 
-  const id = solicitarBreakGlass(GUARD_ID, promptOriginal);
+  const { id } = solicitarBreakGlass(GUARD_ID, promptOriginal);
   process.stderr.write('[secrets-guard] BLOQUEADO: credencial de alta confianza detectada en el mensaje:\n');
   bloqueantes.forEach(({ etiqueta }) => process.stderr.write(`  - ${etiqueta}\n`));
   process.stderr.write(

@@ -68,20 +68,60 @@ function ensureDir() {
 }
 
 /**
+ * Ruta del archivo que retiene la ULTIMA solicitud pendiente por guardId,
+ * separado de "${id}.json" (que es por-id, no por-guard) para poder
+ * comparar la solicitud nueva contra la anterior sin conocer su id.
+ */
+function archivoUltimoPendiente(guardId) {
+  return path.join(LOCKS_DIR, `ultimo-${guardId}.json`);
+}
+
+/**
+ * Causa raiz (hallazgo 2026-09-22, distinto de G37): un guard de
+ * Write/Edit (skill-vault-write-guard.js, code-exec-guard.js) usa
+ * file_path+content COMPLETO como contexto -- correcto, porque debilitar
+ * ese match aprobaria contenido no revisado. El problema no es el hash: es
+ * que si el agente reescribe el contenido entre el bloqueo y el reintento
+ * (aunque sea una linea), la aprobacion ya confirmada por el humano deja de
+ * calzar SIN ninguna señal visible -- el humano confirma creyendo que ya
+ * resolvio el bloqueo, y el siguiente intento vuelve a fallar con un id
+ * nuevo, indistinguible en el mensaje de un bloqueo por primera vez. Esta
+ * funcion no cambia la clave de aprobacion (esa garantia se mantiene
+ * intacta) -- solo detecta el patron para que el guard pueda advertirlo en
+ * el momento del bloqueo, no despues de que el ciclo ya ocurrio.
+ * @param {string} guardId
+ * @param {string} contexto
+ * @returns {boolean}
+ */
+function huboReintentoModificado(guardId, contexto) {
+  let datos;
+  try { datos = JSON.parse(fs.readFileSync(archivoUltimoPendiente(guardId), 'utf8')); } catch { return false; }
+  if ((Date.now() - datos.ts) > TTL_MS) return false;
+  return datos.contexto !== contexto;
+}
+
+/**
  * Registra un intento de accion bloqueada y devuelve el id de un solo uso
- * que el humano debe confirmar respondiendo "CONFIRMAR-<id>".
+ * que el humano debe confirmar respondiendo "CONFIRMAR-<id>", junto con la
+ * senal de si esta solicitud reemplaza a una pendiente con distinto
+ * contexto (ver huboReintentoModificado). Los guards que solo necesitan el
+ * id usan `.id` -- cambio de forma deliberado (antes retornaba el string
+ * plano) para no depender de coercion implicita de un wrapper String.
  * @param {string} guardId - nombre del guard que solicita la excepcion
  * @param {string} contexto - el comando/tool_input bloqueado, para el registro
- * @returns {string} id de 8 hex chars
+ * @returns {{id: string, reintentoModificado: boolean}}
  */
 function solicitarBreakGlass(guardId, contexto) {
   ensureDir();
   const id = crypto.randomBytes(4).toString('hex');
   const archivo = path.join(LOCKS_DIR, `${id}.json`);
+  const reintentoModificado = huboReintentoModificado(guardId, contexto);
   try {
     fs.writeFileSync(archivo, JSON.stringify({ ts: Date.now(), guardId, contexto }), 'utf8');
+    fs.writeFileSync(archivoUltimoPendiente(guardId), JSON.stringify({ ts: Date.now(), contexto }), 'utf8');
   } catch { /* si no se puede persistir, el bypass simplemente no estara disponible */ }
-  return id;
+
+  return { id, reintentoModificado };
 }
 
 /**

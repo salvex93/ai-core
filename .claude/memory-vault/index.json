@@ -7,7 +7,7 @@
     "206": 1,
     "229": 1,
     "282": 1,
-    "300": 1,
+    "300": 2,
     "301": 1,
     "303": 1,
     "342": 3,
@@ -16,8 +16,9 @@
     "371": 1,
     "380": 1,
     "429": 2,
-    "500": 2,
+    "500": 3,
     "592": 1,
+    "595": 1,
     "606": 1,
     "626": 1,
     "778": 1,
@@ -26,25 +27,25 @@
     "1424": 1,
     "1425": 1,
     "1698": 1,
-    "2026": 16,
-    "sesion": 11,
-    "item": 3,
+    "2026": 20,
+    "sesion": 15,
+    "item": 5,
     "media": 4,
     "prioridad": 7,
     "complet": 3,
-    "test": 13,
+    "test": 15,
     "coherencia": 6,
-    "setup": 11,
+    "setup": 12,
     "setting": 11,
-    "json": 14,
-    "harnes": 18,
+    "json": 16,
+    "harnes": 20,
     "agreg": 4,
     "output": 5,
     "coherente": 1,
     "disco": 1,
-    "bloque": 3,
+    "bloque": 4,
     "verifica": 1,
-    "todo": 6,
+    "todo": 7,
     "hook": 11,
     "key": 2,
     "present": 1,
@@ -57,54 +58,54 @@
     "numero": 1,
     "grupo": 2,
     "consistente": 2,
-    "entre": 2,
-    "ejecucion": 2,
+    "entre": 4,
+    "ejecucion": 3,
     "mcpserver": 4,
-    "gemini": 9,
-    "bridge": 10,
+    "gemini": 12,
+    "bridge": 12,
     "anthropic": 8,
     "router": 4,
     "post": 5,
     "update": 8,
     "norm": 9,
     "proyecto": 11,
-    "anfitrion": 4,
+    "anfitrion": 5,
     "paso": 3,
     "condicional": 1,
-    "final": 2,
+    "final": 3,
     "script": 8,
-    "detecta": 4,
-    "core": 9,
+    "detecta": 5,
+    "core": 11,
     "ejecuta": 3,
     "submodulo": 5,
-    "verific": 6,
-    "existe": 4,
-    "claude": 22,
+    "verific": 9,
+    "existe": 5,
+    "claude": 25,
     "padre": 3,
     "tiene": 3,
-    "propio": 1,
+    "propio": 3,
     "package": 2,
-    "otro": 1,
-    "modulo": 3,
+    "otro": 2,
+    "modulo": 4,
     "node": 6,
     "confirma": 1,
     "cwd": 2,
     "standalone": 2,
     "informa": 2,
     "omite": 1,
-    "skill": 19,
-    "mcp": 16,
+    "skill": 21,
+    "mcp": 19,
     "registry": 3,
     "navigator": 3,
-    "nuevo": 10,
+    "nuevo": 13,
     "cre": 1,
     "evaluador": 1,
     "tercero": 2,
-    "agent": 6,
-    "agente": 5,
+    "agent": 7,
+    "agente": 6,
     "autonomo": 1,
     "evalu": 2,
-    "criterio": 2,
+    "criterio": 4,
     "puntu": 1,
     "transporte": 1,
     "stdio": 2,
@@ -114,36 +115,36 @@
     "input": 1,
     "eval": 4,
     "exec": 1,
-    "shell": 1,
-    "sin": 12,
+    "shell": 2,
+    "sin": 15,
     "sanitizar": 1,
     "mantenimiento": 2,
     "repositorio": 1,
     "ultimo": 1,
-    "commit": 4,
+    "commit": 5,
     "issu": 1,
     "licencia": 1,
-    "calidad": 5,
+    "calidad": 9,
     "schema": 1,
     "herramienta": 4,
     "inputschema": 1,
-    "completo": 3,
-    "riesgo": 2,
+    "completo": 4,
+    "riesgo": 3,
     "operativo": 1,
     "dependencia": 2,
     "filesystem": 1,
     "api": 6,
     "externa": 3,
-    "decision": 1,
+    "decision": 2,
     "instalar": 4,
     "evaluar": 3,
     "rechazar": 1,
-    "registro": 6,
+    "registro": 8,
     "persistente": 1,
     "mcp_registry": 1,
     "sonnet": 5,
     "modelrouter": 7,
-    "via": 5,
+    "via": 7,
     "live": 1,
     "desde": 7,
     "capacidad": 1,
@@ -152,11 +153,11 @@
     "128k": 1,
     "thinking": 3,
     "adaptativo": 2,
-    "code": 5,
+    "code": 7,
     "execution": 2,
     "structured": 1,
     "pricing": 2,
-    "mismo": 5,
+    "mismo": 7,
     "tier": 5,
     "mtok": 1,
     "actualiz": 6,
@@ -164,28 +165,28 @@
     "modelo": 6,
     "reemplaza": 1,
     "conteo": 3,
-    "conformidad": 1,
-    "archivo": 5,
+    "conformidad": 2,
+    "archivo": 8,
     "modific": 1,
     "entr": 5,
     "tabla": 6,
     "readme": 5,
     "aprendizaj": 1,
-    "verificar": 4,
+    "verificar": 5,
     "contexto": 2,
-    "ant": 5,
+    "ant": 7,
     "corregir": 2,
-    "vault": 5,
-    "marcaba": 1,
-    "referencia": 2,
-    "pendiente": 5,
+    "vault": 7,
+    "marcaba": 2,
+    "referencia": 3,
+    "pendiente": 6,
     "corrección": 1,
     "leerlo": 1,
-    "real": 8,
+    "real": 11,
     "toda": 2,
-    "eran": 1,
+    "eran": 2,
     "correcta": 1,
-    "produccion": 1,
+    "produccion": 3,
     "general": 1,
     "hallazgo": 3,
     "era": 1,
@@ -196,9 +197,9 @@
     "siempre": 3,
     "leer": 1,
     "actuar": 1,
-    "sobre": 4,
-    "memoria": 3,
-    "confirm": 2,
+    "sobre": 6,
+    "memoria": 5,
+    "confirm": 5,
     "client": 1,
     "model": 5,
     "list": 3,
@@ -213,29 +214,29 @@
     "robusto": 1,
     "distinguir": 1,
     "depender": 1,
-    "git": 3,
+    "git": 5,
     "modul": 1,
     "requieren": 3,
-    "seccion": 2,
+    "seccion": 5,
     "obligatoria": 1,
     "restriccion": 2,
     "perfil": 1,
     "directiva": 1,
     "interrupcion": 1,
-    "primera": 3,
-    "accion": 1,
+    "primera": 4,
+    "accion": 3,
     "activar": 1,
-    "marcador": 2,
+    "marcador": 3,
     "alerta_arquitectonica": 1,
     "requiere_opusplan": 1,
-    "suite": 1,
+    "suite": 2,
     "inmediata": 3,
     "util": 1,
-    "gate": 4,
+    "gate": 5,
     "crear": 1,
     "sed": 2,
     "múltipl": 2,
-    "puede": 2,
+    "puede": 3,
     "introducir": 1,
     "bug": 4,
     "parcial": 1,
@@ -243,10 +244,10 @@
     "dejó": 1,
     "combin": 1,
     "incorrecta": 1,
-    "c": 4,
+    "c": 6,
     "reemplazo": 1,
     "individual": 1,
-    "cu": 7,
+    "cu": 8,
     "usan": 2,
     "generico": 1,
     "logica": 1,
@@ -259,16 +260,16 @@
     "ver": 2,
     "session": 5,
     "arrancar": 3,
-    "memory": 5,
+    "memory": 7,
     "parte": 2,
     "inicial": 3,
     "remanente": 1,
     "fueron": 1,
-    "descart": 3,
-    "hay": 4,
-    "pendient": 2,
-    "cierre": 1,
-    "baja": 3,
+    "descart": 4,
+    "hay": 5,
+    "pendient": 4,
+    "cierre": 3,
+    "baja": 4,
     "resuelto": 2,
     "sesión": 4,
     "upgrade": 1,
@@ -278,15 +279,15 @@
     "mejora": 4,
     "implement": 2,
     "ponytail": 1,
-    "check": 3,
-    "write": 2,
-    "edit": 2,
+    "check": 4,
+    "write": 4,
+    "edit": 3,
     "escalera": 1,
     "yagni": 1,
     "capa": 1,
     "dev": 2,
     "loop": 1,
-    "ciclo": 1,
+    "ciclo": 2,
     "spec": 1,
     "design": 1,
     "plan": 1,
@@ -299,7 +300,7 @@
     "obra": 2,
     "addy": 1,
     "osmani": 1,
-    "index": 1,
+    "index": 2,
     "motor": 2,
     "bm25": 4,
     "zero": 1,
@@ -310,20 +311,20 @@
     "activo": 2,
     "metric": 1,
     "observabilidad": 1,
-    "tool": 6,
+    "tool": 7,
     "call": 1,
-    "statu": 1,
+    "statu": 2,
     "token": 2,
     "dur": 1,
     "house": 1,
     "subagent": 2,
-    "valid": 3,
+    "valid": 5,
     "adversarial": 1,
     "auditor": 2,
     "adversario": 1,
     "pragmático": 1,
     "exit": 1,
-    "critico": 2,
+    "critico": 4,
     "adverse": 1,
     "visual": 2,
     "designer": 2,
@@ -337,7 +338,7 @@
     "motion": 1,
     "v11": 1,
     "import": 2,
-    "correcto": 2,
+    "correcto": 3,
     "react": 1,
     "correccion": 2,
     "opu": 4,
@@ -362,47 +363,47 @@
     "matrix": 1,
     "elimin": 1,
     "docs_maestra": 1,
-    "repo": 4,
-    "fix": 1,
+    "repo": 7,
+    "fix": 2,
     "crítico": 1,
     "portabilidad": 1,
     "generaban": 1,
-    "solo": 10,
+    "solo": 13,
     "versión": 1,
     "ahora": 4,
     "producen": 2,
     "actual": 1,
-    "document": 5,
-    "changelog": 2,
+    "document": 6,
+    "changelog": 3,
     "nota": 1,
     "migr": 3,
     "existent": 1,
     "roadmap_aaa": 1,
     "marc": 1,
-    "comando": 1,
+    "comando": 2,
     "novedad": 1,
     "silencioso": 1,
     "frecuent": 1,
     "actualizar": 3,
     "bootstrap": 3,
     "son": 5,
-    "primero": 1,
+    "primero": 2,
     "desincronizarse": 1,
     "agregan": 1,
-    "porque": 3,
+    "porque": 4,
     "valide": 1,
     "coincide": 1,
-    "detect": 2,
-    "manual": 2,
+    "detect": 3,
+    "manual": 3,
     "patrón": 3,
     "vigilar": 2,
     "vez": 3,
     "modifique": 1,
     "directa": 1,
-    "result": 5,
+    "result": 6,
     "contienen": 1,
     "regex": 1,
-    "dato": 1,
+    "dato": 2,
     "activan": 1,
     "scanner": 1,
     "scorer": 1,
@@ -420,16 +421,16 @@
     "detectarse": 1,
     "reporte": 1,
     "bloquea": 2,
-    "n": 2,
-    "flujo": 1,
+    "n": 3,
+    "flujo": 2,
     "bin": 1,
     "anfitrión": 1,
     "automático": 1,
     "único": 1,
     "corre": 1,
-    "npm": 5,
-    "run": 4,
-    "candidato": 1,
+    "npm": 7,
+    "run": 6,
+    "candidato": 3,
     "automatizar": 3,
     "futuro": 2,
     "próximo": 1,
@@ -464,7 +465,7 @@
     "considerar": 2,
     "agregar": 4,
     "detecte": 2,
-    "corra": 2,
+    "corra": 3,
     "automática": 2,
     "vacío": 2,
     "inicio": 1,
@@ -474,15 +475,15 @@
     "raw": 2,
     "índice": 1,
     "incluir": 2,
-    "est": 3,
+    "est": 5,
     "tenga": 3,
     "ejecute": 2,
     "compare": 3,
     "existente": 1,
     "detectar": 2,
-    "quedan": 4,
+    "quedan": 5,
     "desincroniz": 2,
-    "completa": 2,
+    "completa": 3,
     "fable": 4,
     "stemming": 1,
     "mínimo": 1,
@@ -498,9 +499,9 @@
     "name": 1,
     "description": 2,
     "repiten": 1,
-    "vec": 1,
+    "vec": 2,
     "vector": 1,
-    "bien": 1,
+    "bien": 2,
     "titul": 1,
     "suben": 1,
     "ranking": 1,
@@ -513,7 +514,7 @@
     "queri": 1,
     "natural": 1,
     "med": 2,
-    "pa": 1,
+    "pa": 2,
     "engineer": 2,
     "regla": 5,
     "selección": 1,
@@ -524,7 +525,7 @@
     "arquitectura_tool": 1,
     "specialist": 2,
     "flash": 1,
-    "intermedio": 1,
+    "intermedio": 2,
     "integration": 2,
     "reemplaz": 1,
     "prompt": 2,
@@ -534,12 +535,12 @@
     "comentario": 2,
     "ejemplo": 2,
     "standard": 1,
-    "guard": 8,
+    "guard": 10,
     "catch": 1,
     "log": 1,
     "stderr": 1,
     "mensaje": 1,
-    "error": 1,
+    "error": 2,
     "tier_fable": 1,
     "cubre": 2,
     "disenar_sistema": 1,
@@ -558,7 +559,7 @@
     "rpc": 1,
     "invál": 1,
     "ru": 1,
-    "normal": 1,
+    "normal": 2,
     "compresión": 1,
     "iterativa": 1,
     "retorna": 1,
@@ -571,24 +572,24 @@
     "graceful": 1,
     "intencional": 1,
     "distinción": 1,
-    "clave": 1,
+    "clave": 3,
     "razonamiento": 1,
     "profundo": 1,
     "mantenerse": 1,
-    "orden": 3,
+    "orden": 4,
     "costo_por_modelo": 1,
     "rol": 2,
-    "aplica": 1,
+    "aplica": 2,
     "afect": 1,
     "decisión": 1,
-    "difer": 1,
+    "difer": 3,
     "oficial": 3,
     "modelcontextprotocol": 1,
     "server": 2,
     "fue": 2,
     "razón": 1,
     "grafo": 1,
-    "queda": 1,
+    "queda": 2,
     "plano": 1,
     "momento": 1,
     "donde": 1,
@@ -596,7 +597,7 @@
     "entidad": 1,
     "rel": 1,
     "cruz": 1,
-    "auditoria": 4,
+    "auditoria": 8,
     "muerto": 1,
     "módulo": 1,
     "contextindex": 1,
@@ -605,12 +606,12 @@
     "consum": 1,
     "elimina": 1,
     "huérfano": 1,
-    "tra": 3,
+    "tra": 4,
     "glama": 1,
     "transport": 1,
     "caso": 2,
     "uso": 1,
-    "directo": 1,
+    "directo": 2,
     "detectó": 1,
     "está": 1,
     "producción": 1,
@@ -620,38 +621,38 @@
     "observability": 1,
     "testing": 1,
     "tienen": 1,
-    "anterior": 3,
+    "anterior": 4,
     "routing": 1,
     "severidad": 1,
     "próxima": 1,
-    "gobierno": 3,
+    "gobierno": 7,
     "modularidad": 2,
-    "marco": 2,
+    "marco": 6,
     "previo": 2,
-    "push": 3,
-    "realiz": 1,
+    "push": 4,
+    "realiz": 2,
     "ciso": 3,
     "product": 3,
     "lifecycle": 3,
     "market_standard": 2,
     "restaur": 1,
-    "linea": 3,
+    "linea": 4,
     "divid": 1,
     "lib": 1,
     "definition": 2,
-    "destructive": 2,
+    "destructive": 4,
     "issue": 1,
     "reporter": 1,
     "sal": 1,
     "identica": 1,
-    "contra": 6,
+    "contra": 9,
     "baseline": 1,
     "permiso": 1,
     "allow": 1,
     "unific": 1,
-    "permission": 3,
-    "estaban": 1,
-    "duplic": 1,
+    "permission": 4,
+    "estaban": 2,
+    "duplic": 2,
     "roto": 1,
     "host": 1,
     "extraccion": 1,
@@ -660,39 +661,39 @@
     "homebrew": 2,
     "enlaz": 2,
     "dinamica": 2,
-    "quality": 1,
+    "quality": 2,
     "githook": 1,
-    "pre": 2,
+    "pre": 3,
     "activ": 1,
     "hookspath": 1,
-    "sigue": 1,
+    "sigue": 3,
     "compuerta": 2,
-    "break": 3,
-    "glas": 3,
+    "break": 5,
+    "glas": 5,
     "bypas": 2,
     "total": 1,
     "describe": 2,
     "perder": 1,
     "informe": 1,
-    "doc": 4,
+    "doc": 7,
     "brecha": 1,
-    "resuelta": 1,
+    "resuelta": 2,
     "compar": 1,
-    "merc": 4,
+    "merc": 5,
     "pas": 1,
     "fail": 1,
     "skip": 1,
     "validate": 3,
     "global": 3,
-    "verde": 1,
+    "verde": 2,
     "6063a95": 1,
-    "refactor": 1,
+    "refactor": 2,
     "modular": 1,
     "9948acc": 1,
     "da5fc8b": 1,
     "cuarto": 1,
-    "vigencia": 5,
-    "aprend": 2,
+    "vigencia": 6,
+    "aprend": 3,
     "corren": 1,
     "bajo": 2,
     "proceso": 1,
@@ -700,19 +701,19 @@
     "heredan": 1,
     "ejecutar": 2,
     "ser": 1,
-    "nativo": 2,
+    "nativo": 3,
     "rpath": 1,
     "libnode": 1,
     "copiar": 1,
     "binario": 1,
-    "rompe": 1,
+    "rompe": 2,
     "fak": 1,
     "wrapper": 1,
     "gnu": 1,
     "maco": 1,
     "usar": 2,
     "huella": 1,
-    "conten": 1,
+    "conten": 3,
     "trackear": 1,
     "diff": 1,
     "head": 1,
@@ -722,40 +723,40 @@
     "derivan": 1,
     "aviso": 1,
     "decia": 1,
-    "codigo": 2,
-    "hoy": 1,
+    "codigo": 3,
+    "hoy": 2,
     "identidad": 3,
-    "nunca": 1,
+    "nunca": 3,
     "estuvo": 1,
     "configur": 1,
-    "checkpoint": 1,
+    "checkpoint": 3,
     "salieron": 1,
     "email": 1,
     "maquina": 1,
     "fijo": 1,
     "local": 4,
     "comitear": 1,
-    "texto": 2,
+    "texto": 4,
     "literal": 2,
-    "dentro": 2,
+    "dentro": 3,
     "argumento": 1,
     "cuya": 1,
     "cadena": 1,
     "mencionaba": 1,
     "deneg": 1,
-    "resolvio": 1,
+    "resolvio": 2,
     "escrib": 1,
     "deadlock": 3,
     "visto": 1,
-    "cuota": 2,
+    "cuota": 4,
     "search": 5,
     "siguio": 1,
-    "webfetch": 3,
+    "webfetch": 4,
     "sintaxi": 2,
-    "deny": 2,
-    "sandbox": 2,
-    "quedo": 1,
-    "eso": 1,
+    "deny": 3,
+    "sandbox": 3,
+    "quedo": 3,
+    "eso": 3,
     "escribieron": 1,
     "esa": 1,
     "clav": 2,
@@ -770,8 +771,8 @@
     "inyecta": 1,
     "contradice": 1,
     "prevalece": 1,
-    "fuera": 1,
-    "alcance": 1,
+    "fuera": 3,
+    "alcance": 3,
     "valen": 1,
     "pena": 1,
     "detalle": 1,
@@ -794,12 +795,12 @@
     "g15": 2,
     "barata": 1,
     "g16": 2,
-    "residual": 1,
+    "residual": 2,
     "new": 1,
     "orig": 1,
     "secreto": 1,
-    "working": 1,
-    "tree": 1,
+    "working": 2,
+    "tree": 2,
     "limite": 1,
     "g12": 2,
     "efecto": 2,
@@ -813,13 +814,13 @@
     "conservar": 1,
     "promptfoo": 1,
     "recomend": 1,
-    "cerrar": 2,
+    "cerrar": 3,
     "ca": 2,
     "definir": 1,
-    "env": 2,
+    "env": 3,
     "ssh": 1,
-    "com": 1,
-    "escribir": 1,
+    "com": 3,
+    "escribir": 2,
     "g10": 1,
     "reverificar": 2,
     "protocol": 3,
@@ -846,9 +847,9 @@
     "audit": 2,
     "market": 2,
     "mejor": 1,
-    "practica": 1,
-    "fuente": 2,
-    "primaria": 2,
+    "practica": 3,
+    "fuente": 4,
+    "primaria": 3,
     "repar": 2,
     "carga": 1,
     "interna": 1,
@@ -858,22 +859,22 @@
     "dry": 1,
     "activa": 1,
     "sin_dominio_registr": 1,
-    "ningun": 1,
-    "desactualiz": 1,
+    "ningun": 3,
+    "desactualiz": 3,
     "cercano": 1,
     "55d": 1,
     "vence": 1,
     "48d": 1,
     "diagnostico": 1,
-    "bloqueo": 1,
+    "bloqueo": 2,
     "intento": 1,
     "investigar": 1,
     "sistema": 1,
     "agentico": 1,
-    "websearch": 2,
+    "websearch": 3,
     "presencia": 1,
     "gemini_api_key": 2,
-    "estaba": 2,
+    "estaba": 3,
     "mostraba": 1,
     "google": 1,
     "drive": 1,
@@ -881,9 +882,9 @@
     "aplic": 1,
     "ambo": 2,
     "servidor": 2,
-    "tocar": 2,
+    "tocar": 3,
     "add": 2,
-    "user": 2,
+    "user": 3,
     "andrewarizmendi": 1,
     "reporta": 1,
     "connected": 1,
@@ -898,28 +899,28 @@
     "soport": 1,
     "scope": 1,
     "project": 1,
-    "propia": 1,
-    "loadenv": 1,
+    "propia": 5,
+    "loadenv": 2,
     "pasar": 1,
-    "gap": 2,
-    "degr": 1,
+    "gap": 4,
+    "degr": 2,
     "permitir": 1,
-    "nativa": 2,
+    "nativa": 3,
     "falta": 1,
     "comprueba": 1,
     "presente": 1,
     "alternativa": 1,
     "probable": 1,
-    "grep": 1,
+    "grep": 3,
     "disponible": 1,
-    "bash": 1,
+    "bash": 3,
     "include": 1,
     "entrecomill": 1,
     "zsh": 1,
     "expande": 1,
     "glob": 1,
     "comilla": 1,
-    "buscar_web": 1,
+    "buscar_web": 2,
     "analizar_conten": 1,
     "tr": 1,
     "frent": 1,
@@ -937,8 +938,8 @@
     "afirm": 1,
     "tecnologica": 1,
     "gener": 1,
-    "compart": 1,
-    "impacto": 1,
+    "compart": 2,
+    "impacto": 2,
     "generador": 1,
     "lee": 1,
     "afecta": 1,
@@ -948,7 +949,164 @@
     "registrar": 1,
     "decidir": 1,
     "documentar": 1,
-    "requiere": 1
+    "requiere": 1,
+    "fit": 3,
+    "limpieza": 2,
+    "g26": 1,
+    "g27": 2,
+    "g11b": 2,
+    "previa": 2,
+    "g31": 1,
+    "g35": 1,
+    "g38": 1,
+    "g40": 1,
+    "existen": 1,
+    "mencion": 1,
+    "llegaron": 1,
+    "documentarse": 1,
+    "explicita": 3,
+    "documento": 2,
+    "dice": 1,
+    "abierto": 2,
+    "ejecut": 2,
+    "usuario": 4,
+    "podia": 1,
+    "autorizarla": 1,
+    "tmp": 1,
+    "probe": 1,
+    "existia": 1,
+    "borrar": 1,
+    "rama": 3,
+    "mezcla": 1,
+    "autoria": 1,
+    "andrew": 1,
+    "arizmendi": 1,
+    "contamin": 2,
+    "segun": 1,
+    "g28": 2,
+    "borr": 1,
+    "branch": 2,
+    "reconectar": 2,
+    "ejecutable": 2,
+    "interfaz": 2,
+    "interactiva": 2,
+    "indic": 1,
+    "corr": 1,
+    "credencial": 1,
+    "limpio": 3,
+    "salvo": 3,
+    "telemetria": 2,
+    "aiops_score_history": 1,
+    "funcional": 1,
+    "varia": 1,
+    "escribirse": 1,
+    "aprob": 3,
+    "calcula": 1,
+    "exacto": 2,
+    "editar": 2,
+    "reintento": 2,
+    "invalidaba": 1,
+    "quedar": 1,
+    "contener": 1,
+    "materializaron": 1,
+    "asumir": 1,
+    "algo": 1,
+    "referenci": 1,
+    "principio": 1,
+    "externo": 1,
+    "confiable": 2,
+    "defecto": 1,
+    "extend": 1,
+    "merge": 1,
+    "dispara": 1,
+    "aunque": 1,
+    "sea": 1,
+    "recuper": 1,
+    "nadie": 1,
+    "usa": 1,
+    "distingue": 1,
+    "trabajo": 2,
+    "respaldo": 1,
+    "automatico": 1,
+    "diseno": 1,
+    "escritura": 1,
+    "sensible": 1,
+    "objetivo": 1,
+    "diferencia": 1,
+    "mutating": 1,
+    "action": 1,
+    "g37": 1,
+    "normalizan": 1,
+    "flag": 1,
+    "inval": 1,
+    "silencio": 1,
+    "genera": 1,
+    "leccion": 1,
+    "fijar": 1,
+    "narrar": 1,
+    "forcejeo": 1,
+    "intenta": 1,
+    "narr": 1,
+    "nueva": 1,
+    "cambia": 1,
+    "hash": 1,
+    "reinicia": 1,
+    "ruta": 1,
+    "dispararlo": 1,
+    "depende": 2,
+    "entera": 1,
+    "pide": 1,
+    "dejarla": 1,
+    "interrumpir": 1,
+    "correr": 2,
+    "proponer": 1,
+    "solicit": 1,
+    "siguiente": 1,
+    "motivo": 1,
+    "reactiv": 1,
+    "ninguno": 2,
+    "toco": 1,
+    "abrir": 1,
+    "g3b": 1,
+    "rollback": 1,
+    "activarse": 1,
+    "necesite": 1,
+    "reconsiderar": 1,
+    "aparece": 1,
+    "g29": 1,
+    "ask": 1,
+    "oper": 1,
+    "justifique": 1,
+    "todavia": 1,
+    "proveedor": 1,
+    "pago": 1,
+    "alterno": 1,
+    "agotamiento": 1,
+    "vuelve": 1,
+    "frecuente": 1,
+    "modo": 1,
+    "configurabl": 1,
+    "smart": 1,
+    "off": 1,
+    "herm": 1,
+    "ped": 1,
+    "explicito": 1,
+    "g26b": 1,
+    "errorrepairloop": 1,
+    "renombr": 1,
+    "durante": 1,
+    "colision": 1,
+    "probabilidad": 1,
+    "ventana": 1,
+    "corta": 1,
+    "exige": 1,
+    "extraer": 1,
+    "quirurgico": 1,
+    "cualquiera": 1,
+    "categoria": 1,
+    "unica": 1,
+    "cargar": 1,
+    "considera": 1
   },
   "inv": {
     "104": [
@@ -997,6 +1155,10 @@
       {
         "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#2",
         "tf": 2
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#2",
+        "tf": 1
       }
     ],
     "301": [
@@ -1075,11 +1237,21 @@
       {
         "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#5",
         "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#2",
+        "tf": 1
       }
     ],
     "592": [
       {
         "id": "general/session-2026-07-07-auditoria-y-bm25plus#5",
+        "tf": 1
+      }
+    ],
+    "595": [
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#2",
         "tf": 1
       }
     ],
@@ -1195,6 +1367,22 @@
       {
         "id": "general/session-2026-09-20-validacion-mcp-bridge#7",
         "tf": 2
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#1",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#2",
+        "tf": 3
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#3",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#4",
+        "tf": 1
       }
     ],
     "sesion": [
@@ -1241,6 +1429,22 @@
       {
         "id": "general/session-2026-09-20-validacion-mcp-bridge#7",
         "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#1",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#2",
+        "tf": 2
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#3",
+        "tf": 4
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#4",
+        "tf": 2
       }
     ],
     "item": [
@@ -1254,6 +1458,14 @@
       },
       {
         "id": "general/session-2026-07-06-media-prioridad#13",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#2",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#5",
         "tf": 1
       }
     ],
@@ -1371,6 +1583,14 @@
       {
         "id": "general/session-2026-09-20-validacion-mcp-bridge#7",
         "tf": 4
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#2",
+        "tf": 2
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#4",
+        "tf": 2
       }
     ],
     "coherencia": [
@@ -1443,6 +1663,10 @@
       {
         "id": "general/session-2026-09-20-validacion-mcp-bridge#7",
         "tf": 2
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#4",
+        "tf": 1
       }
     ],
     "setting": [
@@ -1547,6 +1771,14 @@
       {
         "id": "general/session-2026-09-20-validacion-mcp-bridge#7",
         "tf": 4
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#2",
+        "tf": 2
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#4",
+        "tf": 1
       }
     ],
     "harnes": [
@@ -1621,6 +1853,14 @@
       {
         "id": "general/session-2026-09-20-validacion-mcp-bridge#7",
         "tf": 5
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#2",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#3",
+        "tf": 1
       }
     ],
     "agreg": [
@@ -1687,6 +1927,10 @@
       {
         "id": "general/session-2026-09-20-validacion-mcp-bridge#6",
         "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#2",
+        "tf": 3
       }
     ],
     "verifica": [
@@ -1718,6 +1962,10 @@
       },
       {
         "id": "general/session-2026-07-07-auditoria-y-bm25plus#7",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#4",
         "tf": 1
       }
     ],
@@ -1865,6 +2113,14 @@
       {
         "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#2",
         "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#2",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#3",
+        "tf": 2
       }
     ],
     "ejecucion": [
@@ -1874,6 +2130,10 @@
       },
       {
         "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#2",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#5",
         "tf": 1
       }
     ],
@@ -1931,6 +2191,18 @@
       {
         "id": "general/session-2026-09-20-validacion-mcp-bridge#7",
         "tf": 2
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#2",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#4",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#5",
+        "tf": 1
       }
     ],
     "bridge": [
@@ -1973,6 +2245,14 @@
       {
         "id": "general/session-2026-09-20-validacion-mcp-bridge#7",
         "tf": 2
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#2",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#5",
+        "tf": 1
       }
     ],
     "anthropic": [
@@ -2183,6 +2463,10 @@
       {
         "id": "general/session-2026-09-20-validacion-mcp-bridge#7",
         "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#4",
+        "tf": 2
       }
     ],
     "paso": [
@@ -2213,6 +2497,10 @@
       {
         "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#2",
         "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#3",
+        "tf": 2
       }
     ],
     "script": [
@@ -2265,6 +2553,10 @@
       {
         "id": "general/session-2026-07-07-auditoria-y-bm25plus#12",
         "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#4",
+        "tf": 1
       }
     ],
     "core": [
@@ -2303,6 +2595,14 @@
       {
         "id": "general/session-2026-09-20-validacion-mcp-bridge#7",
         "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#2",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#3",
+        "tf": 2
       }
     ],
     "ejecuta": [
@@ -2365,6 +2665,18 @@
       {
         "id": "general/session-2026-09-20-validacion-mcp-bridge#6",
         "tf": 2
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#1",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#2",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#4",
+        "tf": 1
       }
     ],
     "existe": [
@@ -2383,6 +2695,10 @@
       {
         "id": "general/session-2026-09-20-validacion-mcp-bridge#4",
         "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#3",
+        "tf": 2
       }
     ],
     "claude": [
@@ -2473,6 +2789,18 @@
       {
         "id": "general/session-2026-09-20-validacion-mcp-bridge#7",
         "tf": 4
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#2",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#3",
+        "tf": 2
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#4",
+        "tf": 1
       }
     ],
     "padre": [
@@ -2507,6 +2835,14 @@
       {
         "id": "general/session-2026-07-06-media-prioridad#4",
         "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#2",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#3",
+        "tf": 1
       }
     ],
     "package": [
@@ -2523,6 +2859,10 @@
       {
         "id": "general/session-2026-07-06-media-prioridad#4",
         "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#4",
+        "tf": 1
       }
     ],
     "modulo": [
@@ -2536,6 +2876,10 @@
       },
       {
         "id": "general/session-2026-09-20-validacion-mcp-bridge#7",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#4",
         "tf": 1
       }
     ],
@@ -2683,6 +3027,14 @@
       {
         "id": "general/session-2026-09-20-validacion-mcp-bridge#7",
         "tf": 2
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#2",
+        "tf": 3
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#3",
+        "tf": 1
       }
     ],
     "mcp": [
@@ -2749,6 +3101,18 @@
       {
         "id": "general/session-2026-09-20-validacion-mcp-bridge#7",
         "tf": 7
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#2",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#3",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#5",
+        "tf": 1
       }
     ],
     "registry": [
@@ -2819,6 +3183,18 @@
       {
         "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#2",
         "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#3",
+        "tf": 2
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#4",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#5",
+        "tf": 1
       }
     ],
     "cre": [
@@ -2867,6 +3243,10 @@
       {
         "id": "general/session-2026-07-07-auditoria-y-bm25plus#13",
         "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#2",
+        "tf": 1
       }
     ],
     "agente": [
@@ -2888,6 +3268,10 @@
       },
       {
         "id": "general/session-2026-07-07-auditoria-y-bm25plus#12",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#5",
         "tf": 1
       }
     ],
@@ -2914,6 +3298,14 @@
       },
       {
         "id": "general/session-2026-07-06-upgrade-aaa#3",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#3",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#4",
         "tf": 1
       }
     ],
@@ -2999,6 +3391,10 @@
       {
         "id": "general/session-2026-07-06-media-prioridad#5",
         "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#3",
+        "tf": 1
       }
     ],
     "sin": [
@@ -3049,6 +3445,18 @@
       {
         "id": "general/session-2026-09-20-validacion-mcp-bridge#7",
         "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#2",
+        "tf": 3
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#3",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#4",
+        "tf": 3
       }
     ],
     "sanitizar": [
@@ -3095,6 +3503,10 @@
       {
         "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#4",
         "tf": 4
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#2",
+        "tf": 1
       }
     ],
     "issu": [
@@ -3128,6 +3540,22 @@
       },
       {
         "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#3",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#1",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#2",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#3",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#5",
         "tf": 1
       }
     ],
@@ -3173,6 +3601,10 @@
       {
         "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#2",
         "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#2",
+        "tf": 1
       }
     ],
     "riesgo": [
@@ -3183,6 +3615,10 @@
       {
         "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#4",
         "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#4",
+        "tf": 2
       }
     ],
     "operativo": [
@@ -3251,6 +3687,10 @@
       {
         "id": "general/session-2026-07-06-media-prioridad#5",
         "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#4",
+        "tf": 1
       }
     ],
     "instalar": [
@@ -3314,6 +3754,14 @@
       },
       {
         "id": "general/session-2026-09-20-validacion-mcp-bridge#7",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#2",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#5",
         "tf": 1
       }
     ],
@@ -3401,6 +3849,14 @@
       {
         "id": "general/session-2026-09-20-validacion-mcp-bridge#7",
         "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#2",
+        "tf": 2
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#3",
+        "tf": 2
       }
     ],
     "live": [
@@ -3511,6 +3967,14 @@
       {
         "id": "general/session-2026-09-20-validacion-mcp-bridge#7",
         "tf": 2
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#3",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#4",
+        "tf": 1
       }
     ],
     "execution": [
@@ -3559,6 +4023,14 @@
       {
         "id": "general/session-2026-09-20-validacion-mcp-bridge#6",
         "tf": 2
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#2",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#3",
+        "tf": 1
       }
     ],
     "tier": [
@@ -3675,6 +4147,10 @@
       {
         "id": "general/session-2026-07-06-media-prioridad#7",
         "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#2",
+        "tf": 2
       }
     ],
     "archivo": [
@@ -3697,6 +4173,18 @@
       {
         "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#3",
         "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#2",
+        "tf": 3
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#3",
+        "tf": 2
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#4",
+        "tf": 2
       }
     ],
     "modific": [
@@ -3797,6 +4285,10 @@
       {
         "id": "general/session-2026-09-20-validacion-mcp-bridge#7",
         "tf": 2
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#3",
+        "tf": 2
       }
     ],
     "contexto": [
@@ -3829,6 +4321,14 @@
       {
         "id": "general/session-2026-09-20-validacion-mcp-bridge#7",
         "tf": 4
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#2",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#3",
+        "tf": 1
       }
     ],
     "corregir": [
@@ -3861,11 +4361,23 @@
       {
         "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#2",
         "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#2",
+        "tf": 3
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#3",
+        "tf": 2
       }
     ],
     "marcaba": [
       {
         "id": "general/session-2026-07-06-media-prioridad#9",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#2",
         "tf": 1
       }
     ],
@@ -3876,6 +4388,10 @@
       },
       {
         "id": "general/session-2026-07-07-auditoria-y-bm25plus#13",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#4",
         "tf": 1
       }
     ],
@@ -3898,6 +4414,10 @@
       },
       {
         "id": "general/session-2026-09-20-validacion-mcp-bridge#7",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#5",
         "tf": 1
       }
     ],
@@ -3945,6 +4465,18 @@
       {
         "id": "general/session-2026-09-20-validacion-mcp-bridge#7",
         "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#2",
+        "tf": 2
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#3",
+        "tf": 2
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#4",
+        "tf": 2
       }
     ],
     "toda": [
@@ -3961,6 +4493,10 @@
       {
         "id": "general/session-2026-07-06-media-prioridad#9",
         "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#2",
+        "tf": 1
       }
     ],
     "correcta": [
@@ -3972,6 +4508,14 @@
     "produccion": [
       {
         "id": "general/session-2026-07-06-media-prioridad#9",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#4",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#5",
         "tf": 1
       }
     ],
@@ -4083,6 +4627,14 @@
       {
         "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#5",
         "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#2",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#3",
+        "tf": 1
       }
     ],
     "memoria": [
@@ -4097,6 +4649,14 @@
       {
         "id": "general/session-2026-07-07-auditoria-y-bm25plus#3",
         "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#2",
+        "tf": 3
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#3",
+        "tf": 3
       }
     ],
     "confirm": [
@@ -4106,6 +4666,18 @@
       },
       {
         "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#3",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#2",
+        "tf": 5
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#3",
+        "tf": 2
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#4",
         "tf": 1
       }
     ],
@@ -4253,6 +4825,14 @@
       {
         "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#3",
         "tf": 3
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#2",
+        "tf": 2
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#3",
+        "tf": 1
       }
     ],
     "modul": [
@@ -4282,6 +4862,18 @@
       },
       {
         "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#4",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#2",
+        "tf": 2
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#4",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#5",
         "tf": 1
       }
     ],
@@ -4331,12 +4923,24 @@
       {
         "id": "general/session-2026-07-07-auditoria-y-bm25plus#13",
         "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#3",
+        "tf": 1
       }
     ],
     "accion": [
       {
         "id": "general/session-2026-07-06-media-prioridad#9",
         "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#2",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#5",
+        "tf": 2
       }
     ],
     "activar": [
@@ -4352,6 +4956,10 @@
       },
       {
         "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#4",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#5",
         "tf": 1
       }
     ],
@@ -4370,6 +4978,10 @@
     "suite": [
       {
         "id": "general/session-2026-07-06-media-prioridad#9",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#2",
         "tf": 1
       }
     ],
@@ -4409,6 +5021,10 @@
       {
         "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#4",
         "tf": 2
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#2",
+        "tf": 1
       }
     ],
     "crear": [
@@ -4445,6 +5061,10 @@
       {
         "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#3",
         "tf": 2
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#3",
+        "tf": 1
       }
     ],
     "introducir": [
@@ -4517,6 +5137,14 @@
       {
         "id": "general/session-2026-09-20-validacion-mcp-bridge#7",
         "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#2",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#3",
+        "tf": 1
       }
     ],
     "reemplazo": [
@@ -4558,6 +5186,10 @@
       },
       {
         "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#5",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#3",
         "tf": 1
       }
     ],
@@ -4785,6 +5417,14 @@
       {
         "id": "general/session-2026-07-07-auditoria-y-bm25plus#11",
         "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#2",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#3",
+        "tf": 1
       }
     ],
     "parte": [
@@ -4835,6 +5475,10 @@
       {
         "id": "general/session-2026-07-07-auditoria-y-bm25plus#5",
         "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#2",
+        "tf": 1
       }
     ],
     "hay": [
@@ -4853,6 +5497,10 @@
       {
         "id": "general/session-2026-07-07-auditoria-y-bm25plus#13",
         "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#3",
+        "tf": 1
       }
     ],
     "pendient": [
@@ -4863,11 +5511,27 @@
       {
         "id": "general/session-2026-09-20-validacion-mcp-bridge#3",
         "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#1",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#2",
+        "tf": 1
       }
     ],
     "cierre": [
       {
         "id": "general/session-2026-07-06-media-prioridad#12",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#1",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#2",
         "tf": 1
       }
     ],
@@ -4882,6 +5546,10 @@
       },
       {
         "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#4",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#4",
         "tf": 1
       }
     ],
@@ -5015,6 +5683,10 @@
       {
         "id": "general/session-2026-09-20-validacion-mcp-bridge#7",
         "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#2",
+        "tf": 1
       }
     ],
     "write": [
@@ -5025,6 +5697,14 @@
       {
         "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#3",
         "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#2",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#3",
+        "tf": 2
       }
     ],
     "edit": [
@@ -5034,6 +5714,10 @@
       },
       {
         "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#3",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#3",
         "tf": 1
       }
     ],
@@ -5074,6 +5758,10 @@
     "ciclo": [
       {
         "id": "general/session-2026-07-06-upgrade-aaa#3",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#3",
         "tf": 1
       }
     ],
@@ -5169,6 +5857,10 @@
       {
         "id": "general/session-2026-07-06-upgrade-aaa#3",
         "tf": 2
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#2",
+        "tf": 1
       }
     ],
     "motor": [
@@ -5299,6 +5991,10 @@
       {
         "id": "general/session-2026-09-20-validacion-mcp-bridge#7",
         "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#3",
+        "tf": 1
       }
     ],
     "call": [
@@ -5310,6 +6006,10 @@
     "statu": [
       {
         "id": "general/session-2026-07-06-upgrade-aaa#3",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#2",
         "tf": 1
       }
     ],
@@ -5357,6 +6057,14 @@
       {
         "id": "general/session-2026-09-20-validacion-mcp-bridge#3",
         "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#3",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#4",
+        "tf": 1
       }
     ],
     "adversarial": [
@@ -5400,6 +6108,14 @@
       },
       {
         "id": "general/session-2026-09-20-validacion-mcp-bridge#3",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#3",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#4",
         "tf": 1
       }
     ],
@@ -5529,6 +6245,10 @@
       {
         "id": "general/session-2026-07-07-auditoria-y-bm25plus#8",
         "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#3",
+        "tf": 2
       }
     ],
     "react": [
@@ -5783,11 +6503,27 @@
       {
         "id": "general/session-2026-09-20-validacion-mcp-bridge#5",
         "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#2",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#3",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#4",
+        "tf": 1
       }
     ],
     "fix": [
       {
         "id": "general/session-2026-07-06-upgrade-aaa#6",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#4",
         "tf": 1
       }
     ],
@@ -5848,6 +6584,18 @@
       },
       {
         "id": "general/session-2026-09-20-validacion-mcp-bridge#6",
+        "tf": 2
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#2",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#3",
+        "tf": 2
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#4",
         "tf": 2
       }
     ],
@@ -5911,6 +6659,10 @@
       {
         "id": "general/session-2026-09-20-validacion-mcp-bridge#6",
         "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#3",
+        "tf": 1
       }
     ],
     "changelog": [
@@ -5920,6 +6672,10 @@
       },
       {
         "id": "general/session-2026-07-06-upgrade-aaa#12",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#2",
         "tf": 1
       }
     ],
@@ -5964,6 +6720,10 @@
     "comando": [
       {
         "id": "general/session-2026-07-06-upgrade-aaa#7",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#3",
         "tf": 1
       }
     ],
@@ -6039,6 +6799,10 @@
       {
         "id": "general/session-2026-07-06-upgrade-aaa#9",
         "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#2",
+        "tf": 1
       }
     ],
     "desincronizarse": [
@@ -6065,6 +6829,10 @@
       {
         "id": "general/session-2026-07-07-auditoria-y-bm25plus#13",
         "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#3",
+        "tf": 1
       }
     ],
     "valide": [
@@ -6087,6 +6855,10 @@
       {
         "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#4",
         "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#4",
+        "tf": 1
       }
     ],
     "manual": [
@@ -6096,6 +6868,10 @@
       },
       {
         "id": "general/session-2026-07-06-upgrade-aaa#12",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#4",
         "tf": 1
       }
     ],
@@ -6169,6 +6945,10 @@
       {
         "id": "general/session-2026-09-20-validacion-mcp-bridge#5",
         "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#2",
+        "tf": 1
       }
     ],
     "contienen": [
@@ -6186,6 +6966,10 @@
     "dato": [
       {
         "id": "general/session-2026-07-06-upgrade-aaa#10",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#4",
         "tf": 1
       }
     ],
@@ -6323,11 +7107,19 @@
       {
         "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#3",
         "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#2",
+        "tf": 1
       }
     ],
     "flujo": [
       {
         "id": "general/session-2026-07-06-upgrade-aaa#12",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#3",
         "tf": 1
       }
     ],
@@ -6381,6 +7173,14 @@
       {
         "id": "general/session-2026-09-20-validacion-mcp-bridge#3",
         "tf": 3
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#2",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#4",
+        "tf": 1
       }
     ],
     "run": [
@@ -6399,11 +7199,27 @@
       {
         "id": "general/session-2026-09-20-validacion-mcp-bridge#3",
         "tf": 3
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#2",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#4",
+        "tf": 1
       }
     ],
     "candidato": [
       {
         "id": "general/session-2026-07-06-upgrade-aaa#12",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#2",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#3",
         "tf": 1
       }
     ],
@@ -6691,6 +7507,10 @@
       {
         "id": "general/session-2026-07-07-auditoria-y-bm25plus#12",
         "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#2",
+        "tf": 1
       }
     ],
     "automática": [
@@ -6787,6 +7607,14 @@
       {
         "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#2",
         "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#2",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#3",
+        "tf": 1
       }
     ],
     "tenga": [
@@ -6859,6 +7687,10 @@
       {
         "id": "general/session-2026-09-20-validacion-mcp-bridge#6",
         "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#5",
+        "tf": 1
       }
     ],
     "desincroniz": [
@@ -6878,6 +7710,10 @@
       },
       {
         "id": "general/session-2026-07-07-auditoria-y-bm25plus#5",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#5",
         "tf": 1
       }
     ],
@@ -6991,6 +7827,10 @@
       {
         "id": "general/session-2026-07-07-auditoria-y-bm25plus#3",
         "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#2",
+        "tf": 1
       }
     ],
     "vector": [
@@ -7002,6 +7842,10 @@
     "bien": [
       {
         "id": "general/session-2026-07-07-auditoria-y-bm25plus#3",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#4",
         "tf": 1
       }
     ],
@@ -7100,6 +7944,10 @@
     "pa": [
       {
         "id": "general/session-2026-07-07-auditoria-y-bm25plus#3",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#2",
         "tf": 1
       }
     ],
@@ -7210,6 +8058,10 @@
     "intermedio": [
       {
         "id": "general/session-2026-07-07-auditoria-y-bm25plus#4",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#4",
         "tf": 1
       }
     ],
@@ -7323,6 +8175,14 @@
       {
         "id": "general/session-2026-09-20-validacion-mcp-bridge#7",
         "tf": 2
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#2",
+        "tf": 2
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#3",
+        "tf": 6
       }
     ],
     "catch": [
@@ -7352,6 +8212,10 @@
     "error": [
       {
         "id": "general/session-2026-07-07-auditoria-y-bm25plus#5",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#2",
         "tf": 1
       }
     ],
@@ -7487,6 +8351,10 @@
       {
         "id": "general/session-2026-07-07-auditoria-y-bm25plus#5",
         "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#3",
+        "tf": 1
       }
     ],
     "compresión": [
@@ -7573,6 +8441,14 @@
       {
         "id": "general/session-2026-07-07-auditoria-y-bm25plus#7",
         "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#2",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#3",
+        "tf": 1
       }
     ],
     "razonamiento": [
@@ -7605,6 +8481,10 @@
       {
         "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#5",
         "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#3",
+        "tf": 1
       }
     ],
     "costo_por_modelo": [
@@ -7627,6 +8507,10 @@
       {
         "id": "general/session-2026-07-07-auditoria-y-bm25plus#7",
         "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#3",
+        "tf": 1
       }
     ],
     "afect": [
@@ -7644,6 +8528,14 @@
     "difer": [
       {
         "id": "general/session-2026-07-07-auditoria-y-bm25plus#8",
+        "tf": 2
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#2",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#4",
         "tf": 2
       }
     ],
@@ -7702,6 +8594,10 @@
     "queda": [
       {
         "id": "general/session-2026-07-07-auditoria-y-bm25plus#8",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#4",
         "tf": 1
       }
     ],
@@ -7762,6 +8658,22 @@
       },
       {
         "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#4",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#2",
+        "tf": 2
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#3",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#4",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#5",
         "tf": 1
       }
     ],
@@ -7825,6 +8737,10 @@
       {
         "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#4",
         "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#2",
+        "tf": 2
       }
     ],
     "glama": [
@@ -7858,6 +8774,10 @@
     "directo": [
       {
         "id": "general/session-2026-07-07-auditoria-y-bm25plus#12",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#3",
         "tf": 1
       }
     ],
@@ -7931,6 +8851,10 @@
       {
         "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#3",
         "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#2",
+        "tf": 1
       }
     ],
     "routing": [
@@ -7963,6 +8887,22 @@
       {
         "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#4",
         "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#2",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#3",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#4",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#5",
+        "tf": 1
       }
     ],
     "modularidad": [
@@ -7982,6 +8922,22 @@
       },
       {
         "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#2",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#1",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#2",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#3",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#5",
         "tf": 1
       }
     ],
@@ -8007,11 +8963,19 @@
       {
         "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#4",
         "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#4",
+        "tf": 1
       }
     ],
     "realiz": [
       {
         "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#2",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#2",
         "tf": 1
       }
     ],
@@ -8085,6 +9049,10 @@
       {
         "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#5",
         "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#2",
+        "tf": 2
       }
     ],
     "divid": [
@@ -8117,6 +9085,14 @@
       {
         "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#3",
         "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#2",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#3",
+        "tf": 2
       }
     ],
     "issue": [
@@ -8167,6 +9143,18 @@
       {
         "id": "general/session-2026-09-20-validacion-mcp-bridge#7",
         "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#2",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#3",
+        "tf": 2
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#4",
+        "tf": 1
       }
     ],
     "baseline": [
@@ -8205,17 +9193,29 @@
       {
         "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#5",
         "tf": 2
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#4",
+        "tf": 1
       }
     ],
     "estaban": [
       {
         "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#2",
         "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#2",
+        "tf": 1
       }
     ],
     "duplic": [
       {
         "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#2",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#4",
         "tf": 1
       }
     ],
@@ -8283,6 +9283,10 @@
       {
         "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#2",
         "tf": 3
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#2",
+        "tf": 1
       }
     ],
     "githook": [
@@ -8299,6 +9303,10 @@
       {
         "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#4",
         "tf": 2
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#4",
+        "tf": 1
       }
     ],
     "activ": [
@@ -8316,6 +9324,14 @@
     "sigue": [
       {
         "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#2",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#3",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#4",
         "tf": 1
       }
     ],
@@ -8341,6 +9357,14 @@
       {
         "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#4",
         "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#2",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#4",
+        "tf": 1
       }
     ],
     "glas": [
@@ -8354,6 +9378,14 @@
       },
       {
         "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#4",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#2",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#4",
         "tf": 1
       }
     ],
@@ -8411,6 +9443,18 @@
       {
         "id": "general/session-2026-09-20-validacion-mcp-bridge#4",
         "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#2",
+        "tf": 2
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#3",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#4",
+        "tf": 1
       }
     ],
     "brecha": [
@@ -8422,6 +9466,10 @@
     "resuelta": [
       {
         "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#2",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#2",
         "tf": 1
       }
     ],
@@ -8446,6 +9494,10 @@
       },
       {
         "id": "general/session-2026-09-20-validacion-mcp-bridge#4",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#2",
         "tf": 1
       }
     ],
@@ -8499,6 +9551,10 @@
       {
         "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#2",
         "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#5",
+        "tf": 1
       }
     ],
     "6063a95": [
@@ -8510,6 +9566,10 @@
     "refactor": [
       {
         "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#2",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#4",
         "tf": 1
       }
     ],
@@ -8557,6 +9617,10 @@
       {
         "id": "general/session-2026-09-20-validacion-mcp-bridge#7",
         "tf": 2
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#2",
+        "tf": 1
       }
     ],
     "aprend": [
@@ -8566,6 +9630,10 @@
       },
       {
         "id": "general/session-2026-09-20-validacion-mcp-bridge#6",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#3",
         "tf": 1
       }
     ],
@@ -8627,6 +9695,10 @@
       {
         "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#5",
         "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#4",
+        "tf": 1
       }
     ],
     "rpath": [
@@ -8656,6 +9728,10 @@
     "rompe": [
       {
         "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#3",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#4",
         "tf": 1
       }
     ],
@@ -8703,6 +9779,14 @@
       {
         "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#3",
         "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#2",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#3",
+        "tf": 3
       }
     ],
     "trackear": [
@@ -8775,12 +9859,20 @@
       {
         "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#4",
         "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#4",
+        "tf": 1
       }
     ],
     "hoy": [
       {
         "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#3",
         "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#4",
+        "tf": 2
       }
     ],
     "identidad": [
@@ -8801,6 +9893,14 @@
       {
         "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#3",
         "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#2",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#3",
+        "tf": 1
       }
     ],
     "estuvo": [
@@ -8818,6 +9918,14 @@
     "checkpoint": [
       {
         "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#3",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#2",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#3",
         "tf": 1
       }
     ],
@@ -8877,6 +9985,14 @@
       {
         "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#4",
         "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#2",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#3",
+        "tf": 1
       }
     ],
     "literal": [
@@ -8896,6 +10012,10 @@
       },
       {
         "id": "general/session-2026-09-20-validacion-mcp-bridge#6",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#3",
         "tf": 1
       }
     ],
@@ -8933,6 +10053,10 @@
       {
         "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#3",
         "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#4",
+        "tf": 1
       }
     ],
     "escrib": [
@@ -8969,6 +10093,14 @@
       {
         "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#5",
         "tf": 2
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#4",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#5",
+        "tf": 1
       }
     ],
     "search": [
@@ -9011,6 +10143,10 @@
       {
         "id": "general/session-2026-09-20-validacion-mcp-bridge#6",
         "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#4",
+        "tf": 1
       }
     ],
     "sintaxi": [
@@ -9031,6 +10167,10 @@
       {
         "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#5",
         "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#2",
+        "tf": 1
       }
     ],
     "sandbox": [
@@ -9041,17 +10181,37 @@
       {
         "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#5",
         "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#4",
+        "tf": 1
       }
     ],
     "quedo": [
       {
         "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#3",
         "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#2",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#4",
+        "tf": 1
       }
     ],
     "eso": [
       {
         "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#3",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#4",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#5",
         "tf": 1
       }
     ],
@@ -9159,12 +10319,28 @@
       {
         "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#4",
         "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#3",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#4",
+        "tf": 1
       }
     ],
     "alcance": [
       {
         "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#4",
         "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#2",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#4",
+        "tf": 2
       }
     ],
     "valen": [
@@ -9359,6 +10535,10 @@
       {
         "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#4",
         "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#2",
+        "tf": 1
       }
     ],
     "new": [
@@ -9383,11 +10563,19 @@
       {
         "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#4",
         "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#5",
+        "tf": 1
       }
     ],
     "tree": [
       {
         "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#4",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#5",
         "tf": 1
       }
     ],
@@ -9489,6 +10677,10 @@
       {
         "id": "general/session-2026-09-20-validacion-mcp-bridge#7",
         "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#3",
+        "tf": 1
       }
     ],
     "ca": [
@@ -9515,6 +10707,10 @@
       {
         "id": "general/session-2026-09-20-validacion-mcp-bridge#6",
         "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#4",
+        "tf": 1
       }
     ],
     "ssh": [
@@ -9527,12 +10723,24 @@
       {
         "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#5",
         "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#2",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#3",
+        "tf": 2
       }
     ],
     "escribir": [
       {
         "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#5",
         "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#3",
+        "tf": 2
       }
     ],
     "g10": [
@@ -9731,6 +10939,14 @@
       {
         "id": "general/session-2026-09-20-auditoria-gobierno-y-quality-gate#5",
         "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#3",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#4",
+        "tf": 1
       }
     ],
     "fuente": [
@@ -9741,6 +10957,14 @@
       {
         "id": "general/session-2026-09-20-validacion-mcp-bridge#7",
         "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#3",
+        "tf": 2
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#4",
+        "tf": 2
       }
     ],
     "primaria": [
@@ -9751,6 +10975,10 @@
       {
         "id": "general/session-2026-09-20-validacion-mcp-bridge#7",
         "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#4",
+        "tf": 2
       }
     ],
     "repar": [
@@ -9815,11 +11043,27 @@
       {
         "id": "general/session-2026-09-20-validacion-mcp-bridge#3",
         "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#2",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#3",
+        "tf": 1
       }
     ],
     "desactualiz": [
       {
         "id": "general/session-2026-09-20-validacion-mcp-bridge#3",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#2",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#3",
         "tf": 1
       }
     ],
@@ -9857,6 +11101,10 @@
       {
         "id": "general/session-2026-09-20-validacion-mcp-bridge#4",
         "tf": 2
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#3",
+        "tf": 1
       }
     ],
     "intento": [
@@ -9891,6 +11139,10 @@
       {
         "id": "general/session-2026-09-20-validacion-mcp-bridge#6",
         "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#4",
+        "tf": 1
       }
     ],
     "presencia": [
@@ -9916,6 +11168,10 @@
       },
       {
         "id": "general/session-2026-09-20-validacion-mcp-bridge#6",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#4",
         "tf": 1
       }
     ],
@@ -9981,6 +11237,10 @@
       {
         "id": "general/session-2026-09-20-validacion-mcp-bridge#7",
         "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#4",
+        "tf": 1
       }
     ],
     "add": [
@@ -10000,6 +11260,10 @@
       },
       {
         "id": "general/session-2026-09-20-validacion-mcp-bridge#6",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#2",
         "tf": 1
       }
     ],
@@ -10099,11 +11363,31 @@
       {
         "id": "general/session-2026-09-20-validacion-mcp-bridge#6",
         "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#2",
+        "tf": 2
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#3",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#4",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#5",
+        "tf": 2
       }
     ],
     "loadenv": [
       {
         "id": "general/session-2026-09-20-validacion-mcp-bridge#6",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#4",
         "tf": 1
       }
     ],
@@ -10121,11 +11405,23 @@
       {
         "id": "general/session-2026-09-20-validacion-mcp-bridge#7",
         "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#2",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#3",
+        "tf": 1
       }
     ],
     "degr": [
       {
         "id": "general/session-2026-09-20-validacion-mcp-bridge#6",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#4",
         "tf": 1
       }
     ],
@@ -10142,6 +11438,10 @@
       },
       {
         "id": "general/session-2026-09-20-validacion-mcp-bridge#7",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#4",
         "tf": 1
       }
     ],
@@ -10179,6 +11479,14 @@
       {
         "id": "general/session-2026-09-20-validacion-mcp-bridge#6",
         "tf": 2
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#2",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#3",
+        "tf": 1
       }
     ],
     "disponible": [
@@ -10191,6 +11499,14 @@
       {
         "id": "general/session-2026-09-20-validacion-mcp-bridge#6",
         "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#2",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#3",
+        "tf": 2
       }
     ],
     "include": [
@@ -10232,6 +11548,10 @@
     "buscar_web": [
       {
         "id": "general/session-2026-09-20-validacion-mcp-bridge#7",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#4",
         "tf": 1
       }
     ],
@@ -10341,11 +11661,19 @@
       {
         "id": "general/session-2026-09-20-validacion-mcp-bridge#7",
         "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#4",
+        "tf": 1
       }
     ],
     "impacto": [
       {
         "id": "general/session-2026-09-20-validacion-mcp-bridge#7",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#2",
         "tf": 1
       }
     ],
@@ -10408,6 +11736,1100 @@
         "id": "general/session-2026-09-20-validacion-mcp-bridge#7",
         "tf": 1
       }
+    ],
+    "fit": [
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#1",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#3",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#5",
+        "tf": 1
+      }
+    ],
+    "limpieza": [
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#1",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#4",
+        "tf": 1
+      }
+    ],
+    "g26": [
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#2",
+        "tf": 2
+      }
+    ],
+    "g27": [
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#2",
+        "tf": 2
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#4",
+        "tf": 1
+      }
+    ],
+    "g11b": [
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#2",
+        "tf": 2
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#4",
+        "tf": 1
+      }
+    ],
+    "previa": [
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#2",
+        "tf": 2
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#3",
+        "tf": 1
+      }
+    ],
+    "g31": [
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#2",
+        "tf": 1
+      }
+    ],
+    "g35": [
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#2",
+        "tf": 1
+      }
+    ],
+    "g38": [
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#2",
+        "tf": 1
+      }
+    ],
+    "g40": [
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#2",
+        "tf": 1
+      }
+    ],
+    "existen": [
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#2",
+        "tf": 1
+      }
+    ],
+    "mencion": [
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#2",
+        "tf": 1
+      }
+    ],
+    "llegaron": [
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#2",
+        "tf": 1
+      }
+    ],
+    "documentarse": [
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#2",
+        "tf": 1
+      }
+    ],
+    "explicita": [
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#2",
+        "tf": 2
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#3",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#4",
+        "tf": 1
+      }
+    ],
+    "documento": [
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#2",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#5",
+        "tf": 1
+      }
+    ],
+    "dice": [
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#2",
+        "tf": 1
+      }
+    ],
+    "abierto": [
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#2",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#5",
+        "tf": 1
+      }
+    ],
+    "ejecut": [
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#2",
+        "tf": 2
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#4",
+        "tf": 1
+      }
+    ],
+    "usuario": [
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#2",
+        "tf": 3
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#3",
+        "tf": 2
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#4",
+        "tf": 2
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#5",
+        "tf": 1
+      }
+    ],
+    "podia": [
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#2",
+        "tf": 1
+      }
+    ],
+    "autorizarla": [
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#2",
+        "tf": 1
+      }
+    ],
+    "tmp": [
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#2",
+        "tf": 1
+      }
+    ],
+    "probe": [
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#2",
+        "tf": 1
+      }
+    ],
+    "existia": [
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#2",
+        "tf": 1
+      }
+    ],
+    "borrar": [
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#2",
+        "tf": 1
+      }
+    ],
+    "rama": [
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#2",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#3",
+        "tf": 4
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#4",
+        "tf": 1
+      }
+    ],
+    "mezcla": [
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#2",
+        "tf": 1
+      }
+    ],
+    "autoria": [
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#2",
+        "tf": 1
+      }
+    ],
+    "andrew": [
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#2",
+        "tf": 1
+      }
+    ],
+    "arizmendi": [
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#2",
+        "tf": 1
+      }
+    ],
+    "contamin": [
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#2",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#4",
+        "tf": 1
+      }
+    ],
+    "segun": [
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#2",
+        "tf": 1
+      }
+    ],
+    "g28": [
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#2",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#4",
+        "tf": 1
+      }
+    ],
+    "borr": [
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#2",
+        "tf": 1
+      }
+    ],
+    "branch": [
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#2",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#3",
+        "tf": 1
+      }
+    ],
+    "reconectar": [
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#2",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#5",
+        "tf": 1
+      }
+    ],
+    "ejecutable": [
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#2",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#5",
+        "tf": 1
+      }
+    ],
+    "interfaz": [
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#2",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#3",
+        "tf": 1
+      }
+    ],
+    "interactiva": [
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#2",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#3",
+        "tf": 1
+      }
+    ],
+    "indic": [
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#2",
+        "tf": 1
+      }
+    ],
+    "corr": [
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#2",
+        "tf": 1
+      }
+    ],
+    "credencial": [
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#2",
+        "tf": 1
+      }
+    ],
+    "limpio": [
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#2",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#4",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#5",
+        "tf": 1
+      }
+    ],
+    "salvo": [
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#2",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#4",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#5",
+        "tf": 1
+      }
+    ],
+    "telemetria": [
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#2",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#5",
+        "tf": 1
+      }
+    ],
+    "aiops_score_history": [
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#2",
+        "tf": 1
+      }
+    ],
+    "funcional": [
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#2",
+        "tf": 1
+      }
+    ],
+    "varia": [
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#2",
+        "tf": 1
+      }
+    ],
+    "escribirse": [
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#2",
+        "tf": 1
+      }
+    ],
+    "aprob": [
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#2",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#3",
+        "tf": 2
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#4",
+        "tf": 1
+      }
+    ],
+    "calcula": [
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#2",
+        "tf": 1
+      }
+    ],
+    "exacto": [
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#2",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#3",
+        "tf": 1
+      }
+    ],
+    "editar": [
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#2",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#3",
+        "tf": 1
+      }
+    ],
+    "reintento": [
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#2",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#3",
+        "tf": 1
+      }
+    ],
+    "invalidaba": [
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#2",
+        "tf": 1
+      }
+    ],
+    "quedar": [
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#3",
+        "tf": 1
+      }
+    ],
+    "contener": [
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#3",
+        "tf": 1
+      }
+    ],
+    "materializaron": [
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#3",
+        "tf": 1
+      }
+    ],
+    "asumir": [
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#3",
+        "tf": 1
+      }
+    ],
+    "algo": [
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#3",
+        "tf": 1
+      }
+    ],
+    "referenci": [
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#3",
+        "tf": 1
+      }
+    ],
+    "principio": [
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#3",
+        "tf": 1
+      }
+    ],
+    "externo": [
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#3",
+        "tf": 1
+      }
+    ],
+    "confiable": [
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#3",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#4",
+        "tf": 1
+      }
+    ],
+    "defecto": [
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#3",
+        "tf": 1
+      }
+    ],
+    "extend": [
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#3",
+        "tf": 1
+      }
+    ],
+    "merge": [
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#3",
+        "tf": 1
+      }
+    ],
+    "dispara": [
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#3",
+        "tf": 1
+      }
+    ],
+    "aunque": [
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#3",
+        "tf": 1
+      }
+    ],
+    "sea": [
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#3",
+        "tf": 1
+      }
+    ],
+    "recuper": [
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#3",
+        "tf": 1
+      }
+    ],
+    "nadie": [
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#3",
+        "tf": 1
+      }
+    ],
+    "usa": [
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#3",
+        "tf": 1
+      }
+    ],
+    "distingue": [
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#3",
+        "tf": 1
+      }
+    ],
+    "trabajo": [
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#3",
+        "tf": 2
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#4",
+        "tf": 1
+      }
+    ],
+    "respaldo": [
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#3",
+        "tf": 1
+      }
+    ],
+    "automatico": [
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#3",
+        "tf": 1
+      }
+    ],
+    "diseno": [
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#3",
+        "tf": 1
+      }
+    ],
+    "escritura": [
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#3",
+        "tf": 1
+      }
+    ],
+    "sensible": [
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#3",
+        "tf": 1
+      }
+    ],
+    "objetivo": [
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#3",
+        "tf": 1
+      }
+    ],
+    "diferencia": [
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#3",
+        "tf": 1
+      }
+    ],
+    "mutating": [
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#3",
+        "tf": 1
+      }
+    ],
+    "action": [
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#3",
+        "tf": 1
+      }
+    ],
+    "g37": [
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#3",
+        "tf": 1
+      }
+    ],
+    "normalizan": [
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#3",
+        "tf": 1
+      }
+    ],
+    "flag": [
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#3",
+        "tf": 1
+      }
+    ],
+    "inval": [
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#3",
+        "tf": 1
+      }
+    ],
+    "silencio": [
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#3",
+        "tf": 1
+      }
+    ],
+    "genera": [
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#3",
+        "tf": 1
+      }
+    ],
+    "leccion": [
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#3",
+        "tf": 1
+      }
+    ],
+    "fijar": [
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#3",
+        "tf": 1
+      }
+    ],
+    "narrar": [
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#3",
+        "tf": 1
+      }
+    ],
+    "forcejeo": [
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#3",
+        "tf": 1
+      }
+    ],
+    "intenta": [
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#3",
+        "tf": 1
+      }
+    ],
+    "narr": [
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#3",
+        "tf": 1
+      }
+    ],
+    "nueva": [
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#3",
+        "tf": 1
+      }
+    ],
+    "cambia": [
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#3",
+        "tf": 1
+      }
+    ],
+    "hash": [
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#3",
+        "tf": 1
+      }
+    ],
+    "reinicia": [
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#3",
+        "tf": 1
+      }
+    ],
+    "ruta": [
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#3",
+        "tf": 1
+      }
+    ],
+    "dispararlo": [
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#3",
+        "tf": 1
+      }
+    ],
+    "depende": [
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#3",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#5",
+        "tf": 1
+      }
+    ],
+    "entera": [
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#3",
+        "tf": 1
+      }
+    ],
+    "pide": [
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#3",
+        "tf": 1
+      }
+    ],
+    "dejarla": [
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#3",
+        "tf": 1
+      }
+    ],
+    "interrumpir": [
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#3",
+        "tf": 1
+      }
+    ],
+    "correr": [
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#3",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#5",
+        "tf": 1
+      }
+    ],
+    "proponer": [
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#3",
+        "tf": 1
+      }
+    ],
+    "solicit": [
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#3",
+        "tf": 1
+      }
+    ],
+    "siguiente": [
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#4",
+        "tf": 1
+      }
+    ],
+    "motivo": [
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#4",
+        "tf": 2
+      }
+    ],
+    "reactiv": [
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#4",
+        "tf": 1
+      }
+    ],
+    "ninguno": [
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#4",
+        "tf": 1
+      },
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#5",
+        "tf": 1
+      }
+    ],
+    "toco": [
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#4",
+        "tf": 1
+      }
+    ],
+    "abrir": [
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#4",
+        "tf": 1
+      }
+    ],
+    "g3b": [
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#4",
+        "tf": 1
+      }
+    ],
+    "rollback": [
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#4",
+        "tf": 1
+      }
+    ],
+    "activarse": [
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#4",
+        "tf": 1
+      }
+    ],
+    "necesite": [
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#4",
+        "tf": 1
+      }
+    ],
+    "reconsiderar": [
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#4",
+        "tf": 4
+      }
+    ],
+    "aparece": [
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#4",
+        "tf": 1
+      }
+    ],
+    "g29": [
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#4",
+        "tf": 1
+      }
+    ],
+    "ask": [
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#4",
+        "tf": 1
+      }
+    ],
+    "oper": [
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#4",
+        "tf": 1
+      }
+    ],
+    "justifique": [
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#4",
+        "tf": 1
+      }
+    ],
+    "todavia": [
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#4",
+        "tf": 1
+      }
+    ],
+    "proveedor": [
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#4",
+        "tf": 1
+      }
+    ],
+    "pago": [
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#4",
+        "tf": 1
+      }
+    ],
+    "alterno": [
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#4",
+        "tf": 1
+      }
+    ],
+    "agotamiento": [
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#4",
+        "tf": 1
+      }
+    ],
+    "vuelve": [
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#4",
+        "tf": 1
+      }
+    ],
+    "frecuente": [
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#4",
+        "tf": 1
+      }
+    ],
+    "modo": [
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#4",
+        "tf": 1
+      }
+    ],
+    "configurabl": [
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#4",
+        "tf": 1
+      }
+    ],
+    "smart": [
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#4",
+        "tf": 1
+      }
+    ],
+    "off": [
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#4",
+        "tf": 1
+      }
+    ],
+    "herm": [
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#4",
+        "tf": 1
+      }
+    ],
+    "ped": [
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#4",
+        "tf": 1
+      }
+    ],
+    "explicito": [
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#4",
+        "tf": 1
+      }
+    ],
+    "g26b": [
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#4",
+        "tf": 1
+      }
+    ],
+    "errorrepairloop": [
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#4",
+        "tf": 1
+      }
+    ],
+    "renombr": [
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#4",
+        "tf": 1
+      }
+    ],
+    "durante": [
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#4",
+        "tf": 1
+      }
+    ],
+    "colision": [
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#4",
+        "tf": 2
+      }
+    ],
+    "probabilidad": [
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#4",
+        "tf": 1
+      }
+    ],
+    "ventana": [
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#4",
+        "tf": 1
+      }
+    ],
+    "corta": [
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#4",
+        "tf": 1
+      }
+    ],
+    "exige": [
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#4",
+        "tf": 1
+      }
+    ],
+    "extraer": [
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#4",
+        "tf": 1
+      }
+    ],
+    "quirurgico": [
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#4",
+        "tf": 1
+      }
+    ],
+    "cualquiera": [
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#4",
+        "tf": 1
+      }
+    ],
+    "categoria": [
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#4",
+        "tf": 1
+      }
+    ],
+    "unica": [
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#5",
+        "tf": 1
+      }
+    ],
+    "cargar": [
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#5",
+        "tf": 1
+      }
+    ],
+    "considera": [
+      {
+        "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#5",
+        "tf": 1
+      }
     ]
   },
   "len": {
@@ -10456,10 +12878,15 @@
     "general/session-2026-09-20-validacion-mcp-bridge#4": 37,
     "general/session-2026-09-20-validacion-mcp-bridge#5": 52,
     "general/session-2026-09-20-validacion-mcp-bridge#6": 106,
-    "general/session-2026-09-20-validacion-mcp-bridge#7": 142
+    "general/session-2026-09-20-validacion-mcp-bridge#7": 142,
+    "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#1": 9,
+    "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#2": 196,
+    "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#3": 187,
+    "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#4": 154,
+    "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#5": 42
   },
-  "avgLen": 50.891304347826086,
-  "N": 46,
+  "avgLen": 57.431372549019606,
+  "N": 51,
   "frags": {
     "general/session-2026-07-06-media-prioridad#1": {
       "id": "general/session-2026-07-06-media-prioridad#1",
@@ -13169,7 +15596,635 @@
         "mcp",
         "json"
       ]
+    },
+    "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#1": {
+      "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#1",
+      "source": "session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints",
+      "rol": "general",
+      "text": "Sesion 2026-09-22 — Cierre de v1 fit: verificacion de pendientes, limpieza y marco de calidad",
+      "tokens": [
+        "sesion",
+        "2026",
+        "cierre",
+        "fit",
+        "verific",
+        "pendient",
+        "limpieza",
+        "marco",
+        "calidad"
+      ]
+    },
+    "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#2": {
+      "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#2",
+      "source": "session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints",
+      "rol": "general",
+      "text": "Realizado\n\n- Verificacion de estado real de G26, G27 y G11b (memoria previa los marcaba como pendientes; estaban desactualizados). Confirmado contra `docs/AUDITORIA-GOBIERNO-2026-09.md`: G26 RESUELTA (2026-09-22), G11b y G27 diferidos por alcance en 7.3, no bloqueados.\n- Descartados G31-G35 y G38-G40: no existen en ningun archivo del repo (`grep` sin resultados en `docs/` ni `CHANGELOG.md`). Eran candidatos mencionados en memoria de sesion anterior que nunca llegaron a documentarse — error de la propia memoria, no gap real.\n- Confirmado explicitamente: seccion 7.2 del documento de auditoria dice \"Sin items abiertos tras esta pasada (2026-09-22)\".\n- Ejecutadas las 3 acciones de la seccion 7.4 (solo el usuario podia autorizarlas):\n  1. `.claude/tmp-deny-probe`: ya no existia, nada que borrar",
+      "tokens": [
+        "realiz",
+        "verific",
+        "est",
+        "real",
+        "g26",
+        "g27",
+        "g11b",
+        "memoria",
+        "previa",
+        "marcaba",
+        "pendient",
+        "estaban",
+        "desactualiz",
+        "confirm",
+        "contra",
+        "doc",
+        "auditoria",
+        "gobierno",
+        "2026",
+        "g26",
+        "resuelta",
+        "2026",
+        "g11b",
+        "g27",
+        "difer",
+        "alcance",
+        "bloque",
+        "descart",
+        "g31",
+        "g35",
+        "g38",
+        "g40",
+        "existen",
+        "ningun",
+        "archivo",
+        "repo",
+        "grep",
+        "sin",
+        "result",
+        "doc",
+        "changelog",
+        "eran",
+        "candidato",
+        "mencion",
+        "memoria",
+        "sesion",
+        "anterior",
+        "nunca",
+        "llegaron",
+        "documentarse",
+        "error",
+        "propia",
+        "memoria",
+        "gap",
+        "real",
+        "confirm",
+        "explicita",
+        "seccion",
+        "documento",
+        "auditoria",
+        "dice",
+        "sin",
+        "item",
+        "abierto",
+        "tra",
+        "pa",
+        "2026",
+        "ejecut",
+        "accion",
+        "seccion",
+        "solo",
+        "usuario",
+        "podia",
+        "autorizarla",
+        "claude",
+        "tmp",
+        "deny",
+        "probe",
+        "existia",
+        "n",
+        "borrar",
+        "rama",
+        "core",
+        "checkpoint",
+        "595",
+        "commit",
+        "mezcla",
+        "autoria",
+        "andrew",
+        "arizmendi",
+        "test",
+        "user",
+        "contamin",
+        "segun",
+        "g28",
+        "borr",
+        "git",
+        "branch",
+        "bloque",
+        "primero",
+        "destructive",
+        "guard",
+        "ejecut",
+        "tra",
+        "confirm",
+        "explicita",
+        "usuario",
+        "via",
+        "break",
+        "glas",
+        "mcp",
+        "reconectar",
+        "bridge",
+        "gemini",
+        "ejecutable",
+        "via",
+        "bash",
+        "com",
+        "propio",
+        "interfaz",
+        "interactiva",
+        "harnes",
+        "quedo",
+        "indic",
+        "usuario",
+        "corra",
+        "mismo",
+        "marco",
+        "calidad",
+        "completo",
+        "npm",
+        "run",
+        "quality",
+        "gate",
+        "corr",
+        "cierre",
+        "check",
+        "300",
+        "linea",
+        "residual",
+        "credencial",
+        "500",
+        "linea",
+        "skill",
+        "conformidad",
+        "skill",
+        "conformidad",
+        "agent",
+        "vigencia",
+        "merc",
+        "suite",
+        "test",
+        "git",
+        "statu",
+        "confirm",
+        "limpio",
+        "salvo",
+        "archivo",
+        "telemetria",
+        "propia",
+        "aiops_score_history",
+        "json",
+        "memory",
+        "vault",
+        "index",
+        "json",
+        "sin",
+        "impacto",
+        "funcional",
+        "registro",
+        "sesion",
+        "vault",
+        "bloque",
+        "varia",
+        "vec",
+        "skill",
+        "vault",
+        "write",
+        "guard",
+        "ant",
+        "escribirse",
+        "clave",
+        "aprob",
+        "calcula",
+        "sobre",
+        "conten",
+        "exacto",
+        "archivo",
+        "editar",
+        "texto",
+        "entre",
+        "reintento",
+        "invalidaba",
+        "c",
+        "confirm",
+        "previa"
+      ]
+    },
+    "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#3": {
+      "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#3",
+      "source": "session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints",
+      "rol": "general",
+      "text": "Aprendido\n\n- La memoria de sesion (`MEMORY.md` del harness, fuera del vault de ai-core) puede quedar desactualizada o contener candidatos que nunca se materializaron en el repo — no asumir que algo referenciado en memoria de sesion previa existe realmente sin verificar contra la fuente (`docs/AUDITORIA-GOBIERNO-2026-09.md`, `grep` directo). Aplica el mismo principio que \"contenido externo no confiable por defecto\" de CLAUDE.md, extendido a memoria propia entre sesiones.\n- `git branch -D` sobre una rama no mergeada dispara `destructive-op-guard.js` aunque sea una rama de solo-recuperacion (`ai-core/checkpoints`) que nadie usa en el flujo normal — el guard no distingue \"rama de trabajo\" de \"rama de respaldo automatico\", correcto por diseno.\n- Para escrituras (Write/Edit), la clave de aprobac",
+      "tokens": [
+        "aprend",
+        "memoria",
+        "sesion",
+        "memory",
+        "harnes",
+        "fuera",
+        "vault",
+        "core",
+        "puede",
+        "quedar",
+        "desactualiz",
+        "contener",
+        "candidato",
+        "nunca",
+        "materializaron",
+        "repo",
+        "asumir",
+        "algo",
+        "referenci",
+        "memoria",
+        "sesion",
+        "previa",
+        "existe",
+        "real",
+        "sin",
+        "verificar",
+        "contra",
+        "fuente",
+        "doc",
+        "auditoria",
+        "gobierno",
+        "2026",
+        "grep",
+        "directo",
+        "aplica",
+        "mismo",
+        "principio",
+        "conten",
+        "externo",
+        "confiable",
+        "defecto",
+        "claude",
+        "extend",
+        "memoria",
+        "propia",
+        "entre",
+        "sesion",
+        "git",
+        "branch",
+        "sobre",
+        "rama",
+        "merge",
+        "dispara",
+        "destructive",
+        "guard",
+        "aunque",
+        "sea",
+        "rama",
+        "solo",
+        "recuper",
+        "core",
+        "checkpoint",
+        "nadie",
+        "usa",
+        "flujo",
+        "normal",
+        "guard",
+        "distingue",
+        "rama",
+        "trabajo",
+        "rama",
+        "respaldo",
+        "automatico",
+        "correcto",
+        "diseno",
+        "escritura",
+        "write",
+        "edit",
+        "clave",
+        "aprob",
+        "skill",
+        "vault",
+        "write",
+        "guard",
+        "sensible",
+        "conten",
+        "exacto",
+        "archivo",
+        "objetivo",
+        "diferencia",
+        "destructive",
+        "guard",
+        "mutating",
+        "action",
+        "guard",
+        "g37",
+        "normalizan",
+        "orden",
+        "flag",
+        "comando",
+        "bash",
+        "editar",
+        "texto",
+        "escribir",
+        "entre",
+        "bloqueo",
+        "reintento",
+        "inval",
+        "aprob",
+        "silencio",
+        "genera",
+        "nuevo",
+        "leccion",
+        "practica",
+        "fijar",
+        "conten",
+        "final",
+        "ant",
+        "primera",
+        "confirm",
+        "narrar",
+        "forcejeo",
+        "guard",
+        "dentro",
+        "propio",
+        "archivo",
+        "intenta",
+        "escribir",
+        "porque",
+        "c",
+        "narr",
+        "nueva",
+        "cambia",
+        "hash",
+        "reinicia",
+        "ciclo",
+        "mcp",
+        "com",
+        "interfaz",
+        "interactiva",
+        "claude",
+        "code",
+        "com",
+        "shell",
+        "existe",
+        "ruta",
+        "dispararlo",
+        "via",
+        "bash",
+        "via",
+        "ningun",
+        "tool",
+        "sesion",
+        "depende",
+        "entera",
+        "usuario",
+        "cu",
+        "usuario",
+        "pide",
+        "explicita",
+        "cerrar",
+        "dejarla",
+        "fit",
+        "solo",
+        "interrumpir",
+        "critico",
+        "valid",
+        "criterio",
+        "correcto",
+        "sigue",
+        "verificar",
+        "est",
+        "real",
+        "contra",
+        "fuente",
+        "document",
+        "hay",
+        "gap",
+        "correr",
+        "marco",
+        "calidad",
+        "confirm",
+        "final",
+        "proponer",
+        "trabajo",
+        "nuevo",
+        "solicit"
+      ]
+    },
+    "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#4": {
+      "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#4",
+      "source": "session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints",
+      "rol": "general",
+      "text": "Fuera de alcance detectado (quedo diferido, no ejecutado)\n\nTodo lo siguiente esta en `docs/AUDITORIA-GOBIERNO-2026-09.md`, seccion 7.3, con motivo y criterio de reactivacion — ninguno se toco en esta sesion por decision explicita del usuario de no abrir trabajo nuevo salvo critico validado:\n\n- **G3 / G3b** — sandbox nativo de Claude Code: rompe `npm run setup`, `rollback-*` y el pre-push al activarse; sin anfitrion que lo necesite hoy. Reconsiderar solo si aparece un anfitrion con codigo no confiable.\n- **G29** — `ask` en `permissions.json`: sin operacion de riesgo intermedio que lo justifique todavia.\n- **G11b** — sin proveedor de pago alterno a Gemini para `buscar_web`; degrada bien a WebSearch/WebFetch nativas hoy. Reconsiderar si el agotamiento de cuota se vuelve frecuente en la practi",
+      "tokens": [
+        "fuera",
+        "alcance",
+        "detect",
+        "quedo",
+        "difer",
+        "ejecut",
+        "todo",
+        "siguiente",
+        "doc",
+        "auditoria",
+        "gobierno",
+        "2026",
+        "seccion",
+        "motivo",
+        "criterio",
+        "reactiv",
+        "ninguno",
+        "toco",
+        "sesion",
+        "decision",
+        "explicita",
+        "usuario",
+        "abrir",
+        "trabajo",
+        "nuevo",
+        "salvo",
+        "critico",
+        "valid",
+        "g3b",
+        "sandbox",
+        "nativo",
+        "claude",
+        "code",
+        "rompe",
+        "npm",
+        "run",
+        "setup",
+        "rollback",
+        "pre",
+        "push",
+        "activarse",
+        "sin",
+        "anfitrion",
+        "necesite",
+        "hoy",
+        "reconsiderar",
+        "solo",
+        "aparece",
+        "anfitrion",
+        "codigo",
+        "confiable",
+        "g29",
+        "ask",
+        "permission",
+        "json",
+        "sin",
+        "oper",
+        "riesgo",
+        "intermedio",
+        "justifique",
+        "todavia",
+        "g11b",
+        "sin",
+        "proveedor",
+        "pago",
+        "alterno",
+        "gemini",
+        "buscar_web",
+        "degr",
+        "bien",
+        "websearch",
+        "webfetch",
+        "nativa",
+        "hoy",
+        "reconsiderar",
+        "agotamiento",
+        "cuota",
+        "vuelve",
+        "frecuente",
+        "practica",
+        "g27",
+        "modo",
+        "aprob",
+        "configurabl",
+        "smart",
+        "manual",
+        "off",
+        "break",
+        "glas",
+        "dato",
+        "referencia",
+        "herm",
+        "verific",
+        "contra",
+        "fuente",
+        "primaria",
+        "reconsiderar",
+        "solo",
+        "fuente",
+        "primaria",
+        "confirm",
+        "ped",
+        "explicito",
+        "usuario",
+        "g26b",
+        "errorrepairloop",
+        "test",
+        "sigue",
+        "renombr",
+        "env",
+        "real",
+        "repo",
+        "durante",
+        "test",
+        "riesgo",
+        "colision",
+        "baja",
+        "probabilidad",
+        "ventana",
+        "corta",
+        "fix",
+        "limpio",
+        "exige",
+        "extraer",
+        "loadenv",
+        "duplic",
+        "archivo",
+        "produccion",
+        "modulo",
+        "compart",
+        "alcance",
+        "refactor",
+        "quirurgico",
+        "reconsiderar",
+        "detecta",
+        "colision",
+        "real",
+        "tocar",
+        "cualquiera",
+        "eso",
+        "archivo",
+        "otro",
+        "motivo",
+        "g28",
+        "propia",
+        "limpieza",
+        "rama",
+        "contamin",
+        "estaba",
+        "categoria",
+        "resolvio",
+        "sesion",
+        "queda",
+        "difer"
+      ]
+    },
+    "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#5": {
+      "id": "general/session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints#5",
+      "source": "session-2026-09-22-cierre-v1-fit-y-limpieza-checkpoints",
+      "rol": "general",
+      "text": "Pendiente\n\nNinguno de ejecucion propia. Unica accion que depende del usuario:\n\n1. Correr `/mcp` para reconectar `gemini-bridge` y cargar el marcador de cuota nuevo (no ejecutable por el agente).\n\nCon eso, las 3 acciones de la seccion 7.4 del documento de auditoria quedan completas y la v1 se considera fit para produccion: 0 items abiertos en el registro de gobierno, marco de calidad 8/8 en verde, working tree limpio salvo telemetria propia.",
+      "tokens": [
+        "pendiente",
+        "ninguno",
+        "ejecucion",
+        "propia",
+        "unica",
+        "accion",
+        "depende",
+        "usuario",
+        "correr",
+        "mcp",
+        "reconectar",
+        "gemini",
+        "bridge",
+        "cargar",
+        "marcador",
+        "cuota",
+        "nuevo",
+        "ejecutable",
+        "agente",
+        "eso",
+        "accion",
+        "seccion",
+        "documento",
+        "auditoria",
+        "quedan",
+        "completa",
+        "considera",
+        "fit",
+        "produccion",
+        "item",
+        "abierto",
+        "registro",
+        "gobierno",
+        "marco",
+        "calidad",
+        "verde",
+        "working",
+        "tree",
+        "limpio",
+        "salvo",
+        "telemetria",
+        "propia"
+      ]
     }
   },
-  "builtAt": "2026-09-22T20:15:46.139Z"
+  "builtAt": "2026-09-22T22:05:57.742Z"
 }

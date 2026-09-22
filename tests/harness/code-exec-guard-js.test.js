@@ -149,6 +149,19 @@ describe('code-exec-guard.js', () => {
       assert.equal(segundoIntento.status, 2, 'la aprobacion de un solo uso no debe cubrir un segundo reintento');
       fs.rmSync(dir, { recursive: true, force: true });
     });
+
+    test('editar el contenido entre el bloqueo y el reintento advierte explicitamente en stderr (mismo patron que skill-vault-write-guard)', () => {
+      const dir = nuevoDirBreakGlass();
+      const env = { AI_CORE_BREAK_GLASS_DIR: dir, AI_CORE_BREAK_GLASS_LOG: path.join(dir, 'log.jsonl') };
+
+      const primerBloqueo = runConEnv({ file_path: 'sandbox.js', content: 'x=' + 'eval' + '(a);' }, env);
+      assert.doesNotMatch(primerBloqueo.stderr, /ALERTA/);
+
+      const segundoBloqueo = runConEnv({ file_path: 'sandbox.js', content: 'x=' + 'eval' + '(a); // comentario nuevo' }, env);
+      assert.equal(segundoBloqueo.status, 2);
+      assert.match(segundoBloqueo.stderr, /ALERTA.*contenido.*DISTINTO/s);
+      fs.rmSync(dir, { recursive: true, force: true });
+    });
   });
 });
 

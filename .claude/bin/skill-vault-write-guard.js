@@ -57,12 +57,15 @@ const hashAccion = `${filePath}:${content}`;
 
 if (accionAprobada(GUARD_ID, hashAccion)) process.exit(0);
 
-const id = solicitarBreakGlass(GUARD_ID, hashAccion);
+const { id, reintentoModificado } = solicitarBreakGlass(GUARD_ID, hashAccion);
 process.stderr.write(
   `[SKILL-VAULT-WRITE-GUARD] BLOQUEADO: escritura del hilo principal a "${rutaRelativa}" (dentro de .claude/skills/ o .claude/memory-vault/).\n` +
   'Motivo: CLAUDE.md exige compuerta de aprobacion humana antes de escribir contenido de skills o memoria persistente -- el backup de agent-snapshot.js es una red de recuperacion posterior, no una aprobacion previa.\n' +
   `Si es intencional, confirma explicitamente respondiendo unicamente: CONFIRMAR-${id}\n` +
   '(valido solo por 5 minutos y solo para reintentar esta misma escritura exacta -- no autoriza otra escritura futura a skills/vault).\n' +
-  'Importante: confirmar NO reescribe el archivo por si solo -- despues de tu CONFIRMAR-<id>, hay que volver a pedir exactamente la misma escritura para que pase.\n'
+  'Importante: confirmar NO reescribe el archivo por si solo -- despues de tu CONFIRMAR-<id>, hay que volver a pedir exactamente la misma escritura para que pase.\n' +
+  (reintentoModificado
+    ? 'ALERTA: el contenido de este intento es DISTINTO al de la solicitud de break-glass anterior para este mismo guard, todavia vigente. Si el humano ya confirmo esa solicitud previa, esa confirmacion NO cubre este contenido nuevo y quedara sin usar -- fija el contenido final ANTES de pedir confirmacion, no lo seguir editando entre reintentos.\n'
+    : '')
 );
 process.exit(2);

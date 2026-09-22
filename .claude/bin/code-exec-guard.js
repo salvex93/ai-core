@@ -65,7 +65,7 @@ if (hallazgos.length === 0) process.exit(0);
 const hashAccion = `${filePath}:${content}`;
 if (accionAprobada(GUARD_ID, hashAccion)) process.exit(0);
 
-const id = solicitarBreakGlass(GUARD_ID, hashAccion);
+const { id, reintentoModificado } = solicitarBreakGlass(GUARD_ID, hashAccion);
 process.stderr.write(
   `[CODE-EXEC-GUARD] BLOQUEADO: ${path.basename(filePath)} contiene ${hallazgos.length} patron(es) de ejecucion arbitraria:\n`
 );
@@ -73,6 +73,9 @@ hallazgos.forEach(({ etiqueta }) => process.stderr.write(`  - ${etiqueta}\n`));
 process.stderr.write(
   `Si es intencional (ej. sandbox de pruebas), confirma explicitamente respondiendo unicamente: CONFIRMAR-${id}\n` +
   '(valido solo por 5 minutos y solo para reintentar este mismo contenido -- no autoriza otro codigo futuro con el mismo patron).\n' +
-  'Importante: confirmar NO reescribe el archivo por si solo -- despues de tu CONFIRMAR-<id>, hay que volver a pedir exactamente la misma escritura para que pase.\n'
+  'Importante: confirmar NO reescribe el archivo por si solo -- despues de tu CONFIRMAR-<id>, hay que volver a pedir exactamente la misma escritura para que pase.\n' +
+  (reintentoModificado
+    ? 'ALERTA: el contenido de este intento es DISTINTO al de la solicitud de break-glass anterior para este mismo guard, todavia vigente. Si el humano ya confirmo esa solicitud previa, esa confirmacion NO cubre este contenido nuevo y quedara sin usar -- fija el contenido final ANTES de pedir confirmacion, no lo sigas editando entre reintentos.\n'
+    : '')
 );
 process.exit(2);
