@@ -63,6 +63,12 @@ function buildPreToolUseHooks({ bin, nodeConPermiso, soloRead, soloLeerRepo, rea
           // repoReadWrite (no soloRead): usa lib/break-glass.js -- ver nota
           // de destructive-op-guard.js mas arriba en este mismo archivo.
           { type: 'command', command: nodeConPermiso(bin('code-exec-guard.js'), breakGlassRW) },
+          // G9: compuerta de aprobacion para escrituras del hilo principal a
+          // .claude/skills/** y .claude/memory-vault/** -- agent-snapshot.js
+          // (arriba en este mismo bloque) solo respalda, no pide
+          // confirmacion previa. breakGlassRW por el mismo motivo que
+          // code-exec-guard.js.
+          { type: 'command', command: nodeConPermiso(bin('skill-vault-write-guard.js'), breakGlassRW) },
         ],
       },
       {

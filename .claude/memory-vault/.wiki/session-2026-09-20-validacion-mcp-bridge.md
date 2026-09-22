@@ -1,5 +1,5 @@
 # session-2026-09-20-validacion-mcp-bridge — wiki [general]
-> Generado: 2026-09-21 | Fragmentos: 6
+> Generado: 2026-09-22 | Fragmentos: 6
 
 # Sesion 2026-09-20 — Validacion de vigencia y reparacion de carga del gemini-bridge
 

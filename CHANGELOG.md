@@ -3,6 +3,15 @@
 Registro de cambios por version. Formato basado en [Keep a Changelog](https://keepachangelog.com/es/1.0.0/).
 Versionado semantico: MAJOR.MINOR.PATCH.
 
+## [Unreleased] — compuerta de aprobacion para escrituras a skills/vault (G9, 2026-09-22)
+
+### Agregado — break-glass para escrituras del hilo principal a .claude/skills/** y .claude/memory-vault/**
+
+- Nuevo `skill-vault-write-guard.js` (hook `PreToolUse`, matcher `Write|Edit`, junto a `code-exec-guard.js`): bloquea con excepcion break-glass (`lib/break-glass.js`, id de un solo uso, mismo mecanismo que `destructive-op-guard.js`/`code-exec-guard.js`) toda escritura del HILO PRINCIPAL (`agent_type` ausente) a `.claude/skills/**` o `.claude/memory-vault/**`. `agent-snapshot.js` ya respaldaba el archivo antes de escribir, pero un backup silencioso no es una compuerta de aprobacion previa.
+- Alcance deliberado: no aplica a subagentes. Un subagente autorizado (ej. `aiops-auditor` corrigiendo un SKILL.md que el mismo audit senalo) ya tiene su scope de rutas verificado por `agent-paths-guard.js` via `paths_allow:` en su AGENT.md -- exigir tambien break-glass ahi duplicaria control sobre el mismo riesgo y bloquearia un flujo autonomo que CLAUDE.md ya considera legitimo (rol Auditor).
+- Permisos: reutiliza el perfil `breakGlassRW` ya existente (sin perfil nuevo) -- necesita leer `.claude/bin/lib/*` y escribir tanto en `$TMPDIR` (locks) como en `.claude/BREAK_GLASS_LOG.jsonl`.
+- 10 tests nuevos en `tests/harness/skill-vault-write-guard-js.test.js`: bloqueo de escritura a skills/vault, permiso fuera de esas rutas, permiso a subagente con `agent_type`, registro correcto en `settings.json` sin `|| true`, y el ciclo completo de break-glass (reintento exacto pasa, contenido distinto sigue bloqueado, un solo uso).
+
 ## [Unreleased] — mensaje de bloqueo aclara que confirmar no reintenta la accion (G36, 2026-09-22)
 
 ### Corregido — contrato ambiguo en el mensaje de confirmacion de break-glass

@@ -1,5 +1,5 @@
 # session-2026-09-20-auditoria-gobierno-y-quality-gate — wiki [general]
-> Generado: 2026-09-21 | Fragmentos: 5
+> Generado: 2026-09-22 | Fragmentos: 5
 
 # Sesion 2026-09-20 — Auditoria de gobierno, modularidad y marco de calidad previo a push
 

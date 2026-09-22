@@ -6,7 +6,7 @@ Fecha: 2026-09-21. Alcance: hooks, permisos, skills, agentes, tests y comparacio
 
 | Dimension | Resultado | Comando |
 |---|---|---|
-| Suite de tests | 1497 tests, 1496 pass, 0 fail, 1 skip | `npm test` |
+| Suite de tests | 1531 tests, 1530 pass, 0 fail, 1 skip | `npm test` |
 | Conformidad de skills | 45/45, 0 criticos, 0 altos | `npm run validate-globals` |
 | Vigencia de mercado | sin hallazgos STALE, 45/45 skills con dominio registrado | `npm run audit-market -- --only-stale` |
 | Hooks activos | 45 (PreToolUse 22, PostToolUse 9, Stop 5, SubagentStop 5, UserPromptSubmit 4, PostToolUseFailure 4) | `.claude/settings.json` |
@@ -35,7 +35,7 @@ Fecha: 2026-09-21. Alcance: hooks, permisos, skills, agentes, tests y comparacio
 | G6 | RESUELTA. Los 5 tests se dividieron por describe en 12 archivos (todos bajo 300 lineas; conteo de tests preservado; 1446 en total tras G11). El limite se hace cumplir ahora tambien en pre-push. | `quality-gate.js --fast` | Ninguna |
 | G7 | RESUELTA (parcial, 2026-09-22). Hecho: `registrarUso()` en `lib/break-glass.js` encadena cada entrada de `BREAK_GLASS_LOG.jsonl` con `hashPrevio` (hash SHA-256 de la entrada anterior, o genesis `0`x64 en la primera) y `hash` propio (SHA-256 sobre el resto de los campos + `hashPrevio`) -- una edicion o borrado retroactivo de cualquier linea rompe el encadenamiento de las que le siguen. `verificarCadenaLog()` (exportada) recorre el archivo y reporta `{ integra, totalEntradas, primeraRota }`. Exportacion OpenTelemetry queda fuera de esta pasada -- sin caso de uso real hoy (ningun consumidor externo consulta el log salvo lectura humana) | 6 tests nuevos en `break-glass-lib-js.test.js` (hashPrevio/hash en la primera entrada, encadenamiento correcto en la segunda, integridad sobre log limpio, deteccion de entrada editada, deteccion de entrada eliminada del medio, log inexistente) | Exportacion OpenTelemetry: evaluar solo si aparece un consumidor real que la necesite |
 | G8 | Sin escaner de contenido de skills al instalarse o modificarse | no existe hook | Escaner estatico (patrones de inyeccion, exfiltracion, comandos destructivos) como PostToolUse sobre `.claude/skills/**` |
-| G9 | Escrituras a memoria y skills sin compuerta de aprobacion | `agent-snapshot` respalda pero no pide confirmacion | Compuerta tipo break-glass para escrituras del hilo principal en `.claude/skills/**` y vault |
+| G9 | RESUELTA (2026-09-22). `skill-vault-write-guard.js` (PreToolUse, matcher `Write\|Edit`, junto a `code-exec-guard.js`) bloquea con excepcion break-glass (`lib/break-glass.js`, id de un solo uso, mismo mecanismo que `destructive-op-guard.js`/`code-exec-guard.js`) toda escritura del HILO PRINCIPAL (`agent_type` ausente) a `.claude/skills/**` o `.claude/memory-vault/**`. Deliberadamente no aplica a subagentes: ya tienen su scope verificado por `agent-paths-guard.js` via `paths_allow:` en su AGENT.md -- duplicar el control ahi bloquearia un flujo autonomo que CLAUDE.md ya considera legitimo (rol Auditor, ej. `aiops-auditor` corrigiendo un SKILL.md que el mismo audit senalo) | 10 tests nuevos en `skill-vault-write-guard-js.test.js` (bloqueo skills/vault, permiso fuera de esas rutas, permiso a subagente con `agent_type`, y el ciclo completo de break-glass: reintento exacto pasa, contenido distinto sigue bloqueado, un solo uso) | Ninguna |
 | G10 | 6 dominios cerca del umbral de vigencia (mcp-protocol a 55 dias; cinco dominios de 2026-08-04 a 48 dias) | `audit-market` | CERRADO 2026-09-21: los 6 dominios reverificados contra fuente primaria (`curl` directo, el bridge de Gemini sin cuota). Cambios de contenido: OpenAPI 3.2.1 (2026-09-10) en `qa-engineer`, limite de Worker de Cloudflare (64 MiB sin comprimir, sin limite comprimido) en `cloud-deployment-specialist`; la comision de Lemon Squeezy queda marcada como no reconfirmada en `saas-product-architect` |
 | G11 | RESUELTA. `web-search-guard.js` y `guard-read.js` denegaban la tool nativa aunque el bridge respondiera 429. `scripts/mcp-gemini.js` escribe ahora un marcador con TTL de 10 min (`lib/gemini-cuota.js`) ante 429/RESOURCE_EXHAUSTED y ambos guards degradan a la tool nativa mientras este vigente. Verificado bajo el Node Permission Model real (perfil `repoReadWriteCuota`) | 10 tests en `gemini-cuota-guards-degradacion.test.js` | Ninguna. Abierto: evaluar proveedor alterno para `buscar_web` |
 | G12 | `mcpServers` dentro de `settings.json` no carga los servidores; la ubicacion efectiva es `.mcp.json` o `~/.claude.json` (inferido, sin verificar en documentacion). `setup-settings.js` y `norm-harness.js` generan una clave sin efecto y `health-check.js` la lee | vault, sesion 2026-09-20 | Verificar en fuente primaria y generar `.mcp.json` desde un modulo compartido (patron `hooks-definition.js`); ajustar `health-check.js` y tests |
@@ -58,7 +58,7 @@ La comparacion proviene de investigacion web asistida. Lo no confirmado contra f
 | Observabilidad estructurada | Metricas propias en JSON; `BREAK_GLASS_LOG.jsonl` con cadena de hash (G7) | OpenHands lidera con OpenTelemetry | Parcial (exportacion estandar sin caso de uso real hoy) |
 | Escaner de skills | No existe | Hermes: Skills Guard (segun investigacion) | Brecha (G8) |
 | Telemetria y curacion de skills | `validate-globals`, `audit-market`, `eval-skills` | Hermes: Curator con telemetria de uso (segun investigacion) | Parcial |
-| Aprobacion de escritura a memoria/skills | Snapshot y checkpoint, sin compuerta | Hermes: aprobacion de escritura | Brecha (G9) |
+| Aprobacion de escritura a memoria/skills | Compuerta break-glass del hilo principal (`skill-vault-write-guard.js`) mas snapshot y checkpoint | Hermes: aprobacion de escritura | Al nivel (G9 RESUELTA) |
 | Sandbox | Docker opcional; sin sandbox nativo activo | Varios arneses con sandbox por defecto | Brecha (G3) |
 | Cumplimiento del estandar de skills | Conforme en campos obligatorios; los 5 skills en o bajo 500 lineas (G4 cerrada); campos propios bajo `metadata` (G5 cerrada) | agentskills.io | Resuelta (G4, G5) |
 
@@ -77,7 +77,7 @@ Resueltas: G1, G2, G6, G11, G13, G14, G15, G17 a G22, G24, G25, G7. El detalle d
 3. G2 y G3 (requieren verificar sintaxis contra code.claude.com/docs antes de escribir; depende de G11 o de cuota Gemini).
 4. G10 con fecha limite: `mcp-protocol` vence alrededor de 2026-09-25 y `ai-core-internal-governance` alrededor de 2026-10-02.
 5. G4 (RESUELTA, 2026-09-21: 5 SKILL.md divididos en nucleo + `references/`, los 5 en o bajo 500 lineas), G16 (RESUELTA, 2026-09-21: limite de 500 lineas en SKILL.md activado en el gate) y G5 (RESUELTA, 2026-09-21: campos propios del frontmatter migrados bajo `metadata` en los 45 SKILL.md y los 6 AGENT.md, con `validate-globals`/`validate-agents` como red).
-6. G7 (RESUELTA, 2026-09-22: cadena de hash en `BREAK_GLASS_LOG.jsonl`). G12, G8, G9 pendientes (paridad con el mercado y generacion correcta de MCP).
+6. G7 (RESUELTA, 2026-09-22: cadena de hash en `BREAK_GLASS_LOG.jsonl`). G9 (RESUELTA, 2026-09-22: compuerta break-glass para escrituras del hilo principal a skills/vault). G12, G8 pendientes (paridad con el mercado y generacion correcta de MCP).
 7. G14 (RESUELTA, 2026-09-21: friccion real, se repitio dos veces).
 
 Nota: las fechas escritas por las herramientas usan UTC; la fecha local puede ir un dia atras.
@@ -108,7 +108,7 @@ Vista unica de todo lo detectado, resuelto, abierto y descartado por alcance. Lo
 | Prioridad | Id | Oportunidad | Esfuerzo | Nota |
 |---|---|---|---|---|
 | 3 | G12 | Ubicacion efectiva de `mcpServers` (`.mcp.json`) y su generacion | Medio | Verificar en documentacion oficial primero; bloqueado por cuota de Gemini agotada + proceso MCP sin recargar el fix de G30 en esta sesion |
-| 4 | G8, G9 | Escaner de contenido de skills, compuerta de aprobacion de escrituras a skills/vault | Medio cada uno | Paridad con el mercado; retomado tras cerrar G36 (el usuario pauso G9 hasta confirmar que break-glass funciona) |
+| 4 | G8 | Escaner de contenido de skills al instalarse o modificarse | Medio | Paridad con el mercado (Hermes: Skills Guard, segun investigacion) |
 | 5 | G37 | Clave de aprobacion de break-glass (`destructive-op-guard.js`, `code-exec-guard.js`, `mutating-action-guard.js`) se pierde en silencio si el reintento no es char-por-char identico en partes no normalizadas (flags reordenados, rutas expandidas distinto) | Medio | Encontrado durante la investigacion de G36, fuera de su scope. Sin reproduccion con caso real todavia; opciones no evaluadas: fuzzy-match del comando, o que el guard reconstruya y reintente en vez de depender del string exacto |
 | 6 | G26 | Suite de ~4.4 min: cada push nuevo la ejecuta completa en el gate | Medio | Opciones: paralelizar archivos, aislar tests lentos, cache por archivos tocados |
 | 7 | G11b | Proveedor alterno para `buscar_web` cuando Gemini agota cuota | Medio | Hoy degrada a la tool nativa, sin alternativa gratuita |
