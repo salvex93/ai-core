@@ -72,7 +72,8 @@ if (bloqueantes.length > 0) {
   process.stderr.write(
     'Usar variables de entorno en lugar de pegar credenciales directamente. Reescribe el mensaje sin la credencial, ' +
     `o si es intencional confirma explicitamente respondiendo unicamente: CONFIRMAR-${id}\n` +
-    '(valido solo por 5 minutos y solo para reenviar este mismo mensaje exacto).\n'
+    '(valido solo por 5 minutos y solo para reenviar este mismo mensaje exacto).\n' +
+    'Importante: CONFIRMAR-<id> no reenvia el mensaje original por si solo -- hay que volver a escribir exactamente el mismo mensaje despues de confirmar.\n'
   );
   emitirReporte({ guard: 'secrets-guard', verdict: 'blocked', severity: 'critica', hallazgos: bloqueantes.map(b => b.etiqueta) });
   process.exit(2);

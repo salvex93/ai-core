@@ -117,7 +117,8 @@ function bloquearOAprobar(detalle, mensajeContexto) {
     `[MUTATING-ACTION-GUARD] BLOQUEADO: el subagente "${agentType}" intento ${mensajeContexto} sin que el turno actual la solicitara explicitamente.\n` +
     'Motivo: crear/actualizar/borrar datos en un tenant o servicio externo requiere confirmacion humana explicita (Gobierno de Agentes, regla 6 de CLAUDE.md) -- el subagente no debe decidir por iniciativa propia cuando ejecutar esta accion.\n' +
     `Si es intencional, confirma explicitamente respondiendo unicamente: CONFIRMAR-${id}\n` +
-    '(valido solo por 5 minutos y solo para reintentar esta accion exacta -- no autoriza otras acciones mutantes futuras).\n'
+    '(valido solo por 5 minutos y solo para reintentar esta accion exacta -- no autoriza otras acciones mutantes futuras).\n' +
+    'Importante: confirmar NO ejecuta la accion por si sola -- despues de tu CONFIRMAR-<id>, hay que volver a pedir exactamente la misma accion para que pase.\n'
   );
   process.exit(2);
 }

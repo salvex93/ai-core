@@ -3,6 +3,15 @@
 Registro de cambios por version. Formato basado en [Keep a Changelog](https://keepachangelog.com/es/1.0.0/).
 Versionado semantico: MAJOR.MINOR.PATCH.
 
+## [Unreleased] — mensaje de bloqueo aclara que confirmar no reintenta la accion (G36, 2026-09-22)
+
+### Corregido — contrato ambiguo en el mensaje de confirmacion de break-glass
+
+- Reporte real de uso: "doy el codigo de confirmacion y nunca funciona". Investigacion confirmo que el mecanismo (`lib/break-glass.js`) funciona correctamente en aislamiento (tests + reproduccion manual con stdin real) -- la falla es de contrato, no de codigo roto. `CONFIRMAR-<id>` solo marca la aprobacion en disco; ninguno de los 4 guards con `breakGlass:true` reintenta la accion original por si mismo, y el mensaje de bloqueo no lo dejaba explicito.
+- `destructive-op-guard.js`, `code-exec-guard.js`, `mutating-action-guard.js`, `secrets-guard.js`: se agrego una linea "Importante: confirmar NO ejecuta/reescribe/reenvia por si sola -- hay que volver a pedir exactamente lo mismo despues" al mensaje de bloqueo de cada uno.
+- Hipotesis inicial descartada como causa raiz: regex de match estricto en `jailbreak-guard.js` (`^CONFIRMAR-<id>$`, sin tolerancia a espacios/puntuacion/texto alrededor). 6 tests TDD en `tests/harness/jailbreak-guard-js.test.js` confirman que esto ya funcionaba sin cambio de codigo -- se dejan como regresion documentada.
+- Riesgo secundario identificado, no cerrado (candidato G37): la clave de aprobacion de `destructive-op-guard.js` se calcula sobre el comando normalizado+enmascarado; una reconstruccion no identica del comando al reintentar (orden de flags, rutas expandidas distinto) invalida la aprobacion en silencio.
+
 ## [Unreleased] — cadena de hash en BREAK_GLASS_LOG.jsonl (G7, 2026-09-22)
 
 ### Agregado — deteccion de manipulacion retroactiva del log de auditoria

@@ -220,7 +220,8 @@ for (const regla of REGLAS) {
         `[DESTRUCTIVE-OP-GUARD] BLOQUEADO (${regla.nombre}): "${cmd}"\n` +
         `Motivo: ${regla.motivo}\n` +
         `Si es intencional, confirma explicitamente respondiendo unicamente: CONFIRMAR-${id}\n` +
-        '(valido solo por 5 minutos y solo para reintentar este comando exacto -- no autoriza otros comandos destructivos futuros).\n'
+        '(valido solo por 5 minutos y solo para reintentar este comando exacto -- no autoriza otros comandos destructivos futuros).\n' +
+        'Importante: confirmar NO ejecuta el comando por si solo -- despues de tu CONFIRMAR-<id>, hay que volver a pedir exactamente el mismo comando para que pase.\n'
       );
       process.exit(2);
     }

@@ -101,13 +101,14 @@ Vista unica de todo lo detectado, resuelto, abierto y descartado por alcance. Lo
 | G14 | RESUELTA (2026-09-21, ver detalle en seccion 3) |  |  |
 | G24 | RESUELTA (verificacion, 2026-09-21, ver detalle en seccion 3) |  |  |
 | G7 | RESUELTA (parcial, 2026-09-22, ver detalle en seccion 3) |  |  |
+| G36 | Reporte de usuario: "doy el codigo de confirmacion y nunca funciona" -- el break-glass parecia roto | El mecanismo criptografico (`lib/break-glass.js`) funciona correctamente en aislamiento (verificado con tests y con stdin real). La falla real es de contrato: el mensaje de bloqueo de los 4 guards con `breakGlass:true` (`destructive-op-guard.js`, `code-exec-guard.js`, `mutating-action-guard.js`, `secrets-guard.js`) decia "confirma respondiendo CONFIRMAR-\<id>" sin aclarar que la CONFIRMACION NO EJECUTA la accion original -- hay que reintentar exactamente el mismo comando/escritura/mensaje despues. El usuario razonablemente esperaba que el codigo "hiciera pasar" la accion por si solo. Riesgo secundario identificado (no cerrado): la clave de aprobacion en `destructive-op-guard.js` se calcula sobre el comando normalizado+enmascarado; una reconstruccion no identica del comando al reintentar (orden de flags, rutas expandidas distinto) invalida la aprobacion en silencio, sin error visible | Se agrego una linea explicita "Importante: confirmar NO ejecuta/reescribe/reenvia por si sola -- hay que volver a pedir exactamente lo mismo despues" en los 4 mensajes de bloqueo. La hipotesis inicial (regex de match estricto en `jailbreak-guard.js`) se descarto como causa raiz con 6 tests TDD que pasaron sin cambio de codigo (se dejaron como regresion documentada). Pendiente abrir como G37 si se reporta otro caso real de perdida silenciosa de aprobacion por reconstruccion no identica del comando |
 
 ### 7.2 Abierto, en orden de prioridad
 
 | Prioridad | Id | Oportunidad | Esfuerzo | Nota |
 |---|---|---|---|---|
 | 3 | G12 | Ubicacion efectiva de `mcpServers` (`.mcp.json`) y su generacion | Medio | Verificar en documentacion oficial primero; bloqueado por cuota de Gemini agotada + proceso MCP sin recargar el fix de G30 en esta sesion |
-| 4 | G8, G9 | Escaner de contenido de skills, compuerta de aprobacion de escrituras a skills/vault | Medio cada uno | Paridad con el mercado; sin incidente asociado |
+| 4 | G8, G9 | Escaner de contenido de skills, compuerta de aprobacion de escrituras a skills/vault | Medio cada uno | Paridad con el mercado; retomado tras cerrar G31 (el usuario pauso G9 hasta confirmar que break-glass funciona) |
 | 5 | G26 | Suite de ~4.4 min: cada push nuevo la ejecuta completa en el gate | Medio | Opciones: paralelizar archivos, aislar tests lentos, cache por archivos tocados |
 | 6 | G11b | Proveedor alterno para `buscar_web` cuando Gemini agota cuota | Medio | Hoy degrada a la tool nativa, sin alternativa gratuita |
 | 7 | G27 | Modos de aprobacion configurables por usuario (`smart/manual/off`) | Medio | Brecha menor frente a Hermes (dato de investigacion, sin fuente primaria) |
