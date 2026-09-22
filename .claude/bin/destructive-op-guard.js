@@ -64,6 +64,7 @@
 
 const { solicitarBreakGlass, accionAprobada } = require('./lib/break-glass');
 const { normalizarTexto } = require('./lib/normalizar-texto');
+const { canonicalizarComando } = require('./lib/clave-aprobacion');
 const { tieneIndicioDeResolucionPrevia } = require('./lib/deteccion-resolucion-previa');
 const { tieneRastroDeIA } = require('./lib/commit-attribution');
 
@@ -210,18 +211,24 @@ if (tieneIndicioDeResolucionPrevia(cmd)) {
   process.exit(2);
 }
 
+// Clave de aprobacion distinta del texto evaluado por las REGLAS (G37): el
+// matching de reglas necesita el comando literal, la clave de break-glass
+// necesita ser insensible al orden de flags entre el bloqueo original y el
+// reintento -- ver lib/clave-aprobacion.js.
+const claveComando = canonicalizarComando(cmd);
+
 for (const regla of REGLAS) {
   if (regla.disparo.test(cmd) && !(regla.excepcion && regla.excepcion.test(cmd))) {
-    if (regla.breakGlass && accionAprobada(GUARD_ID, cmd)) process.exit(0);
+    if (regla.breakGlass && accionAprobada(GUARD_ID, claveComando)) process.exit(0);
 
     if (regla.breakGlass) {
-      const id = solicitarBreakGlass(GUARD_ID, cmd);
+      const id = solicitarBreakGlass(GUARD_ID, claveComando);
       process.stderr.write(
         `[DESTRUCTIVE-OP-GUARD] BLOQUEADO (${regla.nombre}): "${cmd}"\n` +
         `Motivo: ${regla.motivo}\n` +
         `Si es intencional, confirma explicitamente respondiendo unicamente: CONFIRMAR-${id}\n` +
-        '(valido solo por 5 minutos y solo para reintentar este comando exacto -- no autoriza otros comandos destructivos futuros).\n' +
-        'Importante: confirmar NO ejecuta el comando por si solo -- despues de tu CONFIRMAR-<id>, hay que volver a pedir exactamente el mismo comando para que pase.\n'
+        '(valido solo por 5 minutos y solo para reintentar este mismo comando sobre el mismo objetivo -- las flags pueden variar en orden, no autoriza otros comandos destructivos futuros).\n' +
+        'Importante: confirmar NO ejecuta el comando por si solo -- despues de tu CONFIRMAR-<id>, hay que volver a pedir el mismo comando para que pase.\n'
       );
       process.exit(2);
     }

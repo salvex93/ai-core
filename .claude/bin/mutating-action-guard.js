@@ -51,6 +51,7 @@ const crypto = require('node:crypto');
 const { leerEventoDeStdin } = require('./lib/hook-stdin');
 const { solicitarBreakGlass, accionAprobada } = require('./lib/break-glass');
 const { normalizarTexto } = require('./lib/normalizar-texto');
+const { canonicalizarComando } = require('./lib/clave-aprobacion');
 
 const GUARD_ID = 'mutating-action-guard';
 
@@ -137,7 +138,12 @@ if (toolName === 'Bash') {
   // mismo motivo que destructive-op-guard.js.
   const cmd = normalizarTexto(cmdOriginal);
   if (cmd && esComandoHttpMutante(cmd)) {
-    bloquearOAprobar(cmdOriginal, `un comando HTTP mutante hacia un servicio externo: "${cmdOriginal}"`);
+    // Clave de aprobacion canonicalizada (G37): insensible al orden de
+    // flags entre el bloqueo original y el reintento -- mismo fix que
+    // destructive-op-guard.js, ver lib/clave-aprobacion.js. El mensaje al
+    // operador sigue mostrando cmdOriginal (legible), solo la clave de
+    // hash cambia.
+    bloquearOAprobar(canonicalizarComando(cmd), `un comando HTTP mutante hacia un servicio externo: "${cmdOriginal}"`);
   }
 }
 

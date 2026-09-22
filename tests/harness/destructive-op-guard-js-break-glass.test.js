@@ -112,5 +112,20 @@ describe('destructive-op-guard.js — break-glass', () => {
     test('git push --force-with-lease sigue sin bloquear -- alternativa segura, no pasa por break-glass', () => {
       assert.equal(run('git push --force-with-lease origin main').status, 0);
     });
+
+    test('confirmar el id permite el reintento aunque el comando reordene sus flags (G37)', () => {
+      const dir = nuevoDirBreakGlass();
+      const env = { AI_CORE_BREAK_GLASS_DIR: dir, AI_CORE_BREAK_GLASS_LOG: path.join(dir, 'log.jsonl') };
+
+      const bloqueo = run('rm --recursive --force build/', env);
+      assert.equal(bloqueo.status, 2);
+      const id = bloqueo.stderr.match(/CONFIRMAR-([a-f0-9]{8})/)[1];
+      const confirmacion = confirmar(dir, id);
+      assert.equal(confirmacion.status, 0);
+
+      const reintento = run('rm --force --recursive build/', env);
+      assert.equal(reintento.status, 0, 'el reintento con flags en otro orden sobre el mismo objetivo debe reconocerse como la misma accion aprobada');
+      fs.rmSync(dir, { recursive: true, force: true });
+    });
   });
 });

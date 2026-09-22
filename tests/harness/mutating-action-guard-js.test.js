@@ -178,5 +178,26 @@ describe('mutating-action-guard.js', () => {
       assert.equal(segundoIntento.status, 2, 'la aprobacion de un solo uso no debe cubrir un segundo reintento');
       fs.rmSync(dir, { recursive: true, force: true });
     });
+
+    test('confirmar el id permite el reintento aunque el comando Bash reordene sus flags (G37)', () => {
+      const dir = nuevoDirBreakGlass();
+      const env = { AI_CORE_BREAK_GLASS_DIR: dir, AI_CORE_BREAK_GLASS_LOG: path.join(dir, 'log.jsonl') };
+      const bloqueado = { agent_type: 'aiops-auditor', tool_name: 'Bash', tool_input: { command: 'curl -X POST --silent https://api.externa.com/tareas' } };
+      const reordenado = { agent_type: 'aiops-auditor', tool_name: 'Bash', tool_input: { command: 'curl --silent -X POST https://api.externa.com/tareas' } };
+
+      const bloqueo = enviarEvento(bloqueado, env);
+      assert.equal(bloqueo.status, 2);
+      const id = bloqueo.stderr.match(/CONFIRMAR-([a-f0-9]{8})/)[1];
+      const confirmacion = spawnSync('node', [JAILBREAK_GUARD], {
+        input: '',
+        encoding: 'utf8',
+        env: { ...process.env, ...env, CLAUDE_USER_PROMPT: `CONFIRMAR-${id}`, AI_CORE_JAILBREAK_BYPASS_DIR: path.join(dir, 'jb') },
+      });
+      assert.equal(confirmacion.status, 0);
+
+      const reintento = enviarEvento(reordenado, env);
+      assert.equal(reintento.status, 0, 'el reintento con flags en otro orden sobre el mismo objetivo debe reconocerse como la misma accion aprobada');
+      fs.rmSync(dir, { recursive: true, force: true });
+    });
   });
 });
