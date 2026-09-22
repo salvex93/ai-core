@@ -3,6 +3,15 @@
 Registro de cambios por version. Formato basado en [Keep a Changelog](https://keepachangelog.com/es/1.0.0/).
 Versionado semantico: MAJOR.MINOR.PATCH.
 
+## [Unreleased] — escaner de contenido de skills/agents al escribirse (G8, 2026-09-22)
+
+### Agregado — deteccion de patrones sospechosos en .claude/skills/** y .claude/agents/**
+
+- Nuevo `skill-content-scanner.js` (hook `PostToolUse`, matcher `Write|Edit`): escanea el contenido de cualquier archivo recien escrito bajo `.claude/skills/**` o `.claude/agents/**` en busca de patrones de prompt injection, exfiltracion de datos o comandos destructivos incrustados (mismo catalogo de patrones que `injection-guard.js`, adaptado). No bloquea -- advierte por stdout (exit 0, el archivo ya se escribio) y emite reporte tipado via `guard-report.js`.
+- Complementa a `skill-vault-write-guard.js` (G9, `PreToolUse`): G9 exige aprobacion humana antes de escribir, pero no inspecciona el contenido en si; G8 inspecciona el contenido despues de escrito, cubriendo tanto al hilo principal como a subagentes autorizados con `paths_allow:` que G9 deliberadamente no cubre.
+- Nuevo perfil de permisos `repoLeerYReportar` (`hooks-permissions.js`): lee `.claude/bin/**` y el repo completo, escribe solo al tmpdir (reporte de `guard-report.js`) -- sin escritura al repo, a diferencia de `repoReadWrite`, porque un guard de solo escaneo nunca debe poder modificar el archivo que audita.
+- 9 tests nuevos en `tests/harness/skill-content-scanner-js.test.js`: existencia del script, no-op sin stdin, ignora rutas fuera de skills/agents, silencioso en contenido limpio, advertencia en patron de exfiltracion/anulacion de instrucciones/comando destructivo, lectura desde disco cuando `tool_input.content` esta ausente (caso Edit), registro correcto en `settings.json`.
+
 ## [Unreleased] — compuerta de aprobacion para escrituras a skills/vault (G9, 2026-09-22)
 
 ### Agregado — break-glass para escrituras del hilo principal a .claude/skills/** y .claude/memory-vault/**

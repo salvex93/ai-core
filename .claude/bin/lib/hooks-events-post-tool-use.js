@@ -1,7 +1,7 @@
 'use strict';
 
 // Verificaciones posteriores a la ejecucion de herramientas. Recibe el contexto de perfiles de permisos de hooks-permissions.js.
-function buildPostToolUseHooks({ bin, nodeConPermiso, soloRead, repoReadWrite, repoConGit }) {
+function buildPostToolUseHooks({ bin, nodeConPermiso, soloRead, repoReadWrite, repoConGit, repoLeerYReportar }) {
   return {
     PostToolUse: [
       {
@@ -39,6 +39,13 @@ function buildPostToolUseHooks({ bin, nodeConPermiso, soloRead, repoReadWrite, r
           // checkpoint-branch.js para el detalle de por que no usa `git
           // commit` normal ni toca el index real.
           { type: 'command', command: `${nodeConPermiso(bin('checkpoint-branch.js'), repoConGit)} 2>/dev/null || true` },
+          // Escaner de contenido de skills/agents (hallazgo G8): advierte
+          // sobre patrones de prompt injection, exfiltracion o comandos
+          // destructivos incrustados en .claude/skills/** o
+          // .claude/agents/** recien escritos -- complementa a
+          // skill-vault-write-guard.js (G9, PreToolUse), que exige
+          // aprobacion humana pero no inspecciona el contenido en si.
+          { type: 'command', command: `${nodeConPermiso(bin('skill-content-scanner.js'), repoLeerYReportar)} 2>/dev/null || true` },
         ],
       },
     ],

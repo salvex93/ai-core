@@ -111,6 +111,12 @@ function buildPermissionProfiles(bin, tmpDirReal) {
 
   const soloRead      = { fsRead: [dirBin] };
   const soloLeerRepo  = { fsRead: [dirBin, dirRepo] };
+  // Lee contenido arbitrario del repo (ej. .claude/skills/**) y escribe solo
+  // el reporte tipado de guard-report.js al tmpdir -- sin fsWrite a dirRepo,
+  // a diferencia de repoReadWrite, porque un guard de solo escaneo (advierte,
+  // nunca modifica el archivo que audita) no necesita ni debe poder escribir
+  // en el repo.
+  const repoLeerYReportar = { fsRead: [dirBin, dirRepo], fsWrite: [dirTmp] };
   const readYWrite    = { fsRead: [dirBin], fsWrite: [dirTmp] };
   const readYWriteSubagentLocks = { fsRead: [dirBin, dirTmpSubagentLocks], fsWrite: [dirTmpSubagentLocks] };
   const readYWriteToolRepeat = { fsRead: [dirBin, dirTmpToolRepeat], fsWrite: [dirTmpToolRepeat] };
@@ -132,7 +138,7 @@ function buildPermissionProfiles(bin, tmpDirReal) {
   // destructive-op-guard.js, que corre ANTES en la misma cadena de PreToolUse).
   const repoConGit = { fsRead: [dirBin, dirRepo], fsWrite: [dirRepo, dirTmp], childProcess: true };
 
-  return { dirBin, dirTmp, dirRepo, dirTmpSubagentLocks, dirTmpToolRepeat, dirTmpBudget, dirTmpAlternante, soloRead, soloLeerRepo, readYWrite, readYWriteSubagentLocks, readYWriteToolRepeat, readYWriteBudget, readYWriteAlternante, breakGlassRW, repoReadWrite, repoReadWriteCuota, repoConGit };
+  return { dirBin, dirTmp, dirRepo, dirTmpSubagentLocks, dirTmpToolRepeat, dirTmpBudget, dirTmpAlternante, soloRead, soloLeerRepo, readYWrite, readYWriteSubagentLocks, readYWriteToolRepeat, readYWriteBudget, readYWriteAlternante, breakGlassRW, repoReadWrite, repoReadWriteCuota, repoConGit, repoLeerYReportar };
 }
 
 module.exports = { nodeConPermiso, globDir, buildPermissionProfiles };
