@@ -35,7 +35,8 @@
     "agent-report-full": "node .claude/bin/agent-metrics.js report --full",
     "eval-skills": "node .claude/evals/run-all.js",
     "sandbox": "node scripts/sandbox.js",
-    "scan-secrets-history": "node .claude/bin/git-history-secrets-scan.js"
+    "scan-secrets-history": "node .claude/bin/git-history-secrets-scan.js",
+    "verify-audit-log": "node .claude/bin/verify-audit-log.js"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "0.122.0",

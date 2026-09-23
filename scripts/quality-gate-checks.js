@@ -58,4 +58,47 @@ function revisarLimiteSkills(repo, limite = LIMITE_LINEAS_SKILL) {
   return { ok: excedidos.length === 0, detalle };
 }
 
-module.exports = { revisarResiduales, revisarSecretos, revisarLimiteSkills };
+// Copyleft fuerte (obliga a liberar codigo derivado bajo la misma licencia) --
+// incompatible con distribuir ai-core como submodulo cerrado en un proyecto
+// anfitrion de terceros. Copyleft debil (LGPL, MPL) se deja pasar a proposito:
+// afecta solo al propio paquete modificado, no al codigo que lo consume.
+const LICENCIAS_PROHIBIDAS = /^(A?GPL|SSPL)(-|\b)/i;
+
+function recolectarPaquetes(dependencies, acc = []) {
+  if (!dependencies) return acc;
+  for (const [nombre, info] of Object.entries(dependencies)) {
+    acc.push({ nombre, version: info.version, license: info.license });
+    recolectarPaquetes(info.dependencies, acc);
+  }
+  return acc;
+}
+
+/**
+ * Audita el arbol de dependencias (salida de `npm ls --all --json --long`)
+ * en busca de licencias copyleft fuerte (GPL/AGPL/SSPL) no declaradas en
+ * package.json -- gap real detectado en revision de gobierno 2026-09-22
+ * (control "license governance" del marco enterprise de agentes): las 3
+ * dependencias directas son MIT/Apache-2.0, pero el arbol transitivo nunca
+ * se auditaba.
+ * @param {string} salidaNpmLs - JSON crudo de `npm ls --all --json --long`
+ * @returns {{ok: boolean, detalle: string}}
+ */
+function revisarLicencias(salidaNpmLs) {
+  let data;
+  try { data = JSON.parse(salidaNpmLs); } catch {
+    return { ok: false, detalle: '  no se pudo interpretar la salida de "npm ls" como JSON' };
+  }
+
+  const paquetes = recolectarPaquetes(data.dependencies);
+  const prohibidos = paquetes.filter((p) => p.license && LICENCIAS_PROHIBIDAS.test(p.license));
+  const sinDeclarar = paquetes.filter((p) => !p.license);
+
+  const detalle = [
+    ...prohibidos.map((p) => `  ${p.license}: ${p.nombre}@${p.version}`),
+    ...sinDeclarar.map((p) => `  sin license declarado: ${p.nombre}@${p.version} (revisar manualmente)`),
+  ].join('\n');
+
+  return { ok: prohibidos.length === 0, detalle };
+}
+
+module.exports = { revisarResiduales, revisarSecretos, revisarLimiteSkills, revisarLicencias };

@@ -82,6 +82,11 @@ describe('quality-gate.js', () => {
       const checks = definirChecks(false);
       assert.equal(checks[checks.length - 1].nombre, 'suite de tests');
     });
+
+    test('incluye licencias de dependencias incluso en modo rapido', () => {
+      const nombres = definirChecks(true).map((c) => c.nombre);
+      assert.ok(nombres.includes('licencias de dependencias'));
+    });
   });
 
   describe('integracion con git', () => {

@@ -24,7 +24,7 @@ const os = require('node:os');
 const path = require('node:path');
 const crypto = require('node:crypto');
 const { spawnSync } = require('node:child_process');
-const { revisarResiduales, revisarSecretos, revisarLimiteSkills } = require('./quality-gate-checks');
+const { revisarResiduales, revisarSecretos, revisarLimiteSkills, revisarLicencias } = require('./quality-gate-checks');
 
 const REPO = path.resolve(__dirname, '..');
 const LIMITE_LINEAS = 300;
@@ -71,6 +71,7 @@ function definirChecks(rapido) {
     { nombre: 'conformidad de skills', ejecutar: () => revisarComando(process.execPath, ['.claude/bin/validate-globals.js']) },
     { nombre: 'conformidad de agentes', ejecutar: () => revisarComando(process.execPath, ['.claude/bin/validate-agents.js']) },
     { nombre: 'vigencia de mercado', ejecutar: () => revisarComando(process.execPath, ['.claude/bin/audit-market.js', '--only-stale'], { fallaConSalida: true }) },
+    { nombre: 'licencias de dependencias', ejecutar: () => revisarLicencias(correr('npm', ['ls', '--all', '--json', '--long']).salida) },
   ];
   if (!rapido) checks.push({ nombre: 'suite de tests', ejecutar: () => revisarComando('npm', ['test']) });
   return checks;

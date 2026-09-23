@@ -3,6 +3,15 @@
 Registro de cambios por version. Formato basado en [Keep a Changelog](https://keepachangelog.com/es/1.0.0/).
 Versionado semantico: MAJOR.MINOR.PATCH.
 
+## [Unreleased] — verificacion de audit trail y gobierno de licencias de dependencias (G43, 2026-09-22)
+
+### Agregado — cierre de 2 gaps detectados en comparacion contra marco enterprise de agentes (7 controles no-negociables)
+
+- `verify-audit-log.js` (`npm run verify-audit-log`): expone `verificarCadenaLog()` de `lib/break-glass.js` (hash-chain SHA-256 ya existente desde G37/G41, cubierto por tests desde su creacion) como comando de operador -- un log "tamper-evident" que nadie corre a verificar no cumple su proposito de auditoria. 4 tests nuevos en `tests/harness/verify-audit-log-js.test.js` (log inexistente, cadena integra, cadena rota por edicion manual, script existe).
+- `revisarLicencias()` en `scripts/quality-gate-checks.js`: nuevo check del quality-gate (corre tambien en `--fast`) que audita el arbol completo de dependencias (`npm ls --all --json --long`, sin libreria nueva) en busca de licencias copyleft fuerte (GPL/AGPL/SSPL) no declaradas en `package.json` -- las 3 dependencias directas (`@anthropic-ai/sdk`, `@google/genai`, `@modelcontextprotocol/sdk`) son MIT/MIT/Apache-2.0, pero el arbol transitivo (218 paquetes) nunca se auditaba. Copyleft debil (LGPL, MPL) se deja pasar a proposito. Paquetes sin `license` declarado se reportan como advertencia, no bloquean. 5 tests nuevos en `tests/harness/quality-gate-checks-js.test.js`, 1 test adicional en `tests/harness/quality-gate-js.test.js`.
+- Origen: revision de gobierno 2026-09-22 contra el marco de "7 controles no-negociables" (SSO/SCIM, SIEM export, secret scanning, PR gates, license governance, incident response, audit trail) para deployments enterprise de agentes de codigo. 4/7 ya cubiertos con enforcement real; SSO/SCIM y SIEM export quedan fuera de alcance (aplican a identidad multi-usuario/compliance regulado, no a un arnes de un solo operador); license governance y audit-trail-verificable eran los 2 gaps reales, cerrados en esta entrada.
+- `npm test`: 1583/1583 (1 skip, sin regresiones); `npm run quality-gate` 9/9 (nuevo check incluido); `npm run validate-globals` 45/45; `npm run validate-agents` 6/6.
+
 ## [Unreleased] — drift infinito de settings.json en Windows por separador de ruta (G42, 2026-09-22)
 
 ### Corregido — CI en rojo en windows-latest por comparacion cruda de rutas

@@ -8,7 +8,7 @@ const path = require('node:path');
 const { spawnSync } = require('node:child_process');
 const { REPO } = require('./_shared');
 
-const { revisarResiduales, revisarSecretos, revisarLimiteSkills } = require(path.join(REPO, 'scripts', 'quality-gate-checks.js'));
+const { revisarResiduales, revisarSecretos, revisarLimiteSkills, revisarLicencias } = require(path.join(REPO, 'scripts', 'quality-gate-checks.js'));
 
 // Se arma en runtime para que el propio archivo de test no contenga un patron literal.
 const CLAVE_GITHUB = `ghp_${'A'.repeat(36)}`;
@@ -100,6 +100,60 @@ describe('quality-gate-checks.js', () => {
       fs.rmSync(path.join(dir, '.claude', 'skills', 'bar'), { recursive: true });
       escribir(dir, '.claude/skills/foo/references/extenso.md', `${'x\n'.repeat(2000)}`);
       assert.equal(revisarLimiteSkills(dir).ok, true);
+    });
+  });
+
+  describe('revisarLicencias', () => {
+    // arbolNpmLs simula la forma real de `npm ls --all --json --long`
+    // (dependencies anidado recursivo) sin invocar npm de verdad -- el arbol
+    // real del repo se cubre por separado en quality-gate.js via el check
+    // real dentro del propio pipeline (dogfooding).
+    function arbol(dependencies) {
+      return JSON.stringify({ dependencies });
+    }
+
+    test('todas las licencias permisivas (MIT/Apache-2.0/ISC/BSD) cumple', () => {
+      const salida = arbol({
+        foo: { version: '1.0.0', license: 'MIT' },
+        bar: { version: '2.0.0', license: 'Apache-2.0', dependencies: {
+          baz: { version: '3.0.0', license: 'ISC' },
+        } },
+      });
+      assert.equal(revisarLicencias(salida).ok, true);
+    });
+
+    test('detecta una dependencia con licencia GPL-3.0 (copyleft fuerte)', () => {
+      const salida = arbol({
+        foo: { version: '1.0.0', license: 'MIT' },
+        contagiosa: { version: '1.2.3', license: 'GPL-3.0' },
+      });
+      const r = revisarLicencias(salida);
+      assert.equal(r.ok, false);
+      assert.match(r.detalle, /GPL-3\.0: contagiosa@1\.2\.3/);
+    });
+
+    test('detecta AGPL-3.0 anidada en dependencias transitivas', () => {
+      const salida = arbol({
+        foo: { version: '1.0.0', license: 'MIT', dependencies: {
+          transitiva: { version: '0.1.0', license: 'AGPL-3.0' },
+        } },
+      });
+      const r = revisarLicencias(salida);
+      assert.equal(r.ok, false);
+      assert.match(r.detalle, /AGPL-3\.0: transitiva@0\.1\.0/);
+    });
+
+    test('paquete sin campo license declarado no bloquea (advertencia, no fallo)', () => {
+      const salida = arbol({ sinMetadata: { version: '1.0.0' } });
+      const r = revisarLicencias(salida);
+      assert.equal(r.ok, true);
+      assert.match(r.detalle, /sin license declarado: sinMetadata@1\.0\.0/);
+    });
+
+    test('JSON invalido de npm ls degrada con mensaje diagnosticable, no lanza', () => {
+      const r = revisarLicencias('esto no es JSON');
+      assert.equal(r.ok, false);
+      assert.match(r.detalle, /no se pudo interpretar la salida de "npm ls"/);
     });
   });
 });
