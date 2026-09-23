@@ -196,9 +196,94 @@ claude -c
 
 # Dar acceso a directorios adicionales sin cambiar el cwd de la sesion
 claude --add-dir ../otro-proyecto
+
+# Resumir un fallo de build en una linea, sin abrir sesion interactiva
+npm run build 2>&1 | claude -p "resume el fallo y el archivo a corregir en una linea"
+
+# Generar un commit message a partir del worktree actual (revisar antes de usar, no aplicar ciego)
+claude -p "genera un commit message semantico basado en el diff en stage, devuelve solo el string" < /dev/null
+
+# Procesamiento silencioso tipo filtro UNIX: stdin -> stdout, sin ruido de sesion
+claude -p "traduce este JSON a ingles" < data.json > output.json
 ```
 
 No existe una flag `--clear` en el CLI — para limpiar contexto dentro de una sesion interactiva se usa el comando `/clear`, no un flag de arranque.
+
+Ademas de las flags de arranque, `--bg`/`--background` lanza la sesion directamente en background desde la linea de comandos (libera la terminal de inmediato, imprime un id que `claude attach/logs/stop/rm` usan) -- es el equivalente CLI del comando `/background` de abajo.
+
+## Slash commands utiles dentro de sesion interactiva
+
+Distinto de la seccion anterior: estos NO son flags de arranque (no aparecen en `claude --help`), son comandos que se escriben dentro de una sesion ya abierta. Verificados contra `code.claude.com/docs/en/commands` (fuente oficial, fetch 2026-09-22) -- la lista completa de Claude Code tiene mas de 80 comandos; aqui solo los que aportan valor real al operar ai-core. Para la lista completa, `/help` dentro de sesion.
+
+| Comando | Uso en ai-core |
+|---|---|
+| `/background` (alias `/bg`) | Desasocia la sesion actual a background y libera la terminal -- util para dejar corriendo una tarea larga (ej. `npm run quality-gate` vigilado por el agente) sin bloquear el uso interactivo. |
+| `/memory` | Edita `CLAUDE.md` directamente, o revisa/activa el auto-memory de la sesion -- alternativa a editar el archivo a mano cuando el cambio es chico. |
+| `/btw` | Pregunta lateral sin agregarla al historial de la conversacion -- util para no inflar contexto con dudas que no son parte de la tarea (ver Protocolo de Ahorro de Tokens). |
+| `/loop` (alias `/proactive`) | Ejecuta un prompt repetidamente mientras la sesion sigue abierta -- usado por el flujo `/loop` de este mismo arnes para tareas de ritmo propio. |
+| `/rewind` | Retrocede codigo y conversacion a un checkpoint anterior -- capa adicional a `agent-snapshot.js` y `npm run rollback-agent`, pero a nivel de sesion completa, no de un archivo individual. |
+| `/context` | Muestra el uso de contexto actual como grilla -- mas preciso que el conteo heuristico de turnos de CLAUDE.md, util para decidir si vale la pena `/compact` ya. |
+| `/agents` | Recordatorio/atajo para crear o editar subagentes -- los 6 agentes de `.claude/agents/` se siguen editando como archivo, esto es solo el disparador desde sesion. |
+| `/hooks` | Visualiza los hooks activos y su configuracion -- util para confirmar en vivo que un guard (`destructive-op-guard.js`, `jailbreak-guard.js`, etc.) esta realmente cargado. |
+| `/cost` (alias de `/usage`) | Muestra tokens y costo de la sesion actual -- complementa `npm run token-metrics` con una lectura instantanea sin correr el script. |
+| `/security-review` | Revisa el diff actual en busca de vulnerabilidades -- complementa, no reemplaza, al agente `security-scanner`. |
+| `/diff` | Revisa cambios en el working tree (incluyendo ediciones de Claude hasta ahora) antes de decidir si hace falta `/rewind`. |
+
+No documentados aqui por no aportar valor especifico a ai-core (uso general de Claude Code, cubiertos por `/help`): `/theme`, `/color`, `/mobile`, `/chrome`, `/keybindings`, `/screenshot`, `/dataviz`, `/design*`, `/passes`, `/insights`, entre otros.
+
+## Perfil de configuracion recomendado (`/config`)
+
+Esto NO es un archivo del repo ni se aplica via CLAUDE.md -- son ajustes de la app Claude Code (menu `/config`), propios de cada instalacion local. Se documenta aqui solo como referencia del perfil usado en el desarrollo de ai-core, para replicarlo en otra maquina si hace falta.
+
+```
+Auto-compact: true
+Continue automatically at usage limit: false
+Switch models when a message is flagged: Ask each time
+Show tips: false
+Claude-drafted feedback: off
+Reduce motion: false
+Thinking mode: false
+Prompt suggestions: false
+Session recap: false
+Rewind code (checkpoints): true
+Dynamic workflows: false
+Ultracode keyword trigger: false
+Dynamic workflow size: medium (default)
+Artifacts: false
+Verbose output: false
+Terminal progress bar: true
+Show turn duration: true
+Time format: auto
+Default permission mode: Manual
+Worktree base ref: fresh
+Use auto mode during plan: false
+Respect .gitignore in file picker: true
+Skip the /copy picker: false
+Copy on select: true
+Auto-scroll: true
+Open agents view by default: false
+← opens agents: true
+Auto-update channel: latest
+Theme: Dark mode
+Local notifications: Auto
+Push when actions required: false
+Push when Claude decides: false
+Output style: default
+Language: Default (English)
+Editor mode: normal
+Question auto-continue timeout: never
+Show last response in external editor: false
+Show PR status footer: true
+Model: sonnet
+Auto-connect to IDE (external terminal): false
+Claude in Chrome enabled by default: false
+Enable Remote Control for all sessions: default
+Dialog expiry: 60s
+Messages from your other sessions: refuse
+Project instructions · agents-md: claude-md-or-agents-md
+```
+
+Puntos que refuerzan el resto de este documento: `Default permission mode: Manual` es coherente con el human-in-the-loop obligatorio de `CLAUDE.md`; `Dynamic workflows: false` evita duplicar la capa de skills/agents propia del arnes; `Auto-compact: true` complementa (no reemplaza) el aviso de turnos del Protocolo de Ahorro de Tokens; `Switch models when flagged: Ask each time` evita que un cambio de modelo automatico rompa la jerarquia de costo de `ModelRegistry.js`.
 
 ---
 
