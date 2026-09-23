@@ -18,7 +18,7 @@ npm install                          # instalar dependencias del ai-core
 npm test                             # 1551 tests (1550 pass, 1 skip), Node nativo, sin dependencias externas
 npm run test:coverage                # suite completa con code coverage nativo (node --experimental-test-coverage)
 npm run validate-agents              # auditar conformidad de los 6 agentes con CLAUDE.md
-npm run quality-gate                 # marco de calidad completo (limite 300 lineas, skills, agentes, vigencia, tests); --fast omite tests
+npm run quality-gate                 # marco de calidad completo (limite 300 lineas, skills, agentes, vigencia, licencias, tests); --fast omite tests
 npm run setup                        # regenerar settings.json manualmente (ya corre solo via postinstall)
 npm run update                       # actualizacion one-command: pull + setup + test + validate
 npm run wizard                       # configuracion interactiva: API keys, GitHub token, alias SSH, integridad del harness, auditoria de providers
@@ -36,6 +36,7 @@ npm run rollback-agent -- --id <id>           # revertir un snapshot especifico 
 npm run audit-market                 # auditar vigencia de modelos/SDKs contra MARKET_STANDARDS.json
 npm run audit-market -- --only-stale # silencioso salvo hallazgo -- corre en el Protocolo de Arranque de cada sesion
 npm run scan-secrets-history          # escanear TODO el historial de git (no solo el working tree) por credenciales -- security-scanner.md paso 3b
+npm run verify-audit-log             # verificar integridad del hash-chain de BREAK_GLASS_LOG.jsonl (detecta edicion/borrado retroactivo)
 npm run score                        # calcular aiops-score de la sesion actual
 npm run score-report                 # reporte historico de aiops-score
 npm run memory-index                 # indexar vault de memoria (.claude/memory-vault/)

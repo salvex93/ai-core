@@ -165,6 +165,7 @@ npm run map                               # regenerar CONTEXT_MAP.json
 npm run audit-market                      # auditar vigencia de skills vs. dominios en MARKET_STANDARDS.json
 npm run audit-market -- --only-stale      # silencioso salvo hallazgo -- usado en el Protocolo de Arranque de cada sesion
 npm run scan-secrets-history               # escanear TODO el historial de git (no solo el working tree) por credenciales
+npm run verify-audit-log                  # verificar integridad del hash-chain de BREAK_GLASS_LOG.jsonl
 npm run score                             # scoring 0-10 por 6 dimensiones del arnes
 npm run score-report                      # historial completo de scores con delta
 npm run migrate                           # aplicar migraciones de version manualmente
