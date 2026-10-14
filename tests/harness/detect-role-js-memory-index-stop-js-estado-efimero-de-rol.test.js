@@ -12,13 +12,14 @@ describe('detect-role.js + memory-index-stop.js (estado efimero de rol)', () => 
   const DETECT_ROLE  = path.join(BIN, 'detect-role.js');
   const STOP_WRAPPER = path.join(BIN, 'memory-index-stop.js');
   const ROLE_FILE    = path.join(os.tmpdir(), `ai-core-test-role-${process.pid}-${Math.random().toString(16).slice(2)}`);
-  const ENV_ROL      = { AI_CORE_ROLE_FILE: ROLE_FILE };
-  const VAULT        = path.join(REPO, '.claude', 'memory-vault');
+  const VAULT        = fs.mkdtempSync(path.join(os.tmpdir(), 'ai-core-test-vault-'));
+  const ENV_ROL      = { AI_CORE_ROLE_FILE: ROLE_FILE, AI_CORE_MEMORY_VAULT_PATH: VAULT };
   const RAW          = path.join(VAULT, '.raw');
   const INDEX_FILE   = path.join(VAULT, 'index.json');
 
   after(() => {
     if (fs.existsSync(ROLE_FILE)) fs.unlinkSync(ROLE_FILE);
+    fs.rmSync(VAULT, { recursive: true, force: true });
   });
 
   test('ambos scripts existen', () => {
