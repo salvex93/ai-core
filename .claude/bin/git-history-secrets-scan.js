@@ -73,9 +73,9 @@ function obtenerLogCompleto() {
   const refs = refsAEscanear();
   if (refs === null) return '';
   try {
-    return git(['log', , '-p', '--format=COMMIT:%H', ...refs]);
+    return git(['log', `-${MAX_COMMITS}`, '-p', '--format=COMMIT:%H', ...refs]);
   } catch (err) {
-    console.error();
+    console.error(`[GIT-HISTORY-SECRETS-SCAN] git log fallo: ${(err.stderr || err.message).toString().trim()}`);
     process.exit(2);
   }
 }
