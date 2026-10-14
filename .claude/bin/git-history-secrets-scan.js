@@ -51,7 +51,7 @@ function git(args) {
 
 function existeCommit(ref) {
   try {
-    git(['rev-parse', '--verify', '-q', ]);
+    git(['rev-parse', '--verify', '-q', `${ref}^{commit}`]);
     return true;
   } catch {
     return false;
