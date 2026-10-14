@@ -17,7 +17,7 @@ const fs   = require('node:fs');
 const path = require('node:path');
 const { spawnSync } = require('node:child_process');
 
-const ROLE_FILE  = path.join(__dirname, '..', '.current_role');
+const ROLE_FILE  = process.env.AI_CORE_ROLE_FILE || path.join(__dirname, '..', '.current_role');
 const MEMORY_IDX = process.env.AI_CORE_MEMORY_INDEX_SCRIPT_PATH || path.join(__dirname, 'memory-index.js');
 const ROLES_VALIDOS = ['architect', 'coder', 'auditor'];
 

@@ -16,7 +16,7 @@ const path = require('node:path');
 const { clasificarConModelo } = require(path.join(__dirname, '..', '..', 'scripts', 'services', 'IntentClassifier.js'));
 const { leerPromptDeUsuario } = require('./lib/hook-stdin');
 
-const ROLE_FILE = path.join(__dirname, '..', '.current_role');
+const ROLE_FILE = process.env.AI_CORE_ROLE_FILE || path.join(__dirname, '..', '.current_role');
 
 // El prompt llega por JSON en stdin (campo `prompt`). Invocado via
 // process-guard.js, que hereda stdio (incluido stdin) del proceso padre.

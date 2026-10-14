@@ -11,7 +11,8 @@ const { REPO, BIN, SKILLS, SETTINGS, runScript, tmpFile } = require('./_shared')
 describe('detect-role.js + memory-index-stop.js (estado efimero de rol)', () => {
   const DETECT_ROLE  = path.join(BIN, 'detect-role.js');
   const STOP_WRAPPER = path.join(BIN, 'memory-index-stop.js');
-  const ROLE_FILE    = path.join(REPO, '.claude', '.current_role');
+  const ROLE_FILE    = path.join(os.tmpdir(), `ai-core-test-role-${process.pid}-${Math.random().toString(16).slice(2)}`);
+  const ENV_ROL      = { AI_CORE_ROLE_FILE: ROLE_FILE };
   const VAULT        = path.join(REPO, '.claude', 'memory-vault');
   const RAW          = path.join(VAULT, '.raw');
   const INDEX_FILE   = path.join(VAULT, 'index.json');
@@ -27,7 +28,7 @@ describe('detect-role.js + memory-index-stop.js (estado efimero de rol)', () => 
 
   test('detect-role.js escribe .claude/.current_role con el rol detectado', () => {
     if (fs.existsSync(ROLE_FILE)) fs.unlinkSync(ROLE_FILE);
-    const r = runScript(DETECT_ROLE, [], { CLAUDE_USER_PROMPT: 'audita esta dependencia por CVE de seguridad' });
+    const r = runScript(DETECT_ROLE, [], { ...ENV_ROL, CLAUDE_USER_PROMPT: 'audita esta dependencia por CVE de seguridad' });
     assert.equal(r.status, 0);
     assert.ok(fs.existsSync(ROLE_FILE), 'debe crear .claude/.current_role');
     assert.equal(fs.readFileSync(ROLE_FILE, 'utf8').trim(), 'auditor');
@@ -41,7 +42,7 @@ describe('detect-role.js + memory-index-stop.js (estado efimero de rol)', () => 
     // "Architect" con confianza minima.
     if (fs.existsSync(ROLE_FILE)) fs.unlinkSync(ROLE_FILE);
     const evento = JSON.stringify({ hook_event_name: 'UserPromptSubmit', prompt: 'audita esta dependencia por CVE de seguridad' });
-    const r = spawnSync('node', [DETECT_ROLE], { encoding: 'utf8', cwd: REPO, input: evento });
+    const r = spawnSync('node', [DETECT_ROLE], { encoding: 'utf8', cwd: REPO, input: evento, env: { ...process.env, ...ENV_ROL } });
     assert.equal(r.status, 0);
     assert.equal(fs.readFileSync(ROLE_FILE, 'utf8').trim(), 'auditor', 'debe clasificar leyendo el prompt real desde stdin');
   });
@@ -49,7 +50,7 @@ describe('detect-role.js + memory-index-stop.js (estado efimero de rol)', () => 
   test('memory-index-stop.js consume .current_role de forma destructiva (lo elimina tras leerlo)', () => {
     fs.writeFileSync(ROLE_FILE, 'coder', 'utf8');
     fs.mkdirSync(RAW, { recursive: true });
-    const r = runScript(STOP_WRAPPER);
+    const r = runScript(STOP_WRAPPER, [], ENV_ROL);
     assert.equal(r.status, 0);
     assert.ok(!fs.existsSync(ROLE_FILE), '.current_role debe eliminarse tras ser consumido');
   });
@@ -59,7 +60,7 @@ describe('detect-role.js + memory-index-stop.js (estado efimero de rol)', () => 
     fs.mkdirSync(path.join(RAW, 'auditor'), { recursive: true });
     fs.writeFileSync(path.join(RAW, 'auditor', '_test-stop.md'), '# nota de prueba\n\ncontenido minimo de prueba.', 'utf8');
 
-    runScript(STOP_WRAPPER);
+    runScript(STOP_WRAPPER, [], ENV_ROL);
 
     const idx = JSON.parse(fs.readFileSync(INDEX_FILE, 'utf8'));
     const fragsAuditor = Object.values(idx.frags).filter(f => f.rol === 'auditor' && f.source === '_test-stop');
@@ -68,12 +69,12 @@ describe('detect-role.js + memory-index-stop.js (estado efimero de rol)', () => 
     fs.unlinkSync(path.join(RAW, 'auditor', '_test-stop.md'));
     const wikiFile = path.join(VAULT, '.wiki', 'auditor', '_test-stop.md');
     if (fs.existsSync(wikiFile)) fs.unlinkSync(wikiFile);
-    runScript(STOP_WRAPPER); // reindexar sin el archivo de prueba, deja el vault limpio
+    runScript(STOP_WRAPPER, [], ENV_ROL); // reindexar sin el archivo de prueba, deja el vault limpio
   });
 
   test('memory-index-stop.js cae a --rol=general si .current_role no existe', () => {
     if (fs.existsSync(ROLE_FILE)) fs.unlinkSync(ROLE_FILE);
-    const r = runScript(STOP_WRAPPER);
+    const r = runScript(STOP_WRAPPER, [], ENV_ROL);
     assert.equal(r.status, 0);
     assert.ok(!fs.existsSync(ROLE_FILE), 'no debe crear .current_role si no existia');
   });
@@ -81,7 +82,7 @@ describe('detect-role.js + memory-index-stop.js (estado efimero de rol)', () => 
   test('memory-index-stop.js loguea a stderr si memory-index.js subyacente falla, en vez de fallar en silencio total', () => {
     if (fs.existsSync(ROLE_FILE)) fs.unlinkSync(ROLE_FILE);
     const scriptQueFalla = tmpFile('process.exit(1);');
-    const r = runScript(STOP_WRAPPER, [], { AI_CORE_MEMORY_INDEX_SCRIPT_PATH: scriptQueFalla });
+    const r = runScript(STOP_WRAPPER, [], { ...ENV_ROL, AI_CORE_MEMORY_INDEX_SCRIPT_PATH: scriptQueFalla });
     assert.match(r.stderr, /MEMORY-INDEX-STOP.*fallo/i, 'debe dejar rastro diagnosticable del fallo subyacente');
   });
 });
