@@ -227,29 +227,34 @@ function registrarUso(entrada) {
  * integridad (su hash coincide con el contenido propio) y su encadenamiento
  * (su hashPrevio coincide con el hash real de la entrada anterior). Un log
  * inexistente se considera integro con 0 entradas -- nada que romper.
- * @returns {{integra: boolean, totalEntradas: number, primeraRota: number|null}}
+ * Las entradas anteriores a la cadena (sin hash ni hashPrevio) se aceptan solo
+ * como prefijo contiguo y se cuentan aparte: no son verificables, pero no son
+ * manipulacion. Una entrada sin hash despues de una con hash si es rotura.
+ * @returns {{integra: boolean, totalEntradas: number, primeraRota: number|null, entradasLegado: number}}
  */
 function verificarCadenaLog() {
   let contenido;
   try { contenido = fs.readFileSync(LOG_PATH, 'utf8'); } catch {
-    return { integra: true, totalEntradas: 0, primeraRota: null };
+    return { integra: true, totalEntradas: 0, primeraRota: null, entradasLegado: 0 };
   }
   const lineas = contenido.split('\n').filter(Boolean);
+  const rota = (i, legado) => ({ integra: false, totalEntradas: lineas.length, primeraRota: i, entradasLegado: legado });
 
   let hashPrevioEsperado = HASH_GENESIS;
+  let entradasLegado = 0;
   for (let i = 0; i < lineas.length; i++) {
     let entrada;
-    try { entrada = JSON.parse(lineas[i]); } catch {
-      return { integra: false, totalEntradas: lineas.length, primeraRota: i };
+    try { entrada = JSON.parse(lineas[i]); } catch { return rota(i, entradasLegado); }
+    if (entrada.hash === undefined && entrada.hashPrevio === undefined && entradasLegado === i) {
+      entradasLegado++;
+      continue;
     }
     const { hash, ...campos } = entrada;
     const hashRecalculado = crypto.createHash('sha256').update(JSON.stringify(campos)).digest('hex');
-    if (hash !== hashRecalculado || campos.hashPrevio !== hashPrevioEsperado) {
-      return { integra: false, totalEntradas: lineas.length, primeraRota: i };
-    }
+    if (hash !== hashRecalculado || campos.hashPrevio !== hashPrevioEsperado) return rota(i, entradasLegado);
     hashPrevioEsperado = hash;
   }
-  return { integra: true, totalEntradas: lineas.length, primeraRota: null };
+  return { integra: true, totalEntradas: lineas.length, primeraRota: null, entradasLegado };
 }
 
 module.exports = {
