@@ -3,6 +3,16 @@
 Registro de cambios por version. Formato basado en [Keep a Changelog](https://keepachangelog.com/es/1.0.0/).
 Versionado semantico: MAJOR.MINOR.PATCH.
 
+## [Unreleased] — recorte de contexto fijo (2026-10-14)
+
+### Cambiado
+
+- `CLAUDE.md` 22.6k a 17.5k caracteres: texto completo de ahorro de tokens, estandares de documentacion y codigo, tabla de hooks, patron de mapeo y detalle de modelos de subagentes movido textualmente a `docs/REFERENCIA-ARNES.md`.
+- `skillListingMaxDescChars: 160` en `settings.json`: enrutamiento validado con 120 prompts (119/120 con GPT; activacion real verificada con `claude -p`). Los `SKILL.md` no cambian.
+- Contexto fijo medido (`claude -p --strict-mcp-config`): 46.6k a 33.9k tokens junto con el recorte de la memoria automatica.
+- `aiops-score.js`: `AI_CORE_AGENTS_DIR` y `AI_CORE_SKILLS_DIR` permiten aislar el test de verbosidad (corrige test intermitente).
+- Descartado: hook de pistas de skills por BM25 (recall 76/120 en frio, 90/120 con nucleo excluido).
+
 ## [Unreleased] — verificacion de audit trail y gobierno de licencias de dependencias (G43, 2026-09-22)
 
 ### Agregado — cierre de 2 gaps detectados en comparacion contra marco enterprise de agentes (7 controles no-negociables)

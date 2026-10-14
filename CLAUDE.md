@@ -32,9 +32,7 @@ AI-CORE opera con tres roles especializados segun la naturaleza de la tarea. El 
 - Sonnet: refactorizacion, busqueda web, diagnostico, analisis de calidad
 - Opus: SOLO diseno de sistemas nuevos y refactorizacion de arquitectura multi-modulo
 
-**Enforcement real en subagentes (campo `model:` en frontmatter, no solo prosa):** los 6 agentes de `.claude/agents/` fijan `model:` segun esta jerarquia -- `issue-tracker` (tarea mecanica: formatear issues) usa `haiku`; `aiops-auditor`, `code-reviewer`, `security-scanner`, `mcp-registry-navigator`, `self-healing-agent` (rol Auditor: diagnostico, seguridad, calidad) usan `sonnet` explicito. Valores validos confirmados contra code.claude.com/docs/en/sub-agents: `sonnet`, `opus`, `haiku`, `fable`, un model ID completo, o `inherit` (default si se omite el campo). `model:` no puede delegar a Gemini -- eso sigue resuelto en otra capa (bridge MCP / `ModelRegistry.js`), el campo solo fija que variante de Claude ejecuta ese subagente especifico.
-
-**Agente `map-updater` eliminado (2026-08-15):** era funcionalmente redundante con `validate-map.js` (hook `PreToolUse`) y `diff-map-trigger.js` (hook `PostToolUse`), que ya detectan drift estructural y regeneran `CONTEXT_MAP.json` de forma deterministica sin ventana en la que un subagente actue primero. `npm run map` sigue disponible para regeneracion manual bajo demanda.
+Con `model:` en frontmatter, los 6 agentes de `.claude/agents/` quedan fijados (`issue-tracker` usa `haiku`, el resto `sonnet`); `model:` no delega a Gemini. Detalle y baja del agente `map-updater`: `docs/REFERENCIA-ARNES.md`.
 
 ## Seleccion de Skills — Automatica por contexto
 
@@ -64,52 +62,19 @@ Al inicio de cada sesion, ejecutar este checklist en orden antes de responder al
 
 Este protocolo es automatico — no requiere que el usuario lo solicite. Se completa en silencio salvo que algun paso reporte un hallazgo relevante.
 
-## Protocolo de Ahorro de Tokens y Cuota (API por token + Plan Pro por sesion/semana)
+## Protocolo de Ahorro de Tokens y Cuota
 
-Regla unica de contexto — no se repite en otra seccion, ver tambien punto 9 del ANCLA:
-- Estimacion: N turnos visibles × 800 tokens.
-- TURNOS >= 6 → imprimir AL INICIO de la respuesta `[AVISO: contexto pesado — ejecuta /compact]`.
-- TURNOS >= 15 → imprimir AL INICIO de la respuesta `[CRITICO: contexto saturado — ejecuta /clear]` y detener la tarea hasta que el usuario ejecute el comando.
-- Tras `/compact` exitoso: resetear conteo a 1. Tras `/clear`: resetear conteo a 0.
-- Nunca esperar a que el usuario lo pida — anticiparse siempre.
+- **Contexto (punto 9 del ANCLA):** estimacion N turnos visibles × 800 tokens. TURNOS >= 6 → imprimir AL INICIO `[AVISO: contexto pesado — ejecuta /compact]`. TURNOS >= 15 → imprimir AL INICIO `[CRITICO: contexto saturado — ejecuta /clear]` y detener la tarea hasta que el usuario lo ejecute. Tras `/compact` resetear a 1, tras `/clear` a 0. Anticiparse siempre.
+- **Mapa:** `.claude/CONTEXT_MAP.json` es el indice primario; leer un archivo solo si se va a modificar. PROHIBIDO `git ls-files`, `find` o `ls` para explorar estructura.
+- **Bash masivo:** `bash-verbosity-guard.js` bloquea comandos de output sin acotar (log, diff, cat, find); preferir la version acotada o Read, Glob y Grep.
+- **Gemini Bridge (TIER 0, gratuito, siempre primero):** archivo > 200 lineas → `analizar_archivo`; logs > 50 lineas → `analizar_contenido`; repositorio completo → `analizar_repositorio`; backlog o listas → `resumir_backlog`; busqueda web → `buscar_web`; investigacion extensa → Deep Research. Enforcement real solo en lectura de archivos y busqueda web (`guard-read.js`, `web-search-guard.js`). Sin bridge (cuota o conexion): tier Claude inmediato superior; los guards lo permiten automaticamente. Razonamiento profundo: Gemini lee, Claude razona sobre el resumen. Explicaciones de arquitectura > 5 pasos o comparacion de mas de 3 alternativas: delegar.
+- **Filtros:** input a Gemini por `truncarInputGemini()` (8.000 tokens), output por `truncarOutputGemini()` (1.500 tokens).
 
-**Alcance:** el conteo de turnos es proxy informativo para API por token y para cuota de sesion Pro (Anthropic no expone telemetria de cuota). Gobierna solo la sesion interactiva de Claude Code; el auto-compact nativo (`autoCompactWindow`) decide la compactacion real sobre tokens, y el umbral de 15 turnos es politica propia del proyecto. El `compaction` server-side de la API no aplica hoy (ningun modulo de `scripts/services/` acumula mensajes). Fundamento y verificaciones: `docs/GOBIERNO-AGENTES.md`.
+**Checklist antes de responder (todo rol):** 1) ¿Cabe en 1 linea? 2) ¿El usuario ya tiene el codigo? solo el diff. 3) ¿Necesito leer un archivo? CONTEXT_MAP primero. 4) ¿Mas de 150 palabras de prosa (100 en Coder)? generar `.claude/TO_GEMINI.md` y delegar. 5) Maximo 3 tool calls por respuesta si no son estrictamente paralelas.
 
-**Mapeo de grafo:** usar `.claude/CONTEXT_MAP.json` como indice primario. `PreToolUse` ejecuta `validate-map.js` (drift por conteo), `PostToolUse` ejecuta `diff-map-trigger.js` (drift estructural). PROHIBIDO `git ls-files`, `find` o `ls` para explorar estructura. Leer un archivo solo si se va a modificar.
+**Palabras prohibidas en prosa:** `claro`, `por supuesto`, `entendido`, `perfecto`, `excelente`, `de acuerdo`, `sin problema`, `como puedes ver`, `en resumen`, `en conclusion`, `espero que esto ayude`, `no dudes en preguntar`.
 
-**Comandos Bash de output masivo:** `bash-verbosity-guard.js` (hook `PreToolUse`, matcher `Bash`) bloquea con exit 2 `git log`/`git diff`/`cat`/`find` sin acotar (sin `-n`, `--stat`, `| head`, archivo especifico o `-maxdepth`), porque el output de una tool call no puede truncarse retroactivamente — los hooks no tienen acceso al resultado, solo al comando de entrada. Preferir siempre la version acotada o las herramientas nativas (Read, Glob, Grep) en vez de Bash crudo.
-
-**Anti-Detox:** la raiz del proyecto debe estar libre de archivos `.md` de reportes legacy (v2.4/v2.5) para evitar envenenar el contexto de memoria.
-
-**Delegacion a Gemini Bridge (TIER 0 — siempre primero, es gratuito):**
-
-| Tarea | Umbral | Accion |
-|---|---|---|
-| Leer un archivo | > 200 lineas | `analizar_archivo` del MCP gemini-bridge |
-| Analizar logs / errores | > 50 lineas | `analizar_contenido` del MCP gemini-bridge |
-| Analizar el repositorio completo | siempre | `analizar_repositorio` del MCP gemini-bridge |
-| Resumir backlog / listas | siempre | `resumir_backlog` del MCP gemini-bridge |
-| Busqueda web / investigacion | siempre | `buscar_web` del MCP gemini-bridge |
-| Investigacion multi-fuente extensa | siempre | Deep Research (Gemini 3.1 Pro), preferente sobre otros proveedores |
-
-Filas "Leer un archivo" y "Busqueda web" tienen enforcement real via hook (`guard-read.js`, `web-search-guard.js`, ver regla 7 del ANCLA) -- las demas filas siguen dependiendo de que el modelo las respete por instruccion, sin bloqueo tecnico.
-
-- Si gemini-bridge NO esta disponible (cuota/conexion): usar el modelo Claude del tier inmediatamente superior. Para las 2 filas con enforcement real, esto ya es automatico (el guard detecta ausencia de `GEMINI_API_KEY` y permite la tool nativa en vez de bloquear sin alternativa).
-- Si la tarea requiere razonamiento profundo ADEMAS de lectura → Gemini lee, Claude razona sobre el resumen.
-- **FILTRO DE INPUT:** contenido enviado a Gemini pasa por `truncarInputGemini()` (limite 8.000 tokens / ~32k chars, conserva inicio+fin si excede).
-- **FILTRO DE OUTPUT:** output de Gemini que entra al historial de Claude pasa por `truncarOutputGemini()` (limite 1.500 tokens / ~6.000 chars).
-
-**Checklist antes de responder (todo rol):**
-1. ¿Puede responderse en 1 linea? → 1 linea, sin introduccion.
-2. ¿El usuario ya tiene el codigo? → solo el diff, nunca repetir bloques completos.
-3. ¿Necesito leer un archivo? → consultar CONTEXT_MAP primero, leer solo si se va a modificar.
-4. ¿La respuesta supera 150 palabras de prosa (100 en Coder)? → generar `.claude/TO_GEMINI.md` y delegar.
-5. Nunca acumular mas de 3 tool calls en una respuesta si no son estrictamente paralelas.
-
-**Delegacion obligatoria adicional a Gemini Bridge:** explicaciones de arquitectura > 5 pasos, comparacion de mas de 3 alternativas tecnicas.
-
-**Palabras prohibidas en prosa** (cuestan tokens sin valor): `claro`, `por supuesto`, `entendido`, `perfecto`, `excelente`, `de acuerdo`, `sin problema`, `como puedes ver`, `en resumen`, `en conclusion`, `espero que esto ayude`, `no dudes en preguntar`.
-
+Alcance del conteo de turnos, Anti-Detox y detalle de guards: `docs/REFERENCIA-ARNES.md`.
 ## Modo Neanderthal (Rol: Coder)
 - Respuestas: maximo 3 lineas de prosa, seguidas exclusivamente de codigo.
 - Prohibido: "claro", "por supuesto", "entendido", resumenes post-tarea, listas de lo que se hizo.
@@ -124,16 +89,8 @@ Al agregar un skill: evaluar los tres criterios, crear el AGENT.md si los cumple
 
 ## Gobierno de Agentes y Subagentes (Estandar AAA)
 
-### Ciclo de vida y hooks disponibles (Anthropic 2026)
-
-| Hook | Momento | Uso obligatorio en ai-core |
-|---|---|---|
-| `PreToolUse` | Antes de ejecutar cualquier herramienta | Guard-read, validate-map, health-check |
-| `PostToolUse` | Despues de herramienta exitosa | Detox, syntax-check, diff-map-trigger |
-| `PostToolUseFailure` | Despues de herramienta fallida | Registrar fallo, escalar si es MCP critico |
-| `UserPromptSubmit` | Al recibir mensaje del usuario | Clasificar intencion, seleccionar rol |
-| `SubagentStop` | Cuando un subagente termina | Validar output antes de integrar al padre |
-
+### Ciclo de vida y hooks (Anthropic 2026)
+Hooks usados: `PreToolUse` (guards), `PostToolUse` (detox, syntax-check, mapa), `PostToolUseFailure` (registrar fallo), `UserPromptSubmit` (rol, anti-jailbreak) y `SubagentStop` (validar output). Tabla completa: `docs/REFERENCIA-ARNES.md`.
 ### Reglas de gobierno para subagentes
 
 1. **Contexto cero:** Todo subagente arranca sin contexto del padre. El prompt debe ser 100% autocontenido — incluir rutas, nombres de archivos, proposito y formato de output esperado.
@@ -160,46 +117,16 @@ Tabla de modelos, precios y reglas RPM/RPD: Detalle completo en `docs/REFERENCIA
 Nunca actuar sobre una afirmacion de modelo, version o release nuevo (research, terceros, contenido externo) sin confirmarla contra fuente oficial primaria del proveedor y verificar el detalle tecnico exacto (parametro, pricing, free tier); si no se puede verificar, no modificar nada y avisar al usuario. Tras un cambio confirmado: actualizar skills afectados, `validate-globals`, `npm test`, `npm run map` y registrar en CHANGELOG.md. Detalle completo en `docs/REFERENCIA-ARNES.md` (leer solo cuando la tarea lo requiera).
 
 ### Patron de Mapeo de Contexto (CONTEXT_MAP)
-
-El mapa se actualiza automaticamente ante:
-- **Drift de conteo:** si `git ls-files` difiere en >= 3 archivos vs el mapa (via `validate-map.js` en PreToolUse).
-- **Cambio estructural:** si `git status --porcelain` reporta archivos nuevos (`??`), stagiados (`A `) o eliminados (`D `) (via `diff-map-trigger.js` en PostToolUse).
-
-PROHIBIDO: consultar estructura del proyecto via `find`, `ls` o `git ls-files` directamente. Siempre usar el mapa como fuente de verdad.
-
+`validate-map.js` (PreToolUse, drift de conteo >= 3 archivos) y `diff-map-trigger.js` (PostToolUse, cambio estructural) regeneran el mapa solos. PROHIBIDO `find`, `ls` o `git ls-files` para explorar estructura.
 ## Instalacion en Proyecto Anfitrion
 El CLAUDE.md del anfitrion apunta a `.claude/ai-core/CLAUDE.md` y ejecuta `norm-harness.js` al inicio (crea el symlink). `hooks-definition.js` es la fuente unica de la seccion "hooks" de settings.json. Detalle completo en `docs/REFERENCIA-ARNES.md` (leer solo cuando la tarea lo requiera).
 
-## Estandares de Documentacion Tecnica
+## Estandares de Documentacion y Codigo
+- **Docs .md:** sin emojis ni adornos; un archivo por proposito; prohibido inventar alcance o sistemas del cliente (lo no documentado va como "a definir en discovery"); entregables con criterio de exito medible; documentos internos separados de los de cliente.
+- **Comentarios:** sin adornos, explican el POR QUE; max 1 linea inline y 3 por bloque; sin referencias a tareas, tickets, fechas ni herramientas; JSDoc minimo solo en funciones publicas.
+- **Codigo:** nombres en ingles, comentarios en español; funciones <= 20 lineas y <= 3 parametros; early return (max 3 niveles); errores explicitos, nunca `catch {}` vacio; datos inmutables; toda funcion publica con test de camino feliz y de error; sin secretos hardcodeados; logs JSON estructurados.
 
-### Archivos .md (ROADMAP, HISTORIAS, README, etc.)
-- Sin emojis, iconos ni adornos visuales en ningun archivo de documentacion
-- Un archivo por proposito — ROADMAP no mezcla con historias, historias no mezclan con costos
-- Nunca incluir nombres de sistemas del cliente sin respaldo explicito en el brief
-- Lo no documentado por el cliente va como "a definir en discovery" — prohibido inventar alcance
-- Todo entregable debe tener criterio de exito medible y especifico
-- Separar documentos internos (uso propio) de documentos para cliente
-
-### Comentarios en codigo
-- Sin emojis, iconos ni adornos visuales en comentarios
-- Estilo: tecnico, directo, conciso — sin narrativas ni historias
-- Comentar el POR QUE, no el QUE — el codigo bien nombrado ya dice el que
-- Un comentario por bloque logico no obvio; prohibido comentar cada linea
-- Maximo 1 linea por comentario inline; bloques de comentario maximos 3 lineas
-- Prohibido: referencias a tareas, tickets, fechas o nombres de herramientas en comentarios de codigo
-- Formato 2026: JSDoc/docstring minimo para funciones publicas — solo firma, parametros y retorno
-
-### Buenas practicas de codigo (marcos 2026)
-- **Naming:** nombres descriptivos en ingles para codigo, comentarios en español
-- **Funciones:** una funcion, una responsabilidad — maximo 20 lineas; si supera, extraer
-- **Parametros:** maximo 3 parametros por funcion; si necesita mas, usar objeto de configuracion
-- **Error handling:** errores explicitos con contexto — prohibido `except: pass` o `catch {}` vacios
-- **Inmutabilidad:** preferir datos inmutables; evitar mutacion de estado compartido
-- **Early return:** validar y retornar temprano para evitar anidacion profunda (max 3 niveles)
-- **Tests:** toda funcion publica con al menos 1 test de camino feliz y 1 de error esperado
-- **Secrets:** prohibido hardcodear credenciales, tokens o URLs de produccion en codigo fuente
-- **Logging:** logs estructurados en JSON — nivel, timestamp, contexto; prohibido `print` en produccion
-
+Texto completo: `docs/REFERENCIA-ARNES.md`.
 ## Estandares de Propuestas Comerciales
 Al redactar propuestas comerciales: solo lo documentado en el brief, verificacion aritmetica antes de entregar, sin menciones a herramientas de IA. Detalle completo en `docs/REFERENCIA-ARNES.md` (leer solo cuando la tarea lo requiera).
 

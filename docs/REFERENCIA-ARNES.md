@@ -187,3 +187,111 @@ Dos capas adicionales cubren el runaway entre subagentes con argumentos DISTINTO
 10. **Sandboxing opcional por contenedor (2026-08-15, patron OpenHands):** `npm run sandbox` levanta una sesion aislada en Docker (`docker/Dockerfile` + `docker/docker-compose.yml`), montando el proyecto anfitrion como volumen en vez de operar directo sobre el filesystem del host — capacidad activable, el uso normal sin Docker no cambia. Recomendado para agentes autonomos sobre codigo no confiable o comandos de mayor riesgo; los guards de patron de comando (`destructive-op-guard.js`, etc.) siguen activos dentro del contenedor tambien, son capas complementarias, no alternativas.
 
 11. **Marco de calidad previo a push (2026-09-21):** `git push*` permanece en `allow` de `settings.json`; lo que condiciona la publicacion es el hook git nativo `.githooks/pre-push` (activado via `core.hooksPath` por `npm run setup`), que ejecuta `scripts/quality-gate.js`: limite de 300 lineas en `.js/.ts/.py`, `validate-globals`, `validate-agents`, `audit-market --only-stale` y `npm test`. Si algo falla el push se bloquea y la correccion es del agente, no una excepcion. Es un hook git y no un guard de Claude porque los guards corren bajo Node Permission Model y sus hijos heredan las restricciones (no podrian ejecutar `npm test`). Un pase completo se cachea por huella exacta del repo (HEAD + diff + untracked). `git push --no-verify` esta bajo break-glass (regla de `destructive-rules.js`). Push que solo borra ramas no se valida.
+
+
+## Subagentes: modelo por frontmatter y agente map-updater (texto completo)
+
+**Enforcement real en subagentes (campo `model:` en frontmatter, no solo prosa):** los 6 agentes de `.claude/agents/` fijan `model:` segun esta jerarquia -- `issue-tracker` (tarea mecanica: formatear issues) usa `haiku`; `aiops-auditor`, `code-reviewer`, `security-scanner`, `mcp-registry-navigator`, `self-healing-agent` (rol Auditor: diagnostico, seguridad, calidad) usan `sonnet` explicito. Valores validos confirmados contra code.claude.com/docs/en/sub-agents: `sonnet`, `opus`, `haiku`, `fable`, un model ID completo, o `inherit` (default si se omite el campo). `model:` no puede delegar a Gemini -- eso sigue resuelto en otra capa (bridge MCP / `ModelRegistry.js`), el campo solo fija que variante de Claude ejecuta ese subagente especifico.
+
+**Agente `map-updater` eliminado (2026-08-15):** era funcionalmente redundante con `validate-map.js` (hook `PreToolUse`) y `diff-map-trigger.js` (hook `PostToolUse`), que ya detectan drift estructural y regeneran `CONTEXT_MAP.json` de forma deterministica sin ventana en la que un subagente actue primero. `npm run map` sigue disponible para regeneracion manual bajo demanda.
+
+## Protocolo de Ahorro de Tokens y Cuota (texto completo)
+
+## Protocolo de Ahorro de Tokens y Cuota (API por token + Plan Pro por sesion/semana)
+
+Regla unica de contexto — no se repite en otra seccion, ver tambien punto 9 del ANCLA:
+- Estimacion: N turnos visibles × 800 tokens.
+- TURNOS >= 6 → imprimir AL INICIO de la respuesta `[AVISO: contexto pesado — ejecuta /compact]`.
+- TURNOS >= 15 → imprimir AL INICIO de la respuesta `[CRITICO: contexto saturado — ejecuta /clear]` y detener la tarea hasta que el usuario ejecute el comando.
+- Tras `/compact` exitoso: resetear conteo a 1. Tras `/clear`: resetear conteo a 0.
+- Nunca esperar a que el usuario lo pida — anticiparse siempre.
+
+**Alcance:** el conteo de turnos es proxy informativo para API por token y para cuota de sesion Pro (Anthropic no expone telemetria de cuota). Gobierna solo la sesion interactiva de Claude Code; el auto-compact nativo (`autoCompactWindow`) decide la compactacion real sobre tokens, y el umbral de 15 turnos es politica propia del proyecto. El `compaction` server-side de la API no aplica hoy (ningun modulo de `scripts/services/` acumula mensajes). Fundamento y verificaciones: `docs/GOBIERNO-AGENTES.md`.
+
+**Mapeo de grafo:** usar `.claude/CONTEXT_MAP.json` como indice primario. `PreToolUse` ejecuta `validate-map.js` (drift por conteo), `PostToolUse` ejecuta `diff-map-trigger.js` (drift estructural). PROHIBIDO `git ls-files`, `find` o `ls` para explorar estructura. Leer un archivo solo si se va a modificar.
+
+**Comandos Bash de output masivo:** `bash-verbosity-guard.js` (hook `PreToolUse`, matcher `Bash`) bloquea con exit 2 `git log`/`git diff`/`cat`/`find` sin acotar (sin `-n`, `--stat`, `| head`, archivo especifico o `-maxdepth`), porque el output de una tool call no puede truncarse retroactivamente — los hooks no tienen acceso al resultado, solo al comando de entrada. Preferir siempre la version acotada o las herramientas nativas (Read, Glob, Grep) en vez de Bash crudo.
+
+**Anti-Detox:** la raiz del proyecto debe estar libre de archivos `.md` de reportes legacy (v2.4/v2.5) para evitar envenenar el contexto de memoria.
+
+**Delegacion a Gemini Bridge (TIER 0 — siempre primero, es gratuito):**
+
+| Tarea | Umbral | Accion |
+|---|---|---|
+| Leer un archivo | > 200 lineas | `analizar_archivo` del MCP gemini-bridge |
+| Analizar logs / errores | > 50 lineas | `analizar_contenido` del MCP gemini-bridge |
+| Analizar el repositorio completo | siempre | `analizar_repositorio` del MCP gemini-bridge |
+| Resumir backlog / listas | siempre | `resumir_backlog` del MCP gemini-bridge |
+| Busqueda web / investigacion | siempre | `buscar_web` del MCP gemini-bridge |
+| Investigacion multi-fuente extensa | siempre | Deep Research (Gemini 3.1 Pro), preferente sobre otros proveedores |
+
+Filas "Leer un archivo" y "Busqueda web" tienen enforcement real via hook (`guard-read.js`, `web-search-guard.js`, ver regla 7 del ANCLA) -- las demas filas siguen dependiendo de que el modelo las respete por instruccion, sin bloqueo tecnico.
+
+- Si gemini-bridge NO esta disponible (cuota/conexion): usar el modelo Claude del tier inmediatamente superior. Para las 2 filas con enforcement real, esto ya es automatico (el guard detecta ausencia de `GEMINI_API_KEY` y permite la tool nativa en vez de bloquear sin alternativa).
+- Si la tarea requiere razonamiento profundo ADEMAS de lectura → Gemini lee, Claude razona sobre el resumen.
+- **FILTRO DE INPUT:** contenido enviado a Gemini pasa por `truncarInputGemini()` (limite 8.000 tokens / ~32k chars, conserva inicio+fin si excede).
+- **FILTRO DE OUTPUT:** output de Gemini que entra al historial de Claude pasa por `truncarOutputGemini()` (limite 1.500 tokens / ~6.000 chars).
+
+**Checklist antes de responder (todo rol):**
+1. ¿Puede responderse en 1 linea? → 1 linea, sin introduccion.
+2. ¿El usuario ya tiene el codigo? → solo el diff, nunca repetir bloques completos.
+3. ¿Necesito leer un archivo? → consultar CONTEXT_MAP primero, leer solo si se va a modificar.
+4. ¿La respuesta supera 150 palabras de prosa (100 en Coder)? → generar `.claude/TO_GEMINI.md` y delegar.
+5. Nunca acumular mas de 3 tool calls en una respuesta si no son estrictamente paralelas.
+
+**Delegacion obligatoria adicional a Gemini Bridge:** explicaciones de arquitectura > 5 pasos, comparacion de mas de 3 alternativas tecnicas.
+
+**Palabras prohibidas en prosa** (cuestan tokens sin valor): `claro`, `por supuesto`, `entendido`, `perfecto`, `excelente`, `de acuerdo`, `sin problema`, `como puedes ver`, `en resumen`, `en conclusion`, `espero que esto ayude`, `no dudes en preguntar`.
+
+
+## Estandares de Documentacion Tecnica (texto completo)
+
+## Estandares de Documentacion Tecnica
+
+### Archivos .md (ROADMAP, HISTORIAS, README, etc.)
+- Sin emojis, iconos ni adornos visuales en ningun archivo de documentacion
+- Un archivo por proposito — ROADMAP no mezcla con historias, historias no mezclan con costos
+- Nunca incluir nombres de sistemas del cliente sin respaldo explicito en el brief
+- Lo no documentado por el cliente va como "a definir en discovery" — prohibido inventar alcance
+- Todo entregable debe tener criterio de exito medible y especifico
+- Separar documentos internos (uso propio) de documentos para cliente
+
+### Comentarios en codigo
+- Sin emojis, iconos ni adornos visuales en comentarios
+- Estilo: tecnico, directo, conciso — sin narrativas ni historias
+- Comentar el POR QUE, no el QUE — el codigo bien nombrado ya dice el que
+- Un comentario por bloque logico no obvio; prohibido comentar cada linea
+- Maximo 1 linea por comentario inline; bloques de comentario maximos 3 lineas
+- Prohibido: referencias a tareas, tickets, fechas o nombres de herramientas en comentarios de codigo
+- Formato 2026: JSDoc/docstring minimo para funciones publicas — solo firma, parametros y retorno
+
+### Buenas practicas de codigo (marcos 2026)
+- **Naming:** nombres descriptivos en ingles para codigo, comentarios en español
+- **Funciones:** una funcion, una responsabilidad — maximo 20 lineas; si supera, extraer
+- **Parametros:** maximo 3 parametros por funcion; si necesita mas, usar objeto de configuracion
+- **Error handling:** errores explicitos con contexto — prohibido `except: pass` o `catch {}` vacios
+- **Inmutabilidad:** preferir datos inmutables; evitar mutacion de estado compartido
+- **Early return:** validar y retornar temprano para evitar anidacion profunda (max 3 niveles)
+- **Tests:** toda funcion publica con al menos 1 test de camino feliz y 1 de error esperado
+- **Secrets:** prohibido hardcodear credenciales, tokens o URLs de produccion en codigo fuente
+- **Logging:** logs estructurados en JSON — nivel, timestamp, contexto; prohibido `print` en produccion
+
+
+
+## Ciclo de vida y hooks disponibles (texto completo)
+
+| Hook | Momento | Uso obligatorio en ai-core |
+|---|---|---|
+| `PreToolUse` | Antes de ejecutar cualquier herramienta | Guard-read, validate-map, health-check |
+| `PostToolUse` | Despues de herramienta exitosa | Detox, syntax-check, diff-map-trigger |
+| `PostToolUseFailure` | Despues de herramienta fallida | Registrar fallo, escalar si es MCP critico |
+| `UserPromptSubmit` | Al recibir mensaje del usuario | Clasificar intencion, seleccionar rol |
+| `SubagentStop` | Cuando un subagente termina | Validar output antes de integrar al padre |
+
+## Patron de Mapeo de Contexto (texto completo)
+
+El mapa se actualiza automaticamente ante:
+- **Drift de conteo:** si `git ls-files` difiere en >= 3 archivos vs el mapa (via `validate-map.js` en PreToolUse).
+- **Cambio estructural:** si `git status --porcelain` reporta archivos nuevos (`??`), stagiados (`A `) o eliminados (`D `) (via `diff-map-trigger.js` en PostToolUse).
+
+PROHIBIDO: consultar estructura del proyecto via `find`, `ls` o `git ls-files` directamente. Siempre usar el mapa como fuente de verdad.
