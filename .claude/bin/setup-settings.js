@@ -36,6 +36,8 @@ const scripts = (s) => `"${fwd(path.join(SCRIPTS, s))}"`;
 
 const settings = {
   skillListingBudgetFraction: 0.03,
+  // Recorta la descripcion por skill en el listado; el cuerpo completo se carga al activarlo
+  skillListingMaxDescChars: 160,
   // Umbral de auto-compact nativo fijado explicitamente por debajo del
   // default de Claude Code (~95% de la ventana de contexto) -- confirmado
   // en investigacion de mercado (2026-09-01, gist comparativo de context

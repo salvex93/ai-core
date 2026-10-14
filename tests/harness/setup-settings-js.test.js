@@ -71,6 +71,13 @@ describe('setup-settings.js', () => {
     fs.rmSync(dir, { recursive: true, force: true });
   });
 
+  test('skillListingMaxDescChars acota la descripcion de cada skill en el listado', () => {
+    const dir = nuevoTarget();
+    runSetup(dir);
+    assert.equal(settingsDe(dir).skillListingMaxDescChars, 160);
+    fs.rmSync(dir, { recursive: true, force: true });
+  });
+
   test('el cwd de los MCP servers apunta al repositorio real', () => {
     const dir = nuevoTarget();
     runSetup(dir);
