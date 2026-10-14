@@ -155,7 +155,8 @@ const REGLAS = [
     // Herramienta de red + referencia a .env, claves privadas o variables de
     // credencial en el mismo comando. GET sin material sensible no dispara.
     nombre: 'egreso de secretos por red',
-    disparo: /\b(curl|wget|nc|ncat|Invoke-WebRequest|iwr|Invoke-RestMethod|irm)\b.*(?:(?:^|[\s\/"'=@])\.env(?!\.(?:example|sample|template)\b)(?![\w-])|\bid_(?:rsa|ed25519)\b|\.pem\b|\$\{?\w*(?:KEY|TOKEN|SECRET|PASSWORD|CANARY)\w*\}?)/i,
+    // Ambos ordenes (herramienta antes o despues del secreto) para cubrir "cat .env | curl".
+    disparo: /(?:\b(?:curl|wget|nc|ncat|Invoke-WebRequest|iwr|Invoke-RestMethod|irm)\b.*(?:(?:^|[\s\/"'=@])\.env(?!\.(?:example|sample|template)\b)(?![\w-])|\bid_(?:rsa|ed25519)\b|\.pem\b|\$\{?\w*(?:KEY|TOKEN|SECRET|PASSWORD|CANARY)\w*\}?)|(?:(?:^|[\s\/"'=@])\.env(?!\.(?:example|sample|template)\b)(?![\w-])|\bid_(?:rsa|ed25519)\b).*\|\s*(?:curl|wget|nc|ncat|iwr|irm)\b)/i,
     excepcion: null,
     breakGlass: true,
     motivo: 'envia o referencia un archivo de secretos o una variable de credencial en una peticion de red -- vector de exfiltracion.',
