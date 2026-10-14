@@ -19,6 +19,8 @@
  *   node .claude/bin/git-history-secrets-scan.js
  *   node .claude/bin/git-history-secrets-scan.js --json
  *   node .claude/bin/git-history-secrets-scan.js --max-commits 500
+ *   node .claude/bin/git-history-secrets-scan.js --ref ai-core/checkpoints
+ *   node .claude/bin/git-history-secrets-scan.js --all
  */
 
 'use strict';
@@ -43,15 +45,38 @@ function argValor(flag, defecto) {
 // proyecto de este tamaño sin bloquear el flujo de security-scanner.md.
 const MAX_COMMITS = Number(argValor('--max-commits', '2000'));
 
-function obtenerLogCompleto() {
+function git(args) {
+  return execFileSync('git', args, { cwd: REPO, encoding: 'utf8', maxBuffer: 200 * 1024 * 1024, stdio: ['ignore', 'pipe', 'pipe'] });
+}
+
+function existeCommit(ref) {
   try {
-    return execFileSync(
-      'git',
-      ['log', `-${MAX_COMMITS}`, '-p', '--format=COMMIT:%H'],
-      { cwd: REPO, encoding: 'utf8', maxBuffer: 200 * 1024 * 1024 }
-    );
+    git(['rev-parse', '--verify', '-q', ]);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+// Sin --ref ni --all se escanea HEAD, igual que antes. Una ref inexistente
+// aborta: devolver vacio la reportaria como historial limpio sin haber leido nada.
+function refsAEscanear() {
+  if (process.argv.includes('--all')) return ['--all'];
+  const ref = argValor('--ref', null);
+  if (!ref) return existeCommit('HEAD') ? [] : null;
+  if (existeCommit(ref)) return [ref];
+  console.error();
+  process.exit(2);
+}
+
+function obtenerLogCompleto() {
+  const refs = refsAEscanear();
+  if (refs === null) return '';
+  try {
+    return git(['log', , '-p', '--format=COMMIT:%H', ...refs]);
   } catch (err) {
-    return '';
+    console.error();
+    process.exit(2);
   }
 }
 
