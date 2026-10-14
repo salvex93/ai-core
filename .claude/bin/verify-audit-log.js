@@ -24,6 +24,12 @@ if (resultado.totalEntradas === 0) {
   process.exit(0);
 }
 
+if (resultado.integra && resultado.entradasLegado > 0) {
+  const verificadas = resultado.totalEntradas - resultado.entradasLegado;
+  console.log(`[verify-audit-log] OK parcial -- ${verificadas} entrada(s) verificada(s) con cadena integra; ${resultado.entradasLegado} entrada(s) legado anteriores a la cadena, no verificables criptograficamente.`);
+  process.exit(0);
+}
+
 if (resultado.integra) {
   console.log(`[verify-audit-log] OK -- ${resultado.totalEntradas} entrada(s), cadena de hashes integra.`);
   process.exit(0);

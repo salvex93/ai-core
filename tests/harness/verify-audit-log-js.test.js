@@ -66,4 +66,69 @@ describe('verify-audit-log.js', () => {
     assert.match(r.stderr, /CADENA ROTA -- entrada #0 de 1/);
     fs.rmSync(dir, { recursive: true, force: true });
   });
+
+  describe('entradas legado (anteriores a la cadena de hashes)', () => {
+    const LEGADO = JSON.stringify({ confirmadoEn: 1, solicitadoEn: 0, id: 'abc', guardId: 'g', contexto: 'previo a la cadena' });
+
+    function registrarEntradaReal(logPath, dir) {
+      process.env.AI_CORE_BREAK_GLASS_LOG = logPath;
+      process.env.AI_CORE_BREAK_GLASS_DIR = path.join(dir, 'locks');
+      delete require.cache[require.resolve('../../.claude/bin/lib/break-glass')];
+      const mod = require('../../.claude/bin/lib/break-glass');
+      const { id } = mod.solicitarBreakGlass('test-guard', 'comando de prueba');
+      mod.confirmarBreakGlass(id);
+      delete process.env.AI_CORE_BREAK_GLASS_LOG;
+      delete process.env.AI_CORE_BREAK_GLASS_DIR;
+    }
+
+    test('log solo con entradas legado: sale 0 pero avisa que no son verificables', () => {
+      const dir = dirAislado();
+      const logPath = path.join(dir, 'BREAK_GLASS_LOG.jsonl');
+      fs.writeFileSync(logPath, `${LEGADO}\n${LEGADO}\n`, 'utf8');
+      const r = runScript(SCRIPT, [], { AI_CORE_BREAK_GLASS_LOG: logPath });
+      assert.equal(r.status, 0);
+      assert.match(r.stdout, /2 entrada\(s\) legado/);
+      assert.match(r.stdout, /no verificables/);
+      assert.doesNotMatch(r.stdout, /cadena de hashes integra/);
+      fs.rmSync(dir, { recursive: true, force: true });
+    });
+
+    test('prefijo legado seguido de entradas con hash: sale 0 y distingue ambos conteos', () => {
+      const dir = dirAislado();
+      const logPath = path.join(dir, 'BREAK_GLASS_LOG.jsonl');
+      fs.writeFileSync(logPath, `${LEGADO}\n`, 'utf8');
+      registrarEntradaReal(logPath, dir);
+      const r = runScript(SCRIPT, [], { AI_CORE_BREAK_GLASS_LOG: logPath });
+      assert.equal(r.status, 0);
+      assert.match(r.stdout, /1 entrada\(s\) verificada\(s\)/);
+      assert.match(r.stdout, /1 entrada\(s\) legado/);
+      fs.rmSync(dir, { recursive: true, force: true });
+    });
+
+    test('entrada sin hash DESPUES de una con hash: sigue siendo rotura (hashes eliminados a mano)', () => {
+      const dir = dirAislado();
+      const logPath = path.join(dir, 'BREAK_GLASS_LOG.jsonl');
+      registrarEntradaReal(logPath, dir);
+      fs.appendFileSync(logPath, `${LEGADO}\n`, 'utf8');
+      const r = runScript(SCRIPT, [], { AI_CORE_BREAK_GLASS_LOG: logPath });
+      assert.equal(r.status, 1);
+      assert.match(r.stderr, /CADENA ROTA -- entrada #1 de 2/);
+      fs.rmSync(dir, { recursive: true, force: true });
+    });
+
+    test('entrada con hash editada tras un prefijo legado: sigue detectandose', () => {
+      const dir = dirAislado();
+      const logPath = path.join(dir, 'BREAK_GLASS_LOG.jsonl');
+      fs.writeFileSync(logPath, `${LEGADO}\n`, 'utf8');
+      registrarEntradaReal(logPath, dir);
+      const lineas = fs.readFileSync(logPath, 'utf8').trim().split('\n');
+      const editada = JSON.parse(lineas[1]);
+      editada.contexto = 'manipulado';
+      fs.writeFileSync(logPath, `${lineas[0]}\n${JSON.stringify(editada)}\n`, 'utf8');
+      const r = runScript(SCRIPT, [], { AI_CORE_BREAK_GLASS_LOG: logPath });
+      assert.equal(r.status, 1);
+      assert.match(r.stderr, /CADENA ROTA -- entrada #1 de 2/);
+      fs.rmSync(dir, { recursive: true, force: true });
+    });
+  });
 });

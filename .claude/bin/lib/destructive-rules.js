@@ -151,6 +151,24 @@ const REGLAS = [
     breakGlass: true,
     motivo: 'borrado forzado y recursivo de archivos via PowerShell (o su alias real) -- equivalente Windows de "rm -rf", irreversible.',
   },
+  {
+    // Herramienta de red + referencia a .env, claves privadas o variables de
+    // credencial en el mismo comando. GET sin material sensible no dispara.
+    nombre: 'egreso de secretos por red',
+    // Ambos ordenes (herramienta antes o despues del secreto) para cubrir "cat .env | curl".
+    disparo: /(?:\b(?:curl|wget|nc|ncat|Invoke-WebRequest|iwr|Invoke-RestMethod|irm)\b.*(?:(?:^|[\s\/"'=@])\.env(?!\.(?:example|sample|template)\b)(?![\w-])|\bid_(?:rsa|ed25519)\b|\.pem\b|\$\{?\w*(?:KEY|TOKEN|SECRET|PASSWORD|CANARY)\w*\}?)|(?:(?:^|[\s\/"'=@])\.env(?!\.(?:example|sample|template)\b)(?![\w-])|\bid_(?:rsa|ed25519)\b).*\|\s*(?:curl|wget|nc|ncat|iwr|irm)\b)/i,
+    excepcion: null,
+    breakGlass: true,
+    motivo: 'envia o referencia un archivo de secretos o una variable de credencial en una peticion de red -- vector de exfiltracion.',
+  },
+  {
+    // .env.example/.sample/.template se excluyen: son plantillas versionables.
+    nombre: 'git add de archivos de secretos',
+    disparo: /\bgit\s+add\b.*(?:(?:^|[\s\/"'])\.env(?!\.(?:example|sample|template)\b)(?![\w-])|\bid_(?:rsa|ed25519)\b|\.pem\b)/i,
+    excepcion: null,
+    breakGlass: true,
+    motivo: 'versiona un archivo de secretos -- una vez en el historial de git el secreto queda expuesto aunque se borre despues.',
+  },
 ];
 
 module.exports = { REGLAS };

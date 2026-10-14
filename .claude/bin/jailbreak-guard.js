@@ -129,6 +129,9 @@ const PATRONES = [
     etiqueta: 'intento de activar "modo desarrollador"/DAN' },
   { re: /revela(r)?\s+(tu|el)\s+(system\s+prompt|prompt\s+de\s+sistema|claude\.md)|reveal\s+your\s+system\s+prompt/i,
     etiqueta: 'intento de extraccion del system prompt/CLAUDE.md' },
+  // Verbo de salida + posesivo + instrucciones internas; sin el posesivo, "muestra el README" no dispara.
+  { re: /\b(imprime|muestra|mu[eé]strame|dame|escribe|pega|print|show|output|dump|display)\b(?:\s+\S+){0,3}?\s+(tus|tu|your)\s+(?:\S+\s+)?(instrucciones\s+de\s+sistema|prompt\s+de\s+sistema|system\s+(?:prompt|instructions))/i,
+    etiqueta: 'intento de extraccion del system prompt/CLAUDE.md' },
   { re: /(desactiva|deshabilita|salta|bypass|omite)\s+(los\s+)?(hooks?|guards?|reglas?|validaciones?|permisos?)/i,
     etiqueta: 'intento de desactivar hooks/guards/reglas del arnes' },
   { re: /finge\s+que\s+(no\s+hay|no\s+existen)\s+(reglas|restricciones|hooks)/i,
