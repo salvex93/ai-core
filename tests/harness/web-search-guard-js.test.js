@@ -25,6 +25,8 @@ const { REPO, BIN } = require('./_shared');
 describe('web-search-guard.js', () => {
   const GUARD = path.join(BIN, 'web-search-guard.js');
   const archivosTemp = [];
+  // Directorio de cuota propio: el marcador real del bridge degradaria el guard y falsearia el resultado.
+  const CUOTA_DIR = fs.mkdtempSync(path.join(os.tmpdir(), 'web-search-guard-cuota-'));
 
   function envFile(contenido) {
     const f = path.join(os.tmpdir(), `web-search-guard-test-${crypto.randomBytes(6).toString('hex')}.env`);
@@ -37,13 +39,14 @@ describe('web-search-guard.js', () => {
     for (const f of archivosTemp) {
       try { fs.unlinkSync(f); } catch { /* ya borrado */ }
     }
+    fs.rmSync(CUOTA_DIR, { recursive: true, force: true });
   });
 
   function correr(toolName, envPath) {
     const evento = JSON.stringify({ tool_name: toolName, tool_input: { query: 'algo' } });
     return spawnSync('node', [GUARD], {
       encoding: 'utf8', cwd: REPO, input: evento,
-      env: { ...process.env, AI_CORE_TEST_MODE: '1', AI_CORE_ENV_PATH: envPath, GEMINI_API_KEY: '' },
+      env: { ...process.env, AI_CORE_TEST_MODE: '1', AI_CORE_ENV_PATH: envPath, GEMINI_API_KEY: '', AI_CORE_GEMINI_CUOTA_DIR: CUOTA_DIR },
     });
   }
 

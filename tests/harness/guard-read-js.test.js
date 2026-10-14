@@ -10,6 +10,15 @@ const { REPO, BIN, SKILLS, SETTINGS, runScript, tmpFile } = require('./_shared')
 
 describe('guard-read.js', () => {
   const GUARD = path.join(BIN, 'guard-read.js');
+  // Los spawns heredan process.env; un marcador real de cuota degradaria el guard y falsearia los deny esperados.
+  const CUOTA_DIR = fs.mkdtempSync(path.join(os.tmpdir(), 'guard-read-cuota-'));
+  const CUOTA_PREVIA = process.env.AI_CORE_GEMINI_CUOTA_DIR;
+  before(() => { process.env.AI_CORE_GEMINI_CUOTA_DIR = CUOTA_DIR; });
+  after(() => {
+    if (CUOTA_PREVIA === undefined) delete process.env.AI_CORE_GEMINI_CUOTA_DIR;
+    else process.env.AI_CORE_GEMINI_CUOTA_DIR = CUOTA_PREVIA;
+    fs.rmSync(CUOTA_DIR, { recursive: true, force: true });
+  });
 
   test('sale con codigo 0 si no se pasa argumento', () => {
     const r = runScript(GUARD, []);
