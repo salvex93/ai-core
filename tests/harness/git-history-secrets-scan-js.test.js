@@ -84,6 +84,61 @@ describe('git-history-secrets-scan.js — integracion CLI sobre repo git tempora
     }
   });
 
+  function repoConSecretoEnRama() {
+    const dir = crearRepoTemporal();
+    fs.writeFileSync(path.join(dir, 'base.js'), 'const a = 1;');
+    execSync('git add -A', { cwd: dir });
+    execSync('git commit -q -m "base"', { cwd: dir });
+    execSync('git checkout -q -b rama-lateral', { cwd: dir });
+    fs.writeFileSync(path.join(dir, 'config.js'), `const token = "ghp_${'x'.repeat(36)}";`);
+    execSync('git add -A', { cwd: dir });
+    execSync('git commit -q -m "token en rama lateral"', { cwd: dir });
+    execSync('git checkout -q -', { cwd: dir });
+    return dir;
+  }
+
+  test('sin --ref escanea solo HEAD: un secreto en otra rama no se ve', () => {
+    const dir = repoConSecretoEnRama();
+    try {
+      const r = runScript(SCRIPT, ['--json'], { AI_CORE_GIT_HISTORY_SCAN_REPO: dir });
+      assert.equal(r.status, 0);
+    } finally {
+      fs.rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
+  test('--ref <rama> detecta el secreto de esa rama', () => {
+    const dir = repoConSecretoEnRama();
+    try {
+      const r = runScript(SCRIPT, ['--json', '--ref', 'rama-lateral'], { AI_CORE_GIT_HISTORY_SCAN_REPO: dir });
+      assert.equal(r.status, 1);
+      assert.equal(JSON.parse(r.stdout).total, 1);
+    } finally {
+      fs.rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
+  test('--all detecta el secreto de cualquier rama', () => {
+    const dir = repoConSecretoEnRama();
+    try {
+      const r = runScript(SCRIPT, ['--json', '--all'], { AI_CORE_GIT_HISTORY_SCAN_REPO: dir });
+      assert.equal(r.status, 1);
+    } finally {
+      fs.rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
+  test('--ref inexistente falla con exit 2 en vez de reportar historial limpio', () => {
+    const dir = repoConSecretoEnRama();
+    try {
+      const r = runScript(SCRIPT, ['--json', '--ref', 'no-existe'], { AI_CORE_GIT_HISTORY_SCAN_REPO: dir });
+      assert.equal(r.status, 2);
+      assert.match(r.stderr, /referencia inexistente/);
+    } finally {
+      fs.rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
   test('repo sin ningun commit (git init recien hecho): exit 0, sin lanzar excepcion', () => {
     const dir = crearRepoTemporal();
     try {
