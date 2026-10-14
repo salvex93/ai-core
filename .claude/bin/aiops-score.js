@@ -30,8 +30,8 @@ const CORE       = path.resolve(__dirname, '../..');
 const HISTORY_F  = process.env.AI_CORE_SCORE_HISTORY_PATH || path.join(CORE, '.claude', 'AIOPS_SCORE_HISTORY.json');
 const SETTINGS_F = path.join(CORE, '.claude', 'settings.json');
 const MAP_F      = path.join(CORE, '.claude', 'CONTEXT_MAP.json');
-const SKILLS_DIR = path.join(CORE, '.claude', 'skills');
-const AGENTS_DIR = path.join(CORE, '.claude', 'agents');
+const SKILLS_DIR = process.env.AI_CORE_SKILLS_DIR || path.join(CORE, '.claude', 'skills');
+const AGENTS_DIR = process.env.AI_CORE_AGENTS_DIR || path.join(CORE, '.claude', 'agents');
 const IC_PATH    = path.join(CORE, 'scripts', 'services', 'IntentClassifier.js');
 // Misma variable que ya usa capture-event.js para permitir cola aislada en tests
 const QUEUE_F    = process.env.AI_CORE_EVENTS_QUEUE_PATH || path.join(CORE, '.claude', 'EVENTS_QUEUE.json');

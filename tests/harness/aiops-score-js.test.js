@@ -95,11 +95,17 @@ describe('aiops-score.js', () => {
     // asercion de forma intermitente.
     const historyPath = tmpFile('[]');
     const queuePath = path.join(os.tmpdir(), `harness-test-queue-vacia-${Date.now()}-${crypto.randomBytes(4).toString('hex')}.json`);
-    const env = { AI_CORE_SCORE_HISTORY_PATH: historyPath, AI_CORE_EVENTS_QUEUE_PATH: queuePath };
+    // Directorio de agentes aislado: otros tests crean agentes temporales en el real
+    const agentsDir = fs.mkdtempSync(path.join(os.tmpdir(), 'harness-test-agents-'));
+    for (let i = 0; i < 5; i++) fs.writeFileSync(path.join(agentsDir, `a${i}.md`), 'Precondiciones de Lanzamiento', 'utf8');
+    const skillsDir = fs.mkdtempSync(path.join(os.tmpdir(), 'harness-test-skills-'));
+    fs.mkdirSync(path.join(skillsDir, 's0'));
+    fs.writeFileSync(path.join(skillsDir, 's0', 'SKILL.md'), 'Primera Accion al Activar\nDirectiva de Interrupcion\nRestricciones del Perfil', 'utf8');
+    const env = { AI_CORE_SCORE_HISTORY_PATH: historyPath, AI_CORE_EVENTS_QUEUE_PATH: queuePath, AI_CORE_AGENTS_DIR: agentsDir, AI_CORE_SKILLS_DIR: skillsDir };
     runScript(SCRIPT, [], env); // primera corrida establece linea base
     const r = runScript(SCRIPT, [], env); // segunda corrida: estable, sin detalles
     assert.ok(r.stdout.includes('[AIOPS-SCORE]'), 'debe incluir linea de score');
-    assert.ok(!r.stdout.includes('routing'), 'no debe listar dimensiones cuando el score es estable y sin detalles');
+    assert.ok(!r.stdout.includes('routing'), `no debe listar dimensiones cuando el score es estable y sin detalles. stdout: ${r.stdout}`);
   });
 });
 
