@@ -5,14 +5,14 @@
       "args": [
         "scripts/mcp-gemini.js"
       ],
-      "cwd": "/Users/andrewarizmendi/ai-core"
+      "cwd": "C:/Users/andre/Documents/ai-core"
     },
     "anthropic-router": {
       "command": "node",
       "args": [
         "scripts/mcp-anthropic.js"
       ],
-      "cwd": "/Users/andrewarizmendi/ai-core"
+      "cwd": "C:/Users/andre/Documents/ai-core"
     }
   }
 }
