@@ -35,6 +35,15 @@ describe('bash-verbosity-guard.js', () => {
     assert.equal(run('git log --oneline -n 10').status, 0);
   });
 
+  test('permite "git log -1" y "git log -5" (forma corta de limite)', () => {
+    assert.equal(run("git log -1 --format='%h %an'").status, 0);
+    assert.equal(run('git log -5').status, 0);
+  });
+
+  test('un "-NN" dentro de una fecha no cuenta como limite', () => {
+    assert.equal(run('git log --since=2026-09-21').status, 2);
+  });
+
   test('permite "git log | head"', () => {
     assert.equal(run('git log | head -20').status, 0);
   });
@@ -61,6 +70,14 @@ describe('bash-verbosity-guard.js', () => {
 
   test('permite "cat" con head/tail/grep', () => {
     assert.equal(run('cat file.txt | head -50').status, 0);
+  });
+
+  test('permite "cat archivo | sed -n 1,60p" (sed -n acota como head)', () => {
+    assert.equal(run('cat lib/hook-stdin.js | sed -n 1,60p').status, 0);
+  });
+
+  test('"cat archivo | sed s/a/b/" sin -n sigue bloqueado (no acota)', () => {
+    assert.equal(run('cat package.json | sed s/a/b/').status, 2);
   });
 
   test('permite "cat /dev/null"', () => {

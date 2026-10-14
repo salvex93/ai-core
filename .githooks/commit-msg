@@ -1,0 +1,3 @@
+#!/bin/sh
+# Rechaza Co-Authored-By y atribucion a IA en el mensaje: ver .claude/bin/check-commit.js
+exec node "$(git rev-parse --show-toplevel)/.claude/bin/check-commit.js" mensaje "$1"

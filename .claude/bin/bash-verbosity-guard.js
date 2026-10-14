@@ -60,7 +60,7 @@ const REGLAS = [
   {
     nombre: 'git log sin acotar',
     disparo: /\bgit\s+log\b/i,
-    excepcion: /-n\s*\d+|--oneline|--max-count|\|\s*head|\|\s*tail/i,
+    excepcion: /-n\s*\d+|(?:^|\s)-\d+\b|--oneline|--max-count|\|\s*head|\|\s*tail/i,
     sugerencia: 'git log --oneline -n 10 (o agrega | head -N)',
   },
   {
@@ -80,7 +80,7 @@ const REGLAS = [
     // uso legitimo como si fuera el mismo riesgo.
     nombre: 'cat de archivo sin acotar',
     disparo: /\bcat\s+(?!.*\/dev\/null)(?!\s*>)\S/i,
-    excepcion: /\|\s*head|\|\s*tail|\|\s*grep|\|\s*wc|<<\s*['"]?\w/i,
+    excepcion: /\|\s*head|\|\s*tail|\|\s*grep|\|\s*wc|\|\s*sed\s+-n\b|<<\s*['"]?\w/i,
     sugerencia: 'usa la herramienta Read (con limit/offset) en vez de cat, o acota con | head -N',
   },
   {

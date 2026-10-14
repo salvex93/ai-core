@@ -33,14 +33,14 @@ describe('detect-role.js + memory-index-stop.js (estado efimero de rol)', () => 
     assert.equal(fs.readFileSync(ROLE_FILE, 'utf8').trim(), 'auditor');
   });
 
-  test('detect-role.js sin CLAUDE_USER_PROMPT, lee prompt_text del JSON de stdin', () => {
+  test('detect-role.js sin CLAUDE_USER_PROMPT, lee prompt del JSON de stdin', () => {
     // Regresion real: CLAUDE_USER_PROMPT nunca existio como variable de
-    // entorno real -- UserPromptSubmit expone prompt_text via stdin
-    // (confirmado contra code.claude.com/docs/en/hooks). Este hook nunca
+    // entorno real -- UserPromptSubmit expone prompt via stdin
+    // (verificado capturando el payload real). Este hook nunca
     // clasificaba el rol real en produccion, siempre caia al fallback
     // "Architect" con confianza minima.
     if (fs.existsSync(ROLE_FILE)) fs.unlinkSync(ROLE_FILE);
-    const evento = JSON.stringify({ hook_event_name: 'UserPromptSubmit', prompt_text: 'audita esta dependencia por CVE de seguridad' });
+    const evento = JSON.stringify({ hook_event_name: 'UserPromptSubmit', prompt: 'audita esta dependencia por CVE de seguridad' });
     const r = spawnSync('node', [DETECT_ROLE], { encoding: 'utf8', cwd: REPO, input: evento });
     assert.equal(r.status, 0);
     assert.equal(fs.readFileSync(ROLE_FILE, 'utf8').trim(), 'auditor', 'debe clasificar leyendo el prompt real desde stdin');

@@ -45,12 +45,17 @@ function diasEntre(fechaIso, hoyIso) {
   return Math.round((b - a) / (1000 * 60 * 60 * 24));
 }
 
+// G5: version/last_updated viven bajo metadata: (spec agentskills.io), no
+// como top-level del frontmatter. Se acota a las lineas indentadas que
+// siguen a "metadata:" para no leer un campo homonimo fuera de ese bloque.
 function leerFrontmatter(skillDir) {
   const file = path.join(SKILLS, skillDir, 'SKILL.md');
   if (!fs.existsSync(file)) return null;
   const content = fs.readFileSync(file, 'utf8');
-  const lastUpdatedMatch = content.match(/^last_updated:\s*(\S+)/m);
-  const versionMatch     = content.match(/^version:\s*(\S+)/m);
+  const bloque = content.match(/^metadata:\s*\n((?:[ \t]+.*\n?)*)/m);
+  const metadata = bloque ? bloque[1] : '';
+  const lastUpdatedMatch = metadata.match(/^\s*last_updated:\s*(\S+)/m);
+  const versionMatch     = metadata.match(/^\s*version:\s*(\S+)/m);
   return {
     lastUpdated: lastUpdatedMatch ? lastUpdatedMatch[1] : null,
     version:     versionMatch ? versionMatch[1] : null,

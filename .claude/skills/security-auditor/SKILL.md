@@ -1,10 +1,11 @@
 ---
 name: security-auditor
 description: Security Auditor Universal. Especialista en seguridad de aplicaciones: auditoria de dependencias (CVEs), modelado de amenazas (STRIDE), headers de seguridad, gestion de secretos y OWASP Top 10. Agnostico al stack. Activa al auditar seguridad, revisar dependencias con CVEs, configurar politicas de seguridad HTTP o evaluar compliance.
-origin: ai-core
-version: 1.5.0
-last_updated: 2026-09-18
-rol: auditor
+metadata:
+  origin: ai-core
+  version: 1.5.0
+  last_updated: 2026-09-22
+  rol: auditor
 compatibility: Requiere conectividad de red para consultar bases de datos de CVEs (npm audit, Snyk, OSV, etc.) y el gestor de paquetes del proyecto anfitrion (npm/pip/etc.).
 ---
 
@@ -84,8 +85,8 @@ Ante cualquiera de estas condiciones, insertar la directiva y detener. No emitir
 | Severidad CVE | Accion requerida |
 |---|---|
 | Critica (CVSS >= 9.0) | Bloquea el merge. Actualizar o mitigar antes de continuar. |
-| Alta (CVSS 7.0-8.9) | Registrar en BACKLOG.md con fecha limite de resolucion. No bloquea si hay mitigacion documentada. |
-| Media (CVSS 4.0-6.9) | Registrar en BACKLOG.md. Resolver en el proximo sprint de mantenimiento. |
+| Alta (CVSS 7.0-8.9) | Registrar en memory/ o EVENTS_QUEUE.json con fecha limite de resolucion. No bloquea si hay mitigacion documentada. |
+| Media (CVSS 4.0-6.9) | Registrar en memory/ o EVENTS_QUEUE.json. Resolver en el proximo sprint de mantenimiento. |
 | Baja (CVSS < 4.0) | Registrar. Resolver de forma oportunista. |
 
 Una vulnerabilidad critica en una dependencia transitiva (no directa) requiere el mismo tratamiento que una directa si el vector de ataque es alcanzable desde el codigo del proyecto.

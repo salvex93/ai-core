@@ -56,20 +56,20 @@ describe('audit-market.js', () => {
     // cada sesion sin agregar ruido cuando no hay hallazgos -- --only-stale
     // sale con stdout vacio y exit 0 si no hay ningun STALE_MERCADO/DRIFT_VS_MERCADO.
     // Filtrado a --skill ai-guardrails (tiene dominio registrado con
-    // "verified" reciente) para no depender de que TODOS los skills del
-    // repo tengan dominio -- product-lifecycle-orchestrator es metodologia
-    // pura (User Story Mapping/INVEST/MoSCoW/BDD/DDD, sin modelos ni SDKs
-    // que vigilar por vigencia) y correctamente no tiene entrada en
-    // MARKET_STANDARDS.json. ciso se uso antes pero se retiro del dominio
-    // security-owasp (2026-09-15): delega OWASP/prompt injection a
-    // ai-guardrails en vez de tratarlo como contenido propio.
+    // "verified" reciente) para no depender del estado de vigencia del
+    // resto de los skills del repo.
     const r = runScript(SCRIPT, ['--only-stale', '--skill', 'ai-guardrails']);
     assert.equal(r.status, 0);
     assert.equal(r.stdout.trim(), '');
   });
 
-  test('un skill de metodologia pura sin modelos/SDKs (product-lifecycle-orchestrator) reporta SIN_DOMINIO_REGISTRADO, no un error', () => {
-    const r = runScript(SCRIPT, ['--json', '--skill', 'product-lifecycle-orchestrator']);
+  test('un skill sin dominio en MARKET_STANDARDS.json reporta SIN_DOMINIO_REGISTRADO, no un error', () => {
+    const standardsPath = tmpFile(JSON.stringify({ domains: {} }));
+    const r = runScript(
+      SCRIPT,
+      ['--json', '--skill', 'product-lifecycle-orchestrator'],
+      { AI_CORE_MARKET_STANDARDS_PATH: standardsPath },
+    );
     assert.equal(r.status, 0);
     const salida = JSON.parse(r.stdout);
     assert.equal(salida.resultados[0].status, 'SIN_DOMINIO_REGISTRADO');

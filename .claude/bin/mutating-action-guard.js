@@ -51,6 +51,7 @@ const crypto = require('node:crypto');
 const { leerEventoDeStdin } = require('./lib/hook-stdin');
 const { solicitarBreakGlass, accionAprobada } = require('./lib/break-glass');
 const { normalizarTexto } = require('./lib/normalizar-texto');
+const { canonicalizarComando } = require('./lib/clave-aprobacion');
 
 const GUARD_ID = 'mutating-action-guard';
 
@@ -112,12 +113,13 @@ function bloquearOAprobar(detalle, mensajeContexto) {
   const hash = hashAccion(toolName, detalle);
   if (accionAprobada(GUARD_ID, hash)) process.exit(0);
 
-  const id = solicitarBreakGlass(GUARD_ID, hash);
+  const { id } = solicitarBreakGlass(GUARD_ID, hash);
   process.stderr.write(
     `[MUTATING-ACTION-GUARD] BLOQUEADO: el subagente "${agentType}" intento ${mensajeContexto} sin que el turno actual la solicitara explicitamente.\n` +
     'Motivo: crear/actualizar/borrar datos en un tenant o servicio externo requiere confirmacion humana explicita (Gobierno de Agentes, regla 6 de CLAUDE.md) -- el subagente no debe decidir por iniciativa propia cuando ejecutar esta accion.\n' +
     `Si es intencional, confirma explicitamente respondiendo unicamente: CONFIRMAR-${id}\n` +
-    '(valido solo por 5 minutos y solo para reintentar esta accion exacta -- no autoriza otras acciones mutantes futuras).\n'
+    '(valido solo por 5 minutos y solo para reintentar esta accion exacta -- no autoriza otras acciones mutantes futuras).\n' +
+    'Importante: confirmar NO ejecuta la accion por si sola -- despues de tu CONFIRMAR-<id>, hay que volver a pedir exactamente la misma accion para que pase.\n'
   );
   process.exit(2);
 }
@@ -136,7 +138,12 @@ if (toolName === 'Bash') {
   // mismo motivo que destructive-op-guard.js.
   const cmd = normalizarTexto(cmdOriginal);
   if (cmd && esComandoHttpMutante(cmd)) {
-    bloquearOAprobar(cmdOriginal, `un comando HTTP mutante hacia un servicio externo: "${cmdOriginal}"`);
+    // Clave de aprobacion canonicalizada (G37): insensible al orden de
+    // flags entre el bloqueo original y el reintento -- mismo fix que
+    // destructive-op-guard.js, ver lib/clave-aprobacion.js. El mensaje al
+    // operador sigue mostrando cmdOriginal (legible), solo la clave de
+    // hash cambia.
+    bloquearOAprobar(canonicalizarComando(cmd), `un comando HTTP mutante hacia un servicio externo: "${cmdOriginal}"`);
   }
 }
 

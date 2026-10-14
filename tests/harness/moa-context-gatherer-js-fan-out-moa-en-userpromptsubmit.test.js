@@ -22,7 +22,7 @@ describe('moa-context-gatherer.js (fan-out MoA en UserPromptSubmit)', () => {
 
   test('sin CLAUDE_USER_PROMPT ni stdin con datos, sale con 0 sin invocar la red', () => {
     // Regresion real: CLAUDE_USER_PROMPT nunca existio como variable de
-    // entorno real -- el prompt llega por stdin (prompt_text). Sin el fix,
+    // entorno real -- el prompt llega por stdin (prompt). Sin el fix,
     // userPrompt siempre era '' y el guard de "no hay prompt" enmascaraba
     // el bug de raiz (parecia funcionar porque nunca intentaba la red).
     const r = spawnSync('node', [SCRIPT], {

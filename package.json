@@ -12,12 +12,13 @@
     "dry-run": "node scripts/dry-run-cost-sim.js",
     "mcp-anthropic": "node scripts/mcp-anthropic.js",
     "map": "node .claude/bin/generate-map.js",
-    "test": "node --test --test-concurrency=1",
-    "test:coverage": "node --experimental-test-coverage --test-reporter=spec --test-reporter-destination=stdout --test-concurrency=1 --test",
+    "test": "node --test",
+    "test:coverage": "node --experimental-test-coverage --test-reporter=spec --test-reporter-destination=stdout --test",
     "token-metrics": "node tests/token-metrics.js",
     "setup": "node .claude/bin/setup-settings.js",
     "validate-globals": "node .claude/bin/validate-globals.js",
     "validate-agents": "node .claude/bin/validate-agents.js",
+    "quality-gate": "node scripts/quality-gate.js",
     "audit-market": "node .claude/bin/audit-market.js",
     "score": "node .claude/bin/aiops-score.js",
     "score-report": "node .claude/bin/aiops-score.js --report",
@@ -34,7 +35,8 @@
     "agent-report-full": "node .claude/bin/agent-metrics.js report --full",
     "eval-skills": "node .claude/evals/run-all.js",
     "sandbox": "node scripts/sandbox.js",
-    "scan-secrets-history": "node .claude/bin/git-history-secrets-scan.js"
+    "scan-secrets-history": "node .claude/bin/git-history-secrets-scan.js",
+    "verify-audit-log": "node .claude/bin/verify-audit-log.js"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "0.122.0",

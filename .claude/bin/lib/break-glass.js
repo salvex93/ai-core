@@ -22,6 +22,12 @@
  * Cada uso exitoso queda registrado en BREAK_GLASS_LOG.jsonl (append-only,
  * fuera de tmpdir para que sobreviva mas alla de la sesion) -- sin este
  * registro, un "break-glass" no es distinto de un bypass silencioso.
+ *
+ * Cada linea del log encadena un hash SHA-256 contra el hash de la linea
+ * anterior (patron blockchain simplificado, sin consenso distribuido --
+ * el unico objetivo es que una edicion o borrado retroactivo de una entrada
+ * sea detectable via verificarCadenaLog(), no impedirlo). La primera entrada
+ * encadena contra un hash genesis fijo (64 ceros).
  */
 
 const fs     = require('node:fs');
@@ -62,20 +68,60 @@ function ensureDir() {
 }
 
 /**
+ * Ruta del archivo que retiene la ULTIMA solicitud pendiente por guardId,
+ * separado de "${id}.json" (que es por-id, no por-guard) para poder
+ * comparar la solicitud nueva contra la anterior sin conocer su id.
+ */
+function archivoUltimoPendiente(guardId) {
+  return path.join(LOCKS_DIR, `ultimo-${guardId}.json`);
+}
+
+/**
+ * Causa raiz (hallazgo 2026-09-22, distinto de G37): un guard de
+ * Write/Edit (skill-vault-write-guard.js, code-exec-guard.js) usa
+ * file_path+content COMPLETO como contexto -- correcto, porque debilitar
+ * ese match aprobaria contenido no revisado. El problema no es el hash: es
+ * que si el agente reescribe el contenido entre el bloqueo y el reintento
+ * (aunque sea una linea), la aprobacion ya confirmada por el humano deja de
+ * calzar SIN ninguna señal visible -- el humano confirma creyendo que ya
+ * resolvio el bloqueo, y el siguiente intento vuelve a fallar con un id
+ * nuevo, indistinguible en el mensaje de un bloqueo por primera vez. Esta
+ * funcion no cambia la clave de aprobacion (esa garantia se mantiene
+ * intacta) -- solo detecta el patron para que el guard pueda advertirlo en
+ * el momento del bloqueo, no despues de que el ciclo ya ocurrio.
+ * @param {string} guardId
+ * @param {string} contexto
+ * @returns {boolean}
+ */
+function huboReintentoModificado(guardId, contexto) {
+  let datos;
+  try { datos = JSON.parse(fs.readFileSync(archivoUltimoPendiente(guardId), 'utf8')); } catch { return false; }
+  if ((Date.now() - datos.ts) > TTL_MS) return false;
+  return datos.contexto !== contexto;
+}
+
+/**
  * Registra un intento de accion bloqueada y devuelve el id de un solo uso
- * que el humano debe confirmar respondiendo "CONFIRMAR-<id>".
+ * que el humano debe confirmar respondiendo "CONFIRMAR-<id>", junto con la
+ * senal de si esta solicitud reemplaza a una pendiente con distinto
+ * contexto (ver huboReintentoModificado). Los guards que solo necesitan el
+ * id usan `.id` -- cambio de forma deliberado (antes retornaba el string
+ * plano) para no depender de coercion implicita de un wrapper String.
  * @param {string} guardId - nombre del guard que solicita la excepcion
  * @param {string} contexto - el comando/tool_input bloqueado, para el registro
- * @returns {string} id de 8 hex chars
+ * @returns {{id: string, reintentoModificado: boolean}}
  */
 function solicitarBreakGlass(guardId, contexto) {
   ensureDir();
   const id = crypto.randomBytes(4).toString('hex');
   const archivo = path.join(LOCKS_DIR, `${id}.json`);
+  const reintentoModificado = huboReintentoModificado(guardId, contexto);
   try {
     fs.writeFileSync(archivo, JSON.stringify({ ts: Date.now(), guardId, contexto }), 'utf8');
+    fs.writeFileSync(archivoUltimoPendiente(guardId), JSON.stringify({ ts: Date.now(), contexto }), 'utf8');
   } catch { /* si no se puede persistir, el bypass simplemente no estara disponible */ }
-  return id;
+
+  return { id, reintentoModificado };
 }
 
 /**
@@ -133,25 +179,84 @@ function accionAprobada(guardId, contexto) {
   return (Date.now() - datos.ts) <= TTL_MS;
 }
 
+const HASH_GENESIS = '0'.repeat(64);
+
+/**
+ * Hash de la ultima linea del log, o HASH_GENESIS si el log no existe o esta
+ * vacio -- ancla de la cadena para la proxima entrada a escribir.
+ * @returns {string}
+ */
+function hashUltimaEntrada() {
+  let contenido;
+  try { contenido = fs.readFileSync(LOG_PATH, 'utf8'); } catch { return HASH_GENESIS; }
+  const lineas = contenido.split('\n').filter(Boolean);
+  if (lineas.length === 0) return HASH_GENESIS;
+  try { return JSON.parse(lineas[lineas.length - 1]).hash || HASH_GENESIS; } catch { return HASH_GENESIS; }
+}
+
 /**
  * Append-only, nunca lanza -- un fallo al escribir el log de auditoria no
  * debe bloquear la excepcion ya otorgada (el break-glass ya se concedio; la
  * perdida del registro es un problema de observabilidad, no de seguridad
  * activa, y no debe convertirse en un segundo punto de fallo bloqueante).
+ *
+ * Cada entrada encadena hashPrevio (hash de la entrada anterior, o genesis)
+ * y hash (SHA-256 sobre el resto de los campos + hashPrevio) -- ver
+ * verificarCadenaLog() para la verificacion de integridad correspondiente.
  * @param {{id: string, guardId: string, contexto: string, ts: number}} entrada
  */
 function registrarUso(entrada) {
   try {
     fs.mkdirSync(path.dirname(LOG_PATH), { recursive: true });
-    const linea = JSON.stringify({
+    const hashPrevio = hashUltimaEntrada();
+    const campos = {
       confirmadoEn: Date.now(),
       solicitadoEn: entrada.ts,
       id: entrada.id,
       guardId: entrada.guardId,
       contexto: entrada.contexto,
-    });
-    fs.appendFileSync(LOG_PATH, linea + '\n', 'utf8');
+      hashPrevio,
+    };
+    const hash = crypto.createHash('sha256').update(JSON.stringify(campos)).digest('hex');
+    fs.appendFileSync(LOG_PATH, JSON.stringify({ ...campos, hash }) + '\n', 'utf8');
   } catch { /* best-effort, no bloquear la excepcion ya otorgada */ }
 }
 
-module.exports = { solicitarBreakGlass, confirmarBreakGlass, accionAprobada, LOCKS_DIR, LOG_PATH };
+/**
+ * Recorre BREAK_GLASS_LOG.jsonl y verifica que cada entrada conserve su
+ * integridad (su hash coincide con el contenido propio) y su encadenamiento
+ * (su hashPrevio coincide con el hash real de la entrada anterior). Un log
+ * inexistente se considera integro con 0 entradas -- nada que romper.
+ * @returns {{integra: boolean, totalEntradas: number, primeraRota: number|null}}
+ */
+function verificarCadenaLog() {
+  let contenido;
+  try { contenido = fs.readFileSync(LOG_PATH, 'utf8'); } catch {
+    return { integra: true, totalEntradas: 0, primeraRota: null };
+  }
+  const lineas = contenido.split('\n').filter(Boolean);
+
+  let hashPrevioEsperado = HASH_GENESIS;
+  for (let i = 0; i < lineas.length; i++) {
+    let entrada;
+    try { entrada = JSON.parse(lineas[i]); } catch {
+      return { integra: false, totalEntradas: lineas.length, primeraRota: i };
+    }
+    const { hash, ...campos } = entrada;
+    const hashRecalculado = crypto.createHash('sha256').update(JSON.stringify(campos)).digest('hex');
+    if (hash !== hashRecalculado || campos.hashPrevio !== hashPrevioEsperado) {
+      return { integra: false, totalEntradas: lineas.length, primeraRota: i };
+    }
+    hashPrevioEsperado = hash;
+  }
+  return { integra: true, totalEntradas: lineas.length, primeraRota: null };
+}
+
+module.exports = {
+  solicitarBreakGlass,
+  confirmarBreakGlass,
+  accionAprobada,
+  verificarCadenaLog,
+  LOCKS_DIR,
+  LOG_PATH,
+};

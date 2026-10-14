@@ -23,16 +23,19 @@
 const fs = require('node:fs');
 
 /**
- * @param {string} skillPath - ruta absoluta al SKILL.md a usar como system prompt
+ * @param {string|string[]} skillPath - ruta absoluta al SKILL.md, o varias
+ *   rutas (SKILL.md + references/*.md) a concatenar como system prompt --
+ *   un mensaje system por archivo, mismo orden que el array.
  * @param {{pregunta?: string}} vars - variables del test case de promptfoo
- * @returns {[{role: 'system', content: string}, {role: 'user', content: string}]}
+ * @returns {[...{role: 'system', content: string}, {role: 'user', content: string}]}
  */
 function cargarSkillComoChat(skillPath, vars) {
-  const systemContent = fs.readFileSync(skillPath, 'utf8');
-  return [
-    { role: 'system', content: `{% raw %}${systemContent}{% endraw %}` },
-    { role: 'user', content: vars?.pregunta ?? '' },
-  ];
+  const rutas = Array.isArray(skillPath) ? skillPath : [skillPath];
+  const mensajesSystem = rutas.map((ruta) => ({
+    role: 'system',
+    content: `{% raw %}${fs.readFileSync(ruta, 'utf8')}{% endraw %}`,
+  }));
+  return [...mensajesSystem, { role: 'user', content: vars?.pregunta ?? '' }];
 }
 
 module.exports = cargarSkillComoChat;

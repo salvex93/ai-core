@@ -1,0 +1,18 @@
+{
+  "mcpServers": {
+    "gemini-bridge": {
+      "command": "node",
+      "args": [
+        "scripts/mcp-gemini.js"
+      ],
+      "cwd": "C:/Users/andre/Documents/ai-core"
+    },
+    "anthropic-router": {
+      "command": "node",
+      "args": [
+        "scripts/mcp-anthropic.js"
+      ],
+      "cwd": "C:/Users/andre/Documents/ai-core"
+    }
+  }
+}

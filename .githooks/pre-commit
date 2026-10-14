@@ -1,0 +1,3 @@
+#!/bin/sh
+# Exige la identidad de autor del Protocolo de Commits Git: ver .claude/bin/check-commit.js
+exec node "$(git rev-parse --show-toplevel)/.claude/bin/check-commit.js" identidad

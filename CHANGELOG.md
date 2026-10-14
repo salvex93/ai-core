@@ -3,6 +3,260 @@
 Registro de cambios por version. Formato basado en [Keep a Changelog](https://keepachangelog.com/es/1.0.0/).
 Versionado semantico: MAJOR.MINOR.PATCH.
 
+## [Unreleased] — verificacion de audit trail y gobierno de licencias de dependencias (G43, 2026-09-22)
+
+### Agregado — cierre de 2 gaps detectados en comparacion contra marco enterprise de agentes (7 controles no-negociables)
+
+- `verify-audit-log.js` (`npm run verify-audit-log`): expone `verificarCadenaLog()` de `lib/break-glass.js` (hash-chain SHA-256 ya existente desde G37/G41, cubierto por tests desde su creacion) como comando de operador -- un log "tamper-evident" que nadie corre a verificar no cumple su proposito de auditoria. 4 tests nuevos en `tests/harness/verify-audit-log-js.test.js` (log inexistente, cadena integra, cadena rota por edicion manual, script existe).
+- `revisarLicencias()` en `scripts/quality-gate-checks.js`: nuevo check del quality-gate (corre tambien en `--fast`) que audita el arbol completo de dependencias (`npm ls --all --json --long`, sin libreria nueva) en busca de licencias copyleft fuerte (GPL/AGPL/SSPL) no declaradas en `package.json` -- las 3 dependencias directas (`@anthropic-ai/sdk`, `@google/genai`, `@modelcontextprotocol/sdk`) son MIT/MIT/Apache-2.0, pero el arbol transitivo (218 paquetes) nunca se auditaba. Copyleft debil (LGPL, MPL) se deja pasar a proposito. Paquetes sin `license` declarado se reportan como advertencia, no bloquean. 5 tests nuevos en `tests/harness/quality-gate-checks-js.test.js`, 1 test adicional en `tests/harness/quality-gate-js.test.js`.
+- Origen: revision de gobierno 2026-09-22 contra el marco de "7 controles no-negociables" (SSO/SCIM, SIEM export, secret scanning, PR gates, license governance, incident response, audit trail) para deployments enterprise de agentes de codigo. 4/7 ya cubiertos con enforcement real; SSO/SCIM y SIEM export quedan fuera de alcance (aplican a identidad multi-usuario/compliance regulado, no a un arnes de un solo operador); license governance y audit-trail-verificable eran los 2 gaps reales, cerrados en esta entrada.
+- `npm test`: 1583/1583 (1 skip, sin regresiones); `npm run quality-gate` 9/9 (nuevo check incluido); `npm run validate-globals` 45/45; `npm run validate-agents` 6/6.
+
+## [Unreleased] — drift infinito de settings.json en Windows por separador de ruta (G42, 2026-09-22)
+
+### Corregido — CI en rojo en windows-latest por comparacion cruda de rutas
+
+- Reporte real: `Tests + Validacion global (windows-latest)` fallando en CI desde varios push atras, invisible en local (macOS/Linux) porque `path.sep` ya es `/` en esas plataformas. `buildMcpServersBlock()` normaliza el `cwd` de `gemini-bridge` a forward-slash antes de persistirlo en `.mcp.json` (portabilidad del archivo), pero `ensureHostSettings()` en `norm-harness.js` comparaba ese valor ya normalizado contra `corePath` crudo (`path.resolve()`, que en Windows usa `\`) -- la igualdad nunca se cumplia, forzando `needsWrite = true` en toda corrida y rompiendo la garantia de idempotencia que cubre el test `segunda corrida sin drift no reescribe ni genera backup nuevo`.
+- `toForwardSlash()` extraida de `buildMcpServersBlock()` a funcion compartida y exportada en `lib/mcp-config.js`; `norm-harness.js` normaliza `corePath` con la misma funcion antes de comparar contra `existingCwd`.
+- Bug preexistente desde la migracion de G12 (`.mcp.json` real), no introducido por cambios recientes de esta sesion -- simplemente no habia corrido CI en `windows-latest` sobre ese codigo hasta ahora.
+- 2 tests nuevos en `tests/harness/mcp-config-lib-js.test.js` (ruta estilo Windows hardcodeada, determinista en cualquier SO) y 1 en `tests/harness/norm-harness-js-settings-anfitrion.test.js`. `npm test`: 1573/1573 (1 skip, sin regresiones); `npm run quality-gate` 8/8.
+
+## [Unreleased] — advertencia de reintento con contenido modificado en break-glass de Write/Edit (G41, 2026-09-22)
+
+### Corregido — ciclo de confirmacion break-glass silencioso al reescribir contenido entre reintentos
+
+- Reporte en vivo del usuario: escribir a `.claude/memory-vault/` genero 5 ids de confirmacion consecutivos, cada uno aparentemente ignorado. Causa real, distinta de G37 (que normalizo orden de flags en comandos Bash): el agente reescribia el CONTENIDO del archivo entre el bloqueo y el reintento, y `skill-vault-write-guard.js`/`code-exec-guard.js` calculan su clave de aprobacion sobre `filePath:content` exacto -- correcto por diseno (debilitarlo aprobaria contenido no revisado), pero invalidaba la confirmacion ya otorgada sin ninguna señal visible.
+- `lib/break-glass.js`: `solicitarBreakGlass()` persiste ahora la ultima solicitud pendiente por `guardId` y retorna `{ id, reintentoModificado }` en vez de un string plano (cambio de forma deliberado). `reintentoModificado` es `true` cuando el mismo `guardId` tenia una solicitud vigente (TTL 5 min) con un `contexto` distinto al actual. Los 5 call sites existentes (`destructive-op-guard.js`, `secrets-guard.js`, `mutating-action-guard.js`, `code-exec-guard.js`, `skill-vault-write-guard.js`) migrados a destructuring `const { id } = solicitarBreakGlass(...)`.
+- `skill-vault-write-guard.js` y `code-exec-guard.js` agregan una linea `ALERTA` explicita en su stderr cuando `reintentoModificado` es `true`, indicando fijar el contenido final antes de pedir confirmacion.
+- Impacto transversal: `.claude/bin/` es el arnes compartido via submodulo en todos los proyectos externos del usuario -- el fix aplica en cualquiera de ellos, no solo en este repo.
+- 5 tests nuevos en `tests/harness/break-glass-lib-js.test.js`, 1 en `skill-vault-write-guard-js.test.js`, 1 en `code-exec-guard-js.test.js` (caso real reproducido). `npm test`: 1569/1570 (1 skip, sin regresiones); `validate-globals` 45/45, `validate-agents` 6/6.
+
+## [Unreleased] — generacion real de .mcp.json en vez de mcpServers en settings.json (G12, 2026-09-22)
+
+### Corregido — mcpServers dentro de settings.json no tiene efecto real
+
+- Verificado contra `code.claude.com/docs/en/mcp` (fuente primaria, fetch 2026-09-22): la clave `mcpServers` dentro de `.claude/settings.json` no carga servidores MCP. Las ubicaciones efectivas son `.mcp.json` (scope de proyecto) o `~/.claude.json` (scope local/usuario). Cruzado contra el `~/.claude.json` real del repo: `gemini-bridge`/`anthropic-router` ya cargaban por scope local -- la clave que escribia `setup-settings.js` era codigo muerto desde su introduccion.
+- Nuevo `lib/mcp-config.js`: `buildMcpServersBlock()`, `mergeMcpServers()` (preserva servidores custom del anfitrion), `writeMcpJson()` (idempotente, solo reescribe si el contenido difiere) y `readGeminiBridgeCwd()` (lectura tolerante a archivo ausente o malformado).
+- `setup-settings.js` y `norm-harness.js`: dejan de escribir `mcpServers` en `settings.json`, generan/mergean `.mcp.json` via el modulo compartido.
+- `host-settings.js` (4to archivo afectado, no listado en el hallazgo original): `buildSettingsForHost()` y `mergeHostSettings()` ya no incluyen `mcpServers`.
+- `health-check.js`: la deteccion de drift de `cwd` lee `.mcp.json` via `readGeminiBridgeCwd()` en vez de parsear `mcpServers` desde `settings.json`.
+- 10 tests nuevos en `tests/harness/mcp-config-lib-js.test.js`; tests existentes de `setup-settings-js.test.js` y `norm-harness-js-settings-anfitrion.test.js` actualizados para verificar `.mcp.json` en vez de `settings.json.mcpServers`. `npm test`: 1551/1551 (1550 pass, 1 skip).
+
+## [Unreleased] — escaner de contenido de skills/agents al escribirse (G8, 2026-09-22)
+
+### Agregado — deteccion de patrones sospechosos en .claude/skills/** y .claude/agents/**
+
+- Nuevo `skill-content-scanner.js` (hook `PostToolUse`, matcher `Write|Edit`): escanea el contenido de cualquier archivo recien escrito bajo `.claude/skills/**` o `.claude/agents/**` en busca de patrones de prompt injection, exfiltracion de datos o comandos destructivos incrustados (mismo catalogo de patrones que `injection-guard.js`, adaptado). No bloquea -- advierte por stdout (exit 0, el archivo ya se escribio) y emite reporte tipado via `guard-report.js`.
+- Complementa a `skill-vault-write-guard.js` (G9, `PreToolUse`): G9 exige aprobacion humana antes de escribir, pero no inspecciona el contenido en si; G8 inspecciona el contenido despues de escrito, cubriendo tanto al hilo principal como a subagentes autorizados con `paths_allow:` que G9 deliberadamente no cubre.
+- Nuevo perfil de permisos `repoLeerYReportar` (`hooks-permissions.js`): lee `.claude/bin/**` y el repo completo, escribe solo al tmpdir (reporte de `guard-report.js`) -- sin escritura al repo, a diferencia de `repoReadWrite`, porque un guard de solo escaneo nunca debe poder modificar el archivo que audita.
+- 9 tests nuevos en `tests/harness/skill-content-scanner-js.test.js`: existencia del script, no-op sin stdin, ignora rutas fuera de skills/agents, silencioso en contenido limpio, advertencia en patron de exfiltracion/anulacion de instrucciones/comando destructivo, lectura desde disco cuando `tool_input.content` esta ausente (caso Edit), registro correcto en `settings.json`.
+
+## [Unreleased] — compuerta de aprobacion para escrituras a skills/vault (G9, 2026-09-22)
+
+### Agregado — break-glass para escrituras del hilo principal a .claude/skills/** y .claude/memory-vault/**
+
+- Nuevo `skill-vault-write-guard.js` (hook `PreToolUse`, matcher `Write|Edit`, junto a `code-exec-guard.js`): bloquea con excepcion break-glass (`lib/break-glass.js`, id de un solo uso, mismo mecanismo que `destructive-op-guard.js`/`code-exec-guard.js`) toda escritura del HILO PRINCIPAL (`agent_type` ausente) a `.claude/skills/**` o `.claude/memory-vault/**`. `agent-snapshot.js` ya respaldaba el archivo antes de escribir, pero un backup silencioso no es una compuerta de aprobacion previa.
+- Alcance deliberado: no aplica a subagentes. Un subagente autorizado (ej. `aiops-auditor` corrigiendo un SKILL.md que el mismo audit senalo) ya tiene su scope de rutas verificado por `agent-paths-guard.js` via `paths_allow:` en su AGENT.md -- exigir tambien break-glass ahi duplicaria control sobre el mismo riesgo y bloquearia un flujo autonomo que CLAUDE.md ya considera legitimo (rol Auditor).
+- Permisos: reutiliza el perfil `breakGlassRW` ya existente (sin perfil nuevo) -- necesita leer `.claude/bin/lib/*` y escribir tanto en `$TMPDIR` (locks) como en `.claude/BREAK_GLASS_LOG.jsonl`.
+- 10 tests nuevos en `tests/harness/skill-vault-write-guard-js.test.js`: bloqueo de escritura a skills/vault, permiso fuera de esas rutas, permiso a subagente con `agent_type`, registro correcto en `settings.json` sin `|| true`, y el ciclo completo de break-glass (reintento exacto pasa, contenido distinto sigue bloqueado, un solo uso).
+
+## [Unreleased] — mensaje de bloqueo aclara que confirmar no reintenta la accion (G36, 2026-09-22)
+
+### Corregido — contrato ambiguo en el mensaje de confirmacion de break-glass
+
+- Reporte real de uso: "doy el codigo de confirmacion y nunca funciona". Investigacion confirmo que el mecanismo (`lib/break-glass.js`) funciona correctamente en aislamiento (tests + reproduccion manual con stdin real) -- la falla es de contrato, no de codigo roto. `CONFIRMAR-<id>` solo marca la aprobacion en disco; ninguno de los 4 guards con `breakGlass:true` reintenta la accion original por si mismo, y el mensaje de bloqueo no lo dejaba explicito.
+- `destructive-op-guard.js`, `code-exec-guard.js`, `mutating-action-guard.js`, `secrets-guard.js`: se agrego una linea "Importante: confirmar NO ejecuta/reescribe/reenvia por si sola -- hay que volver a pedir exactamente lo mismo despues" al mensaje de bloqueo de cada uno.
+- Hipotesis inicial descartada como causa raiz: regex de match estricto en `jailbreak-guard.js` (`^CONFIRMAR-<id>$`, sin tolerancia a espacios/puntuacion/texto alrededor). 6 tests TDD en `tests/harness/jailbreak-guard-js.test.js` confirman que esto ya funcionaba sin cambio de codigo -- se dejan como regresion documentada.
+- Riesgo secundario identificado, no cerrado (candidato G37): la clave de aprobacion de `destructive-op-guard.js` se calcula sobre el comando normalizado+enmascarado; una reconstruccion no identica del comando al reintentar (orden de flags, rutas expandidas distinto) invalida la aprobacion en silencio.
+
+## [Unreleased] — cadena de hash en BREAK_GLASS_LOG.jsonl (G7, 2026-09-22)
+
+### Agregado — deteccion de manipulacion retroactiva del log de auditoria
+
+- `lib/break-glass.js`: `registrarUso()` ahora encadena cada entrada con `hashPrevio` (hash SHA-256 de la entrada anterior, o el genesis `0` x64 en la primera linea del log) y `hash` propio (SHA-256 sobre el resto de los campos de la entrada + `hashPrevio`). Patron blockchain simplificado sin consenso distribuido — el objetivo es hacer detectable una edicion o borrado retroactivo de cualquier linea, no impedirlo.
+- Nueva funcion exportada `verificarCadenaLog()`: recorre `BREAK_GLASS_LOG.jsonl` y retorna `{ integra, totalEntradas, primeraRota }`. Un log inexistente se considera integro con 0 entradas.
+- 6 tests nuevos en `tests/harness/break-glass-lib-js.test.js`: hashPrevio/hash en la primera entrada, encadenamiento correcto entre dos entradas consecutivas, integridad sobre un log limpio, deteccion de una entrada intermedia editada, deteccion de una entrada eliminada del medio (rompe el hashPrevio de la siguiente), y comportamiento sobre un log inexistente.
+- Exportacion OpenTelemetry (mencionada en el hallazgo original) queda fuera de esta pasada — ningun consumidor real la necesita hoy.
+
+## [Unreleased] — verificacion de payloads reales de SubagentStop/Stop/PostToolUseFailure (G24, 2026-09-21)
+
+### Verificado — sin drift, sin cambio de codigo
+
+- Captura real de los 3 eventos con un hookprobe en un `settings.json` aislado (sesion `claude -p` anidada forzando `Bash false`, un subagente real via `Task`, y cierre de turno). Contrato confirmado: `SubagentStop` entrega `agent_type`/`last_assistant_message` (ademas de `agent_id`, `agent_transcript_path`, `stop_hook_active`); `PostToolUseFailure` entrega `tool_name`/`tool_input`/`error` (string)/`tool_use_id`/`is_interrupt`/`duration_ms`; `Stop` entrega `last_assistant_message`/`stop_hook_active`/`background_tasks`.
+- Los 5 consumidores existentes (`injection-guard.js`, `subagent-review.js`, `subagent-grader.js`, `cross-verify-gate.js`, `circuit-breaker.js`) ya leian exactamente los campos confirmados reales — el fix de G17 ya los habia corregido en la misma pasada. Sin drift, sin cambio de codigo necesario.
+
+## [Unreleased] — enmascarado de heredoc en destructive-op-guard.js (G14, 2026-09-21)
+
+### Corregido — falso positivo reincidente con contenido citado en heredocs
+
+- `destructive-op-guard.js`: el enmascarado que ya existia para `-m`/`-F` de `git commit` (contenido citado en un mensaje, no un comando real de shell) se generalizo a cuerpos de heredoc (`<<EOF`, `<<'EOF'`/`<<"EOF"`, `<<-EOF`) antes de evaluar las REGLAS de `lib/destructive-rules.js`. Cubre las 3 formas reales de la gramatica de heredoc de bash (gnu.org/software/bash/manual, 3.6.6).
+- Reincidencia real registrada dos veces (sesion 2026-09-20 y 2026-09-21): un heredoc que escribia documentacion citando "git branch -D" como prosa explicativa se bloqueaba por la regla `git branch -D` (sin `excepcion` declarada) como si fuera un comando real.
+- `extraerMensajeCommit`/`tieneRastroDeIA` (deteccion de Co-Authored-By/atribucion de IA) siguen operando sobre `cmdOriginal` sin enmascarar — el enmascarado de heredoc solo afecta la evaluacion de las REGLAS destructivas, no esa verificacion.
+- 4 tests nuevos en `tests/harness/destructive-op-guard-js.test.js` (heredoc con comillas simples, sin comillas, con `<<-` indentado, y confirmacion de que un comando destructivo real fuera del cuerpo del heredoc sigue bloqueado). 80 tests totales del guard en verde (31+41+8 entre los 3 archivos).
+
+## [Unreleased] — campos propios del frontmatter migrados bajo metadata: en skills y agentes (G5, 2026-09-21)
+
+### Cambiado — origin/version/last_updated/rol bajo metadata: (spec agentskills.io)
+
+- Los 45 `SKILL.md` (`origin`, `version`, `last_updated`, `rol`) y los 6 `.claude/agents/*.md` (`origin`, `version`, `last_updated`) pasan de campos top-level del frontmatter a un bloque `metadata:` anidado (formato YAML anidado, no flow-mapping), siguiendo la spec agentskills.io que reserva `metadata` para campos propios del proyecto. `name`/`description` (spec-reservados) y `provider`/`model`/`loop`/`tools`/`paths_allow` (infraestructura de Claude Code en agentes) quedan top-level, sin cambio.
+- `validate-globals.js`, `validate-agents.js`, `audit-market.js` y `AgentRoles.js` — los 4 lectores de estos campos — ajustados para extraer desde el bloque `metadata:` anidado via un extractor por regex compartido en cada script. `--fix-drift` en `validate-globals.js`/`validate-agents.js` sigue corrigiendo `last_updated` dentro del bloque.
+- Los evals (promptfoo) cargan `SKILL.md` como texto de system prompt y no parsean frontmatter — sin cambios necesarios ahi.
+- `tests/harness/validate-agents-js.test.js` y `tests/harness/skills-conformidad-estructural.test.js` actualizados para construir/verificar fixtures con el bloque `metadata:` anidado en vez de campos top-level.
+- Verificado con `npm run validate-globals` (45/45), `npm run validate-agents` (6/6), `npm test` (1497/1497, 1 skip).
+
+## [Unreleased] — 5 SKILL.md largos divididos en nucleo + references/, limite de 500 lineas activado en el gate (G4, G16, 2026-09-21)
+
+### Agregado — divulgacion progresiva en 5 skills (agentskills.io)
+
+- `backend-architect`, `tech-lead-frontend`, `web-scraping-specialist`, `ux-visual-designer` y `mcp-server-builder` movieron modulos tematicos expansivos a `references/*.md` (21 archivos nuevos), preservando integras las 5 secciones obligatorias, el gate de calidad medible y el frontmatter en el nucleo. `validate-globals.js` sigue auditando solo `SKILL.md` — no sigue enlaces, por lo que el nucleo tenia que conservar toda seccion que el script verifica.
+- Cifras finales de nucleo: backend-architect 1698→498 lineas, tech-lead-frontend 1088→476, web-scraping-specialist 1006→500, ux-visual-designer 626→402, mcp-server-builder 606→403. Los 5 en o bajo el limite de 500 lineas (G4 cerrada).
+- Cierre 2026-09-21: backend-architect movio ademas "Modulo de Testing Backend" a `references/backend-testing.md`; tech-lead-frontend movio "Modulo 6 — Tests Frontend" y "Modulo 10 — SEO Tecnico" a `references/tests-frontend.md` y `references/seo-tecnico.md`. Ningun caso de eval dependia de ese contenido, por lo que no requirieron ampliar los `-chat.json`.
+- `scripts/quality-gate-checks.js`: nueva funcion `revisarLimiteSkills` — falla si algun `SKILL.md` (solo nucleo, `references/*.md` exento a proposito) supera 500 lineas. Registrada en `scripts/quality-gate.js` como septimo check del gate (G16 cerrada).
+
+### Cambiado — evals con cobertura de references/ donde un caso dependia del contenido movido
+
+- `.claude/evals/prompt-loader.js`: `cargarSkillComoChat` acepta ahora `string|string[]` (retrocompatible), un mensaje `system` por archivo en el mismo orden.
+- `.claude/evals/backend-architect-chat.json` y `.claude/evals/tech-lead-frontend-chat.js` incluyen tambien las `references/*.md` cubiertas por sus casos de eval (Go/Rust/Java; motion design y 3D web). `web-scraping-specialist-chat.js`, `ux-visual-designer-chat.json` y `mcp-server-builder-chat.json` no requirieron cambio: ningun caso de eval dependia del contenido movido en esos tres.
+- Verificado con `npm run validate-globals` (45/45), `npm run validate-agents` (6/6), los 5 evals reales de promptfoo (31/31 + 12/12 casos tras el cierre), `npm test` (1497/1497, 1 skip) y `quality-gate.js --fast` (7/7 checks).
+
+## [Unreleased] — guard-read operativo, CI con marco de calidad y registro consolidado (2026-09-21)
+
+### Corregido — guard-read.js nunca bloqueaba un Read real (G18)
+
+- El hook le pasa `"$CLAUDE_TOOL_INPUT_file_path"`, variable que Claude Code no establece (anthropics/claude-code#9567), y el script solo leia argv: llegaba vacio y salia 0. Ahora lee `tool_input.file_path` del JSON de stdin via `lib/hook-stdin.js`. Los otros scripts con esa variable ya tenian el fallback.
+- Un Read con `limit` menor o igual a 200 se permite: ya acota los tokens y es la unica forma de leer un tramo de un archivo grande (Edit exige lectura previa).
+- Efecto: los Read sin `limit` de archivos de texto sobre 200 lineas se deniegan y redirigen a `analizar_archivo`, salvo cuota agotada o sin `GEMINI_API_KEY`.
+
+### Agregado — el gate cubre residuales y credenciales en el working tree (G16, parcial)
+
+- `scripts/quality-gate-checks.js`: `revisarResiduales` rechaza `*.new`, `*.orig` y `*.rej` (trackeados o sin ignorar) y `revisarSecretos` rechaza credenciales de alta confianza reusando `ALTA_CONFIANZA` de `patrones-secretos.js`. `tests/` queda exento (credenciales falsas a proposito); binarios y archivos de mas de 1 MB no se escanean.
+- Ambos checks corren tambien con `--fast`. El limite de 500 lineas de `SKILL.md` sigue pendiente hasta cerrar G4.
+
+### Cambiado — CI fijado a ubuntu-24.04 (G23)
+
+- Los 7 usos de `ubuntu-latest` en `ci.yml` pasan a `ubuntu-24.04` para que la migracion de `ubuntu-latest` a Ubuntu 26 (~2026-10-19) no cambie el runner sin una prueba previa.
+
+### Verificado — vigencia de 4 dominios (G10, 2026-09-21)
+
+- `app-distribution-stores`, `saas-business-architecture`, `qa-destructive-testing` y `cloud-provider-deployment` reverificados contra fuente primaria (Apple, Google Play, Microsoft, Stripe, WorkOS, CNCF, go.dev, spec.openapis.org, AWS, Cloudflare, Azure, Render, Fly.io).
+- `qa-engineer`: OpenAPI vigente 3.2.1 (patch del 2026-09-10 sobre 3.2.0). Chaos Mesh y LitmusChaos siguen Incubating; Go fuzzing nativo sin cambios.
+- `cloud-deployment-specialist`: el limite de 3 MB comprimido de Workers ya no existe; 64 MiB sin comprimir y sin limite comprimido. App Runner sigue cerrado a clientes nuevos.
+- `saas-product-architect`: la comision de Lemon Squeezy (3.5% vs 5%) queda como no reconfirmada.
+
+### Corregido — el bridge de Gemini no marcaba la cuota agotada (G30)
+
+- Los handlers de `McpServerHandlers.js` devuelven `{ error }` en vez de lanzar, por lo que el `catch` de `mcp-gemini.js` que escribia el marcador de `lib/gemini-cuota.js` nunca corria ante un 429 real. Con la cuota agotada, `web-search-guard` y `guard-read` no degradaban a la tool nativa. Ahora `errorDeGemini` marca la cuota en los 5 `catch`.
+
+### Corregido — bash-verbosity-guard y cola de eventos
+
+- `cat archivo | sed -n 1,60p` cuenta como acotado (G19). `sed` sin `-n` sigue bloqueado.
+- `standards-guard-js.test.js` invocaba el guard sin `AI_CORE_TEST_MODE` y encolaba un fallo falso por corrida en `EVENTS_QUEUE.json` (G21).
+
+### Agregado — CI
+
+- Paso `npm run quality-gate -- --fast` en ubuntu: limite de 300 lineas, agentes y vigencia de mercado, en paridad con el hook pre-push (G20).
+- Verificado en GitHub Actions: la corrida de `03bf2af` quedo en verde en ubuntu, windows y macos tras el fix de Windows (G22).
+
+### Agregado — registro consolidado
+
+- `docs/AUDITORIA-GOBIERNO-2026-09.md` seccion 7: hallazgos G18 a G22, oportunidades abiertas priorizadas (G23 a G27), descartes por alcance con motivo y acciones que solo puede ejecutar el usuario.
+
+## [Unreleased] — auditoria de gobierno: modularidad, permisos de fuente unica y correccion de tests
+
+### Cambiado — limite de 300 lineas restaurado en codigo fuente (5 archivos)
+
+- `hooks-definition.js` 380 a 41 lineas: helpers y perfiles de permiso Node en `lib/hooks-permissions.js`; eventos en `lib/hooks-events-session.js`, `lib/hooks-events-pre-tool-use.js` y `lib/hooks-events-post-tool-use.js`. Salida de `buildHooksSection` byte a byte identica al estado previo, mismo orden de eventos, `settings.json` regenerado sin diferencias.
+- `destructive-op-guard.js` 371 a 229: `REGLAS` en `lib/destructive-rules.js`.
+- `norm-harness.js` 364 a 172: logica de anfitrion en `lib/host-settings.js`.
+- `issue-reporter.js` 303 a 282: plantillas en `lib/issue-templates.js`.
+- `mcp-anthropic.js` 301 a 197: `TOOLS` en `mcp-anthropic-tools.js`.
+- Permisos base unificados en `lib/base-permissions.js` (antes duplicados entre `setup-settings.js` y `norm-harness.js`).
+
+### Agregado — marco de calidad previo a push
+
+- `scripts/quality-gate.js` (`npm run quality-gate`, `--fast` sin tests): limite de 300 lineas, validate-globals, validate-agents, audit-market --only-stale y npm test; cachea el pase por huella del repo.
+- `.githooks/pre-push` activado por `core.hooksPath` desde `setup-settings.js`. `Bash(git push*)` sigue en `allow`; el hook es la compuerta. Es hook git y no guard de Claude porque el Permission Model impide a los guards ejecutar `npm test`.
+- Regla break-glass para el bypass del hook pre-push en `destructive-rules.js` (13 reglas break-glass en total).
+- 10 tests en `quality-gate-js.test.js`; regla 11 de Gobierno en CLAUDE.md.
+
+### Cambiado — tests divididos por debajo de 300 lineas
+
+- `sandbox-permission-smoke`, `hooks-definition-js`, `destructive-op-guard-js`, `norm-harness-js` e `intent-classifier` divididos por describe en 12 archivos; conteo de tests preservado.
+
+### Agregado — permissions.deny declarativo para secretos (G2)
+
+- `lib/base-permissions.js` exporta `DENY_PERMISSIONS` (fuente unica): `Read` y `Edit` sobre `.env`, `.env.local|development|staging|test|production|*.local` y `*.pem|*.key|*.p12|*.pfx`; `Read` sobre `~/.ssh/id_*` (sin `.pub`), `~/.aws/credentials`, `~/.config/gh/hosts.yml`, `~/.npmrc` y `~/.netrc`. No usa `.env.*` (bloquearia `.env.example`) ni `~/.ssh/**` (anularia `Bash(cat ~/.ssh/id_ed25519.pub)`).
+- `setup-settings.js`, `buildSettingsForHost`, `mergeHostSettings` (union sin perder el deny del anfitrion) y `norm-harness.js` (regenera si falta alguna regla) consumen la misma lista. Segunda capa independiente de los hooks; sintaxis verificada contra code.claude.com/docs/en/permissions (2026-09-21) y comprobada en caliente: un `Read` de un `.env.local` ficticio fue denegado.
+- 9 tests nuevos en `permissions-deny-secretos.test.js`. Total: 1477 tests.
+
+### Evaluado, no activado — sandbox nativo de Claude Code (G3)
+
+- Fuente: code.claude.com/docs/en/settings-reference y sandboxing (2026-09-21). En macOS usa Seatbelt; con `sandbox.enabled` los comandos Bash solo escriben en el directorio de trabajo y el tmp de sesion, y `.claude/skills|agents|hooks`, `.mcp.json`, `.git/hooks` y `.git/config` quedan de solo lectura.
+- Choca con el flujo del arnes: `npm run setup` (escribe `.git/config` y `.claude/settings.json`), `rollback-skill`/`rollback-agent`, `git` que reemplaza archivos protegidos, y `gh`/`git push` (TLS y red). El pre-push heredaria las restricciones. Activarlo cambia el flujo de sesion: requiere decision explicita del usuario antes de incorporarlo.
+
+### Corregido — CI en Windows: tests de identidad git y bit de ejecucion de hooks
+
+- `GIT_CONFIG_GLOBAL=os.devNull` no lo lee bien git para Windows y la identidad salia vacia (4 tests). Ahora los tests usan un archivo vacio real via `entornoGitAislado()` en `_shared.js`, compartido por `check-commit` y `git-identity`.
+- `fs.stat` no expone el bit de ejecucion en NTFS (2 tests de `.githooks`). Ahora se verifica el modo 100755 del indice con `git ls-files --stage`.
+
+### Corregido — bash-verbosity-guard bloqueaba `git log -1` y `git log -5`
+
+- La excepcion de acotado solo reconocia `-n N`; la forma corta `-N` ya limita la salida y se bloqueaba como falso positivo. Se acepta `-N` precedido de espacio, para que un `-09` dentro de una fecha (`--since=2026-09-21`) siga sin contar como limite. 2 tests nuevos.
+
+### Cambiado — reverificacion de vigencia (G10, 2026-09-21)
+
+- `mcp-protocol`: fuente primaria modelcontextprotocol.io/specification/versioning confirma 2026-07-28 como version Current (ya no release candidate). `mcp-server-builder` 1.5.2 corrige el titulo y el texto de la seccion de especificacion y cierra la ventana de migracion del RC.
+- `ai-core-internal-governance`: reverificado contra el codigo del repo (sin fuente externa). `aiops-engineer` corrige el alcance de auditoria de 42 a 45 skills.
+- Los siete skills de esos dominios suben `last_updated` a 2026-09-21 para que `audit-market` no los marque en DRIFT_VS_MERCADO.
+
+### Agregado — controles git deterministas de identidad y mensaje, y test de cifras (G13, G15)
+
+- `.githooks/commit-msg` y `.githooks/pre-commit` ejecutan `.claude/bin/check-commit.js`: rechazan Co-Authored-By y atribucion a IA en el mensaje, y exigen la identidad de autor del Protocolo de Commits Git. Cubren commits hechos fuera de Claude.
+- `lib/commit-attribution.js` (patrones extraidos de `destructive-op-guard.js`, fuente unica para guard y hook) y `lib/git-identity.js`; `setup-settings.js` fija la identidad local solo si falta, sin pisar valores existentes.
+- `tests/harness/claude-md-cifras-vs-codigo.test.js` compara las cifras de CLAUDE.md (reglas break-glass, skills, agentes) contra el codigo; detecto y corrigio "5 agentes autonomos" (son 6, faltaba `code-reviewer`).
+- 22 tests nuevos. Total: 1468 tests.
+
+### Corregido — deadlock de investigacion con el bridge de Gemini sin cuota (G11)
+
+- `web-search-guard.js` y `guard-read.js` denegaban WebSearch/WebFetch/Read aunque el bridge respondiera 429, dejando a Claude sin via de busqueda ni de lectura.
+- `lib/gemini-cuota.js`: marcador con TTL de 10 min que escribe `mcp-gemini.js` ante 429/RESOURCE_EXHAUSTED; ambos guards permiten la tool nativa mientras este vigente. Perfil de permisos `repoReadWriteCuota` (lectura de `ai-core-locks/gemini-cuota`), verificado bajo el Permission Model real.
+- 10 tests nuevos. Total: 1446 tests.
+
+### Corregido — quality-gate heredaba GIT_* del hook pre-push
+
+- Bajo un hook git, `GIT_DIR` e `GIT_INDEX_FILE` llegaban a los tests que crean repos temporales, que operaban sobre el repo real (commits de prueba en la rama activa, indice e identidad local pisados) y hacian fallar el gate de forma aparente intermitente.
+- `entornoSinGit` en `quality-gate.js` elimina las variables `GIT_*` de todo subproceso del gate; 2 tests nuevos. Total: 1436 tests.
+
+### Corregido — break-glass y guards de UserPromptSubmit inertes
+
+- Causa: los hooks leian el prompt de `prompt_text` o `CLAUDE_USER_PROMPT`; el payload real de Claude Code trae el campo `prompt` (verificado por captura) y la variable nunca se establece. `jailbreak-guard`, `secrets-guard`, `detect-role` y `moa-context-gatherer` recibian cadena vacia, asi que `CONFIRMAR-<id>` nunca llegaba a `confirmarBreakGlass` y ninguna operacion bloqueada podia autorizarse.
+- `lib/hook-stdin.js`: nuevos `extraerPrompt` y `leerPromptDeUsuario` (fuente unica); los 4 hooks migrados. `prompt_text` se conserva solo como campo legado.
+- `hook-stdin-payload-real-userpromptsubmit.test.js` (9 tests): payload real, flujo completo bloqueo, id, confirmacion, reintento exacto una sola vez, log de auditoria; id inexistente no autoriza.
+- Tests aislados del tmpdir real de break-glass (`_shared.js`); fixtures con `prompt_text` alineados al payload real. Total: 1434 tests.
+- Efecto: `jailbreak-guard` y `secrets-guard` ahora actuan sobre prompts reales. Verificado sin falsos positivos con los mensajes de esta sesion.
+
+### Corregido
+
+- `issue-reporter-js-camino-gh-disponible.test.js`: el fake `gh` en POSIX copiaba `process.execPath`, incompatible con node enlazado dinamicamente (Homebrew). Ahora es un wrapper `sh`; 7/7.
+- Emoji literal en una entrada anterior de este archivo (regla critica 1).
+- Auditoria completa en `docs/AUDITORIA-GOBIERNO-2026-09.md` con 10 brechas abiertas que requieren decision (permiso `git push`, `deny`/`ask` vacios, sandbox nativo, skills sobre 500 lineas, metadata agentskills.io, tests sobre 300 lineas, log con cadena de hash, escaner de skills, compuerta de memoria, vigencia proxima).
+
+`npm test`: 1425 tests, 1424 pass, 0 fail, 1 skip. `npm run validate-globals`: 45/45. `quality-gate`: cumple.
+
+## [Unreleased] — vigencia: registro de ciso y product-lifecycle-orchestrator en MARKET_STANDARDS.json
+
+### Cambiado — cobertura de vigencia completa (45/45 skills con dominio registrado)
+
+Reemplaza la nota anterior que daba por aceptados como fuera de alcance a `ciso` y `product-lifecycle-orchestrator` (ambos reportaban `SIN_DOMINIO_REGISTRADO` en `audit-market`).
+
+- Dominio `grc-third-party-risk` (skill `ciso`) y dominio `product-methodology-frameworks` (skill `product-lifecycle-orchestrator`), ambos con `verified: 2026-09-21`.
+- Verificacion contra fuentes primarias (pcisecuritystandards.org, csrc.nist.gov, hhs.gov, sharedassessments.org, agilebusiness.org, cucumber.io, dddcommunity.org). Gemini con cuota agotada (429) y busqueda nativa bloqueada por `web-search-guard.js`: se uso `web_search` de la Responses API de OpenAI como verificador de respaldo, cruzando cada afirmacion contra el dominio primario citado.
+- Correccion en `ciso`: la fila de Shared Assessments SIG declaraba la edicion 2025 con conteos de preguntas no confirmables; ahora indica edicion vigente 2026, marca como NO CONFIRMADOS el conteo y la agrupacion 2026, y conserva el dato historico 2023 (Lite 126 / Core 855) rotulado como tal.
+- Sin reverificar, declarado en el skill y en el dominio: ISO/IEC 27036, plazos y umbrales de notificacion de brecha HIPAA, requisitos PCI DSS con fecha futura (51 de 64).
+- Test de `audit-market` que asumia a `product-lifecycle-orchestrator` sin dominio reescrito con un `MARKET_STANDARDS.json` de fixture vacio.
+
+Versiones: ciso 1.3.2 → 1.3.3, product-lifecycle-orchestrator 1.0.0 → 1.0.1 (sincronizacion de `last_updated`, contenido sin cambios). `npm run validate-globals`: 45/45. `audit-market --only-stale`: sin hallazgos.
+
 ## [Unreleased] — security-auditor + claude-agent-sdk: OWASP Top 10 for Agentic Applications
 
 ### Agregado — seccion "OWASP Top 10 for Agentic Applications" en security-auditor
@@ -358,7 +612,7 @@ Cubre: formato de embed y limites duros reales (title 256/description 4096/foote
 
 Sirve como canal de salida citable por `security-monitoring-soc`, `devops-infra` y `release-manager`. No calificó como agente autónomo (no cumple los 3 criterios de CLAUDE.md: es conversacional, no un loop autonomo recurrente) -- queda solo como skill.
 
-Gap real cerrado durante la verificacion con eval propio: el skill generaba ejemplos de embed con un emoji pictografico (🚨) en el titulo pese a la regla estricta de CLAUDE.md -- corregido con una clausula explicita ("Discord soporta emojis nativamente, la regla de CLAUDE.md es MAS ESTRICTA que la plataforma, sin excepcion") y un ejemplo incorrecto/correcto en el propio SKILL.md. Nuevo eval `.claude/evals/discord-ops.promptfooconfig.yaml` (5 casos: idioma, sin emojis, webhook hardcodeado activa Directiva de Interrupcion, rate limit sin cifra falsa, anti-spam ante alto volumen), verificado con multiples corridas reales tras el fix.
+Gap real cerrado durante la verificacion con eval propio: el skill generaba ejemplos de embed con un emoji pictografico de alerta en el titulo pese a la regla estricta de CLAUDE.md -- corregido con una clausula explicita ("Discord soporta emojis nativamente, la regla de CLAUDE.md es MAS ESTRICTA que la plataforma, sin excepcion") y un ejemplo incorrecto/correcto en el propio SKILL.md. Nuevo eval `.claude/evals/discord-ops.promptfooconfig.yaml` (5 casos: idioma, sin emojis, webhook hardcodeado activa Directiva de Interrupcion, rate limit sin cifra falsa, anti-spam ante alto volumen), verificado con multiples corridas reales tras el fix.
 
 1292 tests (1291 pass, 1 skipped, 0 fail), 45/45 skills conformes, 6/6 agentes conformes.
 

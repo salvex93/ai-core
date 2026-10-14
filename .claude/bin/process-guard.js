@@ -35,7 +35,10 @@ const path         = require('path');
 const { spawnSync } = require('child_process');
 
 const TIMEOUT_MS  = 8000;  // max tiempo de espera por lock (ms)
-const LOCK_DIR    = path.join(require('os').tmpdir(), 'ai-core-locks');
+// AI_CORE_PROCESS_GUARD_LOCK_DIR permite operar sobre un directorio de locks
+// aislado (tests, sandbox) sin tocar el directorio real de produccion --
+// mismo patron que AI_CORE_SUBAGENT_LOCK_DIR en subagent-guard.js (G26).
+const LOCK_DIR    = process.env.AI_CORE_PROCESS_GUARD_LOCK_DIR || path.join(require('os').tmpdir(), 'ai-core-locks');
 const MAX_PROCS   = 4;     // procesos Node.js del harness maximos en paralelo
 
 // Categoria "lint" envuelve standards-guard.js (PreToolUse Write|Edit), el

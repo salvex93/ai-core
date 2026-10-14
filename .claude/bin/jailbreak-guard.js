@@ -31,7 +31,7 @@ const fs   = require('node:fs');
 const path = require('node:path');
 const os   = require('node:os');
 const crypto = require('node:crypto');
-const { leerEventoDeStdin } = require('./lib/hook-stdin');
+const { leerPromptDeUsuario } = require('./lib/hook-stdin');
 const { emitirReporte }     = require('./lib/guard-report');
 const { confirmarCuarentena } = require('./lib/injection-quarantine');
 const { confirmarBreakGlass } = require('./lib/break-glass');
@@ -46,7 +46,7 @@ const sessionId = process.env.CLAUDE_CODE_SESSION_ID || 'unknown';
 const BYPASS_DIR = process.env.AI_CORE_JAILBREAK_BYPASS_DIR
   || path.join(os.tmpdir(), 'ai-core-locks', 'jailbreak-bypass');
 
-const prompt = process.env.CLAUDE_USER_PROMPT || leerEventoDeStdin().prompt_text || '';
+const prompt = leerPromptDeUsuario();
 if (!prompt) process.exit(0);
 
 function ensureDir() {

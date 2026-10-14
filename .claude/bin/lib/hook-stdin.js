@@ -9,7 +9,8 @@
  * anthropics/claude-code#9567. El dato real siempre llega por stdin como
  * JSON, con forma distinta segun el hook_event_name:
  *
- *   UserPromptSubmit: { prompt_text, session_id, ... }
+ *   UserPromptSubmit: { prompt, session_id, ... } (campo verificado por
+ *     captura real del payload; `prompt_text` nunca existio)
  *   PreToolUse/PostToolUse: { tool_name, tool_input, tool_response, ... }
  *   SubagentStop: { ... } (ver leerEventoSubagente mas abajo)
  *
@@ -34,4 +35,25 @@ function leerEventoDeStdin() {
   }
 }
 
-module.exports = { leerEventoDeStdin };
+/**
+ * Extrae el texto del prompt de un evento UserPromptSubmit. Acepta el campo
+ * `prompt` (real) y `prompt_text` (legado de fixtures) para no romper
+ * invocaciones existentes.
+ * @param {object} evento
+ * @returns {string}
+ */
+function extraerPrompt(evento) {
+  if (!evento) return '';
+  return evento.prompt || evento.prompt_text || '';
+}
+
+/**
+ * Lee el prompt del usuario: variable de entorno si existe, si no stdin.
+ * Consume stdin, asi que debe llamarse una sola vez por proceso.
+ * @returns {string}
+ */
+function leerPromptDeUsuario() {
+  return process.env.CLAUDE_USER_PROMPT || extraerPrompt(leerEventoDeStdin());
+}
+
+module.exports = { leerEventoDeStdin, extraerPrompt, leerPromptDeUsuario };

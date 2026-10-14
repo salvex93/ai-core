@@ -14,9 +14,17 @@ const path = require('path');
 const fs   = require('fs');
 const os   = require('os');
 const { buildHooksSection } = require('./hooks-definition');
+const { BASE_PERMISSIONS, AI_CORE_EXTRA_PERMISSIONS, DENY_PERMISSIONS } = require('./lib/base-permissions');
+const { writeMcpJson } = require('./lib/mcp-config');
 
+// AI_CORE_SETTINGS_TARGET_DIR permite regenerar settings.json/.mcp.json
+// sobre una copia aislada del repo (tests) en vez del checkout real -- los
+// hooks siguen apuntando a los scripts reales (BIN/SCRIPTS via __dirname),
+// solo el DESTINO de escritura cambia (G26: evita mutar settings.json/
+// .mcp.json/git-config reales durante ejecucion paralela de tests).
 const REPO          = path.resolve(__dirname, '..', '..');
-const SETTINGS_PATH = path.join(REPO, '.claude', 'settings.json');
+const TARGET_DIR     = process.env.AI_CORE_SETTINGS_TARGET_DIR || REPO;
+const SETTINGS_PATH = path.join(TARGET_DIR, '.claude', 'settings.json');
 const BIN           = path.join(REPO, '.claude', 'bin');
 const SCRIPTS       = path.join(REPO, 'scripts');
 
@@ -27,18 +35,6 @@ const bin     = (s) => `"${fwd(path.join(BIN, s))}"`;
 const scripts = (s) => `"${fwd(path.join(SCRIPTS, s))}"`;
 
 const settings = {
-  mcpServers: {
-    'gemini-bridge': {
-      command: 'node',
-      args: ['scripts/mcp-gemini.js'],
-      cwd: fwd(REPO),
-    },
-    'anthropic-router': {
-      command: 'node',
-      args: ['scripts/mcp-anthropic.js'],
-      cwd: fwd(REPO),
-    },
-  },
   skillListingBudgetFraction: 0.03,
   // Umbral de auto-compact nativo fijado explicitamente por debajo del
   // default de Claude Code (~95% de la ventana de contexto) -- confirmado
@@ -51,36 +47,29 @@ const settings = {
   // tokens o sufijo "k"/"M". 85% de una ventana tipica de 200k ~= 170000.
   autoCompactWindow: 170000,
   permissions: {
-    allow: [
-      'Bash(git status)',
-      'Bash(git log*)',
-      'Bash(git diff*)',
-      'Bash(git push*)',
-      'Bash(git pull*)',
-      'Bash(git add*)',
-      'Bash(git commit*)',
-      'Bash(wc -l*)',
-      'Bash(grep*)',
-      'Bash(find*)',
-      'Bash(cat ~/.ssh/id_ed25519.pub)',
-      'Bash(ssh-keyscan*)',
-      'Bash(for f in .claude/skills*)',
-      'Bash(node*)',
-      'Bash(npm*)',
-      'Bash(python3*)',
-      'Bash(gh issue create*)',
-      'Bash(gh auth status*)',
-      'mcp__gemini-bridge__analizar_archivo',
-      'mcp__gemini-bridge__analizar_contenido',
-      'mcp__gemini-bridge__analizar_repositorio',
-      'mcp__gemini-bridge__resumir_backlog',
-      'mcp__gemini-bridge__buscar_web',
-    ],
+    allow: [...BASE_PERMISSIONS, ...AI_CORE_EXTRA_PERMISSIONS],
+    deny: [...DENY_PERMISSIONS],
   },
   hooks: buildHooksSection(bin, fwd(os.tmpdir())),
 };
 
+fs.mkdirSync(path.dirname(SETTINGS_PATH), { recursive: true });
 fs.writeFileSync(SETTINGS_PATH, JSON.stringify(settings, null, 2) + '\n', 'utf8');
+
+// mcpServers no tiene efecto dentro de settings.json (verificado contra
+// code.claude.com/docs/en/mcp, 2026-09-22, hallazgo de gobierno G12) -- la
+// unica ubicacion efectiva es .mcp.json (project scope) en la raiz del proyecto destino.
+writeMcpJson(TARGET_DIR, REPO);
+
+// Activa los hooks git versionados (calidad, mensaje, identidad) y fija la
+// identidad de autor si falta. Solo cuando el TARGET es un checkout git
+// propio; como submodulo de un anfitrion, o contra un destino aislado sin
+// .git, no se toca ningun git config.
+if (fs.existsSync(path.join(TARGET_DIR, '.git', 'config'))) {
+  const r = require('child_process').spawnSync('git', ['config', 'core.hooksPath', '.githooks'], { cwd: TARGET_DIR });
+  console.log(`[setup-settings] core.hooksPath=.githooks ${r.status === 0 ? 'activo' : 'no pudo configurarse'}`);
+  require('./lib/git-identity').asegurarIdentidad(TARGET_DIR);
+}
 console.log(`[setup-settings] settings.json actualizado — v3.10.0 hooks completos.`);
-console.log(`[setup-settings] REPO: ${fwd(REPO)}`);
+console.log(`[setup-settings] REPO: ${fwd(TARGET_DIR)}`);
 console.log(`[setup-settings] Plataforma: ${os.platform()} | Node: ${process.version}`);

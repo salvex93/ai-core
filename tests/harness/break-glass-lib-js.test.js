@@ -18,14 +18,14 @@ describe('lib/break-glass.js', () => {
 
   test('solicitarBreakGlass genera un id de 8 hex chars', () => {
     const { mod, dir } = cargarModuloAislado();
-    const id = mod.solicitarBreakGlass('test-guard', 'comando de prueba');
+    const { id } = mod.solicitarBreakGlass('test-guard', 'comando de prueba');
     assert.match(id, /^[a-f0-9]{8}$/);
     fs.rmSync(dir, { recursive: true, force: true });
   });
 
   test('confirmarBreakGlass con id valido retorna true y consume el lock (un solo uso)', () => {
     const { mod, dir } = cargarModuloAislado();
-    const id = mod.solicitarBreakGlass('test-guard', 'comando de prueba');
+    const { id } = mod.solicitarBreakGlass('test-guard', 'comando de prueba');
 
     assert.equal(mod.confirmarBreakGlass(id), true, 'primera confirmacion debe ser valida');
     assert.equal(mod.confirmarBreakGlass(id), false, 'el mismo id ya consumido no debe volver a confirmar');
@@ -40,7 +40,7 @@ describe('lib/break-glass.js', () => {
 
   test('confirmarBreakGlass con id vencido (TTL) retorna false', () => {
     const { mod, dir } = cargarModuloAislado();
-    const id = mod.solicitarBreakGlass('test-guard', 'comando de prueba');
+    const { id } = mod.solicitarBreakGlass('test-guard', 'comando de prueba');
 
     const archivo = path.join(mod.LOCKS_DIR, `${id}.json`);
     const datos = JSON.parse(fs.readFileSync(archivo, 'utf8'));
@@ -53,7 +53,7 @@ describe('lib/break-glass.js', () => {
 
   test('una confirmacion exitosa registra una linea en BREAK_GLASS_LOG.jsonl con guardId y contexto', () => {
     const { mod, dir } = cargarModuloAislado();
-    const id = mod.solicitarBreakGlass('mutating-action-guard', 'mcp__pmo__crear_tarea');
+    const { id } = mod.solicitarBreakGlass('mutating-action-guard', 'mcp__pmo__crear_tarea');
     mod.confirmarBreakGlass(id);
 
     const contenido = fs.readFileSync(mod.LOG_PATH, 'utf8').trim().split('\n');
@@ -77,7 +77,7 @@ describe('lib/break-glass.js', () => {
   test('confirmarBreakGlass registra el contexto como accion aprobada, consultable via accionAprobada', () => {
     const { mod, dir } = cargarModuloAislado();
     const hashAccion = 'abc123def456';
-    const id = mod.solicitarBreakGlass('mutating-action-guard', hashAccion);
+    const { id } = mod.solicitarBreakGlass('mutating-action-guard', hashAccion);
 
     assert.equal(mod.accionAprobada('mutating-action-guard', hashAccion), false, 'antes de confirmar, no debe estar aprobada');
     mod.confirmarBreakGlass(id);
@@ -88,7 +88,7 @@ describe('lib/break-glass.js', () => {
   test('accionAprobada consume la aprobacion (un solo reintento, no una excepcion permanente)', () => {
     const { mod, dir } = cargarModuloAislado();
     const hashAccion = 'abc123def456';
-    const id = mod.solicitarBreakGlass('mutating-action-guard', hashAccion);
+    const { id } = mod.solicitarBreakGlass('mutating-action-guard', hashAccion);
     mod.confirmarBreakGlass(id);
 
     assert.equal(mod.accionAprobada('mutating-action-guard', hashAccion), true, 'primer chequeo consume la aprobacion');
@@ -99,7 +99,7 @@ describe('lib/break-glass.js', () => {
   test('accionAprobada con guardId distinto al aprobado no reconoce la aprobacion', () => {
     const { mod, dir } = cargarModuloAislado();
     const hashAccion = 'abc123def456';
-    const id = mod.solicitarBreakGlass('mutating-action-guard', hashAccion);
+    const { id } = mod.solicitarBreakGlass('mutating-action-guard', hashAccion);
     mod.confirmarBreakGlass(id);
 
     assert.equal(mod.accionAprobada('otro-guard', hashAccion), false, 'una aprobacion de un guard no debe filtrarse a otro guard');
@@ -110,7 +110,7 @@ describe('lib/break-glass.js', () => {
     const { mod, dir } = cargarModuloAislado();
     const comandoOriginal = 'docker volume rm  mi-volumen';
     const comandoReintento = 'docker volume rm mi-volumen';
-    const id = mod.solicitarBreakGlass('destructive-op-guard', comandoOriginal);
+    const { id } = mod.solicitarBreakGlass('destructive-op-guard', comandoOriginal);
     mod.confirmarBreakGlass(id);
 
     assert.equal(
@@ -119,5 +119,144 @@ describe('lib/break-glass.js', () => {
       'una diferencia de espacios entre el comando bloqueado y el reintento no debe invalidar la aprobacion ya confirmada'
     );
     fs.rmSync(dir, { recursive: true, force: true });
+  });
+
+  describe('cadena de hash del log (G7)', () => {
+    test('cada entrada registrada incluye hashPrevio y hash propio', () => {
+      const { mod, dir } = cargarModuloAislado();
+      const { id } = mod.solicitarBreakGlass('test-guard', 'comando de prueba');
+      mod.confirmarBreakGlass(id);
+
+      const entrada = JSON.parse(fs.readFileSync(mod.LOG_PATH, 'utf8').trim());
+      assert.equal(entrada.hashPrevio, '0'.repeat(64), 'la primera entrada encadena contra un hash inicial fijo (genesis)');
+      assert.match(entrada.hash, /^[a-f0-9]{64}$/, 'hash SHA-256 en hex');
+      fs.rmSync(dir, { recursive: true, force: true });
+    });
+
+    test('la segunda entrada encadena hashPrevio contra el hash de la primera', () => {
+      const { mod, dir } = cargarModuloAislado();
+      const { id: id1 } = mod.solicitarBreakGlass('test-guard', 'comando 1');
+      mod.confirmarBreakGlass(id1);
+      const { id: id2 } = mod.solicitarBreakGlass('test-guard', 'comando 2');
+      mod.confirmarBreakGlass(id2);
+
+      const [linea1, linea2] = fs.readFileSync(mod.LOG_PATH, 'utf8').trim().split('\n');
+      const entrada1 = JSON.parse(linea1);
+      const entrada2 = JSON.parse(linea2);
+      assert.equal(entrada2.hashPrevio, entrada1.hash, 'cada entrada encadena contra el hash real de la anterior');
+      fs.rmSync(dir, { recursive: true, force: true });
+    });
+
+    test('verificarCadenaLog() retorna integra: true sobre un log no manipulado', () => {
+      const { mod, dir } = cargarModuloAislado();
+      const { id: id1 } = mod.solicitarBreakGlass('test-guard', 'comando 1');
+      mod.confirmarBreakGlass(id1);
+      const { id: id2 } = mod.solicitarBreakGlass('test-guard', 'comando 2');
+      mod.confirmarBreakGlass(id2);
+
+      const resultado = mod.verificarCadenaLog();
+      assert.equal(resultado.integra, true);
+      assert.equal(resultado.totalEntradas, 2);
+      assert.equal(resultado.primeraRota, null);
+      fs.rmSync(dir, { recursive: true, force: true });
+    });
+
+    test('verificarCadenaLog() detecta una entrada intermedia editada (hash ya no coincide con su propio contenido)', () => {
+      const { mod, dir } = cargarModuloAislado();
+      const { id: id1 } = mod.solicitarBreakGlass('test-guard', 'comando 1');
+      mod.confirmarBreakGlass(id1);
+      const { id: id2 } = mod.solicitarBreakGlass('test-guard', 'comando 2');
+      mod.confirmarBreakGlass(id2);
+
+      const lineas = fs.readFileSync(mod.LOG_PATH, 'utf8').trim().split('\n');
+      const entrada1 = JSON.parse(lineas[0]);
+      entrada1.contexto = 'comando 1 MANIPULADO';
+      lineas[0] = JSON.stringify(entrada1);
+      fs.writeFileSync(mod.LOG_PATH, lineas.join('\n') + '\n', 'utf8');
+
+      const resultado = mod.verificarCadenaLog();
+      assert.equal(resultado.integra, false);
+      assert.equal(resultado.primeraRota, 0, 'reporta el indice de la primera entrada rota');
+      fs.rmSync(dir, { recursive: true, force: true });
+    });
+
+    test('verificarCadenaLog() detecta una entrada eliminada del medio (rompe hashPrevio de la siguiente)', () => {
+      const { mod, dir } = cargarModuloAislado();
+      const { id: id1 } = mod.solicitarBreakGlass('test-guard', 'comando 1');
+      mod.confirmarBreakGlass(id1);
+      const { id: id2 } = mod.solicitarBreakGlass('test-guard', 'comando 2');
+      mod.confirmarBreakGlass(id2);
+      const { id: id3 } = mod.solicitarBreakGlass('test-guard', 'comando 3');
+      mod.confirmarBreakGlass(id3);
+
+      const lineas = fs.readFileSync(mod.LOG_PATH, 'utf8').trim().split('\n');
+      fs.writeFileSync(mod.LOG_PATH, [lineas[0], lineas[2]].join('\n') + '\n', 'utf8');
+
+      const resultado = mod.verificarCadenaLog();
+      assert.equal(resultado.integra, false);
+      assert.equal(resultado.primeraRota, 1, 'la entrada sobreviviente en indice 1 ya no encadena contra la 0');
+      fs.rmSync(dir, { recursive: true, force: true });
+    });
+
+    test('verificarCadenaLog() sobre un log inexistente retorna integra: true con 0 entradas (nada que romper)', () => {
+      const { mod, dir } = cargarModuloAislado();
+      const resultado = mod.verificarCadenaLog();
+      assert.equal(resultado.integra, true);
+      assert.equal(resultado.totalEntradas, 0);
+      fs.rmSync(dir, { recursive: true, force: true });
+    });
+  });
+
+  describe('solicitarBreakGlass detecta reintento con contexto modificado (ciclo de confirmacion silencioso)', () => {
+    test('un guardId+contexto identico a la solicitud pendiente NO se reporta como modificado', () => {
+      const { mod, dir } = cargarModuloAislado();
+      mod.solicitarBreakGlass('code-exec-guard', 'archivo.js:contenido original');
+      const resultado = mod.solicitarBreakGlass('code-exec-guard', 'archivo.js:contenido original');
+
+      assert.equal(resultado.reintentoModificado, false);
+      fs.rmSync(dir, { recursive: true, force: true });
+    });
+
+    test('un guardId igual con contexto distinto (mismo prefijo de archivo) SI se reporta como modificado', () => {
+      const { mod, dir } = cargarModuloAislado();
+      mod.solicitarBreakGlass('code-exec-guard', 'archivo.js:contenido original');
+      const resultado = mod.solicitarBreakGlass('code-exec-guard', 'archivo.js:contenido con una linea agregada');
+
+      assert.equal(resultado.reintentoModificado, true);
+      assert.match(resultado.id, /^[a-f0-9]{8}$/, 'sigue devolviendo un id valido aunque detecte el cambio');
+      fs.rmSync(dir, { recursive: true, force: true });
+    });
+
+    test('un guardId distinto no contamina la deteccion de reintento modificado', () => {
+      const { mod, dir } = cargarModuloAislado();
+      mod.solicitarBreakGlass('code-exec-guard', 'archivo.js:contenido original');
+      const resultado = mod.solicitarBreakGlass('skill-vault-write-guard', 'otro-archivo.md:otro contenido');
+
+      assert.equal(resultado.reintentoModificado, false, 'guards distintos no comparten el ultimo contexto pendiente');
+      fs.rmSync(dir, { recursive: true, force: true });
+    });
+
+    test('una solicitud pendiente vencida (fuera de TTL) no cuenta como reintento modificado', () => {
+      const { mod, dir } = cargarModuloAislado();
+      const { id: primero } = mod.solicitarBreakGlass('code-exec-guard', 'archivo.js:contenido original');
+
+      const archivoUltimo = path.join(mod.LOCKS_DIR, 'ultimo-code-exec-guard.json');
+      const datos = JSON.parse(fs.readFileSync(archivoUltimo, 'utf8'));
+      datos.ts = Date.now() - (10 * 60 * 1000);
+      fs.writeFileSync(archivoUltimo, JSON.stringify(datos), 'utf8');
+
+      const resultado = mod.solicitarBreakGlass('code-exec-guard', 'archivo.js:contenido distinto');
+      assert.equal(resultado.reintentoModificado, false, 'una pista vencida no debe generar una advertencia confusa');
+      assert.notEqual(resultado.id, primero, 'sigue siendo un id nuevo de un solo uso');
+      fs.rmSync(dir, { recursive: true, force: true });
+    });
+
+    test('solicitarBreakGlass retorna { id, reintentoModificado } -- cambio de forma respecto al string plano previo', () => {
+      const { mod, dir } = cargarModuloAislado();
+      const resultado = mod.solicitarBreakGlass('test-guard', 'comando de prueba');
+      assert.match(resultado.id, /^[a-f0-9]{8}$/);
+      assert.equal(resultado.reintentoModificado, false, 'primera solicitud para este guard, nada que comparar');
+      fs.rmSync(dir, { recursive: true, force: true });
+    });
   });
 });

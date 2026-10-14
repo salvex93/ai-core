@@ -62,17 +62,31 @@ const VIOLACIONES = [
   { patron: EMOJI_PICTOGRAFICO, desc: 'contiene emojis pictograficos (prohibido por CLAUDE.md)', sev: 'alta' },
 ];
 
+// G5: origin/version/last_updated viven bajo metadata: (spec agentskills.io),
+// no como top-level del frontmatter. provider/model/loop/tools quedan
+// top-level -- son campos de infraestructura de Claude Code, no propios.
+function extraerBloqueMetadata(content) {
+  const bloque = content.match(/^metadata:\s*\n((?:[ \t]+.*\n?)*)/m);
+  return bloque ? bloque[1] : '';
+}
+
+function campoMetadata(bloqueMetadata, campo) {
+  const m = bloqueMetadata.match(new RegExp(`^\\s*${campo}:\\s*(\\S.*)$`, 'm'));
+  return m ? m[1].trim() : null;
+}
+
 // ─── Auditar un agente ────────────────────────────────────────────────────────
 function auditarAgente(file) {
   const nombre = path.basename(file, '.md');
   const hallazgos = [];
   const content = fs.readFileSync(file, 'utf8');
+  const metadata = extraerBloqueMetadata(content);
 
   // 1. Frontmatter
-  if (!content.match(/^name:/m))         hallazgos.push({ sev: 'alta',  desc: 'frontmatter: falta "name:"' });
-  if (!content.match(/^origin:/m))       hallazgos.push({ sev: 'alta',  desc: 'frontmatter: falta "origin:"' });
-  if (!content.match(/^version:/m))      hallazgos.push({ sev: 'alta',  desc: 'frontmatter: falta "version:"' });
-  if (!content.match(/^last_updated:/m)) hallazgos.push({ sev: 'media', desc: 'frontmatter: falta "last_updated:"' });
+  if (!content.match(/^name:/m))                hallazgos.push({ sev: 'alta',  desc: 'frontmatter: falta "name:"' });
+  if (!campoMetadata(metadata, 'origin'))        hallazgos.push({ sev: 'alta',  desc: 'frontmatter: falta "origin:"' });
+  if (!campoMetadata(metadata, 'version'))       hallazgos.push({ sev: 'alta',  desc: 'frontmatter: falta "version:"' });
+  if (!campoMetadata(metadata, 'last_updated'))  hallazgos.push({ sev: 'media', desc: 'frontmatter: falta "last_updated:"' });
 
   const nameMatch = content.match(/^name:[ \t]*(.+)$/m);
   if (nameMatch && nameMatch[1].trim() !== nombre) {
@@ -121,14 +135,13 @@ function auditarAgente(file) {
   }
 
   // 5. Drift de last_updated vs mtime real
-  const lastUpdatedMatch = content.match(/^last_updated:\s*(\S+)/m);
-  if (lastUpdatedMatch) {
-    const declared = lastUpdatedMatch[1];
-    const mtime    = fs.statSync(file).mtime.toISOString().slice(0, 10);
+  const declared = campoMetadata(metadata, 'last_updated');
+  if (declared) {
+    const mtime = fs.statSync(file).mtime.toISOString().slice(0, 10);
     if (declared < mtime && mtime === HOY) {
       hallazgos.push({ sev: 'baja', desc: `last_updated (${declared}) anterior a modificacion de hoy (${mtime})` });
       if (FIX_DRIFT) {
-        const fixed = content.replace(/^last_updated:\s*\S+/m, `last_updated: ${HOY}`);
+        const fixed = content.replace(/^(\s*last_updated:\s*)\S+/m, `$1${HOY}`);
         fs.writeFileSync(file, fixed, 'utf8');
         hallazgos[hallazgos.length - 1].desc += ' [AUTO-CORREGIDO]';
       }

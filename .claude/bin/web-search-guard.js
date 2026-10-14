@@ -26,11 +26,14 @@
 const { leerEventoDeStdin } = require('./lib/hook-stdin');
 const { denegarConRazon } = require('./lib/permission-decision');
 const { loadEnv } = require('../../scripts/services/GeminiApiClient');
+const { cuotaAgotada } = require('./lib/gemini-cuota');
 
 const TOOLS_A_FORZAR = new Set(['WebSearch', 'WebFetch']);
 
 loadEnv();
-const GEMINI_DISPONIBLE = Boolean(process.env.GEMINI_API_KEY);
+// Cuota agotada (429 reciente del bridge) equivale a no disponible: sin esto
+// el deny dejaria a Claude sin ninguna via de busqueda web.
+const GEMINI_DISPONIBLE = Boolean(process.env.GEMINI_API_KEY) && !cuotaAgotada();
 
 const evento = leerEventoDeStdin();
 const toolName = evento.tool_name || '';

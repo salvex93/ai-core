@@ -73,10 +73,14 @@ describe('skills — conformidad estructural', () => {
     });
 
     test(`${skill}: frontmatter tiene name, origin y version`, () => {
+      // G5: origin/version viven bajo metadata: (spec agentskills.io), no
+      // top-level -- ver AUDITORIA-GOBIERNO-2026-09.md.
       const content = fs.readFileSync(skillFile, 'utf8');
-      assert.ok(content.match(/^name:/m),    `${skill} debe tener "name:" en frontmatter`);
-      assert.ok(content.match(/^origin:/m),  `${skill} debe tener "origin:" en frontmatter`);
-      assert.ok(content.match(/^version:/m), `${skill} debe tener "version:" en frontmatter`);
+      const bloque = content.match(/^metadata:\s*\n((?:[ \t]+.*\n?)*)/m);
+      const metadata = bloque ? bloque[1] : '';
+      assert.ok(content.match(/^name:/m),          `${skill} debe tener "name:" en frontmatter`);
+      assert.ok(metadata.match(/^\s*origin:/m),    `${skill} debe tener "origin:" bajo metadata:`);
+      assert.ok(metadata.match(/^\s*version:/m),   `${skill} debe tener "version:" bajo metadata:`);
     });
 
     test(`${skill}: sin emojis pictograficos en el contenido`, () => {

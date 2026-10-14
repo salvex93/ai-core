@@ -4,6 +4,10 @@
     "content": "file://../skills/backend-architect/SKILL.md"
   },
   {
+    "role": "system",
+    "content": "file://../skills/backend-architect/references/backend-go-rust-java.md"
+  },
+  {
     "role": "user",
     "content": "{{pregunta}}"
   }
