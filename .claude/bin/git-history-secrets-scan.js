@@ -65,7 +65,7 @@ function refsAEscanear() {
   const ref = argValor('--ref', null);
   if (!ref) return existeCommit('HEAD') ? [] : null;
   if (existeCommit(ref)) return [ref];
-  console.error();
+  console.error(`[GIT-HISTORY-SECRETS-SCAN] referencia inexistente: ${ref}`);
   process.exit(2);
 }
 
