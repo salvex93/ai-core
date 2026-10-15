@@ -6,16 +6,14 @@ const path   = require('node:path');
 const fs     = require('node:fs');
 const os     = require('node:os');
 const { spawnSync } = require('node:child_process');
-const { REPO, BIN, SKILLS, SETTINGS, runScript, tmpFile } = require('./_shared');
+const { REPO, BIN, dirAislado } = require('./_shared');
 
 describe('validate-agents.js', () => {
   const SCRIPT  = path.join(BIN, 'validate-agents.js');
-  const AGENTS  = path.join(REPO, '.claude', 'agents');
-  // Nombre unico por proceso de test -- sin esto, dos archivos de test
-  // paralelos que crean/borran el mismo zz-test-agent-temp.md dentro de
-  // .claude/agents/ real colisionan entre si (mismo patron de flakiness ya
-  // resuelto en health-sync-js-checkskills.test.js y
-  // validate-globals-js-schema-agentskills-io.test.js).
+  // Directorio de agentes aislado (AI_CORE_AGENTS_DIR): el agente de prueba
+  // no aparece en .claude/agents real, que otros tests leen en paralelo.
+  const AGENTS  = dirAislado('agents-validate');
+  const ENV     = { ...process.env, AI_CORE_AGENTS_DIR: AGENTS };
   const NOMBRE_AGENTE = `zz-test-agent-temp-${process.pid}`;
   const TEST_AGENT = path.join(AGENTS, `${NOMBRE_AGENTE}.md`);
 
@@ -28,10 +26,10 @@ describe('validate-agents.js', () => {
   }
 
   function runValidate() {
-    return spawnSync('node', [SCRIPT, '--json'], { encoding: 'utf8', cwd: REPO, maxBuffer: 10 * 1024 * 1024 });
+    return spawnSync('node', [SCRIPT, '--json'], { encoding: 'utf8', cwd: REPO, env: ENV, maxBuffer: 10 * 1024 * 1024 });
   }
 
-  after(limpiar);
+  after(() => fs.rmSync(AGENTS, { recursive: true, force: true }));
 
   test('el script existe', () => {
     assert.ok(fs.existsSync(SCRIPT), 'validate-agents.js debe existir en .claude/bin/');

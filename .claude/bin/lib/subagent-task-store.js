@@ -19,7 +19,8 @@
 const fs   = require('fs');
 const path = require('path');
 
-const STORE_PATH = path.join(require('os').tmpdir(), 'ai-core-subagent-tasks.json');
+const STORE_PATH = process.env.AI_CORE_SUBAGENT_TASKS_PATH
+  || path.join(require('os').tmpdir(), 'ai-core-subagent-tasks.json');
 const TTL_MS = 10 * 60 * 1000;
 
 function clave(sessionId, promptId) {

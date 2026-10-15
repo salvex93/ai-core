@@ -32,7 +32,7 @@ const fs   = require('node:fs');
 const path = require('node:path');
 
 const REPO      = path.resolve(__dirname, '..', '..');
-const AGENTS    = path.join(REPO, '.claude', 'agents');
+const AGENTS    = process.env.AI_CORE_AGENTS_DIR || path.join(REPO, '.claude', 'agents');
 const JSON_OUT  = process.argv.includes('--json');
 const FIX_DRIFT = process.argv.includes('--fix-drift');
 const HOY = new Date().toISOString().slice(0, 10);

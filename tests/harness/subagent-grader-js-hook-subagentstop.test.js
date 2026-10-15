@@ -67,6 +67,9 @@ describe('subagent-grader.js (hook SubagentStop)', () => {
     // motivo para limpiarlo el mismo test, y locks acumulados de corridas
     // previas hacian que corridas futuras de la suite superaran
     // MAX_PARALLEL y bloquearan un spawn que deberia pasar limpio.
+    // Store propio: el archivo fijo en tmpdir lo comparten otros tests y sesiones reales.
+    const STORE = path.join(os.tmpdir(), `ai-core-tasks-test-grader-${process.pid}.json`);
+    process.env.AI_CORE_SUBAGENT_TASKS_PATH = STORE;
     const { recuperarTarea } = require(path.join(BIN, 'lib', 'subagent-task-store'));
     const GUARD    = path.join(BIN, 'subagent-guard.js');
     const LOCK_DIR = path.join(os.tmpdir(), `ai-core-locks-test-grader-${process.pid}`, 'subagents');
@@ -81,12 +84,13 @@ describe('subagent-grader.js (hook SubagentStop)', () => {
 
     const rGuard = spawnSync('node', [GUARD], {
       encoding: 'utf8', cwd: REPO, input: eventoPre,
-      env: { ...process.env, AI_CORE_SUBAGENT_LOCK_DIR: LOCK_DIR },
+      env: { ...process.env, AI_CORE_SUBAGENT_LOCK_DIR: LOCK_DIR, AI_CORE_SUBAGENT_TASKS_PATH: STORE },
     });
     fs.rmSync(LOCK_DIR, { recursive: true, force: true });
     assert.equal(rGuard.status, 0, 'subagent-guard.js no debe bloquear un spawn normal');
 
     const tareaRecuperada = recuperarTarea(sessionId, promptId);
+    fs.rmSync(STORE, { force: true });
     assert.equal(tareaRecuperada, 'tarea real de prueba end-to-end', 'la tarea guardada por el hook real debe recuperarse por la misma clave');
   });
 });

@@ -6,16 +6,16 @@ const path   = require('node:path');
 const fs     = require('node:fs');
 const os     = require('node:os');
 const { spawnSync } = require('node:child_process');
-const { REPO, BIN, SKILLS, SETTINGS, runScript, tmpFile } = require('./_shared');
+const { REPO, BIN, SKILLS, SETTINGS, runScript, tmpFile, dirAislado } = require('./_shared');
 
 describe('validate-globals.js — schema agentskills.io', () => {
   const SCRIPT   = path.join(BIN, 'validate-globals.js');
-  // Nombre unico por proceso de test -- sin esto, dos archivos de test
-  // paralelos que crean/borran el mismo directorio dentro de .claude/skills/
-  // real colisionan entre si (mismo patron de flakiness ya resuelto en
-  // health-sync-js-checkskills.test.js y validate-agents-js.test.js).
+  // Directorio de skills aislado (AI_CORE_SKILLS_DIR): el skill de prueba no
+  // aparece en .claude/skills real, que otros tests auditan en paralelo.
   const NOMBRE_SKILL = `zz-test-agentskills-temp-${process.pid}`;
-  const TEST_DIR = path.join(SKILLS, NOMBRE_SKILL);
+  const BASE_DIR = dirAislado('skills-schema');
+  const ENV = { ...process.env, AI_CORE_SKILLS_DIR: BASE_DIR };
+  const TEST_DIR = path.join(BASE_DIR, NOMBRE_SKILL);
 
   function crearSkillDePrueba(frontmatter) {
     fs.mkdirSync(TEST_DIR, { recursive: true });
@@ -29,10 +29,10 @@ describe('validate-globals.js — schema agentskills.io', () => {
   function runValidate() {
     // maxBuffer explicito: la salida --json de validate-globals.js se trunca
     // en macOS/Node 20 antes del default de 1MB -- confirmado en CI.
-    return spawnSync('node', [SCRIPT, '--json'], { encoding: 'utf8', cwd: REPO, maxBuffer: 10 * 1024 * 1024 });
+    return spawnSync('node', [SCRIPT, '--json'], { encoding: 'utf8', cwd: REPO, env: ENV, maxBuffer: 10 * 1024 * 1024 });
   }
 
-  after(limpiar);
+  after(() => fs.rmSync(BASE_DIR, { recursive: true, force: true }));
 
   test('name que no coincide con la carpeta genera hallazgo alta', () => {
     limpiar();
@@ -214,10 +214,10 @@ describe('validate-globals.js — schema agentskills.io', () => {
       '# Skill de prueba',
     ].join('\n'));
 
-    const r = spawnSync('node', [SCRIPT], { encoding: 'utf8', cwd: REPO, maxBuffer: 10 * 1024 * 1024 });
+    const r = spawnSync('node', [SCRIPT], { encoding: 'utf8', cwd: REPO, env: ENV, maxBuffer: 10 * 1024 * 1024 });
     limpiar();
     const salida = JSON.parse(
-      spawnSync('node', [SCRIPT, '--json'], { encoding: 'utf8', cwd: REPO, maxBuffer: 10 * 1024 * 1024 }).stdout
+      spawnSync('node', [SCRIPT, '--json'], { encoding: 'utf8', cwd: REPO, env: ENV, maxBuffer: 10 * 1024 * 1024 }).stdout
     );
     // No hay forma de reusar r.stdout con --json y sin --json en la misma
     // corrida; se valida el texto de la corrida sin --json (r.stdout).

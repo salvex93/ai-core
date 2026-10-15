@@ -9,6 +9,10 @@ Versionado semantico: MAJOR.MINOR.PATCH.
 
 - Carga bajo demanda por hook: `context-inject.js` (UserPromptSubmit) inyecta secciones de `.claude/context-sections/` (gobierno de subagentes, staging de commits, vigencia tecnologica, propuestas comerciales) solo cuando el prompt calza por palabra clave. Texto movido sin cambios desde `CLAUDE.md`; los guards siguen aplicando las reglas siempre. `CLAUDE.md` 17.1k a 14.0k caracteres; contexto fijo 33.7k a 32.5k tokens. Verificado en sesion real con `claude -p`.
 
+### Corregido
+
+- Aislamiento de tests: los skills y agentes temporales (`zz-test-*`) ya no se escriben en `.claude/skills/` ni `.claude/agents/` reales. Se usan directorios temporales con `AI_CORE_SKILLS_DIR` (ahora tambien en `audit-market.js`) y `AI_CORE_AGENTS_DIR` (nuevo en `validate-agents.js`); `dirAislado()` en `_shared.js`. `subagent-task-store.js` acepta `AI_CORE_SUBAGENT_TASKS_PATH` para que el test end-to-end del grader no compita por el archivo fijo en tmpdir. Elimina el fallo intermitente de la precondicion de aiops-auditor: 3 corridas completas consecutivas, 1624 pass, 0 fail, sin residuos.
+
 ### Cambiado
 
 - `CLAUDE.md` 22.6k a 17.5k caracteres: texto completo de ahorro de tokens, estandares de documentacion y codigo, tabla de hooks, patron de mapeo y detalle de modelos de subagentes movido textualmente a `docs/REFERENCIA-ARNES.md`.

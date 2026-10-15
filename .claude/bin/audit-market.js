@@ -25,7 +25,7 @@ const fs   = require('node:fs');
 const path = require('node:path');
 
 const REPO       = path.resolve(__dirname, '..', '..');
-const SKILLS     = path.join(REPO, '.claude', 'skills');
+const SKILLS     = process.env.AI_CORE_SKILLS_DIR || path.join(REPO, '.claude', 'skills');
 const STANDARDS  = process.env.AI_CORE_MARKET_STANDARDS_PATH || path.join(REPO, '.claude', 'MARKET_STANDARDS.json');
 const JSON_OUT     = process.argv.includes('--json');
 const ONLY_STALE   = process.argv.includes('--only-stale');

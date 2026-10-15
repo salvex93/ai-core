@@ -12,20 +12,26 @@ const assert = require('node:assert/strict');
 const path   = require('node:path');
 const fs     = require('node:fs');
 const { spawnSync } = require('node:child_process');
-const { REPO, BIN, SKILLS, runScript } = require('./_shared');
+const { REPO, BIN, dirAislado } = require('./_shared');
 const { extraerRolDeclarado } = require('../../scripts/services/AgentRoles');
 
 const NOMBRE_SKILL = `zz-test-metadata-anidado-${process.pid}`;
-const TEST_SKILL_DIR = path.join(SKILLS, NOMBRE_SKILL);
+const SKILLS_BASE = dirAislado('skills-meta');
+const AGENTS_BASE = dirAislado('agents-meta');
+const ENV = { ...process.env, AI_CORE_SKILLS_DIR: SKILLS_BASE, AI_CORE_AGENTS_DIR: AGENTS_BASE };
+const TEST_SKILL_DIR = path.join(SKILLS_BASE, NOMBRE_SKILL);
 const NOMBRE_AGENTE = `zz-test-metadata-anidado-agente-${process.pid}`;
-const TEST_AGENT = path.join(REPO, '.claude', 'agents', `${NOMBRE_AGENTE}.md`);
+const TEST_AGENT = path.join(AGENTS_BASE, `${NOMBRE_AGENTE}.md`);
 
 function limpiar() {
   fs.rmSync(TEST_SKILL_DIR, { recursive: true, force: true });
   fs.rmSync(TEST_AGENT, { force: true });
 }
 
-after(limpiar);
+after(() => {
+  fs.rmSync(SKILLS_BASE, { recursive: true, force: true });
+  fs.rmSync(AGENTS_BASE, { recursive: true, force: true });
+});
 
 describe('AgentRoles.extraerRolDeclarado — metadata anidada', () => {
   test('lee rol desde metadata.rol anidado', () => {
@@ -70,7 +76,7 @@ describe('validate-globals.js — metadata anidada', () => {
   }
 
   function runValidate() {
-    return spawnSync('node', [SCRIPT, '--json'], { encoding: 'utf8', cwd: REPO, maxBuffer: 10 * 1024 * 1024 });
+    return spawnSync('node', [SCRIPT, '--json'], { encoding: 'utf8', cwd: REPO, env: ENV, maxBuffer: 10 * 1024 * 1024 });
   }
 
   test('origin/version/last_updated/rol bajo metadata: no generan hallazgos de "falta campo"', () => {
@@ -105,7 +111,7 @@ describe('audit-market.js — metadata anidada', () => {
       '# x',
     ].join('\n'), 'utf8');
 
-    const r = spawnSync('node', [SCRIPT, '--json', '--skill', NOMBRE_SKILL], { encoding: 'utf8', cwd: REPO, maxBuffer: 10 * 1024 * 1024 });
+    const r = spawnSync('node', [SCRIPT, '--json', '--skill', NOMBRE_SKILL], { encoding: 'utf8', cwd: REPO, env: ENV, maxBuffer: 10 * 1024 * 1024 });
     limpiar();
     const salida = JSON.parse(r.stdout);
     const resultado = salida.resultados.find((x) => x.skill === NOMBRE_SKILL);
@@ -138,7 +144,7 @@ describe('validate-agents.js — metadata anidada', () => {
   test('origin/version/last_updated bajo metadata: no generan hallazgos de "falta campo"', () => {
     limpiar();
     crearAgenteDePrueba(new Date().toISOString().slice(0, 10));
-    const r = spawnSync('node', [SCRIPT, '--json'], { encoding: 'utf8', cwd: REPO, maxBuffer: 10 * 1024 * 1024 });
+    const r = spawnSync('node', [SCRIPT, '--json'], { encoding: 'utf8', cwd: REPO, env: ENV, maxBuffer: 10 * 1024 * 1024 });
     limpiar();
     const salida = JSON.parse(r.stdout);
     const resultado = salida.resultados.find((x) => x.nombre === NOMBRE_AGENTE);

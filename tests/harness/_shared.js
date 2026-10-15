@@ -56,4 +56,15 @@ function entornoGitAislado() {
   return { ...limpio, GIT_CONFIG_GLOBAL: configGlobalVacia, GIT_CONFIG_NOSYSTEM: '1' };
 }
 
-module.exports = { REPO, BIN, SKILLS, SETTINGS, MCP_JSON, runScript, tmpFile, entornoGitAislado };
+/**
+ * Crea un directorio temporal vacio para alojar skills o agentes de prueba
+ * sin tocar .claude/skills ni .claude/agents reales (otros tests auditan esos
+ * directorios en paralelo y verian el artefacto a medias).
+ * @param {string} prefijo
+ * @returns {string}
+ */
+function dirAislado(prefijo) {
+  return fs.mkdtempSync(path.join(os.tmpdir(), `${prefijo}-`));
+}
+
+module.exports = { REPO, BIN, SKILLS, SETTINGS, MCP_JSON, runScript, tmpFile, dirAislado, entornoGitAislado };

@@ -13,12 +13,14 @@ const assert = require('node:assert/strict');
 const path   = require('node:path');
 const fs     = require('node:fs');
 const { spawnSync } = require('node:child_process');
-const { REPO, BIN, SKILLS } = require('./_shared');
+const { REPO, BIN, dirAislado } = require('./_shared');
 
 describe('validate-globals.js — Gate de Calidad Medible obligatorio para rol:auditor', () => {
   const SCRIPT = path.join(BIN, 'validate-globals.js');
   const NOMBRE_SKILL = `zz-test-gate-auditor-${process.pid}`;
-  const TEST_DIR = path.join(SKILLS, NOMBRE_SKILL);
+  const BASE_DIR = dirAislado('skills-gate');
+  const ENV = { ...process.env, AI_CORE_SKILLS_DIR: BASE_DIR };
+  const TEST_DIR = path.join(BASE_DIR, NOMBRE_SKILL);
 
   function frontmatterBase(rol, cuerpoExtra = '') {
     return [
@@ -55,10 +57,10 @@ describe('validate-globals.js — Gate de Calidad Medible obligatorio para rol:a
   }
 
   function runValidate() {
-    return spawnSync('node', [SCRIPT, '--json'], { encoding: 'utf8', cwd: REPO, maxBuffer: 10 * 1024 * 1024 });
+    return spawnSync('node', [SCRIPT, '--json'], { encoding: 'utf8', cwd: REPO, env: ENV, maxBuffer: 10 * 1024 * 1024 });
   }
 
-  after(limpiar);
+  after(() => fs.rmSync(BASE_DIR, { recursive: true, force: true }));
 
   test('skill rol:auditor SIN Gate de Calidad Medible genera hallazgo', () => {
     limpiar();

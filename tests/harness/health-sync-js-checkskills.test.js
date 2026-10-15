@@ -6,7 +6,7 @@ const path   = require('node:path');
 const fs     = require('node:fs');
 const os     = require('node:os');
 const { spawnSync } = require('node:child_process');
-const { REPO, BIN, SKILLS, SETTINGS, runScript, tmpFile } = require('./_shared');
+const { REPO, BIN, SKILLS, dirAislado } = require('./_shared');
 
 describe('health-sync.js — checkSkills', () => {
   const { checkSkills } = require(path.join(BIN, 'health-sync.js'));
@@ -26,16 +26,17 @@ describe('health-sync.js — checkSkills', () => {
     assert.deepEqual(r.invalid, []);
   });
 
-  // Los 2 tests siguientes escriben/borran un directorio dentro de
-  // .claude/skills/ real (compartido con el repo). Nombre unico por pid
-  // para no colisionar entre si si algun dia corren en paralelo, aunque el
-  // riesgo real que motivo este fix era distinto: otro archivo de test
-  // (health-check-js-gate-de-sesion.test.js) invoca checkSkills() a traves
-  // de health-check.js real mientras este directorio existe a medias --
-  // ver fix de TOCTOU en checkSkills() (health-sync.js) que ahora tolera
-  // que el directorio desaparezca entre el readdirSync y el statSync.
+  // Raiz temporal con su propio .claude/skills: el skill invalido nunca existe
+  // en el directorio real que otros tests auditan en paralelo.
+  function raizTemporal() {
+    const root = dirAislado('health-sync-root');
+    fs.mkdirSync(path.join(root, '.claude', 'skills'), { recursive: true });
+    return root;
+  }
+
   test('detecta un skill con name que no coincide con la carpeta', () => {
-    const testDir = path.join(SKILLS, `zz-test-health-sync-temp-${process.pid}`);
+    const root = raizTemporal();
+    const testDir = path.join(root, '.claude', 'skills', `zz-test-health-sync-temp-${process.pid}`);
     fs.mkdirSync(testDir, { recursive: true });
     fs.writeFileSync(path.join(testDir, 'SKILL.md'), [
       '---',
@@ -45,15 +46,16 @@ describe('health-sync.js — checkSkills', () => {
       '# prueba',
     ].join('\n'));
 
-    const r = checkSkills(REPO);
-    fs.rmSync(testDir, { recursive: true, force: true });
+    const r = checkSkills(root);
+    fs.rmSync(root, { recursive: true, force: true });
 
     assert.equal(r.ok, false);
     assert.ok(r.invalid.includes(`zz-test-health-sync-temp-${process.pid}`));
   });
 
   test('detecta un skill sin description', () => {
-    const testDir = path.join(SKILLS, `zz-test-health-sync-temp-${process.pid}`);
+    const root = raizTemporal();
+    const testDir = path.join(root, '.claude', 'skills', `zz-test-health-sync-temp-${process.pid}`);
     fs.mkdirSync(testDir, { recursive: true });
     fs.writeFileSync(path.join(testDir, 'SKILL.md'), [
       '---',
@@ -63,8 +65,8 @@ describe('health-sync.js — checkSkills', () => {
       '# prueba',
     ].join('\n'));
 
-    const r = checkSkills(REPO);
-    fs.rmSync(testDir, { recursive: true, force: true });
+    const r = checkSkills(root);
+    fs.rmSync(root, { recursive: true, force: true });
 
     assert.equal(r.ok, false);
     assert.ok(r.invalid.includes(`zz-test-health-sync-temp-${process.pid}`));
