@@ -5,6 +5,10 @@ Versionado semantico: MAJOR.MINOR.PATCH.
 
 ## [Unreleased] — recorte de contexto fijo (2026-10-14)
 
+### Agregado
+
+- Carga bajo demanda por hook: `context-inject.js` (UserPromptSubmit) inyecta secciones de `.claude/context-sections/` (gobierno de subagentes, staging de commits, vigencia tecnologica, propuestas comerciales) solo cuando el prompt calza por palabra clave. Texto movido sin cambios desde `CLAUDE.md`; los guards siguen aplicando las reglas siempre. `CLAUDE.md` 17.1k a 14.0k caracteres; contexto fijo 33.7k a 32.5k tokens. Verificado en sesion real con `claude -p`.
+
 ### Cambiado
 
 - `CLAUDE.md` 22.6k a 17.5k caracteres: texto completo de ahorro de tokens, estandares de documentacion y codigo, tabla de hooks, patron de mapeo y detalle de modelos de subagentes movido textualmente a `docs/REFERENCIA-ARNES.md`.
