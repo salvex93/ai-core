@@ -24,21 +24,13 @@ AI-CORE opera con tres roles especializados segun la naturaleza de la tarea. El 
 | **Coder** | Parseo, resumen, shell, lectura de archivos, refactor simple | Gemini → Haiku (segun volumen) | Modo Neanderthal — zero verbosidad, solo codigo |
 | **Auditor** | Diagnostico de errores, seguridad, revision de calidad | Sonnet 5 | Deteccion de vulnerabilidades, severidad clasificada |
 
-**Jerarquia de costo (siempre usar el mas barato que complete la tarea):**
-`Gemini free (tier 0) → Haiku → Sonnet → Opus (excepcional)`
-
-- Gemini: lecturas de archivos, resumenes, analisis de repositorio, logs extensos
-- Haiku: transformaciones simples de bajo volumen (< 8k tokens de contexto)
-- Sonnet: refactorizacion, busqueda web, diagnostico, analisis de calidad
-- Opus: SOLO diseno de sistemas nuevos y refactorizacion de arquitectura multi-modulo
+**Jerarquia de costo (siempre el mas barato que complete la tarea):** `Gemini free (tier 0) → Haiku → Sonnet → Opus (excepcional)`. Gemini: lecturas, resumenes, repositorio, logs extensos. Haiku: transformaciones simples (< 8k tokens de contexto). Sonnet: refactorizacion, diagnostico, calidad. Opus: SOLO sistemas nuevos y refactorizacion de arquitectura multi-modulo.
 
 Con `model:` en frontmatter, los 6 agentes de `.claude/agents/` quedan fijados (`issue-tracker` usa `haiku`, el resto `sonnet`); `model:` no delega a Gemini. Detalle y baja del agente `map-updater`: `docs/REFERENCIA-ARNES.md`.
 
 ## Seleccion de Skills — Automatica por contexto
 
-NO esperar a que el usuario declare skills. Cada uno de los 45 skills en `.claude/skills/` trae en su frontmatter una `description` con lenguaje explicito de activacion ("Activa al..."), que Claude Code ya carga automaticamente via skill-discovery nativo (`skillListingBudgetFraction` en settings.json) — no se duplica esa informacion aqui. Seleccionar el skill cuya description calce con la naturaleza de la tarea, sin esperar a que el usuario lo declare.
-
-Reglas de co-activacion (dos skills a la vez, no expresable en un solo frontmatter) estan en el punto 6 del ANCLA de Reglas Criticas.
+NO esperar a que el usuario declare skills. Cada uno de los 45 skills en `.claude/skills/` trae en su `description` lenguaje explicito de activacion ("Activa al..."), que Claude Code ya lista via skill-discovery nativo (`skillListingBudgetFraction` y `skillListingMaxDescChars` en settings.json). Seleccionar el skill cuya description calce con la tarea. Co-activacion de dos skills: punto 6 del ANCLA.
 
 ## Visibilidad y Telemetría
 Imprimir una sola línea al inicio de la **primera respuesta de cada sesión**:
@@ -52,15 +44,14 @@ No repetir la línea de telemetría en cada turno — solo en el primero de la s
 
 ## Protocolo de Arranque (primera respuesta de cada sesion)
 
-Al inicio de cada sesion, ejecutar este checklist en orden antes de responder al usuario:
+Checklist en orden antes de responder, ademas de la telemetria:
 
-1. **Telemetria:** Emitir `[DIR: ... | RAMA: ... | MODELO: ...]` (una sola vez).
 2. **Vault de memoria:** `node .claude/bin/memory-index.js query "<tema del primer mensaje>"` — si hay resultados con score > 2.0, incluirlos como contexto activo.
 3. **Estado del mapa:** El hook `PreToolUse` ejecuta `validate-map.js` automaticamente — si reporta drift, esperar a que se resuelva antes de responder.
 4. **Metricas de sesion anterior:** Si existe `.claude/AGENT_METRICS.json`, leer el ultimo reporte con `node .claude/bin/agent-metrics.js report` para detectar patrones de fallo recurrentes.
 5. **Vigencia de mercado:** `node .claude/bin/audit-market.js --only-stale` — silencioso si no hay hallazgos. Si reporta algo, comunicarlo al usuario antes de continuar y aplicar el Protocolo de Vigencia Tecnologica antes de escribir cualquier cambio que dependa de ese dominio.
 
-Este protocolo es automatico — no requiere que el usuario lo solicite. Se completa en silencio salvo que algun paso reporte un hallazgo relevante.
+Automatico y en silencio salvo que algun paso reporte un hallazgo.
 
 ## Protocolo de Ahorro de Tokens y Cuota
 
