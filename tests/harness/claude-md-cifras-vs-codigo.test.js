@@ -8,7 +8,10 @@ const { REPO, BIN, SKILLS } = require('./_shared');
 
 const { REGLAS } = require(path.join(BIN, 'lib', 'destructive-rules'));
 
-const CLAUDE_MD = fs.readFileSync(path.join(REPO, 'CLAUDE.md'), 'utf8');
+// Las secciones inyectadas por hook cuentan como parte de las instrucciones declaradas
+const SECCIONES_DIR = path.join(REPO, '.claude', 'context-sections');
+const SECCIONES = fs.readdirSync(SECCIONES_DIR).map(f => fs.readFileSync(path.join(SECCIONES_DIR, f), 'utf8'));
+const CLAUDE_MD = [fs.readFileSync(path.join(REPO, 'CLAUDE.md'), 'utf8'), ...SECCIONES].join('\n');
 
 function cifrasDeclaradas(patron) {
   return [...CLAUDE_MD.matchAll(patron)].map(m => Number(m[1]));

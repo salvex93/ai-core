@@ -1,7 +1,7 @@
 'use strict';
 
 // Eventos de sesion y fallos. Recibe el contexto de perfiles de permisos de hooks-permissions.js.
-function buildSessionHooks({ bin, nodeConPermiso, soloRead, readYWrite, readYWriteSubagentLocks, breakGlassRW, repoReadWrite, repoConGit }) {
+function buildSessionHooks({ bin, nodeConPermiso, soloRead, soloLeerRepo, readYWrite, readYWriteSubagentLocks, breakGlassRW, repoReadWrite, repoConGit }) {
   return {
     UserPromptSubmit: [
       {
@@ -15,6 +15,8 @@ function buildSessionHooks({ bin, nodeConPermiso, soloRead, readYWrite, readYWri
           { type: 'command', command: nodeConPermiso(bin('secrets-guard.js'), breakGlassRW) },
           { type: 'command', command: nodeConPermiso(bin('jailbreak-guard.js'), breakGlassRW) },
           { type: 'command', command: `node ${bin('process-guard.js')} moa ${nodeConPermiso(bin('moa-context-gatherer.js'), repoReadWrite)} 2>/dev/null || true` },
+          // Secciones de gobierno bajo demanda: solo lectura de context-sections/ dentro del repo
+          { type: 'command', command: `${nodeConPermiso(bin('context-inject.js'), soloLeerRepo)} 2>/dev/null || true` },
         ],
       },
     ],
