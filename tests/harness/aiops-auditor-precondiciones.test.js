@@ -5,7 +5,8 @@ const assert = require('node:assert/strict');
 const path   = require('node:path');
 const fs     = require('node:fs');
 const { execSync } = require('node:child_process');
-const { REPO } = require('./_shared');
+const os = require('node:os');
+const { REPO, SKILLS: SKILLS_REAL } = require('./_shared');
 
 describe('aiops-auditor.md — Precondicion 1 (quality gates activos)', () => {
   const AGENT_MD = path.join(REPO, '.claude', 'agents', 'aiops-auditor.md');
@@ -34,7 +35,32 @@ describe('aiops-auditor.md — Precondicion 1 (quality gates activos)', () => {
       .find((l) => l.includes('validate-globals.js') && (l.includes('&&') || l.includes('||')));
     assert.ok(lineaPrecondicion1, 'debe existir la linea de la precondicion 1 con && / ||');
 
-    const resultado = execSync(lineaPrecondicion1, { cwd: REPO, encoding: 'utf8', shell: 'bash' }).trim();
-    assert.equal(resultado, 'OK: tests', 'con el repo real (42/42 conformes) la precondicion debe reportar OK, no FALLO');
+    // Snapshot sin skills zz-*: otros tests crean skills temporales en el
+    // directorio real y validate-globals los audita si corre en paralelo.
+    const snapshot = fs.mkdtempSync(path.join(os.tmpdir(), 'skills-snapshot-'));
+    for (const d of fs.readdirSync(SKILLS_REAL, { withFileTypes: true })) {
+      if (d.isDirectory() && !d.name.startsWith('zz-')) {
+        fs.cpSync(path.join(SKILLS_REAL, d.name), path.join(snapshot, d.name), { recursive: true });
+      }
+    }
+    const env = { ...process.env, AI_CORE_SKILLS_DIR: snapshot };
+    try {
+      const resultado = execSync(lineaPrecondicion1, { cwd: REPO, encoding: 'utf8', shell: 'bash', env }).trim();
+      assert.equal(resultado, 'OK: tests', 'con el repo real (42/42 conformes) la precondicion debe reportar OK, no FALLO');
+    } finally {
+      fs.rmSync(snapshot, { recursive: true, force: true });
+    }
+  });
+
+  test('validate-globals.js audita el directorio indicado en AI_CORE_SKILLS_DIR', () => {
+    const vacio = fs.mkdtempSync(path.join(os.tmpdir(), 'skills-vacio-'));
+    try {
+      const salida = execSync(`node "${path.join(REPO, '.claude', 'bin', 'validate-globals.js')}"`, {
+        cwd: REPO, encoding: 'utf8', env: { ...process.env, AI_CORE_SKILLS_DIR: vacio },
+      });
+      assert.match(salida, /0\/0 conformes/);
+    } finally {
+      fs.rmSync(vacio, { recursive: true, force: true });
+    }
   });
 });

@@ -31,7 +31,7 @@ const fs   = require('node:fs');
 const path = require('node:path');
 
 const REPO     = path.resolve(__dirname, '..', '..');
-const SKILLS   = path.join(REPO, '.claude', 'skills');
+const SKILLS   = process.env.AI_CORE_SKILLS_DIR || path.join(REPO, '.claude', 'skills');
 const JSON_OUT = process.argv.includes('--json');
 const FIX_DRIFT = process.argv.includes('--fix-drift');
 const HOY = new Date().toISOString().slice(0, 10);
