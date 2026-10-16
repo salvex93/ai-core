@@ -21,10 +21,14 @@ const REPORT_PATH = isStandalone
   ? path.join(CORE_PATH, '.claude', 'HEALTH_REPORT.md')
   : path.join(HOST_PATH, '.claude', 'HEALTH_REPORT.md');
 
-const { checkDependencies, checkSkills, checkMcpServers } = require('./health-sync');
-const { buildSyncReport, buildBanner }                    = require('./health-report');
-const { verificarIntegridad }                             = require('./mcp-integrity-check');
-const { readGeminiBridgeCwd }                              = require('./lib/mcp-config');
+// Carga diferida: tras el gate de sesion el proceso sale sin pagar estos requires.
+let checkDependencies, checkSkills, checkMcpServers, buildSyncReport, buildBanner, verificarIntegridad, readGeminiBridgeCwd;
+function cargarModulos() {
+  ({ checkDependencies, checkSkills, checkMcpServers } = require('./health-sync'));
+  ({ buildSyncReport, buildBanner } = require('./health-report'));
+  ({ verificarIntegridad } = require('./mcp-integrity-check'));
+  ({ readGeminiBridgeCwd } = require('./lib/mcp-config'));
+}
 
 // -------------------------------------------------------------------
 // Check de path drift — autocorrige settings.json del anfitrion
@@ -116,6 +120,7 @@ async function main() {
   }
 
   markChecked(flagPath);
+  cargarModulos();
 
   const meta = {
     version:   getVersion(),

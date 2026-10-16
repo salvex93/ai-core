@@ -51,6 +51,25 @@ describe('health-check.js — gate de sesion', () => {
     assert.equal(r2.stderr, '', 'la segunda corrida no debe emitir ningun banner (gate de sesion activo)');
   });
 
+  test('con el gate ya marcado no carga los modulos pesados de verificacion', () => {
+    const sufijo = `${process.pid}-${Math.random().toString(36).slice(2)}`;
+    const sessionId = `test-${sufijo}-4`;
+    const flag = flagPath(sessionId);
+    const sonda = path.join(os.tmpdir(), `hc-sonda-${sufijo}.js`);
+    // La sonda registra cada modulo local que se carga para comprobar que el early exit no los requiere.
+    fs.writeFileSync(sonda, "const M=require('module');const c=[];const o=M._load;M._load=function(r,...a){c.push(r);return o.call(this,r,...a)};process.on('exit',()=>process.stderr.write('CARGADOS:'+c.join(',')));");
+    fs.writeFileSync(flag, new Date().toISOString());
+
+    try {
+      const r = spawnSync(process.execPath, ['-r', sonda, SCRIPT], { encoding: 'utf8', env: { ...process.env, CLAUDE_CODE_SESSION_ID: sessionId, ...MCP_BASELINE_ENV } });
+      assert.equal(r.status, 0);
+      assert.doesNotMatch(r.stderr, /health-sync|health-report|mcp-integrity-check|mcp-config/);
+    } finally {
+      fs.rmSync(flag, { force: true });
+      fs.rmSync(sonda, { force: true });
+    }
+  });
+
   test('si el reporte no se puede escribir (REPORT_PATH es un directorio), main().catch loguea el motivo sin crashear', () => {
     const sessionId = `test-${process.pid}-3`;
     const flag = flagPath(sessionId);
