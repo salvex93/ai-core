@@ -35,6 +35,9 @@ function buildPreToolUseHooks({ bin, nodeConPermiso, soloRead, soloLeerRepo, rea
           // de 2 como "no bloqueante" -- el rm -rf pasaba sin bloquear pese
           // a que el guard "existia".
           { type: 'command', command: nodeConPermiso(bin('destructive-op-guard.js'), breakGlassRW) },
+          // Escrituras y borrados fuera de la raiz del proyecto; mismo permiso
+          // breakGlassRW que destructive-op-guard.js por el break-glass.
+          { type: 'command', command: nodeConPermiso(bin('outside-path-guard.js'), breakGlassRW) },
         ],
       },
       {
