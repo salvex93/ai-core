@@ -15,6 +15,7 @@ const { calcularMetricasDeSesion, calcularMetricasDeJsonl } = require('../../scr
 // mecanismo de cache_control: ephemeral (ej. CLAUDE.md o skills mutando
 // tan seguido que el cache nunca calienta), no necesariamente un bug.
 const UMBRAL_AHORRO_CACHE_PCT = 80;
+const MIN_TURNOS_CACHE_CALIENTE = 10;
 
 function turnoAssistant(usage, textos = []) {
   return {
@@ -198,8 +199,8 @@ describe('SessionCacheMetrics — umbral aplicado a sesiones reales de esta maqu
     const raw = fs.readFileSync(masReciente, 'utf8');
     const r = calcularMetricasDeJsonl(raw);
 
-    if (r.total_tokens_sin_cache === 0) {
-      t.skip('la sesion mas reciente no tiene turnos con usage real todavia (sesion recien iniciada)');
+    if (r.total_tokens_sin_cache === 0 || r.turns < MIN_TURNOS_CACHE_CALIENTE) {
+      t.skip('la sesion mas reciente no tiene turnos suficientes para calentar el cache (sesion recien iniciada)');
       return;
     }
 
