@@ -115,4 +115,4 @@ function estaFueraDelProyecto(destino, raiz) {
   return !(dentroDe(tmp, resuelta) && !dentroDe(tmp, raiz));
 }
 
-module.exports = { destinosDeEscritura, estaFueraDelProyecto };
+module.exports = { destinosDeEscritura, estaFueraDelProyecto, segmentar, comandoYArgs };

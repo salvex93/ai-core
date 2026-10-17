@@ -38,6 +38,9 @@ function buildPreToolUseHooks({ bin, nodeConPermiso, soloRead, soloLeerRepo, rea
           // Escrituras y borrados fuera de la raiz del proyecto; mismo permiso
           // breakGlassRW que destructive-op-guard.js por el break-glass.
           { type: 'command', command: nodeConPermiso(bin('outside-path-guard.js'), breakGlassRW) },
+          // Salida de red fuera de la allowlist y exfiltracion de secretos; mismo
+          // permiso breakGlassRW por el break-glass.
+          { type: 'command', command: nodeConPermiso(bin('egress-guard.js'), breakGlassRW) },
         ],
       },
       {

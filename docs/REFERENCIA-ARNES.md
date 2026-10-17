@@ -288,6 +288,29 @@ Filas "Leer un archivo" y "Busqueda web" tienen enforcement real via hook (`guar
 | `UserPromptSubmit` | Al recibir mensaje del usuario | Clasificar intencion, seleccionar rol |
 | `SubagentStop` | Cuando un subagente termina | Validar output antes de integrar al padre |
 
+## Egreso de red: defensa en capas
+
+| Capa | Mecanismo | Alcance | Limite |
+|---|---|---|---|
+| Dura | `sandbox` de Claude Code con allowlist de dominios | macOS, Linux y WSL2; cubre Bash, PowerShell y procesos hijos a nivel del sistema operativo | En Windows nativo los comandos corren sin sandbox |
+| Blanda | `egress-guard.js` (PreToolUse, Bash) | Todas las plataformas; bloquea hosts fuera de la allowlist, destinos no verificables y red combinada con archivos de secretos | Analisis estatico del texto del comando: un script que hace la llamada de red internamente no se ve |
+
+El guard permite por defecto `github.com`, `*.github.com`, `*.githubusercontent.com`, `registry.npmjs.org`, `*.npmjs.org`, `pypi.org` y `files.pythonhosted.org`. Dominios adicionales: variable `AI_CORE_EGRESS_ALLOWLIST` (lista con comas, admite `*.dominio`). Loopback no esta permitido por defecto; para servidores locales de desarrollo agregar `127.0.0.1,localhost`. Break-glass: `CONFIRMAR-<id>` para el reintento exacto.
+
+Plantilla de sandbox para anfitriones Linux, WSL2 o macOS (no se activa de forma automatica; verificar las claves contra `code.claude.com/docs/en/sandboxing` antes de adoptarla y mantener la lista de dominios alineada con la allowlist del guard):
+
+```json
+{
+  "sandbox": {
+    "enabled": true,
+    "allowUnsandboxedCommands": false,
+    "network": {
+      "allowedDomains": ["github.com", "*.github.com", "*.githubusercontent.com", "registry.npmjs.org", "*.npmjs.org", "pypi.org", "files.pythonhosted.org"]
+    }
+  }
+}
+```
+
 ## Patron de Mapeo de Contexto (texto completo)
 
 El mapa se actualiza automaticamente ante:
