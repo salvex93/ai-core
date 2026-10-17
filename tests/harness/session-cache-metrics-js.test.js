@@ -16,6 +16,8 @@ const { calcularMetricasDeSesion, calcularMetricasDeJsonl } = require('../../scr
 // tan seguido que el cache nunca calienta), no necesariamente un bug.
 const UMBRAL_AHORRO_CACHE_PCT = 80;
 const MIN_TURNOS_CACHE_CALIENTE = 10;
+// La sesion en curso es siempre la mas reciente y su cache aun no es representativo.
+const SESION_CERRADA_MS = 15 * 60 * 1000;
 
 function turnoAssistant(usage, textos = []) {
   return {
@@ -188,6 +190,7 @@ describe('SessionCacheMetrics — umbral aplicado a sesiones reales de esta maqu
     const archivos = fs.readdirSync(sessionsDir)
       .filter((f) => f.endsWith('.jsonl'))
       .map((f) => ({ f, mtime: fs.statSync(path.join(sessionsDir, f)).mtimeMs }))
+      .filter(({ mtime }) => Date.now() - mtime > SESION_CERRADA_MS)
       .sort((a, b) => b.mtime - a.mtime);
 
     if (archivos.length === 0) {
