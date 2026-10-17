@@ -47,6 +47,10 @@ describe('outside-path-guard.js — escrituras y borrados fuera del proyecto', (
       ['escape relativo con ..', 'echo x > ../escape.txt'],
       ['rm recursivo tras &&', `true && rm -rf ${fuera}/carpeta`],
       ['redireccion junto a stderr', `ls 2>&1 > ${fuera}/salida.txt`],
+      ['find -delete sobre ruta externa', `find '${fuera}/carpeta' -delete`],
+      ['find con opcion previa y -delete', `find -L ${fuera}/carpeta -name '*.tmp' -delete`],
+      ['find -exec rm sobre ruta externa', `find ${fuera} -type f -exec rm {} \\;`],
+      ['find -execdir mv sobre ruta externa', `find ${fuera} -name a -execdir mv {} /x \\;`],
     ];
     for (const [nombre, cmd] of casos) {
       test(nombre, () => {
@@ -71,6 +75,10 @@ describe('outside-path-guard.js — escrituras y borrados fuera del proyecto', (
       ['heredoc con redireccion citada en el cuerpo', "cat <<'EOF' > nota.md\necho hola > /etc/passwd\nEOF"],
       ['mensaje de commit que cita rutas', 'git commit -m "docs: rm -f /x > /y"'],
       ['comparacion con > dentro de comillas', 'echo "a > b"'],
+      ['find de solo lectura sobre ruta externa', `find ${fuera} -name '*.txt'`],
+      ['find -exec de solo lectura sobre ruta externa', `find ${fuera} -type f -exec grep x {} \\;`],
+      ['find -delete dentro del proyecto', `find ${raiz}/build -name '*.tmp' -delete`],
+      ['find -delete sin ruta explicita', 'find -name "*.tmp" -delete'],
     ];
     for (const [nombre, cmd] of casos) {
       test(nombre, () => {

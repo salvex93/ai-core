@@ -23,6 +23,14 @@ const REGLAS = [
     motivo: 'sobreescribe el historial remoto sin verificar si alguien mas pusheo -- usar --force-with-lease en su lugar.',
   },
   {
+    nombre: 'git push +refspec (push forzado)',
+    // El prefijo + en un refspec fuerza la actualizacion igual que --force y
+    // anula la proteccion de --force-with-lease, por eso no hay excepcion.
+    disparo: /\bgit\s+push\b[^|;&\n]*\s\+[^\s+]/i,
+    excepcion: null,
+    motivo: 'un refspec con prefijo + equivale a --force y sobreescribe el historial remoto -- usar --force-with-lease en su lugar.',
+  },
+  {
     nombre: 'git reset --hard',
     disparo: /\bgit\s+reset\s+.*--hard\b/i,
     excepcion: null,

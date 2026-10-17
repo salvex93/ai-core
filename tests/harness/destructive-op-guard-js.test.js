@@ -51,6 +51,18 @@ describe('destructive-op-guard.js', () => {
     assert.equal(run('git push origin main').status, 0);
   });
 
+  test('bloquea "git push" con refspec forzado por prefijo +', () => {
+    assert.equal(run('git push origin +HEAD:refs/heads/main').status, 2);
+    assert.equal(run('git push origin +main').status, 2);
+    assert.equal(run('git push --force-with-lease origin +main').status, 2);
+  });
+
+  test('permite refspec sin prefijo + y "+" fuera de un push', () => {
+    assert.equal(run('git push origin HEAD:refs/heads/main').status, 0);
+    assert.equal(run('git push origin feat/a+b').status, 0);
+    assert.equal(run('git commit -m "x" && echo +1').status, 0);
+  });
+
   test('bloquea "git reset --hard"', () => {
     assert.equal(run('git reset --hard HEAD~1').status, 2);
   });

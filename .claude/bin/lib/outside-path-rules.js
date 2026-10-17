@@ -25,8 +25,25 @@ function comandoYArgs(palabras) {
   return { nombre: path.posix.basename(palabras[i] || ''), args: palabras.slice(i + 1) };
 }
 
+const ACCIONES_FIND = new Set(['-exec', '-execdir', '-ok', '-okdir']);
+const COMANDOS_DESTRUCTIVOS = new Set(['rm', 'rmdir', 'mv', 'unlink', 'shred', 'truncate']);
+
+// Solo se validan las rutas de partida cuando find borra o ejecuta un comando que muta.
+function destinosDeFind(args) {
+  const muta = args.includes('-delete') || args.some((a, i) => ACCIONES_FIND.has(a) && COMANDOS_DESTRUCTIVOS.has(path.posix.basename(args[i + 1] || '')));
+  if (!muta) return [];
+  const inicio = args.findIndex(a => !/^-[HLPDO]/.test(a));
+  const rutas = [];
+  for (const a of inicio < 0 ? [] : args.slice(inicio)) {
+    if (/^[-(!]/.test(a)) break;
+    rutas.push(a);
+  }
+  return rutas;
+}
+
 function destinosDelComando(palabras) {
   const { nombre, args } = comandoYArgs(palabras);
+  if (nombre === 'find') return destinosDeFind(args);
   if (TODOS_LOS_ARGS.has(nombre)) return argumentos(args);
   if (SOLO_ULTIMO_ARG.has(nombre)) return argumentos(args).slice(-1);
   if (nombre === 'dd') return args.filter(a => a.startsWith('of=')).map(a => a.slice(3));
