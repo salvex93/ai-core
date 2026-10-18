@@ -26,6 +26,12 @@ function buildPostToolUseHooks({ bin, nodeConPermiso, soloRead, repoReadWrite, r
         ],
       },
       {
+        matcher: 'Skill',
+        hooks: [
+          { type: 'command', command: `${nodeConPermiso(bin('skill-usage.js'), repoReadWrite)} 2>/dev/null || true` },
+        ],
+      },
+      {
         matcher: 'Write|Edit',
         hooks: [
           { type: 'command', command: `node ${bin('process-guard.js')} lint ${nodeConPermiso(bin('detox.js'), repoConGit)} 2>/dev/null || true` },
