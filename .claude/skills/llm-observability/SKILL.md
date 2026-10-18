@@ -4,7 +4,7 @@ description: Especialista en observabilidad de sistemas LLM en produccion. Cubre
 metadata:
   origin: ai-core
   version: 1.2.1
-  last_updated: 2026-09-21
+  last_updated: 2026-10-18
   rol: auditor
 compatibility: Depende de SDKs de terceros (@langfuse/tracing, @langfuse/otel, @opentelemetry/*, helicone) y conectividad de red hacia la plataforma de observabilidad elegida.
 ---
@@ -23,7 +23,6 @@ Complementa al skill `ai-integrations` (integracion del LLM como feature) y al s
 - Al seleccionar una plataforma de observabilidad IA (Langfuse, Helicone, Phoenix by Arize, Weights and Biases Weave).
 - Al diagnosticar una regresion de calidad detectada en produccion: trazar la cadena prompt -> completion -> resultado de negocio.
 - Al revisar si un PR que integra un LLM incluye instrumentacion suficiente para operar en produccion.
-
 
 ## Cuando NO Activar Este Perfil
 
@@ -80,151 +79,23 @@ Criterio de decision por restriccion de privacidad:
 - Si los prompts contienen datos personales (PII) o informacion confidencial: usar plataforma self-hosteable (Langfuse o Phoenix o OTel propio). Nunca enviar prompts con PII a un SaaS externo sin revision legal documentada.
 - Si los prompts son genericos o publicos: cualquier plataforma es viable.
 
-## Instrumentacion con OpenTelemetry (patron base)
+## Gate de Calidad Medible
 
-OTel es el denominador comun de cualquier estrategia de observabilidad. Instrumentar el ciclo LLM con OTel permite exportar trazas a cualquier backend (Langfuse, Phoenix, Jaeger, Grafana Tempo) sin cambiar el codigo de instrumentacion.
+| Metrica | Umbral | Metodo de verificacion |
+|---|---|---|
+| Cobertura de instrumentacion | 100% de las llamadas LLM en rutas de produccion emiten `trace_id` + tokens de entrada/salida | Grep dirigido de todas las funciones que invocan al proveedor LLM (`ModelRegistry.chat` o equivalente) contra los puntos donde se abre un span; cero llamadas sin span asociado |
+| Latencia de exportacion de trazas | Overhead de instrumentacion <= 5% de la latencia total de la llamada LLM | Comparar `llm_request_duration_ms` con y sin el span activo, usando el mismo prompt, en un benchmark de al menos 20 llamadas |
+| Frescura del dashboard de costo | Desfase entre el evento y su aparicion en el dashboard <= 60 segundos (exportacion no batcheada en ventanas mayores) | Revisar la configuracion del `SpanProcessor` (`SimpleSpanProcessor` vs `BatchSpanProcessor` y su `scheduledDelayMillis`); confirmar en el dashboard real con una llamada de prueba cronometrada |
+| Correlacion request-a-traza | 100% de los `trace_id` emitidos son buscables end-to-end desde el log de la peticion HTTP hasta la traza en la plataforma de observabilidad | Tomar 5 `trace_id` al azar de logs de produccion y confirmar que cada uno resuelve a una traza completa en la plataforma, sin traza huerfana ni log sin `trace_id` |
+| Precision de alertas de degradacion | Tasa de falsos positivos de alertas WARNING/CRITICAL <= 10% en una ventana de 7 dias | Revisar el historial de alertas disparadas vs. incidentes confirmados por el equipo de guardia; recalibrar el umbral si supera el 10% |
 
-```typescript
-import { trace, SpanStatusCode, context, propagation } from '@opentelemetry/api';
-import { NodeTracerProvider } from '@opentelemetry/sdk-trace-node';
-import { SimpleSpanProcessor } from '@opentelemetry/sdk-trace-base';
-import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-http';
+## Referencias bajo demanda
 
-// Configurar el provider al inicio de la aplicacion (una sola vez)
-const provider = new NodeTracerProvider();
-provider.addSpanProcessor(
-  new SimpleSpanProcessor(new OTLPTraceExporter({
-    url: process.env.OTEL_EXPORTER_OTLP_ENDPOINT,
-    headers: {
-      Authorization: `Bearer ${process.env.OTEL_EXPORTER_API_KEY}`,
-    },
-  }))
-);
-provider.register();
+Contenido expansivo movido a `references/` (divulgacion progresiva) para mantener este SKILL.md nucleo liviano. Cargar el archivo correspondiente cuando la tarea lo requiera:
 
-const tracer = trace.getTracer('nombre-del-servicio', '1.0.0');
-
-// Instrumentar una llamada LLM
-async function llamarLLM(operacion: string, prompt: PromptRequest): Promise<LLMResponse> {
-  return tracer.startActiveSpan(`llm.${operacion}`, async (span) => {
-    // Atributos semanticos estandar para LLM (OpenTelemetry GenAI semantic conventions)
-    span.setAttributes({
-      'gen_ai.provider.name': 'anthropic',
-      'gen_ai.request.model': prompt.modelo ?? 'claude-sonnet-5',
-      'gen_ai.request.max_tokens': prompt.maxTokens ?? 1024,
-      'gen_ai.operation.name': operacion,
-    });
-
-    try {
-      const respuesta = await gateway.completar(prompt);
-
-      // Atributos de respuesta
-      span.setAttributes({
-        'gen_ai.response.model': respuesta.modelo,
-        'gen_ai.usage.input_tokens': respuesta.tokensEntrada,
-        'gen_ai.usage.output_tokens': respuesta.tokensSalida,
-        'gen_ai.usage.cache_read_tokens': respuesta.tokensCacheRead ?? 0,
-        'gen_ai.latency_ms': respuesta.latenciaMs,
-      });
-
-      return respuesta;
-    } catch (error) {
-      span.setStatus({ code: SpanStatusCode.ERROR, message: String(error) });
-      throw error;
-    } finally {
-      span.end();
-    }
-  });
-}
-```
-
-Los atributos usan el esquema `gen_ai.*` de las OpenTelemetry GenAI Semantic Conventions. Este esquema permite que herramientas como Phoenix y Grafana interpreten automaticamente las trazas como llamadas LLM sin configuracion adicional.
-
-**Vigencia verificada 2026-08-04** (`github.com/open-telemetry/semantic-conventions-genai`, `github.com/open-telemetry/semantic-conventions/releases`): `gen_ai.system` fue renombrado a `gen_ai.provider.name` en semantic-conventions v1.37.0 -- el nombre viejo queda deprecado, no eliminado. El contenido GenAI completo se movio de repositorio en v1.42.0 (junio 2026). Muchas librerias de instrumentacion en produccion todavia emiten `gen_ai.system` por no haber migrado -- si se integra con un backend de terceros (Phoenix, Grafana, Langfuse), confirmar cual de los dos nombres espera esa version especifica antes de asumir compatibilidad automatica.
-
-## Integracion con Langfuse
-
-Langfuse es la opcion recomendada para proyectos con restriccion de privacidad porque es completamente self-hosteable con Docker Compose.
-
-Verificado 2026-08-14 contra langfuse.com/docs/observability/sdk/upgrade-path/js-v3-to-v4 y langfuse.com/docs/compatibility: la API v2/v3 (`langfuse.trace()`, `traza.generation()`, paquete monolitico `langfuse`) fue **eliminada**, no solo deprecada, en la version GA actual (v4/v5). La arquitectura vigente es OTel-nativa via `@langfuse/tracing` + `@langfuse/otel`, y converge con la instrumentacion OTel generica ya descrita arriba en este skill — un `LangfuseSpanProcessor` registrado en el mismo `NodeSDK` de OpenTelemetry.
-
-```typescript
-// Setup — una sola vez al arrancar el proceso
-import { NodeSDK } from '@opentelemetry/sdk-node';
-import { LangfuseSpanProcessor } from '@langfuse/otel';
-
-const sdk = new NodeSDK({
-  spanProcessors: [new LangfuseSpanProcessor()],
-});
-sdk.start();
-```
-
-```typescript
-// Instrumentacion de la llamada LLM — startObservation con asType: 'generation'
-import { startActiveObservation } from '@langfuse/tracing';
-
-async function llamarLLMConLangfuse(operacion: string, prompt: PromptRequest): Promise<LLMResponse> {
-  return startActiveObservation(operacion, async (span) => {
-    const generacion = span.startObservation(
-      'llm-call',
-      {
-        model: prompt.modelo ?? 'claude-sonnet-5',
-        input: [{ role: 'user', content: prompt.usuario }],
-      },
-      { asType: 'generation' }
-    );
-
-    try {
-      const respuesta = await gateway.completar(prompt);
-
-      generacion.update({
-        usageDetails: { input: respuesta.tokensEntrada, output: respuesta.tokensSalida },
-        output: { content: respuesta.contenido },
-      });
-      generacion.end();
-
-      return respuesta;
-    } catch (error) {
-      generacion.update({ level: 'ERROR', statusMessage: String(error) });
-      generacion.end();
-      throw error;
-    }
-  });
-}
-```
-
-Variables de entorno requeridas (mismos nombres que la version anterior del SDK):
-
-```
-LANGFUSE_PUBLIC_KEY=pk-lf-...
-LANGFUSE_SECRET_KEY=sk-lf-...
-LANGFUSE_BASE_URL=https://langfuse.empresa.interna
-```
-
-Nota: la documentacion oficial no confirma un campo explicito de costo total (`totalCost`) en `usageDetails` — Langfuse deriva el costo del lado servidor a partir de `model` + tokens. No asumir un parametro de costo manual sin confirmar contra la version instalada.
-
-## Instrumentacion rapida con Helicone (proxy HTTP)
-
-Helicone actua como proxy transparente del API de Anthropic. No requiere cambios en la logica de llamadas: solo se cambia el base URL del SDK y se agrega la API key de Helicone.
-
-```typescript
-import Anthropic from '@anthropic-ai/sdk';
-
-const cliente = new Anthropic({
-  apiKey: process.env.ANTHROPIC_API_KEY,
-  baseURL: 'https://anthropic.helicone.ai',
-  defaultHeaders: {
-    'Helicone-Auth': `Bearer ${process.env.HELICONE_API_KEY}`,
-    // Metadatos opcionales para segmentacion en el dashboard
-    'Helicone-User-Id': userId,
-    'Helicone-Property-Operacion': operacion,
-  },
-});
-```
-
-Helicone registra automaticamente cada llamada con tokens, costo y latencia sin instrumentacion adicional. Es la opcion de menor overhead para equipos que necesitan visibilidad rapida sin infraestructura OTel propia.
-
-Restriccion: los prompts se transmiten a los servidores de Helicone. No usar con prompts que contengan PII o datos confidenciales sin revisar el DPA del proveedor.
+- `references/obs-instrumentacion.md` — Instrumentacion con OpenTelemetry, Langfuse y Helicone.
+- `references/obs-golden-dataset.md` — Promocion de traza a golden dataset.
+- `references/obs-vanguardia-agentes.md` — Observabilidad de agentes y trazas GenAI en produccion.
 
 ## Metricas Obligatorias en Produccion
 
@@ -292,45 +163,6 @@ Cuando una regresion se detecta en produccion (mas quejas de usuarios, metricas 
 5. Ejecutar el golden dataset del skill `llm-evals` contra la configuracion actual para confirmar la regresion de forma controlada.
 6. Revertir el ultimo cambio de prompt o modelo si se identifica como causa. No hacer multiples cambios simultaneos.
 
-## Protocolo de Promocion de Traza a Golden Dataset
-
-Las trazas de produccion son la fuente mas valiosa de casos reales para el golden dataset del skill `llm-evals`. Este protocolo define como promover una traza a item del dataset sin romper el protocolo de revision humana obligatorio.
-
-Condiciones de seleccion de una traza candidata:
-
-- La traza exhibe un output inesperadamente bueno que el sistema deberia reproducir de forma consistente.
-- La traza exhibe una alucinacion o fallo de calidad documentado, util como caso de fallo esperado en el dataset.
-- La traza cubre un caso de uso critico no representado en el golden dataset actual.
-
-Proceso de promocion:
-
-1. Localizar la traza en la plataforma de observabilidad usando su `trace_id`.
-2. Extraer los campos: `input.usuario`, `input.contexto` (chunks RAG si aplica), `output` generado, modelo, version de prompt.
-3. Crear un item candidato con estado `revisor: pendiente`. El campo `origen_traza` vincula el item a la traza de produccion original.
-4. Un revisor humano aprueba o rechaza el candidato: valida el `ground_truth` (si el output fue bueno) o documenta el fallo (si fue un caso negativo).
-5. Una vez aprobado, el item se incorpora al golden dataset con `revisor` actualizado y la fecha de `ultima_revision`.
-
-Estructura del item promovido desde una traza:
-
-```json
-{
-  "id": "eval-from-trace-001",
-  "categoria": "resumen_contrato",
-  "input": {
-    "usuario": "Resume las clausulas de penalizacion",
-    "contexto": ["...chunk recuperado 1...", "...chunk recuperado 2..."]
-  },
-  "ground_truth": "El contrato establece una penalizacion del 10% del valor total.",
-  "criterios": ["cita al menos una clausula con porcentaje", "no introduce terminos no presentes en el contexto"],
-  "umbral_minimo": 0.80,
-  "ultima_revision": "2026-03-28",
-  "revisor": "pendiente",
-  "origen_traza": "trace_abc123_prod_2026-03-28"
-}
-```
-
-El campo `origen_traza` es auditoria: permite rastrear de que sesion real provino el caso y comparar el output original del sistema contra las ejecuciones futuras del eval. Sin este campo, la trazabilidad entre produccion y el dataset de evaluacion se pierde.
-
 ## Lista de Verificacion de Revision de Codigo — LLM Observability
 
 Verificar en orden antes de aprobar un PR que introduce o modifica un sistema LLM en produccion.
@@ -351,40 +183,3 @@ Las Reglas Globales definidas en CLAUDE.md aplican sin excepcion a este perfil.
 - Verificar una estimacion de costo base calibrada contra la tarifa real del proveedor activo antes de configurar metricas de costo.
 - Prohibido implementar alertas sin umbrales numericos definidos. Una alerta sin umbral no es accionable.
 - Verificar estrategia de correlacion del historial de metricas anteriores antes de reemplazar la plataforma de observabilidad activa.
-
-## Modulo — Observabilidad de Agentes y Trazas GenAI en Produccion
-
-### Identidad declarada antes de ejecutar
-
-Antes de producir cualquier output de instrumentacion, dashboard o alerta en este dominio, completar:
-
-`IDENTIDAD OBSERVABILIDAD LLM: Plataforma destino: [Langfuse self-hosted | Langfuse cloud | Helicone | Phoenix by Arize | W&B Weave | OTel + Grafana Tempo] | Unidad de costo a reportar: [por operacion | por usuario | por sesion | por tenant] | Granularidad de traza: [span unico por llamada | traza multi-span con sub-spans de retrieval/tool-call/generacion] | Politica de contenido en la traza: [prompt completo | prompt redactado | solo metadata sin contenido] | Referencia de severidad: [una linea, ej. "toda alerta CRITICAL dispara PagerDuty, WARNING solo Slack"]`
-
-Sin este bloque completo, no iniciar la instrumentacion: la unidad de costo y la politica de contenido determinan el esquema de atributos y no son reversibles sin re-instrumentar.
-
-### Prohibido — patrones reconocibles de demo/plantilla
-
-- Dashboard con un unico panel de "tokens totales" sin desglose por modelo, operacion o usuario — no permite diagnosticar cual llamada especifica genero el costo.
-- Traza que registra `input`/`output` como texto plano sin `trace_id` correlacionado a la peticion HTTP que la origino — impide reconstruir la cadena request -> LLM -> resultado de negocio.
-- Alerta de "latencia alta" con umbral fijo arbitrario (ej. "> 3000ms") copiado de un tutorial, sin baseline propio calculado sobre el trafico real del sistema.
-- Span de llamada LLM sin `gen_ai.usage.input_tokens` ni `gen_ai.usage.output_tokens` — un span "de relleno" que registra que la llamada ocurrio pero no permite ninguna metrica de costo derivada.
-- Integracion de Langfuse/Helicone/Phoenix copiada del quickstart oficial sin adaptar `userId`/`sessionId`/metadata a las entidades reales del dominio del proyecto anfitrion.
-- Retry o fallback entre proveedores que no genera un span/evento propio — la traza muestra una sola llamada exitosa y oculta que hubo dos intentos fallidos antes, distorsionando las metricas de disponibilidad real.
-
-### Gate de calidad medible
-
-| Metrica | Umbral | Metodo de verificacion |
-|---|---|---|
-| Cobertura de instrumentacion | 100% de las llamadas LLM en rutas de produccion emiten `trace_id` + tokens de entrada/salida | Grep dirigido de todas las funciones que invocan al proveedor LLM (`ModelRegistry.chat` o equivalente) contra los puntos donde se abre un span; cero llamadas sin span asociado |
-| Latencia de exportacion de trazas | Overhead de instrumentacion <= 5% de la latencia total de la llamada LLM | Comparar `llm_request_duration_ms` con y sin el span activo, usando el mismo prompt, en un benchmark de al menos 20 llamadas |
-| Frescura del dashboard de costo | Desfase entre el evento y su aparicion en el dashboard <= 60 segundos (exportacion no batcheada en ventanas mayores) | Revisar la configuracion del `SpanProcessor` (`SimpleSpanProcessor` vs `BatchSpanProcessor` y su `scheduledDelayMillis`); confirmar en el dashboard real con una llamada de prueba cronometrada |
-| Correlacion request-a-traza | 100% de los `trace_id` emitidos son buscables end-to-end desde el log de la peticion HTTP hasta la traza en la plataforma de observabilidad | Tomar 5 `trace_id` al azar de logs de produccion y confirmar que cada uno resuelve a una traza completa en la plataforma, sin traza huerfana ni log sin `trace_id` |
-| Precision de alertas de degradacion | Tasa de falsos positivos de alertas WARNING/CRITICAL <= 10% en una ventana de 7 dias | Revisar el historial de alertas disparadas vs. incidentes confirmados por el equipo de guardia; recalibrar el umbral si supera el 10% |
-
-### Vigencia — estandar mas recientes del dominio
-
-Verificado en esta tarea contra fuente oficial (`opentelemetry.io/docs/specs/semconv/gen-ai/` y `github.com/open-telemetry/semantic-conventions-genai`): las convenciones semanticas `gen_ai.*` se movieron fuera del repositorio principal `open-telemetry/semantic-conventions` hacia un repositorio dedicado, `open-telemetry/semantic-conventions-genai`. Las atribuciones `gen_ai.*` previas quedaron marcadas como deprecadas en su ubicacion original. El mecanismo de opt-in a la version experimental mas reciente es la variable de entorno `OTEL_SEMCONV_STABILITY_OPT_IN` con el valor `gen_ai_latest_experimental`; sin ese opt-in, la instrumentacion sigue emitiendo la version previa (1.34.0 o anterior) por compatibilidad. El conjunto de convenciones GenAI aun no esta marcado como estable — sigue en fase experimental con plan de transicion pendiente de publicacion.
-
-Antes de fijar un nombre de atributo exacto en codigo de produccion (mas alla de `gen_ai.request.model`, `gen_ai.usage.input_tokens`, `gen_ai.usage.output_tokens`, ya usados en este mismo archivo y estables en su forma actual), verificar el atributo puntual contra el repositorio `semantic-conventions-genai` en el momento de implementar — la superficie de atributos nuevos (`gen_ai.system_instructions`, `gen_ai.input.messages`, `gen_ai.output.messages`, `gen_ai.response.finish_reasons`) esta activa pero orientativo, no verificado contra fuente oficial en el nivel de detalle de schema JSON exacto en esta pasada — confirmar el schema antes de instrumentar un campo nuevo, no asumir por analogia con los atributos ya vigentes.
-
-Reverificado 2026-09-15 contra el dominio compartido `rag-llm-eval` (`docs.ragas.io`, `deepeval.com`, `promptfoo.dev`): sin impacto sobre las convenciones `gen_ai.*` de OpenTelemetry documentadas arriba — son capas complementarias (observabilidad de trazas vs. metricas de calidad de evals), sin solapamiento de superficie que requiera actualizar este archivo.

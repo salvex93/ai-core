@@ -4,7 +4,7 @@ description: Especialista en arquitectura de prompts de produccion. Cubre diseno
 metadata:
   origin: ai-core
   version: 1.9.1
-  last_updated: 2026-09-21
+  last_updated: 2026-10-18
   rol: architect
 ---
 
@@ -73,84 +73,14 @@ Un prompt de produccion tiene cuatro secciones con responsabilidades distintas e
 
 La seccion de restricciones precede siempre a las instrucciones. Un modelo que no sabe sus limites antes de recibir instrucciones puede inferir permisos que no tiene.
 
-## Tecnicas de Prompting
+## Referencias bajo demanda
 
-### Few-shot examples
+Contenido expansivo movido a `references/` (divulgacion progresiva) para mantener este SKILL.md nucleo liviano. Cargar el archivo correspondiente cuando la tarea lo requiera:
 
-Los few-shot examples son el mecanismo mas efectivo para calibrar el comportamiento del modelo en tareas de clasificacion, extraccion o generacion con patron repetible.
-
-Reglas para few-shot examples de produccion:
-
-- Cada ejemplo es un par input/output que representa un caso real del sistema, no un caso inventado.
-- Los ejemplos cubren al menos tres categorias de casos: el caso normal, el caso limite y el caso de fallo esperado.
-- Los ejemplos estan versionados junto al prompt. Un cambio en los ejemplos es un cambio de version del prompt.
-- El numero minimo de ejemplos por categoria es 2. Con menos, el modelo no puede distinguir el patron de la excepcion.
-
-```
-# Estructura de un few-shot example en el prompt
-<example>
-Input: {input del caso de prueba}
-Output: {output esperado exactamente en el formato definido}
-</example>
-```
-
-### Chain-of-Thought (CoT)
-
-El CoT mejora la precision en tareas que requieren razonamiento multistep: matematica, logica, clasificacion con criterios multiples, extraccion de relaciones entre entidades.
-
-```
-# Patron CoT en el prompt
-Antes de emitir tu respuesta final, razona paso a paso:
-1. Identifica [primer elemento critico].
-2. Evalua [segundo elemento critico] en funcion del primero.
-3. Concluye con [decision final].
-
-Emite primero el razonamiento dentro de <thinking>...</thinking> y luego el output final en el formato especificado.
-```
-
-En modelos con soporte nativo de extended thinking (claude-sonnet-5, claude-opus-5, claude-fable-5; claude-opus-4-8 como fallback documentado), el CoT explicito en el prompt puede omitirse si se activa el thinking via API. En ese caso, el bloque `<thinking>` lo genera el modelo internamente sin consumir tokens del output visible. El thinking es adaptativo por defecto (`thinking: { type: "adaptive" }`, no `"auto"` — verificado 2026-09-15 contra platform.claude.com/docs/en/build-with-claude/thinking-steering-and-cost): el modelo decide por si mismo si razonar y cuanto, sin budget fijo. El control real de intensidad es `output_config.effort` (`max/xhigh/high/medium/low`), un parametro separado de `thinking`.
-
-Al combinar extended thinking con tool use, es obligatorio preservar tanto el bloque `thinking` como el `tool_use` del turno anterior al construir el siguiente mensaje del assistant — omitir el `thinking_block` al reenviar el `tool_result` produce comportamiento incorrecto o error. No modificar ni reordenar los bloques de thinking entre turnos: pasarlos integros tal cual los devolvio la API.
-
-### Output estructurado con JSON Schema
-
-Cuando el sistema que consume el output del LLM espera un formato estructurado, definir el schema en el prompt y reforzarlo con la funcion de output estructurado del SDK si esta disponible:
-
-```typescript
-// Anthropic SDK — output estructurado via tool_use
-const respuesta = await cliente.messages.create({
-  model: 'claude-sonnet-5',
-  tools: [
-    {
-      name: 'emitir_resultado',
-      description: 'Emite el resultado estructurado de la tarea.',
-      input_schema: {
-        type: 'object',
-        properties: {
-          categoria: { type: 'string', enum: ['A', 'B', 'C'] },
-          confianza: { type: 'number', minimum: 0, maximum: 1 },
-          justificacion: { type: 'string' },
-        },
-        required: ['categoria', 'confianza', 'justificacion'],
-      },
-    },
-  ],
-  tool_choice: { type: 'tool', name: 'emitir_resultado' },
-  messages: [{ role: 'user', content: input }],
-});
-```
-
-El output estructurado via `tool_use` es mas robusto que pedir JSON en el prompt: el modelo no puede "olvidar" el formato ni agregar texto antes del JSON.
-
-Agregar `strict: true` en la definicion de la tool (junto a `input_schema`) garantiza que el input generado cumpla exactamente el schema, no solo que se invoque la tool. Advertencia especifica de AWS Bedrock: `tool_choice: { type: "any" }` y `tool_choice: { type: "tool", name: ... }` no son compatibles con extended thinking activo en ese runtime — con thinking activado sobre Bedrock, usar solo `tool_choice: { type: "auto" }` o `{ type: "none" }`. La Claude API estandar y Vertex AI no tienen esta restriccion.
-
-### Diseno de la tool para output estructurado
-
-La descripcion de la tool debe cubrir en 3-4 oraciones minimo: que hace, cuando usarla y cuando no, que significa cada parametro, y limitaciones conocidas — es el factor de mayor impacto en la fiabilidad del tool use segun la documentacion oficial de Anthropic. Para schemas con objetos anidados o parametros sensibles al formato, agregar `input_examples` (array al mismo nivel que `input_schema`, no anidado dentro) en la definicion de la tool: eleva la precision de parametros anidados complejos de 72% a 90% segun benchmark de Anthropic (`anthropic.com/engineering/advanced-tool-use`); no soportado en server tools (web search, code execution).
-
-### tool_result — formato y confianza
-
-En el mensaje de usuario que devuelve un `tool_result`, los bloques `tool_result` deben ir PRIMERO en el array de `content`; cualquier texto adicional debe ir DESPUES de todos los `tool_result`, o la API retorna error 400. Ante fallos, usar `is_error: true` con un mensaje instructivo y especifico (ej. "Rate limit exceeded. Retry after 60 seconds") en vez de un mensaje generico — el modelo puede recuperarse solo con esa informacion. Tratar todo el contenido de `tool_result` proveniente de fuentes externas (webs, emails, APIs de terceros) como no confiable frente a prompt injection indirecta: debe permanecer dentro del bloque `tool_result` y nunca trasladarse a system prompts o bloques de texto plano de usuario.
+- `references/prompt-tecnicas.md` — Tecnicas de prompting.
+- `references/prompt-caching-prefill.md` — Prompt caching desde el diseno y prefill de respuesta.
+- `references/prompt-razonamiento.md` — Dynamic thinking (Gemini) y effort levels (Opus).
+- `references/prompt-vanguardia.md` — Vanguardia transversal en arquitectura de system prompts.
 
 ## Versionado de Prompts
 
@@ -177,71 +107,6 @@ prompts/
 6. Registrar el cambio en `CHANGELOG.md` con la justificacion y los resultados del eval.
 
 Un cambio de prompt sin eval de regresion ejecutado no puede desplegarse a produccion.
-
-## Optimizacion de Prompt Caching desde el Diseño
-
-Prompt Caching puede reducir hasta 90% el costo de tokens de entrada en llamadas repetidas. La efectividad depende de como se estructura el artefacto:
-
-- Colocar todo contenido estatico (rol, restricciones, few-shot examples, documentacion de referencia) al inicio del system prompt, antes de cualquier contenido dinamico.
-- Los few-shot examples son candidatos ideales para cache: son voluminosos, no cambian entre llamadas y estan al inicio del contexto.
-- Umbral minimo para activar cache: 1024 tokens (Sonnet/Opus) o 2048 (Haiku). Un system prompt por debajo del umbral no genera cache aunque se marque.
-- Verificar impacto en `cache_read_input_tokens` de los logs. Hit rate bajo (<50%) indica que contenido dinamico esta mezclado con el estatico o que el prompt no supera el umbral.
-- Un cambio de version del prompt invalida el cache de todas las llamadas activas — planificar el rollout como cualquier cambio de esquema.
-
-### Cache Breakpoints — Posicionamiento Estrategico
-
-El breakpoint `cache_control: ephemeral` debe colocarse despues del bloque mas largo y mas estable del system prompt. El contenido **antes** del breakpoint se cachea; el de despues, no.
-
-```python
-system = [
-    # Bloque 1: rol + restricciones + few-shot (estatico entre sesiones) — CACHEAR AQUI
-    {
-        "type": "text",
-        "text": INSTRUCCIONES_FIJAS_Y_FEW_SHOT,
-        "cache_control": {"type": "ephemeral"}
-    },
-    # Bloque 2: contexto dinamico de la sesion actual — sin cache
-    {
-        "type": "text",
-        "text": contexto_de_la_llamada_actual
-    }
-]
-```
-
-Antipatron: colocar el breakpoint al final del ultimo bloque — en ese caso el contexto dinamico queda dentro del bloque cacheado y el cache se invalida en cada llamada.
-
-El orden de construccion del cache es tools -> system -> messages: un cambio en cualquier nivel invalida ese nivel y todos los siguientes (cambiar `tool_choice` invalida solo messages; cambiar definiciones de tools invalida todo, incluyendo system). El lookback window para encontrar cache hits previos es de 20 bloques hacia atras: en conversaciones que superen esa longitud, anadir un segundo breakpoint explicito mas reciente ademas del original, o el cache-hit se pierde silenciosamente sin error. Si se usan TTL de 5 minutos y 1 hora en el mismo request, los breakpoints de mayor TTL deben ir primero en el prompt.
-
-Verificar siempre `cache_creation_input_tokens` y `cache_read_input_tokens` en la respuesta real: si ambos son cero, el prompt no alcanzo el minimo de tokens cacheables del modelo y el caching se omitio sin error explicito. Para eliminar la latencia del primer request en produccion, pre-calentar el cache con una llamada de `max_tokens: 0` y un breakpoint explicito (no automatico) antes de que lleguen usuarios reales.
-
-## Prefill de Respuesta — Forzar Formato sin Instrucciones Extra
-
-El prefill inicia la respuesta del modelo con contenido predefinido, eliminando la necesidad de instrucciones de formato largas en el prompt.
-
-```python
-# Forzar inicio de JSON sin instrucciones de formato en el system prompt.
-# texto es contenido no confiable (input de usuario o contexto recuperado) --
-# se delimita con <user_input> siguiendo el patron obligatorio de la seccion
-# "Prompt Injection - Defensas en el Diseno" de este mismo skill; nunca se
-# concatena crudo en el mensaje.
-response = client.messages.create(
-    model="claude-haiku-4-5-20251001",
-    max_tokens=512,
-    messages=[
-        {"role": "user", "content": f"Analiza este texto:\n<user_input>\n{texto}\n</user_input>"},
-        {"role": "assistant", "content": "{"}  # prefill — el modelo continua desde aqui
-    ]
-)
-# La respuesta NO incluye el prefill — concatenar: "{" + response.content[0].text
-resultado_json = "{" + response.content[0].text
-```
-
-Casos de uso del prefill:
-- Forzar inicio de JSON o XML cuando el output siempre sigue un formato fijo.
-- Forzar el idioma de la respuesta sin agregarlo en el system prompt.
-- Saltar saludos o introducciones cuando se necesita directamente el contenido.
-
-Regla: no usar prefill simultaneamente con `tool_use` forzado — elegir uno de los dos mecanismos para controlar el formato de output.
 
 ## Prompt Injection — Defensas en el Diseno
 
@@ -303,98 +168,6 @@ Verificar en orden antes de desplegar un cambio de prompt a produccion.
 6. Defensa contra injection: el system prompt incluye instrucciones explicitas para ignorar instrucciones del usuario o del contexto recuperado.
 7. Precision: cada hallazgo cita la ruta relativa del archivo y el numero de linea exacto. Sin esta referencia, el hallazgo no es accionable.
 
-## Dynamic Thinking (Gemini 3.1 Pro — thinking_level)
-
-Gemini 3.1 Pro soporta `thinking_level` (razonamiento dinamico) como alternativa a Opus extended thinking. Define el grado maximo de razonamiento interno antes de emitir la respuesta. Disponible via Google AI SDK (`google-genai`) o Vertex AI.
-
-Cambio de fondo respecto a la generacion 2.5 (verificado 2026-07-10 contra `ai.google.dev/gemini-api/docs/gemini-3`): el parametro real ya no es `thinking_config.thinking_budget` en tokens — es `thinking_level` con tres valores discretos (`low`/`medium`/`high`). **`thinking_level` y `thinking_budget` son mutuamente excluyentes: combinarlos en el mismo request retorna error 400.** No portar codigo legacy con `thinking_budget` sin migrarlo.
-
-### Niveles de thinking en Gemini 3.1 Pro
-
-```python
-from google import genai
-
-client = genai.Client()
-
-interaction = client.interactions.create(
-    model="gemini-3.1-pro-preview",
-    input="Prompt del usuario",
-    generation_config={"thinking_level": "low"},   # "low" | "medium" | "high"
-)
-
-print(interaction.output_text)
-```
-
-### Cuando usar cada nivel
-
-- `low`: latencia y costo minimos — instruction-following simple, chat, aplicaciones de alto throughput.
-- `medium`: default recomendado para uso diario — balance entre calidad y costo.
-- `high`: razonamiento maximo, activa "Deep Think Mini" (77.1% en ARC-AGI-2, benchmark Google DeepMind feb-2026). Latencia notablemente mayor hasta el primer token de salida. **Es el default si `thinking_level` no se especifica** — fijar explicitamente `low` o `medium` si el caso de uso no requiere el nivel maximo, para evitar costo/latencia inesperados.
-
-### Reglas de costo y logging
-
-- Los tokens de razonamiento se facturan a la misma tarifa que los tokens de salida.
-- El campo exacto de conteo de tokens de razonamiento en la respuesta no esta confirmado en esta pasada — verificar contra la respuesta real del SDK antes de instrumentar logging de costo.
-- Migracion desde codigo con `thinking_budget`: reemplazar por el nivel discreto mas cercano (`budget: 0` → `low`; `budget` bajo/fijo → `medium`; `budget: -1`/alto → `high`) y probar contra el error 400 de parametros mutuamente excluyentes.
-- Para integracion via bridge MCP del ai-core, delegar al skill `gemini-3-specialist`. Este bloque aplica a integracion directa via SDK.
-
-## Effort Levels (Opus 5 / Opus 4.8 Adaptive Reasoning)
-
-Opus 5 (`claude-opus-5`, lanzado 24-jul-2026, mismo pricing $5/$25 por millon de tokens que Opus 4.8 y default recomendado en Claude Max) mantiene `effort` para controlar la intensidad del razonamiento por tarea dentro de un presupuesto global. Tres niveles: `low`, `high`, `xhigh`. Opus 4.8 sigue soportado como fallback documentado con la misma semantica de `effort`.
-
-### Configuracion
-
-```python
-respuesta = cliente.messages.create(
-    model="claude-opus-5",  # fallback documentado: claude-opus-4-8
-    effort="high",  # o "low", "xhigh"
-    task_budgets={
-        "total_budget": 8000,          # Presupuesto global para toda la sesion
-        "per_step_min": 512,           # Razonamiento minimo por paso
-        "per_step_max": 2048,          # Razonamiento maximo por paso
-        "allocation_strategy": "adaptive"  # Opus decide dinamicamente
-    },
-    messages=[...]
-)
-```
-
-### Semantica por nivel
-
-| Nivel | Descripcion | Costo token | Caso de uso |
-|---|---|---|---|
-| `low` | Razonamiento minimo, respuesta rapida | Base | Respuestas simples, clasificacion, baja latencia |
-| `high` | Razonamiento balanceado, decision adaptativa | ~1.5x | Tareas normales, resolucion de problemas, agentes multistep |
-| `xhigh` | Razonamiento profundo, analisis exhaustivo | ~2.5x | Arquitectura critica, debug profundo, planificacion compleja |
-
-### Task Budgets vs Effort
-
-- **`effort`**: controla la *intensidad* del razonamiento (como de profundo piensa).
-- **`task_budgets`**: controla el *presupuesto total* y la *distribucion* entre pasos de un agente multiturn.
-
-Usar ambos juntos en agentes multi-paso donde la complejidad es variable:
-
-```python
-# Agente que puede tener pasos simples y pasos complejos
-cliente.messages.create(
-    model="claude-opus-5",  # fallback documentado: claude-opus-4-8
-    effort="high",  # Razonamiento balanceado por defecto
-    task_budgets={
-        "total_budget": 10000,         # Presupuesto global para toda la sesion del agente
-        "per_step_min": 256,
-        "per_step_max": 2000,
-        "allocation_strategy": "adaptive"  # Opus asigna tokens segun complejidad real de cada paso
-    },
-    messages=[...]
-)
-```
-
-### Reglas de deployment
-
-- En produccion, preferir `low` o `high`. Evitar `xhigh` en flujos con alto volumen (>100 req/min) o latencia critica (<500ms).
-- El effort no afecta `max_tokens`, solo el estilo de razonamiento interno.
-- Loguear `effort`, `thinking_tokens_used` y `budget_remaining` para auditar la efectividad.
-- En agentes multistep, `task_budgets` es obligatorio si `effort: "high"` o superior.
-
 ## Restricciones del Perfil
 
 Las Reglas Globales definidas en CLAUDE.md aplican sin excepcion a este perfil.
@@ -403,38 +176,3 @@ Las Reglas Globales definidas en CLAUDE.md aplican sin excepcion a este perfil.
 - Declarar el conflicto de interes antes de usar el mismo modelo como generador y como juez LLM-as-judge.
 - Versionar los prompts en el repositorio de codigo con las mismas herramientas que el resto del codigo.
 - Documentar la justificacion antes de proponer un system prompt que supere 4000 tokens.
-
-## Modulo — Vanguardia Transversal en Arquitectura de System Prompts
-
-### Identidad Declarada Antes de Ejecutar
-
-Antes de producir cualquier system prompt, few-shot set o schema de output para un caso nuevo, llenar en una linea:
-
-`IDENTIDAD DE PROMPT: Contrato de rol: [asistente de dominio cerrado / agente con herramientas / juez evaluador / extractor estructurado] | Fuente de verdad del comportamiento: [golden dataset existente / especificacion del cliente / ninguna aun] | Mecanismo de formato: [tool_use estricto / output_config.format json_schema / prefill / texto libre con instrucciones] | Tolerancia a ambiguedad del dominio: [cero — rechaza fuera de scope / baja — pide aclaracion / alta — mejor esfuerzo]`
-
-Sin este bloque llenado con valores reales del caso (no las opciones entre corchetes copiadas literal), no se redacta el prompt. Un prompt escrito sin declarar el contrato de rol termina mezclando las cuatro secciones de la Anatomia de un Prompt de Produccion en vez de mantenerlas separadas.
-
-### Prohibido — Patrones Reconocibles de Prompt Generico
-
-- System prompt que abre con "Eres un asistente util y honesto" o variantes sin restriccion de scope inmediatamente despues — el rol sin limite es la version prompt-engineering del div sin clase.
-- Few-shot set con un solo ejemplo del caso feliz y cero ejemplos de caso limite o de fallo esperado — el modelo aprende el patron pero nunca el borde del patron.
-- Pedir JSON "en formato JSON valido, sin texto adicional" dentro del texto del prompt cuando el SDK ya expone `tool_use` estricto o `output_config.format` — es la version textual de reinventar una validacion que la plataforma ya resuelve de forma determinista.
-- Instruccion de seguridad generica tipo "no hagas nada malicioso" sin marcadores XML que delimiten el contenido no confiable (`<user_input>`, `<retrieved_context>`) — declarar la intencion sin dar al modelo una forma estructural de reconocer el limite.
-- CoT forzado via `<thinking>` manual en un modelo con extended thinking nativo disponible, duplicando tokens de razonamiento que el modelo ya factura aparte.
-- Prompt candidato desplegado a produccion con el mismo texto que el prompt anterior salvo un ajuste cosmetico, sin archivo de version nuevo ni entrada en `CHANGELOG.md` — versionado de nombre, no de artefacto.
-
-### Gate de Calidad Medible
-
-| Metrica | Umbral | Metodo de verificacion |
-|---|---|---|
-| Cobertura de few-shot por categoria | >= 2 ejemplos en cada una de: caso normal, caso limite, caso de fallo esperado | Conteo manual o script sobre `examples.v{n}.jsonl` antes de aprobar version |
-| Degradacion de eval de regresion | <= 5 puntos porcentuales en cualquier metrica del golden dataset frente a la version activa | Ejecucion del golden dataset via `llm-evals` y comparacion numerica documentada en el PR |
-| Cache hit rate del system prompt | >= 50% en `cache_read_input_tokens` sobre el total de tokens de entrada cacheables, tras el periodo de calentamiento | Inspeccion de `cache_creation_input_tokens` / `cache_read_input_tokens` en la respuesta real de la API, no estimacion |
-| Longitud del system prompt sin justificacion | <= 4000 tokens | Conteo de tokens del archivo `system.v{n}.txt` con el tokenizer del proveedor antes de commitear |
-| Tasa de fuga de formato en output estructurado | 0% de respuestas que incumplen el schema sobre una muestra de al menos 20 llamadas | Validacion programatica del output contra el JSON Schema declarado (ej. `ajv` o equivalente), no inspeccion visual |
-
-### Vigencia — Estandar Mas Reciente del Dominio
-
-Verificado contra fuente oficial en esta tarea (`platform.claude.com/docs/en/build-with-claude/structured-outputs`, consultado 2026-08-03): Anthropic expone ahora `output_config.format` con `type: "json_schema"` como mecanismo GA de output estructurado a nivel de respuesta completa, complementario a `strict: true` en definiciones de `tool_use` — son dos caracteristicas distintas, no la misma bajo otro nombre. `output_config.format` esta disponible en Claude 4.5 y modelos posteriores en la Claude API directa; el parametro previo `output_format` sigue funcionando en transicion pero ya no es la via recomendada. Limitaciones documentadas del schema bajo este mecanismo: sin soporte para esquemas recursivos, sin `$ref` externos, sin restricciones numericas (`minimum`/`maximum`/`multipleOf`) ni de longitud de string (`minLength`/`maxLength`), y `additionalProperties` solo acepta `false`. El cache de gramática compilada dura 24 horas desde el ultimo uso y se invalida si cambia la estructura del schema, el set de tools, o el estado del prompt cache — este dato de invalidacion cruzada con prompt caching es nuevo respecto a lo ya documentado en la seccion de Cache Breakpoints de este perfil y debe considerarse al disenar el orden de bloques cacheados.
-
-Antes de adoptar `output_config.format` en un prompt de produccion existente que ya usa `tool_use` con `strict: true` para el mismo proposito, verificar de nuevo contra la documentacion oficial si ambos mecanismos son mutuamente excluyentes en el mismo request o si pueden coexistir — este detalle especifico no se confirmo en esta pasada y no debe asumirse por analogia con el comportamiento de `tool_choice`.

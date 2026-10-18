@@ -4,7 +4,7 @@ description: Especialista en construccion de agentes autonomos con el Claude Age
 metadata:
   origin: ai-core
   version: 2.4.4
-  last_updated: 2026-09-21
+  last_updated: 2026-10-18
   rol: architect
 compatibility: Depende de @anthropic-ai/claude-agent-sdk (o el paquete Python equivalente) y conectividad de red hacia la Claude API; para MCP remoto ademas requiere flujo OAuth 2.0 con un authorization server externo.
 ---
@@ -24,7 +24,6 @@ Disponible en TypeScript (`@anthropic-ai/sdk`) y Python (`anthropic`). Para exte
 - Al gestionar permisos de herramientas (allow/deny por herramienta, por contexto, por usuario).
 - Al disenar sesiones persistentes o flujos de automatizacion multi-turno con Claude.
 - Al revisar si un agente existente cumple criterios de seguridad y trazabilidad en produccion.
-
 
 ## Cuando NO Activar Este Perfil
 
@@ -180,101 +179,13 @@ El orden de construccion del cache es tools -> system -> messages; un cambio en 
 - Definir TTL maximo de sesion para liberar recursos y evitar acumulacion de tokens en contexto.
 - En sistemas multi-usuario, cada sesion debe estar aislada por identificador de usuario.
 
-## Consumo de Servidores MCP Remotos con OAuth 2.0
+## Referencias bajo demanda
 
-Servidores MCP via SSE/HTTP pueden requerir OAuth 2.0 para proteger recursos del usuario. El agente implementa el flujo Authorization Code + PKCE como cliente OAuth.
+Contenido expansivo movido a `references/` (divulgacion progresiva) para mantener este SKILL.md nucleo liviano. Cargar el archivo correspondiente cuando la tarea lo requiera:
 
-### Flujo Authorization Code + PKCE
-
-```python
-import secrets
-import hashlib
-import base64
-from urllib.parse import urlencode
-
-# Paso 1 — Generar PKCE verifier y challenge
-code_verifier = secrets.token_urlsafe(64)
-code_challenge = base64.urlsafe_b64encode(
-    hashlib.sha256(code_verifier.encode()).digest()
-).rstrip(b'=').decode()
-
-# Paso 2 — Construir URL de autorizacion
-state = secrets.token_urlsafe(32)  # anti-CSRF
-auth_params = {
-    "response_type": "code",
-    "client_id": CLIENT_ID,
-    "redirect_uri": REDIRECT_URI,
-    "scope": "read write",
-    "code_challenge": code_challenge,
-    "code_challenge_method": "S256",
-    "state": state
-}
-auth_url = f"{AUTH_ENDPOINT}?{urlencode(auth_params)}"
-
-# Paso 3 — Intercambiar codigo por tokens
-token_response = requests.post(TOKEN_ENDPOINT, data={
-    "grant_type": "authorization_code",
-    "code": authorization_code,
-    "redirect_uri": REDIRECT_URI,
-    "client_id": CLIENT_ID,
-    "code_verifier": code_verifier
-})
-tokens = token_response.json()
-
-# Paso 4 — Incluir token en llamadas al servidor MCP
-headers = {"Authorization": f"Bearer {tokens['access_token']}"}
-```
-
-### Almacenamiento y renovacion de tokens
-
-- `access_token`: no almacenar en texto plano. Usar gestor de secretos del proveedor de nube o keychain del OS en entornos locales.
-- `refresh_token`: almacenar cifrado. Si tiene TTL indefinido, tratarlo como secreto de larga duracion.
-- Renovacion proactiva: refrescar cuando falten menos de 60s para la expiracion de `access_token` — no esperar el error 401.
-
-```python
-def get_valid_token(stored_tokens):
-    expires_at = stored_tokens.get("expires_at", 0)
-    if time.time() >= expires_at - 60:  # renovar 60s antes de expirar
-        return refresh_access_token(stored_tokens["refresh_token"])
-    return stored_tokens["access_token"]
-```
-
-- Si el `refresh_token` esta expirado o revocado, relanzar el flujo completo de autorizacion.
-
-Si la integracion OAuth actua en nombre de un usuario final (user-delegated) con scopes de escritura o eliminacion → activar confirmacion humana en el loop antes de ejecutar cualquier herramienta destructiva.
-
-## Interleaved Thinking en Agentes Multi-Herramienta
-
-Permite que el modelo emita bloques `thinking` entre llamadas a herramientas, razonando sobre cada resultado antes de decidir la siguiente accion.
-
-Cuando activar:
-- El agente toma decisiones condicionales basadas en resultados intermedios de herramientas.
-- El flujo tiene mas de tres pasos de herramienta con dependencias entre ellos.
-- La tarea requiere verificacion de coherencia entre resultados de diferentes herramientas.
-
-No activar en flujos deterministas simples — el overhead de tokens no se justifica sin razonamiento adaptativo.
-
-Reglas: incluir bloques `thinking` del turno anterior en el historial del siguiente. Loguear tokens thinking separado. Requiere `claude-sonnet-5` o superior.
-
-## Adaptive Thinking — sintaxis vigente (verificado 2026-09-15 contra platform.claude.com/docs/en/build-with-claude/thinking-steering-and-cost)
-
-El thinking del modelo es adaptativo por defecto: en cada request el modelo evalua la complejidad y decide por si mismo si razonar y cuanto, sin que el llamador fije un presupuesto de tokens. El control real de intensidad es el parametro `output_config.effort` (no un campo dentro de `thinking`), con 5 niveles: `max` (siempre piensa, sin techo), `xhigh`, `high` (default, piensa casi siempre), `medium` (razonamiento moderado, puede omitirlo en consultas simples), `low` (lo omite salvo que la tarea lo amerite).
-
-```typescript
-const respuesta = await cliente.messages.create({
-  model: 'claude-opus-5',
-  thinking: { type: 'adaptive' },
-  output_config: { effort: 'medium' },  // control real de intensidad, no thinking.type
-  max_tokens: 16000,
-  messages: historial,
-});
-```
-
-Corregido: `thinking: { type: "auto" }` NO es un valor valido de la API — el tipo correcto es `"adaptive"`. El modo `{ type: "enabled", budget_tokens: N }` sigue existiendo pero la fuente primaria lo describe como "legacy manual mode"; en modelos con thinking adaptativo (Opus 5 en adelante) preferir `thinking: { type: "adaptive" }` + `output_config.effort` sobre fijar `budget_tokens` a mano.
-
-Cambiar `effort` entre requests invalida el cache de prompt (mismo nivel de invalidacion que `tools`/`system`/`messages`) — fijar un nivel por conversacion y usar steering por mensaje (`"Piensa con cuidado antes de responder"` / `"Responde directo sin deliberar"`) para variar la profundidad turno a turno sin romper cache.
-
-Loguear `output_tokens_details.thinking_tokens` (no `thinking_tokens` suelto) separado de `output_tokens` — asi se ve que porcion del costo billeado es razonamiento interno vs texto de respuesta.
+- `references/sdk-mcp-oauth.md` — Consumo de servidores MCP remotos con OAuth 2.0.
+- `references/sdk-thinking.md` — Interleaved thinking y adaptive thinking en agentes multi-herramienta.
+- `references/sdk-vanguardia.md` — Vanguardia en diseno de agentes con Claude Agent SDK.
 
 ## Lista de Verificacion — Agentes
 
@@ -316,38 +227,3 @@ Patron de cost optimization en multi-agente: usar `claude-haiku-4-5` para sub-ta
 - Verificar aislamiento de permisos entre orquestador y subagentes antes de disenar multi-agente.
 - Asegurar que no se ejecuta: omitir la condicion de parada en agentes que ejecuten herramientas de escritura o eliminacion.
 - Verificar cifrado y politica de retencion documentada antes de persistir secretos o PII en historial de sesion.
-
-## Modulo — Vanguardia en Diseno de Agentes con Claude Agent SDK
-
-### IDENTIDAD DECLARADA ANTES DE EJECUTAR
-
-Antes de generar codigo, definicion de subagente o configuracion de `query()`, completar:
-
-`IDENTIDAD DE AGENTE: Rol unico (una frase, verbo de accion): [...] | Herramientas minimas (lista cerrada, no "todas"): [...] | Condicion de parada exacta (evento, no "cuando termine"): [...] | Modelo por paso segun complejidad (haiku/sonnet/opus, justificar cada uno): [...] | Que hace el hook onPreToolCall ante la primera herramienta destructiva: [una linea]`
-
-Si algun campo queda vacio o generico ("todas las herramientas necesarias", "cuando el usuario lo pida"), no iniciar la construccion — es sintoma de agente sin scope definido.
-
-### PROHIBIDO — PATRONES RECONOCIBLES DE DEMO/PLANTILLA
-
-- Agente "asistente general" con `allowedTools: ["Bash", "Read", "Write", "WebSearch"]` sin restriccion — el set completo de herramientas built-in sin recorte es la firma de un demo de la propia documentacion, no un agente de produccion.
-- System prompt que es una parrafada de "eres un asistente util y honesto" sin restriccion de dominio, sin lista de que NO debe hacer el agente.
-- Subagente sin `description` especifica reutilizando literal el texto de ejemplo de la documentacion oficial ("Use this agent when...") sin adaptarlo al dominio real de la tarea.
-- Loop de agente sin condicion de parada explicita, confiando en que el modelo "decida terminar solo" — reconocible porque no hay ningun `maxTurns`, contador de iteraciones ni evento de stop en el codigo.
-- Hook `onPreToolCall` que solo hace `console.log` sin logica de bloqueo — presente para aparentar gobierno pero no bloquea nada.
-- Integracion MCP copiada de un ejemplo publico con el mismo `name` y los mismos `args` de la tool, sin adaptar el scope de directorio o credenciales al proyecto real.
-
-### GATE DE CALIDAD MEDIBLE (no solo estetico)
-
-| Metrica | Umbral | Metodo de verificacion |
-|---|---|---|
-| Tool calls por tarea completada | <= 8 para tareas de complejidad media (no trivial, no multi-fase) | Contar eventos `agent.tool.pre_call` en logs estructurados de una corrida representativa |
-| Iteraciones de loop hasta condicion de parada | 100% de las corridas terminan por evento de stop explicito, 0% por timeout/limite de tokens agotado | Revisar `agent_loop_iterations_total` vs conteo de eventos `agent.stop_condition.reached` en el periodo |
-| Cache hit rate en el prefijo estatico del prompt | `cache_read_input_tokens` > 0 en al menos el 80% de las llamadas subsecuentes a la primera del loop | Inspeccionar el campo `usage` de cada respuesta de la API en una sesion de prueba de >= 5 turnos |
-| Cobertura de hooks en herramientas destructivas | 100% de las herramientas con capacidad de escritura/eliminacion pasan por `onPreToolCall` con logica de bloqueo (no solo logging) | Grep dirigido de las definiciones de tools destructivas contra el registro de hooks activos, uno por uno |
-| Aislamiento de permisos por subagente | 0 subagentes con `tools` igual al superset del orquestador | Comparar el campo `tools`/`disallowedTools` de cada `AgentDefinition` contra `allowedTools` del padre |
-
-### VIGENCIA — ESTANDAR MAS RECIENTE DEL DOMINIO
-
-Verificado contra `docs.claude.com` / `code.claude.com` (documentacion oficial del Agent SDK) en esta misma tarea: las Agent Skills en el SDK se controlan con la opcion `skills` de `query()` — no un flag de CLI — aceptando `"all"`, una lista de nombres o `[]`. Requiere que `settingSources` (TypeScript) / `setting_sources` (Python) incluya `"user"` y/o `"project"`; si se pasa una lista vacia, ninguna skill se descubre aunque exista en disco. Detalle no interpolable por analogia con el flujo de Claude Code CLI: el campo `allowed-tools` del frontmatter de un `SKILL.md` es ignorado completamente bajo el SDK — el control de herramientas para skills en contexto SDK se hace exclusivamente vía `allowedTools`/`allowed_tools` de `ClaudeAgentOptions`, nunca por el frontmatter del propio skill.
-
-Dato adicional detectado pero NO verificado con el mismo nivel de certeza contra fuente primaria en esta pasada — orientativo, verificar antes de uso: fuentes de terceros mencionan renombrado de `ClaudeCodeOptions` a `ClaudeAgentOptions` en el SDK de Python y un modelo `claude-fable-5` agregado a los tipos del SDK de TypeScript; ninguno de los dos se contrasto directamente contra el changelog oficial en esta tarea, no escribir codigo que dependa de esos nombres sin confirmarlo primero en `docs.claude.com`.
