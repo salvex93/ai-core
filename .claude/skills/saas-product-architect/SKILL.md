@@ -4,7 +4,7 @@ description: Activa al disenar la estrategia de negocio y producto de un SaaS --
 metadata:
   origin: ai-core
   version: 1.0.0
-  last_updated: 2026-09-21
+  last_updated: 2026-10-18
   rol: architect
 ---
 
@@ -80,202 +80,14 @@ El borrado de un tenant sigue el patron inverso: el evento de baja dispara la de
 
 **No verificado contra fuente primaria:** la creacion de un "usuario admin inicial" como paso formal y nombrado de un pipeline de onboarding oficial no aparece documentada explicitamente en AWS ni Microsoft — es practica de sentido comun del dominio, no una cita verificable. Tratarlo como paso de facto, no como estandar documentado.
 
-## Billing y Suscripciones
+## Referencias bajo demanda
 
-### Merchant of Record (MoR) vs procesador directo
+Contenido expansivo movido a `references/` (divulgacion progresiva) para mantener este SKILL.md nucleo liviano. Cargar el archivo correspondiente cuando la tarea lo requiera:
 
-La diferencia determina quien asume la responsabilidad legal/fiscal de recaudar y remitir impuestos (VAT/sales tax/GST), cumplimiento PCI, disputas y fraude.
-
-| Plataforma | Rol por defecto | Detalle verificado |
-|---|---|---|
-| Stripe (producto estandar, Billing + Payments) | NO es MoR | El propio negocio SaaS es el merchant of record. Existe un producto especifico, **Stripe Managed Payments**, donde Stripe SI actua como MoR y gestiona sales tax/VAT/GST en mas de 80 paises — aplicable a nivel de transaccion/mercado especifico, coexiste con el modo procesador directo en otras partes del mismo negocio. Fuente: docs.stripe.com/payments/managed-payments |
-| Paddle | SI es MoR (nativo) | Actua como "seller of record", recolecta y remite VAT y sales tax en nombre del vendedor. Fuente: paddle.com/support/what-is-a-merchant-of-record |
-| Lemon Squeezy | SI es MoR (segun doc indexada); sigue operando de forma autonoma | Cubre sales tax, refunds, chargebacks y PCI compliance. Adquirida por Stripe en julio de 2024. Verificado independientemente (blog oficial de Lemon Squeezy, `lemonsqueezy.com/blog/2026-update`): la plataforma sigue operando en 2026, sin fecha de discontinuacion anunciada — Stripe esta migrando gradualmente usuarios hacia Stripe Managed Payments de forma opcional, no forzada. Riesgo a monitorear: cuando Stripe Managed Payments salga de beta con una comision menor (3.5% vs el 5% actual de Lemon Squeezy), la migracion podria acelerarse o Lemon Squeezy podria discontinuarse — no hay fecha anunciada para ninguno de los dos escenarios a la fecha de esta redaccion. La comision comparada (3.5% vs 5%) y la migracion opcional NO se reconfirmaron el 2026-09-21: tratar como orientativo hasta verificar contra `lemonsqueezy.com` y `docs.stripe.com`. |
-
-Conclusion util para decision de arquitectura: si el objetivo es delegar la carga fiscal internacional completa, Paddle es MoR nativo por defecto; Stripe requiere activar explicitamente Managed Payments; Lemon Squeezy declara ser MoR y sigue operativo de forma independiente en 2026, aunque con riesgo de consolidacion futura hacia Stripe Managed Payments a monitorear antes de comprometerse a largo plazo.
-
-### Modelos de pricing (modelado tecnico en Stripe)
-
-| Modelo | Mecanismo en Stripe | Ejemplo |
-|---|---|---|
-| Flat-rate / licensed | `Price` tipo licensed atado a un `Product`; se factura `amount x quantity` por periodo | — |
-| Per-seat | Caso particular de licensed; `quantity` = numero de asientos | 3 usuarios a 15 USD/mes = 45 USD/mes |
-| Usage-based / metered | `Meter` + `Meter Events` (accion del cliente, customer ID, valor, timestamp); el `Meter` agrega los eventos del periodo y se adjunta a un `Price` | — |
-| Tiered | Modelo documentado por Stripe, no profundizado en este material | — |
-| Hibrido | Combinacion de un `Price` licensed + un `Price` metered en la misma `Subscription` via distintos subscription items | Inferencia razonable de la arquitectura Price/Product de Stripe, no es nombre citado textualmente en su documentacion — tratar como orientativo |
-
-No hay en este material pricing monetario exacto de Stripe Managed Payments, Paddle ni Lemon Squeezy — no asumir cifras sin consultar `stripe.com/pricing`, `paddle.com/pricing` o `lemonsqueezy.com/pricing` antes de comprometerse con un cliente.
-
-### Webhooks criticos de facturacion
-
-| Evento de negocio | Stripe | Paddle |
-|---|---|---|
-| Pago exitoso | `invoice.paid`, `payment_intent.succeeded` | `transaction.completed`, `transaction.paid` |
-| Pago fallido | `invoice.payment_failed`, `invoice.payment_action_required` | cubierto dentro de `subscription.updated` |
-| Suscripcion cancelada | `customer.subscription.deleted` | cubierto dentro de `subscription.updated` |
-| Trial por terminar | `customer.subscription.trial_will_end` | — |
-| Cambio de plan / proration | `customer.subscription.updated` | `subscription.updated` (evento consolidado, cubre renovacion, upgrade/downgrade y cambios de estado en un solo evento) |
-| Suscripcion pausada/reanudada | `customer.subscription.paused`, `customer.subscription.resumed` | — |
-| Proxima factura | `invoice.upcoming` | — |
-
-Fuentes: docs.stripe.com/billing/subscriptions/webhooks, developer.paddle.com/webhooks/subscriptions/subscription-updated, developer.paddle.com/webhooks/transactions/transaction-completed.
-
-### Idempotencia de webhooks (patron obligatorio)
-
-Ambas plataformas garantizan entrega "at-least-once" — el mismo evento puede llegar mas de una vez. Patron recomendado: tabla de eventos procesados con constraint UNIQUE sobre el ID del evento (`event.id` en Stripe, `event_id` en Paddle — distinto de `notification_id`, que identifica cada intento de entrega individual). Antes de ejecutar logica de negocio (cobrar, activar, notificar), verificar si el ID ya fue procesado; si existe, responder 200 sin reprocesar. Sin este patron: riesgo real de doble cobro o doble activacion ante reintentos del proveedor.
-
-### Dunning management (Stripe Smart Retries, verificado)
-
-- Reintentos configurables: 1 semana, 2 semanas, 3 semanas, 1 mes o 2 meses. Default recomendado por Stripe: 8 intentos en 2 semanas.
-- No reintenta si no hay metodo de pago disponible o el emisor devolvio un "hard decline".
-- Al agotar reintentos, la configuracion define el desenlace: `canceled`, `unpaid` (facturas en borrador, sin cobrar) o `past_due` (vencida indefinidamente).
-- Patron de periodo de gracia: usar `past_due`/`unpaid` como ventana antes de suspender acceso, en vez de cortar en el primer fallo — esto se infiere de la existencia de esos estados intermedios, no es terminologia textual de "grace period" en la doc de Stripe.
-- No verificado en este material: mecanismo de dunning especifico de Paddle o Lemon Squeezy.
-
-### Trials sin tarjeta vs con tarjeta (verificado, Stripe)
-
-- Con metodo de pago capturado: estado inicial `trialing`, transiciona automaticamente a `active` cuando termina el trial y el pago es exitoso.
-- Sin metodo de pago al terminar el trial: la suscripcion transiciona a `paused` (no genera facturas, se reanuda cuando el cliente agrega metodo de pago). El campo `status_details.paused.subscription.type` toma el valor `trial_end_without_payment_method`. El evento `entitlements.active_entitlement_summary.updated` tambien se dispara en esta transicion — util para sincronizar el bloqueo/degradacion de acceso con el cambio de entitlements.
-- Con pago inmediato fallido: estado `incomplete`; si no se paga la primera factura en 23 horas, pasa a `incomplete_expired` (terminal).
-- Decidir si un tenant en `paused` se bloquea o se degrada a plan free es decision de producto de la aplicacion — Stripe solo expone el estado, no prescribe la accion.
-- No verificado: duracion tipica de 14 dias y cifras de conversion opt-in (18%) vs opt-out (48%) provienen solo de blogs sin autoridad tecnica de proveedor — tratar como orientativo de industria, no como dato confirmado.
-
-## RBAC de Producto y Onboarding de Usuarios
-
-### Jerarquia de roles
-
-Modelo de facto en SaaS B2B: **Owner > Admin > Member > Viewer**, ligado a la organizacion (no a un tenant tecnico — la organizacion es el concepto de negocio, el tenant puede o no mapear 1:1 a ella segun el modelo de tenancy elegido arriba).
-
-| Rol | Alcance tipico |
-|---|---|
-| Owner | Acceso administrativo completo, incluye billing, transferencia de ownership, configuracion de SSO |
-| Admin | Todo lo del Owner excepto billing, SSO y transferencia de ownership |
-| Member | Sin acceso al panel de configuracion de la organizacion |
-| Viewer | Solo lectura, sin capacidad de modificar datos |
-
-Cadena tecnica confirmada (WorkOS): Organizacion -> Organization Membership -> Rol(es) -> Permisos. Todo membership recibe un rol default si no se asigna otro explicitamente. La asignacion ocurre por API, por dashboard manual, o por sincronizacion desde el IdP corporativo (grupos via Directory Sync) — cuando hay IdP, la asignacion del IdP tiene precedencia.
-
-**Correccion deliberada de encuadre:** la capa intermedia "Equipo" (Organizacion -> Equipo -> Usuario -> Rol) NO esta confirmada como estandar en la fuente primaria consultada (WorkOS documenta Organizacion -> Membership directamente, sin capa de "Team" formal en su modelo de RBAC). Existe como patron de mercado en algunos productos, pero no se debe asumir como jerarquia universal confirmada — si un producto la necesita, es una decision de diseno propia, no un estandar heredado.
-
-**Distincion RBAC de producto vs RBAC de infraestructura:** este skill cubre el RBAC de producto (roles de negocio ligados al plan, memberships de organizacion). El RBAC de infraestructura (IAM de nube, policies de servidor) pertenece a `devops-infra` / `backend-architect` y no se redesarrolla aqui.
-
-### Invitaciones a organizacion
-
-Patron confirmado consistente entre WorkOS y Auth0:
-- Token con expiracion configurable (`expires_in_days` en WorkOS); al autenticar con el token se acepta automaticamente la invitacion y se crea el membership.
-- Email transaccional con enlace tipo `https://app.com/login?invitation={id}&organization={id}`, o generar solo la URL para integrar en un flujo propio.
-- Maneja ambos casos: usuario nuevo (no existe en el sistema) o usuario existente que se agrega a una organizacion adicional.
-- Estados soportados documentados: accept, revoke, resend (si esta pending), o expiracion automatica. No hay flujo explicito de "rechazar" documentado en las fuentes consultadas — tratar como no verificado.
-
-### SSO empresarial (SAML/OIDC) como requisito de venta
-
-Confirmado como el requisito mas solicitado por organizaciones que evaluan adoptar un SaaS nuevo (WorkOS: "Single Sign-On is the most frequently asked for requirement by organizations looking to adopt new SaaS applications"). Razones de negocio: gestion centralizada de credenciales via el IdP corporativo y cumplimiento normativo mediante control centralizado de identidad.
-
-Patron tecnico de alto nivel: middleware de autenticacion compatible con cualquier IdP SAML/OIDC, modelado sobre OAuth 2.0. Flujo de tres pasos: (1) la app genera URL de autorizacion hacia el IdP, (2) el usuario se autentica en su sistema corporativo, (3) el IdP devuelve un codigo que se intercambia por el perfil autenticado. La persistencia de usuarios sigue siendo responsabilidad de la aplicacion, no del proveedor de SSO.
-
-**Conexion con compliance (gap que no debe tratarse como tema separado):** SSO no es solo un requisito de producto — es tambien parte del vendor-risk-assessment que exige SOC 2 (ver seccion de compliance abajo). Un cliente enterprise que pide SOC 2 casi siempre pide SSO en el mismo proceso de evaluacion; disenarlos como si fueran disciplinas no relacionadas genera doble trabajo.
-
-## Entitlements por Plan (capa de negocio sobre feature flags)
-
-**Distincion obligatoria con `release-manager`:** un feature flag (ver `release-manager`, seccion "Feature Flags") es una tecnica de release — rollout gradual, kill switch, A/B testing de despliegue. Un entitlement es una decision de monetizacion: que feature esta disponible segun el plan que el cliente pago. Son capas distintas que pueden coexistir sobre la misma feature (un flag controla si el codigo esta activo en produccion; un entitlement controla si un tenant especifico tiene derecho a usarlo).
-
-Cita textual clave (Stripe): "Payment is not access. A successful payment does not grant access; a successful payment creates entitlements. Stripe handles billing; your app handles entitlements." Y: "Stripe supports basic entitlement management through an API, but it does not enforce access at runtime... the entitlement logic... lives entirely in your code."
-
-Patron tecnico: registrar features asociadas a productos/planes en la Entitlements API de Stripe; consultar por Customer ID los entitlements activos; sincronizar cambios via el webhook `entitlements.active_entitlement_summary.updated` (el mismo evento que se dispara al pausar un trial sin metodo de pago, ver seccion de billing arriba).
-
-**No verificado:** si los entitlements deben cachearse o consultarse en vivo en cada request no esta prescrito por Stripe como fuente primaria — es decision de arquitectura de cada implementacion. Cachear con invalidacion por webhook es patron extendido de mercado, no mandato del proveedor.
-
-## White-Labeling: Dominios Custom y Subdominios
-
-Fuente principal: Microsoft Learn, "Domain Name Considerations in Multitenant Solutions" (no se encontro equivalente AWS oficial con el mismo nivel de detalle).
-
-- **Subdominios:** patron `tenant.provider.com`, con wildcard DNS (`*.provider.com`) para no crear un registro por tenant nuevo. Multiples stem domains regionales (`us.provider.com`, `eu.provider.com`) reducen overhead operativo porque los tenants heredan el wildcard automaticamente.
-- **Dominio propio del cliente:** requiere (1) CNAME encadenado hacia el stem domain del proveedor, (2) reescritura del Host header con propagacion via `X-Forwarded-Host` para que la app identifique el tenant, (3) validacion de dominio obligatoria (CNAME o TXT de verificacion) antes de activarlo.
-- **Riesgo documentado explicitamente — dangling DNS / subdomain takeover:** si un tenant se da de baja y no borra su CNAME, un atacante puede reclamar ese nombre y hacer phishing bajo la marca original. Mitigacion oficial: exigir borrado del CNAME antes de remover el dominio de la cuenta, y prohibir reutilizacion de identificadores de tenant.
-- **TLS:** el proveedor emite y renueva el certificado (requiere autorizacion via registro CAA si el cliente lo tiene) o el cliente aporta su propio certificado (el proveedor gestiona la clave privada de forma segura). Certificados wildcard normalmente no se automatizan igual que los de dominio custom individual.
-
-## Rate Limiting y Quotas por Plan
-
-Fuente: Microsoft Learn, "Throttling Pattern" (Azure Architecture Center).
-
-- El throttling es "a control loop, not a single admission decision" — opera sobre utilizacion de infraestructura, estado de la aplicacion y contadores por-principal (tenant, usuario o app).
-- **Per-principal rate limits:** rechazar requests de un tenant que ya excedio su tasa configurada — la fuente remite explicitamente a medir el consumo de cada tenant por separado.
-- **Priority Queue pattern:** procesar tenants de plan alto primero cuando hay distintos SLA por plan.
-
-| Algoritmo | Comportamiento | Caso de uso |
-|---|---|---|
-| Token bucket | Soporta rafagas hasta un tamano configurado + tasa de recarga constante | Gateways que deben absorber picos cortos |
-| Leaky bucket | Emite a tasa constante | Backends que necesitan ingreso estable |
-| Fixed window | Simple, pero admite rafagas dobles en el borde de ventana | Casos de bajo riesgo |
-| Sliding window | Corrige el problema de fixed window a costa de mas estado | Cuando la precision importa mas que el costo de estado |
-
-Cita textual clave sobre capas: "Edge controls... run at the network boundary and drop volumetric or malicious traffic before it reaches your application. The Throttling pattern runs inside your application and meters legitimate traffic against application-defined limits. Use both layers together." — es decir, gateway/edge y aplicacion son capas complementarias, no alternativas.
-
-Codigos de respuesta estandar: HTTP 429 (excedio tasa configurada) vs 503 (sobrecarga por pico inesperado), siempre con header `Retry-After`. Usar contador centralizado (ej. Redis) cuando el limite abarca multiples nodos; contador local es mas rapido pero puede subcontar.
-
-## Metricas de Negocio SaaS
-
-Definiciones matematicas de dominio publico (bajo riesgo de alucinacion, consenso universal de la industria — no requieren fuente regulatoria, a diferencia de la seccion de compliance abajo):
-
-| Metrica | Formula |
-|---|---|
-| ARR | MRR x 12 (o suma de valores de contrato anual) |
-| Net New MRR | New MRR + Expansion MRR - Contraction MRR - Churned MRR |
-| Logo/customer churn | (Clientes perdidos / Clientes al inicio del periodo) x 100 |
-| Revenue churn | (MRR perdido por cancelacion / MRR al inicio del periodo) x 100 |
-| NRR | (MRR inicial + expansion - contraccion - churn) / MRR inicial x 100 |
-| LTV | ARPA x Margen Bruto % / Tasa de churn de revenue |
-| CAC (fully loaded) | (Marketing + salarios/comisiones de ventas + herramientas + servicios profesionales + overhead asignado) / Clientes nuevos adquiridos |
-
-Nota importante de encuadre: logo churn cuenta clientes, revenue churn cuenta dinero — un cliente grande que cancela puede mover mucho el revenue churn sin apenas mover el logo churn. No confundirlas en un reporte.
-
-**Ratio LTV:CAC — heuristica de mercado, no estandar regulatorio, antes del numero:** la regla "3:1" fue originada por David Skok (Matrix Partners, ~2010) por observacion de SaaS publico maduro, no es un estandar impuesto por ningun organismo. Benchmarks de industria citados por firmas de consultoria de crecimiento (no confirmados contra reporte primario de OpenView/SaaS Capital en su edicion 2026): mediana B2B SaaS ~3.2:1, top quartile 4:1-6:1, expectativa creciente por etapa de inversion (Serie A >=3:1, Serie B >=4:1, Serie C+ >=5:1).
-
-**Orientativo, no verificado contra fuente primaria — benchmarks de churn/NRR/GRR:** cifras reportadas por fuentes secundarias que citan la encuesta anual de SaaS Capital (mediana de churn anual B2B ~3.5%, NRR mediana 103%, GRR mediana 91% en el segmento bootstrapped $3M-$20M ARR) no se pudieron confirmar contra el reporte original (acceso con paywall/formulario). Usar como referencia de rango de industria, nunca como cifra de precision garantizada en un documento contractual o propuesta a cliente.
-
-## Compliance B2B: SOC 2 e ISO 27001
-
-Este skill no repite PCI-DSS ni HIPAA — ver `ciso` para esos dos, que ya los cubre con profundidad equivalente.
-
-| Dimension | SOC 2 | ISO 27001 |
-|---|---|---|
-| Naturaleza | Atestacion (attestation) por CPA licenciado en EE.UU. (o equivalente ICAEW en UK) | Certificacion emitida por organismo de certificacion acreditado |
-| Alcance | Controles sobre sistemas o servicios especificos | Sistema de Gestion de Seguridad de la Informacion (SGSI/ISMS) a nivel organizacional completo |
-| Geografia/uso | Predomina en Norteamerica, se reporta bajo NDA directamente a clientes (no es sello publico) | Estandar internacional, certificado publicable |
-| Prescriptividad | Flexible — la empresa elige que Trust Services Criteria auditar | Prescriptivo, con controles universales de Anexo A |
-
-**SOC 2 — Trust Services Criteria (5, uno obligatorio):** Security (obligatorio en todo reporte SOC 2), Availability, Processing Integrity, Confidentiality, Privacy.
-
-**SOC 2 Tipo I vs Tipo II:**
-- Tipo I: evalua el diseno de los controles en un punto especifico del tiempo (point-in-time).
-- Tipo II: evalua diseno Y efectividad operativa durante un periodo continuo, tipicamente 6-12 meses.
-- **Limite de verificacion declarado:** la distincion textual exacta Tipo I/Tipo II esta confirmada por consenso de multiples fuentes secundarias especializadas en compliance, no contra el texto primario integro de AICPA (el documento oficial esta en PDF, no accesible por fetch de texto plano en esta verificacion). Si esto va a un contrato o propuesta comercial, descargar y citar el PDF oficial de AICPA antes de usarlo como fuente unica.
-
-**Por que un SaaS B2B enterprise lo necesita:** clientes enterprise exigen SOC 2 (usualmente Tipo II) como requisito de procurement/vendor risk assessment antes de firmar contrato — es la evidencia estandar de proteccion de datos auditada, no autodeclarada. AICPA confirma la existencia de mapeos oficiales publicados entre su Trust Services Criteria 2017 e ISO 27001/NIST 800-53, lo que valida que ambos estandares cubren dominios de control comparables aunque con mecanismos de certificacion distintos.
-
-## Terms of Service, Privacy Policy y DPA (orientacion estructural — NO asesoria legal)
-
-Todo el contenido de esta seccion es orientacion estructural general. Un ToS, Privacy Policy o DPA real deben ser redactados o revisados por un abogado con jurisdiccion aplicable antes de publicarse — esto no es un sustituto de asesoria legal formal.
-
-**Terms of Service — elementos tipicos:**
-- Limitacion de responsabilidad (cap de danos)
-- Condiciones de terminacion del servicio (por ambas partes, con y sin causa)
-- Politica de uso aceptable
-- Propiedad intelectual y licencia de uso del software
-- Resolucion de disputas / ley aplicable
-
-**Privacy Policy — elementos tipicos bajo GDPR/CCPA:**
-- Datos personales recolectados y finalidad
-- Base legal del procesamiento (Art. 6 GDPR: consentimiento, ejecucion de contrato, interes legitimo, obligacion legal)
-- Derechos del interesado: acceso, rectificacion, borrado, portabilidad, oposicion (GDPR); derecho a saber/eliminar/optar por no vender datos (CCPA/CPRA)
-- Retencion de datos y transferencias internacionales
-
-**DPA (Data Processing Agreement):** cuando el SaaS procesa datos personales de los usuarios finales de su cliente, el cliente es el controller y el SaaS es el processor. Contenido minimo exigido por Articulo 28(3) GDPR (verificado contra el texto del reglamento):
-- Objeto, duracion, naturaleza y finalidad del procesamiento; tipo de datos y categorias de interesados.
-- Obligaciones del processor: (a) procesar solo bajo instrucciones documentadas, (b) confidencialidad del personal autorizado, (c) medidas de seguridad conforme Art. 32, (d) condiciones para subcontratar sub-processors, (e) asistir con solicitudes de derechos de los interesados, (f) asistir en notificacion de brechas (Art. 32-36), (g) eliminar o devolver datos al finalizar el servicio, (h) proveer informacion para auditorias del controller.
-- El contrato debe ser por escrito, incluida forma electronica.
-
-Esto es orientacion estructural sobre contenido minimo segun el texto del reglamento — no sustituye redaccion legal formal ni el analisis de si aplican Clausulas Contractuales Estandar (SCC) para transferencias internacionales.
+- `references/saas-billing.md` — Billing y suscripciones: MoR vs procesador directo, modelos de pricing, webhooks criticos, idempotencia, dunning, trials.
+- `references/saas-producto-acceso.md` — RBAC de producto, invitaciones, SSO empresarial, entitlements por plan, white-labeling y dominios custom.
+- `references/saas-operacion-metricas.md` — Rate limiting y quotas por plan, metricas de negocio SaaS.
+- `references/saas-compliance-legal.md` — SOC 2, ISO 27001, ToS, Privacy Policy y DPA (orientacion estructural, no asesoria legal).
 
 ## Checklist de Decisiones Antes de Construir un SaaS Nuevo
 
