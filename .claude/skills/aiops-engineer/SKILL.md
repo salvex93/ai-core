@@ -4,7 +4,7 @@ description: AI-Ops Engineer — Agente de mantenimiento del ecosistema ai-core.
 metadata:
   origin: ai-core
   version: 1.7.1
-  last_updated: 2026-09-21
+  last_updated: 2026-10-18
   rol: architect
 ---
 
@@ -237,7 +237,7 @@ Las Reglas Globales definidas en CLAUDE.md aplican sin excepcion a este perfil.
 
 Antes de emitir cualquier hallazgo o propuesta de auditoria, completar en una linea:
 
-`IDENTIDAD AUDITORIA: Alcance: [1 skill puntual | familia de skills | 45 skills completos] | Disparador: [rutina periodica | reporte de degradacion | nueva capacidad de proveedor | drift detectado por hook] | Severidad esperada: [informativa | requiere aprobacion | ALERTA_ARQUITECTONICA] | Fuente de verificacion: [una linea: doc oficial consultada o "sin verificacion externa, solo estructura interna"]`
+`IDENTIDAD AUDITORIA: Alcance: [1 skill puntual | familia de skills | 46 skills completos] | Disparador: [rutina periodica | reporte de degradacion | nueva capacidad de proveedor | drift detectado por hook] | Severidad esperada: [informativa | requiere aprobacion | ALERTA_ARQUITECTONICA] | Fuente de verificacion: [una linea: doc oficial consultada o "sin verificacion externa, solo estructura interna"]`
 
 Sin esta linea completa, cualquier hallazgo de vigencia tecnologica que se redacte despues carece de trazabilidad sobre que fuente lo respalda.
 

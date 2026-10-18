@@ -30,7 +30,7 @@ Con `model:` en frontmatter, los 6 agentes de `.claude/agents/` quedan fijados (
 
 ## Seleccion de Skills — Automatica por contexto
 
-NO esperar a que el usuario declare skills. Cada uno de los 45 skills en `.claude/skills/` trae en su `description` lenguaje explicito de activacion ("Activa al..."), que Claude Code ya lista via skill-discovery nativo (`skillListingBudgetFraction` y `skillListingMaxDescChars` en settings.json). Seleccionar el skill cuya description calce con la tarea. Co-activacion de dos skills: punto 6 del ANCLA.
+NO esperar a que el usuario declare skills. Cada uno de los 46 skills en `.claude/skills/` trae en su `description` lenguaje explicito de activacion ("Activa al..."), que Claude Code ya lista via skill-discovery nativo (`skillListingBudgetFraction` y `skillListingMaxDescChars` en settings.json). Seleccionar el skill cuya description calce con la tarea. Co-activacion de dos skills: punto 6 del ANCLA.
 
 ## Visibilidad y Telemetría
 Imprimir una sola línea al inicio de la **primera respuesta de cada sesión**:
