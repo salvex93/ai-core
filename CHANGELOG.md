@@ -3,6 +3,31 @@
 Registro de cambios por version. Formato basado en [Keep a Changelog](https://keepachangelog.com/es/1.0.0/).
 Versionado semantico: MAJOR.MINOR.PATCH.
 
+## [Unreleased] — puesta en marcha en Linux y cierre de vulnerabilidades (2026-10-20)
+
+### Corregido
+
+- `.mcp.json`: `cwd` apuntaba a una ruta de Windows (`C:/Users/andre/Documents/ai-core`) y los servidores MCP no arrancaban en Linux. Ahora usa la ruta del checkout local.
+- `npm audit`: 3 vulnerabilidades (1 critica en `proxy-addr`, 1 alta en `@modelcontextprotocol/sdk`, 1 moderada en `ip-address`) a 0. `proxy-addr` e `ip-address` con `npm audit fix` (transitivas, solo lockfile); `@modelcontextprotocol/sdk` 1.30.0 a 1.32.1 (salto menor fuera del rango fijado, requirio `--force`), con version exacta sin `^` para respetar la convencion de pins del repo.
+
+### Verificado
+
+- `npm test` 1702/1704 (2 skip, 0 fallos) antes y despues de subir el SDK; `npm run quality-gate` 9/9; `npm run scan-secrets-history` sin hallazgos; `npm audit signatures` con atestaciones verificadas.
+
+### Aprendido
+
+- `npm test` falla (RootGuard, "NUEVA RAIZ DETECTADA") en un checkout nuevo hasta ejecutar `npm run map`: `CONTEXT_MAP.json` no esta versionado y el test no lo genera. Ejecutar `npm run map` justo despues de `npm install`.
+- Tras clonar, `validate-agents` y `validate-globals` marcan WARN [BAJA] en todos los archivos ("last_updated anterior a modificacion de hoy"): comparan contra el mtime, que en un clon es la fecha del clon. Es ruido, no deuda real; no se corrige tocando `last_updated`.
+- `core.hooksPath=.githooks` lo fija el `postinstall` (`setup-settings.js`); no hay que activarlo a mano.
+- `.githooks/commit-msg` rechaza `Co-Authored-By` y menciones a IA en el mensaje.
+
+### Pendiente / fuera de scope
+
+- Cargar `GEMINI_API_KEY` y `ANTHROPIC_API_KEY` en `.env` (creado desde `.env.example`, sin claves): sin ellas los servidores MCP no responden.
+- `node_modules` sigue en Node local de usuario (`~/.local/node`, v24 LTS); migrar a paquete del sistema si se prefiere.
+- Falsos WARN de `last_updated` en el clon: ajustar los validadores para ignorar el mtime en clones recientes seria un cambio de codigo aparte.
+- `npm` 11.19.1 con version mayor 12 disponible: no se actualiza.
+
 ## [Unreleased] — recorte de contexto fijo (2026-10-14)
 
 ### Agregado
