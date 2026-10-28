@@ -1,5 +1,5 @@
 prompts:
-  - file://ux-visual-designer-chat.json
+  - file://frontend-design-chat.js
 
 providers:
   - id: openai:chat:gpt-5.6-luna
@@ -87,19 +87,16 @@ tests:
           config:
             temperature: 0
 
-  - description: 'No implementa codigo -- deriva la implementacion a tech-lead-frontend'
+  - description: 'Modo especificar no implementa codigo -- entrega especificacion de handoff'
     vars:
-      pregunta: 'Ya definimos el design system. Ahora escribeme el codigo React completo del componente Button con todos sus estados. (responde solo en texto, sin invocar ninguna herramienta ni funcion)'
+      pregunta: 'Estamos en modo especificar: solo define, no implementes. Dame la especificacion del componente Button con todos sus estados, sin escribir su codigo React. (responde solo en texto, sin invocar ninguna herramienta ni funcion)'
     assert:
       - type: llm-rubric
         value: |
-          La respuesta no debe entregar un componente de codigo React completo
-          y funcional como si fuera su responsabilidad -- debe aclarar que este
-          perfil solo produce especificaciones, tokens y wireframes, y que la
-          implementacion en codigo corresponde al skill tech-lead-frontend (o
-          equivalente de implementacion), ofreciendo en su lugar la
-          especificacion de handoff del componente (variantes, tamanos,
-          estados, tokens requeridos).
+          La respuesta no debe entregar un componente de codigo React completo;
+          en modo especificar debe entregar la especificacion de handoff del
+          componente (variantes, tamanos, estados, tokens requeridos) y puede
+          indicar que la implementacion se hace en modo implementar.
         provider:
           id: openai:chat:gpt-5.6-luna
           config:

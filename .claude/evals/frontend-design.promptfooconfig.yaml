@@ -5,7 +5,7 @@
 # SKILL.md por filesystem y arma el string ya listo, sin pasar por Nunjucks
 # (ver .claude/evals/prompt-loader.js).
 prompts:
-  - file://tech-lead-frontend-chat.js
+  - file://frontend-design-chat.js
 
 providers:
   - id: openai:chat:gpt-5.6-luna

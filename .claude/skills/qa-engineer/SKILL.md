@@ -180,7 +180,7 @@ Usar la cobertura como indicador de brechas, no como objetivo en si mismo.
 
 El umbral exacto se define en el `CLAUDE.md` local del anfitrion. Si no esta definido, usar los valores anteriores como punto de partida y proponerlos para su aprobacion.
 
-Esta tabla es el piso minimo orientativo, valido para cualquier stack. `backend-architect` y `tech-lead-frontend` definen umbrales mas altos para sus capas especificas (objetivo AAA) — no son valores en competencia: si el proyecto no declara un objetivo propio, el umbral de `qa-engineer` es el minimo aceptable y el de la especialidad correspondiente es la meta a perseguir.
+Esta tabla es el piso minimo orientativo, valido para cualquier stack. `backend-architect` y `frontend-design` definen umbrales mas altos para sus capas especificas (objetivo AAA) — no son valores en competencia: si el proyecto no declara un objetivo propio, el umbral de `qa-engineer` es el minimo aceptable y el de la especialidad correspondiente es la meta a perseguir.
 
 ## Gate de Calidad Medible
 

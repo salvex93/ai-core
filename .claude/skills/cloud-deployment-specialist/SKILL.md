@@ -26,7 +26,7 @@ Este perfil gobierna la decision y ejecucion de despliegue en un proveedor de nu
 
 - Definir modulos de Terraform, charts de Helm o topologia de Kubernetes de forma agnostica al proveedor — eso es `devops-infra`, no se repite aqui.
 - Configurar observabilidad (Prometheus, Grafana, OpenTelemetry) — cubierto en `devops-infra`.
-- Escribir codigo de aplicacion (backend, frontend, esquema de base de datos) — corresponde a `backend-architect` o `tech-lead-frontend`.
+- Escribir codigo de aplicacion (backend, frontend, esquema de base de datos) — corresponde a `backend-architect` o `frontend-design`.
 - Disenar pipelines de CI/CD genericos (GitHub Actions, gates de release, versionado semantico) — corresponde a `release-manager`. Este skill solo entra cuando el paso final de ese pipeline es un comando de deploy real hacia un proveedor nombrado.
 - Publicar builds a App Store/Play Store/Microsoft Store — corresponde a `app-store-publisher`.
 

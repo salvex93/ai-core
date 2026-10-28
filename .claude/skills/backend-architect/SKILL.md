@@ -26,7 +26,7 @@ Este perfil gobierna las decisiones de arquitectura en la capa de servidor, pers
 
 ## Cuando NO Activar Este Perfil
 
-- La tarea es un cambio de UI/UX, routing del cliente o estado del frontend — usar `tech-lead-frontend`.
+- La tarea es un cambio de UI/UX, routing del cliente o estado del frontend — usar `frontend-design`.
 - La tarea es configurar CI/CD, Dockerfiles o infraestructura de nube — usar `devops-infra`.
 - La tarea es disenar queries lentas o tuning de indices en una BD existente en produccion — usar `database-ops`.
 - La tarea es construir un pipeline de ingesta/transformacion de datos (ETL) — usar `data-engineer`.

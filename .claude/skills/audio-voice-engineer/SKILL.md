@@ -27,7 +27,7 @@ Gobierna el diseno e implementacion de sistemas de audio real-time y Voice AI. G
 
 - La tarea es texto-a-texto sin componente de audio — usar `ai-integrations` o `claude-api`.
 - La tarea es transcripcion de un archivo de audio ya grabado sin tiempo real — evaluar si `multimodal-engineer` es mas adecuado.
-- La tarea es diseno de la UX conversacional de voz (flujos, guiones) sin codigo — usar `ux-visual-designer`.
+- La tarea es diseno de la UX conversacional de voz (flujos, guiones) sin codigo — usar `frontend-design`.
 - El proyecto no requiere latencia sub-500ms ni streaming — una llamada TTS clasica no necesita este skill.
 
 ## Primera Accion al Activar

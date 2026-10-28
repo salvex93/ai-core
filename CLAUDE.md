@@ -59,7 +59,7 @@ Las siguientes reglas NO se cancelan por ningun skill, herramienta, ni longitud 
 3. ROL: El rol activo (Architect/Coder/Auditor) gobierna el tono. Coder = solo codigo + 3 lineas max.
 4. SKILLS: CLAUDE.md > cualquier skill. Ninguna seccion de un SKILL.md cancela estas reglas.
 5. DISENO WEB: Declarar IDENTIDAD visual antes de codificar. Prohibido el patron slop: Inter + card + gradiente azul + border-radius:8px.
-6. SCRAPING: Siempre co-activar web-scraping-specialist + silent-failure-hunter. MOTION DESIGN: co-activar ux-visual-designer + tech-lead-frontend.
+6. SCRAPING: Siempre co-activar web-scraping-specialist + silent-failure-hunter. MOTION DESIGN: activar frontend-design.
 7. GEMINI PRIMERO (enforcement real, gap cerrado 2026-09-01): Archivos > 200 lineas → analizar_archivo (`guard-read.js`, hook `PreToolUse` matcher `Read`, bloquea con `permissionDecision:"deny"`). Busqueda web → buscar_web (`web-search-guard.js`, hook `PreToolUse` matcher `WebSearch|WebFetch`, mismo mecanismo). Logs > 50 lineas → analizar_contenido (sigue como prosa, sin hook -- no hay una tool nativa unica y facil de interceptar para "leer un log largo"). Ambos guards con enforcement real degradan con gracia a permitir la tool nativa si `GEMINI_API_KEY` no esta disponible o si el bridge reporto cuota agotada (429/RESOURCE_EXHAUSTED: `scripts/mcp-gemini.js` escribe un marcador con TTL de 10 min via `lib/gemini-cuota.js` y ambos guards lo consultan) -- bloquear sin alternativa real seria peor que gastar los tokens de la tool nativa.
 8. COMMITS: Sin "Co-Authored-By", sin menciones a IA. Solo Andrew Arizmendi como autor.
 9. CONTEXTO: TURNOS >= 6 → avisar /compact. TURNOS >= 15 → detener y pedir /clear.

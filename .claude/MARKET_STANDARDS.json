@@ -23,7 +23,7 @@
     "frontend-web-standards": {
       "verified": "2026-09-15",
       "sources": ["developer.mozilla.org/en-US/docs/Web/CSS/CSS_containment/Container_queries y caniuse.com/css-container-queries (Container Queries confirmado Baseline widely available, soporte Chrome 106/Firefox 110/Safari 16, ~95% global -- afirmacion previa del skill correcta). developer.mozilla.org/en-US/docs/Web/CSS/@view-transition (hallazgo real: ambos skills citaban `@view-transition{navigation:auto}` como 'same-document Baseline 2025' -- es sintaxis cross-document/MPA, estado real Limited Availability, SIN soporte en Firefox; corregido en ambos SKILL.md, distinguiendo de same-document real via document.startViewTransition(), que si es Baseline en Chrome/Edge 111+, Safari 18+, Firefox 144+, fuente developer.chrome.com/docs/web-platform/view-transitions). w3.org/TR/WCAG22/ (WCAG 2.2 confirmado W3C Recommendation 2024-12-12; criterios 2.4.11 Focus Not Obscured, 2.5.8 Target Size Minimum, 3.3.8 Accessible Authentication confirmados nuevos en 2.2 nivel AA -- afirmacion previa del skill correcta, sin cambios)."],
-      "skills": ["tech-lead-frontend", "ux-visual-designer"]
+      "skills": ["frontend-design"]
     },
     "devops-supply-chain": {
       "verified": "2026-09-15",

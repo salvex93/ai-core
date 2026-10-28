@@ -29,3 +29,5 @@ ci:
       'total-blocking-time':       ['error', { maxNumericValue: 300 }]
 ```
 
+TBT es solo el proxy de laboratorio de la interactividad: Lighthouse en modo navegacion no mide INP. El criterio real de Core Web Vitals se evalua con datos de campo en el percentil 75 (CrUX o RUM propio con `web-vitals`): LCP <= 2.5 s, INP <= 200 ms, CLS <= 0.1. Un PR que pasa Lighthouse CI pero degrada INP en campo no cumple el gate; en el release agregar la lectura de INP p75 como verificacion posterior al despliegue. Fuente: web.dev/articles/vitals y web.dev/articles/inp.
+

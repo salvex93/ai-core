@@ -12,7 +12,7 @@ metadata:
 
 Resuelve el problema de "genera 500 lineas sin validar": ninguna fase produce codigo hasta que la anterior tiene un artefacto verificable aprobado. Los subagentes que se lanzan en fase Build arrancan con contexto cero — el artefacto del Plan es su unico input.
 
-Complementos: `code-reviewer` (fase Review), `qa-engineer` (estrategia de tests en fase Build), `backend-architect` / `tech-lead-frontend` (decisiones de arquitectura en fase Design).
+Complementos: `code-reviewer` (fase Review), `qa-engineer` (estrategia de tests en fase Build), `backend-architect` / `frontend-design` (decisiones de arquitectura en fase Design).
 
 ---
 

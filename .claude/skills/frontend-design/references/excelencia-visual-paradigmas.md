@@ -2,7 +2,7 @@
 
 ### Anti-slop visual (implementacion)
 
-- Si `ux-visual-designer` produjo una `IDENTIDAD:` declarada, implementarla exactamente. No sustituir por defaults.
+- Si `frontend-design` (modo especificar) produjo una `IDENTIDAD:` declarada, implementarla exactamente. No sustituir por defaults.
 - Fuentes prohibidas sin justificacion: Inter, Roboto, Arial, Space Grotesk, Montserrat en weight regular.
 - Patron prohibido: `card + box-shadow sutil + border-radius:8px + gradiente azul/violeta + Inter`.
 - Antes de escribir CSS de layout: verificar si existe `tokens.json` o `tokens.css`. Si no existe, crearlo primero.

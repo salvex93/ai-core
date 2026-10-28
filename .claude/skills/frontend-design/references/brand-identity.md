@@ -36,10 +36,10 @@ Colores para paradigmas con transparencia (glassmorphism / liquid-glass):
 
 | Combinacion | Relacion minima | Nivel | Nuevo en 2.2 |
 |---|---|---|---|
-| Texto normal (< 18px) sobre fondo | 4.5:1 | AA | No |
-| Texto grande (>= 18px o 14px bold) | 3:1 | AA | No |
+| Texto normal sobre fondo | 4.5:1 | AA | No |
+| Texto grande (>= 18pt = 24px, o >= 14pt = 18.66px en negrita) | 3:1 | AA | No |
 | Elementos graficos e iconos | 3:1 | AA | No |
-| Indicador de foco visible | 3:1 contra adyacente | AA | Si (2.4.11) |
+| Indicador de foco visible | 3:1 contra adyacente (1.4.11); no oculto por contenido fijo (2.4.11) | AA | Si (2.4.11) |
 | Area de toque (Target Size) | 24x24px minimo | AA | Si (2.5.8) |
 | Autenticacion accesible | Sin test cognitivo | AA | Si (3.3.8) |
 | Texto sobre fondo (premium) | 7:1 | AAA | No |

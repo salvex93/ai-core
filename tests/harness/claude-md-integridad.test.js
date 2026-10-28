@@ -11,11 +11,11 @@ const { REPO, BIN, SKILLS, SETTINGS, runScript, tmpFile } = require('./_shared')
 describe('CLAUDE.md — integridad', () => {
   const claudeMd = fs.readFileSync(path.join(REPO, 'CLAUDE.md'), 'utf8');
 
-  test('ux-visual-designer y seo-sem-specialist existen como skills en disco', () => {
+  test('frontend-design y seo-sem-specialist existen como skills en disco', () => {
     // CLAUDE.md ya no lista skills en una tabla (redundante con el frontmatter
     // description de cada SKILL.md, que Claude Code carga via skill-discovery
     // nativo) — la garantia real es que el skill exista, no que se mencione aqui.
-    assert.ok(fs.existsSync(path.join(SKILLS, 'ux-visual-designer', 'SKILL.md')));
+    assert.ok(fs.existsSync(path.join(SKILLS, 'frontend-design', 'SKILL.md')));
     assert.ok(fs.existsSync(path.join(SKILLS, 'seo-sem-specialist', 'SKILL.md')));
   });
 

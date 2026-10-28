@@ -94,7 +94,7 @@ Una verificacion cruzada que corre pero llama al mismo proveedor bajo un alias, 
 
 ### Identidad de verificacion — declarar antes de invocar el gate
 
-Igual que el Modulo 2 de `tech-lead-frontend` exige una `IDENTIDAD:` visual antes de escribir CSS, ningun gate de verificacion cruzada se invoca sin declarar primero:
+Igual que el skill `frontend-design` exige una `IDENTIDAD:` visual antes de escribir CSS, ningun gate de verificacion cruzada se invoca sin declarar primero:
 
 ```
 IDENTIDAD DE VERIFICACION:

@@ -196,7 +196,7 @@ El vault BM25+ no es la unica capa de memoria persistente del ecosistema — es 
 
 ### Identidad de la entrada — declarar antes de indexar
 
-Igual que el Modulo 14 de `tech-lead-frontend` exige una `IDENTIDAD 3D:` antes de codear, ninguna entrada nueva se escribe en `.raw/` sin declarar primero:
+Igual que el Modulo 14 de `frontend-design` (referencia 3d-web-shaders) exige una `IDENTIDAD 3D:` antes de codear, ninguna entrada nueva se escribe en `.raw/` sin declarar primero:
 
 ```
 IDENTIDAD DE ENTRADA:
