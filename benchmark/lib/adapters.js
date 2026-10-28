@@ -4,6 +4,7 @@ const path = require('node:path');
 
 const AI_CORE_ROOT = process.env.AI_CORE_ROOT || path.resolve(__dirname, '..', '..');
 const variants = require('./variants');
+const { CODEX_ADAPTERS } = require('./codex');
 // Raiz de la rama con carga dinamica; AI_CORE_ROOT apunta al baseline cuando se comparan ambas
 const DYNAMIC_ROOT = process.env.AI_CORE_DYNAMIC_ROOT || path.resolve(__dirname, '..', '..');
 const SKIP = new Set(['memory-vault', 'node_modules', '.git']);
@@ -75,6 +76,7 @@ const ADAPTERS = {
   'ai-core-claudemd-min': aiCoreVariant(variants.minimizeClaudeMdIn),
   'ai-core-no-skills': aiCoreVariant(variants.removeSkills),
   'ai-core-no-hooks': aiCoreVariant(variants.removeHooks),
+  ...CODEX_ADAPTERS,
   hermes: {
     verified: false, parser: 'wall-only', bin: null, envVar: 'HERMES_CMD_JSON',
     setup: () => {},

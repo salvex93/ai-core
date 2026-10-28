@@ -12,9 +12,9 @@ function resolveCommand(adapter, task, model, resumeId) {
   return adapter.bin ? { bin: adapter.bin, args } : { bin: args[0], args: args.slice(1) };
 }
 
-function execute(cmd, cwd, timeoutMs) {
+function execute(cmd, cwd, timeoutMs, extraEnv = {}) {
   const t0 = Date.now();
-  const r = spawnSync(cmd.bin, cmd.args, { cwd, encoding: 'utf8', timeout: timeoutMs, maxBuffer: 64 * 1024 * 1024 });
+  const r = spawnSync(cmd.bin, cmd.args, { cwd, encoding: 'utf8', timeout: timeoutMs, maxBuffer: 64 * 1024 * 1024, env: { ...process.env, ...extraEnv } });
   return { r, wallMs: Date.now() - t0 };
 }
 
@@ -27,7 +27,7 @@ function runOne({ adapterName, task, model, timeoutMs }) {
     adapter.setup(dir);
     const cmd = resolveCommand(adapter, task, model);
     if (!cmd) return { skipped: true, reason: `${adapter.envVar} no definido` };
-    const { r, wallMs } = execute(cmd, dir, timeoutMs);
+    const { r, wallMs } = execute(cmd, dir, timeoutMs, adapter.env ? adapter.env() : {});
     const usage = PARSERS[adapter.parser](r.stdout || '');
     const timedOut = Boolean(r.error && r.error.code === 'ETIMEDOUT');
     const verdict = task.verify(dir, usage);

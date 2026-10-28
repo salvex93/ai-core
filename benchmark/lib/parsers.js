@@ -24,6 +24,8 @@ function parseWallOnly() {
   return { costUsd: null, turns: null, tokens: null, error: null };
 }
 
-const PARSERS = { 'claude-json': parseClaudeJson, 'wall-only': parseWallOnly };
+const { parseCodexJsonl } = require('./codex');
+
+const PARSERS = { 'claude-json': parseClaudeJson, 'codex-jsonl': parseCodexJsonl, 'wall-only': parseWallOnly };
 
 module.exports = { PARSERS, parseClaudeJson };
