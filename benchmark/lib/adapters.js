@@ -67,6 +67,11 @@ const ADAPTERS = {
     setup: (dir) => installAiCore(dir, DYNAMIC_ROOT),
     args: (prompt, model, resumeId) => claudeArgs(prompt, model, resumeId),
   },
+  'ai-core-dynamic-short': {
+    verified: true, parser: 'claude-json', bin: 'claude', sessions: true,
+    setup: (dir) => { installAiCore(dir, DYNAMIC_ROOT); variants.shortenDescriptions(dir); },
+    args: (prompt, model, resumeId) => claudeArgs(prompt, model, resumeId),
+  },
   'ai-core-claudemd-min': aiCoreVariant(variants.minimizeClaudeMdIn),
   'ai-core-no-skills': aiCoreVariant(variants.removeSkills),
   'ai-core-no-hooks': aiCoreVariant(variants.removeHooks),

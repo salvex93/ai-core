@@ -75,6 +75,27 @@ test('installAiCore: reescribe rutas absolutas de settings.json hacia el workdir
   assert.ok(out.includes(work));
 });
 
+test('shortenDescriptions: recorta descripciones de una linea y respeta las plegadas', () => {
+  const os = require('node:os');
+  const fs = require('node:fs');
+  const path = require('node:path');
+  const { shortenDescriptions } = require('../lib/variants');
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'short-'));
+  const mk = (name, body) => {
+    fs.mkdirSync(path.join(dir, '.claude', 'skills', name), { recursive: true });
+    fs.writeFileSync(path.join(dir, '.claude', 'skills', name, 'SKILL.md'), body);
+  };
+  const long = 'Activa al definir algo muy especifico. ' + 'Detalle largo. '.repeat(20);
+  mk('a', `---\nname: a\ndescription: ${long}\nmetadata:\n  v: 1\n---\ncuerpo`);
+  mk('b', '---\nname: b\ndescription: >\n  plegada larga\nmetadata:\n  v: 1\n---\ncuerpo');
+  shortenDescriptions(dir, 60);
+  const a = fs.readFileSync(path.join(dir, '.claude', 'skills', 'a', 'SKILL.md'), 'utf8');
+  const b = fs.readFileSync(path.join(dir, '.claude', 'skills', 'b', 'SKILL.md'), 'utf8');
+  assert.match(a, /description: Activa al definir algo muy especifico\.\n/);
+  assert.ok(a.endsWith('cuerpo'));
+  assert.match(b, /description: >\n  plegada larga/);
+});
+
 test('medianTurns: mediana por turno entre repeticiones y exito solo si todas pasan', () => {
   const { medianTurns } = require('../lib/session-report');
   const rep = (c1, c2, p2) => [

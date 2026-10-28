@@ -21,6 +21,23 @@ function removeSkills(workdir) {
   fs.rmSync(path.join(workdir, '.claude', 'skills'), { recursive: true, force: true });
 }
 
+// Recorta cada description de una linea a su primera oracion (o maxLen); las plegadas (> o |) no se tocan
+function shortenDescriptions(workdir, maxLen = 110) {
+  const root = path.join(workdir, '.claude', 'skills');
+  if (!fs.existsSync(root)) return;
+  for (const name of fs.readdirSync(root)) {
+    const file = path.join(root, name, 'SKILL.md');
+    if (!fs.existsSync(file)) continue;
+    const text = fs.readFileSync(file, 'utf8');
+    const out = text.replace(/^description: (?![>|])(.+)$/m, (_, d) => {
+      const first = d.split(/(?<=\.)\s/)[0];
+      const cut = first.length > maxLen ? `${first.slice(0, maxLen - 1).trimEnd()}.` : first;
+      return `description: ${cut}`;
+    });
+    if (out !== text) fs.writeFileSync(file, out);
+  }
+}
+
 // Solo para atribuir costo: sin hooks no hay gobierno activo
 function removeHooks(workdir) {
   const file = path.join(workdir, '.claude', 'settings.json');
@@ -29,4 +46,4 @@ function removeHooks(workdir) {
   fs.writeFileSync(file, JSON.stringify(settings, null, 2));
 }
 
-module.exports = { minimizeClaudeMd, minimizeClaudeMdIn, removeSkills, removeHooks };
+module.exports = { minimizeClaudeMd, minimizeClaudeMdIn, removeSkills, removeHooks, shortenDescriptions };
