@@ -5,6 +5,7 @@ const { ADAPTERS } = require('./lib/adapters');
 const { runOne } = require('./lib/runner');
 const { toMarkdown } = require('./lib/report');
 const { runSession, TURN_ORDER_LONG } = require('./lib/session');
+const { collectMeta } = require('./lib/meta');
 const { sessionToMarkdown, medianTurns } = require('./lib/session-report');
 const performance = require('./tasks');
 const governance = require('./tasks/governance');
@@ -52,11 +53,20 @@ function collect(opts) {
   return results;
 }
 
+// Mismas raices que usa lib/adapters.js: el baseline y la rama con carga dinamica
+function benchMeta() {
+  const def = path.resolve(__dirname, '..');
+  return collectMeta({
+    'ai-core': process.env.AI_CORE_ROOT || def,
+    'ai-core-dynamic': process.env.AI_CORE_DYNAMIC_ROOT || def,
+  });
+}
+
 function save(results, opts) {
   fs.mkdirSync(OUT, { recursive: true });
   const stamp = new Date().toISOString().replace(/[:.]/g, '-');
   const base = path.join(OUT, `run-${stamp}`);
-  fs.writeFileSync(`${base}.json`, JSON.stringify({ opts, results }, null, 2));
+  fs.writeFileSync(`${base}.json`, JSON.stringify({ meta: benchMeta(), opts, results }, null, 2));
   fs.writeFileSync(`${base}.md`, toMarkdown(results, opts.adapters[0]));
   return base;
 }
@@ -74,7 +84,7 @@ function runSessions(opts) {
   const all = Object.fromEntries(Object.entries(runs).map(([n, r]) => [n, medianTurns(r)]));
   fs.mkdirSync(OUT, { recursive: true });
   const base = path.join(OUT, `session-${new Date().toISOString().replace(/[:.]/g, '-')}`);
-  fs.writeFileSync(`${base}.json`, JSON.stringify({ opts, runs, all }, null, 2));
+  fs.writeFileSync(`${base}.json`, JSON.stringify({ meta: benchMeta(), opts, runs, all }, null, 2));
   const md = sessionToMarkdown(all, opts.adapters[0]);
   fs.writeFileSync(`${base}.md`, md);
   console.log(`\n${md}\nResultados: ${base}.json`);

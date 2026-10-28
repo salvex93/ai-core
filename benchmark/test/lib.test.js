@@ -96,6 +96,17 @@ test('shortenDescriptions: recorta descripciones de una linea y respeta las pleg
   assert.match(b, /description: >\n  plegada larga/);
 });
 
+test('collectMeta: registra fecha, versiones y commit de cada raiz para reproducir la corrida', () => {
+  const { collectMeta } = require('../lib/meta');
+  const root = require('node:path').resolve(__dirname, '..', '..');
+  const m = collectMeta({ 'ai-core': root });
+  assert.match(m.date, /^\d{4}-\d{2}-\d{2}T/);
+  assert.strictEqual(m.node, process.version);
+  assert.match(m.roots['ai-core'].commit, /^[0-9a-f]{40}$/);
+  assert.strictEqual(typeof m.claude, 'string');
+  assert.strictEqual(collectMeta({ x: '/ruta/inexistente' }).roots.x.commit, null);
+});
+
 test('medianTurns: mediana por turno entre repeticiones y exito solo si todas pasan', () => {
   const { medianTurns } = require('../lib/session-report');
   const rep = (c1, c2, p2) => [
