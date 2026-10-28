@@ -1,0 +1,772 @@
+{
+  "opts": {
+    "adapters": [
+      "claude-vanilla",
+      "ai-core"
+    ],
+    "reps": 3,
+    "model": "sonnet",
+    "timeoutMs": 300000,
+    "only": null,
+    "allowUnverified": false,
+    "session": false
+  },
+  "results": [
+    {
+      "adapter": "claude-vanilla",
+      "task": "bugfix-paginate",
+      "rep": 1,
+      "model": "sonnet",
+      "sessionId": "2d0fe474-410a-4c79-b7d1-19e1ea3aa7fc",
+      "costUsd": 0.0577128,
+      "turns": 5,
+      "tokens": {
+        "input": 6,
+        "output": 552,
+        "cacheRead": 55208,
+        "cacheWrite": 11665
+      },
+      "error": null,
+      "wallMs": 10206,
+      "timedOut": false,
+      "invalid": false,
+      "pass": true,
+      "detail": "tests ok"
+    },
+    {
+      "adapter": "ai-core",
+      "task": "bugfix-paginate",
+      "rep": 1,
+      "model": "sonnet",
+      "sessionId": "35d80573-88af-40dd-9fb1-1479a421ccaf",
+      "costUsd": 0.09668260000000001,
+      "turns": 5,
+      "tokens": {
+        "input": 6,
+        "output": 446,
+        "cacheRead": 79106,
+        "cacheWrite": 21075
+      },
+      "error": null,
+      "wallMs": 12589,
+      "timedOut": false,
+      "invalid": false,
+      "pass": true,
+      "detail": "tests ok"
+    },
+    {
+      "adapter": "claude-vanilla",
+      "task": "feature-lru",
+      "rep": 1,
+      "model": "sonnet",
+      "sessionId": "1aab9851-835d-4b58-93d8-ec334cc069e3",
+      "costUsd": 0.061663699999999995,
+      "turns": 5,
+      "tokens": {
+        "input": 6,
+        "output": 823,
+        "cacheRead": 55297,
+        "cacheWrite": 11973
+      },
+      "error": null,
+      "wallMs": 16205,
+      "timedOut": false,
+      "invalid": false,
+      "pass": true,
+      "detail": "tests ok"
+    },
+    {
+      "adapter": "ai-core",
+      "task": "feature-lru",
+      "rep": 1,
+      "model": "sonnet",
+      "sessionId": "113c9781-e30a-411c-8b7e-e1dec75201f1",
+      "costUsd": 0.10172429999999999,
+      "turns": 5,
+      "tokens": {
+        "input": 6,
+        "output": 816,
+        "cacheRead": 74363,
+        "cacheWrite": 21529
+      },
+      "error": null,
+      "wallMs": 14733,
+      "timedOut": false,
+      "invalid": false,
+      "pass": true,
+      "detail": "tests ok"
+    },
+    {
+      "adapter": "claude-vanilla",
+      "task": "refactor-rename",
+      "rep": 1,
+      "model": "sonnet",
+      "sessionId": "caa66e7f-51e7-46c3-a62e-589d61885b8a",
+      "costUsd": 0.0698173,
+      "turns": 8,
+      "tokens": {
+        "input": 12,
+        "output": 894,
+        "cacheRead": 128093,
+        "cacheWrite": 12011
+      },
+      "error": null,
+      "wallMs": 19015,
+      "timedOut": false,
+      "invalid": false,
+      "pass": true,
+      "detail": "tests ok"
+    },
+    {
+      "adapter": "ai-core",
+      "task": "refactor-rename",
+      "rep": 1,
+      "model": "sonnet",
+      "sessionId": "1291cdce-672b-4d7c-ab41-6ea256794a89",
+      "costUsd": 0.10823170000000001,
+      "turns": 7,
+      "tokens": {
+        "input": 10,
+        "output": 883,
+        "cacheRead": 141537,
+        "cacheWrite": 21307
+      },
+      "error": null,
+      "wallMs": 18144,
+      "timedOut": false,
+      "invalid": false,
+      "pass": true,
+      "detail": "tests ok"
+    },
+    {
+      "adapter": "claude-vanilla",
+      "task": "log-analysis",
+      "rep": 1,
+      "model": "sonnet",
+      "sessionId": "d59b1570-adc3-4a73-8d0d-5bf77be05ef3",
+      "costUsd": 0.052176099999999996,
+      "turns": 3,
+      "tokens": {
+        "input": 6,
+        "output": 270,
+        "cacheRead": 54921,
+        "cacheWrite": 10993
+      },
+      "error": null,
+      "wallMs": 11767,
+      "timedOut": false,
+      "invalid": false,
+      "pass": true,
+      "detail": "respuesta: ERR-7741"
+    },
+    {
+      "adapter": "ai-core",
+      "task": "log-analysis",
+      "rep": 1,
+      "model": "sonnet",
+      "sessionId": "032aa368-6a59-420e-a499-c4a0c509fa05",
+      "costUsd": 0.09313760000000001,
+      "turns": 3,
+      "tokens": {
+        "input": 6,
+        "output": 342,
+        "cacheRead": 74056,
+        "cacheWrite": 20575
+      },
+      "error": null,
+      "wallMs": 23871,
+      "timedOut": false,
+      "invalid": false,
+      "pass": true,
+      "detail": "respuesta: ERR-7741"
+    },
+    {
+      "adapter": "claude-vanilla",
+      "task": "security-sqli",
+      "rep": 1,
+      "model": "sonnet",
+      "sessionId": "1c96f8b8-fc48-408a-840e-cb8b8972af8b",
+      "costUsd": 0.05742270000000001,
+      "turns": 5,
+      "tokens": {
+        "input": 6,
+        "output": 557,
+        "cacheRead": 55207,
+        "cacheWrite": 11580
+      },
+      "error": null,
+      "wallMs": 8843,
+      "timedOut": false,
+      "invalid": false,
+      "pass": true,
+      "detail": "tests ok"
+    },
+    {
+      "adapter": "ai-core",
+      "task": "security-sqli",
+      "rep": 1,
+      "model": "sonnet",
+      "sessionId": "966694d0-cfdf-4770-91b3-e04b67a789ed",
+      "costUsd": 0.0971425,
+      "turns": 5,
+      "tokens": {
+        "input": 6,
+        "output": 511,
+        "cacheRead": 79085,
+        "cacheWrite": 21028
+      },
+      "error": null,
+      "wallMs": 16902,
+      "timedOut": false,
+      "invalid": false,
+      "pass": true,
+      "detail": "tests ok"
+    },
+    {
+      "adapter": "claude-vanilla",
+      "task": "multifile-config",
+      "rep": 1,
+      "model": "sonnet",
+      "sessionId": "ec43b20c-775d-4e1c-9ee9-447fe4e20bcb",
+      "costUsd": 0.0586951,
+      "turns": 4,
+      "tokens": {
+        "input": 8,
+        "output": 522,
+        "cacheRead": 78871,
+        "cacheWrite": 11393
+      },
+      "error": null,
+      "wallMs": 17547,
+      "timedOut": false,
+      "invalid": false,
+      "pass": true,
+      "detail": "tests ok"
+    },
+    {
+      "adapter": "ai-core",
+      "task": "multifile-config",
+      "rep": 1,
+      "model": "sonnet",
+      "sessionId": "daec880c-40bd-47e7-9083-e30829e8c042",
+      "costUsd": 0.123153,
+      "turns": 9,
+      "tokens": {
+        "input": 12,
+        "output": 1081,
+        "cacheRead": 182030,
+        "cacheWrite": 23529
+      },
+      "error": null,
+      "wallMs": 27506,
+      "timedOut": false,
+      "invalid": false,
+      "pass": true,
+      "detail": "tests ok"
+    },
+    {
+      "adapter": "claude-vanilla",
+      "task": "bugfix-paginate",
+      "rep": 2,
+      "model": "sonnet",
+      "sessionId": "36ce06e6-2e41-44a9-8111-29192685ba08",
+      "costUsd": 0.061962100000000006,
+      "turns": 5,
+      "tokens": {
+        "input": 6,
+        "output": 686,
+        "cacheRead": 53301,
+        "cacheWrite": 12440
+      },
+      "error": null,
+      "wallMs": 7628,
+      "timedOut": false,
+      "invalid": false,
+      "pass": true,
+      "detail": "tests ok"
+    },
+    {
+      "adapter": "ai-core",
+      "task": "bugfix-paginate",
+      "rep": 2,
+      "model": "sonnet",
+      "sessionId": "40a068b5-f45e-4327-8975-f2d06a032729",
+      "costUsd": 0.09837940000000002,
+      "turns": 5,
+      "tokens": {
+        "input": 6,
+        "output": 606,
+        "cacheRead": 74314,
+        "cacheWrite": 21219
+      },
+      "error": null,
+      "wallMs": 13972,
+      "timedOut": false,
+      "invalid": false,
+      "pass": true,
+      "detail": "tests ok"
+    },
+    {
+      "adapter": "claude-vanilla",
+      "task": "feature-lru",
+      "rep": 2,
+      "model": "sonnet",
+      "sessionId": "1c479f57-a40a-418c-9bc2-a6e9d8e83081",
+      "costUsd": 0.0619337,
+      "turns": 5,
+      "tokens": {
+        "input": 6,
+        "output": 846,
+        "cacheRead": 55297,
+        "cacheWrite": 11983
+      },
+      "error": null,
+      "wallMs": 10064,
+      "timedOut": false,
+      "invalid": false,
+      "pass": true,
+      "detail": "tests ok"
+    },
+    {
+      "adapter": "ai-core",
+      "task": "feature-lru",
+      "rep": 2,
+      "model": "sonnet",
+      "sessionId": "440e3dfc-30ca-4c33-855c-8c0c75c4dffd",
+      "costUsd": 0.1018075,
+      "turns": 5,
+      "tokens": {
+        "input": 6,
+        "output": 810,
+        "cacheRead": 79155,
+        "cacheWrite": 21445
+      },
+      "error": null,
+      "wallMs": 11764,
+      "timedOut": false,
+      "invalid": false,
+      "pass": true,
+      "detail": "tests ok"
+    },
+    {
+      "adapter": "claude-vanilla",
+      "task": "refactor-rename",
+      "rep": 2,
+      "model": "sonnet",
+      "sessionId": "dc7eb745-4f06-4e10-9e1d-5f97456aa175",
+      "costUsd": 0.0805866,
+      "turns": 11,
+      "tokens": {
+        "input": 14,
+        "output": 1444,
+        "cacheRead": 152666,
+        "cacheWrite": 12713
+      },
+      "error": null,
+      "wallMs": 30601,
+      "timedOut": false,
+      "invalid": false,
+      "pass": true,
+      "detail": "tests ok"
+    },
+    {
+      "adapter": "ai-core",
+      "task": "refactor-rename",
+      "rep": 2,
+      "model": "sonnet",
+      "sessionId": "514919e1-f1a5-413e-ad92-193e8e36b255",
+      "costUsd": 0.1245155,
+      "turns": 8,
+      "tokens": {
+        "input": 12,
+        "output": 916,
+        "cacheRead": 179595,
+        "cacheWrite": 24343
+      },
+      "error": null,
+      "wallMs": 27177,
+      "timedOut": false,
+      "invalid": false,
+      "pass": true,
+      "detail": "tests ok"
+    },
+    {
+      "adapter": "claude-vanilla",
+      "task": "log-analysis",
+      "rep": 2,
+      "model": "sonnet",
+      "sessionId": "d0a736f6-517c-44f4-a697-c5b30d6d04ca",
+      "costUsd": 0.05198660000000001,
+      "turns": 3,
+      "tokens": {
+        "input": 6,
+        "output": 271,
+        "cacheRead": 54926,
+        "cacheWrite": 10943
+      },
+      "error": null,
+      "wallMs": 7688,
+      "timedOut": false,
+      "invalid": false,
+      "pass": true,
+      "detail": "respuesta: ERR-7741"
+    },
+    {
+      "adapter": "ai-core",
+      "task": "log-analysis",
+      "rep": 2,
+      "model": "sonnet",
+      "sessionId": "be39a30a-aa71-4bfa-806e-0a27609f7540",
+      "costUsd": 0.0929576,
+      "turns": 3,
+      "tokens": {
+        "input": 6,
+        "output": 324,
+        "cacheRead": 74056,
+        "cacheWrite": 20575
+      },
+      "error": null,
+      "wallMs": 29356,
+      "timedOut": false,
+      "invalid": false,
+      "pass": true,
+      "detail": "respuesta: ERR-7741"
+    },
+    {
+      "adapter": "claude-vanilla",
+      "task": "security-sqli",
+      "rep": 2,
+      "model": "sonnet",
+      "sessionId": "d35d3364-3740-4abf-beb9-77e1e9d044ba",
+      "costUsd": 0.05747549999999999,
+      "turns": 5,
+      "tokens": {
+        "input": 6,
+        "output": 568,
+        "cacheRead": 55195,
+        "cacheWrite": 11566
+      },
+      "error": null,
+      "wallMs": 8411,
+      "timedOut": false,
+      "invalid": false,
+      "pass": true,
+      "detail": "tests ok"
+    },
+    {
+      "adapter": "ai-core",
+      "task": "security-sqli",
+      "rep": 2,
+      "model": "sonnet",
+      "sessionId": "f028350d-376e-48fe-81a6-693fef8b3dfa",
+      "costUsd": 0.0971981,
+      "turns": 5,
+      "tokens": {
+        "input": 6,
+        "output": 528,
+        "cacheRead": 74301,
+        "cacheWrite": 21119
+      },
+      "error": null,
+      "wallMs": 10879,
+      "timedOut": false,
+      "invalid": false,
+      "pass": true,
+      "detail": "tests ok"
+    },
+    {
+      "adapter": "claude-vanilla",
+      "task": "multifile-config",
+      "rep": 2,
+      "model": "sonnet",
+      "sessionId": "2b63cc94-bc0f-403b-9e1a-e9067bc246f8",
+      "costUsd": 0.060444,
+      "turns": 4,
+      "tokens": {
+        "input": 8,
+        "output": 511,
+        "cacheRead": 77220,
+        "cacheWrite": 11899
+      },
+      "error": null,
+      "wallMs": 6492,
+      "timedOut": false,
+      "invalid": false,
+      "pass": true,
+      "detail": "tests ok"
+    },
+    {
+      "adapter": "ai-core",
+      "task": "multifile-config",
+      "rep": 2,
+      "model": "sonnet",
+      "sessionId": "402beb2c-2b89-47b5-88d8-224dfe73c49b",
+      "costUsd": 0.1268623,
+      "turns": 9,
+      "tokens": {
+        "input": 14,
+        "output": 1057,
+        "cacheRead": 218443,
+        "cacheWrite": 23605
+      },
+      "error": null,
+      "wallMs": 23601,
+      "timedOut": false,
+      "invalid": false,
+      "pass": true,
+      "detail": "tests ok"
+    },
+    {
+      "adapter": "claude-vanilla",
+      "task": "bugfix-paginate",
+      "rep": 3,
+      "model": "sonnet",
+      "sessionId": "9ad3f00b-eae8-42a7-afe2-6edf7972423c",
+      "costUsd": 0.057626199999999995,
+      "turns": 5,
+      "tokens": {
+        "input": 6,
+        "output": 547,
+        "cacheRead": 55202,
+        "cacheWrite": 11656
+      },
+      "error": null,
+      "wallMs": 12552,
+      "timedOut": false,
+      "invalid": false,
+      "pass": true,
+      "detail": "tests ok"
+    },
+    {
+      "adapter": "ai-core",
+      "task": "bugfix-paginate",
+      "rep": 3,
+      "model": "sonnet",
+      "sessionId": "9245a3e4-511d-4014-9bca-834d776158c2",
+      "costUsd": 0.0978666,
+      "turns": 5,
+      "tokens": {
+        "input": 6,
+        "output": 554,
+        "cacheRead": 74306,
+        "cacheWrite": 21221
+      },
+      "error": null,
+      "wallMs": 11271,
+      "timedOut": false,
+      "invalid": false,
+      "pass": true,
+      "detail": "tests ok"
+    },
+    {
+      "adapter": "claude-vanilla",
+      "task": "feature-lru",
+      "rep": 3,
+      "model": "sonnet",
+      "sessionId": "d9bf5aa4-246e-4c51-9002-7423de3c7721",
+      "costUsd": 0.061519700000000004,
+      "turns": 5,
+      "tokens": {
+        "input": 6,
+        "output": 819,
+        "cacheRead": 55297,
+        "cacheWrite": 11947
+      },
+      "error": null,
+      "wallMs": 25594,
+      "timedOut": false,
+      "invalid": false,
+      "pass": true,
+      "detail": "tests ok"
+    },
+    {
+      "adapter": "ai-core",
+      "task": "feature-lru",
+      "rep": 3,
+      "model": "sonnet",
+      "sessionId": "cce07e90-5959-4165-bff1-6b80522fa023",
+      "costUsd": 0.1023919,
+      "turns": 5,
+      "tokens": {
+        "input": 6,
+        "output": 854,
+        "cacheRead": 79199,
+        "cacheWrite": 21480
+      },
+      "error": null,
+      "wallMs": 12092,
+      "timedOut": false,
+      "invalid": false,
+      "pass": true,
+      "detail": "tests ok"
+    },
+    {
+      "adapter": "claude-vanilla",
+      "task": "refactor-rename",
+      "rep": 3,
+      "model": "sonnet",
+      "sessionId": "373d150f-c226-41ed-b840-2df646bf3d11",
+      "costUsd": 0.0812005,
+      "turns": 11,
+      "tokens": {
+        "input": 14,
+        "output": 1467,
+        "cacheRead": 157985,
+        "cacheWrite": 12676
+      },
+      "error": null,
+      "wallMs": 29512,
+      "timedOut": false,
+      "invalid": false,
+      "pass": true,
+      "detail": "tests ok"
+    },
+    {
+      "adapter": "ai-core",
+      "task": "refactor-rename",
+      "rep": 3,
+      "model": "sonnet",
+      "sessionId": "aff86729-31e0-4647-9142-cad592d8c896",
+      "costUsd": 0.1205173,
+      "turns": 9,
+      "tokens": {
+        "input": 14,
+        "output": 1175,
+        "cacheRead": 210433,
+        "cacheWrite": 21924
+      },
+      "error": null,
+      "wallMs": 17445,
+      "timedOut": false,
+      "invalid": false,
+      "pass": true,
+      "detail": "tests ok"
+    },
+    {
+      "adapter": "claude-vanilla",
+      "task": "log-analysis",
+      "rep": 3,
+      "model": "sonnet",
+      "sessionId": "7439c114-133c-407d-a473-f9c545f7c817",
+      "costUsd": 0.0523066,
+      "turns": 3,
+      "tokens": {
+        "input": 6,
+        "output": 281,
+        "cacheRead": 54926,
+        "cacheWrite": 10998
+      },
+      "error": null,
+      "wallMs": 5747,
+      "timedOut": false,
+      "invalid": false,
+      "pass": true,
+      "detail": "respuesta: ERR-7741"
+    },
+    {
+      "adapter": "ai-core",
+      "task": "log-analysis",
+      "rep": 3,
+      "model": "sonnet",
+      "sessionId": "3c27203f-b2d2-4344-a248-a5e42341aa3e",
+      "costUsd": 0.0926969,
+      "turns": 3,
+      "tokens": {
+        "input": 6,
+        "output": 310,
+        "cacheRead": 74049,
+        "cacheWrite": 20545
+      },
+      "error": null,
+      "wallMs": 10541,
+      "timedOut": false,
+      "invalid": false,
+      "pass": true,
+      "detail": "respuesta: ERR-7741"
+    },
+    {
+      "adapter": "claude-vanilla",
+      "task": "security-sqli",
+      "rep": 3,
+      "model": "sonnet",
+      "sessionId": "d3d2b41c-aa70-431b-a034-cf5ac4510e95",
+      "costUsd": 0.057305499999999995,
+      "turns": 5,
+      "tokens": {
+        "input": 6,
+        "output": 551,
+        "cacheRead": 55195,
+        "cacheWrite": 11566
+      },
+      "error": null,
+      "wallMs": 7581,
+      "timedOut": false,
+      "invalid": false,
+      "pass": true,
+      "detail": "tests ok"
+    },
+    {
+      "adapter": "ai-core",
+      "task": "security-sqli",
+      "rep": 3,
+      "model": "sonnet",
+      "sessionId": "6fefbb78-6894-4f8a-9aae-8030cb1781df",
+      "costUsd": 0.09764529999999999,
+      "turns": 5,
+      "tokens": {
+        "input": 6,
+        "output": 540,
+        "cacheRead": 79093,
+        "cacheWrite": 21081
+      },
+      "error": null,
+      "wallMs": 15384,
+      "timedOut": false,
+      "invalid": false,
+      "pass": true,
+      "detail": "tests ok"
+    },
+    {
+      "adapter": "claude-vanilla",
+      "task": "multifile-config",
+      "rep": 3,
+      "model": "sonnet",
+      "sessionId": "ba0b3a94-7ef1-40cd-8e6b-65720fd29fa7",
+      "costUsd": 0.0581204,
+      "turns": 4,
+      "tokens": {
+        "input": 8,
+        "output": 483,
+        "cacheRead": 78824,
+        "cacheWrite": 11348
+      },
+      "error": null,
+      "wallMs": 12204,
+      "timedOut": false,
+      "invalid": false,
+      "pass": true,
+      "detail": "tests ok"
+    },
+    {
+      "adapter": "ai-core",
+      "task": "multifile-config",
+      "rep": 3,
+      "model": "sonnet",
+      "sessionId": "3064e81c-04c6-4d9f-a6e8-f74bf30c29e0",
+      "costUsd": 0.1171756,
+      "turns": 3,
+      "tokens": {
+        "input": 6,
+        "output": 471,
+        "cacheRead": 84216,
+        "cacheWrite": 26008
+      },
+      "error": null,
+      "wallMs": 8050,
+      "timedOut": false,
+      "invalid": false,
+      "pass": true,
+      "detail": "tests ok"
+    }
+  ]
+}

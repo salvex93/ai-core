@@ -1,0 +1,12 @@
+{
+  "name": "arnes-benchmark",
+  "version": "0.1.0",
+  "description": "Benchmark reproducible de arneses de agentes (costo, tiempo, tasa de exito)",
+  "private": true,
+  "scripts": {
+    "test": "node --test",
+    "bench": "node run.js",
+    "report": "node run.js --report-only"
+  },
+  "engines": { "node": ">=22" }
+}

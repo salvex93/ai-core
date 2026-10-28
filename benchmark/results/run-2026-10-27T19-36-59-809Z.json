@@ -1,0 +1,58 @@
+{
+  "opts": {
+    "adapters": [
+      "claude-vanilla",
+      "ai-core"
+    ],
+    "reps": 1,
+    "model": "sonnet",
+    "timeoutMs": 300000,
+    "only": [
+      "bugfix-paginate"
+    ],
+    "allowUnverified": false,
+    "reportOnly": false
+  },
+  "results": [
+    {
+      "adapter": "claude-vanilla",
+      "task": "bugfix-paginate",
+      "rep": 1,
+      "model": "sonnet",
+      "costUsd": 0.0578882,
+      "turns": 5,
+      "tokens": {
+        "input": 6,
+        "output": 572,
+        "cacheRead": 55202,
+        "cacheWrite": 11659
+      },
+      "error": null,
+      "wallMs": 18999,
+      "timedOut": false,
+      "invalid": false,
+      "pass": true,
+      "detail": "tests ok"
+    },
+    {
+      "adapter": "ai-core",
+      "task": "bugfix-paginate",
+      "rep": 1,
+      "model": "sonnet",
+      "costUsd": 0.0978054,
+      "turns": 5,
+      "tokens": {
+        "input": 6,
+        "output": 547,
+        "cacheRead": 74314,
+        "cacheWrite": 21223
+      },
+      "error": null,
+      "wallMs": 12453,
+      "timedOut": false,
+      "invalid": false,
+      "pass": true,
+      "detail": "tests ok"
+    }
+  ]
+}
