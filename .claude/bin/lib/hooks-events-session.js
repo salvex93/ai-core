@@ -18,7 +18,7 @@ function buildSessionHooks({ bin, nodeConPermiso, soloRead, soloLeerRepo, readYW
           // Secciones de gobierno bajo demanda: solo lectura de context-sections/.
           // stderr va a un log (no a /dev/null): un EPERM del modo --permission dejaba
           // el hook mudo y sin inyectar reglas, sin ninguna senal del fallo.
-          { type: 'command', command: `${nodeConPermiso(bin('context-inject.js'), soloLeerRepo)} 2>>"\${TMPDIR:-/tmp}/ai-core-hook-errors.log" || true` },
+          { type: 'command', command: `${nodeConPermiso(bin('context-inject.js'), soloLeerRepo)} 2>>/tmp/ai-core-hook-errors.log || true` },
         ],
       },
     ],

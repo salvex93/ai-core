@@ -79,7 +79,7 @@ describe('context-inject.js', () => {
     const ctx = { bin: (s) => s, nodeConPermiso: (s) => 'node ' + s, soloRead: {}, soloLeerRepo: {}, readYWrite: {}, readYWriteSubagentLocks: {}, breakGlassRW: {}, repoReadWrite: {}, repoConGit: {} };
     const cmd = buildSessionHooks(ctx).UserPromptSubmit[0].hooks.map((h) => h.command).find((c) => c.includes('context-inject.js'));
     assert.doesNotMatch(cmd, /2>\/dev\/null/);
-    assert.match(cmd, /\|\| true$/);
+    assert.match(cmd, /2>>\/tmp\/ai-core-hook-errors\.log \|\| true$/);
   });
 
   test('perfil soloLeerRepo concede lectura de context-sections aunque PWD sea otro directorio', () => {
