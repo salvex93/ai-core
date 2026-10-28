@@ -41,7 +41,9 @@ function seleccionarSecciones(prompt) {
 function leerSeccion(file, dir = SECTIONS_DIR) {
   try {
     return fs.readFileSync(path.join(dir, file), 'utf8').trim();
-  } catch {
+  } catch (err) {
+    // ENOENT es esperable; un EPERM del modo --permission u otro error no debe pasar callado
+    if (err.code !== 'ENOENT') process.stderr.write(`[context-sections] ${file}: ${err.code || err.message}\n`);
     return null;
   }
 }

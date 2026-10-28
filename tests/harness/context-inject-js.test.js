@@ -60,6 +60,34 @@ describe('context-inject.js', () => {
     assert.equal(r.stdout, '');
   });
 
+  test('leerSeccion no calla un fallo de lectura real: lo reporta por stderr', () => {
+    const chunks = [];
+    const orig = process.stderr.write;
+    process.stderr.write = (c) => { chunks.push(String(c)); return true; };
+    try {
+      assert.equal(leerSeccion('no-existe.md', SECTIONS_DIR), null);
+      assert.equal(leerSeccion('x.md', path.join(SECTIONS_DIR, 'roles-y-estilo.md')), null);
+    } finally {
+      process.stderr.write = orig;
+    }
+    assert.equal(chunks.length, 1, 'ENOENT es silencioso; otro error se reporta');
+    assert.match(chunks[0], /\[context-sections\]/);
+  });
+
+  test('el generador del hook no descarta stderr de context-inject', () => {
+    const { buildSessionHooks } = require(path.join(BIN, 'lib', 'hooks-events-session.js'));
+    const ctx = { bin: (s) => s, nodeConPermiso: (s) => 'node ' + s, soloRead: {}, soloLeerRepo: {}, readYWrite: {}, readYWriteSubagentLocks: {}, breakGlassRW: {}, repoReadWrite: {}, repoConGit: {} };
+    const cmd = buildSessionHooks(ctx).UserPromptSubmit[0].hooks.map((h) => h.command).find((c) => c.includes('context-inject.js'));
+    assert.doesNotMatch(cmd, /2>\/dev\/null/);
+    assert.match(cmd, /\|\| true$/);
+  });
+
+  test('perfil soloLeerRepo concede lectura de context-sections aunque PWD sea otro directorio', () => {
+    const { buildPermissionProfiles } = require(path.join(BIN, 'lib', 'hooks-permissions.js'));
+    const perfiles = buildPermissionProfiles((s) => `"${path.join('/core/.claude/bin', s)}"`, '/tmp');
+    assert.ok(perfiles.soloLeerRepo.fsRead.includes('"/core/.claude/context-sections/*"'));
+  });
+
   test('stdin invalido no rompe el hook', () => {
     const r = spawnSync(process.execPath, [SCRIPT], { input: 'no-json', encoding: 'utf8' });
     assert.equal(r.status, 0);

@@ -110,7 +110,9 @@ function buildPermissionProfiles(bin, tmpDirReal) {
     : '"${TMPDIR:-/tmp}/ai-core-locks/loop-alternante/*"';
 
   const soloRead      = { fsRead: [dirBin] };
-  const soloLeerRepo  = { fsRead: [dirBin, dirRepo] };
+  // context-sections/ vive junto a bin/ y debe leerse aunque PWD sea otro directorio
+  const dirSecciones = globDir(bin('../context-sections/'));
+  const soloLeerRepo  = { fsRead: [dirBin, dirSecciones, dirRepo] };
   // Lee contenido arbitrario del repo (ej. .claude/skills/**) y escribe solo
   // el reporte tipado de guard-report.js al tmpdir -- sin fsWrite a dirRepo,
   // a diferencia de repoReadWrite, porque un guard de solo escaneo (advierte,

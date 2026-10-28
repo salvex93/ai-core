@@ -15,8 +15,10 @@ function buildSessionHooks({ bin, nodeConPermiso, soloRead, soloLeerRepo, readYW
           { type: 'command', command: nodeConPermiso(bin('secrets-guard.js'), breakGlassRW) },
           { type: 'command', command: nodeConPermiso(bin('jailbreak-guard.js'), breakGlassRW) },
           { type: 'command', command: `node ${bin('process-guard.js')} moa ${nodeConPermiso(bin('moa-context-gatherer.js'), repoReadWrite)} 2>/dev/null || true` },
-          // Secciones de gobierno bajo demanda: solo lectura de context-sections/ dentro del repo
-          { type: 'command', command: `${nodeConPermiso(bin('context-inject.js'), soloLeerRepo)} 2>/dev/null || true` },
+          // Secciones de gobierno bajo demanda: solo lectura de context-sections/.
+          // stderr va a un log (no a /dev/null): un EPERM del modo --permission dejaba
+          // el hook mudo y sin inyectar reglas, sin ninguna senal del fallo.
+          { type: 'command', command: `${nodeConPermiso(bin('context-inject.js'), soloLeerRepo)} 2>>"\${TMPDIR:-/tmp}/ai-core-hook-errors.log" || true` },
         ],
       },
     ],
