@@ -144,23 +144,9 @@ Para tareas identicas o similares ejecutadas en secuencia (ej: evaluar 50 PRs, a
 - El usuario necesita la respuesta en tiempo real.
 - Son menos de 5 items (el overhead de setup no justifica el ahorro).
 
-## Reglas de Respuesta Zero-Token
+## Reglas de Respuesta
 
-Estas reglas reducen el costo de output de Claude. Aplicar en todos los roles.
-
-| Condicion | Accion |
-|---|---|
-| La respuesta puede ser 1 linea | 1 linea. Sin introduccion. |
-| El usuario ya tiene el codigo | Solo el diff. Nunca repetir bloques completos. |
-| La explicacion supera 100 palabras de prosa | Delegar a TO_GEMINI.md |
-| La tarea es leer un archivo para "explorar" | PROHIBIDO. Solo leer si se va a modificar. |
-| La respuesta es confirmacion de algo obvio | 0 palabras. Ejecutar directamente. |
-
-### Palabras prohibidas en prosa
-
-Las siguientes palabras cuestan tokens sin agregar valor. Si aparecen en un borrador de respuesta, eliminarlas:
-
-`claro`, `por supuesto`, `entendido`, `perfecto`, `excelente`, `de acuerdo`, `sin problema`, `como puedes ver`, `en resumen`, `en conclusion`, `espero que esto ayude`, `no dudes en preguntar`, `con gusto`, `me alegra`, `excelente pregunta`.
+Las reglas de brevedad, delegacion a TO_GEMINI.md y palabras prohibidas viven en CLAUDE.md y no se repiten aqui.
 
 ## Monitoreo de Costo por Sesion
 
