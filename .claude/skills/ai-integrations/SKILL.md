@@ -95,9 +95,9 @@ Definir como constantes de configuracion, no como literales dispersos en el codi
 | Tier | Modelo | Caracteristicas | Cuando usar |
 |---|---|---|---|
 | Adaptive thinking | `claude-opus-4-8` | Presupuesto adaptativo por paso (`task_budgets`), `effort` dinamico (low/high/xhigh), vision 3.75MP | Agentes multi-paso, planificacion con complejidad variable, debug profundo |
-| Razonamiento profundo | `claude-fable-5` | Razonamiento multi-paso sin tools, alternativa a Opus para diseno puro | Arquitectura critica, analisis profundo sin computer use |
-| Ejecucion estandar | `claude-sonnet-5` | Prompt Caching GA, token-efficient tools GA, rendimiento optimo | Codigo, resumen, chat, 80% de tareas sustanciales |
-| Volumen alto | `claude-haiku-4-5-20251001` | Latencia minima, costo base | Clasificacion, extraccion, moderacion, lotes, tareas triviales |
+| Razonamiento profundo | `claude-fable-5-1` | Razonamiento multi-paso sin tools, alternativa a Opus para diseno puro | Arquitectura critica, analisis profundo sin computer use |
+| Ejecucion estandar | `claude-sonnet-5-5` | Prompt Caching GA, token-efficient tools GA, rendimiento optimo | Codigo, resumen, chat, 80% de tareas sustanciales |
+| Volumen alto | `claude-haiku-5-5` | Latencia minima, costo base | Clasificacion, extraccion, moderacion, lotes, tareas triviales |
 | Voice nativo | `gemini-3.1-flash-live` | Audio-to-audio nativo, WebSocket full-duplex, `thinking_level` dinamico | Voice agents, interfaces conversacionales reales, audio streaming |
 
 ### Optimizacion de prompts

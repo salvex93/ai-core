@@ -73,7 +73,7 @@ client = AsyncAnthropic()
 async def subagente(tarea: str, indice: int) -> dict:
     """Ejecuta una subtarea y retorna resultado con indice para ordenar el fan-in."""
     response = await client.messages.create(
-        model="claude-haiku-4-5-20251001",
+        model="claude-haiku-5-5",
         max_tokens=512,
         messages=[{"role": "user", "content": tarea}]
     )
@@ -166,9 +166,9 @@ Asignar el modelo mas barato que complete cada subtarea:
 ```python
 MODELO_POR_COMPLEJIDAD = {
     "lectura_masiva":    "gemini-3.7-flash",          # Gemini free — archivos grandes
-    "clasificacion":     "claude-haiku-4-5-20251001",  # Haiku — transformacion simple
-    "razonamiento":      "claude-sonnet-5",           # Sonnet — analisis y diagnostico
-    "arquitectura":      "claude-fable-5",              # Fable 5 — diseno de sistema nuevo (razonamiento profundo sin tools)
+    "clasificacion":     "claude-haiku-5-5",  # Haiku — transformacion simple
+    "razonamiento":      "claude-sonnet-5-5",           # Sonnet — analisis y diagnostico
+    "arquitectura":      "claude-fable-5-1",              # Fable 5 — diseno de sistema nuevo (razonamiento profundo sin tools)
     "arquitectura_tools":"claude-opus-4-8",             # Opus — diseno con computer use o herramientas integradas
 }
 
@@ -220,7 +220,7 @@ async def compactar_si_necesario(historial: list, client) -> list:
         return historial
 
     resumen_response = await client.messages.create(
-        model="claude-haiku-4-5-20251001",   # Haiku para compactar — es mas barato
+        model="claude-haiku-5-5",   # Haiku para compactar — es mas barato
         max_tokens=2048,
         messages=historial + [{
             "role": "user",
