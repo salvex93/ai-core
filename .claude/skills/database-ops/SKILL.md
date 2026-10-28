@@ -1,6 +1,6 @@
 ---
 name: database-ops
-description: Especialista en operaciones de base de datos en produccion. Cubre migraciones zero-downtime, analisis de query plans, particionamiento, vacuuming PostgreSQL, connection pooling con PgBouncer, backup/restore, Row Level Security (RLS) para aislamiento multi-tenant, y observabilidad de queries lentas. Diferenciado de backend-architect (diseño de esquemas) y data-engineer (pipelines ETL). Activa al diagnosticar degradacion de performance en BD, planificar migraciones en produccion, configurar pooling, implementar RLS multi-tenant o definir estrategias de backup.
+description: Especialista en operaciones de base de datos en produccion. Activa al diagnosticar degradacion de performance en BD, planificar migraciones en produccion, configurar pooling, implementar RLS multi-tenant o definir estrategias de backup.
 metadata:
   origin: ai-core
   version: 1.2.1

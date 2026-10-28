@@ -1,6 +1,6 @@
 ---
 name: discord-ops
-description: Integracion de Discord como canal de alertas y notificaciones de infraestructura (Incoming Webhooks con embeds) y diseno opcional de bots reales (Gateway, comandos slash, intents). Cubre formato y limites reales de embeds, tratamiento de la URL de webhook como secreto, patron anti-spam/agrupamiento de alertas por severidad, y sirve como canal de salida citable por security-monitoring-soc, devops-infra y release-manager. Activa al configurar notificaciones de deploy/error/seguridad hacia Discord, al disenar o auditar un webhook o bot de Discord, o al decidir si una integracion de alertas necesita webhook simple o un bot con Gateway.
+description: Integracion de Discord como canal de alertas y notificaciones. Activa al configurar notificaciones de deploy/error/seguridad hacia Discord, al disenar o auditar un webhook o bot de Discord, o al decidir si una integracion de alertas necesita webhook simple o un bot con Gateway.
 metadata:
   origin: ai-core
   version: 1.0.0

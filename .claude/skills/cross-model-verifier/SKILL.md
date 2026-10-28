@@ -1,6 +1,6 @@
 ---
 name: cross-model-verifier
-description: Verificacion ciega de diffs con un proveedor de IA distinto al que genero el cambio, para detectar regresiones que el mismo modelo actor no detecta sobre si mismo. Complementa code-reviewer (que corre con el mismo Claude que audita) y subagent-review.js (patrones textuales, sin llamada a otro proveedor). Se activa automaticamente via el hook SubagentStop cuando code-reviewer emite veredicto APROBADO — no requiere invocacion manual. Activa al revisar el mecanismo de verificacion cross-model, al diagnosticar por que un fix rompio algo ya validado, o al configurar proveedores adicionales (OPENAI_API_KEY, DEEPSEEK_API_KEY) en .env.
+description: Verificacion ciega de diffs con un proveedor de IA distinto al que genero el cambio. Activa al revisar el mecanismo de verificacion cross-model, al diagnosticar por que un fix rompio algo ya validado, o al configurar proveedores adicionales (OPENAI_API_KEY, DEEPSEEK_API_KEY) en .env.
 metadata:
   origin: ai-core
   version: 1.0.1

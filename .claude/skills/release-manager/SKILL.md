@@ -1,6 +1,6 @@
 ---
 name: release-manager
-description: Release Manager Universal. Gestiona el ciclo de vida de entregas de software: versionado semantico, estrategia de branching, pipelines CI/CD, resolucion de conflictos Git y planes de rollback. Agnóstico a la plataforma de CI/CD. Activa al planificar releases, gestionar ramas, configurar pipelines o coordinar despliegues.
+description: Release Manager Universal. Activa al planificar releases, gestionar ramas, configurar pipelines o coordinar despliegues.
 metadata:
   origin: ai-core
   version: 1.3.0

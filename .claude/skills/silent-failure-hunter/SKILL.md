@@ -1,6 +1,6 @@
 ---
 name: silent-failure-hunter
-description: Detecta fallos silenciosos en codigo Node.js y Python — catch vacios, excepciones tragadas, errores convertidos a null, logs sin contexto y propagacion rota. Activa al auditar manejo de errores, diagnosticar comportamiento inesperado sin trazas, o revisar resilencia de scrapers y agentes autonomos.
+description: Detecta fallos silenciosos en codigo Node.js y Python. Activa al auditar manejo de errores, diagnosticar comportamiento inesperado sin trazas, o revisar resilencia de scrapers y agentes autonomos.
 metadata:
   origin: ai-core
   version: 1.1.0
