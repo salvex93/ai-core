@@ -62,8 +62,8 @@ describe('.claude/evals/prompt-loader.js', () => {
   });
 });
 
-describe('prompt functions de promptfoo (tech-lead-frontend-chat.js, web-scraping-specialist-chat.js)', () => {
-  for (const skill of ['tech-lead-frontend', 'web-scraping-specialist']) {
+describe('prompt functions de promptfoo (frontend-design-chat.js, web-scraping-specialist-chat.js)', () => {
+  for (const skill of ['frontend-design', 'web-scraping-specialist']) {
     test(`${skill}-chat.js retorna un string JSON con mensajes system+user leidos del SKILL.md real`, () => {
       const promptFn = require(path.join(REPO, '.claude', 'evals', `${skill}-chat.js`));
       const salida = promptFn({ vars: { pregunta: 'pregunta de prueba' } });

@@ -12,7 +12,7 @@ metadata:
 
 Gobierna la fase de DEFINICION DE PRODUCTO que hoy no cubre ningun skill de ai-core, y actua como punto de entrada que conecta esa definicion con el resto del ciclo tecnico ya existente. No reemplaza a `dev-loop` (ciclo de gates de UNA tarea tecnica puntual: Spec->Design->Plan->Build->Review) ni a `saas-product-architect` (estrategia de negocio B2B: billing, multi-tenancy, RBAC) -- se activa ANTES de ambos, cuando todavia no existe una tarea tecnica delimitada, solo una necesidad de negocio o una idea de feature.
 
-Complementos por etapa (ver "Mapa de Delegacion" mas abajo): `dev-loop`, `saas-product-architect`, `backend-architect`/`tech-lead-frontend`, `qa-engineer`, `release-manager`, `llm-observability`, `devops-infra`.
+Complementos por etapa (ver "Mapa de Delegacion" mas abajo): `dev-loop`, `saas-product-architect`, `backend-architect`/`frontend-design`, `qa-engineer`, `release-manager`, `llm-observability`, `devops-infra`.
 
 ---
 
@@ -62,7 +62,7 @@ Ante cualquiera de estas condiciones, insertar la directiva y detener. No avanza
 [ALERTA_ARQUITECTONICA: REQUIERE_OPUSPLAN]
 ```
 
-Insertar este marcador cuando una Activity/Epic requiere decisiones de Bounded Context que afectan arquitectura tecnica existente (ej. dividir un modulo ya en produccion en dos contextos separados) -- esa decision escala a `backend-architect`/`tech-lead-frontend` con el nivel de razonamiento de diseño de sistema, no se resuelve dentro de este skill.
+Insertar este marcador cuando una Activity/Epic requiere decisiones de Bounded Context que afectan arquitectura tecnica existente (ej. dividir un modulo ya en produccion en dos contextos separados) -- esa decision escala a `backend-architect`/`frontend-design` con el nivel de razonamiento de diseño de sistema, no se resuelve dentro de este skill.
 
 ---
 
@@ -155,7 +155,7 @@ Anti-patron a detectar activamente: una Activity/Epic que cruza 2+ Bounded Conte
 2. PRIORIZACION  -> MoSCoW (DSDM) sobre las Stories que pasaron INVEST
 3. ESPECIFICACION -> Gherkin (North/Adzic) para cada Story Must/Should have
 4. DELIMITACION  -> Bounded Context (Evans/Fowler) por Activity/Epic antes de asignar a arquitectura
-5. IMPLEMENTACION -> delega a dev-loop (por cada Story) + backend-architect/tech-lead-frontend (Design)
+5. IMPLEMENTACION -> delega a dev-loop (por cada Story) + backend-architect/frontend-design (Design)
 6. TESTING       -> delega a qa-engineer (estrategia de tests) usando los escenarios Gherkin como base
 7. RELEASE       -> delega a release-manager (versionado, branching, plan de rollback)
 8. HYPERCARE     -> ver seccion dedicada abajo
@@ -165,7 +165,7 @@ Anti-patron a detectar activamente: una Activity/Epic que cruza 2+ Bounded Conte
 
 | Etapa | Skill al que delega | Que NO hace este skill ahi |
 |---|---|---|
-| Arquitectura tecnica de la Feature | `backend-architect` / `tech-lead-frontend` | No decide contratos de API ni modelos de datos -- solo delimita el Bounded Context que los acota |
+| Arquitectura tecnica de la Feature | `backend-architect` / `frontend-design` | No decide contratos de API ni modelos de datos -- solo delimita el Bounded Context que los acota |
 | Estrategia de negocio SaaS (billing, tenancy, entitlements) | `saas-product-architect` | No decide modelo de pricing ni RBAC de producto -- si una Story menciona "plan pagado", remite ahi |
 | Ciclo tecnico de UNA Story ya definida | `dev-loop` | No genera Spec/Design/Plan/Build/Review -- entrega la Story + Gherkin como INPUT de la Fase 1 de dev-loop |
 | Estrategia de testing y cobertura | `qa-engineer` | No define la piramide de tests ni umbrales de cobertura -- entrega los escenarios Gherkin como contrato de aceptacion |

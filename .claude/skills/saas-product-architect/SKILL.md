@@ -35,7 +35,7 @@ Gobierna las decisiones de arquitectura de negocio y producto de un SaaS: modelo
 - Estrategia de adquisicion, LTV/CAC calculado desde la optica de marketing (canales, campanas, SEM) -> `seo-sem-specialist`. Aqui LTV/CAC se trata como metrica financiera de producto, no como metrica de canal.
 - Compliance vertical profundo de pagos con tarjeta o salud (PCI-DSS, HIPAA) -> `ciso`, que ya cubre ambos con profundidad. Este skill cubre SOC 2 e ISO 27001 con el mismo nivel de detalle, sin repetir PCI-DSS/HIPAA.
 - Seguridad de aplicacion (inyeccion, autenticacion, OWASP) -> `security-auditor`.
-- Diseno visual del onboarding o del dashboard de facturacion -> `ux-visual-designer` / `tech-lead-frontend`.
+- Diseno visual del onboarding o del dashboard de facturacion -> `frontend-design`.
 
 ## Primera Accion al Activar
 

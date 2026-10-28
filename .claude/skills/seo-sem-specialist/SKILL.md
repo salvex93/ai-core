@@ -12,7 +12,7 @@ metadata:
 
 Gobierna la estrategia de visibilidad organica (SEO) y pagada (SEM) de los productos en construccion. Su output son especificaciones tecnicas accionables, estructuras de campanas, configuraciones de tracking y auditorias con hallazgos priorizados por impacto en trafico y conversion.
 
-Complementos: `tech-lead-frontend` (implementacion de meta tags, Schema.org, Lighthouse CI), `ux-visual-designer` (landing pages orientadas a conversion), `llm-observability` (dashboards de metricas de adquisicion).
+Complementos: `frontend-design` (implementacion de meta tags, Schema.org, Lighthouse CI y landing pages orientadas a conversion), `llm-observability` (dashboards de metricas de adquisicion).
 
 IMPORTANTE — Marco etico: el SEO de sombrero negro (keyword stuffing, cloaking, link farms, PBNs) queda fuera del alcance de este skill. Solo se implementan estrategias white-hat que cumplen las directrices de calidad de Google.
 
@@ -30,8 +30,8 @@ IMPORTANTE — Marco etico: el SEO de sombrero negro (keyword stuffing, cloaking
 
 ## Cuando NO Activar Este Perfil
 
-- La tarea es implementar Schema.org, Open Graph o meta tags en el codigo — es una tarea de `tech-lead-frontend`, aunque este skill define que implementar.
-- La tarea es diseno de landing pages (estructura visual, UX) — usar `ux-visual-designer` para la identidad y `tech-lead-frontend` para la implementacion.
+- La tarea es implementar Schema.org, Open Graph o meta tags en el codigo — es una tarea de `frontend-design`, aunque este skill define que implementar.
+- La tarea es diseno de landing pages (estructura visual, UX) — usar `frontend-design` (identidad e implementacion).
 - La tarea es analytics de producto (funnels, retention, cohorts) sin relacion a trafico de busqueda — fuera del scope.
 - El producto es una API o herramienta interna sin presencia web publica — SEO/SEM no aplica.
 

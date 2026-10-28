@@ -16,7 +16,7 @@ IDENTIDAD 3D:
   Referencia de tono: [una sola linea — ej. "producto flotando en vacio de estudio, como un anuncio de reloj de lujo"]
 ```
 
-Si `ux-visual-designer` ya declaro una `IDENTIDAD:` 2D para el proyecto, la identidad 3D es su extension al espacio — misma paleta, mismo lenguaje de movimiento, no un sistema visual paralelo.
+Si `frontend-design` ya declaro una `IDENTIDAD:` 2D para el proyecto, la identidad 3D es su extension al espacio — misma paleta, mismo lenguaje de movimiento, no un sistema visual paralelo.
 
 ### Prohibido — patrones reconocibles de demo/plantilla
 

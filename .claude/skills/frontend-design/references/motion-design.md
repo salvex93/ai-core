@@ -86,3 +86,53 @@ if (!prefersReduced) {
   .skeleton { animation: none; background: #e0e0e0; }
 }
 ```
+
+### Principios Disney aplicados al web, easings semanticos y vocabulario
+
+### 12 principios Disney aplicados al web
+
+1. **Squash and Stretch** → Botones que se "aprietan" al hacer clic (scale 0.95 en active).
+2. **Anticipation** → El elemento se prepara antes de moverse (scale 0.95 antes de expand).
+3. **Staging** → Un solo elemento animado a la vez; nunca competencia visual simultanea.
+4. **Straight Ahead vs Pose to Pose** → CSS transitions para lo simple, keyframes para lo complejo.
+5. **Follow Through** → El elemento continua ligeramente mas alla del punto destino y regresa (spring).
+6. **Slow In Slow Out** → ease-out para entradas, ease-in para salidas.
+7. **Arc** → Los objetos se mueven en curva, no en linea recta (cubic-bezier).
+8. **Secondary Action** → El icono del boton se mueve cuando el boton cambia de estado.
+9. **Timing** → 100ms feedback inmediato, 250ms cambio de estado, 400ms navegacion.
+10. **Exaggeration** → En celebraciones (pago exitoso), exagerar el efecto para comunicar emocion.
+11. **Solid Drawing** → El peso visual del elemento es constante durante la animacion.
+12. **Appeal** → Las animaciones se sienten naturales, no mecanicas.
+
+### Easings semanticos de produccion
+
+```css
+:root {
+  /* Elementos que entran desde fuera de la pantalla */
+  --easing-emphasized:      cubic-bezier(0.2, 0, 0, 1);
+  /* Elementos que salen */
+  --easing-emphasized-out:  cubic-bezier(0.3, 0, 0.8, 0.15);
+  /* Cambios de estado sin movimiento espacial */
+  --easing-standard:        cubic-bezier(0.2, 0, 0, 1);
+  /* Transiciones decorativas ligeras */
+  --easing-decelerated:     cubic-bezier(0, 0, 0, 1);
+  /* Feedback de interaccion */
+  --easing-spring:          cubic-bezier(0.34, 1.56, 0.64, 1);
+  /* Spring out — entradas principales */
+  --easing-spring-out:      cubic-bezier(0.16, 1, 0.3, 1);
+}
+```
+
+### Motion Vocabulary (Anti-Generic)
+
+| Intencion | Easing | Duracion | Libreria |
+|---|---|---|---|
+| Entrada de elemento principal | `--easing-spring-out` | 600-800ms | Motion / GSAP |
+| Feedback de click / tap | `--easing-spring` (overshoot) | 150-200ms | CSS |
+| Salida / dismiss | `cubic-bezier(0.7,0,1,1)` | 200-300ms | cualquiera |
+| Transicion de pagina | `cubic-bezier(0.83,0,0.17,1)` | 400ms | Motion |
+| Animacion SVG / data-viz | GSAP `stagger: 0.05` | segun dataset | GSAP |
+| Parallax scroll | ScrollTrigger + scrub | continuo | GSAP |
+| Liquid glass shimmer | CSS `@keyframes` + `background-position` | 3-4s | CSS |
+
+**Regla: `prefers-reduced-motion: reduce` desactiva o simplifica todas las animaciones. Sin excepcion.**

@@ -3,7 +3,7 @@
 const path = require('node:path');
 const cargarSkillComoChat = require('./prompt-loader');
 
-const SKILL_DIR = path.join(__dirname, '..', 'skills', 'tech-lead-frontend');
+const SKILL_DIR = path.join(__dirname, '..', 'skills', 'frontend-design');
 const RUTAS = [
   path.join(SKILL_DIR, 'SKILL.md'),
   path.join(SKILL_DIR, 'references', 'motion-design.md'),

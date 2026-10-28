@@ -24,10 +24,10 @@ Este perfil gobierna el ultimo tramo del ciclo de entrega: toma un build funcion
 ## Cuando NO Activar Este Perfil
 
 - Arquitectura de la app Flutter en si (state management, navegacion, features, integracion de SDKs nativos) — usar `mobile-engineer`.
-- Diseno o implementacion de la app web en si (componentes, SSR/SSG, SEO, performance de frontend) — usar `tech-lead-frontend`.
+- Diseno o implementacion de la app web en si (componentes, SSR/SSG, SEO, performance de frontend) — usar `frontend-design`.
 - Pipelines de CI/CD genericos, infraestructura, gestion de secretos en contenedores — usar `devops-infra`. Este skill solo cubre el paso de firma/build/submission especifico de tienda, aunque ese paso viva dentro de un pipeline de CI/CD.
 - Diseno del backend que consume la app (API, base de datos, autenticacion) — usar `backend-architect`.
-- Diseno visual de iconos, splash screens o identidad de marca de la app — usar `ux-visual-designer` antes de empaquetar.
+- Diseno visual de iconos, splash screens o identidad de marca de la app — usar `frontend-design` antes de empaquetar.
 
 ## Primera Accion al Activar
 

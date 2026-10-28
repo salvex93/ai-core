@@ -30,8 +30,8 @@ Este perfil gobierna el desarrollo de aplicaciones Flutter: arquitectura de feat
 ## Cuando NO Activar Este Perfil
 
 - La tarea es el backend de la aplicacion movil (APIs, BD, autenticacion) — usar `backend-architect`.
-- La tarea es disenar la identidad visual o el design system de la app — usar `ux-visual-designer`.
-- La app es una PWA (Progressive Web App) sin componentes nativos — usar `tech-lead-frontend`.
+- La tarea es disenar la identidad visual o el design system de la app — usar `frontend-design`.
+- La app es una PWA (Progressive Web App) sin componentes nativos — usar `frontend-design`.
 - La tarea es configurar el pipeline de CI/CD para la build de la app — usar `devops-infra` o `release-manager`.
 
 ## Primera Accion al Activar
@@ -362,7 +362,7 @@ IDENTIDAD MOBILE:
   Referencia de tono: [una sola linea — ej. "app de reservas deportivas que se siente instantanea incluso sin señal, como Notion offline"]
 ```
 
-Si `ux-visual-designer` ya declaro una `IDENTIDAD:` visual para el proyecto, esta identidad mobile hereda paleta y tipografia — no crea un sistema visual paralelo, solo extiende las decisiones de estado/movimiento/persistencia que el diseño 2D no cubre.
+Si `frontend-design` ya declaro una `IDENTIDAD:` visual para el proyecto, esta identidad mobile hereda paleta y tipografia — no crea un sistema visual paralelo, solo extiende las decisiones de estado/movimiento/persistencia que el diseño 2D no cubre.
 
 ### Prohibido — patrones reconocibles de demo/plantilla
 
