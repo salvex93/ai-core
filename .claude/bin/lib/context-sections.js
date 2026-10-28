@@ -10,6 +10,11 @@ const SECTIONS = [
   { file: 'gobierno-subagentes.md', pattern: /subagent|agente|paralel|break-?glass|confirmar-|guard|hook|jailbreak|sandbox|rollback|loop/i },
   { file: 'commits-staging.md', pattern: /commit|push|stage|stagea|git add|pull request|\bpr\b|rama|branch|merge|rebase/i },
   { file: 'vigencia-tecnologica.md', pattern: /vigencia|nuevo modelo|nueva version|release|lanzamiento|pricing|precio|free tier|deprecad/i },
+  { file: 'roles-y-estilo.md', pattern: /\brol\b|architect|coder|auditor|neanderthal|diseno|arquitectura|audit|diagnostic|refactor/i },
+  { file: 'skills-y-agentes.md', pattern: /skill|agente|agent\.md|crear un|nuevo skill/i },
+  { file: 'ahorro-tokens.md', pattern: /gemini|token|cuota|contexto|compact|clear|\blog|archivo|repositorio|backlog|resum|web/i },
+  { file: 'estandares-codigo-docs.md', pattern: /codigo|funcion|clase|modulo|implementa|crea|agrega|escrib|refactor|test|bug|\.js|\.ts|\.py|documento|readme|\.md|comentario/i },
+  { file: 'instalacion-anfitrion.md', pattern: /instal|anfitrion|host|norm-harness|npm run|comando|script/i },
   { file: 'propuestas-comerciales.md', pattern: /propuesta|cotizaci|presupuesto|brief|alcance comercial/i },
 ];
 
