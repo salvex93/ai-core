@@ -227,6 +227,20 @@ Criterio de adopcion: si el proyecto ya corre en GCP y tiene requisitos de compl
 - Definir `max_tokens` global y `budget_tokens` maximo por paso para acotar el costo de un ataque de tokens.
 - El rate limiting debe incluir `thinking_tokens` en el calculo del presupuesto por usuario — un atacante puede forzar razonamiento extensivo con inputs de complejidad artificial.
 
+## Agentes con Herramientas y MCP
+
+Un agente que lee contenido no confiable y puede actuar convierte la inyeccion indirecta en accion. El riesgo crece cuando coinciden tres condiciones: acceso a datos privados, exposicion a contenido no confiable y capacidad de comunicar hacia fuera. Romper al menos una.
+
+- **Separar privilegios por flujo de datos:** el contexto que viene de web, correo, tickets o salida de herramientas se procesa en un paso sin herramientas de escritura ni de red; las acciones las decide otro paso que solo ve un resumen estructurado.
+- **Aprobacion humana:** acciones irreversibles o con efecto externo (enviar, pagar, borrar, publicar) requieren confirmacion explicita del usuario, mostrando el destino y los parametros reales.
+- **Exfiltracion por renderizado:** no renderizar imagenes ni enlaces cuya URL incluya datos de la conversacion; filtrar dominios de salida con lista de permitidos.
+- **MCP de terceros:** una descripcion de herramienta es entrada no confiable (tool poisoning). Fijar la version, comparar el hash de nombre y descripcion en cada arranque para detectar cambios posteriores a la instalacion (rug pull) y revisar los alcances OAuth pedidos.
+- **Secretos:** nunca en la configuracion del agente ni en el prompt; credenciales de corta vida con el alcance minimo de la tarea.
+- **Memoria persistente:** lo que el agente escribe en memoria se relee como contexto futuro; validar y limitar lo que se puede guardar.
+- **Pruebas:** incluir en el dataset de ataque casos de inyeccion indirecta via salida de herramienta y de envenenamiento de descripcion MCP; herramientas de red teaming automatizado como garak, PyRIT o promptfoo sirven para ampliar la cobertura.
+
+Cobertura de monitoreo de estos eventos: `security-monitoring-soc`. Evaluacion de servidores MCP: `mcp-registry-navigator`.
+
 ## Lista de Verificacion de Revision de Codigo — Guardrails
 
 Verificar en orden antes de aprobar un PR que modifica la capa de guardrails:

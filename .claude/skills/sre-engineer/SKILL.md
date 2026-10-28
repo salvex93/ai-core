@@ -81,6 +81,21 @@ Parametros de partida recomendados para un SLO de 99,9 % (SRE Workbook, tabla 5-
 - Toda alerta de page debe tener accion humana inmediata y un runbook enlazado. Si no hay accion, es ticket o dashboard.
 - Revisar cada trimestre el ruido de guardia: paginas sin accion se corrigen o se eliminan.
 
+## SLO para Sistemas con LLM
+
+Un servicio que depende de un LLM necesita SLI propios ademas de disponibilidad HTTP. Definirlos por ruta de usuario, no por proveedor.
+
+| SLI | Como medirlo | Nota |
+|---|---|---|
+| Disponibilidad efectiva | Respuestas validas / peticiones, contando como fallo el 429, el timeout y la respuesta que no pasa el esquema esperado | Un 200 con salida inutilizable consume presupuesto |
+| Latencia al primer token (TTFT) | Percentil 95 desde la peticion hasta el primer token en streaming | Separar de la latencia total: el usuario percibe el TTFT |
+| Costo por peticion | Costo medio y percentil 95 por ruta, desde el campo de uso que devuelve el proveedor | Alertar por desviacion del presupuesto, no por valor absoluto |
+| Calidad | Tasa de aprobacion de un eval online sobre una muestra del trafico real | Detalle del muestreo y del juez en `llm-evals`; instrumentacion en `llm-observability` |
+
+- Aplicar burn rate (tabla anterior) a los SLI de disponibilidad efectiva y de calidad; TTFT y costo suelen gestionarse como alerta de tendencia.
+- La dependencia de un proveedor externo limita el SLO propio: declarar el SLA del proveedor y el fallback (otro modelo o respuesta degradada) antes de prometer un objetivo mayor.
+- Un cambio de modelo o de prompt es un cambio de produccion: consume presupuesto igual que un deploy y se libera con el gate de evals de `release-manager`.
+
 ## Capacity Planning
 
 - Partir de la demanda real y su crecimiento, no de la capacidad instalada. Proyectar con margen explicito sobre el pico, no sobre el promedio.

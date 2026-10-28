@@ -157,6 +157,23 @@ Si se detecta un secreto real en el historial de Git, el proceso de remediacion 
 3. Usar `git filter-repo` para eliminar el secreto del historial (requiere force push coordinado con el equipo).
 4. Notificar al responsable de seguridad del proyecto.
 
+## Cadena de Suministro
+
+Una dependencia comprometida ejecuta codigo con los permisos del build. Controles minimos antes de aprobar un PR que cambie dependencias o el pipeline:
+
+| Control | Practica |
+|---|---|
+| Instalacion reproducible | Lockfile versionado e instalacion con `npm ci`; un cambio de lockfile sin cambio de `package.json` se revisa a mano |
+| Scripts de instalacion | `--ignore-scripts` por defecto en CI; habilitar solo para paquetes revisados |
+| Procedencia | Preferir paquetes publicados con provenance; verificar con `npm audit signatures` |
+| Versiones recien publicadas | No adoptar una version de pocas horas o dias de antiguedad sin revisar su diff; vigilar typosquatting en nombres nuevos |
+| Inventario | Generar un SBOM (CycloneDX o SPDX) por release y conservarlo con el artefacto |
+| Explotabilidad | Acompanar el SBOM de VEX para declarar que CVE no son alcanzables; priorizar con KEV y EPSS segun `security-monitoring-soc` |
+| Pipeline | En GitHub Actions fijar acciones de terceros por SHA completo, `permissions` minimos por job y credenciales de nube por OIDC, nunca claves de larga vida |
+| Configuracion de agentes | Tratar `.mcp.json` y la configuracion de agentes como codigo: sin secretos en claro, servidores MCP de terceros evaluados con `mcp-registry-navigator` |
+
+Para un hallazgo en este bloque, clasificar la severidad con la tabla de la seccion de dependencias y registrar la accion de remediacion con responsable.
+
 ## Modelado de Amenazas (STRIDE)
 
 Aplicar para cada flujo nuevo que involucre datos sensibles o acceso privilegiado:
