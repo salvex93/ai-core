@@ -218,11 +218,11 @@ LANDING PAGE — Bento Grid Layout
 ### Checklist obligatorio pre-handoff
 
 **Contraste:**
-- [ ] Texto normal (< 18px): relacion >= 4.5:1 en todos los estados.
-- [ ] Texto grande (>= 18px): relacion >= 3:1.
+- [ ] Texto normal: relacion >= 4.5:1 en todos los estados.
+- [ ] Texto grande (>= 18pt = 24px, o >= 14pt = 18.66px en negrita, segun WCAG 1.4.3): relacion >= 3:1.
 - [ ] Bordes de inputs y controles: >= 3:1 contra fondo.
 - [ ] Iconos informativos: >= 3:1.
-- [ ] Indicador de foco: >= 3:1 contra color adyacente (WCAG 2.4.11 — NUEVO 2.2).
+- [ ] Indicador de foco: >= 3:1 contra color adyacente (WCAG 1.4.11). El foco no queda totalmente oculto por contenido fijo (2.4.11 Focus Not Obscured, AA, nuevo en 2.2). Apariencia reforzada del foco: 2.4.13 Focus Appearance, AAA.
 
 **Target Size (WCAG 2.5.8 — NUEVO 2.2):**
 - [ ] Area de toque minima 24x24px (AA), recomendado 44x44px.
@@ -301,7 +301,7 @@ Un diseno que falla en cualquier punto no pasa al equipo de frontend.
 - [ ] Flujo de usuario documentado con estados de error, vacio y carga.
 - [ ] Todos los estados de cada componente interactivo especificados (min 3: default, hover/focus, disabled).
 - [ ] Motion design documentado con duracion, easing y condicion de reduccion de movimiento.
-- [ ] Focus-visible con contraste >= 3:1 contra elemento adyacente (WCAG 2.4.11).
+- [ ] Focus-visible con contraste >= 3:1 contra elemento adyacente (WCAG 1.4.11) y sin quedar oculto por headers o banners fijos (2.4.11).
 - [ ] Target size cumple WCAG 2.5.8 (minimo 24x24px, recomendado 44x44px).
 - [ ] Jerarquia tipografica verificada: una sola H1 por vista, sin saltar niveles.
 - [ ] Paradigma visual justificado por tipo de producto y publico objetivo.
