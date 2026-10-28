@@ -50,3 +50,7 @@ Salida: `results/run-<fecha>.json` (crudo) y `.md` (tabla). El primer arnes de `
 ## Modo sesion larga
 `node run.js --session` encadena las 6 tareas como turnos de una misma conversacion (`--resume`) en un unico directorio. Reporta costo y tiempo acumulados por turno y el turno de cruce, donde el arnes pasa a costar menos que la linea base. Es la prueba pertinente para un arnes: el sobrecosto fijo se amortiza solo si la sesion es larga.
 Supuesto por verificar: que `total_cost_usd` de cada invocacion con `--resume` sea el costo de ese turno y no un acumulado; si fuera acumulado, el costo total se sobrestima.
+`--long` amplia la sesion a 16 turnos: rendimiento, 6 preguntas de recuerdo y 4 reglas de gobernanza al final.
+
+## Resultados e informe
+`INFORME.md` resume la version publicada con cifras y limites; `REPRODUCE.md` explica como repetirla con commits fijos. En `results/` solo se versionan las corridas validas citadas en el informe. Una corrida con `--bare` (sin sesion iniciada) y una sesion de una sola repeticion se descartaron y no se suben.
