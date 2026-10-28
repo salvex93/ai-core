@@ -1,4 +1,5 @@
 'use strict';
+const { median } = require('./stats');
 
 const fmt = (v, d) => (Number.isFinite(v) ? v.toFixed(d) : 'n/d');
 
@@ -31,4 +32,12 @@ function sessionToMarkdown(bySession, baseName) {
   return `${lines.join('\n')}\n\nTurno de cruce en costo acumulado (menor que ${baseName}): ${cross}\n`;
 }
 
-module.exports = { cumulative, crossover, sessionToMarkdown };
+// Mediana por turno entre repeticiones; el turno solo cuenta como exitoso si pasó en todas
+function medianTurns(reps) {
+  return reps[0].map((t, i) => {
+    const col = (key) => median(reps.map((r) => r[i][key]).filter(Number.isFinite));
+    return { turn: t.turn, task: t.task, costUsd: col('costUsd'), wallMs: col('wallMs'), pass: reps.every((r) => r[i].pass) };
+  });
+}
+
+module.exports = { cumulative, crossover, sessionToMarkdown, medianTurns };

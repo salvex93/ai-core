@@ -9,8 +9,15 @@ const { resolveCommand, execute } = require('./runner');
 // Orden fijo: la lectura masiva va a mitad de sesion para que el contexto ya venga cargado
 const TURN_ORDER = ['bugfix-paginate', 'feature-lru', 'log-analysis', 'refactor-rename', 'security-sqli', 'multifile-config'];
 
-function sessionTasks(all) {
-  return TURN_ORDER.map((id) => all.find((t) => t.id === id));
+// Sesion larga: tras el trabajo, preguntas que dependen del contexto acumulado y luego reglas de gobernabilidad
+const TURN_ORDER_LONG = [
+  ...TURN_ORDER,
+  'recall-sqli', 'recall-log', 'recall-files', 'recall-lru', 'recall-tests', 'recall-last',
+  'gov-style', 'gov-secrets', 'gov-modular', 'gov-commit',
+];
+
+function sessionTasks(all, order = TURN_ORDER) {
+  return order.map((id) => all.find((t) => t.id === id));
 }
 
 function runTurn({ adapter, task, model, timeoutMs, dir, sessionId }) {
@@ -22,12 +29,12 @@ function runTurn({ adapter, task, model, timeoutMs, dir, sessionId }) {
 }
 
 // Una sesion: todos los fixtures en un solo directorio y una sola conversacion reanudada turno a turno
-function runSession({ adapterName, tasks, model, timeoutMs }) {
+function runSession({ adapterName, tasks, model, timeoutMs, order }) {
   const adapter = ADAPTERS[adapterName];
   if (!adapter.sessions) return [{ skipped: true, reason: 'arnes sin soporte de sesion' }];
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'bench-session-'));
   try {
-    const turns = sessionTasks(tasks);
+    const turns = sessionTasks(tasks, order);
     turns.forEach((t) => t.build(dir));
     adapter.setup(dir);
     let sessionId = null;
@@ -41,4 +48,4 @@ function runSession({ adapterName, tasks, model, timeoutMs }) {
   }
 }
 
-module.exports = { runSession, sessionTasks, TURN_ORDER };
+module.exports = { runSession, sessionTasks, TURN_ORDER, TURN_ORDER_LONG };

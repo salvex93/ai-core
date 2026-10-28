@@ -74,3 +74,33 @@ test('installAiCore: reescribe rutas absolutas de settings.json hacia el workdir
   assert.ok(!out.includes(root));
   assert.ok(out.includes(work));
 });
+
+test('medianTurns: mediana por turno entre repeticiones y exito solo si todas pasan', () => {
+  const { medianTurns } = require('../lib/session-report');
+  const rep = (c1, c2, p2) => [
+    { turn: 1, task: 'a', costUsd: c1, wallMs: 1000, pass: true },
+    { turn: 2, task: 'b', costUsd: c2, wallMs: 2000, pass: p2 },
+  ];
+  const out = medianTurns([rep(1, 10, true), rep(3, 30, false), rep(2, 20, true)]);
+  assert.strictEqual(out[0].costUsd, 2);
+  assert.strictEqual(out[1].costUsd, 20);
+  assert.strictEqual(out[1].pass, false);
+});
+
+test('sesion larga: incluye turnos de recuerdo y gobernabilidad tras los de rendimiento', () => {
+  const { sessionTasks, TURN_ORDER_LONG } = require('../lib/session');
+  const pool = [...require('../tasks'), ...require('../tasks/governance'), ...require('../tasks/recall')];
+  const ids = sessionTasks(pool, TURN_ORDER_LONG).map((t) => t.id);
+  assert.ok(ids.length >= 14);
+  assert.ok(ids.indexOf('recall-sqli') > ids.indexOf('security-sqli'));
+  assert.ok(ids.includes('gov-commit'));
+});
+
+test('recall: acepta la respuesta correcta y rechaza la incorrecta', () => {
+  const recall = require('../tasks/recall');
+  assert.ok(recall.length >= 5);
+  for (const t of recall) {
+    assert.strictEqual(t.verify('', { text: t.referenceText }).pass, true, t.id);
+    assert.strictEqual(t.verify('', { text: 'no se' }).pass, false, t.id);
+  }
+});

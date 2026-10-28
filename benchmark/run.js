@@ -4,10 +4,11 @@ const path = require('node:path');
 const { ADAPTERS } = require('./lib/adapters');
 const { runOne } = require('./lib/runner');
 const { toMarkdown } = require('./lib/report');
-const { runSession } = require('./lib/session');
-const { sessionToMarkdown } = require('./lib/session-report');
+const { runSession, TURN_ORDER_LONG } = require('./lib/session');
+const { sessionToMarkdown, medianTurns } = require('./lib/session-report');
 const performance = require('./tasks');
 const governance = require('./tasks/governance');
+const recall = require('./tasks/recall');
 
 const OUT = path.join(__dirname, 'results');
 
@@ -21,6 +22,7 @@ function parseArgs(argv) {
     only: get('--tasks', '') ? get('--tasks').split(',') : null,
     allowUnverified: argv.includes('--allow-unverified'),
     session: argv.includes('--session'),
+    long: argv.includes('--long'),
     suite: get('--suite', 'performance'),
   };
 }
@@ -60,14 +62,19 @@ function save(results, opts) {
 }
 
 function runSessions(opts) {
-  const all = {};
-  for (const name of opts.adapters) {
-    all[name] = runSession({ adapterName: name, tasks: performance, model: opts.model, timeoutMs: opts.timeoutMs });
-    all[name].forEach((t) => console.log(JSON.stringify({ adapter: name, turn: t.turn, task: t.task, pass: t.pass, costUsd: t.costUsd, wallMs: t.wallMs })));
+  const runs = Object.fromEntries(opts.adapters.map((n) => [n, []]));
+  const pool = opts.long ? [...performance, ...governance, ...recall] : performance;
+  for (let rep = 1; rep <= opts.reps; rep++) {
+    for (const name of opts.adapters) {
+      const turns = runSession({ adapterName: name, tasks: pool, model: opts.model, timeoutMs: opts.timeoutMs, order: opts.long ? TURN_ORDER_LONG : undefined });
+      runs[name].push(turns);
+      turns.forEach((t) => console.log(JSON.stringify({ adapter: name, rep, turn: t.turn, task: t.task, pass: t.pass, costUsd: t.costUsd, wallMs: t.wallMs })));
+    }
   }
+  const all = Object.fromEntries(Object.entries(runs).map(([n, r]) => [n, medianTurns(r)]));
   fs.mkdirSync(OUT, { recursive: true });
   const base = path.join(OUT, `session-${new Date().toISOString().replace(/[:.]/g, '-')}`);
-  fs.writeFileSync(`${base}.json`, JSON.stringify({ opts, all }, null, 2));
+  fs.writeFileSync(`${base}.json`, JSON.stringify({ opts, runs, all }, null, 2));
   const md = sessionToMarkdown(all, opts.adapters[0]);
   fs.writeFileSync(`${base}.md`, md);
   console.log(`\n${md}\nResultados: ${base}.json`);
