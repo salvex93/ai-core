@@ -41,11 +41,15 @@ test('corridas invalidas se excluyen de la tasa de exito', () => {
   assert.match(md, /\| a \| 1 \(1 invalidas\) \| 100% \|/);
 });
 
-test('cumulative y crossover detectan el turno de cruce', () => {
+// total_cost_usd de `claude -p --resume` ya es acumulado de la sesion (verificado
+// 2026-10-28: costo del turno 2 = costo propio + costo del turno 1); no se vuelve a sumar.
+test('cumulative toma costUsd como acumulado de sesion y arrastra el previo si falta', () => {
   const { cumulative, crossover } = require('../lib/session-report');
-  const base = cumulative([{ turn: 1, costUsd: 1 }, { turn: 2, costUsd: 1 }, { turn: 3, costUsd: 1 }]);
-  const h = cumulative([{ turn: 1, costUsd: 2 }, { turn: 2, costUsd: 0.2 }, { turn: 3, costUsd: 0.2 }]);
+  const base = cumulative([{ turn: 1, costUsd: 1 }, { turn: 2, costUsd: 2 }, { turn: 3, costUsd: 3 }]);
+  const h = cumulative([{ turn: 1, costUsd: 2 }, { turn: 2, costUsd: 2.2 }, { turn: 3, costUsd: 2.4 }]);
+  const hueco = cumulative([{ turn: 1, costUsd: 1 }, { turn: 2, costUsd: null }, { turn: 3, costUsd: 1.5 }]);
   assert.strictEqual(base[2].cost, 3);
+  assert.strictEqual(hueco[1].cost, 1);
   assert.strictEqual(crossover(h, base), 3);
   assert.strictEqual(crossover(base, base), null);
 });

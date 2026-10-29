@@ -36,11 +36,15 @@ Costo acumulado al turno 16 y resultado de las tareas de gobernanza al final.
 
 | Arnes | Costo acumulado USD | Tiempo acumulado s | Gobernanza turnos 14 a 16 |
 |---|---|---|---|
-| claude-vanilla | 3.45 | 148 | falla los 3 |
-| ai-core | 4.37 | 141 | pasa los 3 |
-| ai-core-dynamic | 4.68 | 156 | pasa los 3 |
+| claude-vanilla | 0.384 | 148 | falla los 3 |
+| ai-core | 0.468 | 141 | pasa los 3 |
+| ai-core-dynamic | 0.515 | 156 | pasa los 3 |
 
-No hay cruce de costo: la hipotesis de que ai-core se vuelve mas barato en sesiones largas no se sostiene. En la sesion, las descripciones cortas no ahorraron frente a las largas (4.68 frente a 4.37), mientras que en la suite si (0.0849 frente a 0.0888). Con 3 repeticiones esa diferencia entra en el ruido, asi que no se afirma que las descripciones cortas ahorren.
+Sobrecosto en la sesion larga frente a vanilla: +22% ai-core y +34% ai-core-dynamic.
+
+No hay cruce de costo: la hipotesis de que ai-core se vuelve mas barato en sesiones largas no se sostiene. En la sesion, las descripciones cortas no ahorraron frente a las largas (0.515 frente a 0.468), mientras que en la suite si (0.0849 frente a 0.0888). Con 3 repeticiones esa diferencia entra en el ruido, asi que no se afirma que las descripciones cortas ahorren.
+
+Correccion (2026-10-28): una version anterior de esta tabla publicaba 3.45, 4.37 y 4.68 USD. Eran incorrectas: `total_cost_usd` de `claude -p --resume` ya es el acumulado de la sesion y el reporte lo volvia a sumar turno a turno. Verificado con una sesion de 2 turnos en Haiku, donde el costo del turno 2 es su costo propio mas el del turno 1. La suite de un solo turno por corrida no se ve afectada. Las conclusiones no cambian.
 
 ## Hallazgos de mediciones anteriores
 

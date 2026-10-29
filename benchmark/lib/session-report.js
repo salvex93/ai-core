@@ -3,11 +3,12 @@ const { median } = require('./stats');
 
 const fmt = (v, d) => (Number.isFinite(v) ? v.toFixed(d) : 'n/d');
 
-// Acumulado por turno: suma de costo y tiempo hasta el turno i
+// Acumulado por turno. costUsd (total_cost_usd con --resume) ya es acumulado de la
+// sesion: se toma tal cual y, si un turno no lo reporta, se arrastra el previo. El tiempo si se suma.
 function cumulative(turns) {
   let cost = 0; let sec = 0;
   return turns.map((t) => {
-    cost += t.costUsd || 0; sec += (t.wallMs || 0) / 1000;
+    cost = Number.isFinite(t.costUsd) ? t.costUsd : cost; sec += (t.wallMs || 0) / 1000;
     return { turn: t.turn, task: t.task, pass: t.pass, cost, sec };
   });
 }
