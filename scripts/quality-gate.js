@@ -7,7 +7,7 @@
  * proyecto: limite de 300 lineas en codigo, archivos residuales, credenciales
  * en el working tree, limite de 500 lineas en SKILL.md (references/*.md
  * exento, contenido movido a proposito por G4), conformidad de skills y
- * agentes, vigencia de mercado y la suite completa de tests. Sale 1 si alguno
+ * agentes, vigencia de mercado, cadena de informes firmados (si existe) y la suite completa de tests. Sale 1 si alguno
  * falla.
  *
  * Un pase completo se cachea por estado exacto del repo (HEAD + diff +
@@ -25,6 +25,7 @@ const path = require('node:path');
 const crypto = require('node:crypto');
 const { spawnSync } = require('node:child_process');
 const { revisarResiduales, revisarSecretos, revisarLimiteSkills, revisarLicencias } = require('./quality-gate-checks');
+const { revisarCadenaAtestacion } = require('./quality-gate-atestacion');
 
 const REPO = path.resolve(__dirname, '..');
 const LIMITE_LINEAS = 300;
@@ -72,6 +73,7 @@ function definirChecks(rapido) {
     { nombre: 'conformidad de agentes', ejecutar: () => revisarComando(process.execPath, ['.claude/bin/validate-agents.js']) },
     { nombre: 'vigencia de mercado', ejecutar: () => revisarComando(process.execPath, ['.claude/bin/audit-market.js', '--only-stale'], { fallaConSalida: true }) },
     { nombre: 'licencias de dependencias', ejecutar: () => revisarLicencias(correr('npm', ['ls', '--all', '--json', '--long']).salida) },
+    { nombre: 'cadena de informes firmados', ejecutar: () => revisarCadenaAtestacion() },
   ];
   if (!rapido) checks.push({ nombre: 'suite de tests', ejecutar: () => revisarComando('npm', ['test']) });
   return checks;
