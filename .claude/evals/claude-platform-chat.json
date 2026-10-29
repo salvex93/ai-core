@@ -1,7 +1,7 @@
 [
   {
     "role": "system",
-    "content": "file://../skills/claude-api/SKILL.md"
+    "content": "file://../skills/claude-platform/SKILL.md"
   },
   {
     "role": "user",

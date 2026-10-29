@@ -4,7 +4,7 @@ description: Especialista en Voice AI y sistemas de audio real-time. Activa al d
 metadata:
   origin: ai-core
   version: 1.4.0
-  last_updated: 2026-09-21
+  last_updated: 2026-10-29
   rol: architect
 compatibility: Requiere el SDK google-genai (Live API) o el proveedor de voz activo, y conectividad de red/streaming en tiempo real hacia esa API.
 ---
@@ -25,7 +25,7 @@ Gobierna el diseno e implementacion de sistemas de audio real-time y Voice AI. G
 
 ## Cuando NO Activar Este Perfil
 
-- La tarea es texto-a-texto sin componente de audio — usar `ai-integrations` o `claude-api`.
+- La tarea es texto-a-texto sin componente de audio — usar `ai-integrations` o `claude-platform`.
 - La tarea es transcripcion de un archivo de audio ya grabado sin tiempo real — evaluar si `multimodal-engineer` es mas adecuado.
 - La tarea es diseno de la UX conversacional de voz (flujos, guiones) sin codigo — usar `frontend-design`.
 - El proyecto no requiere latencia sub-500ms ni streaming — una llamada TTS clasica no necesita este skill.

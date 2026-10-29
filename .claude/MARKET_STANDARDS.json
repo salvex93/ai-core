@@ -8,7 +8,7 @@
     "anthropic-agents": {
       "verified": "2026-09-15",
       "sources": ["platform.claude.com/docs/en/build-with-claude/prompt-caching", "platform.claude.com/docs/en/agents-and-tools/tool-use/define-tools", "platform.claude.com/docs/en/build-with-claude/thinking-steering-and-cost", "anthropic.com/engineering/writing-tools-for-agents"],
-      "skills": ["claude-agent-sdk", "managed-agents-specialist", "prompt-engineer", "ai-integrations", "claude-api", "agent-testing", "workflow-orchestrator"]
+      "skills": ["claude-platform", "prompt-engineer", "ai-integrations", "agent-testing", "workflow-orchestrator"]
     },
     "openai-gemini-agents": {
       "verified": "2026-09-15",

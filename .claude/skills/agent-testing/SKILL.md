@@ -4,7 +4,7 @@ description: Especialista en testing de comportamiento de agentes LLM. Activa al
 metadata:
   origin: ai-core
   version: 1.2.1
-  last_updated: 2026-09-21
+  last_updated: 2026-10-29
   rol: auditor
 ---
 
@@ -25,7 +25,7 @@ Este perfil cubre el testing de agentes LLM con herramientas: verificar que el a
 
 - La tarea es testing de codigo de la aplicacion (funciones, servicios, endpoints) sin agentes — usar `qa-engineer`.
 - La tarea es medir la calidad semantica de los outputs del agente (faithfulness, alucinaciones) — usar `llm-evals`. Si la pregunta mezcla ambos dominios (ej. "tests de tool use y de fidelidad de citas"), responder la parte de tool use/loops/recovery con este skill y remitir la parte de faithfulness/entailment/citation correctness a `llm-evals` por nombre, sin desarrollar diseno de tests ni metricas de esa parte semantica aqui.
-- La tarea es diagnosticar la arquitectura del agente, no su comportamiento en tests — usar `claude-agent-sdk` o `managed-agents-specialist`.
+- La tarea es diagnosticar la arquitectura del agente, no su comportamiento en tests — usar `claude-platform`.
 - El sistema no tiene herramientas (tool use, MCP, function calling) — no hay comportamiento de agente que testear con este skill.
 - La tarea es definir el system prompt del agente, no testearlo — usar `prompt-engineer`.
 

@@ -4,7 +4,7 @@ description: Especialista en arquitectura de prompts de produccion. Activa al di
 metadata:
   origin: ai-core
   version: 1.9.1
-  last_updated: 2026-10-18
+  last_updated: 2026-10-29
   rol: architect
 ---
 
@@ -26,11 +26,11 @@ No duplica el skill `ai-integrations`, que cubre la integracion del LLM como fea
 
 ## Cuando NO Activar Este Perfil
 
-- La tarea es integrar el SDK del LLM en el codigo (llamadas, streaming, manejo de errores) — usar `ai-integrations` o `claude-api`.
+- La tarea es integrar el SDK del LLM en el codigo (llamadas, streaming, manejo de errores) — usar `ai-integrations` o `claude-platform`.
 - La tarea es medir si el prompt existente produce buenos outputs — usar `llm-evals`.
 - La tarea es construir el pipeline de retrieval que alimenta el contexto del prompt — usar `rag-specialist`.
 - La tarea es un prompt conversacional de una sola linea sin formato estructurado requerido — no hay arquitectura que disenar, solo escribirlo.
-- La tarea es el system prompt de un agente con herramientas complejas — co-activar con `claude-agent-sdk` o `managed-agents-specialist`.
+- La tarea es el system prompt de un agente con herramientas complejas — co-activar con `claude-platform`.
 
 ## Primera Accion al Activar
 

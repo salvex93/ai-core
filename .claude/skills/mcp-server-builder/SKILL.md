@@ -4,14 +4,14 @@ description: Especialista en construccion de servidores MCP (Model Context Proto
 metadata:
   origin: ai-core
   version: 1.5.2
-  last_updated: 2026-09-21
+  last_updated: 2026-10-29
   rol: coder
 compatibility: Requiere @modelcontextprotocol/sdk (TypeScript) o mcp (Python) compatible con especificacion MCP 2026-07-28; depende de conectividad de red para transporte Streamable HTTP.
 ---
 
 # MCP Server Builder — Especialista en Servidores Model Context Protocol
 
-Este perfil cubre la construccion del lado servidor del protocolo MCP: crear servidores que exponen herramientas, recursos y prompts a Claude (o cualquier cliente MCP compatible). No duplica el skill `claude-agent-sdk`, que cubre el consumo de servidores MCP como cliente. Este skill cubre la construccion del servidor en si.
+Este perfil cubre la construccion del lado servidor del protocolo MCP: crear servidores que exponen herramientas, recursos y prompts a Claude (o cualquier cliente MCP compatible). No duplica el skill `claude-platform`, que cubre el consumo de servidores MCP como cliente. Este skill cubre la construccion del servidor en si.
 
 MCP es el mecanismo estandar para extender las capacidades de Claude Code y de cualquier agente Anthropic con herramientas propias: APIs internas, bases de datos privadas, servicios de la empresa, pipelines de datos. Un servidor MCP bien construido puede conectarse a cualquier cliente MCP sin modificacion.
 
@@ -31,7 +31,7 @@ Disponible en TypeScript (`@modelcontextprotocol/sdk`) y Python (`mcp`).
 ## Cuando NO Activar Este Perfil
 
 - La tarea es usar herramientas MCP ya existentes, no construir el servidor — usar el skill del dominio correspondiente.
-- La tarea es construir un agente que consume herramientas MCP — usar `claude-agent-sdk`.
+- La tarea es construir un agente que consume herramientas MCP — usar `claude-platform`.
 - Las herramientas necesarias ya estan disponibles via bridge MCP del ai-core — no es necesario un servidor nuevo.
 - La tarea es una API REST para consumo HTTP generico, no especificamente para LLMs via MCP — usar `backend-architect`.
 

@@ -12,7 +12,7 @@ npm run quality-gate                 # marco de calidad completo (limite 300 lin
 npm run setup                        # regenerar settings.json manualmente (ya corre solo via postinstall)
 npm run update                       # actualizacion one-command: pull + setup + test + validate
 npm run wizard                       # configuracion interactiva: API keys, GitHub token, alias SSH, integridad del harness, auditoria de providers
-npm run validate-globals             # auditar conformidad de los 45 skills con CLAUDE.md
+npm run validate-globals             # auditar conformidad de los 43 skills con CLAUDE.md
 npm run validate-globals -- --fix-drift  # corregir last_updated desincronizado automaticamente
 npm run token-metrics                # medir reduccion de consumo de tokens por sesion
 npm run dry-run                      # simular 5 turnos con calculo de costo/ahorro
@@ -34,7 +34,7 @@ npm run memory-query                 # busqueda BM25+ en el vault de memoria
 npm run memory-status                # estado del indice de memoria
 npm run agent-report                 # metricas de uso de subagentes
 npm run agent-report-full            # metricas de uso de subagentes, detalle completo
-npm run eval-skills                  # correr evals de conformidad de skills (promptfoo, 45/45 skills)
+npm run eval-skills                  # correr evals de conformidad de skills (promptfoo, 43/43 skills)
 npm run init-backlog                 # inicializar BACKLOG.md en el proyecto anfitrion
 npm run query-backlog                # consultar estado del backlog
 ```

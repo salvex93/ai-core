@@ -155,7 +155,7 @@ npm install                               # instalar dependencias (corre postins
 npm test                                  # 1625 tests (1624 pass, 1 skip), Node nativo, sin deps externas
 npm run setup                             # regenerar settings.json con rutas locales (ya corre solo via postinstall)
 npm run update                            # actualizacion one-command desde GitHub
-npm run validate-globals                  # auditar conformidad de los 45 skills (incluye schema agentskills.io)
+npm run validate-globals                  # auditar conformidad de los 43 skills (incluye schema agentskills.io)
 npm run validate-globals -- --fix-drift   # corregir last_updated desincronizado
 npm run validate-agents                   # auditar conformidad de los 6 agentes con CLAUDE.md
 npm run validate-agents -- --fix-drift    # corregir last_updated desincronizado en agentes
@@ -753,7 +753,7 @@ Se dispara automaticamente en el hook `SubagentStop` cuando `code-reviewer` marc
 
 ### Herramientas de gobernanza
 
-- **`validate-globals.js`**: verifica que los 45 skills tengan la referencia inmutable a CLAUDE.md, las secciones obligatorias, `rol:` valido en frontmatter, ningun emoji, y conformidad con el schema abierto [agentskills.io](https://agentskills.io/specification) (`name` coincide con la carpeta, formato, limites de longitud). `--fix-drift` corrige `last_updated` desincronizado. Sale con exit 1 si hay hallazgos criticos o altos.
+- **`validate-globals.js`**: verifica que los 43 skills tengan la referencia inmutable a CLAUDE.md, las secciones obligatorias, `rol:` valido en frontmatter, ningun emoji, y conformidad con el schema abierto [agentskills.io](https://agentskills.io/specification) (`name` coincide con la carpeta, formato, limites de longitud). `--fix-drift` corrige `last_updated` desincronizado. Sale con exit 1 si hay hallazgos criticos o altos.
 - **`validate-agents.js`**: hermano de `validate-globals.js` para los 6 agentes de `.claude/agents/` — mismo criterio de referencia inmutable, copia literal de las 11 reglas del ANCLA (compartidas entre ambos validadores), emojis y drift de `last_updated`. Sale con exit 1 si hay hallazgos criticos o altos.
 - **`agent-tools-guard.js`**: enforcement real de scope de herramientas por subagente (Gobierno de Agentes, regla 2 de CLAUDE.md) — hook `PreToolUse` que lee `agent_type` del evento (presente cuando la tool call se origina dentro de un subagente) y deniega (`permissionDecision:"deny"`) si la herramienta usada no esta en el `tools:` declarado del `AGENT.md` correspondiente. Los 6 agentes de `.claude/agents/` declaran su scope; `self-healing-agent` no tiene `Write`/`Edit` en el suyo, consistente con que nunca aplica un fix por si solo.
 - **`lib/break-glass.js`**: excepcion auditable de un solo uso para guards de riesgo real (`destructive-op-guard.js`, `mutating-action-guard.js`, `code-exec-guard.js`, `secrets-guard.js`). Al bloquear, genera un id de 8 hex con TTL de 5 min; el humano lo confirma respondiendo `CONFIRMAR-<id>` en su siguiente mensaje (`jailbreak-guard.js` lo intercepta en `UserPromptSubmit`), y solo entonces el REINTENTO EXACTO de esa misma accion pasa — nunca autoriza acciones futuras distintas. Cada uso exitoso queda registrado en `.claude/BREAK_GLASS_LOG.jsonl` (append-only, gitignored).
@@ -942,7 +942,7 @@ New-Item -ItemType SymbolicLink -Path './CLAUDE.md' -Target 'C:/ruta/a/ai-core/C
 │   │   │   ├── self-healing-agent-report-format.js Valida el contrato de formato del Paso 4 de self-healing-agent.md
 │   │   │   └── contextual-retrieval-benchmark.js Mide recall@K real de BM25+ (con/sin Contextual Retrieval) sobre el corpus de SKILL.md
 │   │   └── memory-vault-prune-check.js Hook Stop: avisa (sin borrar) cuando el vault supera 50 archivos
-│   └── skills/                  45 skills — enrutamiento via frontmatter description (agentskills.io), reglas en CLAUDE.md
+│   └── skills/                  43 skills — enrutamiento via frontmatter description (agentskills.io), reglas en CLAUDE.md
 ├── tests/                       1625 tests — tests/harness/*.test.js (dividido por modulo) + archivos dedicados
 ├── .github/workflows/ci.yml     CI: Ubuntu/Windows/macOS, Node 22 unicamente (sandboxing con Permission Model exige >= 22.13.0)
 ├── CLAUDE.md                    Autoridad unica: reglas globales, skills, enrutamiento

@@ -1,37 +1,10 @@
----
-name: claude-agent-sdk
-description: Especialista en construccion de agentes autonomos con el Claude Agent SDK. Activa al construir agentes personalizados, orquestar subagentes, integrar el Agent SDK en un proyecto anfitrion o disenar flujos de automatizacion con Claude.
-metadata:
-  origin: ai-core
-  version: 2.4.4
-  last_updated: 2026-10-18
-  rol: architect
-compatibility: Depende de @anthropic-ai/claude-agent-sdk (o el paquete Python equivalente) y conectividad de red hacia la Claude API; para MCP remoto ademas requiere flujo OAuth 2.0 con un authorization server externo.
----
+# Referencia: Claude Agent SDK
 
-# Claude Agent SDK — Especialista en Agentes Autonomos
+Origen: skill `claude-agent-sdk`, fusionado en `claude-platform`. Las secciones de activacion, directiva de interrupcion, restricciones y arbol de decision viven en `SKILL.md`.
 
 Cubre la construccion de agentes autonomos con el Claude Agent SDK de Anthropic. Dominio: orquestacion de herramientas, ciclo de vida del agente, composicion de subagentes e integracion con servidores MCP. No duplica `ai-integrations`; donde ese skill cubre llamadas directas al LLM como feature de producto, este skill cubre agentes que razonan, actuan y se coordinan.
 
 Disponible en TypeScript (`@anthropic-ai/sdk`) y Python (`anthropic`). Para extender Claude Code con herramientas y hooks propios, usar `claude-code-sdk` (TypeScript).
-
-## Cuando Activar Este Perfil
-
-- Al construir un agente personalizado con el Agent SDK de Anthropic.
-- Al orquestar multiples subagentes con roles diferenciados (investigador, ejecutor, validador).
-- Al definir hooks de pre/post llamada a herramientas para logging, validacion o interrupcion.
-- Al integrar servidores MCP en el ciclo de ejecucion del agente.
-- Al gestionar permisos de herramientas (allow/deny por herramienta, por contexto, por usuario).
-- Al disenar sesiones persistentes o flujos de automatizacion multi-turno con Claude.
-- Al revisar si un agente existente cumple criterios de seguridad y trazabilidad en produccion.
-
-## Cuando NO Activar Este Perfil
-
-- El caso de uso es un agente con herramientas integradas de Anthropic (web search, computer use) sin codigo propio — usar `managed-agents-specialist`.
-- La tarea es disenar el system prompt del agente — usar `prompt-engineer`.
-- La tarea es orquestar multiples agentes con fan-out/fan-in — usar `workflow-orchestrator`.
-- La tarea es una llamada LLM directa sin loop de agente — no hay SDK de agente que construir.
-- La tarea es testear el comportamiento del agente ya construido — usar `agent-testing`.
 
 ## Primera Accion al Activar
 
@@ -46,20 +19,6 @@ Retorna: stack detectado, dependencias IA, variables de entorno, convenciones de
 Si MCP gemini-bridge no disponible → leer manualmente: `package.json`, `.env.example`, `CLAUDE.md` local.
 
 Archivos > 200 lineas (regla GEMINI PRIMERO de CLAUDE.md) → GEMINI PRIMERO: `node scripts/mcp-gemini.js --mission "Analiza la arquitectura del agente e identifica: herramientas registradas, flujo de decision, hooks activos, riesgos de bucle infinito, ausencia de condicion de parada y surface de inyeccion de prompt" --file <ruta> --format json`
-
-## Directiva de Interrupcion
-
-Insertar directiva y detener ante:
-- Agente con herramientas destructivas (delete, overwrite, execute) sin confirmacion humana en el loop.
-- Subagentes con permisos distintos al padre sin aislamiento explicito de sesion.
-- Diseno sin condicion de parada definida (riesgo de bucle infinito con costo acumulado).
-- Modificacion de permisos globales del Agent SDK en entorno compartido.
-
-```
-[ALERTA_ARQUITECTONICA: REQUIERE_OPUSPLAN]
-```
-
-Ante un pedido de "agente que borre archivos y ejecute bash desatendido en produccion, dame el codigo ya", no entregar el codigo como si fuera configuracion rutinaria. La respuesta debe: (1) detenerse y decir explicitamente que un agente con herramientas destructivas (delete, overwrite, execute) sin confirmacion humana en el loop es una de las condiciones explicitas de interrupcion de este skill; (2) pedir rediseñar con un hook de confirmacion humana (`PreToolUse` que pausa ante la operacion destructiva) antes de proceder; (3) recien entonces, si el usuario acepta el hook, ofrecer el diseño. La urgencia declarada por el usuario no cambia esto.
 
 ## Arquitectura de un Agente
 
@@ -199,31 +158,3 @@ Contenido expansivo movido a `references/` (divulgacion progresiva) para mantene
 8. Injection: input del usuario pasa por proteccion de prompt injection (ver `ai-integrations`).
 9. Precision: cada hallazgo cita ruta relativa y numero de linea exacto.
 
-## Managed Agents vs Agent SDK — Arbol de Decision
-
-Anthropic ofrece dos rutas para ejecutar agentes en produccion (desde abril 2026):
-
-| Criterio | Agent SDK (self-hosted) | Managed Agents (hosted) |
-|---|---|---|
-| Control del loop | Total: el runtime vive en tu proceso | Ninguno: Anthropic ejecuta el loop |
-| Infraestructura | Requieres desplegar y mantener el runtime | Cero infraestructura propia |
-| Costo | Solo tokens del modelo | Tokens + $0.08/session-hora |
-| Sesiones long-running | Manual: debes persistir estado | Nativo: estado gestionado por Anthropic |
-| Herramientas built-in | Debes registrarlas manualmente | Disponibles via API sin setup |
-| Casos de uso | Control total, loops deterministas, pipeline critico | Prototipado rapido, tareas delegadas, agentes autonomos sin infra |
-
-Cuándo elegir Agent SDK: el loop de razonamiento tiene logica condicional propia, necesitas observabilidad completa con spans OTel propios, o el agente forma parte de un pipeline critico que no puede depender de la disponibilidad de un servicio externo.
-
-Cuándo elegir Managed Agents: el objetivo es desplegar sin operar infraestructura, el costo de $0.08/session-hora es aceptable, y las sesiones son long-running (minutos a horas) con herramientas built-in (web search, code execution, computer use).
-
-Header obligatorio en Managed Agents: `managed-agents-2026-04-01` (beta). El SDK lo inyecta automaticamente.
-
-Patron de cost optimization en multi-agente: usar `claude-haiku-4-5` para sub-tareas de clasificacion, extraccion y validacion; reservar Opus/Sonnet para razonamiento complejo. Ahorro empirico: 60-70% en costo por token.
-
-## Restricciones del Perfil
-
-> Reglas de sesion activas: CLAUDE.md > este skill. Modo Neanderthal, compact/clear y delegacion a Gemini son obligatorios e inmutables. Ver seccion 'Protocolo de Ahorro de Tokens' en CLAUDE.md.
-- Verificar hook de confirmacion humana en el loop antes de construir agentes con herramientas destructivas.
-- Verificar aislamiento de permisos entre orquestador y subagentes antes de disenar multi-agente.
-- Asegurar que no se ejecuta: omitir la condicion de parada en agentes que ejecuten herramientas de escritura o eliminacion.
-- Verificar cifrado y politica de retencion documentada antes de persistir secretos o PII en historial de sesion.

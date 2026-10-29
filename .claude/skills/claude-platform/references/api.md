@@ -1,32 +1,6 @@
----
-name: claude-api
-description: Especialista en Claude API y Anthropic SDK (Python/TypeScript). Activa al escribir codigo que importa anthropic/@anthropic-ai/sdk, disenar pipelines con cache de prompts, implementar tool use nativo, o migrar entre versiones de Claude.
-metadata:
-  origin: ai-core
-  version: 1.3.2
-  last_updated: 2026-09-21
-  rol: coder
-compatibility: Depende de @anthropic-ai/sdk (o el paquete Python `anthropic`) y conectividad de red hacia api.anthropic.com.
----
+# Referencia: Claude API y Anthropic SDK
 
-# Claude API Specialist
-
-## Cuando Activar Este Perfil
-
-- Codigo importa `anthropic` o `@anthropic-ai/sdk`.
-- El usuario pregunta sobre prompt caching, cache hit rate, o costos de inferencia.
-- Implementacion de tool use, streaming, extended thinking o Batch API.
-- Migracion de modelo: Haiku 4.5 → Sonnet 5 → Opus 5, o reemplazo de modelos retirados.
-- Disenar system prompts con cache para reducir costo en sesiones largas.
-- Uso de Citations API para documentos estructurados o Files API para contexto persistente.
-
-
-## Cuando NO Activar Este Perfil
-
-- El codigo usa OpenAI, Gemini u otro proveedor — este skill es especifico de Anthropic SDK.
-- La tarea es diseno del prompt, no la implementacion de la llamada — usar `prompt-engineer`.
-- La tarea es integrar el LLM como feature completa de producto (endpoint, streaming, fallback) — usar `ai-integrations`.
-- La tarea es construir un agente con herramientas — usar `claude-agent-sdk`.
+Origen: skill `claude-api`, fusionado en `claude-platform`. Las secciones de activacion, directiva de interrupcion, restricciones y arbol de decision viven en `SKILL.md`.
 
 ## Primera Accion al Activar
 
@@ -212,6 +186,23 @@ for result in client.messages.batches.results(batch.id):
 
 Usar Batch API para: evaluaciones masivas, enriquecimiento de datos, generacion de embeddings, cualquier tarea con > 10 requests independientes sin SLA de tiempo real.
 
+### Limite de max_tokens en Batch (actualizado)
+
+Limite actualizado en 2026: `max_tokens` de hasta 300.000 en Message Batches API para Opus 4.8 y Sonnet 5. Aplica para procesamiento masivo de documentos largos.
+
+```python
+batch = client.messages.batches.create(
+    requests=[{
+        "custom_id": f"doc-{i}",
+        "params": {
+            "model": "claude-sonnet-5",
+            "max_tokens": 300000,   # limite actualizado 2026
+            "messages": [{"role": "user", "content": doc_largo}]
+        }
+    } for i, doc_largo in enumerate(documentos)]
+)
+```
+
 ## Files API — Contexto Persistente entre Sesiones
 
 Subir archivos grandes una vez, referenciarlos en multiples requests sin retransmitir el contenido:
@@ -343,45 +334,6 @@ response = client.messages.create(
 )
 ```
 
-## Batch API — Limite 300k tokens (actualizado)
-
-Limite actualizado en 2026: `max_tokens` de hasta 300.000 en Message Batches API para Opus 4.8 y Sonnet 5. Aplica para procesamiento masivo de documentos largos.
-
-```python
-batch = client.messages.batches.create(
-    requests=[{
-        "custom_id": f"doc-{i}",
-        "params": {
-            "model": "claude-sonnet-5",
-            "max_tokens": 300000,   # limite actualizado 2026
-            "messages": [{"role": "user", "content": doc_largo}]
-        }
-    } for i, doc_largo in enumerate(documentos)]
-)
-```
-
-## Directiva de Interrupcion
-
-```
-[ALERTA_ARQUITECTONICA: REQUIERE_OPUSPLAN]
-```
-
-Activar ante:
-- Propuesta de migrar > 3 archivos que usan modelos Claude simultaneamente.
-- Deteccion de `anthropic.Anthropic()` sin manejo de errores de rate limit en produccion.
-- Sistema que acumula historial de mensajes sin limite de tokens.
-
-El marcador anterior se inserta de forma literal en la respuesta, ademas de la explicacion en prosa — nunca se omite ni se reemplaza por una descripcion equivalente. Emitir el marcador implica detenerse: prohibido entregar en el mismo turno el codigo completo como solucion final aprobada. Si se ilustra con codigo, debe marcarse explicitamente como ejemplo parcial que requiere plan aprobado antes de usarse en produccion.
-
-## Restricciones del Perfil
-
-> Reglas de sesion activas: CLAUDE.md > este skill. Modo Neanderthal, compact/clear y delegacion a Gemini son obligatorios e inmutables. Ver seccion 'Protocolo de Ahorro de Tokens' en CLAUDE.md.
-- Responder exclusivamente en espanol, sin emojis ni adornos visuales (Regla 1 de CLAUDE.md — IDIOMA).
-- Prohibido leer archivos completos sin consultar CONTEXT_MAP primero (Regla 10 de CLAUDE.md — CONTEXT_MAP).
-- Prohibido agregar logica no solicitada (Principios de Arquitectura, "Cambios minimos" en CLAUDE.md).
-- Solo mostrar diffs o bloques minimos — nunca repetir codigo que el usuario ya tiene.
-- Siempre incluir `cache_control` en system prompts > 1024 tokens.
-
 ## Modulo — Vanguardia en Uso de Claude API y Anthropic SDK
 
 ### Identidad declarada antes de ejecutar
@@ -429,3 +381,4 @@ Verificado contra fuente oficial (`platform.claude.com/docs/en/build-with-claude
 - La sintaxis exacta de subcomandos de `ant CLI` (`ant prompts push/pull`) no pudo confirmarse contra el repositorio oficial (github.com/anthropics/anthropic-cli) en esta pasada — tratar como ilustrativo, no como sintaxis literal verificada, hasta confirmar contra el README del repo.
 
 Reverificado 2026-09-15 contra `platform.claude.com/docs/en/build-with-claude/prompt-caching`, `platform.claude.com/docs/en/agents-and-tools/tool-use/define-tools`, `platform.claude.com/docs/en/build-with-claude/thinking-steering-and-cost` y `anthropic.com/engineering/writing-tools-for-agents`: sin drift respecto a la pasada anterior — API de Prompt Caching (`cache_control: { type: "ephemeral" }`, limite de 4 breakpoints), definicion de tools y comportamiento de thinking blocks en tool use se mantienen exactos.
+

@@ -4,7 +4,7 @@ description: Especialista en observabilidad de sistemas LLM en produccion. Activ
 metadata:
   origin: ai-core
   version: 1.2.1
-  last_updated: 2026-10-18
+  last_updated: 2026-10-29
   rol: auditor
 compatibility: Depende de SDKs de terceros (@langfuse/tracing, @langfuse/otel, @opentelemetry/*, helicone) y conectividad de red hacia la plataforma de observabilidad elegida.
 ---
@@ -135,7 +135,7 @@ Configurar las siguientes alertas como gate de calidad operativa. Los umbrales e
 | Costo fuera de presupuesto | `llm_cost_usd_total` supera el presupuesto diario definido | CRITICAL | Throttling de llamadas no criticas; notificar al responsable de costos |
 | Tasa de errores del proveedor | `llm_errors_total` / `llm_requests_total` > 1% en 5 minutos | WARNING | Revisar status del proveedor; activar circuit breaker si supera 5% |
 | Cache miss rate alto | `llm_tokens_cache_read_total` / `llm_tokens_input_total` < 30% para operaciones con system prompt estatico | INFO | Revisar si el system prompt se esta modificando entre llamadas |
-| Prompt bloat | `gen_ai.usage.input_tokens` promedio por operacion sube mas del 20% respecto al baseline de 24h | WARNING | Revisar si el historial de conversacion no esta siendo truncado; comparar longitud del system prompt con la version anterior desplegada. Si el bloat viene de definiciones de tools (no de historial), evaluar Tool Search Tool con `defer_loading: true` (anthropic.com/engineering/advanced-tool-use, reduce hasta 85% de tokens de descubrimiento de herramientas) como mitigacion arquitectonica antes de solo ajustar el umbral de la alerta — ver `claude-api` para el detalle de implementacion |
+| Prompt bloat | `gen_ai.usage.input_tokens` promedio por operacion sube mas del 20% respecto al baseline de 24h | WARNING | Revisar si el historial de conversacion no esta siendo truncado; comparar longitud del system prompt con la version anterior desplegada. Si el bloat viene de definiciones de tools (no de historial), evaluar Tool Search Tool con `defer_loading: true` (anthropic.com/engineering/advanced-tool-use, reduce hasta 85% de tokens de descubrimiento de herramientas) como mitigacion arquitectonica antes de solo ajustar el umbral de la alerta — ver `claude-platform` para el detalle de implementacion |
 
 Ejemplo de regla PromQL para la alerta de prompt bloat:
 

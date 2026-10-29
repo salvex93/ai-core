@@ -4,13 +4,13 @@ description: Especialista en orquestacion multi-agente y workflows de larga dura
 metadata:
   origin: ai-core
   version: 2.3.2
-  last_updated: 2026-09-21
+  last_updated: 2026-10-29
   rol: architect
 ---
 
 # Workflow Orchestrator — Orquestacion Multi-Agente
 
-Gobierna el diseno e implementacion de workflows multi-agente con durabilidad, paralelismo controlado y recuperacion ante fallos. Complementa `claude-agent-sdk` (agente individual) y `managed-agents-specialist` (agentes gestionados por Anthropic). Este skill cubre la capa de coordinacion entre agentes, no la logica interna de cada uno.
+Gobierna el diseno e implementacion de workflows multi-agente con durabilidad, paralelismo controlado y recuperacion ante fallos. Complementa `claude-platform` (agente individual o gestionado por Anthropic). Este skill cubre la capa de coordinacion entre agentes, no la logica interna de cada uno.
 
 ## Cuando Activar Este Perfil
 
@@ -23,8 +23,8 @@ Gobierna el diseno e implementacion de workflows multi-agente con durabilidad, p
 
 ## Cuando NO Activar Este Perfil
 
-- La tarea es construir un agente individual (sin subagentes ni coordinacion entre agentes) — usar `claude-agent-sdk` o `managed-agents-specialist`.
-- La tarea es disenar la logica interna de un agente (sus herramientas, su system prompt) — usar `prompt-engineer` o `claude-agent-sdk`.
+- La tarea es construir un agente individual (sin subagentes ni coordinacion entre agentes) — usar `claude-platform`.
+- La tarea es disenar la logica interna de un agente (sus herramientas, su system prompt) — usar `prompt-engineer` o `claude-platform`.
 - El "workflow" tiene un solo paso o se ejecuta una vez sin dependencias entre pasos — no hay que orquestar nada.
 - La coordinacion es entre microservicios HTTP sincrona (request/response sin estado persistente entre pasos) — usar `backend-architect`.
 - El pipeline solo procesa datos sin LLMs (ETL puro) — usar `data-engineer`.

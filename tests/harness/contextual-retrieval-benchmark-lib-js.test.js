@@ -32,7 +32,7 @@ describe('lib/contextual-retrieval-benchmark.js', () => {
     // Confirma que el nombre real del skill (no el literal "SKILL") quedo
     // en el id -- si esto fallara, todos los fragmentos colisionarian en
     // "skill/SKILL#N" entre los 43 archivos (todos se llaman SKILL.md).
-    assert.ok(frags.some(f => f.id.includes('claude-api')), 'debe incluir el nombre real del skill en el id, no "SKILL" literal');
+    assert.ok(frags.some(f => f.id.includes('claude-platform')), 'debe incluir el nombre real del skill en el id, no "SKILL" literal');
   });
 
   test('medirRecall() con un indice controlado y ground truth ficticio calcula recall@K correctamente', () => {

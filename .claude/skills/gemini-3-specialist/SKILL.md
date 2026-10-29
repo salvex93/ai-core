@@ -4,7 +4,7 @@ description: Especialista en integracion avanzada con la familia Gemini 3.x. Act
 metadata:
   origin: ai-core
   version: 2.3.2
-  last_updated: 2026-09-21
+  last_updated: 2026-10-29
   rol: architect
 compatibility: Requiere el SDK google-genai (sucesor de google-generativeai); depende de conectividad de red hacia la Gemini API (GEMINI_API_KEY).
 ---
@@ -29,7 +29,7 @@ Complementos activos: `audio-voice-engineer` (Live API y TTS), `rag-specialist` 
 ## Cuando NO Activar Este Perfil
 
 - La tarea usa el bridge MCP de Gemini (`mcp-gemini.js`) — esa integracion ya esta encapsulada, no requiere conocimiento del SDK directo.
-- El modelo es Claude, no Gemini — usar `claude-api` o `ai-integrations`.
+- El modelo es Claude, no Gemini — usar `claude-platform` o `ai-integrations`.
 - La tarea es analisis de un archivo o repositorio via Gemini gratuito — el bridge MCP ya lo maneja sin este skill.
 - El proyecto tiene `google-genai`/`@google/generative-ai` solo como dependencia transitiva y no lo usa directamente.
 

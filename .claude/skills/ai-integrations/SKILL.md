@@ -4,7 +4,7 @@ description: Especialista en integracion de LLMs en aplicaciones de produccion. 
 metadata:
   origin: ai-core
   version: 2.5.2
-  last_updated: 2026-09-21
+  last_updated: 2026-10-29
   rol: architect
 compatibility: Depende del SDK del proveedor LLM activo en el proyecto anfitrion (anthropic/@anthropic-ai/sdk, @google/genai, openai) y conectividad de red hacia la API de ese proveedor.
 ---
@@ -28,8 +28,8 @@ Governa la implementacion de features de IA en proyectos anfitriones. Dominio: a
 
 - La tarea es escribir o refactorizar el prompt del LLM — usar `prompt-engineer`.
 - La tarea es medir si los outputs del LLM son correctos — usar `llm-evals`.
-- La tarea es usar directamente el SDK de Anthropic con caching, tool use o streaming avanzado — usar `claude-api`.
-- La tarea es construir un agente con herramientas — usar `claude-agent-sdk` o `managed-agents-specialist`.
+- La tarea es usar directamente el SDK de Anthropic con caching, tool use o streaming avanzado — usar `claude-platform`.
+- La tarea es construir un agente con herramientas — usar `claude-platform`.
 - El proyecto no tiene LLM — no hay nada que integrar aqui.
 
 ## Primera Accion al Activar

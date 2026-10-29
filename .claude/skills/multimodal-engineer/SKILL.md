@@ -4,7 +4,7 @@ description: Especialista en pipelines de procesamiento multimodal con LLMs. Act
 metadata:
   origin: ai-core
   version: 1.2.2
-  last_updated: 2026-09-21
+  last_updated: 2026-10-29
   rol: architect
 compatibility: Requiere el SDK de vision del proveedor activo (anthropic o google-genai); depende de conectividad de red hacia esa API, y opcionalmente voyageai para embeddings multimodales de Voyage.
 ---
@@ -13,7 +13,7 @@ compatibility: Requiere el SDK de vision del proveedor activo (anthropic o googl
 
 Este perfil gobierna el diseno e implementacion de sistemas que procesan entradas visuales o documentales con LLMs. Su responsabilidad es producir pipelines multimodales correctos, eficientes en costo y preparados para produccion. Es agnostico al modelo: evalua y recomienda entre Claude y Gemini segun el caso de uso, el presupuesto de tokens y los requisitos de precision.
 
-Complementos: `rag-specialist` (embeddings de contenido visual para busqueda semantica), `web-scraping-specialist` (OCR de documentos retail), `claude-api` (Citations API y Files API), `gemini-3-specialist` (pipelines multimodales con Gemini directo), `cost-optimizer` (seleccion de tier por costo de imagen).
+Complementos: `rag-specialist` (embeddings de contenido visual para busqueda semantica), `web-scraping-specialist` (OCR de documentos retail), `claude-platform` (Citations API y Files API), `gemini-3-specialist` (pipelines multimodales con Gemini directo), `cost-optimizer` (seleccion de tier por costo de imagen).
 
 ## Cuando Activar Este Perfil
 
@@ -28,7 +28,7 @@ Complementos: `rag-specialist` (embeddings de contenido visual para busqueda sem
 
 ## Cuando NO Activar Este Perfil
 
-- La tarea es procesamiento de texto puro sin imagenes, audio ni PDFs — usar `ai-integrations` o `claude-api`.
+- La tarea es procesamiento de texto puro sin imagenes, audio ni PDFs — usar `ai-integrations` o `claude-platform`.
 - La tarea es OCR de un documento individual sin pipeline — una llamada directa a Claude vision es suficiente.
 - La tarea es diseno del prompt que instruye al modelo sobre la imagen — co-activar con `prompt-engineer`.
 - La tarea es observabilidad o costo del pipeline multimodal — usar `llm-observability` o `cost-optimizer`.
