@@ -33,59 +33,54 @@ print(interaction.output_text)
 - Migracion desde codigo con `thinking_budget`: reemplazar por el nivel discreto mas cercano (`budget: 0` → `low`; `budget` bajo/fijo → `medium`; `budget: -1`/alto → `high`) y probar contra el error 400 de parametros mutuamente excluyentes.
 - Para integracion via bridge MCP del ai-core, delegar al skill `gemini-3-specialist`. Este bloque aplica a integracion directa via SDK.
 
-## Effort Levels (Opus 5 / Opus 4.8 Adaptive Reasoning)
+## Effort Levels (Opus 5.5 / Opus 5 / Opus 4.8 Adaptive Reasoning)
 
-Opus 5 (`claude-opus-5`, lanzado 24-jul-2026, mismo pricing $5/$25 por millon de tokens que Opus 4.8 y default recomendado en Claude Max) mantiene `effort` para controlar la intensidad del razonamiento por tarea dentro de un presupuesto global. Tres niveles: `low`, `high`, `xhigh`. Opus 4.8 sigue soportado como fallback documentado con la misma semantica de `effort`.
+Opus 5.5 (`claude-opus-5-5`; $4/$20 por millon de tokens segun models overview, verificado 2026-10-28) controla la intensidad del razonamiento con `output_config.effort`, parametro GA sin header beta. Cinco niveles: `low`, `medium`, `high` (default de la API en Opus), `xhigh` y `max`. Opus 5 y Opus 4.8 siguen disponibles con la misma semantica. Fuente: platform.claude.com/docs/en/build-with-claude/effort.
 
 ### Configuracion
 
 ```python
 respuesta = cliente.messages.create(
-    model="claude-opus-5",  # fallback documentado: claude-opus-4-8
-    effort="high",  # o "low", "xhigh"
-    task_budgets={
-        "total_budget": 8000,          # Presupuesto global para toda la sesion
-        "per_step_min": 512,           # Razonamiento minimo por paso
-        "per_step_max": 2048,          # Razonamiento maximo por paso
-        "allocation_strategy": "adaptive"  # Opus decide dinamicamente
-    },
-    messages=[...]
+    model="claude-opus-5-5",
+    max_tokens=64000,  # en xhigh o max, al menos 64k
+    output_config={"effort": "high"},  # low | medium | high | xhigh | max
+    messages=[...],
 )
 ```
 
 ### Semantica por nivel
 
-| Nivel | Descripcion | Costo token | Caso de uso |
-|---|---|---|---|
-| `low` | Razonamiento minimo, respuesta rapida | Base | Respuestas simples, clasificacion, baja latencia |
-| `high` | Razonamiento balanceado, decision adaptativa | ~1.5x | Tareas normales, resolucion de problemas, agentes multistep |
-| `xhigh` | Razonamiento profundo, analisis exhaustivo | ~2.5x | Arquitectura critica, debug profundo, planificacion compleja |
+| Nivel | Descripcion | Caso de uso |
+|---|---|---|
+| `low` | Razonamiento minimo, respuesta rapida | Clasificacion, respuestas simples, baja latencia |
+| `medium` | Razonamiento moderado | Cargas sensibles a costo |
+| `high` | Default; piensa casi siempre | Tareas normales y agentes multistep |
+| `xhigh` | Capacidad extendida para trabajo de horizonte largo | Codigo y agentes exigentes, debug profundo |
+| `max` | Sin techo de tokens | Solo si una medicion muestra margen sobre `xhigh` |
+
+El sobrecosto de tokens por nivel no esta medido en este repo; no asumir multiplicadores fijos. Con thinking `disabled`, `xhigh` y `max` devuelven 400 en Opus 5.
 
 ### Task Budgets vs Effort
 
-- **`effort`**: controla la *intensidad* del razonamiento (como de profundo piensa).
-- **`task_budgets`**: controla el *presupuesto total* y la *distribucion* entre pasos de un agente multiturn.
+- **`effort`**: controla la *profundidad* del razonamiento en cada paso.
+- **`task_budget`** (beta): pista consultiva del *trabajo total* del loop agentico. Detalle y forma exacta del parametro en el skill `ai-integrations`, seccion Task Budgets.
 
-Usar ambos juntos en agentes multi-paso donde la complejidad es variable:
+Se usan juntos en agentes multi-paso:
 
 ```python
-# Agente que puede tener pasos simples y pasos complejos
-cliente.messages.create(
-    model="claude-opus-5",  # fallback documentado: claude-opus-4-8
-    effort="high",  # Razonamiento balanceado por defecto
-    task_budgets={
-        "total_budget": 10000,         # Presupuesto global para toda la sesion del agente
-        "per_step_min": 256,
-        "per_step_max": 2000,
-        "allocation_strategy": "adaptive"  # Opus asigna tokens segun complejidad real de cada paso
-    },
-    messages=[...]
-)
+with cliente.beta.messages.stream(
+    model="claude-opus-5-5",
+    max_tokens=128000,
+    output_config={"effort": "high", "task_budget": {"type": "tokens", "total": 64000}},
+    messages=[...],
+    betas=["task-budgets-2026-03-13"],
+) as stream:
+    respuesta = stream.get_final_message()
 ```
 
 ### Reglas de deployment
 
-- En produccion, preferir `low` o `high`. Evitar `xhigh` en flujos con alto volumen (>100 req/min) o latencia critica (<500ms).
-- El effort no afecta `max_tokens`, solo el estilo de razonamiento interno.
-- Loguear `effort`, `thinking_tokens_used` y `budget_remaining` para auditar la efectividad.
-- En agentes multistep, `task_budgets` es obligatorio si `effort: "high"` o superior.
+- En produccion de alto volumen (>100 req/min) o latencia critica (<500ms), preferir `low`, `medium` o `high`; evaluar `xhigh` solo con medicion propia.
+- El effort no cambia `max_tokens`, que sigue siendo el tope duro por request.
+- Loguear `effort` y los tokens de `usage` de cada request para auditar la efectividad; el restante del task budget no viene en la respuesta.
+- En agentes multistep de larga duracion, considerar `task_budget` junto con `max_tokens` como techo duro.

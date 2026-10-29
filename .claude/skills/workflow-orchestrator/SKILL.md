@@ -169,7 +169,7 @@ MODELO_POR_COMPLEJIDAD = {
     "clasificacion":     "claude-haiku-5-5",  # Haiku — transformacion simple
     "razonamiento":      "claude-sonnet-5-5",           # Sonnet — analisis y diagnostico
     "arquitectura":      "claude-fable-5-1",              # Fable 5 — diseno de sistema nuevo (razonamiento profundo sin tools)
-    "arquitectura_tools":"claude-opus-4-8",             # Opus — diseno con computer use o herramientas integradas
+    "arquitectura_tools":"claude-opus-5-5",             # Opus — diseno con computer use o herramientas integradas
 }
 
 async def paso_pipeline(tipo: str, contenido: str) -> str:
