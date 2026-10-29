@@ -1,7 +1,7 @@
 'use strict';
 
 // Eventos de sesion y fallos. Recibe el contexto de perfiles de permisos de hooks-permissions.js.
-function buildSessionHooks({ bin, nodeConPermiso, soloRead, soloLeerRepo, readYWrite, readYWriteSubagentLocks, breakGlassRW, repoReadWrite, repoConGit }) {
+function buildSessionHooks({ bin, nodeConPermiso, soloRead, soloLeerRepo, readYWrite, readYWriteSubagentLocks, breakGlassRW, repoReadWrite, repoConGit, repoAtestar }) {
   return {
     UserPromptSubmit: [
       {
@@ -30,6 +30,7 @@ function buildSessionHooks({ bin, nodeConPermiso, soloRead, soloLeerRepo, readYW
           { type: 'command', command: `${nodeConPermiso(bin('aiops-score.js'), repoConGit)} 2>/dev/null || true` },
           { type: 'command', command: `${nodeConPermiso(bin('memory-index-stop.js'), repoConGit)} 2>/dev/null || true` },
           { type: 'command', command: `${nodeConPermiso(bin('memory-vault-prune-check.js'), repoReadWrite)} 2>/dev/null || true` },
+          { type: 'command', command: `${nodeConPermiso(bin('session-attest.js'), repoAtestar)} sign 2>/dev/null || true` },
         ],
       },
     ],

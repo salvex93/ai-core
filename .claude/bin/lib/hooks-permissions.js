@@ -139,8 +139,12 @@ function buildPermissionProfiles(bin, tmpDirReal) {
   // ejecuta escritura via git (commit/push/reset quedan bloqueados aparte por
   // destructive-op-guard.js, que corre ANTES en la misma cadena de PreToolUse).
   const repoConGit = { fsRead: [dirBin, dirRepo], fsWrite: [dirRepo, dirTmp], childProcess: true };
+  // session-attest.js (Stop): lee la clave privada fuera del repo y el reporte
+  // de guards del tmpdir; escribe solo la cadena dentro del repo.
+  const dirClaves = '"${HOME}/.config/ai-core/*"';
+  const repoAtestar = { fsRead: [dirBin, dirRepo, dirTmp, dirClaves], fsWrite: [dirRepo], childProcess: true };
 
-  return { dirBin, dirTmp, dirRepo, dirTmpSubagentLocks, dirTmpToolRepeat, dirTmpBudget, dirTmpAlternante, soloRead, soloLeerRepo, readYWrite, readYWriteSubagentLocks, readYWriteToolRepeat, readYWriteBudget, readYWriteAlternante, breakGlassRW, repoReadWrite, repoReadWriteCuota, repoConGit, repoLeerYReportar };
+  return { dirBin, dirTmp, dirRepo, dirTmpSubagentLocks, dirTmpToolRepeat, dirTmpBudget, dirTmpAlternante, soloRead, soloLeerRepo, readYWrite, readYWriteSubagentLocks, readYWriteToolRepeat, readYWriteBudget, readYWriteAlternante, breakGlassRW, repoReadWrite, repoReadWriteCuota, repoConGit, repoAtestar, repoLeerYReportar };
 }
 
 module.exports = { nodeConPermiso, globDir, buildPermissionProfiles };
