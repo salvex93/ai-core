@@ -96,3 +96,22 @@ test('gov-secrets: la politica puede relajar la exigencia de variables de entorn
   policy.secrets.requireEnv = false;
   assert.strictEqual(task.verify(dir, {}, policy).pass, true);
 });
+
+test('adaptadores policy-text: entregan solo la politica renderizada por el archivo nativo', () => {
+  const { ADAPTERS } = require('../lib/adapters');
+  const expected = renderPolicy(loadPolicy());
+  for (const [name, file] of [['claude-policy-text', 'CLAUDE.md'], ['codex-policy-text', 'AGENTS.md']]) {
+    const dir = tmp();
+    ADAPTERS[name].setup(dir);
+    assert.deepStrictEqual(fs.readdirSync(dir), [file], name);
+    assert.strictEqual(fs.readFileSync(path.join(dir, file), 'utf8'), expected, name);
+    assert.strictEqual(ADAPTERS[name].verified, true, name);
+  }
+});
+
+test('adaptadores policy-text: no instalan hooks ni skills de ai-core', () => {
+  const { ADAPTERS } = require('../lib/adapters');
+  const dir = tmp();
+  ADAPTERS['claude-policy-text'].setup(dir);
+  assert.ok(!fs.existsSync(path.join(dir, '.claude')));
+});

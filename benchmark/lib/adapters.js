@@ -5,6 +5,7 @@ const path = require('node:path');
 const AI_CORE_ROOT = process.env.AI_CORE_ROOT || path.resolve(__dirname, '..', '..');
 const variants = require('./variants');
 const { CODEX_ADAPTERS } = require('./codex');
+const { loadPolicy, renderPolicy } = require('./policy');
 // Raiz de la rama con carga dinamica; AI_CORE_ROOT apunta al baseline cuando se comparan ambas
 const DYNAMIC_ROOT = process.env.AI_CORE_DYNAMIC_ROOT || path.resolve(__dirname, '..', '..');
 const SKIP = new Set(['memory-vault', 'node_modules', '.git']);
@@ -61,6 +62,12 @@ const ADAPTERS = {
     verified: true, parser: 'claude-json', bin: 'claude',
     setup: () => {},
     sessions: true,
+    args: (prompt, model, resumeId) => claudeArgs(prompt, model, resumeId),
+  },
+  // Misma politica que ai-core pero solo como texto: separa conocer la regla de hacerla cumplir con hooks
+  'claude-policy-text': {
+    verified: true, parser: 'claude-json', bin: 'claude', sessions: true,
+    setup: (dir) => fs.writeFileSync(path.join(dir, 'CLAUDE.md'), renderPolicy(loadPolicy())),
     args: (prompt, model, resumeId) => claudeArgs(prompt, model, resumeId),
   },
   'ai-core-dynamic': {

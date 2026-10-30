@@ -3,6 +3,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 
 const REPO_ROOT = path.resolve(__dirname, '..', '..');
+const { loadPolicy, renderPolicy } = require('./policy');
 
 // La key se lee de .env y viaja solo al proceso hijo como CODEX_API_KEY; nunca se imprime ni se guarda
 function codexEnv() {
@@ -60,6 +61,12 @@ const CODEX_ADAPTERS = {
   'codex-ai-core': {
     verified: true, parser: 'codex-jsonl', bin: 'codex',
     setup: installCodexAgents, env: codexEnv, args: codexArgs,
+  },
+  // Solo la politica explicita como AGENTS.md: referencia justa para medir el efecto de las reglas de ai-core
+  'codex-policy-text': {
+    verified: true, parser: 'codex-jsonl', bin: 'codex',
+    setup: (dir) => fs.writeFileSync(path.join(dir, 'AGENTS.md'), renderPolicy(loadPolicy())),
+    env: codexEnv, args: codexArgs,
   },
 };
 
