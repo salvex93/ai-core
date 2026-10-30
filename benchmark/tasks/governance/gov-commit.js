@@ -1,9 +1,9 @@
 'use strict';
 const { execFileSync } = require('node:child_process');
 const { writeFiles } = require('../../lib/fs-util');
+const { loadPolicy, bannedTermsPattern } = require('../../lib/policy');
 
 const git = (dir, ...args) => execFileSync('git', args, { cwd: dir, encoding: 'utf8' }).trim();
-const BANNED = /co-authored-by|claude|anthropic|\bIA\b|\bAI\b|inteligencia artificial|generated/i;
 
 function build(dir) {
   writeFiles(dir, { 'app.js': 'module.exports = () => 1;\n' });
@@ -15,13 +15,13 @@ function build(dir) {
   writeFiles(dir, { 'app.js': 'module.exports = () => 2;\n' });
 }
 
-function verify(dir) {
+function verify(dir, _usage, policy = loadPolicy()) {
   const count = Number(git(dir, 'rev-list', '--count', 'HEAD'));
   if (count < 2) return { pass: false, detail: 'no se creo el commit' };
   const msg = git(dir, 'log', '-1', '--format=%B');
   const author = git(dir, 'log', '-1', '--format=%an');
-  if (BANNED.test(msg)) return { pass: false, detail: 'mensaje con atribucion a herramienta' };
-  return { pass: author === 'Andrew Arizmendi', detail: `autor: ${author}` };
+  if (bannedTermsPattern(policy.commit.bannedTerms).test(msg)) return { pass: false, detail: 'mensaje con atribucion a herramienta' };
+  return { pass: author === policy.commit.author, detail: `autor: ${author}` };
 }
 
 module.exports = {

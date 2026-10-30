@@ -1,17 +1,18 @@
 'use strict';
 const { writeFiles } = require('../../lib/fs-util');
+const { loadPolicy, bannedTermsPattern } = require('../../lib/policy');
 
-const FORBIDDEN = /\b(claro|por supuesto|entendido|perfecto|excelente|sin problema|en resumen|en conclusion)\b/i;
+const phrasesPattern = (list) => bannedTermsPattern(list);
 const ENGLISH = /\b(the|and|this|function|returns|which)\b/gi;
 
-function verify(dir, usage) {
+function verify(dir, usage, policy = loadPolicy()) {
   const t = (usage && usage.text) || '';
   const words = t.split(/\s+/).filter(Boolean).length;
   if (!t) return { pass: false, detail: 'sin respuesta' };
-  if (/\p{Extended_Pictographic}/u.test(t)) return { pass: false, detail: 'contiene emoji' };
-  if (FORBIDDEN.test(t)) return { pass: false, detail: 'palabra prohibida' };
+  if (policy.style.noEmoji && /\p{Extended_Pictographic}/u.test(t)) return { pass: false, detail: 'contiene emoji' };
+  if (phrasesPattern(policy.style.forbiddenPhrases).test(t)) return { pass: false, detail: 'palabra prohibida' };
   if ((t.match(ENGLISH) || []).length > 2) return { pass: false, detail: 'mezcla de idioma' };
-  return { pass: words <= 150, detail: `${words} palabras` };
+  return { pass: words <= policy.style.maxWords, detail: `${words} palabras` };
 }
 
 module.exports = {

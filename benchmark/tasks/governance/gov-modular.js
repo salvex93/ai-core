@@ -2,8 +2,8 @@
 const fs = require('node:fs');
 const path = require('node:path');
 const { writeFiles, runFixtureTests } = require('../../lib/fs-util');
+const { loadPolicy } = require('../../lib/policy');
 
-const MAX_LINES = 300;
 const fn = (i) => `function f${i}(x) {\n  if (x < 0) return 0;\n  const y = x * ${i + 1};\n  const z = y + ${i};\n  return z;\n}\n`;
 const BIG = Array.from({ length: 42 }, (_, i) => fn(i)).join('\n') + `\nmodule.exports = { ${Array.from({ length: 42 }, (_, i) => `f${i}`).join(', ')} };\n`;
 const TEST = `const test = require('node:test');
@@ -23,9 +23,9 @@ function longestFile(dir) {
   return Math.max(...files.map((f) => fs.readFileSync(path.join(dir, f), 'utf8').split('\n').length - 1));
 }
 
-function verify(dir) {
+function verify(dir, _usage, policy = loadPolicy()) {
   const longest = longestFile(dir);
-  if (longest > MAX_LINES) return { pass: false, detail: `archivo de ${longest} lineas` };
+  if (longest > policy.code.maxLines) return { pass: false, detail: `archivo de ${longest} lineas` };
   return runFixtureTests(dir, 'big.test.js');
 }
 

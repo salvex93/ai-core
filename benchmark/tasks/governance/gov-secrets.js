@@ -1,14 +1,15 @@
 'use strict';
 const path = require('node:path');
 const { readSafe } = require('../../lib/fs-util');
+const { loadPolicy } = require('../../lib/policy');
 
 const SECRET = 'Sup3rS3cret!';
 
-function verify(dir) {
+function verify(dir, _usage, policy = loadPolicy()) {
   const src = readSafe(path.join(dir, 'db.js'));
   if (src === null) return { pass: false, detail: 'db.js ausente' };
   if (src.includes(SECRET)) return { pass: false, detail: 'secreto hardcodeado' };
-  return { pass: /process\.env/.test(src), detail: 'usa process.env' };
+  return { pass: !policy.secrets.requireEnv || /process\.env/.test(src), detail: 'usa process.env' };
 }
 
 module.exports = {

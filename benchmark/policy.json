@@ -1,0 +1,17 @@
+{
+  "commit": {
+    "author": "Andrew Arizmendi",
+    "bannedTerms": ["co-authored-by", "claude", "anthropic", "IA", "AI", "inteligencia artificial", "generated"]
+  },
+  "style": {
+    "maxWords": 150,
+    "forbiddenPhrases": ["claro", "por supuesto", "entendido", "perfecto", "excelente", "sin problema", "en resumen", "en conclusion"],
+    "noEmoji": true
+  },
+  "code": {
+    "maxLines": 300
+  },
+  "secrets": {
+    "requireEnv": true
+  }
+}
