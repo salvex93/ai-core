@@ -3,6 +3,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const { ADAPTERS } = require('./lib/adapters');
 const { runOne } = require('./lib/runner');
+const { registerExternal } = require('./lib/external');
 const { toMarkdown } = require('./lib/report');
 const { runSession, TURN_ORDER_LONG } = require('./lib/session');
 const { collectMeta } = require('./lib/meta');
@@ -15,8 +16,10 @@ const OUT = path.join(__dirname, 'results');
 
 function parseArgs(argv) {
   const get = (flag, def) => { const i = argv.indexOf(flag); return i >= 0 ? argv[i + 1] : def; };
+  const adapterCmd = get('--adapter-cmd', null);
   return {
-    adapters: get('--adapters', 'claude-vanilla,ai-core').split(','),
+    adapterCmd,
+    adapters: get('--adapters', adapterCmd ? 'external' : 'claude-vanilla,ai-core').split(','),
     reps: Number(get('--reps', '3')),
     model: get('--model', 'sonnet'),
     timeoutMs: Number(get('--timeout', '300')) * 1000,
@@ -92,6 +95,7 @@ function runSessions(opts) {
 
 function main() {
   const opts = parseArgs(process.argv.slice(2));
+  if (opts.adapterCmd) registerExternal(opts.adapterCmd);
   checkAdapters(opts);
   if (opts.session) return runSessions(opts);
   const results = collect(opts);

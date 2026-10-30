@@ -24,8 +24,13 @@ function parseWallOnly() {
   return { costUsd: null, turns: null, tokens: null, error: null };
 }
 
+// Arnes externo: la salida estandar es la respuesta; no hay formato de uso que medir
+function parsePlainText(stdout) {
+  return { text: stdout, costUsd: null, turns: null, tokens: null, error: null };
+}
+
 const { parseCodexJsonl } = require('./codex');
 
-const PARSERS = { 'claude-json': parseClaudeJson, 'codex-jsonl': parseCodexJsonl, 'wall-only': parseWallOnly };
+const PARSERS = { 'claude-json': parseClaudeJson, 'codex-jsonl': parseCodexJsonl, 'wall-only': parseWallOnly, 'plain-text': parsePlainText };
 
 module.exports = { PARSERS, parseClaudeJson };
