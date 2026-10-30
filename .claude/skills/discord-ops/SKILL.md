@@ -4,7 +4,7 @@ description: Integracion de Discord como canal de alertas y notificaciones. Acti
 metadata:
   origin: ai-core
   version: 1.0.0
-  last_updated: 2026-09-21
+  last_updated: 2026-10-30
   rol: architect
 compatibility: Requiere una URL de Incoming Webhook de Discord (o token de bot para el modulo avanzado) ya emitida desde la configuracion del servidor/canal de destino -- este perfil no crea el webhook por el usuario, guia su uso y proteccion.
 ---
@@ -54,7 +54,7 @@ Ante cualquiera de estas condiciones, insertar la directiva y detener. No propon
 [ALERTA_ARQUITECTONICA: REQUIERE_OPUSPLAN]
 ```
 
-## Incoming Webhooks — Formato y Limites Reales (verificado 2026-08-31 contra discord.com/developers/docs)
+## Incoming Webhooks — Formato y Limites Reales (verificado 2026-10-30 contra docs.discord.com/developers)
 
 Discord soporta emojis nativamente dentro del texto de un embed (title, description, fields) -- eso es una capacidad de la plataforma, no una obligacion. La regla de CLAUDE.md ("PROHIBIDO el uso de iconos, emojis o adornos visuales en las respuestas") es MAS ESTRICTA que la plataforma y aplica SIN NINGUNA EXCEPCION a cualquier ejemplo de payload, plantilla de embed, o texto que este perfil proponga -- ni siquiera como "toque visual util para distinguir severidad de un vistazo", que es la justificacion mas comun para colar un emoji. Diferenciar severidad se resuelve exclusivamente con el campo `color` del embed (entero decimal de un valor hexadecimal RGB) y texto plano en mayusculas ("CRITICO", "ADVERTENCIA"), nunca con iconos.
 
