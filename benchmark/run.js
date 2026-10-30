@@ -10,6 +10,7 @@ const { collectMeta } = require('./lib/meta');
 const { sessionToMarkdown, medianTurns } = require('./lib/session-report');
 const performance = require('./tasks');
 const governance = require('./tasks/governance');
+const pressure = require('./tasks/pressure');
 const recall = require('./tasks/recall');
 
 const OUT = path.join(__dirname, 'results');
@@ -41,7 +42,8 @@ function checkAdapters(opts) {
 }
 
 function collect(opts) {
-  const pool = opts.suite === 'governance' ? governance : opts.suite === 'all' ? [...performance, ...governance] : performance;
+  const suites = { performance, governance, pressure, all: [...performance, ...governance, ...pressure] };
+  const pool = suites[opts.suite] || performance;
   const selected = pool.filter((t) => !opts.only || opts.only.includes(t.id));
   const results = [];
   for (let rep = 1; rep <= opts.reps; rep++) {
