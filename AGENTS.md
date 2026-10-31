@@ -33,3 +33,19 @@ Sin `Co-Authored-By`, sin menciones a IA o herramientas externas. Autoria: Andre
 ## Referencia completa
 
 Para roles de agente, jerarquia de costo de modelos, gobierno de subagentes, guards de seguridad, protocolo de vigencia tecnologica y todo el detalle operativo: ver `CLAUDE.md` en la raiz de este repositorio.
+
+# AGENTS POLICY SPECIFICATION
+
+## Global Invariants
+- Strictly no execution of destructive commands without confirmation (rm -rf, git push --force).
+- All file changes must be scoped to project root.
+
+## Role: Builder (Tesis)
+- Purpose: Feature implementation and bug fixing.
+- Allowed Tools: [read_file, patch_file, run_tests].
+- Output: Dense Semantic Nodes (#NID).
+
+## Role: Auditor (Antítesis / Red Team)
+- Purpose: Adversarial invariant validation.
+- Allowed Tools: [create_test, run_adversary].
+- Scope: Hostile payloads, null mutations, security edge-cases.
