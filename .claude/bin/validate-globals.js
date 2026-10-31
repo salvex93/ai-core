@@ -28,6 +28,7 @@
 'use strict';
 
 const fs   = require('node:fs');
+const { esBiNivel, auditarBiNivel } = require('./lib/skill-bi-nivel');
 const path = require('node:path');
 
 const REPO     = path.resolve(__dirname, '..', '..');
@@ -109,6 +110,8 @@ function auditarSkill(skillDir) {
   const nombre = path.basename(skillDir);
   const file   = path.join(skillDir, 'SKILL.md');
   const hallazgos = [];
+
+  if (!fs.existsSync(file) && esBiNivel(skillDir)) return auditarBiNivel(skillDir);
 
   if (!fs.existsSync(file)) {
     return { nombre, status: 'ERROR', hallazgos: [{ sev: 'critica', desc: 'SKILL.md no existe' }] };

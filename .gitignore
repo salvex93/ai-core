@@ -50,3 +50,6 @@ scripts/premium/
 .claude/.current_role
 .claude/AGENT_SNAPSHOTS/
 .claude/tmp/
+
+# salida de compilacion TypeScript
+dist/

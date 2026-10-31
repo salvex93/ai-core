@@ -1,0 +1,14 @@
+{
+  "id": "sre-engineer",
+  "triggers": [
+    "SLI",
+    "SLO",
+    "error budget",
+    "alertas por burn rate",
+    "capacity planning",
+    "gestion de incidentes",
+    "postmortem sin culpables"
+  ],
+  "tools": [],
+  "summary": "Confiabilidad medible de servicios en produccion: SLI/SLO, error budget, alertas por burn rate, capacity planning, incidentes y postmortems sin culpables."
+}

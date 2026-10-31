@@ -1,0 +1,19 @@
+{
+  "id": "app-store-publisher",
+  "triggers": [
+    "build de release firmado",
+    "APK",
+    "AAB",
+    "IPA",
+    "MSIX",
+    "certificados y firma de codigo",
+    "submission App Store",
+    "submission Google Play",
+    "submission Microsoft Store",
+    "compliance de guidelines de tienda",
+    "empaquetado Electron",
+    "empaquetado Tauri"
+  ],
+  "tools": [],
+  "summary": "Tramo final de codigo listo a publicado: firma, empaquetado y submission en Apple App Store, Google Play y Microsoft Store, mas empaquetado desktop con Electron o Tauri."
+}

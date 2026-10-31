@@ -12,6 +12,8 @@
     "dry-run": "node scripts/dry-run-cost-sim.js",
     "mcp-anthropic": "node scripts/mcp-anthropic.js",
     "map": "node .claude/bin/generate-map.js",
+    "build": "tsc -p tsconfig.json",
+    "pretest": "npm run build",
     "test": "node --test",
     "test:coverage": "node --experimental-test-coverage --test-reporter=spec --test-reporter-destination=stdout --test",
     "token-metrics": "node tests/token-metrics.js",
@@ -41,7 +43,8 @@
   "dependencies": {
     "@anthropic-ai/sdk": "0.122.0",
     "@google/genai": "2.19.0",
-    "@modelcontextprotocol/sdk": "1.32.1"
+    "@modelcontextprotocol/sdk": "1.32.1",
+    "zod": "4.6.7"
   },
   "engines": {
     "node": ">=22.13.0"
@@ -49,5 +52,8 @@
   "allowScripts": {
     "protobufjs@7.6.5": true,
     "@google/genai@2.19.0": true
+  },
+  "devDependencies": {
+    "typescript": "7.0.2"
   }
 }
