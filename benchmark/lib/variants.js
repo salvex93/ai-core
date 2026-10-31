@@ -1,6 +1,7 @@
 'use strict';
 const fs = require('node:fs');
 const path = require('node:path');
+const { spawnSync } = require('node:child_process');
 
 const KEEP_HEADINGS = ['Identidad', 'ANCLA DE REGLAS CRITICAS'];
 
@@ -44,6 +45,8 @@ function removeHooks(workdir) {
   const settings = JSON.parse(fs.readFileSync(file, 'utf8'));
   delete settings.hooks;
   fs.writeFileSync(file, JSON.stringify(settings, null, 2));
+  fs.rmSync(path.join(workdir, '.githooks'), { recursive: true, force: true });
+  spawnSync('git', ['config', '--unset', 'core.hooksPath'], { cwd: workdir });
 }
 
 module.exports = { minimizeClaudeMd, minimizeClaudeMdIn, removeSkills, removeHooks, shortenDescriptions };

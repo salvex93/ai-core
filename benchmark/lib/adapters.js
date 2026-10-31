@@ -1,6 +1,7 @@
 'use strict';
 const fs = require('node:fs');
 const path = require('node:path');
+const { spawnSync } = require('node:child_process');
 
 const AI_CORE_ROOT = process.env.AI_CORE_ROOT || path.resolve(__dirname, '..', '..');
 const variants = require('./variants');
@@ -18,6 +19,14 @@ function installAiCore(workdir, root = AI_CORE_ROOT) {
   });
   fs.copyFileSync(path.join(root, 'CLAUDE.md'), path.join(workdir, 'CLAUDE.md'));
   repointSettings(workdir, root);
+  installGitHooks(workdir, root);
+}
+
+// Los controles de commit son hooks de git: como en setup-settings.js, se activan solo si el destino ya es un repo
+function installGitHooks(workdir, root) {
+  if (!fs.existsSync(path.join(workdir, '.git'))) return;
+  fs.cpSync(path.join(root, '.githooks'), path.join(workdir, '.githooks'), { recursive: true });
+  spawnSync('git', ['config', 'core.hooksPath', '.githooks'], { cwd: workdir });
 }
 
 // Los hooks usan rutas absolutas: sin reescribirlas leen el repo real y el modo permission los deja mudos
