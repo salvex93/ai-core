@@ -75,6 +75,10 @@ function buildPreToolUseHooks({ bin, nodeConPermiso, soloRead, soloLeerRepo, rea
           // confirmacion previa. breakGlassRW por el mismo motivo que
           // code-exec-guard.js.
           { type: 'command', command: nodeConPermiso(bin('skill-vault-write-guard.js'), breakGlassRW) },
+          // Credencial literal en codigo (password/secret/token/api key con
+          // valor de cadena): secrets-guard.js solo cubre formatos de proveedor
+          // en el prompt. breakGlassRW por el mismo motivo que code-exec-guard.js.
+          { type: 'command', command: nodeConPermiso(bin('hardcoded-secret-guard.js'), breakGlassRW) },
         ],
       },
       {
