@@ -28,6 +28,8 @@ NOTEBOOK_SETUP.md
 *.pem
 *.key
 *.p12
+id_rsa*
+id_ed25519*
 credentials.json
 
 # Scripts de automatizacion premium — nunca al repositorio publico
