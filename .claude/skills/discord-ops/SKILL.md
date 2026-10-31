@@ -4,7 +4,7 @@ description: Integracion de Discord como canal de alertas y notificaciones de in
 metadata:
   origin: ai-core
   version: 1.0.0
-  last_updated: 2026-09-21
+  last_updated: 2026-10-31
   rol: architect
 compatibility: Requiere una URL de Incoming Webhook de Discord (o token de bot para el modulo avanzado) ya emitida desde la configuracion del servidor/canal de destino -- este perfil no crea el webhook por el usuario, guia su uso y proteccion.
 ---

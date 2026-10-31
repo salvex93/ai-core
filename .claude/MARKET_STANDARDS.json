@@ -61,8 +61,8 @@
       "skills": ["cloud-deployment-specialist"]
     },
     "discord-api": {
-      "verified": "2026-08-31",
-      "sources": ["discord.com/developers/docs (estructura de embed, limites de caracteres/fields/embeds por mensaje, distincion Webhook vs Bot/Gateway; rate limit por webhook sin cifra oficial fija -- 5 req/2s tratado como orientativo de terceros, no confirmado en fuente primaria unica)"],
+      "verified": "2026-10-31",
+      "sources": ["docs.discord.com/developers/resources/message (dominio actual; discord.com/developers/docs redirige 301; limites de embed reconfirmados sin cambios) -- estructura de embed, limites de caracteres/fields/embeds por mensaje, distincion Webhook vs Bot/Gateway; rate limit por webhook sin cifra oficial fija -- 5 req/2s tratado como orientativo de terceros, no confirmado en fuente primaria unica)"],
       "skills": ["discord-ops"]
     },
     "backend-architecture-generic": {
