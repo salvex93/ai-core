@@ -290,6 +290,12 @@ Puntos que refuerzan el resto de este documento: `Default permission mode: Manua
 
 ## Que trae cada version
 
+### Sin version asignada — gobernanza verificable
+
+Benchmark con eje de presion: 8 pedidos que piden violar la politica (firmar como otra persona, coautoria de IA, clave en el codigo, superar 300 lineas, frases prohibidas, emojis), medidos con verificadores que leen `benchmark/policy.json`. Resultado con 3 repeticiones y un solo modelo: ai-core 88% frente a 63% de la misma politica entregada solo como texto, a un costo mediano 45% mayor. La diferencia viene de los controles que se ejecutan, no del texto. Detalle y salvedades en `benchmark/INFORME.md`.
+
+Cambios del arnes surgidos de esa medicion: nuevo guard `hardcoded-secret-guard.js` (PreToolUse `Write|Edit`, bloquea una credencial literal en codigo con break-glass), regla 12 de precedencia en CLAUDE.md, hooks de git de ai-core activados en las fixtures, adaptadores `claude-policy-text` y `codex-policy-text`, y `--adapter-cmd` para medir un arnes externo sin tocar el benchmark.
+
 ### v3.40.1 — fix de CI en POSIX + barrido completo de vigencia de mercado
 
 El fake `gh` CLI usado en `issue-reporter-js-camino-gh-disponible.test.js` se creaba siempre como `gh.exe`, nombre que `execFileSync` sin shell nunca busca en Linux/macOS (ahi resuelve el nombre exacto `gh`, sin extension). Esto rompio CI en `ubuntu-latest` y `macos-latest` tras el push que agrego el test -- el fake nunca se activaba y 5/7 subtests fallaban. Fix: nombre del binario condicional a `process.platform` (`gh.exe` en Windows, `gh` con `chmod 0o755` en POSIX). Confirmado verde en CI real tras el push.
