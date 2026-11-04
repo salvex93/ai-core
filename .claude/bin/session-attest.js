@@ -13,6 +13,7 @@
  *   AI_CORE_ATTEST_CHAIN        cadena; por defecto .claude/ATTESTATIONS.jsonl
  *   AI_CORE_ATTEST_BREAK_GLASS  registro break-glass; por defecto .claude/BREAK_GLASS_LOG.jsonl
  *   AI_CORE_GUARD_REPORT_PATH   reporte de guards de la sesion (ver guard-report.js)
+ *   AI_CORE_POLICY              politica a evaluar; por defecto benchmark/policy.json (sin ella no hay cumplimiento)
  *
  * Sin clave privada, `sign` no hace nada: la firma es opt-in por maquina.
  */
@@ -23,6 +24,7 @@ const path = require('node:path');
 const { execFileSync } = require('node:child_process');
 const att   = require('./lib/session-attestation.js');
 const store = require('./lib/session-attestation-store.js');
+const pc    = require('./lib/policy-compliance.js');
 const { GUARD_REPORT_PATH } = require('./lib/guard-report.js');
 
 const REPO = path.resolve(__dirname, '../..');
@@ -30,6 +32,7 @@ const env  = process.env;
 const DIR_CLAVES = env.AI_CORE_ATTEST_DIR || path.join(os.homedir(), '.config', 'ai-core');
 const CADENA     = env.AI_CORE_ATTEST_CHAIN || path.join(REPO, '.claude', 'ATTESTATIONS.jsonl');
 const BREAK_GLASS = env.AI_CORE_ATTEST_BREAK_GLASS || path.join(REPO, '.claude', 'BREAK_GLASS_LOG.jsonl');
+const POLITICA = env.AI_CORE_POLICY || path.join(REPO, 'benchmark', 'policy.json');
 const PRIVADA = path.join(DIR_CLAVES, 'attest.key');
 const PUBLICA = path.join(DIR_CLAVES, 'attest.pub');
 
@@ -48,6 +51,41 @@ function huella(informe) {
   return att.canonicalizar({ s: informe.sessionId, g: informe.guards, b: informe.breakGlass });
 }
 
+const conDatos = (informe) => (informe.cumplimiento || []).some(r => r.estado !== 'sin_datos');
+
+// Sin artefactos nuevos que evaluar el cumplimiento no cambia el contenido atestado
+function mismoContenido(previo, nuevo) {
+  if (huella(previo) !== huella(nuevo)) return false;
+  return !conDatos(nuevo) || att.canonicalizar([previo.politica, previo.cumplimiento]) === att.canonicalizar([nuevo.politica, nuevo.cumplimiento]);
+}
+
+function git(args) {
+  return execFileSync('git', args, { cwd: REPO, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] });
+}
+
+// Commits desde el sobre anterior (o solo HEAD si no hay referencia valida) y sus archivos de codigo vivos
+function artefactosDeSesion(desdeHead) {
+  const rango = desdeHead ? `${desdeHead}..HEAD` : 'HEAD^..HEAD';
+  let salida;
+  try { salida = git(['log', rango, '--format=%h%x1f%an%x1f%B%x1e']); } catch { return { commits: [], archivos: [] }; }
+  const commits = salida.split('\x1e').map(s => s.trim()).filter(Boolean).map(s => {
+    const [hash, autor, mensaje] = s.split('\x1f');
+    return { hash, autor, mensaje };
+  });
+  const rutas = commits.length ? git(['diff', '--name-only', '--diff-filter=AM', rango]).split('\n').filter(Boolean) : [];
+  const archivos = rutas.filter(r => fs.existsSync(path.join(REPO, r)))
+    .map(r => ({ ruta: r, lineas: fs.readFileSync(path.join(REPO, r), 'utf8').split('\n').length - 1 }));
+  return { commits, archivos };
+}
+
+function cumplimientoDeSesion(desdeHead) {
+  if (!fs.existsSync(POLITICA)) return {};
+  const politica = JSON.parse(fs.readFileSync(POLITICA, 'utf8'));
+  const { commits, archivos } = artefactosDeSesion(desdeHead);
+  const cumplimiento = pc.evaluarCumplimiento({ commits, archivos, politica });
+  return { politicaHash: pc.hashPolitica(politica), cumplimiento };
+}
+
 function firmar() {
   if (!fs.existsSync(PRIVADA)) return;
   const sobres = store.leerJsonl(CADENA);
@@ -60,10 +98,11 @@ function firmar() {
     guardReportes: store.leerJsonl(env.AI_CORE_GUARD_REPORT_PATH || GUARD_REPORT_PATH),
     breakGlass: store.leerJsonl(BREAK_GLASS).filter(b => (b.confirmadoEn || '') > desde),
     prevHash: ultimo ? ultimo.hash : att.GENESIS,
+    ...cumplimientoDeSesion(ultimo ? ultimo.informe.gitHead : null),
   });
-  const vacio = informe.guards.total.ok + informe.guards.total.warn + informe.guards.total.blocked + informe.breakGlass.length === 0;
+  const vacio = informe.guards.total.ok + informe.guards.total.warn + informe.guards.total.blocked + informe.breakGlass.length === 0 && !conDatos(informe);
   if (vacio) return;
-  if (ultimo && ultimo.informe.sessionId === informe.sessionId && huella(ultimo.informe) === huella(informe)) return;
+  if (ultimo && ultimo.informe.sessionId === informe.sessionId && mismoContenido(ultimo.informe, informe)) return;
   store.agregarSobre(CADENA, att.firmarInforme(informe, fs.readFileSync(PRIVADA, 'utf8')));
 }
 

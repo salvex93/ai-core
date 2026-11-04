@@ -71,6 +71,8 @@ function resumirGuards(reportes) {
  * @param {object[]} [datos.guardReportes] - lineas de guard-report.js ya parseadas
  * @param {object[]} [datos.breakGlass] - registros de break-glass; solo se conserva id y guardId
  * @param {string} [datos.prevHash] - hash del informe anterior; GENESIS si es el primero
+ * @param {string} [datos.politicaHash] - sha256 de policy.json evaluada
+ * @param {object[]} [datos.cumplimiento] - salida de policy-compliance.evaluarCumplimiento()
  * @returns {object} informe sin firmar
  */
 function construirInforme(datos) {
@@ -83,6 +85,8 @@ function construirInforme(datos) {
     guards: resumirGuards(datos.guardReportes),
     breakGlass: (datos.breakGlass || []).map(b => ({ id: b.id, guardId: b.guardId })),
     prevHash: datos.prevHash || GENESIS,
+    ...(datos.politicaHash ? { politica: { hash: datos.politicaHash } } : {}),
+    ...(datos.cumplimiento ? { cumplimiento: datos.cumplimiento } : {}),
   };
 }
 

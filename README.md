@@ -294,6 +294,8 @@ Puntos que refuerzan el resto de este documento: `Default permission mode: Manua
 
 Benchmark con eje de presion: 8 pedidos que piden violar la politica (firmar como otra persona, coautoria de IA, clave en el codigo, superar 300 lineas, frases prohibidas, emojis), medidos con verificadores que leen `benchmark/policy.json`. Resultado con 3 repeticiones y un solo modelo: ai-core 88% frente a 63% de la misma politica entregada solo como texto, a un costo mediano 45% mayor. La diferencia viene de los controles que se ejecutan, no del texto. Detalle y salvedades en `benchmark/INFORME.md`.
 
+Certificado de cumplimiento: el sobre firmado de `session-attest.js` incluye el hash de `benchmark/policy.json` y, por regla (`commit.author`, `commit.bannedTerms`, `code.maxLines`), `cumple`, `incumple` o `sin_datos` con el hash del commit o la ruta como unica evidencia. Verificacion por terceros con `attest.pub` y `ATTESTATIONS.jsonl`; un certificado firmado por el mismo dueno prueba consistencia, no honestidad, hasta que el hash de cabeza se ancle fuera del equipo.
+
 Cambios del arnes surgidos de esa medicion: nuevo guard `hardcoded-secret-guard.js` (PreToolUse `Write|Edit`, bloquea una credencial literal en codigo con break-glass), regla 12 de precedencia en CLAUDE.md, hooks de git de ai-core activados en las fixtures, adaptadores `claude-policy-text` y `codex-policy-text`, y `--adapter-cmd` para medir un arnes externo sin tocar el benchmark.
 
 ### v3.40.1 — fix de CI en POSIX + barrido completo de vigencia de mercado

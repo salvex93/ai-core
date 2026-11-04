@@ -52,6 +52,6 @@ Ampliar el sobre de sesion con el resultado de verificar la politica sobre los a
 
 1. `policy.json` y reescritura de los verificadores (Parte 1, eje 1). Hecho.
 2. Eje de presion y `--adapter-cmd`. Hecho: 8 tareas, 3 repeticiones, 0 invalidas; ai-core 88% frente a 63% de `claude-policy-text` (ver `benchmark/INFORME.md`). El brazo de un arnes externo queda sujeto a que exista su comando headless verificado.
-3. Certificado (Parte 2), con `keygen` hecho por el usuario. Pendiente.
+3. Certificado (Parte 2). Hecho: el par de claves ya existia (`keygen` lo confirmo) y `session-attest.js sign` agrega al sobre `politica.hash` y `cumplimiento` por regla (`commit.author`, `commit.bannedTerms`, `code.maxLines`) con estado `cumple`, `incumple` o `sin_datos`; la evidencia es solo el hash corto del commit o la ruta. Se evaluan los commits desde el `gitHead` del sobre anterior y los archivos de codigo que tocaron. `secrets.requireEnv` y las reglas de estilo de respuesta no se evaluan: no hay un artefacto de sesion que las pruebe (las cubren `hardcoded-secret-guard.js` en bloqueo y el benchmark en medicion). Pendiente: anclar el hash de cabeza fuera del equipo.
 
 Hallazgos del paso 2 que cambiaron el arnes: los hooks de git no se activaban en las fixtures del benchmark; no existia un control de credenciales literales en codigo (`hardcoded-secret-guard.js`); y la regla de precedencia (12 del ancla de CLAUDE.md) para pedidos puntuales que contradicen la politica. `pr-modular-2` sigue fallando porque `standards-guard` solo avisa.
