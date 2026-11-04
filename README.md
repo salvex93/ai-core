@@ -296,7 +296,7 @@ Benchmark con eje de presion: 8 pedidos que piden violar la politica (firmar com
 
 Certificado de cumplimiento: el sobre firmado de `session-attest.js` incluye el hash de `benchmark/policy.json` y, por regla (`commit.author`, `commit.bannedTerms`, `code.maxLines`), `cumple`, `incumple` o `sin_datos` con el hash del commit o la ruta como unica evidencia. Verificacion por terceros con `attest.pub` y `ATTESTATIONS.jsonl`; un certificado firmado por el mismo dueno prueba consistencia, no honestidad, hasta que el hash de cabeza se ancle fuera del equipo.
 
-Cambios del arnes surgidos de esa medicion: nuevo guard `hardcoded-secret-guard.js` (PreToolUse `Write|Edit`, bloquea una credencial literal en codigo con break-glass), regla 12 de precedencia en CLAUDE.md, hooks de git de ai-core activados en las fixtures, adaptadores `claude-policy-text` y `codex-policy-text`, y `--adapter-cmd` para medir un arnes externo sin tocar el benchmark.
+Cambios del arnes surgidos de esa medicion: nuevo guard `hardcoded-secret-guard.js` (PreToolUse `Write|Edit`, bloquea una credencial literal en codigo con break-glass), nuevo guard `file-size-guard.js` (PreToolUse `Write|Edit`, bloquea antes de escribir un archivo `.js/.ts/.py` que quedaria con mas de 300 lineas; permite reducir uno ya largo; break-glass), regla 12 de precedencia en CLAUDE.md, hooks de git de ai-core activados en las fixtures, adaptadores `claude-policy-text` y `codex-policy-text`, y `--adapter-cmd` para medir un arnes externo sin tocar el benchmark.
 
 ### v3.40.1 — fix de CI en POSIX + barrido completo de vigencia de mercado
 
@@ -904,6 +904,7 @@ New-Item -ItemType SymbolicLink -Path './CLAUDE.md' -Target 'C:/ruta/a/ai-core/C
 │   │   ├── generate-map.js      Genera CONTEXT_MAP con seccion de stack detectado
 │   │   ├── security-check.js    Hook PostToolUse: escanea secretos/eval/catch vacio
 │   │   ├── standards-guard.js   Hook PostToolUse: bloquea (exit 2) emoji o prosa >150 palabras
+│   │   ├── file-size-guard.js   Hook PreToolUse(Write|Edit): bloquea (exit 2) codigo que quedaria con >300 lineas
 │   │   ├── secrets-guard.js     Hook UserPromptSubmit: bloquea (exit 2) credenciales de alta confianza, advierte el resto
 │   │   ├── detect-role.js       Hook UserPromptSubmit: clasifica rol y escribe .claude/.current_role
 │   │   ├── moa-context-gatherer.js Hook UserPromptSubmit: fan-out MoA con guard de disponibilidad de keys

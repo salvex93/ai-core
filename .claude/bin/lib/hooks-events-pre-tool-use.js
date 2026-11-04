@@ -79,6 +79,7 @@ function buildPreToolUseHooks({ bin, nodeConPermiso, soloRead, soloLeerRepo, rea
           // valor de cadena): secrets-guard.js solo cubre formatos de proveedor
           // en el prompt. breakGlassRW por el mismo motivo que code-exec-guard.js.
           { type: 'command', command: nodeConPermiso(bin('hardcoded-secret-guard.js'), breakGlassRW) },
+          { type: 'command', command: nodeConPermiso(bin('file-size-guard.js'), breakGlassRW) },
         ],
       },
       {
