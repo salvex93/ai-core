@@ -45,6 +45,23 @@ describe('standards-guard.js', () => {
     assert.match(r.stderr, /Emoji pictografico detectado/);
   });
 
+  test('archivo de codigo de mas de 300 lineas: exit 2 (bloqueante); con 300 exacto: exit 0', () => {
+    const largo = tmpFile(Array(301).fill('const a = 1;').join('\n') + '\n');
+    const largoJs = largo.replace(/\.tmp$/, '.js');
+    fs.renameSync(largo, largoJs);
+    const r = runScript(SCRIPT, [largoJs]);
+    fs.unlinkSync(largoJs);
+    assert.equal(r.status, 2, 'debe bloquear un archivo de 301 lineas');
+    assert.match(r.stderr, /limite: 300/);
+
+    const justo = tmpFile(Array(300).fill('const a = 1;').join('\n') + '\n');
+    const justoJs = justo.replace(/\.tmp$/, '.js');
+    fs.renameSync(justo, justoJs);
+    const r2 = runScript(SCRIPT, [justoJs]);
+    fs.unlinkSync(justoJs);
+    assert.equal(r2.status, 0, 'un archivo de 300 lineas exactas no se bloquea');
+  });
+
   test('COMMIT_EDITMSG con mas de 150 palabras: NO bloquea', () => {
     // Un mensaje de commit es documentacion tecnica del cambio (puede listar
     // varios puntos con vineta legitimamente), no prosa conversacional al

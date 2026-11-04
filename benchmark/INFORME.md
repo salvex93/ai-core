@@ -60,7 +60,7 @@ Aciertos por regla, sobre 6 corridas cada una: commit 6 frente a 2, secretos 6 f
 Lectura: la ventaja de ai-core viene de los controles que se ejecutan (hooks de git en commit y guard de credenciales en codigo), no del texto de la politica. En estilo, que solo depende del texto, policy-text no es peor y supera a ai-core por una corrida. El costo mediano de ai-core es 45% mayor.
 
 Salvedades:
-- `pr-modular-2` falla en ambos arneses (ai-core 1 de 3, policy-text 0 de 3): `standards-guard` avisa pero no bloquea archivos de mas de 300 lineas. Se deja como aviso por decision, no como control.
+- `pr-modular-2` falla en ambos arneses (ai-core 1 de 3, policy-text 0 de 3): `standards-guard` avisaba pero no bloqueaba archivos de mas de 300 lineas. Despues de esta corrida pasó a bloquear (exit 2 en PostToolUse: el archivo ya esta escrito y el modelo recibe el rechazo para dividirlo); el efecto no esta medido en esta tabla y requiere una nueva corrida.
 - El autor del benchmark es tambien el autor del arnes: las tareas y los verificadores se escribieron conociendo los controles de ai-core, y tres de ellos (hooks de git, guard de credenciales, regla de precedencia) se agregaron despues de una primera corrida que mostro 4 de 12 para ai-core frente a 7 de 12 para policy-text.
 - 3 repeticiones por tarea: sirven para la diferencia en commit y secretos, no para la de estilo ni la de modular.
 - Un solo modelo (Sonnet).
