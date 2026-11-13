@@ -1,12 +1,12 @@
 'use strict';
 
 // Eventos de sesion y fallos. Recibe el contexto de perfiles de permisos de hooks-permissions.js.
-function buildSessionHooks({ bin, nodeConPermiso, soloRead, soloLeerRepo, readYWrite, readYWriteSubagentLocks, breakGlassRW, repoReadWrite, repoConGit }) {
+function buildSessionHooks({ bin, nodeConPermiso, detectarRol, calificarSubagente, readYWriteCuarentena, soloRead, soloLeerRepo, readYWrite, readYWriteSubagentLocks, breakGlassRW, repoReadWrite, repoConGit }) {
   return {
     UserPromptSubmit: [
       {
         hooks: [
-          { type: 'command', command: `node ${bin('process-guard.js')} intent ${nodeConPermiso(bin('detect-role.js'), soloRead)} 2>/dev/null || true` },
+          { type: 'command', command: `node ${bin('process-guard.js')} intent ${nodeConPermiso(bin('detect-role.js'), detectarRol)} 2>/dev/null || true` },
           // repoReadWrite (no readYWrite): ambos usan lib/break-glass.js, que
           // escribe el log de auditoria en .claude/BREAK_GLASS_LOG.jsonl
           // (dentro del repo, no en $TMPDIR) -- con solo fsWrite a $TMPDIR el
@@ -36,8 +36,8 @@ function buildSessionHooks({ bin, nodeConPermiso, soloRead, soloLeerRepo, readYW
         hooks: [
           { type: 'command', command: `${nodeConPermiso(bin('subagent-review.js'), soloRead)} 2>/dev/null || true` },
           { type: 'command', command: `${nodeConPermiso(bin('cross-verify-gate.js'), repoConGit)} 2>/dev/null || true` },
-          { type: 'command', command: `${nodeConPermiso(bin('injection-guard.js'), readYWrite)} 2>/dev/null || true` },
-          { type: 'command', command: `${nodeConPermiso(bin('subagent-grader.js'), soloRead)} 2>/dev/null || true` },
+          { type: 'command', command: `${nodeConPermiso(bin('injection-guard.js'), readYWriteCuarentena)} 2>/dev/null || true` },
+          { type: 'command', command: `${nodeConPermiso(bin('subagent-grader.js'), calificarSubagente)} 2>/dev/null || true` },
           { type: 'command', command: `${nodeConPermiso(bin('subagent-guard-release.js'), readYWriteSubagentLocks)} 2>/dev/null || true` },
         ],
       },

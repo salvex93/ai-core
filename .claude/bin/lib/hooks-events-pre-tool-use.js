@@ -1,7 +1,7 @@
 'use strict';
 
 // Guards previos a la ejecucion de herramientas. Recibe el contexto de perfiles de permisos de hooks-permissions.js.
-function buildPreToolUseHooks({ bin, nodeConPermiso, soloRead, soloLeerRepo, readYWriteSubagentLocks, readYWriteToolRepeat, readYWriteBudget, readYWriteAlternante, breakGlassRW, repoReadWrite, repoReadWriteCuota, repoConGit }) {
+function buildPreToolUseHooks({ bin, nodeConPermiso, leerCuarentena, soloRead, soloLeerRepo, readYWriteSubagentLocks, readYWriteToolRepeat, readYWriteBudget, readYWriteAlternante, breakGlassRW, repoReadWrite, repoReadWriteCuota, repoConGit }) {
   return {
     PreToolUse: [
       {
@@ -10,7 +10,7 @@ function buildPreToolUseHooks({ bin, nodeConPermiso, soloRead, soloLeerRepo, rea
         // esta lista, porque bloquea la accion sin importar cual sea.
         matcher: 'Bash|Write|Edit',
         hooks: [
-          { type: 'command', command: nodeConPermiso(bin('injection-quarantine-guard.js'), soloRead) },
+          { type: 'command', command: nodeConPermiso(bin('injection-quarantine-guard.js'), leerCuarentena) },
         ],
       },
       {

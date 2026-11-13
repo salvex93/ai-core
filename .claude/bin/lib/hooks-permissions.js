@@ -109,6 +109,17 @@ function buildPermissionProfiles(bin, tmpDirReal) {
     ? `"${tmpDirReal.replace(/\/$/, '')}/ai-core-locks/loop-alternante/*"`
     : '"${TMPDIR:-/tmp}/ai-core-locks/loop-alternante/*"';
 
+  // La cuarentena vive bajo una subcarpeta por sesion (tres niveles bajo el
+  // tmpdir), asi que el glob de un nivel no alcanza: se usa el recursivo.
+  const dirTmpCuarentena = tmpDirReal
+    ? `"${tmpDirReal.replace(/\/$/, '')}/ai-core-locks/injection-quarantine/**"`
+    : '"${TMPDIR:-/tmp}/ai-core-locks/injection-quarantine/**"';
+  // Rutas absolutas del propio repo de ai-core, derivadas de bin(): ${PWD} es
+  // el proyecto anfitrion y no siempre contiene scripts/services ni .claude.
+  const raiz = dirBin.replace(/\/\.claude\/bin\/\*"$/, '');
+  const dirServicios = `${raiz}/scripts/services/*"`;
+  const archivoRol = `${raiz}/.claude/.current_role"`;
+
   const soloRead      = { fsRead: [dirBin] };
   const soloLeerRepo  = { fsRead: [dirBin, dirRepo] };
   // Lee contenido arbitrario del repo (ej. .claude/skills/**) y escribe solo
@@ -118,6 +129,10 @@ function buildPermissionProfiles(bin, tmpDirReal) {
   // en el repo.
   const repoLeerYReportar = { fsRead: [dirBin, dirRepo], fsWrite: [dirTmp] };
   const readYWrite    = { fsRead: [dirBin], fsWrite: [dirTmp] };
+  const leerCuarentena = { fsRead: [dirBin, dirTmpCuarentena] };
+  const readYWriteCuarentena = { fsRead: [dirBin, dirTmpCuarentena], fsWrite: [dirTmp, dirTmpCuarentena] };
+  const detectarRol = { fsRead: [dirBin, dirServicios], fsWrite: [archivoRol] };
+  const calificarSubagente = { fsRead: [dirBin, dirServicios, dirTmp] };
   const readYWriteSubagentLocks = { fsRead: [dirBin, dirTmpSubagentLocks], fsWrite: [dirTmpSubagentLocks] };
   const readYWriteToolRepeat = { fsRead: [dirBin, dirTmpToolRepeat], fsWrite: [dirTmpToolRepeat] };
   const readYWriteBudget = { fsRead: [dirBin, dirTmpBudget], fsWrite: [dirTmpBudget] };
@@ -138,7 +153,7 @@ function buildPermissionProfiles(bin, tmpDirReal) {
   // destructive-op-guard.js, que corre ANTES en la misma cadena de PreToolUse).
   const repoConGit = { fsRead: [dirBin, dirRepo], fsWrite: [dirRepo, dirTmp], childProcess: true };
 
-  return { dirBin, dirTmp, dirRepo, dirTmpSubagentLocks, dirTmpToolRepeat, dirTmpBudget, dirTmpAlternante, soloRead, soloLeerRepo, readYWrite, readYWriteSubagentLocks, readYWriteToolRepeat, readYWriteBudget, readYWriteAlternante, breakGlassRW, repoReadWrite, repoReadWriteCuota, repoConGit, repoLeerYReportar };
+  return { dirBin, dirTmp, dirRepo, leerCuarentena, readYWriteCuarentena, detectarRol, calificarSubagente, dirTmpSubagentLocks, dirTmpToolRepeat, dirTmpBudget, dirTmpAlternante, soloRead, soloLeerRepo, readYWrite, readYWriteSubagentLocks, readYWriteToolRepeat, readYWriteBudget, readYWriteAlternante, breakGlassRW, repoReadWrite, repoReadWriteCuota, repoConGit, repoLeerYReportar };
 }
 
 module.exports = { nodeConPermiso, globDir, buildPermissionProfiles };

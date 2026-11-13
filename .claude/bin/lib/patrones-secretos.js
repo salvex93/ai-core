@@ -8,7 +8,7 @@
  */
 
 const ALTA_CONFIANZA = [
-  { re: /sk-[A-Za-z0-9]{20,}/i,             etiqueta: 'OpenAI API key' },
+  { re: /sk-[A-Za-z0-9_-]{20,}/i,           etiqueta: 'OpenAI API key' },
   { re: /ghp_[A-Za-z0-9]{36}/i,             etiqueta: 'GitHub Personal Access Token' },
   { re: /AKIA[A-Z0-9]{16}/i,                etiqueta: 'AWS Access Key ID' },
   { re: /xox[baprs]-[A-Za-z0-9\-]{10,}/i,   etiqueta: 'Slack token' },
