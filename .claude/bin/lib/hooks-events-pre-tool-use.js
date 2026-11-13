@@ -14,6 +14,14 @@ function buildPreToolUseHooks({ bin, nodeConPermiso, leerCuarentena, soloRead, s
         ],
       },
       {
+        // El agente no puede escribir en el almacen de locks (aprobaciones de break-glass y
+        // contadores de guards): se evalua antes que el resto para no depender de otros guards.
+        matcher: 'Bash|Write|Edit|NotebookEdit',
+        hooks: [
+          { type: 'command', command: nodeConPermiso(bin('approval-store-guard.js'), soloRead) },
+        ],
+      },
+      {
         matcher: 'Bash(git push*)',
         hooks: [
           { type: 'command', command: `node ${bin('git-queue-advisor.js')} push 2>&1 || true` },
