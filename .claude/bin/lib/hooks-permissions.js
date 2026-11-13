@@ -133,6 +133,10 @@ function buildPermissionProfiles(bin, tmpDirReal) {
   const readYWriteCuarentena = { fsRead: [dirBin, dirTmpCuarentena], fsWrite: [dirTmp, dirTmpCuarentena] };
   const detectarRol = { fsRead: [dirBin, dirServicios], fsWrite: [archivoRol] };
   const calificarSubagente = { fsRead: [dirBin, dirServicios, dirTmp] };
+  // syntax-check lanza `node --check` sobre el archivo editado; security-check solo lo lee
+  const verificarSintaxis = { fsRead: [dirBin, dirRepo], childProcess: true };
+  // subagent-guard guarda ademas el almacen de tareas, que vive directamente bajo el tmpdir
+  const subagentGuardConAlmacen = { fsRead: [dirBin, dirTmpSubagentLocks, dirTmp], fsWrite: [dirTmpSubagentLocks, dirTmp] };
   const readYWriteSubagentLocks = { fsRead: [dirBin, dirTmpSubagentLocks], fsWrite: [dirTmpSubagentLocks] };
   const readYWriteToolRepeat = { fsRead: [dirBin, dirTmpToolRepeat], fsWrite: [dirTmpToolRepeat] };
   const readYWriteBudget = { fsRead: [dirBin, dirTmpBudget], fsWrite: [dirTmpBudget] };
@@ -153,7 +157,7 @@ function buildPermissionProfiles(bin, tmpDirReal) {
   // destructive-op-guard.js, que corre ANTES en la misma cadena de PreToolUse).
   const repoConGit = { fsRead: [dirBin, dirRepo], fsWrite: [dirRepo, dirTmp], childProcess: true };
 
-  return { dirBin, dirTmp, dirRepo, leerCuarentena, readYWriteCuarentena, detectarRol, calificarSubagente, dirTmpSubagentLocks, dirTmpToolRepeat, dirTmpBudget, dirTmpAlternante, soloRead, soloLeerRepo, readYWrite, readYWriteSubagentLocks, readYWriteToolRepeat, readYWriteBudget, readYWriteAlternante, breakGlassRW, repoReadWrite, repoReadWriteCuota, repoConGit, repoLeerYReportar };
+  return { dirBin, dirTmp, dirRepo, verificarSintaxis, subagentGuardConAlmacen, leerCuarentena, readYWriteCuarentena, detectarRol, calificarSubagente, dirTmpSubagentLocks, dirTmpToolRepeat, dirTmpBudget, dirTmpAlternante, soloRead, soloLeerRepo, readYWrite, readYWriteSubagentLocks, readYWriteToolRepeat, readYWriteBudget, readYWriteAlternante, breakGlassRW, repoReadWrite, repoReadWriteCuota, repoConGit, repoLeerYReportar };
 }
 
 module.exports = { nodeConPermiso, globDir, buildPermissionProfiles };

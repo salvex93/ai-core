@@ -37,10 +37,17 @@ function hashArchivo(rutaAbsoluta) {
   return crypto.createHash('sha256').update(contenido).digest('hex');
 }
 
+// Ausente = primera ejecucion (null); ilegible = se aparta y se informa: tratarlo como primera
+// ejecucion dejaba pasar una alteracion de los servidores sin ninguna comparacion.
 function cargarBaseline() {
   if (!fs.existsSync(BASELINE_PATH)) return null;
-  try { return JSON.parse(fs.readFileSync(BASELINE_PATH, 'utf8')); }
-  catch { return null; }
+  try {
+    return JSON.parse(fs.readFileSync(BASELINE_PATH, 'utf8'));
+  } catch (e) {
+    if (!(e instanceof SyntaxError)) throw e;
+    fs.renameSync(BASELINE_PATH, `${BASELINE_PATH}.corrupt-${Date.now()}`);
+    return { ilegible: true };
+  }
 }
 
 function guardarBaseline(hashes) {
@@ -62,6 +69,12 @@ function verificarIntegridad() {
   if (!baseline) {
     guardarBaseline(hashesActuales);
     return { ok: true, cambios: [], primeraEjecucion: true };
+  }
+
+  if (baseline.ilegible) {
+    guardarBaseline(hashesActuales);
+    const cambios = SERVIDORES.map(s => ({ server: s.name, motivo: 'baseline ilegible: no se pudo comparar; se conserva una copia .corrupt y se registro uno nuevo' }));
+    return { ok: false, cambios, primeraEjecucion: false };
   }
 
   const cambios = [];

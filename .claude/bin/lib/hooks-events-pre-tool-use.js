@@ -1,7 +1,7 @@
 'use strict';
 
 // Guards previos a la ejecucion de herramientas. Recibe el contexto de perfiles de permisos de hooks-permissions.js.
-function buildPreToolUseHooks({ bin, nodeConPermiso, leerCuarentena, soloRead, soloLeerRepo, readYWriteSubagentLocks, readYWriteToolRepeat, readYWriteBudget, readYWriteAlternante, breakGlassRW, repoReadWrite, repoReadWriteCuota, repoConGit }) {
+function buildPreToolUseHooks({ bin, nodeConPermiso, subagentGuardConAlmacen, leerCuarentena, soloRead, soloLeerRepo, readYWriteSubagentLocks, readYWriteToolRepeat, readYWriteBudget, readYWriteAlternante, breakGlassRW, repoReadWrite, repoReadWriteCuota, repoConGit }) {
   return {
     PreToolUse: [
       {
@@ -88,7 +88,7 @@ function buildPreToolUseHooks({ bin, nodeConPermiso, leerCuarentena, soloRead, s
       {
         matcher: 'Agent',
         hooks: [
-          { type: 'command', command: nodeConPermiso(bin('subagent-guard.js'), readYWriteSubagentLocks) },
+          { type: 'command', command: nodeConPermiso(bin('subagent-guard.js'), subagentGuardConAlmacen) },
         ],
       },
       {

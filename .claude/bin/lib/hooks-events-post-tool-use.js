@@ -1,7 +1,7 @@
 'use strict';
 
 // Verificaciones posteriores a la ejecucion de herramientas. Recibe el contexto de perfiles de permisos de hooks-permissions.js.
-function buildPostToolUseHooks({ bin, nodeConPermiso, soloRead, repoReadWrite, repoConGit, repoLeerYReportar }) {
+function buildPostToolUseHooks({ bin, nodeConPermiso, verificarSintaxis, soloLeerRepo, soloRead, repoReadWrite, repoConGit, repoLeerYReportar }) {
   return {
     PostToolUse: [
       {
@@ -35,10 +35,10 @@ function buildPostToolUseHooks({ bin, nodeConPermiso, soloRead, repoReadWrite, r
         matcher: 'Write|Edit',
         hooks: [
           { type: 'command', command: `node ${bin('process-guard.js')} lint ${nodeConPermiso(bin('detox.js'), repoConGit)} 2>/dev/null || true` },
-          { type: 'command', command: `${nodeConPermiso(bin('syntax-check.js'), soloRead)} "$CLAUDE_TOOL_INPUT_file_path" 2>/dev/null || true` },
+          { type: 'command', command: `${nodeConPermiso(bin('syntax-check.js'), verificarSintaxis)} "$CLAUDE_TOOL_INPUT_file_path" 2>/dev/null || true` },
           { type: 'command', command: `node ${bin('process-guard.js')} lint ${nodeConPermiso(bin('standards-guard.js'), repoConGit)} "$CLAUDE_TOOL_INPUT_file_path"` },
           { type: 'command', command: `node ${bin('process-guard.js')} map ${nodeConPermiso(bin('diff-map-trigger.js'), repoConGit)} 2>/dev/null || true` },
-          { type: 'command', command: `node ${bin('process-guard.js')} lint ${nodeConPermiso(bin('security-check.js'), soloRead)} "$CLAUDE_TOOL_INPUT_file_path" 2>/dev/null || true` },
+          { type: 'command', command: `node ${bin('process-guard.js')} lint ${nodeConPermiso(bin('security-check.js'), soloLeerRepo)} "$CLAUDE_TOOL_INPUT_file_path" 2>/dev/null || true` },
           // Red de seguridad git-native (patron Aider, hallazgo de auditoria
           // 2026-08-15): auto-commit a rama SEPARADA ai-core/checkpoints,
           // nunca a la rama real del usuario -- ver cabecera de
