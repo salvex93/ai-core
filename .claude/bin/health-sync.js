@@ -190,13 +190,13 @@ function checkMcpServer(server, root) {
       resolve({ server: server.name, ok: false, error: e.message });
     });
 
-    proc.on('exit', code => {
+    // Toda salida antes de la respuesta resuelve: sin esto, un exit 0 dejaba la promesa pendiente y Node terminaba sin reporte
+    proc.on('exit', (code, signal) => {
       if (done) return;
       done = true;
       clearTimeout(timer);
-      if (code !== 0 && code !== null) {
-        resolve({ server: server.name, ok: false, error: `exit code ${code}` });
-      }
+      const error = code === null ? `terminado por senal ${signal}` : `exit code ${code}`;
+      resolve({ server: server.name, ok: false, error: `${error} antes de responder` });
     });
 
     // Enviar initialize después de que el proceso esté listo

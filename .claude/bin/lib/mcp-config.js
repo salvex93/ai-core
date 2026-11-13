@@ -61,8 +61,12 @@ function writeMcpJson(targetDir, repoPath) {
   if (fs.existsSync(mcpJsonPath)) {
     try {
       existing = JSON.parse(fs.readFileSync(mcpJsonPath, 'utf8'));
-    } catch {
-      existing = {};
+    } catch (e) {
+      if (!(e instanceof SyntaxError)) throw e;
+      // Un .mcp.json ilegible puede traer servidores propios: se aparta antes de escribir uno nuevo
+      const respaldo = `${mcpJsonPath}.corrupt-${Date.now()}`;
+      fs.renameSync(mcpJsonPath, respaldo);
+      process.stderr.write(`[MCP-CONFIG] .mcp.json invalido (${e.message}); respaldo en ${respaldo}\n`);
     }
   }
 
