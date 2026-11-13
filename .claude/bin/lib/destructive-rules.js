@@ -2,6 +2,10 @@
 
 // Cada regla: patron que dispara el bloqueo + patron de excepcion (alternativa
 // ya segura que no debe bloquearse) + motivo mostrado al operador.
+// `git` admite opciones globales antes del subcomando (-C <ruta>, -c k=v,
+// --no-pager...): una regla anclada a "git <subcomando>" se evadia con ellas.
+const GIT = String.raw`\bgit(?:\s+(?:-[Cc]\s+\S+|--[\w-]+(?:=\S+)?))*\s+`;
+
 const REGLAS = [
   {
     nombre: 'rm -rf',
@@ -18,35 +22,37 @@ const REGLAS = [
   },
   {
     nombre: 'git push --force',
-    disparo: /\bgit\s+push\b.*(--force\b|(?<!--force-with-lease)\s-f\b)/i,
-    excepcion: /--force-with-lease/i,
+    // --force a secas o -f (solo o combinado, ej. -fu): --force-with-lease solo no dispara,
+    // y combinado con --force sigue bloqueando porque el --force plano esta presente
+    disparo: new RegExp(GIT + String.raw`push\b.*(?:--force(?![-\w])|\s-[a-zA-Z]*f[a-zA-Z]*\b)`, 'i'),
+    excepcion: null,
     motivo: 'sobreescribe el historial remoto sin verificar si alguien mas pusheo -- usar --force-with-lease en su lugar.',
   },
   {
     nombre: 'git push +refspec (push forzado)',
     // El prefijo + en un refspec fuerza la actualizacion igual que --force y
     // anula la proteccion de --force-with-lease, por eso no hay excepcion.
-    disparo: /\bgit\s+push\b[^|;&\n]*\s\+[^\s+]/i,
+    disparo: new RegExp(GIT + String.raw`push\b[^|;&\n]*\s\+[^\s+]`, 'i'),
     excepcion: null,
     motivo: 'un refspec con prefijo + equivale a --force y sobreescribe el historial remoto -- usar --force-with-lease en su lugar.',
   },
   {
     nombre: 'git reset --hard',
-    disparo: /\bgit\s+reset\s+.*--hard\b/i,
+    disparo: new RegExp(GIT + String.raw`reset\s+.*--hard\b`, 'i'),
     excepcion: null,
     breakGlass: true,
     motivo: 'descarta cambios locales sin posibilidad de recuperacion (working tree + index).',
   },
   {
     nombre: 'git clean -f',
-    disparo: /\bgit\s+clean\s+.*-[a-zA-Z]*f/i,
+    disparo: new RegExp(GIT + String.raw`clean\s+.*(?:-[a-zA-Z]*f|--force\b)`, 'i'),
     excepcion: null,
     breakGlass: true,
     motivo: 'borra archivos no trackeados de forma irreversible -- puede incluir trabajo en progreso nunca commiteado.',
   },
   {
     nombre: 'git branch -D',
-    disparo: /\bgit\s+branch\s+.*-D\b/,
+    disparo: new RegExp(GIT + String.raw`branch\s+.*(?:-D\b|--delete\b.*(?:--force\b|\s-f\b)|--force\b.*--delete\b|\s-[a-z]*d[a-z]*f|\s-[a-z]*f[a-z]*d)`),
     excepcion: null,
     breakGlass: true,
     motivo: 'borra una rama sin verificar si esta mergeada -- usar -d (minuscula) si la rama ya esta integrada.',

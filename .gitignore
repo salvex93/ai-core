@@ -50,3 +50,9 @@ scripts/premium/
 .claude/.current_role
 .claude/AGENT_SNAPSHOTS/
 .claude/tmp/
+
+# Cuarentena de detox.js (documentos apartados, recuperables)
+.claude/detox-cuarentena/
+
+# .mcp.json lleva rutas absolutas de la maquina (cwd de los servidores): se genera local con `npm run setup`
+.mcp.json

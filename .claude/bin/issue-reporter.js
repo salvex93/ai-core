@@ -27,6 +27,7 @@ const CORE_PATH   = path.resolve(__dirname, '../..');
 // AI_CORE_AGENT_SNAPSHOTS_DIR/AI_CORE_SUBAGENT_LOCK_DIR en otros scripts.
 const QUEUE_PATH  = process.env.AI_CORE_EVENTS_QUEUE_PATH || path.join(CORE_PATH, '.claude', 'EVENTS_QUEUE.json');
 const { buildReproduction, buildProposal } = require('./lib/issue-templates');
+const { leerCola, actualizarCola } = require('./lib/cola-eventos');
 const REPO_TARGET = 'salvex93/ai-core';
 // Umbral documentado en .claude/agents/issue-tracker.md -- si la cola de
 // pendientes supera este valor sin poder reportarse (gh no disponible),
@@ -69,16 +70,7 @@ function ghAvailable() {
 // ---------------------------------------------------------------------------
 
 function readQueue() {
-  if (!fs.existsSync(QUEUE_PATH)) return [];
-  try {
-    return JSON.parse(fs.readFileSync(QUEUE_PATH, 'utf8'));
-  } catch {
-    return [];
-  }
-}
-
-function writeQueue(events) {
-  fs.writeFileSync(QUEUE_PATH, JSON.stringify(events, null, 2), 'utf8');
+  return leerCola(QUEUE_PATH);
 }
 
 // ---------------------------------------------------------------------------
@@ -267,11 +259,10 @@ function main() {
   }
 
   // Marcar como reportados y limpiar viejos
-  const updated = cleanOldReported(
-    queue.map(e => reportedIds.has(e.id) ? { ...e, reported: true } : e)
-  );
-
-  writeQueue(updated);
+  // Se reaplica sobre la cola vigente: los eventos capturados durante las llamadas a gh no se pierden
+  actualizarCola(QUEUE_PATH, (vigente) => cleanOldReported(
+    vigente.map(e => reportedIds.has(e.id) ? { ...e, reported: true } : e)
+  ));
   process.stderr.write(`[ISSUE-REPORTER] ${reportedIds.size} evento(s) reportados a ${REPO_TARGET}.\n`);
 }
 

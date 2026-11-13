@@ -1,7 +1,7 @@
 'use strict';
 
 // Guards previos a la ejecucion de herramientas. Recibe el contexto de perfiles de permisos de hooks-permissions.js.
-function buildPreToolUseHooks({ bin, nodeConPermiso, soloRead, soloLeerRepo, readYWriteSubagentLocks, readYWriteToolRepeat, readYWriteBudget, readYWriteAlternante, breakGlassRW, repoReadWrite, repoReadWriteCuota, repoConGit }) {
+function buildPreToolUseHooks({ bin, nodeConPermiso, subagentGuardConAlmacen, leerCuarentena, soloRead, soloLeerRepo, readYWriteSubagentLocks, readYWriteToolRepeat, readYWriteBudget, readYWriteAlternante, breakGlassRW, repoReadWrite, repoReadWriteCuota, repoConGit }) {
   return {
     PreToolUse: [
       {
@@ -10,7 +10,15 @@ function buildPreToolUseHooks({ bin, nodeConPermiso, soloRead, soloLeerRepo, rea
         // esta lista, porque bloquea la accion sin importar cual sea.
         matcher: 'Bash|Write|Edit',
         hooks: [
-          { type: 'command', command: nodeConPermiso(bin('injection-quarantine-guard.js'), soloRead) },
+          { type: 'command', command: nodeConPermiso(bin('injection-quarantine-guard.js'), leerCuarentena) },
+        ],
+      },
+      {
+        // El agente no puede escribir en el almacen de locks (aprobaciones de break-glass y
+        // contadores de guards): se evalua antes que el resto para no depender de otros guards.
+        matcher: 'Bash|Write|Edit|NotebookEdit',
+        hooks: [
+          { type: 'command', command: nodeConPermiso(bin('approval-store-guard.js'), soloRead) },
         ],
       },
       {
@@ -80,7 +88,7 @@ function buildPreToolUseHooks({ bin, nodeConPermiso, soloRead, soloLeerRepo, rea
       {
         matcher: 'Agent',
         hooks: [
-          { type: 'command', command: nodeConPermiso(bin('subagent-guard.js'), readYWriteSubagentLocks) },
+          { type: 'command', command: nodeConPermiso(bin('subagent-guard.js'), subagentGuardConAlmacen) },
         ],
       },
       {

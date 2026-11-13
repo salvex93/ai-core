@@ -30,7 +30,7 @@ describe('detox.js', () => {
     return spawnSync('node', [SCRIPT], { encoding: 'utf8', cwd: dir });
   }
 
-  test('elimina .md legacy sin trackear con prefijo conocido', () => {
+  test('aparta a cuarentena los .md legacy sin trackear con prefijo conocido', () => {
     tmpRepo = crearRepoConArchivosMd();
     fs.writeFileSync(path.join(tmpRepo, 'REPORT-2024.md'), 'legacy');
     fs.writeFileSync(path.join(tmpRepo, 'TO_GEMINI.md'), 'legacy');
@@ -39,7 +39,7 @@ describe('detox.js', () => {
     fs.rmSync(tmpRepo, { recursive: true, force: true });
 
     assert.equal(r.status, 0);
-    assert.match(r.stderr, /2 archivo\(s\) legacy eliminados/);
+    assert.match(r.stderr, /2 archivo\(s\) legacy movidos a cuarentena/);
   });
 
   test('NUNCA elimina un .md trackeado en git, aunque tenga prefijo legacy', () => {

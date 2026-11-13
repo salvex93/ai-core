@@ -61,7 +61,7 @@ function descubrirNamespaces() {
   const sueltos = entradas.filter(e => e.isFile() && e.name.endsWith('.md'));
   if (sueltos.length > 0) namespaces.push({ rol: ROL_DEFECTO, dir: RAW, files: sueltos.map(e => e.name) });
 
-  for (const e of entradas.filter(e => e.isDirectory())) {
+  for (const e of entradas.filter(e => e.isDirectory() && e.name !== 'archive')) {
     const dir = path.join(RAW, e.name);
     const files = fs.readdirSync(dir).filter(f => f.endsWith('.md'));
     if (files.length > 0) namespaces.push({ rol: e.name, dir, files });
@@ -75,8 +75,8 @@ function descubrirNamespaces() {
 function cmdIndex(rolFiltro) {
   if (!fs.existsSync(RAW)) { console.error('[memory] .raw/ no existe'); process.exit(1); }
 
-  const namespaces = descubrirNamespaces()
-    .filter(ns => !rolFiltro || ns.rol === rolFiltro);
+  // El indice se reconstruye siempre con todos los roles: --rol solo acota la regeneracion del wiki
+  const namespaces = descubrirNamespaces();
 
   if (namespaces.length === 0) {
     console.log('[memory] vault vacio — nada que indexar');
@@ -99,7 +99,7 @@ function cmdIndex(rolFiltro) {
   fs.writeFileSync(INDEX, JSON.stringify(index, null, 2), 'utf8');
 
   // Generar .wiki/<rol>/ — un archivo por fuente con backlinks
-  for (const ns of namespaces) {
+  for (const ns of namespaces.filter(n => !rolFiltro || n.rol === rolFiltro)) {
     const wikiDir = ns.rol === ROL_DEFECTO ? WIKI : path.join(WIKI, ns.rol);
     for (const f of ns.files) {
       const nombre = path.basename(f, '.md');

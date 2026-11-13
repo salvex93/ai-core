@@ -65,7 +65,7 @@ const PATRONES = [
     etiqueta: 'intento de inyectar un system prompt nuevo', confianza: 'alta' },
   { re: /revela(r)?\s+(tu|el)\s+system\s+prompt|reveal\s+your\s+system\s+prompt/i,
     etiqueta: 'intento de extraccion de system prompt', confianza: 'alta' },
-  { re: /env\a[ií]a\s+(este|el)\s+contenido\s+a\s+https?:\/\//i,
+  { re: /env[ií]a\s+(este|el)\s+contenido\s+a\s+https?:\/\//i,
     etiqueta: 'instruccion de exfiltracion de datos hacia URL externa', confianza: 'alta' },
   { re: /(borra|elimina|delete)\s+(todos\s+los\s+)?(archivos|files)\s+(sin\s+confirmar|without\s+confirmation)/i,
     etiqueta: 'instruccion de accion destructiva sin confirmacion', confianza: 'alta' },

@@ -31,6 +31,7 @@ const fs   = require('fs');
 const path = require('path');
 const { leerEventoDeStdin } = require('./lib/hook-stdin');
 const { redactarSecretos }  = require('./lib/patrones-secretos');
+const { actualizarCola }    = require('./lib/cola-eventos');
 
 const CORE_PATH  = path.resolve(__dirname, '../..');
 // AI_CORE_EVENTS_QUEUE_PATH permite operar sobre una cola temporal en tests
@@ -107,19 +108,6 @@ function buildEvent(args, hookCtx) {
 // Leer / escribir cola
 // ---------------------------------------------------------------------------
 
-function readQueue() {
-  if (!fs.existsSync(QUEUE_PATH)) return [];
-  try {
-    return JSON.parse(fs.readFileSync(QUEUE_PATH, 'utf8'));
-  } catch {
-    return [];
-  }
-}
-
-function writeQueue(events) {
-  fs.writeFileSync(QUEUE_PATH, JSON.stringify(events, null, 2), 'utf8');
-}
-
 // ---------------------------------------------------------------------------
 // Deduplicacion: no encolar si ya hay un evento identico sin reportar en < 5min
 // ---------------------------------------------------------------------------
@@ -156,20 +144,17 @@ if (!args.type && !hookCtx.toolError && !hookCtx.toolName) {
 }
 
 const event = buildEvent(args, hookCtx);
-const queue = readQueue();
-
-if (isDuplicate(queue, event)) {
-  process.exit(0); // evento duplicado — silencioso
+// Dentro del lock: la deduplicacion y el tope se evaluan sobre la cola vigente, no sobre una lectura previa
+function encolar(queue) {
+  if (isDuplicate(queue, event)) return null; // evento duplicado — silencioso
+  const pending  = queue.filter(e => !e.reported);
+  const reported = queue.filter(e => e.reported).slice(-10); // conservar ultimos 10 reportados
+  if (pending.length >= MAX_EVENTS) {
+    process.stderr.write('[CAPTURE] Cola llena — evento descartado. Ejecuta issue-reporter.js para vaciar.\n');
+    return null;
+  }
+  process.stderr.write(`[CAPTURE] Evento encolado: ${event.type} | ${event.tool} | id:${event.id}\n`);
+  return [...reported, ...pending, event];
 }
 
-// Mantener la cola acotada: descartar los reportados mas viejos si hay demasiados
-const pending  = queue.filter(e => !e.reported);
-const reported = queue.filter(e => e.reported).slice(-10); // conservar ultimos 10 reportados
-
-if (pending.length >= MAX_EVENTS) {
-  process.stderr.write('[CAPTURE] Cola llena — evento descartado. Ejecuta issue-reporter.js para vaciar.\n');
-  process.exit(0);
-}
-
-writeQueue([...reported, ...pending, event]);
-process.stderr.write(`[CAPTURE] Evento encolado: ${event.type} | ${event.tool} | id:${event.id}\n`);
+actualizarCola(QUEUE_PATH, encolar);
