@@ -59,3 +59,22 @@ describe('patrones-secretos: claves de OpenAI con prefijo', () => {
     assert.equal(buscarCredenciales('el sk es corto y sin forma de clave').length, 0);
   });
 });
+
+describe('perfiles de permisos: rutas con separadores de Windows', () => {
+  const { buildPermissionProfiles } = require(path.join(BIN, 'lib', 'hooks-permissions.js'));
+
+  test('la raiz del repo se deriva tambien de una ruta con barras invertidas', () => {
+    const perfiles = buildPermissionProfiles((s) => `"D:\\a\\ai-core\\.claude\\bin\\${s}"`, 'D:\\Temp');
+    for (const nombre of ['detectarRol', 'calificarSubagente']) {
+      const lectura = perfiles[nombre].fsRead.join(' ');
+      assert.match(lectura, /"D:\\a\\ai-core[\\/]scripts[\\/]services[\\/]\*"/, `${nombre} debe permitir leer scripts/services bajo la raiz real`);
+      assert.doesNotMatch(lectura, /\.claude[\\/]bin[\\/]scripts/, `${nombre} no debe colgar scripts de .claude/bin`);
+    }
+  });
+
+  test('con rutas POSIX la raiz sigue derivandose igual', () => {
+    const perfiles = buildPermissionProfiles((s) => `"/repo/.claude/bin/${s}"`, '/tmp');
+    assert.ok(perfiles.detectarRol.fsRead.includes('"/repo/scripts/services/*"'));
+    assert.deepEqual(perfiles.detectarRol.fsWrite, ['"/repo/.claude/.current_role"']);
+  });
+});

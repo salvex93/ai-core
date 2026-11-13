@@ -116,7 +116,7 @@ function buildPermissionProfiles(bin, tmpDirReal) {
     : '"${TMPDIR:-/tmp}/ai-core-locks/injection-quarantine/**"';
   // Rutas absolutas del propio repo de ai-core, derivadas de bin(): ${PWD} es
   // el proyecto anfitrion y no siempre contiene scripts/services ni .claude.
-  const raiz = dirBin.replace(/\/\.claude\/bin\/\*"$/, '');
+  const raiz = dirBin.replace(/[\\/]\.claude[\\/]bin[\\/]+\*"$/, '');
   const dirServicios = `${raiz}/scripts/services/*"`;
   const archivoRol = `${raiz}/.claude/.current_role"`;
 
