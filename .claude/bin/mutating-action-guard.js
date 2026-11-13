@@ -64,21 +64,35 @@ function hashAccion(toolName, detalle) {
   return crypto.createHash('sha256').update(`${toolName}:${detalle}`).digest('hex').slice(0, 16);
 }
 
-const VERBOS_ESCRITURA = /\b(crear?|nuevo|add|update|actualizar|set|write|post|delete|borrar|eliminar|remove|create)\w*/i;
+// Se compara por tokens exactos: "\b" no corta tras "_" (linear_create_issue no coincidia) y un
+// prefijo con \w* marcaria "postgres" como "post". El camelCase se separa antes de tokenizar.
+const VERBOS_ESCRITURA = new Set([
+  'crear', 'crea', 'nuevo', 'add', 'update', 'actualizar', 'set', 'write', 'post', 'put', 'patch', 'delete', 'borrar',
+  'eliminar', 'remove', 'create', 'send', 'edit', 'push', 'merge', 'assign', 'close', 'publish', 'upload', 'invite',
+  'share', 'transfer', 'trash', 'archive', 'rename', 'insert', 'upsert', 'reply', 'comment', 'submit', 'approve',
+  'cancel', 'move', 'copy', 'deploy', 'revoke',
+]);
 const VERBOS_LECTURA_MCP = /^(get|list|consultar|read|buscar|fetch|query|check|status)/i;
 
+function tokensDeAccion(accion) {
+  return accion.replace(/([a-z])([A-Z])/g, '$1_$2').toLowerCase().split(/[^a-z]+/).filter(Boolean);
+}
+
 function esToolMcpMutante(toolName) {
-  const match = toolName.match(/^mcp__([^_]+(?:-[^_]+)*)__(.+)$/);
+  // El servidor puede contener "_" (claude_ai_Slack): la accion empieza tras el primer "__"
+  const match = toolName.match(/^mcp__(.+?)__(.+)$/);
   if (!match) return null;
 
   const [, servidor, accion] = match;
   if (VERBOS_LECTURA_MCP.test(accion)) return null;
-  if (!VERBOS_ESCRITURA.test(accion)) return null;
+  if (!tokensDeAccion(accion).some((t) => VERBOS_ESCRITURA.has(t))) return null;
 
   return { servidor, accion };
 }
 
-const VERBO_HTTP_MUTANTE = /(-X\s*(POST|PUT|PATCH|DELETE)\b|--request\s+(POST|PUT|PATCH|DELETE)\b|-Method\s+(Post|Put|Patch|Delete)\b)/i;
+// Verbo mutante explicito (con o sin comillas, "--request VERBO" o "--request=VERBO") o cuerpo de
+// solicitud (-d, --data*, -F, --json, -T, --post-data/--post-file), que curl y wget envian como POST
+const VERBO_HTTP_MUTANTE = /(-X\s*["']?(POST|PUT|PATCH|DELETE)\b|--request[\s=]+["']?(POST|PUT|PATCH|DELETE)\b|--method[\s=]+["']?(POST|PUT|PATCH|DELETE)\b|-Method\s+["']?(Post|Put|Patch|Delete)\b|\s(?:-d|-F|-T|--data(?:-[a-z]+)*|--form(?:-string)?|--json|--upload-file|--post-data|--post-file|--body-data|--body-file)(?=[\s=@"']))/i;
 const HERRAMIENTA_HTTP   = /\b(curl|wget|Invoke-WebRequest|Invoke-RestMethod|iwr|irm)\b/i;
 
 // Hallazgo red-team 2026-08-15: "V=POST; curl -X\"$V\" ..." evadia el
@@ -127,7 +141,8 @@ function bloquearOAprobar(detalle, mensajeContexto) {
 if (toolName.startsWith('mcp__')) {
   const mutante = esToolMcpMutante(toolName);
   if (mutante) {
-    bloquearOAprobar(toolName, `"${toolName}" -- accion mutante hacia un servicio externo (servidor MCP "${mutante.servidor}")`);
+    // La huella incluye tool_input: confirmar una accion no autoriza la misma herramienta con otros datos
+    bloquearOAprobar(`${toolName}:${JSON.stringify(evento.tool_input ?? {})}`, `"${toolName}" -- accion mutante hacia un servicio externo (servidor MCP "${mutante.servidor}")`);
   }
   process.exit(0);
 }
