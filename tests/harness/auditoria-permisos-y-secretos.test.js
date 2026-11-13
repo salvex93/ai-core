@@ -14,47 +14,28 @@ const os     = require('node:os');
 const { spawnSync } = require('node:child_process');
 const { REPO, BIN } = require('./_shared');
 
-const { buildHooksSection } = require(path.join(BIN, 'hooks-definition.js'));
 const { buscarCredenciales } = require(path.join(BIN, 'lib', 'patrones-secretos.js'));
-
-const TMP = fs.realpathSync(os.tmpdir());
-const bin = (s) => `"${path.join(BIN, s)}"`;
-
-function comandos(hooks) {
-  return Object.values(hooks).flatMap((entradas) => entradas.flatMap((e) => e.hooks.map((h) => h.command)));
-}
-
-// Reemplaza el script del hook por -e para ejercitar EXACTAMENTE los flags
-// de permisos que genera la configuracion, no una copia de ellos.
-function ejecutarBajoPerfil(script, codigo) {
-  const hooks = buildHooksSection(bin, TMP);
-  const comando = comandos(hooks).find((c) => c.includes(`${script}"`) && c.includes('--permission'));
-  assert.ok(comando, `${script} debe registrarse con --permission`);
-  const inicio = comando.indexOf('node --permission');
-  const fin = comando.indexOf(bin(script)) + bin(script).length;
-  const invocacion = comando.slice(inicio, fin).replace(bin(script), `-e ${JSON.stringify(codigo)}`);
-  return spawnSync(invocacion, { shell: true, cwd: REPO, encoding: 'utf8' });
-}
+const { correrCodigoConPerfil, TMP } = require('./_perfil');
 
 describe('perfiles de permisos suficientes para lo que el hook realmente toca', () => {
   test('injection-quarantine-guard puede leer el directorio de cuarentena de la sesion', () => {
     const dir = path.join(TMP, 'ai-core-locks', 'injection-quarantine', `auditoria-${process.pid}`);
     fs.mkdirSync(dir, { recursive: true });
     fs.writeFileSync(path.join(dir, 'x.json'), '{}');
-    const r = ejecutarBajoPerfil('injection-quarantine-guard.js', `console.log(require('node:fs').readdirSync(${JSON.stringify(dir)}).length)`);
+    const r = correrCodigoConPerfil('injection-quarantine-guard.js', `console.log(require('node:fs').readdirSync(${JSON.stringify(dir)}).length)`);
     assert.equal(r.status, 0, r.stderr);
     assert.equal(r.stdout.trim(), '1');
   });
 
   test('detect-role puede cargar el clasificador de scripts/services', () => {
     const clasificador = path.join(REPO, 'scripts', 'services', 'IntentClassifier.js');
-    const r = ejecutarBajoPerfil('detect-role.js', `require(${JSON.stringify(clasificador)}); console.log('ok')`);
+    const r = correrCodigoConPerfil('detect-role.js', `require(${JSON.stringify(clasificador)}); console.log('ok')`);
     assert.equal(r.status, 0, r.stderr);
   });
 
   test('subagent-grader puede cargar SubagentGrader de scripts/services', () => {
     const grader = path.join(REPO, 'scripts', 'services', 'SubagentGrader.js');
-    const r = ejecutarBajoPerfil('subagent-grader.js', `require(${JSON.stringify(grader)}); console.log('ok')`);
+    const r = correrCodigoConPerfil('subagent-grader.js', `require(${JSON.stringify(grader)}); console.log('ok')`);
     assert.equal(r.status, 0, r.stderr);
   });
 
