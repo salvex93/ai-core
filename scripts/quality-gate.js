@@ -45,6 +45,8 @@ function correr(cmd, args, cwd = REPO) {
 
 function archivosDeCodigo(repo) {
   const r = correr('git', ['ls-files', '--cached', '--others', '--exclude-standard'], repo);
+  // Una lista vacia por un git roto haria pasar el limite de lineas sin evaluar nada
+  if (r.status !== 0) throw new Error(`git ls-files fallo en ${repo} (exit ${r.status}): ${r.salida.trim()}`);
   return r.salida.split('\n').filter((f) => CODIGO.test(f) && fs.existsSync(path.join(repo, f)));
 }
 
