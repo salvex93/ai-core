@@ -3,6 +3,31 @@
 Registro de cambios por version. Formato basado en [Keep a Changelog](https://keepachangelog.com/es/1.0.0/).
 Versionado semantico: MAJOR.MINOR.PATCH.
 
+## [Unreleased] — auditoria de errores silenciosos y vigencia de mercado (2026-11-17)
+
+### Corregido
+
+- Perfiles de `--permission` mas estrechos que lo que el script necesita (fallaban abiertos y en silencio): `injection-quarantine-guard`, `injection-guard`, `detect-role`, `subagent-grader`, `syntax-check`, `security-check` y el almacen de tareas de `subagent-guard`. La raiz del repo se deriva ahora de la ruta del hook con ambos separadores (Windows).
+- Perdida silenciosa de datos: una cola de eventos ilegible se aparta a `.corrupt-*` en lugar de sobrescribirse y se escribe de forma atomica con lock (`lib/cola-eventos.js`); `detox.js` mueve a `.claude/detox-cuarentena/` en lugar de borrar; `memory-index.js --rol` ya no pisa el indice de los demas roles ni indexa `archive/`; `.mcp.json` y el baseline de integridad MCP ilegibles se respaldan; `health-sync` resuelve sondas que salen sin responder.
+- Evasiones de guardianes demostradas por un revisor adversarial y corregidas con pruebas: enmascarado de comandos (heredoc hacia interprete, sustitucion dentro de `-m`), reglas de `git` con opciones globales y `-fu`, nombres de comando ofuscados, egreso envuelto (`bash -c`, `env`, `timeout`, `xargs`, `busybox`, `sudo -u`, `/dev/tcp`, alias de git), herramientas MCP encadenadas y POST implicito de `curl`, y rutas fuera del proyecto por envoltorios, `-t/-o/-O/-C/-d`, `--in-place` y `cd` previo.
+- Patron de secretos de OpenAI con prefijos (`sk-proj-`, `sk-ant-`, `sk-svcacct-`).
+- `quality-gate` falla si `git ls-files` falla (antes pasaba con lista vacia); `audit-market` reporta fechas ausentes o ilegibles y rechaza un umbral no numerico; `pre-commit-tdd` reconoce pruebas `.ts`/`.py` y tests en directorios nuevos; `process-guard` crea el lock en forma exclusiva.
+- Evals de skills: el runner solo pasa `--env-path` si existe `.env` y los 8 configs que ejecuta el CI usan el juez Gemini para el que hay secreto.
+
+### Agregado
+
+- `approval-store-guard.js`: el agente no puede escribir en el almacen de locks, por lo que no puede autoaprobar un break-glass. 9 reglas break-glass nuevas en `destructive-op-guard` (24 en total).
+
+### Cambiado
+
+- `.mcp.json` deja de versionarse (lleva rutas de la maquina): se genera local con `npm run setup`, igual que `settings.json`.
+- Re-verificacion de 25 dominios de `MARKET_STANDARDS.json` contra fuentes primarias y correccion del contenido de los skills afectados; lo no comprobado queda marcado "a verificar" y el alcance consta en cada entrada.
+
+### Pendiente / fuera de scope
+
+- El secreto `GEMINI_API_KEY` del repositorio es invalido: el job piloto de evals de skills no puede ejecutarse de verdad (es no bloqueante).
+- Los guardianes son barreras de patrones, no un sandbox. El loopback sigue bloqueado por defecto en `egress-guard` (se habilita con `AI_CORE_EGRESS_ALLOWLIST`) y los destinos con `$` no se bloquean en `outside-path-guard`.
+
 ## [Unreleased] — puesta en marcha en Linux y cierre de vulnerabilidades (2026-10-20)
 
 ### Corregido
