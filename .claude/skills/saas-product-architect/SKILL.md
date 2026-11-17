@@ -4,7 +4,7 @@ description: Activa al disenar la estrategia de negocio y producto de un SaaS --
 metadata:
   origin: ai-core
   version: 1.0.0
-  last_updated: 2026-10-18
+  last_updated: 2026-11-17
   rol: architect
 ---
 
@@ -136,7 +136,7 @@ Detener el diseno e insertar la directiva ante cualquiera de estas condiciones:
 - SLA de onboarding de usuario nuevo dentro de una organizacion existente: invitacion a membership activo sin intervencion de soporte.
 - Matriz de entitlements por plan versionada y auditable — cualquier cambio de que feature corresponde a que plan debe quedar trazado.
 
-**Vigencia verificada en esta tarea:** nombres de eventos de webhook de Stripe (`invoice.paid`, `customer.subscription.deleted`, etc.) y comportamiento del estado `paused` en trials sin metodo de pago confirmados por fetch directo contra `docs.stripe.com` en esta investigacion. Terminologia de tenancy (silo/pool/bridge) confirmada contra AWS y Microsoft Learn, con la advertencia de vigencia del whitepaper AWS ya declarada arriba. Distincion MoR de Stripe/Paddle confirmada contra fuente oficial de cada proveedor. Estado operativo de Lemon Squeezy en 2026 (sigue autonoma, sin fecha de discontinuacion) verificado independientemente contra `lemonsqueezy.com/blog/2026-update`, fuera del research original que solo alcanzo a declararlo como pendiente. Si en una sesion futura se detecta que alguno de estos identificadores de API cambio, aplicar el "Protocolo de Vigencia Tecnologica" de CLAUDE.md antes de escribir cualquier actualizacion.
+**Vigencia verificada en esta tarea:** nombres de eventos de webhook de Stripe (`invoice.paid`, `customer.subscription.deleted`, etc.) y comportamiento del estado `paused` en trials sin metodo de pago (solo con `missing_payment_method=pause`) confirmados por fetch directo contra `docs.stripe.com` en esta investigacion. Terminologia de tenancy (silo/pool/bridge) confirmada contra AWS y Microsoft Learn, con la advertencia de vigencia del whitepaper AWS ya declarada arriba. Distincion MoR de Stripe/Paddle confirmada contra fuente oficial de cada proveedor. Estado de Lemon Squeezy re-verificado el 2026-11-17 contra `lemonsqueezy.com/blog/2026-update`: sin nuevos registros y cierre el 31-mar-2027 (ver `references/saas-billing.md`). Si en una sesion futura se detecta que alguno de estos identificadores de API cambio, aplicar el "Protocolo de Vigencia Tecnologica" de CLAUDE.md antes de escribir cualquier actualizacion.
 
 ## Restricciones del Perfil
 

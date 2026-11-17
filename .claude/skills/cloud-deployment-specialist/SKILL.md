@@ -4,7 +4,7 @@ description: Despliegue real y ejecutable en proveedores especificos de nube/hos
 metadata:
   origin: ai-core
   version: 1.1.0
-  last_updated: 2026-10-18
+  last_updated: 2026-11-17
   rol: architect
 compatibility: Depende de las CLIs oficiales de cada proveedor de nube que se use (aws-cli, gcloud, az, flyctl, railway, vercel, etc. segun el proveedor elegido) y credenciales/conectividad hacia ese proveedor.
 ---
@@ -59,7 +59,7 @@ Contenido expansivo movido a `references/` (divulgacion progresiva) para mantene
 | DigitalOcean Droplets | VM por hora/mes, recursos dedicados | Media (control total de VM) | Control total de infraestructura sin salir de un proveedor simple |
 | Cloudflare Workers | Por request/CPU-tiempo; scale-to-zero por diseno, confirmado | Baja (un comando, sin config previa) | Edge computing y APIs de baja latencia global, sin estado pesado |
 | Vercel | Free tier por invocaciones/edge requests; Pro por usuario + credito; scale-to-zero no confirmado | Muy baja (integracion git nativa) | Frontend Next.js/React con deploy automatico desde git |
-| Railway | Planes base + credito de uso + costo por recurso real (RAM/CPU/red/disco); free tier con inconsistencia interna en la propia fuente oficial ($1 vs $5), reverificar antes de cotizar; scale-to-zero no confirmado | Baja | Backends con estado y bases de datos, servicios long-running |
+| Railway | Planes base + credito de uso + costo por recurso real (RAM/CPU/red/disco); los $1 y $5 de la fuente oficial son planes distintos (Free: $1 de credito al mes; Trial: $5 una sola vez; docs.railway.com/reference/pricing/plans, reverificado 2026-11-17), reverificar antes de cotizar; scale-to-zero no confirmado | Baja | Backends con estado y bases de datos, servicios long-running |
 | Render | Free tier con sleep tras 15 min (no es scale-to-zero instantaneo, es suspension mensual); planes pagos no verificados | Baja (Blueprint declarativo o git push) | Prototipos y proyectos con presupuesto free estricto, Postgres incluido |
 | Fly.io | Pay As You Go puro, sin free tier para clientes nuevos; cifras de pricing orientativas, no verificadas con fetch directo; scale-to-zero no confirmado | Media (concepto de microVMs y regiones) | Multi-region real con control fino de topologia, baja latencia global |
 

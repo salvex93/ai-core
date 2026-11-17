@@ -4,7 +4,7 @@ description: Auditor de estandares AAA de codigo contra criterios estilo SWE-ben
 metadata:
   origin: ai-core
   version: 1.0.0
-  last_updated: 2026-09-21
+  last_updated: 2026-11-17
   rol: auditor
 ---
 

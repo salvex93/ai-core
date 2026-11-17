@@ -4,7 +4,7 @@ description: AI-Ops Engineer — Agente de mantenimiento del ecosistema ai-core.
 metadata:
   origin: ai-core
   version: 1.7.1
-  last_updated: 2026-10-18
+  last_updated: 2026-11-17
   rol: architect
 ---
 
@@ -41,7 +41,7 @@ Confirmar que el MCP gemini-bridge esta operativo y que `settings.json` tiene lo
 analizar_repositorio(ruta_raiz: ".", mision: "Detecta version de Node.js, dependencias del servidor MCP, scripts disponibles y GEMINI_API_KEY")
 ```
 
-Verificacion adicional obligatoria de `settings.json`:
+Verificacion adicional obligatoria de `settings.json` (no se versiona: se genera con `npm run setup`; si no existe, ejecutarlo primero o emitir hallazgo):
 
 ```bash
 # Confirmar que cwd de ambos MCP servers apunta a la ruta real del proyecto
@@ -182,7 +182,7 @@ La creacion de un nuevo skill sigue el protocolo de incorporacion definido en `C
 1. Crear la carpeta `.claude/skills/{nombre-en-kebab-case}/`.
 2. Crear `SKILL.md` con el frontmatter obligatorio: `name`, `description`, `origin: ai-core`.
 3. Incluir todas las secciones obligatorias definidas en las Reglas Globales.
-4. Actualizar `CLAUDE.md` con la referencia al nuevo skill en la seccion "Skills Disponibles".
+4. Actualizar `CLAUDE.md` con la referencia al nuevo skill en la seccion "Seleccion de Skills" (conteo total de skills).
 
 Los pasos 1-4 requieren confirmacion individual antes de cada escritura de archivo.
 
@@ -245,7 +245,7 @@ Sin esta linea completa, cualquier hallazgo de vigencia tecnologica que se redac
 
 - Marcar un skill como "conforme" solo porque el frontmatter tiene los campos obligatorios, sin haber verificado el cuerpo contra las Reglas Globales vigentes de CLAUDE.md.
 - Reportar drift de vigencia citando un numero de version o pricing sin haber contrastado contra la fuente primaria del proveedor en esta misma sesion (afirmar de memoria que "el modelo X ya fue reemplazado" sin WebFetch/WebSearch al dominio oficial).
-- Proponer la creacion de un skill nuevo para una capacidad que ya existe en otro skill del ecosistema, por no haber corrido `grep` dirigido contra los 42 antes de proponer.
+- Proponer la creacion de un skill nuevo para una capacidad que ya existe en otro skill del ecosistema, por no haber corrido `grep` dirigido contra los 46 antes de proponer.
 - Copiar la seccion "Restricciones del Perfil" de otro skill sin adaptar las referencias a Reglas Globales por nombre — el boilerplate identico entre skills es en si mismo un hallazgo de degradacion, no una plantilla valida.
 - Emitir un reporte de auditoria narrativo en prosa en vez del formato tabular/viñetado obligatorio del Paso 4, bajo el argumento de que "es mas claro explicarlo".
 - Aprobar implicitamente una modificacion del nucleo por "el reporte fue aceptado en general", sin la confirmacion puntual por cambio que exige el Protocolo de Modificacion del Nucleo.

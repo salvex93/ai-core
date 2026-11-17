@@ -4,7 +4,7 @@ description: Ciclo de desarrollo con validacion por fases. Impone 5 gates obliga
 metadata:
   origin: ai-core
   version: 1.0.0
-  last_updated: 2026-09-21
+  last_updated: 2026-11-17
   rol: coder
 ---
 

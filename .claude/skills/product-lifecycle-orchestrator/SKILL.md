@@ -4,7 +4,7 @@ description: Orquesta el ciclo de vida COMPLETO de un producto o feature, desde 
 metadata:
   origin: ai-core
   version: 1.0.1
-  last_updated: 2026-09-21
+  last_updated: 2026-11-17
   rol: architect
 ---
 

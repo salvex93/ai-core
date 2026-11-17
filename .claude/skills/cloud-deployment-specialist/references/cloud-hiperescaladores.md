@@ -54,7 +54,7 @@ firebase deploy --only hosting,functions
 Integracion con Cloud Functions o Cloud Run via `rewrites` en `firebase.json`.
 
 **Pricing y free tier (fuente: `cloud.google.com/run/pricing`):**
-- Free tier mensual: 180,000 vCPU-segundos, 360,000 GiB-segundos, 2,000,000 requests, agregado por cuenta de facturacion, se resetea cada mes.
+- Free tier mensual: 180,000 vCPU-segundos, 360,000 GiB-segundos, 2,000,000 requests, agregado por cuenta de facturacion, se resetea cada mes. A verificar (2026-11-17): la pagina `cloud.google.com/run/pricing` no entrego el contenido de las tablas en la reverificacion, cifras sin confirmar contra fuente primaria en esa fecha.
 - Precio por unidad mas alla del free tier: orientativo, no verificado contra fuente oficial — el fetch de la pagina se trunco en multiples intentos, requiere consulta dedicada con la calculadora oficial antes de cotizar.
 - Scale-to-zero real: confirmado oficialmente. Solo se factura con trafico activo.
 

@@ -24,7 +24,7 @@ Para una submission estandar via App Store Connect/TestFlight/App Store, no apli
 
 Fuente verificada: `developer.apple.com/documentation/security/notarizing-macos-software-before-distribution`, `developer.apple.com/app-store/review/guidelines/`, `support.apple.com/en-us/118110`.
 
-Dato de menor confianza (corroboracion en foro oficial de Apple Developer, no documentacion formal): `xcrun altool` esta deprecado para notarizacion desde otono de 2023, reemplazado por `notarytool`. Verificar contra `developer.apple.com/documentation/xcode/distributing-your-app-for-beta-testing-and-releases` antes de tratarlo como definitivo para uploads en general.
+Verificado en `developer.apple.com/news/upcoming-requirements/` (2026-11-17): desde el 1-nov-2023 el servicio de notarizacion no acepta cargas de `altool` ni Xcode 13 o anterior; usar `notarytool`. Verificar contra `developer.apple.com/documentation/xcode/distributing-your-app-for-beta-testing-and-releases` antes de tratarlo como definitivo para uploads en general.
 
 ### Revision — tiempos y estructura de guidelines
 
@@ -44,9 +44,9 @@ Documento descrito por Apple como "living document", sin fecha fija de ultima ac
 
 ### Requisitos tecnicos vigentes — verificar antes de cada submission
 
-Orientativo, verificado contra fuente oficial en la fecha de redaccion de este skill (2026-08-04), re-confirmar vigencia antes de usar: a partir del 28 de abril de 2026, apps y juegos subidos a App Store Connect deben cumplir SDK de iOS 26/iPadOS 26, tvOS 26, watchOS 26 o visionOS 26 o posterior, con Xcode 26 o posterior. Fuente: `developer.apple.com/news/?id=ueeok6yw`.
+Orientativo, verificado contra fuente oficial en la fecha de redaccion de este skill (2026-08-04), re-confirmar vigencia antes de usar: a partir del 28 de abril de 2026, apps y juegos subidos a App Store Connect deben cumplir SDK de iOS 26/iPadOS 26, tvOS 26, watchOS 26 o visionOS 26 o posterior, con Xcode 26 o posterior. Fuente: `developer.apple.com/news/?id=ueeok6yw`. Adicional (`developer.apple.com/news/upcoming-requirements/`, 2026-11-17): desde el 9 de septiembre de 2026, apps iOS/iPadOS subidas a App Store Connect deben tener deployment target iOS 13 o posterior.
 
-Privacy Manifest (`PrivacyInfo.xcprivacy`): confirmado como obligatorio para apps y SDKs de terceros que recolectan datos o usan required reason API, incluyendo mas de 80 SDKs de terceros (Firebase, Facebook SDK, Google Sign-In, Flutter, React Native/Hermes, Alamofire, entre otros). Fecha exacta de entrada en vigor (12-nov-2024 en fuentes secundarias) — orientativo, no verificado contra cita textual de fuente primaria en esta pasada. Fuente de la lista de SDKs: `developer.apple.com/support/third-party-SDK-requirements/`.
+Privacy Manifest (`PrivacyInfo.xcprivacy`): confirmado como obligatorio para apps y SDKs de terceros que recolectan datos o usan required reason API, incluyendo mas de 80 SDKs de terceros (Firebase, Facebook SDK, Google Sign-In, Flutter, React Native/Hermes, Alamofire, entre otros). Fecha de entrada en vigor: la pagina oficial de requisitos de Apple fija el 1-may-2024 para exigir razones aprobadas de required reason API en las cargas (incluye SDKs de terceros); la fecha 12-nov-2024 de fuentes secundarias queda a verificar. La lista oficial de SDKs contiene 86 entradas al 2026-11-17. Fuente de la lista de SDKs: `developer.apple.com/support/third-party-SDK-requirements/`.
 
 ### Checklist pre-submission Apple
 

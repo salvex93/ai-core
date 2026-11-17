@@ -24,7 +24,7 @@ Fuente verificada: `learn.microsoft.com/en-us/windows/msix/desktop/vs-package-ov
 |---|---|---|---|
 | MSIX via Store (Microsoft re-firma) | Gratis | Mundial | Si |
 | MSI/EXE via Store (publisher firma) | Certificado con cadena a CA del Trusted Root Program | Mundial | Si |
-| Azure Artifact Signing (antes Trusted Signing) | Desde 9.99 USD/mes (5.000 firmas, 1 perfil de certificado) o 99.99 USD/mes (100.000 firmas, 10 perfiles) | GA desde enero 2026 en EEUU, Canada y Europa | No |
+| Azure Artifact Signing (antes Trusted Signing) | Basic desde 9.99 USD/mes (hasta 5.000 firmas) o Premium 99.99 USD/mes (hasta 100.000 firmas); firma adicional 0.005 USD; cantidad de perfiles por plan a verificar | GA desde enero 2026 en EEUU, Canada y Europa (fecha y regiones a verificar: no figuran en la pagina oficial del producto) | No |
 | Certificado OV (CA tradicional) | 150-300 USD/ano | Mundial | No |
 | Certificado EV | 400+ USD/ano, ya no da bypass instantaneo de SmartScreen desde 2024 | Mundial | No |
 | Autofirmado | Gratis | — | No, bloquea instalacion publica |

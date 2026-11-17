@@ -4,7 +4,7 @@ description: Gobierno de seguridad de la informacion y gestion de riesgo de terc
 metadata:
   origin: ai-core
   version: 1.3.3
-  last_updated: 2026-09-21
+  last_updated: 2026-11-17
   rol: auditor
 ---
 
@@ -198,5 +198,7 @@ Sin esta linea completada con datos reales del caso, prohibido avanzar a redacta
 Verificado en esta sesion contra fuente primaria oficial (`blog.pcisecuritystandards.org`): PCI DSS v4.0.1 es la version vigente unica del estandar — v4.0 fue retirada el 2024-12-31 y v4.0.1 no modifica la fecha de entrada en vigor de los requisitos "future-dated": 51 de los 64 requisitos nuevos de v4.x se volvieron obligatorios el 2025-03-31 (antes de esa fecha podian declararse "No Aplicable" via el Apendice C del SAQ). No hay version posterior anunciada por el Council a la fecha de esta verificacion.
 
 Reverificado el 2026-09-21 contra fuentes primarias: NIST SP 800-161 Rev. 1 Update 1 (Final, 2024-11-01, `csrc.nist.gov`) sigue vigente sin Rev. 2 publicada; HIPAA Security Rule (`hhs.gov`) — la propuesta de refuerzo de ciberseguridad (NPRM, 2025-01-06) sigue como Proposed Rule y NO es regla final, la Security Rule vigente permanece en efecto; PCI DSS v4.0.1 sigue como version vigente en la biblioteca oficial, sin version posterior listada. SIG: la edicion vigente es 2026 y las cifras de preguntas no son publicas (ver tabla).
+
+Reverificado el 2026-11-17 contra fuentes primarias: PCI DSS v4.0.1 sigue como version vigente (biblioteca oficial de `pcisecuritystandards.org`; v4.0 retirada 2024-12-31; future-dated 2025-03-31); NIST SP 800-161 Rev. 1 Update 1 sin Rev. 2 en `csrc.nist.gov`; HIPAA Security Rule NPRM sin regla final localizada (pagina HHS no accesible, comprobado solo via resultados de busqueda); SIG: la pagina oficial cita la guia 2026 pero no publica conteos.
 
 Sin reverificar: ISO/IEC 27036 (edicion exacta), plazos y umbrales de notificacion de brecha HIPAA, y el desglose de los requisitos PCI "future-dated" (51 de 64) — orientativos, reverificar antes de citarlos en un entregable de cliente.
