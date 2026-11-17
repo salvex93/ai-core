@@ -6,7 +6,7 @@ metadata:
   version: 1.0.1
   last_updated: 2026-11-17
   rol: auditor
-compatibility: Depende de al menos un proveedor de IA adicional configurado en .env (OPENAI_API_KEY, DEEPSEEK_API_KEY, etc.) y conectividad de red hacia ese proveedor, distinto del que genero el cambio a verificar.
+compatibility: Depende de al menos un proveedor de IA adicional configurado en .env (OPENAI_API_KEY, DEEPSEEK_API_KEY, KIMI_API_KEY, etc.) y conectividad de red hacia ese proveedor, distinto del que genero el cambio a verificar.
 ---
 
 # Cross-Model Verifier — Segunda Opinion Ciega
@@ -24,7 +24,7 @@ Complementos: `code-reviewer` (agente que produce el veredicto inicial), `subage
 - Automaticamente: el hook `SubagentStop` dispara `cross-verify-gate.js` cuando el subagente que termina es `code-reviewer` con veredicto `APROBADO`.
 - Manualmente: cuando el usuario pide una segunda opinion explicita sobre un fix ya aplicado.
 - Al diagnosticar por que una auditoria previa no detecto una regresion — revisar si el gate estaba activo (proveedor configurado) en ese momento.
-- Al configurar `OPENAI_API_KEY` o `DEEPSEEK_API_KEY` en `.env` por primera vez — verificar que `ModelRegistry.listProviders()` los detecta.
+- Al configurar `OPENAI_API_KEY`, `DEEPSEEK_API_KEY` o `KIMI_API_KEY` en `.env` por primera vez — verificar que `ModelRegistry.listProviders()` los detecta.
 
 ## Cuando NO Activar Este Perfil
 
@@ -43,7 +43,7 @@ Complementos: `code-reviewer` (agente que produce el veredicto inicial), `subage
 node .claude/bin/cross-verify-gate.js
 ```
 
-Si retorna exit 0 sin mensaje `[cross-verify] omitido`, la verificacion corrio. Si el mensaje indica proveedor omitido, configurar `OPENAI_API_KEY` o `DEEPSEEK_API_KEY` en `.env` primero.
+Si retorna exit 0 sin mensaje `[cross-verify] omitido`, la verificacion corrio. Si el mensaje indica proveedor omitido, configurar `OPENAI_API_KEY`, `DEEPSEEK_API_KEY` o `KIMI_API_KEY` en `.env` primero.
 
 ## Mecanismo
 
@@ -104,7 +104,7 @@ IDENTIDAD DE VERIFICACION:
   Umbral de confianza: [una linea — ej. "fix de bug aislado, single-pass basta" | "cambio de arquitectura multi-modulo, exige desempate 2-de-3"]
 ```
 
-Si `.env` no tiene un segundo proveedor configurado (`OPENAI_API_KEY` o `DEEPSEEK_API_KEY`), la identidad debe declararlo explicito como `Verificador esperado: ninguno — gate se omite` en vez de asumir que la verificacion corrio.
+Si `.env` no tiene un segundo proveedor configurado (`OPENAI_API_KEY`, `DEEPSEEK_API_KEY` o `KIMI_API_KEY`), la identidad debe declararlo explicito como `Verificador esperado: ninguno — gate se omite` en vez de asumir que la verificacion corrio.
 
 ### Prohibido — patrones reconocibles de verificacion de plantilla
 
