@@ -164,9 +164,10 @@
       ]
     },
     "discord-api": {
-      "verified": "2026-10-31",
+      "verified": "2026-11-17",
       "sources": [
-        "docs.discord.com/developers/resources/message (dominio actual; discord.com/developers/docs redirige 301; limites de embed reconfirmados sin cambios) -- estructura de embed, limites de caracteres/fields/embeds por mensaje, distincion Webhook vs Bot/Gateway; rate limit por webhook sin cifra oficial fija -- 5 req/2s tratado como orientativo de terceros, no confirmado en fuente primaria unica)"
+        "docs.discord.com/developers/resources/message (dominio actual; discord.com/developers/docs redirige 301; limites de embed reconfirmados sin cambios) -- estructura de embed, limites de caracteres/fields/embeds por mensaje, distincion Webhook vs Bot/Gateway; rate limit por webhook sin cifra oficial fija -- 5 req/2s tratado como orientativo de terceros, no confirmado en fuente primaria unica)",
+        "Re-verificado 2026-11-17 (alcance parcial, lectura web resumida; lo no comprobado quedo marcado \"a verificar\" en los skills): docs.discord.com/developers/resources/message (limites de embed y content); docs.discord.com/developers/topics/rate-limits (headers, retry_after, limites de webhook separados; la cifra 5 req/2s no aparece); docs.discord.com/developers/resources/webhook; docs.discord.com/developers/events/gateway (intents privilegiados, 100+ servidores). No comprobados: Secret Scanning, TroubleGrabber y el patron de agrupamiento."
       ],
       "skills": [
         "discord-ops"
@@ -328,9 +329,10 @@
       ]
     },
     "sre-reliability": {
-      "verified": "2026-10-18",
+      "verified": "2026-11-17",
       "sources": [
-        "sre.google/workbook/alerting-on-slos (tabla 5-8: burn rates 14,4/6/1 con ventanas 1h/6h/3d para consumo de 2%/5%/10% del presupuesto, verificado 2026-10-18 via WebFetch directo)"
+        "sre.google/workbook/alerting-on-slos (tabla 5-8: burn rates 14,4/6/1 con ventanas 1h/6h/3d para consumo de 2%/5%/10% del presupuesto, verificado 2026-10-18 via WebFetch directo)",
+        "Re-verificado 2026-11-17 (alcance parcial, lectura web resumida; lo no comprobado quedo marcado \"a verificar\" en los skills): sre.google/workbook/alerting-on-slos/ (tabla 5-8 y regla 1/12 confirmadas); sre.google/workbook/implementing-slos/ (ventana recomendada de 4 semanas, no 30 dias; cinco SLI o menos); sre.google/workbook/error-budget-policy/ y sre.google/sre-book/embracing-risk/ (congelamiento de releases). No comprobados: 30 dias como ventana, roles de incidente, postmortem y capacity planning."
       ],
       "skills": [
         "sre-engineer"

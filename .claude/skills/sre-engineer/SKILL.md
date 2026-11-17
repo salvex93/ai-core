@@ -4,7 +4,7 @@ description: Activa al definir SLI/SLO, error budgets, alertas por burn rate, ca
 metadata:
   origin: ai-core
   version: 1.0.0
-  last_updated: 2026-10-18
+  last_updated: 2026-11-17
   rol: architect
 ---
 
@@ -54,7 +54,7 @@ Ante cualquiera de estas condiciones, insertar la directiva y detener. No emitir
 
 - SLI: razon entre eventos buenos y eventos validos, expresada como porcentaje. Disponibilidad = peticiones exitosas / peticiones validas. Latencia = peticiones bajo el umbral / peticiones validas.
 - Medir en el borde que ve el usuario (balanceador o cliente), no en el proceso interno que puede estar sano mientras el usuario falla.
-- SLO: objetivo sobre una ventana movil (28 o 30 dias). Un SLO se elige por el valor para el usuario y el costo de alcanzarlo, no por el maximo tecnico.
+- SLO: objetivo sobre una ventana movil (el SRE Workbook recomienda cuatro semanas, 28 dias; 30 dias es variante comun, a verificar en fuente primaria). Un SLO se elige por el valor para el usuario y el costo de alcanzarlo, no por el maximo tecnico.
 - Un SLO no puede ser mas estricto que el de sus dependencias criticas encadenadas; calcular el techo multiplicando disponibilidades en serie.
 - Pocos SLI por servicio: uno de disponibilidad y uno de latencia cubren la mayoria de los casos. Mas SLI diluyen la decision.
 

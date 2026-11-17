@@ -196,4 +196,5 @@ if (ONLY_STALE) {
   console.log('\nEste comando NO hace llamadas de red ni corrige nada por si solo. Para re-verificar un dominio contra fuente primaria, usar el research manual (WebSearch/WebFetch o el agente de research) y luego actualizar MARKET_STANDARDS.json con la fecha y fuente real.\n');
 }
 
-process.exit(0);
+// exitCode y no process.exit: salir de golpe trunca a 64 KB la salida que va por una tuberia (el JSON crece con cada re-verificacion)
+process.exitCode = 0;

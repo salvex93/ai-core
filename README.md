@@ -914,7 +914,8 @@ New-Item -ItemType SymbolicLink -Path './CLAUDE.md' -Target 'C:/ruta/a/ai-core/C
 │   │   ├── web-search-guard.js  Hook PreToolUse(WebSearch|WebFetch): fuerza buscar_web (Gemini) sobre busqueda nativa, degrada con gracia sin GEMINI_API_KEY
 │   │   ├── agent-tools-guard.js Hook PreToolUse(Bash|Read|Write|Edit): bloquea herramientas fuera del scope `tools:` declarado por el subagente activo
 │   │   ├── bash-verbosity-guard.js Hook PreToolUse(Bash): bloquea comandos de alto riesgo de output masivo
-│   │   ├── destructive-op-guard.js Hook PreToolUse(Bash): bloquea rm -rf, git push --force, reset --hard, clean -f, branch -D, DROP TABLE/TRUNCATE — break-glass para 11 reglas sin alternativa segura
+│   │   ├── destructive-op-guard.js Hook PreToolUse(Bash): bloquea rm -rf, git push --force, reset --hard, clean -f, branch -D, DROP TABLE/TRUNCATE — break-glass para 24 reglas sin alternativa segura (incluye push --mirror, dd/mkfs/shred, find -delete, DROP SCHEMA, kubectl delete ns, prune forzado y WHERE tautologico); desofusca el nombre del comando (r\m, "rm", ${IFS}) antes de evaluar
+│   │   ├── approval-store-guard.js Hook PreToolUse(Bash|Write|Edit|NotebookEdit): impide al agente escribir en el almacen de locks (ai-core-locks: aprobaciones de break-glass y contadores de guards); la aprobacion solo nace del prompt del usuario. Barrera de patrones, no sandbox
 │   │   ├── code-exec-guard.js   Hook PreToolUse(Write|Edit): bloquea eval/exec/shell antes de escribir (ASI05) — break-glass via lib/break-glass.js
 │   │   ├── mcp-integrity-check.js Hash SHA-256 de servidores MCP propios contra baseline (ASI04, via health-check.js)
 │   │   ├── mcp-lifecycle-check.js Valida estado Active/Deprecated/Removed de servidores MCP propios contra MCP_LIFECYCLE.json
@@ -922,7 +923,7 @@ New-Item -ItemType SymbolicLink -Path './CLAUDE.md' -Target 'C:/ruta/a/ai-core/C
 │   │   ├── subagent-grader.js   Hook SubagentStop: grader de calidad via SubagentGrader.js (Performance Outcomes)
 │   │   ├── checkpoint-branch.js Hook PostToolUse(Write|Edit): auto-commit a rama de respaldo ai-core/checkpoints, nunca a la rama de trabajo real
 │   │   ├── diff-map-trigger.js  Hook PostToolUse(Write|Edit|Bash): regenera CONTEXT_MAP.json ante archivos nuevos/renombrados/eliminados
-│   │   ├── detox.js             Limpia .md legacy no trackeados de la raiz (TO_GEMINI.md, REPORT-*.md) que contaminan contexto entre sesiones
+│   │   ├── detox.js             Aparta a .claude/detox-cuarentena/ los .md legacy no trackeados de la raiz (TO_GEMINI.md, REPORT-*.md, AUDIT-*.md) que contaminan contexto entre sesiones; ya no los borra
 │   │   ├── git-history-secrets-scan.js Escanea el HISTORIAL completo de git (no solo working tree) por credenciales commiteadas alguna vez
 │   │   ├── lib/                 Modulos compartidos entre hooks
 │   │   │   ├── hook-stdin.js         Lectura/parseo del JSON de evento que Claude Code entrega por stdin

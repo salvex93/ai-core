@@ -64,3 +64,20 @@ describe('audit-market.js: lo valido sigue igual', () => {
     assert.equal(estado(correr({ lastUpdated: hoy, verified: haceDias(90) })), 'STALE_MERCADO');
   });
 });
+
+describe('audit-market.js: salida grande por una tuberia', () => {
+  test('el JSON de mas de 64 KB llega completo (process.exit truncaba la salida)', () => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'audit-market-grande-'));
+    fs.mkdirSync(path.join(dir, 'skills', 'demo'), { recursive: true });
+    fs.writeFileSync(path.join(dir, 'skills', 'demo', 'SKILL.md'), `---\nname: demo\nmetadata:\n  last_updated: ${hoy}\n---\ncuerpo\n`);
+    const fuentes = Array.from({ length: 40 }, (_, i) => `fuente ${i}: ${'x'.repeat(3000)}`);
+    fs.writeFileSync(path.join(dir, 'standards.json'), JSON.stringify({ domains: { web: { skills: ['demo'], verified: hoy, sources: fuentes } } }));
+    const r = spawnSync('node', [SCRIPT, '--json'], {
+      encoding: 'utf8', maxBuffer: 16 * 1024 * 1024,
+      env: { ...process.env, AI_CORE_SKILLS_DIR: path.join(dir, 'skills'), AI_CORE_MARKET_STANDARDS_PATH: path.join(dir, 'standards.json') },
+    });
+    fs.rmSync(dir, { recursive: true, force: true });
+    assert.ok(r.stdout.length > 100000, `la salida debia superar 100 KB y mide ${r.stdout.length}`);
+    assert.equal(JSON.parse(r.stdout).resumen.total, 1);
+  });
+});
