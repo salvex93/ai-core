@@ -161,6 +161,10 @@ describe('approval-store-guard: rutas armadas sin el literal', () => {
     test(`error: permite ${cmd}`, () => assert.equal(bashAlmacen(cmd), 0, cmd));
   }
 
+  test('error: una ruta con separadores de Windows no se confunde con un escape (ai-core\\ai-core\\docs)', () => {
+    assert.equal(tocar({ tool_name: 'Write', tool_input: { file_path: 'D:\\a\\ai-core\\ai-core\\docs\\ai-core-locks.md' } }), 0);
+  });
+
   test('error: escribir un documento llamado ai-core-locks.md dentro del proyecto no se bloquea', () => {
     assert.equal(tocar({ tool_name: 'Write', tool_input: { file_path: path.join(process.cwd(), 'docs', 'ai-core-locks.md') } }), 0);
   });

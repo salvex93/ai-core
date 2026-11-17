@@ -44,6 +44,8 @@ function leerEvento() {
 // Rutas armadas sin escribir el literal: glob (ai-core-l*, ai-*), expansion (ai-core-$x, ai-core-{locks}),
 // escape (ai-core-l\ocks) o concatenacion ('ai-core-'+'locks'). Una barrera de patrones, no un sandbox.
 const AMBIGUO = /\bai-(?:core-?)?[\w-]*[*?\[{$\\]|\bai-core-['"]\s*\+/;
+// En una ruta de archivo la barra invertida es separador (Windows), no un escape de shell: no cuenta como ambiguedad
+const AMBIGUO_RUTA = /\bai-(?:core-?)?[\w-]*[*?\[{$]/;
 const BASES_TMP = ['/tmp', '/private/tmp', '/var/folders', '/private/var/folders', os.tmpdir(), process.env.AI_CORE_BREAK_GLASS_DIR].filter(Boolean);
 
 // El tokenizador resuelve las comillas: ai-core-'locks' queda como ai-core-locks
@@ -60,7 +62,7 @@ function comandoToca(comando) {
 // Un documento del proyecto llamado ai-core-locks.md no es el almacen: solo cuenta lo que cae bajo el tmpdir
 function rutaToca(ruta) {
   const absoluta = path.resolve(ruta);
-  if (AMBIGUO.test(absoluta)) return true;
+  if (AMBIGUO_RUTA.test(absoluta)) return true;
   if (!ALMACEN.test(absoluta)) return false;
   return BASES_TMP.some((b) => absoluta === path.resolve(b) || absoluta.startsWith(path.resolve(b) + path.sep));
 }
