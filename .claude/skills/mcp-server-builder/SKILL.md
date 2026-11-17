@@ -4,7 +4,7 @@ description: Especialista en construccion de servidores MCP (Model Context Proto
 metadata:
   origin: ai-core
   version: 1.5.2
-  last_updated: 2026-09-21
+  last_updated: 2026-11-17
   rol: coder
 compatibility: Requiere @modelcontextprotocol/sdk (TypeScript) o mcp (Python) compatible con especificacion MCP 2026-07-28; depende de conectividad de red para transporte Streamable HTTP.
 ---
@@ -15,7 +15,7 @@ Este perfil cubre la construccion del lado servidor del protocolo MCP: crear ser
 
 MCP es el mecanismo estandar para extender las capacidades de Claude Code y de cualquier agente Anthropic con herramientas propias: APIs internas, bases de datos privadas, servicios de la empresa, pipelines de datos. Un servidor MCP bien construido puede conectarse a cualquier cliente MCP sin modificacion.
 
-Disponible en TypeScript (`@modelcontextprotocol/sdk`) y Python (`mcp`).
+Disponible en TypeScript (`@modelcontextprotocol/sdk`) y Python (`mcp`). A verificar (2026-11-17): la rama `main` del repo `typescript-sdk` es v2 (paquetes `@modelcontextprotocol/server` y `@modelcontextprotocol/client`, implementa 2026-07-28); la version publicada estable y la ruta de imports de los ejemplos de este skill (v1) no se pudieron comprobar.
 
 ## Cuando Activar Este Perfil
 
@@ -323,7 +323,7 @@ Todo servidor MCP expuesto en red (no solo localhost) requiere autenticacion:
 - Token Bearer en el header `Authorization`.
 - El token se valida antes de procesar el request MCP, no despues.
 - En produccion, rotar los tokens con la misma frecuencia que cualquier API key.
-- El transporte SSE legacy (`SSEServerTransport`) esta obsoleto desde la especificacion 2025-03-26 y formalmente en estado Deprecated bajo la politica de ciclo de vida de 2026-07-28 (ventana minima de 12 meses antes de Removed). Los servidores nuevos usan `StreamableHTTPServerTransport` exclusivamente — no depender de resumability via `Last-Event-ID`, eliminada en 2026-07-28: un stream roto obliga a reemitir el request completo.
+- El transporte SSE legacy (`SSEServerTransport`) esta obsoleto desde la especificacion 2025-03-26 y formalmente en estado Deprecated bajo la politica de ciclo de vida de 2026-07-28 (retiro elegible tres meses despues de que SEP-2596 alcance Final, segun `modelcontextprotocol.io/specification/2026-07-28/deprecated`, no los 12 meses de Roots/Sampling/Logging/DCR). Los servidores nuevos usan `StreamableHTTPServerTransport` exclusivamente — no depender de resumability via `Last-Event-ID`, eliminada en 2026-07-28: un stream roto obliga a reemitir el request completo.
 
 ## Framework de Extensiones (2026-07-28)
 

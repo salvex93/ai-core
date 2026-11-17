@@ -4,7 +4,7 @@ description: QA Engineer Universal. Estrategia de testing, piramide de calidad, 
 metadata:
   origin: ai-core
   version: 2.1.0
-  last_updated: 2026-10-18
+  last_updated: 2026-11-17
   rol: auditor
 ---
 

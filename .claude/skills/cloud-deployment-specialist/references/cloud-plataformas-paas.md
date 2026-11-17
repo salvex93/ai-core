@@ -55,7 +55,7 @@ railway up --detach
 Deploy automatico desde GitHub en cada push a la rama conectada, con soporte de "Wait for CI" (fuente: `docs.railway.com/guides/github-autodeploys`).
 
 **Pricing (fuente: `docs.railway.com/reference/pricing`):**
-- Free/Trial: $0/mes con $1 credito mensual — la misma pagina oficial tambien menciona una subvencion unica de $5 para usuarios nuevos con acceso limitado (1GB RAM, 2 vCPU, 1GB almacenamiento efimero). Esta inconsistencia es real y esta dentro de la propia fuente citada: reverificar en el dashboard actual antes de cotizar, no asumir cual cifra aplica.
+- Free/Trial: $0/mes con $1 credito mensual — la misma pagina oficial tambien menciona una subvencion unica de $5 para usuarios nuevos con acceso limitado (1GB RAM, 2 vCPU, 1GB almacenamiento efimero). Verificado 2026-11-17 en `docs.railway.com/reference/pricing/plans`: ambas cifras son planes distintos (Free: $1 de credito mensual, 1 replica, 0,5 GB RAM, 1 vCPU; Trial: subvencion unica de $5, 2 replicas, 1 GB RAM, 2 vCPU), por lo que ya no se trata de una contradiccion; reverificar en el dashboard antes de cotizar.
 - Hobby: $5/mes (incluye $5 de credito). Pro: $20/mes (incluye $20 de credito).
 - Costo por recurso: RAM $10/GB/mes, CPU $20/vCPU/mes, Network Egress $0.05/GB, Volume Storage $0.15/GB/mes.
 

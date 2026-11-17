@@ -4,7 +4,7 @@ description: Detecta fallos silenciosos en codigo Node.js y Python — catch vac
 metadata:
   origin: ai-core
   version: 1.1.0
-  last_updated: 2026-09-21
+  last_updated: 2026-11-17
   rol: auditor
 ---
 

@@ -4,7 +4,7 @@ description: Activa al empaquetar builds de release para distribucion (APK/AAB, 
 metadata:
   origin: ai-core
   version: 1.0.0
-  last_updated: 2026-10-18
+  last_updated: 2026-11-17
   rol: coder
 ---
 

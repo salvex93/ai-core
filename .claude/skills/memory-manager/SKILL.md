@@ -4,7 +4,7 @@ description: Gestiona la memoria semantica persistente del arnés ai-core via va
 metadata:
   origin: ai-core
   version: 1.2.0
-  last_updated: 2026-09-21
+  last_updated: 2026-11-17
   rol: architect
 ---
 

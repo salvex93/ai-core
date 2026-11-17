@@ -4,7 +4,7 @@ description: Evaluador de servidores MCP de terceros antes de instalar. Analiza 
 metadata:
   origin: ai-core
   version: 1.1.0
-  last_updated: 2026-09-21
+  last_updated: 2026-11-17
   rol: auditor
 compatibility: Requiere conectividad de red para evaluar repositorios/servidores MCP de terceros; clonar/inspeccionar codigo remoto y probar transporte real del servidor evaluado.
 ---
@@ -69,7 +69,7 @@ Criterios:
 - Issues abiertos > 50 sin respuesta: EVALUAR
 - Sin licencia open source: RECHAZAR
 
-El conteo de estrellas y la etiqueta "featured" / "verified" de un registro publico (mcp.run, glama.ai, el registro oficial de Anthropic) NO son señales de seguridad. Ante la pregunta directa "tiene X estrellas y esta featured, alcanza para INSTALAR?", la respuesta arranca rechazando la premisa y diciendo explicitamente que estar listado o destacado en un registro es autopublicacion del autor, no una certificacion de seguridad de un tercero: nadie audito el codigo por el hecho de aparecer ahi. Las estrellas miden popularidad, no ausencia de codigo malicioso — un MCP con 15 mil estrellas exige leer su codigo de inicializacion y aplicar el mismo paso 2 (seguridad de inputs) y el mismo paso 5 (riesgo operativo) que uno con cero. Alta popularidad solo reduce el riesgo de que el repo este abandonado, nada mas. La decision correcta sin haber leido el codigo es EVALUAR, nunca INSTALAR.
+El conteo de estrellas y la etiqueta "featured" / "verified" de un registro publico (mcp.run, glama.ai, el registro oficial de MCP en `modelcontextprotocol.io/registry`, en estado preview) NO son señales de seguridad. Ante la pregunta directa "tiene X estrellas y esta featured, alcanza para INSTALAR?", la respuesta arranca rechazando la premisa y diciendo explicitamente que estar listado o destacado en un registro es autopublicacion del autor, no una certificacion de seguridad de un tercero: nadie audito el codigo por el hecho de aparecer ahi. Las estrellas miden popularidad, no ausencia de codigo malicioso — un MCP con 15 mil estrellas exige leer su codigo de inicializacion y aplicar el mismo paso 2 (seguridad de inputs) y el mismo paso 5 (riesgo operativo) que uno con cero. Alta popularidad solo reduce el riesgo de que el repo este abandonado, nada mas. La decision correcta sin haber leido el codigo es EVALUAR, nunca INSTALAR.
 
 ### 4. Calidad del Schema de Herramientas
 
@@ -208,7 +208,7 @@ Si la superficie de confianza requerida incluye escritura en filesystem o creden
 Verificado contra fuente oficial primaria (`blog.modelcontextprotocol.io/posts/2026-07-28/` y `modelcontextprotocol.io/specification/2026-07-28`) en el momento de escribir este modulo:
 
 - La especificacion vigente es **2026-07-28**. El cambio de fondo es que MCP paso de protocolo bidireccional con estado a un nucleo **sin estado** (stateless): se elimino el handshake `initialize/initialized` y el header `Mcp-Session-Id` — la informacion de cliente y capacidades ahora viaja en `_meta` en cada solicitud, permitiendo que cualquier peticion caiga en cualquier instancia detras de un balanceador simple sin almacenamiento compartido.
-- **Deprecados formalmente, con ventana de transicion minima de 12 meses** (siguen funcionando pero ya no son el camino recomendado): `Roots`, `Sampling` y `Logging` del nucleo del protocolo; `Dynamic Client Registration` en favor de `Client ID Metadata Documents (CIMD)`; y el transporte legacy `HTTP+SSE`.
+- **Deprecados formalmente, con ventana de transicion minima de 12 meses** (siguen funcionando pero ya no son el camino recomendado): `Roots`, `Sampling` y `Logging` del nucleo del protocolo, y `Dynamic Client Registration` en favor de `Client ID Metadata Documents (CIMD)`; el transporte legacy `HTTP+SSE` tambien esta Deprecated, pero con retiro elegible tres meses despues de que SEP-2596 alcance Final (no 12 meses).
 - Endurecimiento de autorizacion: validacion de emisor segun RFC 9207 para cerrar vulnerabilidades de mezcla de servidores, con credenciales vinculadas al emisor que las genero.
 - Implicacion directa para este skill: un MCP evaluado que aun depende de `Dynamic Client Registration` sin CIMD, o que usa transporte `HTTP+SSE` legacy, no esta roto ni debe rechazarse automaticamente por eso — pero el reporte de evaluacion debe registrar explicitamente que implementa una capa en camino de deprecacion, y marcarlo como EVALUAR en el criterio de Transporte hasta confirmar el plan de migracion del mantenedor.
 - Todo pricing, limite de free tier o capacidad de un proveedor de MCP especifico mencionado durante una evaluacion puntual (no cubierto arriba) debe tratarse como orientativo, no verificado contra fuente oficial, salvo que se haya confirmado en esa misma sesion contra el dominio oficial del proveedor.

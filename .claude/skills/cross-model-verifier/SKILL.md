@@ -4,7 +4,7 @@ description: Verificacion ciega de diffs con un proveedor de IA distinto al que 
 metadata:
   origin: ai-core
   version: 1.0.1
-  last_updated: 2026-09-21
+  last_updated: 2026-11-17
   rol: auditor
 compatibility: Depende de al menos un proveedor de IA adicional configurado en .env (OPENAI_API_KEY, DEEPSEEK_API_KEY, etc.) y conectividad de red hacia ese proveedor, distinto del que genero el cambio a verificar.
 ---
