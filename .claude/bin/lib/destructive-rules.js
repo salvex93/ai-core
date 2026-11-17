@@ -15,7 +15,9 @@ const REGLAS = [
     // Flag /i agregado (hallazgo red-team 2026-08-15): "RM -rf" en
     // mayusculas evadia el bloqueo -- el nombre del comando no distingue
     // seguridad por case, a diferencia de flags como git branch -D/-d.
-    disparo: /\brm\s+.*(?:(?:-[a-zA-Z]*r[a-zA-Z]*f[a-zA-Z]*\b)|(?:-[a-zA-Z]*f[a-zA-Z]*r[a-zA-Z]*\b)|(?:(?:-r\b|--recursive\b).*(?:-f\b|--force\b))|(?:(?:-f\b|--force\b).*(?:-r\b|--recursive\b)))/i,
+    // Cada flag se exige como token propio (precedido de espacio y seguido de espacio o fin): sin eso
+    // un nombre de archivo como release-for-review.log contenia "-for" y se tomaba por -fr.
+    disparo: /\brm\s+(?:\S+\s+)*?(?:(?:-[a-zA-Z]*r[a-zA-Z]*f[a-zA-Z]*(?=\s|$))|(?:-[a-zA-Z]*f[a-zA-Z]*r[a-zA-Z]*(?=\s|$))|(?:(?:-r(?=\s|$)|--recursive\b)(?:\s+\S+)*?\s+(?:-f(?=\s|$)|--force\b))|(?:(?:-f(?=\s|$)|--force\b)(?:\s+\S+)*?\s+(?:-r(?=\s|$)|--recursive\b)))/i,
     excepcion: null,
     breakGlass: true,
     motivo: 'borrado recursivo forzado -- irreversible, sin papelera de reciclaje.',
@@ -45,7 +47,8 @@ const REGLAS = [
   },
   {
     nombre: 'git clean -f',
-    disparo: new RegExp(GIT + String.raw`clean\s+.*(?:-[a-zA-Z]*f|--force\b)`, 'i'),
+    // -n/--dry-run en el mismo segmento exime (no borra); "git clean -n; git clean -fd" sigue bloqueando
+    disparo: new RegExp(GIT + String.raw`clean\b(?![^;&|\n]*(?:\s-[a-zA-Z]*n[a-zA-Z]*(?=\s|$)|--dry-run\b))[^;&|\n]*(?:\s-[a-zA-Z]*f|--force\b)`, 'i'),
     excepcion: null,
     breakGlass: true,
     motivo: 'borra archivos no trackeados de forma irreversible -- puede incluir trabajo en progreso nunca commiteado.',
@@ -111,7 +114,7 @@ const REGLAS = [
     // Sintaxis moderna --delete/-d, y la antigua "origin :rama" (equivalentes
     // segun git-scm.com) -- el lado izquierdo de ":" debe estar vacio para
     // que sea un borrado; "origin HEAD:main" (refspec normal) no debe matchear.
-    disparo: /\bgit\s+push\s+\S+\s+(--delete\b|-d\b|:\S+)/,
+    disparo: new RegExp(GIT + String.raw`push\b.*(?:\s--delete\b|\s-d(?=\s|$)|\s:[^\s:]\S*)`),
     excepcion: null,
     breakGlass: true,
     motivo: 'elimina una rama del repositorio remoto -- confirmar que no es una rama protegida (main/master/develop) antes de reintentar.',
@@ -131,8 +134,15 @@ const REGLAS = [
     // WHERE en toda la sentencia, no solo al final -- evita el falso
     // positivo de "DELETE FROM tabla WHERE id = $1" (uso rutinario).
     disparo: /\b(DELETE\s+FROM\s+\S+|UPDATE\s+\S+\s+SET\s+.+?)(;|"|$)/i,
-    excepcion: /\bWHERE\b/i,
+    excepcion: /\bWHERE\b(?!\s+(?:1\s*=\s*1|true)\b)/i,
     motivo: 'modifica o elimina filas sin condicion -- afecta la tabla completa. Agregar WHERE para acotar el alcance, o confirmar explicitamente si el alcance total es intencional.',
+  },
+  {
+    nombre: 'DELETE/UPDATE con WHERE tautologico',
+    // "WHERE 1=1" o "WHERE true" no acota nada: afecta la tabla completa igual que sin WHERE.
+    disparo: /\b(?:DELETE\s+FROM\s+\S+|UPDATE\s+\S+\s+SET\s+.+?)\s+WHERE\s+(?:1\s*=\s*1|true)\b/i,
+    excepcion: null,
+    motivo: 'la condicion es siempre verdadera: modifica o elimina todas las filas de la tabla.',
   },
   {
     nombre: 'DROP DATABASE',
@@ -170,7 +180,7 @@ const REGLAS = [
     // credencial en el mismo comando. GET sin material sensible no dispara.
     nombre: 'egreso de secretos por red',
     // Ambos ordenes (herramienta antes o despues del secreto) para cubrir "cat .env | curl".
-    disparo: /(?:\b(?:curl|wget|nc|ncat|Invoke-WebRequest|iwr|Invoke-RestMethod|irm)\b.*(?:(?:^|[\s\/"'=@])\.env(?!\.(?:example|sample|template)\b)(?![\w-])|\bid_(?:rsa|ed25519)\b|\.pem\b|\$\{?\w*(?:KEY|TOKEN|SECRET|PASSWORD|CANARY)\w*\}?)|(?:(?:^|[\s\/"'=@])\.env(?!\.(?:example|sample|template)\b)(?![\w-])|\bid_(?:rsa|ed25519)\b).*\|\s*(?:curl|wget|nc|ncat|iwr|irm)\b)/i,
+    disparo: /(?:\b(?:curl|wget|nc|ncat|Invoke-WebRequest|iwr|Invoke-RestMethod|irm)\b.*(?:(?:^|[\s\/"'=@])\.env(?!\.(?:example|sample|template)\b)(?![\w-])|\bid_(?:rsa|ed25519)\b|\.pem(?![\w.-])|\$\{?\w*(?:KEY|TOKEN|SECRET|PASSWORD|CANARY)\w*\}?)|(?:(?:^|[\s\/"'=@])\.env(?!\.(?:example|sample|template)\b)(?![\w-])|\bid_(?:rsa|ed25519)\b).*\|\s*(?:curl|wget|nc|ncat|iwr|irm)\b)/i,
     excepcion: null,
     breakGlass: true,
     motivo: 'envia o referencia un archivo de secretos o una variable de credencial en una peticion de red -- vector de exfiltracion.',
@@ -178,10 +188,74 @@ const REGLAS = [
   {
     // .env.example/.sample/.template se excluyen: son plantillas versionables.
     nombre: 'git add de archivos de secretos',
-    disparo: /\bgit\s+add\b.*(?:(?:^|[\s\/"'])\.env(?!\.(?:example|sample|template)\b)(?![\w-])|\bid_(?:rsa|ed25519)\b|\.pem\b)/i,
+    disparo: /\bgit\s+add\b.*(?:(?:^|[\s\/"'])\.env(?!\.(?:example|sample|template)\b)(?![\w-])|\bid_(?:rsa|ed25519)\b|\.pem(?![\w.-]))/i,
     excepcion: null,
     breakGlass: true,
     motivo: 'versiona un archivo de secretos -- una vez en el historial de git el secreto queda expuesto aunque se borre despues.',
+  },
+  {
+    nombre: 'git push --mirror',
+    // Reemplaza todas las referencias del remoto por las locales: borra ramas y etiquetas remotas.
+    disparo: new RegExp(GIT + String.raw`push\b.*--mirror\b`, 'i'),
+    excepcion: null,
+    breakGlass: true,
+    motivo: 'sobreescribe y borra todas las referencias del remoto para igualarlas a las locales -- irreversible para el historial remoto.',
+  },
+  {
+    nombre: 'dd hacia un dispositivo',
+    disparo: /\bdd\b[^|;&\n]*\bof=\/dev\//i,
+    excepcion: null,
+    breakGlass: true,
+    motivo: 'escribe directamente sobre un dispositivo de bloques -- destruye su contenido.',
+  },
+  {
+    nombre: 'mkfs (formateo)',
+    disparo: /\bmkfs(?:\.\w+)?\b/i,
+    excepcion: null,
+    breakGlass: true,
+    motivo: 'formatea un dispositivo -- destruye el sistema de archivos existente.',
+  },
+  {
+    nombre: 'shred',
+    disparo: /\bshred\b/i,
+    excepcion: null,
+    breakGlass: true,
+    motivo: 'sobrescribe el archivo de forma que no se puede recuperar.',
+  },
+  {
+    nombre: 'chmod/chown recursivo sobre la raiz',
+    disparo: /\b(?:chmod|chown)\s+(?:-[a-zA-Z]*R[a-zA-Z]*|--recursive)\s+\S+\s+\/(?:\s|$)/i,
+    excepcion: null,
+    breakGlass: true,
+    motivo: 'cambia permisos o propietario de todo el sistema de archivos desde la raiz.',
+  },
+  {
+    nombre: 'find -delete',
+    disparo: /\bfind\b[^|;&\n]*\s-delete\b/i,
+    excepcion: null,
+    breakGlass: true,
+    motivo: 'borra todo lo que coincide con la busqueda sin pasar por la papelera -- verificar primero el listado sin -delete.',
+  },
+  {
+    nombre: 'DROP SCHEMA',
+    disparo: /\bDROP\s+SCHEMA\b/i,
+    excepcion: /--\s*confirmado/i,
+    breakGlass: true,
+    motivo: 'elimina un esquema y, con CASCADE, todos sus objetos -- irreversible sin backup verificado.',
+  },
+  {
+    nombre: 'kubectl delete namespace',
+    disparo: /\bkubectl\s+delete\s+(?:ns|namespaces?)\b/i,
+    excepcion: /--dry-run/,
+    breakGlass: true,
+    motivo: 'elimina un namespace completo con todos sus recursos -- usar --dry-run=server primero.',
+  },
+  {
+    nombre: 'docker volume/system prune forzado',
+    disparo: /\bdocker\s+(?:volume|system)\s+prune\b[^|;&\n]*(?:\s-[a-zA-Z]*f|--force\b)/i,
+    excepcion: null,
+    breakGlass: true,
+    motivo: 'elimina sin pedir confirmacion recursos de docker, incluidos volumenes con datos.',
   },
 ];
 
