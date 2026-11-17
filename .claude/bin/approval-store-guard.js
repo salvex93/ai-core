@@ -16,9 +16,11 @@
  */
 
 const fs = require('node:fs');
+const os = require('node:os');
 const path = require('node:path');
 const { tokenizar } = require('./lib/comando-tokens');
 const { normalizarTexto } = require('./lib/normalizar-texto');
+const { enmascararComando } = require('./lib/enmascarar-comando');
 
 const ALMACEN = /ai-core-locks|AI_CORE_BREAK_GLASS_DIR/i;
 const HERRAMIENTAS_ARCHIVO = new Set(['Write', 'Edit', 'NotebookEdit', 'MultiEdit']);
@@ -39,15 +41,28 @@ function leerEvento() {
   }
 }
 
+// Rutas armadas sin escribir el literal: glob (ai-core-l*, ai-*), expansion (ai-core-$x, ai-core-{locks}),
+// escape (ai-core-l\ocks) o concatenacion ('ai-core-'+'locks'). Una barrera de patrones, no un sandbox.
+const AMBIGUO = /\bai-(?:core-?)?[\w-]*[*?\[{$\\]|\bai-core-['"]\s*\+/;
+const BASES_TMP = ['/tmp', '/private/tmp', '/var/folders', '/private/var/folders', os.tmpdir(), process.env.AI_CORE_BREAK_GLASS_DIR].filter(Boolean);
+
 // El tokenizador resuelve las comillas: ai-core-'locks' queda como ai-core-locks
 function comandoToca(comando) {
-  const normalizado = normalizarTexto(comando);
+  const crudo = enmascararComando(comando);
+  // normalizarTexto borra los * de los bordes: los patrones con glob se prueban tambien sobre el texto crudo
+  const normalizado = normalizarTexto(crudo);
   const palabras = tokenizar(normalizado).filter((t) => t.tipo === 'palabra').map((t) => t.valor).join(' ');
-  return ALMACEN.test(normalizado) || ALMACEN.test(palabras);
+  // ai-core y locks por separado cubre la variable: x=ai-core; ls /tmp/${x}-locks
+  const separado = /\bai-core\b/.test(normalizado) && /\blocks\b/.test(normalizado);
+  return ALMACEN.test(normalizado) || ALMACEN.test(palabras) || AMBIGUO.test(crudo) || AMBIGUO.test(normalizado) || separado;
 }
 
+// Un documento del proyecto llamado ai-core-locks.md no es el almacen: solo cuenta lo que cae bajo el tmpdir
 function rutaToca(ruta) {
-  return ALMACEN.test(ruta) || ALMACEN.test(path.resolve(ruta));
+  const absoluta = path.resolve(ruta);
+  if (AMBIGUO.test(absoluta)) return true;
+  if (!ALMACEN.test(absoluta)) return false;
+  return BASES_TMP.some((b) => absoluta === path.resolve(b) || absoluta.startsWith(path.resolve(b) + path.sep));
 }
 
 function tocaAlmacen(evento) {

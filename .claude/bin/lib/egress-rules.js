@@ -4,15 +4,19 @@ const path = require('node:path');
 const { tokenizar } = require('./comando-tokens');
 const { segmentar, comandoYArgs } = require('./outside-path-rules');
 
-const CLIENTES_RED = new Set(['curl', 'wget', 'nc', 'ncat', 'netcat', 'telnet', 'ssh', 'scp', 'sftp', 'rsync', 'ftp', 'http', 'https', 'xh', 'socat', 'aria2c', 'lftp']);
+const CLIENTES_RED = new Set(['curl', 'wget', 'nc', 'ncat', 'netcat', 'telnet', 'ssh', 'scp', 'sftp', 'rsync', 'ftp', 'http', 'https', 'xh', 'socat', 'aria2c', 'lftp', 'dig', 'nslookup', 'tftp']);
+// Copia remota: solo es red si algun argumento tiene la forma host:ruta, usuario@host:ruta o una URL
+const COPIA_REMOTA = new Set(['rsync', 'scp', 'sftp']);
+const GESTORES_PAQUETES = new Set(['pip', 'pip3', 'npm', 'npx', 'yarn', 'pnpm', 'gem', 'cargo', 'go', 'uv', 'poetry']);
+const HOST_REMOTO = /^(?:[\w.-]+@)?([A-Za-z0-9][A-Za-z0-9.-]+):(?!\/\/)/;
 // Comandos que ejecutan otro comando recibido como argumento: su host real es el del comando envuelto
-const ENVOLTORIOS = new Set(['env', 'timeout', 'nice', 'nohup', 'stdbuf', 'ionice', 'setsid', 'chrt', 'taskset', 'xargs']);
+const ENVOLTORIOS = new Set(['env', 'timeout', 'nice', 'nohup', 'stdbuf', 'ionice', 'setsid', 'chrt', 'taskset', 'xargs', 'busybox']);
 const SHELLS = /^(?:ba|z|da|k|a)?sh$/;
 const SUBCOMANDOS_GIT_RED = new Set(['push', 'pull', 'fetch', 'clone', 'ls-remote', 'remote', 'submodule']);
 const HOST_SSH = /(?:^|\s)[\w.-]+@([a-z0-9-]+(?:\.[a-z0-9-]+)*\.[a-z]{2,}):/gi;
 const PROFUNDIDAD_MAXIMA = 6;
 const INTERPRETES = /^(node|nodejs|deno|bun|python\d*(\.\d+)?|ruby|perl|php)$/;
-const INDICIOS_RED = /(https?:\/\/|fetch\s*\(|\bhttps?\b|net\.(connect|createConnection)|\burllib|\brequests\.|http\.client|\bsocket\b|Net::HTTP|XMLHttpRequest|WebSocket)/i;
+const INDICIOS_RED = /(https?:\/\/|fetch\s*\(|net\.(connect|createConnection)|TCPSocket|UDPSocket|TCPServer|\/dev\/(?:tcp|udp)\/|\burllib|\brequests\.|http\.client|\bsocket\b|Net::HTTP|XMLHttpRequest|WebSocket)/i;
 const SECRETOS = /(\.env\b|\bid_(rsa|ed25519|ecdsa)\b|\.pem\b|\.npmrc|\.netrc|\.aws\/|\.ssh\/|\bcredentials\b)/i;
 const HOST_URL = /[a-z][a-z0-9+.-]*:\/\/(?:[^/\s@'"]*@)?(\[[0-9a-f:]+\]|[^/\s:'"?#]+)/gi;
 const HOST_DEV = /\/dev\/(?:tcp|udp)\/([^/\s]+)/gi;
@@ -43,9 +47,19 @@ function hostsEnTexto(texto) {
   return hosts;
 }
 
+// --proxy y --socks5 envian el trafico por otro host aunque la URL final sea permitida
+function hostsDeProxy(texto) {
+  return [...texto.matchAll(/(?:--proxy|\s-x|--socks5(?:-hostname)?)[\s=]+(?:[a-z0-9+]+:\/\/)?(?:[^@\s]*@)?([^\s:\/]+)/gi)].map(m => m[1]);
+}
+
+function hostsDeCopia(args) {
+  const remotos = args.filter(a => !a.startsWith('-') && !/^[./~]/.test(a)).map(a => a.match(HOST_REMOTO)?.[1]).filter(Boolean);
+  return [...hostsEnTexto(args.join(' ')), ...remotos];
+}
+
 function hostsDeCliente(args) {
   const texto = args.join(' ');
-  const hosts = hostsEnTexto(texto);
+  const hosts = [...hostsEnTexto(texto), ...hostsDeProxy(` ${texto}`)];
   if (hosts.length > 0) return hosts;
   const sueltos = args.filter(a => !a.startsWith('-')).map(a => a.match(HOST_SUELTO)?.[1]).filter(Boolean);
   if (sueltos.length > 0) return sueltos;
@@ -69,6 +83,8 @@ function comandoEnvuelto(nombre, args) {
 }
 
 function hostsDeGit(args) {
+  // Un alias con ! o un transporte ext:: ejecutan comandos arbitrarios: no se puede saber su destino
+  if (/alias\.[\w-]+=!|\bext::/.test(args.join(' '))) return [NO_VERIFICABLE];
   const sub = args.find((a, i) => !a.startsWith('-') && !['-C', '-c'].includes(args[i - 1] || ''));
   if (!SUBCOMANDOS_GIT_RED.has(sub)) return [];
   const texto = args.join(' ');
@@ -90,15 +106,25 @@ function hostsDeComando(nombre, args, viaStdin, nivel) {
   if (nombre === 'eval') return hostsDeTexto(args.join(' '));
   if (nombre === 'git') return hostsDeGit(args);
   if (INTERPRETES.test(nombre)) return hostsDeInterprete(args);
+  // Una variable en posicion de comando no se resuelve: se evaluan solo los destinos explicitos de sus argumentos
+  if (nombre.startsWith('$')) return hostsEnTexto(args.join(' '));
+  if (GESTORES_PAQUETES.has(nombre)) return hostsEnTexto(args.join(' '));
+  if (COPIA_REMOTA.has(nombre)) return hostsDeCopia(args);
   if (!CLIENTES_RED.has(nombre)) return [];
   const hosts = hostsDeCliente(args);
   // Con xargs el destino llega por stdin y no se puede resolver estaticamente
   return viaStdin && hosts.length === 0 ? [NO_VERIFICABLE] : hosts;
 }
 
+// /dev/tcp y /dev/udp abren conexiones desde el propio shell, como argumento (exec 3<>) o como redireccion
+function hostsDev(texto) {
+  HOST_DEV.lastIndex = 0;
+  return [...texto.matchAll(HOST_DEV)].map(m => m[1]);
+}
+
 function hostsDelSegmento(seg) {
   const { nombre, args } = comandoYArgs(seg.palabras);
-  const dev = seg.redirecciones.flatMap(r => hostsEnTexto(r));
+  const dev = [...seg.redirecciones.flatMap(r => hostsEnTexto(r)), ...hostsDev(seg.palabras.join(' '))];
   return [...dev, ...hostsDeComando(nombre, args, false, 0)];
 }
 

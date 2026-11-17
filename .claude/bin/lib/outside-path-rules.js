@@ -19,9 +19,16 @@ function argumentos(palabras) {
   return sinFlags;
 }
 
+// Opciones de sudo que consumen un valor (-u usuario...): sin saltarlas, el usuario se tomaba por el comando
+const SUDO_CON_VALOR = new Set(['-u', '-g', '-h', '-p', '-C', '-D', '-R', '-T', '-U']);
+
 function comandoYArgs(palabras) {
   let i = 0;
-  while (i < palabras.length && (/^\w+=/.test(palabras[i]) || PREFIJOS.has(palabras[i]))) i++;
+  while (i < palabras.length && (/^\w+=/.test(palabras[i]) || PREFIJOS.has(palabras[i]))) {
+    const esSudo = palabras[i] === 'sudo';
+    i++;
+    while (esSudo && i < palabras.length && palabras[i].startsWith('-')) i += SUDO_CON_VALOR.has(palabras[i]) ? 2 : 1;
+  }
   return { nombre: path.posix.basename(palabras[i] || ''), args: palabras.slice(i + 1) };
 }
 
@@ -61,7 +68,8 @@ function segmentar(tokens) {
     const t = tokens[i];
     const actual = segmentos[segmentos.length - 1];
     if (t.tipo === 'op' && SEPARADORES.has(t.valor)) segmentos.push({ palabras: [], redirecciones: [] });
-    else if (t.tipo === 'op' && t.valor === '<') i++;
+    // Una sustitucion <( ... ) llega como "<" seguido de un separador: saltarlo borraba el limite del comando interno
+    else if (t.tipo === 'op' && t.valor === '<') { if (tokens[i + 1]?.tipo === 'palabra') i++; }
     else if (t.tipo === 'op' && OPERADORES_REDIRECCION.has(t.valor)) {
       const sig = tokens[i + 1];
       if (sig && sig.tipo === 'palabra' && !esDuplicadoDeDescriptor(t.valor, sig.valor)) actual.redirecciones.push(sig.valor);
