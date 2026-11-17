@@ -105,45 +105,48 @@
       ]
     },
     "app-distribution-stores": {
-      "verified": "2026-09-21",
+      "verified": "2026-11-17",
       "sources": [
         "developer.apple.com/news/?id=ueeok6yw",
         "support.google.com/googleplay/android-developer/answer/11926878",
         "azure.microsoft.com/en-us/products/artifact-signing",
-        "learn.microsoft.com/en-us/windows/apps/publish/whats-new-individual-developer"
+        "learn.microsoft.com/en-us/windows/apps/publish/whats-new-individual-developer",
+        "Re-verificado 2026-11-17 (alcance parcial, lectura web resumida; lo no comprobado quedo marcado \"a verificar\" en los skills): support.google.com/googleplay/android-developer/answer/11926878 y /14151465; developer.android.com/google/play/requirements/target-sdk (prorroga al 2026-11-01 ya vencida); developer.apple.com/news/upcoming-requirements/ (Xcode 26, deployment target minimo iOS 13 desde 2026-09-09); developer.apple.com/support/third-party-SDK-requirements/; azure.microsoft.com/en-us/products/artifact-signing; learn.microsoft.com/en-us/azure/artifact-signing/overview; learn.microsoft.com/en-us/windows/apps/publish/whats-new-individual-developer. No comprobados: fecha del Privacy Manifest 2024-11-12 (la fuente oficial dice 2024-05-01), GA, regiones y perfiles de Artifact Signing, tiempos de revision de Google Play."
       ],
       "skills": [
         "app-store-publisher"
       ]
     },
     "saas-business-architecture": {
-      "verified": "2026-09-21",
+      "verified": "2026-11-17",
       "sources": [
         "docs.aws.amazon.com/whitepapers (SaaS Tenant Isolation Strategies)",
         "learn.microsoft.com/azure/architecture/guide/multitenant (tenancy models, domain names, throttling pattern)",
         "docs.stripe.com/billing/subscriptions",
         "workos.com/docs (RBAC/SSO B2B)",
-        "lemonsqueezy.com/blog/2026-update"
+        "lemonsqueezy.com/blog/2026-update",
+        "Re-verificado 2026-11-17 (alcance parcial, lectura web resumida; lo no comprobado quedo marcado \"a verificar\" en los skills): docs.stripe.com/billing/subscriptions/overview, /webhooks, /trials y /trials/free-trials; docs.stripe.com/payments/managed-payments; lemonsqueezy.com/blog/2026-update (sin nuevos registros y cierre el 2027-03-31, migracion a Stripe Managed Payments); learn.microsoft.com/en-us/azure/architecture/guide/multitenant/considerations/tenancy-models; docs.aws.amazon.com/whitepapers/latest/saas-architecture-fundamentals/tenant-isolation.html (historical reference only); workos.com/docs/user-management/invitations. No comprobados: comision de Lemon Squeezy, valor trial_end_without_payment_method, expires_in_days de WorkOS, Paddle, versiones de Electron y Tauri."
       ],
       "skills": [
         "saas-product-architect"
       ]
     },
     "qa-destructive-testing": {
-      "verified": "2026-09-21",
+      "verified": "2026-11-17",
       "sources": [
         "owasp.org (WSTG)",
         "principlesofchaos.org",
         "cncf.io/projects (Chaos Mesh/LitmusChaos: Incubating)",
         "go.dev (fuzzing GA desde Go 1.18)",
-        "spec.openapis.org (OpenAPI 3.2.1, 2026-09-10)"
+        "spec.openapis.org (OpenAPI 3.2.1, 2026-09-10)",
+        "Re-verificado 2026-11-17 (alcance parcial, lectura web resumida; lo no comprobado quedo marcado \"a verificar\" en los skills): owasp.org/www-project-web-security-testing-guide y wstg.owasp.org/latest (WSTG estable v4.2, v5.0 en desarrollo); principlesofchaos.org; cncf.io/projects (Chaos Mesh y LitmusChaos: Incubating); go.dev/doc/security/fuzz; grafana.com/docs/k6/latest/testing-guides/test-types y /soak-testing; github.com/google/atheris; github.com/CodeIntelligenceTesting/jazzer; portswigger.net/burp/documentation/desktop/tools/intruder/configure-attack/attack-types. No comprobados: AFL++, ffuf, wfuzz, RESTler, Schemathesis, fast-check, Gremlin, ISTQB y herramientas de contract testing."
       ],
       "skills": [
         "qa-engineer"
       ]
     },
     "cloud-provider-deployment": {
-      "verified": "2026-09-21",
+      "verified": "2026-11-17",
       "sources": [
         "docs.aws.amazon.com/apprunner (cerrado a clientes nuevos, verificado con fetch directo propio)",
         "docs.cloud.google.com/sdk/gcloud/reference/run/deploy",
@@ -153,7 +156,8 @@
         "vercel.com/docs",
         "docs.railway.com",
         "render.com/docs",
-        "fly.io/docs"
+        "fly.io/docs",
+        "Re-verificado 2026-11-17 (alcance parcial, lectura web resumida; lo no comprobado quedo marcado \"a verificar\" en los skills): docs.aws.amazon.com/apprunner/latest/dg/apprunner-availability-change.html (cerrado a clientes nuevos; ECS Express Mode); aws.amazon.com/apprunner/pricing/; learn.microsoft.com/en-us/azure/container-apps/billing; developers.cloudflare.com/workers/platform/limits/; docs.fly.io/about/pricing; docs.railway.com/reference/pricing/plans (Free $1/mes y Trial $5 unico son planes distintos). No comprobados: free tier de Cloud Run (la pagina no renderiza), Firebase, DigitalOcean, Vercel, Render y Elastic Beanstalk."
       ],
       "skills": [
         "cloud-deployment-specialist"
@@ -230,9 +234,10 @@
       ]
     },
     "mcp-protocol": {
-      "verified": "2026-09-21",
+      "verified": "2026-11-17",
       "sources": [
-        "modelcontextprotocol.io/specification/versioning (2026-07-28 es la version Current, protocolo stateless)"
+        "modelcontextprotocol.io/specification/versioning (2026-07-28 es la version Current, protocolo stateless)",
+        "Re-verificado 2026-11-17 (alcance parcial, lectura web resumida; lo no comprobado quedo marcado \"a verificar\" en los skills): modelcontextprotocol.io/specification/versioning (2026-07-28 es la version Current); modelcontextprotocol.io/specification/2026-07-28/changelog y /deprecated (retiro de HTTP+SSE elegible 3 meses despues de que SEP-2596 llegue a Final, no 12 meses); modelcontextprotocol.io/community/feature-lifecycle; modelcontextprotocol.io/docs/sdk; modelcontextprotocol.io/registry/about (registro oficial de MCP, en preview, no de Anthropic); github.com/modelcontextprotocol/typescript-sdk y python-sdk. No comprobados: version estable publicada de los SDK y sus imports (la rama main del SDK TypeScript es v2)."
       ],
       "skills": [
         "mcp-server-builder",
@@ -240,9 +245,10 @@
       ]
     },
     "ai-core-internal-governance": {
-      "verified": "2026-09-21",
+      "verified": "2026-11-17",
       "sources": [
-        "no aplica fuente externa -- son skills que gobiernan el propio arnes ai-core (aaa-evaluator, aiops-engineer, cost-optimizer, cross-model-verifier, dev-loop, memory-manager, silent-failure-hunter), su vigencia se mide contra el propio codigo del repo, no contra un estandar de mercado externo"
+        "no aplica fuente externa -- son skills que gobiernan el propio arnes ai-core (aaa-evaluator, aiops-engineer, cost-optimizer, cross-model-verifier, dev-loop, memory-manager, silent-failure-hunter), su vigencia se mide contra el propio codigo del repo, no contra un estandar de mercado externo",
+        "Re-verificado 2026-11-17 (alcance parcial, lectura web resumida; lo no comprobado quedo marcado \"a verificar\" en los skills): Sin fuente externa. Verificado contra el repositorio el 2026-11-17: .claude/bin/lib/hooks-events-session.js, memory-vault-prune-check.js, cross-verify-gate.js, scripts/services/CrossVerifier.js, ModelDispatcher.js, ErrorRepairLoop.js, ModelRegistry.js, package.json, CLAUDE.md y .gitignore. Los 7 skills no documentan aun los cambios recientes del repositorio (approval-store-guard, 24 reglas break-glass, desofuscacion de comandos); queda como pendiente de documentacion."
       ],
       "skills": [
         "aaa-evaluator",
@@ -331,25 +337,27 @@
       ]
     },
     "grc-third-party-risk": {
-      "verified": "2026-09-21",
+      "verified": "2026-11-17",
       "sources": [
         "blog.pcisecuritystandards.org/just-published-pci-dss-v4-0-1 (PCI DSS v4.0.1 vigente, publicada 2024-06-11, v4.0 retirada 2024-12-31; biblioteca oficial sin version posterior listada -- ausencia de version posterior no declarada textualmente por el Council)",
         "csrc.nist.gov/pubs/sp/800/161/r1/upd1/final (SP 800-161 Rev. 1 Update 1, Final, 2024-11-01; pagina de C-SCRM actualizada 2026-09-03 sin Rev. 2)",
         "hhs.gov/hipaa/for-professionals/security/hipaa-security-rule-nprm (NPRM de refuerzo de ciberseguridad, 2025-01-06, sigue como Proposed Rule, no es regla final; la Security Rule vigente permanece en efecto)",
-        "sharedassessments.org/sig-faq (drift real cerrado 2026-09-21: el skill citaba SIG 2025, la edicion vigente es 2026; conteo de preguntas 2026 NO publico -- dato publico historico 2023 es Lite 126 / Core 855, cifras 627/128 del skill retiradas por no confirmables). Verificacion realizada via OpenAI Responses API con web_search por cuota Gemini agotada; los dominios citados son primarios. Pendiente sin reverificar: ISO/IEC 27036 (edicion exacta), plazos de notificacion de brecha HIPAA, desglose PCI future-dated 51 de 64."
+        "sharedassessments.org/sig-faq (drift real cerrado 2026-09-21: el skill citaba SIG 2025, la edicion vigente es 2026; conteo de preguntas 2026 NO publico -- dato publico historico 2023 es Lite 126 / Core 855, cifras 627/128 del skill retiradas por no confirmables). Verificacion realizada via OpenAI Responses API con web_search por cuota Gemini agotada; los dominios citados son primarios. Pendiente sin reverificar: ISO/IEC 27036 (edicion exacta), plazos de notificacion de brecha HIPAA, desglose PCI future-dated 51 de 64.",
+        "Re-verificado 2026-11-17 (alcance parcial, lectura web resumida; lo no comprobado quedo marcado \"a verificar\" en los skills): blog.pcisecuritystandards.org/just-published-pci-dss-v4-0-1 (v4.0.1 publicada 2024-06-11, v4.0 retirada 2024-12-31, requisitos future-dated desde 2025-03-31); pcisecuritystandards.org/document_library/; csrc.nist.gov/pubs/sp/800/161/r1/upd1/final (Final 2024-11-01, sin Rev.2); sharedassessments.org/sig-faq. HIPAA NPRM: solo por busqueda (el fetch a hhs.gov dio 403). No comprobados: desglose PCI de 51 de 64 requisitos, SOC 2, ISO 27001, ISO/IEC 27036 y plazos de notificacion de brecha HIPAA."
       ],
       "skills": [
         "ciso"
       ]
     },
     "product-methodology-frameworks": {
-      "verified": "2026-09-21",
+      "verified": "2026-11-17",
       "sources": [
         "agilebusiness.org/resource/what-is-moscow-prioritization (MoSCoW: Must/Should/Could/Won't; Must Have normalmente <= 60% del esfuerzo, Could ~20%, proporcion exacta acordada por equipo -- orientativa, no regla rigida)",
         "cucumber.io/docs/gherkin/reference (keywords Feature/Rule/Example-Scenario/Given/When/Then/And/But/Background/Scenario Outline/Examples; Rule vigente desde Gherkin 6)",
         "xp123.com/invest-in-good-stories-and-smart-tasks (INVEST: Independent/Negotiable/Valuable/Estimable/Small/Testable, sin cambio de expansion)",
         "jpattonassociates.com/wp-content/uploads/2015/03/story_mapping.pdf y /the_shrinking_story (Backbone/Activities/Steps/Tasks; la jerarquia theme-epic-story-task la atribuye Patton a Mike Cohn, coherente con la restriccion del skill de no presentar Theme/Epic como modelo oficial de Patton)",
-        "dddcommunity.org (indice del cap. 14 de Evans: Shared Kernel, Customer/Supplier, Conformist, Anticorruption Layer, Separate Ways, Open Host Service, Published Language; los patrones citados por el skill estan dentro de ese catalogo). Marcos metodologicos sin version de producto: la vigencia se mide contra la fuente del autor, no contra un release. Verificacion via OpenAI Responses API con web_search."
+        "dddcommunity.org (indice del cap. 14 de Evans: Shared Kernel, Customer/Supplier, Conformist, Anticorruption Layer, Separate Ways, Open Host Service, Published Language; los patrones citados por el skill estan dentro de ese catalogo). Marcos metodologicos sin version de producto: la vigencia se mide contra la fuente del autor, no contra un release. Verificacion via OpenAI Responses API con web_search.",
+        "Re-verificado 2026-11-17 (alcance parcial, lectura web resumida; lo no comprobado quedo marcado \"a verificar\" en los skills): agilebusiness.org/dsdm-project-framework/moscow-prioritisation.html; cucumber.io/docs/gherkin/reference; xp123.com/invest-in-good-stories-and-smart-tasks; jpattonassociates.com/the-new-backlog; martinfowler.com/bliki/BoundedContext.html. No comprobados: dddcommunity.org y Context Mapping, URLs de Hypercare, material de story mapping y la tabla de Bill Wake."
       ],
       "skills": [
         "product-lifecycle-orchestrator"
