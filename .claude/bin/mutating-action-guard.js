@@ -51,6 +51,7 @@ const crypto = require('node:crypto');
 const { leerEventoDeStdin } = require('./lib/hook-stdin');
 const { solicitarBreakGlass, accionAprobada } = require('./lib/break-glass');
 const { normalizarTexto } = require('./lib/normalizar-texto');
+const { enmascararComando } = require('./lib/enmascarar-comando');
 const { canonicalizarComando } = require('./lib/clave-aprobacion');
 
 const GUARD_ID = 'mutating-action-guard';
@@ -70,8 +71,11 @@ const VERBOS_ESCRITURA = new Set([
   'crear', 'crea', 'nuevo', 'add', 'update', 'actualizar', 'set', 'write', 'post', 'put', 'patch', 'delete', 'borrar',
   'eliminar', 'remove', 'create', 'send', 'edit', 'push', 'merge', 'assign', 'close', 'publish', 'upload', 'invite',
   'share', 'transfer', 'trash', 'archive', 'rename', 'insert', 'upsert', 'reply', 'comment', 'submit', 'approve',
-  'cancel', 'move', 'copy', 'deploy', 'revoke',
+  'cancel', 'move', 'copy', 'deploy', 'revoke', 'drop', 'truncate', 'kill', 'stop', 'terminate', 'apply', 'enable',
+  'disable', 'grant', 'restart', 'reset', 'clear', 'purge', 'commit', 'save', 'replace', 'modify', 'import', 'exec',
+  'execute', 'mutate',
 ]);
+const CONJUNCIONES = new Set(['and', 'then', 'y', 'luego']);
 const VERBOS_LECTURA_MCP = /^(get|list|consultar|read|buscar|fetch|query|check|status)/i;
 
 function tokensDeAccion(accion) {
@@ -84,16 +88,32 @@ function esToolMcpMutante(toolName) {
   if (!match) return null;
 
   const [, servidor, accion] = match;
-  if (VERBOS_LECTURA_MCP.test(accion)) return null;
-  if (!tokensDeAccion(accion).some((t) => VERBOS_ESCRITURA.has(t))) return null;
+  const tokens = tokensDeAccion(accion);
+  if (!tokens.some((t) => VERBOS_ESCRITURA.has(t))) return null;
+  // Un prefijo de lectura exime solo si no encadena otra accion (get_and_delete, fetch_and_update)
+  if (VERBOS_LECTURA_MCP.test(accion) && !tokens.some((t) => CONJUNCIONES.has(t))) return null;
 
   return { servidor, accion };
 }
 
-// Verbo mutante explicito (con o sin comillas, "--request VERBO" o "--request=VERBO") o cuerpo de
-// solicitud (-d, --data*, -F, --json, -T, --post-data/--post-file), que curl y wget envian como POST
-const VERBO_HTTP_MUTANTE = /(-X\s*["']?(POST|PUT|PATCH|DELETE)\b|--request[\s=]+["']?(POST|PUT|PATCH|DELETE)\b|--method[\s=]+["']?(POST|PUT|PATCH|DELETE)\b|-Method\s+["']?(Post|Put|Patch|Delete)\b|\s(?:-d|-F|-T|--data(?:-[a-z]+)*|--form(?:-string)?|--json|--upload-file|--post-data|--post-file|--body-data|--body-file)(?=[\s=@"']))/i;
+// Verbo mutante explicito de curl/wget/PowerShell, con o sin comillas, "--request VERBO" o "--request=VERBO"
+const VERBO_HTTP_MUTANTE = /(-X\s*["']?(POST|PUT|PATCH|DELETE)\b|--request[\s=]+["']?(POST|PUT|PATCH|DELETE)\b|--method[\s=]+["']?(POST|PUT|PATCH|DELETE)\b|-Method\s+["']?(Post|Put|Patch|Delete)\b)/i;
 const HERRAMIENTA_HTTP   = /\b(curl|wget|Invoke-WebRequest|Invoke-RestMethod|iwr|irm)\b/i;
+
+// curl envia POST con cuerpo (-d, --data*, -F, --json, -T) y tambien con flags agrupados (-sd, -sXPOST);
+// con -G/--get el cuerpo va en la query y es un GET. En wget -T es un tiempo de espera, no una subida.
+const CURL_VERBO = /-[a-zA-Z]*X\s*["']?(?:POST|PUT|PATCH|DELETE)\b/i;
+const CURL_CUERPO = /\s(?:-[a-zA-Z]*[dFT]|--data(?:-[a-z]+)*|--form(?:-string)?|--json|--upload-file)(?=[\s=@"'])/;
+const CURL_GET = /\s(?:-[a-zA-Z]*G|--get)(?=[\s=]|$)/;
+const WGET_CUERPO = /--(?:post-data|post-file|body-data|body-file)\b/;
+
+// Otras CLIs que mutan: httpie/xh con metodo, gh api con -X/-f/-F y gh con acciones de escritura, requests.post
+const CLI_MUTANTE = [
+  /^\s*(?:http|https|xh|xhs)\s+(?:-\S+\s+)*(?:POST|PUT|PATCH|DELETE)\b/i,
+  /\bgh\s+api\b.*(?:\s(?:-X|--method)[\s=]+["']?(?:POST|PUT|PATCH|DELETE)\b|\s(?:-f|-F|--field|--raw-field|--input)\b)/i,
+  /\bgh\s+(?:issue|pr|release|repo|gist|workflow|secret|variable|label|project)\s+(?:create|merge|delete|close|reopen|edit|comment|review|run|set|remove|fork|rename|archive|ready)\b/i,
+  /\brequests\.(?:post|put|patch|delete)\s*\(/i,
+];
 
 // Hallazgo red-team 2026-08-15: "V=POST; curl -X\"$V\" ..." evadia el
 // patron anterior porque el verbo real (POST) nunca aparece pegado al flag
@@ -104,9 +124,15 @@ const HERRAMIENTA_HTTP   = /\b(curl|wget|Invoke-WebRequest|Invoke-RestMethod|iwr
 // literal, un POST real queda correctamente bloqueado).
 const VERBO_HTTP_EN_VARIABLE = /(-X\s*["']?\$\{?\w+\}?["']?|--request\s+["']?\$\{?\w+\}?["']?|-Method\s+["']?\$\{?\w+\}?["']?)/i;
 
+function curlMutante(cmd) {
+  if (!/\bcurl\b/i.test(cmd)) return false;
+  return CURL_VERBO.test(cmd) || (!CURL_GET.test(cmd) && CURL_CUERPO.test(cmd));
+}
+
 function esComandoHttpMutante(cmd) {
-  if (!HERRAMIENTA_HTTP.test(cmd)) return false;
-  return VERBO_HTTP_MUTANTE.test(cmd) || VERBO_HTTP_EN_VARIABLE.test(cmd);
+  if (CLI_MUTANTE.some((re) => re.test(cmd))) return true;
+  if (curlMutante(cmd) || (/\bwget\b/i.test(cmd) && WGET_CUERPO.test(cmd))) return true;
+  return HERRAMIENTA_HTTP.test(cmd) && (VERBO_HTTP_MUTANTE.test(cmd) || VERBO_HTTP_EN_VARIABLE.test(cmd));
 }
 
 const evento    = leerEventoDeStdin();
@@ -151,7 +177,8 @@ if (toolName === 'Bash') {
   const cmdOriginal = evento.tool_input?.command || '';
   // Normalizacion Unicode antes de matchear (hallazgo red-team 2026-08-15) --
   // mismo motivo que destructive-op-guard.js.
-  const cmd = normalizarTexto(cmdOriginal);
+  // El texto citado de un commit o un echo no se ejecuta: no debe disparar el guard
+  const cmd = normalizarTexto(enmascararComando(cmdOriginal)).replace(/\b(?:echo|printf)\s+(["'])(?:(?!\1).)*\1/gs, 'echo ...');
   if (cmd && esComandoHttpMutante(cmd)) {
     // Clave de aprobacion canonicalizada (G37): insensible al orden de
     // flags entre el bloqueo original y el reintento -- mismo fix que

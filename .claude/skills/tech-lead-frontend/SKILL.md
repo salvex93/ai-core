@@ -4,7 +4,7 @@ description: Tech Lead Frontend Universal AAA 2026. Experto en SPA, SSR, SSG, PP
 metadata:
   origin: ai-core
   version: 4.5.0
-  last_updated: 2026-09-21
+  last_updated: 2026-11-17
   rol: architect
 ---
 
@@ -439,7 +439,7 @@ Verificado 2026-09-15 contra fuente primaria (Protocolo de Vigencia Tecnologica,
 
 | Afirmacion | Estado confirmado | Fuente |
 |---|---|---|
-| Container Queries — Baseline widely available | Correcto. Soporte desde Chrome 106 / Firefox 110 / Safari 16 (2022-2023), ~95% global | developer.mozilla.org/en-US/docs/Web/CSS/CSS_containment/Container_queries, caniuse.com/css-container-queries |
+| Container Queries — Baseline widely available | Correcto desde 2025-08-14 (web-features). Soporte desde Chrome 105 / Firefox 110 / Safari 16 (2022-2023) | developer.mozilla.org/en-US/docs/Web/CSS/CSS_containment/Container_queries, caniuse.com/css-container-queries |
 | `@view-transition { navigation: auto; }` (cross-document/MPA) — corregido de "same-document Baseline 2025" | Error corregido: es sintaxis cross-document, estado **Limited Availability**, sin soporte en Firefox | developer.mozilla.org/en-US/docs/Web/CSS/@view-transition |
 | Same-document View Transitions (`document.startViewTransition()`) | Si es Baseline: Chrome/Edge 111+, Safari 18+, Firefox 144+ | developer.chrome.com/docs/web-platform/view-transitions |
 | WCAG 2.2 — 2.4.11, 2.5.8, 3.3.8 nuevos en 2.2, nivel AA | Confirmado. W3C Recommendation publicado 2024-12-12 | w3.org/TR/WCAG22/ |

@@ -2,7 +2,7 @@
 
 Gemini 3.1 Pro soporta `thinking_level` (razonamiento dinamico) como alternativa a Opus extended thinking. Define el grado maximo de razonamiento interno antes de emitir la respuesta. Disponible via Google AI SDK (`google-genai`) o Vertex AI.
 
-Cambio de fondo respecto a la generacion 2.5 (verificado 2026-07-10 contra `ai.google.dev/gemini-api/docs/gemini-3`): el parametro real ya no es `thinking_config.thinking_budget` en tokens — es `thinking_level` con tres valores discretos (`low`/`medium`/`high`). **`thinking_level` y `thinking_budget` son mutuamente excluyentes: combinarlos en el mismo request retorna error 400.** No portar codigo legacy con `thinking_budget` sin migrarlo.
+Cambio de fondo respecto a la generacion 2.5 (verificado 2026-07-10 contra `aistudio.google.com/docs/gemini-3`): el parametro real ya no es `thinking_config.thinking_budget` en tokens — es `thinking_level` con tres valores discretos (`low`/`medium`/`high`). **`thinking_level` y `thinking_budget` son mutuamente excluyentes: combinarlos en el mismo request retorna error 400.** No portar codigo legacy con `thinking_budget` sin migrarlo.
 
 ### Niveles de thinking en Gemini 3.1 Pro
 
@@ -31,6 +31,7 @@ print(interaction.output_text)
 - Los tokens de razonamiento se facturan a la misma tarifa que los tokens de salida.
 - El campo exacto de conteo de tokens de razonamiento en la respuesta no esta confirmado en esta pasada — verificar contra la respuesta real del SDK antes de instrumentar logging de costo.
 - Migracion desde codigo con `thinking_budget`: reemplazar por el nivel discreto mas cercano (`budget: 0` → `low`; `budget` bajo/fijo → `medium`; `budget: -1`/alto → `high`) y probar contra el error 400 de parametros mutuamente excluyentes.
+- En Gemini 3.6 `temperature`, `top_p` y `top_k` estan deprecados e ignorados (`aistudio.google.com/docs/whats-new-gemini-3.6`); existen `gemini-3.6-flash` y `gemini-3.5-flash-lite`. El default de `thinking_level` en 3.1 Pro y la vigencia de `gemini-3.1-pro-preview` quedan a verificar.
 - Para integracion via bridge MCP del ai-core, delegar al skill `gemini-3-specialist`. Este bloque aplica a integracion directa via SDK.
 
 ## Effort Levels (Opus 5 / Opus 4.8 Adaptive Reasoning)

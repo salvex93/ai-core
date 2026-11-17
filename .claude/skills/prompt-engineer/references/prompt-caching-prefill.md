@@ -4,7 +4,7 @@ Prompt Caching puede reducir hasta 90% el costo de tokens de entrada en llamadas
 
 - Colocar todo contenido estatico (rol, restricciones, few-shot examples, documentacion de referencia) al inicio del system prompt, antes de cualquier contenido dinamico.
 - Los few-shot examples son candidatos ideales para cache: son voluminosos, no cambian entre llamadas y estan al inicio del contexto.
-- Umbral minimo para activar cache: 1024 tokens (Sonnet/Opus) o 2048 (Haiku). Un system prompt por debajo del umbral no genera cache aunque se marque.
+- Umbral minimo para activar cache: 1024 tokens en Opus 4.8, Sonnet 5, Sonnet 4.6 y 4.5; 4096 en Opus 4.6 y 4.5 y en Claude Haiku 4.5 (`platform.claude.com/docs/en/build-with-claude/prompt-caching`). Un system prompt por debajo del umbral no genera cache aunque se marque.
 - Verificar impacto en `cache_read_input_tokens` de los logs. Hit rate bajo (<50%) indica que contenido dinamico esta mezclado con el estatico o que el prompt no supera el umbral.
 - Un cambio de version del prompt invalida el cache de todas las llamadas activas — planificar el rollout como cualquier cambio de esquema.
 

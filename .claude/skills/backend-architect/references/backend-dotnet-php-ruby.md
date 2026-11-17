@@ -7,7 +7,7 @@ Continuacion del modulo de Go/Rust/Java: cierra la brecha de cobertura para los 
 
 ### .NET/C# — ASP.NET Core Minimal APIs
 
-Version verificada: .NET 10 es la LTS vigente (soportada hasta noviembre 2028, fuente `learn.microsoft.com/dotnet/core/releases-and-support`), lanzada junto con ASP.NET Core 10 el 22 de abril de 2026. `builder.Services.AddValidation()` agrega validacion nativa con DataAnnotations en Minimal APIs (reemplaza FluentValidation para casos simples), confirmado contra `learn.microsoft.com/aspnet/core/fundamentals/minimal-apis`.
+Version verificada: .NET 10 es la LTS vigente (soportada hasta noviembre 2028), lanzada junto con ASP.NET Core 10 el 22 de abril de 2026; .NET 11 (STS) salio en noviembre 2026 con soporte hasta noviembre 2028 (fuente `learn.microsoft.com/en-us/dotnet/core/releases-and-support`). `builder.Services.AddValidation()` agrega validacion nativa con DataAnnotations en Minimal APIs (reemplaza FluentValidation para casos simples); a verificar para .NET 10, ya que `learn.microsoft.com/aspnet/core/fundamentals/minimal-apis` solo lo muestra en una seccion de 11.0/12.0.
 
 ```csharp
 // Program.cs — ASP.NET Core 10, Minimal APIs, EF Core, validacion nativa y ProblemDetails
@@ -170,7 +170,7 @@ public class PedidosEndpointsTests(WebApplicationFactory<Program> factory)
 
 ### PHP — Laravel
 
-Version verificada: PHP 8.4.24 en mantenimiento activo (fuente `php.net/releases`, no contrastada con segunda fuente por agotamiento de cupo de busqueda en esa sesion — reverificar antes de fijarla como referencia permanente). Laravel 13.x, PHP minimo 8.3 (cita textual de `laravel.com/docs/13.x/releases`). Cambio estructural real: **`routes/api.php` ya no existe por defecto desde Laravel 11** — se crea con `php artisan install:api` (que tambien instala Sanctum), y el manejo de excepciones se centraliza en `bootstrap/app.php` via `->withExceptions()`, no en `app/Exceptions/Handler.php` (patron pre-Laravel-11).
+Version verificada: PHP 8.4.26 (2026-09-24; existen 8.5.11 y 8.6.0RC7; fuente `php.net/releases/index.php`, no contrastada con segunda fuente por agotamiento de cupo de busqueda en esa sesion — reverificar antes de fijarla como referencia permanente). Laravel 13.x, PHP minimo 8.3 (cita textual de `laravel.com/docs/13.x/releases`). Cambio estructural real: **`routes/api.php` ya no existe por defecto desde Laravel 11** — se crea con `php artisan install:api` (que tambien instala Sanctum), y el manejo de excepciones se centraliza en `bootstrap/app.php` via `->withExceptions()`, no en `app/Exceptions/Handler.php` (patron pre-Laravel-11).
 
 ```php
 // routes/api.php (requiere "php artisan install:api" primero)
@@ -301,7 +301,7 @@ tests/
 
 ### Ruby — Ruby on Rails (modo API)
 
-Version verificada: Ruby 4.0.6 es la version estable actual (`ruby-lang.org/en/downloads`), coexistiendo en mantenimiento activo con 3.4.10 y 3.3.12 — patron normal de Ruby de soportar varias series en paralelo. Rails 8.1 (build v8.1.3.1, cita textual de `guides.rubyonrails.org`). Desde Rails 8.0, **Solid Queue** (backend por base de datos, sin Redis) es el adapter por defecto de ActiveJob.
+Version verificada: Ruby 4.0.9 es la version estable actual (`ruby-lang.org/en/downloads`), coexistiendo con 3.4.12; Ruby 3.3 esta en fase de mantenimiento de seguridad (EOL proximo) — patron normal de Ruby de soportar varias series en paralelo. Rails 8.1 (build v8.1.4.1, cita textual de `guides.rubyonrails.org`). Desde Rails 8.0, **Solid Queue** (backend por base de datos, sin Redis) es el adapter por defecto de ActiveJob.
 
 ```ruby
 # Generado con: rails new pedidos_api --api --database=postgresql

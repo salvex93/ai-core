@@ -4,8 +4,8 @@
  * pre-commit-tdd.js — Gate TDD por heuristica de presencia (Zero-Regression).
  *
  * Bloquea la escritura de un archivo fuente (fuera de tests/) si la sesion
- * actual no ha tocado ningun archivo de test (*.test.js) segun `git status
- * --porcelain`. No verifica que la prueba cubra la logica exacta ni que haya
+ * actual no ha tocado ningun archivo de test (*.test|spec.{js,ts,...}, test_*.py,
+ * *_test.py) segun `git status --porcelain -uall`. No verifica que la prueba cubra la logica exacta ni que haya
  * fallado antes del cambio (Red-Green real) — eso requeriria ejecutar la
  * suite completa en cada Write/Edit, demasiado caro para un hook por archivo.
  * Es una heuristica determinista y barata: exige evidencia de que se escribio
@@ -56,7 +56,9 @@ const esArchivoFuente = TEST_EXTS.includes(ext);
 const relPath = path.relative(REPO, resolverRealSiExiste(path.resolve(filePath)));
 const relPathPosix = relPath.split(path.sep).join('/');
 
-const esArchivoDeTest = /\.test\.js$|\.spec\.js$|^tests\//.test(relPathPosix);
+// Convenciones de prueba por lenguaje: *.test|spec.{js,ts,jsx,tsx,mjs,cjs}, test_*.py y *_test.py
+const ES_PRUEBA = /\.(?:test|spec)\.[cm]?[jt]sx?$|(?:^|\/)test_[^/]*\.py$|_test\.py$/;
+const esArchivoDeTest = ES_PRUEBA.test(relPathPosix) || /^(?:tests|__tests__)\//.test(relPathPosix);
 const esFueraDelRepo  = relPath.startsWith('..');
 
 /**
@@ -111,8 +113,9 @@ if (!esArchivoFuente || esArchivoDeTest || esFueraDelRepo
 
 function sesionTocoAlgunTest() {
   try {
-    const out = execSync('git status --porcelain', { cwd: REPO, encoding: 'utf8', stdio: ['pipe', 'pipe', 'ignore'] });
-    return out.split('\n').some(line => /\.test\.js$|\.spec\.js$/.test(line.trim()));
+    // -uall lista cada archivo sin trackear: sin el, un directorio nuevo se colapsa a "?? tests/" y oculta la prueba
+    const out = execSync('git status --porcelain -uall', { cwd: REPO, encoding: 'utf8', stdio: ['pipe', 'pipe', 'ignore'] });
+    return out.split('\n').some(linea => ES_PRUEBA.test(linea.slice(3).split(' -> ').pop().trim().replace(/^"|"$/g, '')));
   } catch {
     return true; // sin repo git legible: no bloquear por un fallo de entorno
   }

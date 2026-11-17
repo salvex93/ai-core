@@ -85,4 +85,4 @@ Herramientas: WebAIM Contrast Checker, Figma plugin "Contrast", Chrome DevTools 
 | Tabler Icons | Outline preciso | Interfaces tecnicas |
 | Radix Icons | Minimal | Componentes headless |
 
-Reglas: tamano minimo interactivo 24px, area de toque 44x44px (WCAG 2.5.8 2026), grosor coherente en todo el producto.
+Reglas: tamano minimo interactivo 24px, area de toque recomendada 44x44px (WCAG 2.5.8 AA exige 24x24px), grosor coherente en todo el producto.

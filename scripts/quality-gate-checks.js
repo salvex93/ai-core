@@ -20,6 +20,8 @@ const LIMITE_LINEAS_SKILL = 500;
 
 function archivosDelRepo(repo) {
   const r = spawnSync('git', ['ls-files', '--cached', '--others', '--exclude-standard'], { cwd: repo, encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 });
+  // Una lista vacia por un git roto haria pasar los chequeos sin evaluar nada
+  if (r.status !== 0) throw new Error(`git ls-files fallo en ${repo} (exit ${r.status}): ${(r.stderr || r.error?.message || '').trim()}`);
   return (r.stdout || '').split('\n').filter((f) => f && fs.existsSync(path.join(repo, f)));
 }
 

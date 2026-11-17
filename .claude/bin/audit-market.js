@@ -37,6 +37,11 @@ function argValor(flag, defecto) {
 }
 
 const STALE_DAYS   = Number(argValor('--stale-days', '60'));
+// Un umbral no numerico daba NaN y "dias >= NaN" es siempre falso: todo quedaba vigente
+if (!Number.isFinite(STALE_DAYS) || STALE_DAYS < 0) {
+  console.error(`[audit-market] --stale-days debe ser un numero mayor o igual a 0 (recibido: ${argValor('--stale-days', '60')}).`);
+  process.exit(1);
+}
 const SKILL_FILTRO = argValor('--skill', null);
 
 function diasEntre(fechaIso, hoyIso) {
@@ -109,6 +114,12 @@ const resultados = skillDirs.map(skillName => {
     return { skill: skillName, status: 'SIN_DOMINIO_REGISTRADO', dominios: [], diasDesdeUpdate, diasDesdeVerificacion: null };
   }
 
+  // Una fecha ausente o ilegible no puede compararse: se reporta, nunca se deja pasar como vigente
+  const fechasValidas = Number.isFinite(diasDesdeUpdate) && dominios.every(d => Number.isFinite(diasEntre(d.verified, HOY)));
+  if (!fechasValidas) {
+    return { skill: skillName, status: 'FECHA_INVALIDA', dominios: dominios.map(d => d.domain), diasDesdeUpdate: null, diasDesdeVerificacion: null };
+  }
+
   const masAntiguo = dominios.reduce((min, d) =>
     !min || d.verified < min.verified ? d : min, null);
 
@@ -134,12 +145,13 @@ const resultados = skillDirs.map(skillName => {
 const conDrift = resultados.filter(r => r.status === 'DRIFT_VS_MERCADO');
 const stale     = resultados.filter(r => r.status === 'STALE_MERCADO');
 const sinDominio = resultados.filter(r => r.status === 'SIN_DOMINIO_REGISTRADO');
+const fechasInvalidas = resultados.filter(r => r.status === 'FECHA_INVALIDA');
 
 if (ONLY_STALE) {
   // Modo silencioso para el Protocolo de Arranque: sin hallazgos, sin
   // output -- evita ruido en cada sesion. Con hallazgos, una linea
   // compacta por skill afectado (drift, stale, o sin dominio registrado).
-  const hallazgos = [...conDrift, ...stale, ...sinDominio];
+  const hallazgos = [...conDrift, ...stale, ...sinDominio, ...fechasInvalidas];
   if (hallazgos.length > 0) {
     console.log(`[AUDIT-MARKET] ${hallazgos.length} hallazgo(s) de vigencia:`);
     hallazgos.forEach(r => console.log(`  - ${r.skill}: ${r.status}${r.dominios.length ? ` (${r.dominios.join(', ')})` : ''}`));
@@ -150,6 +162,7 @@ if (ONLY_STALE) {
     drift: conDrift.length,
     stale: stale.length,
     sinDominio: sinDominio.length,
+    fechasInvalidas: fechasInvalidas.length,
   }}, null, 2));
 } else {
   console.log(`\n[AUDIT-MARKET] Vigencia de skills vs. dominios tecnicos (umbral stale: ${STALE_DAYS} dias)\n`);
@@ -170,6 +183,10 @@ if (ONLY_STALE) {
   if (stale.length > 0) {
     console.log(`\n[STALE] Estos dominios no se re-verifican contra fuente primaria hace ${STALE_DAYS}+ dias — considerar re-verificar antes de confiar en su contenido:`);
     stale.forEach(r => console.log(`  - ${r.skill}: ${r.dominios.join(', ')} (${r.diasDesdeVerificacion} dias)`));
+  }
+  if (fechasInvalidas.length > 0) {
+    console.log('\n[FECHA_INVALIDA] Estos skills tienen una fecha ausente o ilegible (last_updated del skill o verified del dominio): no se puede auditar su vigencia:');
+    fechasInvalidas.forEach(r => console.log(`  - ${r.skill}: ${r.dominios.join(', ')}`));
   }
   if (sinDominio.length > 0) {
     console.log('\n[SIN_DOMINIO] Estos skills no estan mapeados a ningun dominio en MARKET_STANDARDS.json — no se puede auditar su vigencia de mercado automaticamente:');

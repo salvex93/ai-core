@@ -4,7 +4,7 @@ description: Especialista en construccion de agentes autonomos con el Claude Age
 metadata:
   origin: ai-core
   version: 2.4.4
-  last_updated: 2026-10-18
+  last_updated: 2026-11-17
   rol: architect
 compatibility: Depende de @anthropic-ai/claude-agent-sdk (o el paquete Python equivalente) y conectividad de red hacia la Claude API; para MCP remoto ademas requiere flujo OAuth 2.0 con un authorization server externo.
 ---

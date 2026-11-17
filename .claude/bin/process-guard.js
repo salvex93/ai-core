@@ -149,11 +149,14 @@ function acquireLock() {
   if (lock && !isLockStale(lock)) {
     return false; // lock activo
   }
+  // Un lock vencido se borra para poder crear el nuevo con 'wx' (creacion exclusiva): leer y luego
+  // escribir dejaba a dos procesos simultaneos adquirir el mismo lock.
+  try { fs.unlinkSync(LOCK_FILE); } catch (e) { if (e.code !== 'ENOENT') return false; }
   try {
-    fs.writeFileSync(LOCK_FILE, JSON.stringify({ pid: process.pid, ts: Date.now() }), 'utf8');
+    fs.writeFileSync(LOCK_FILE, JSON.stringify({ pid: process.pid, ts: Date.now() }), { encoding: 'utf8', flag: 'wx' });
     return true;
   } catch {
-    return false;
+    return false; // otro proceso lo creo primero
   }
 }
 

@@ -4,7 +4,7 @@ description: Especialista en evaluacion sistematica de outputs de LLM. Cubre dis
 metadata:
   origin: ai-core
   version: 1.2.4
-  last_updated: 2026-09-21
+  last_updated: 2026-11-17
   rol: auditor
 ---
 
@@ -87,7 +87,7 @@ Ante cualquiera de estas condiciones, insertar la directiva y detener. No emitir
 
 ### Para sistemas RAG (RAGAS)
 
-| Metrica | Descripcion | Umbral minimo recomendado |
+| Metrica | Descripcion | Umbral minimo recomendado (criterio propio del equipo, no estandar externo) |
 |---|---|---|
 | Faithfulness | La respuesta generada es factualmente consistente con los chunks recuperados | 0.85 |
 | Answer Relevancy | La respuesta responde directamente la pregunta del usuario | 0.80 |
@@ -97,7 +97,7 @@ Ante cualquiera de estas condiciones, insertar la directiva y detener. No emitir
 
 Un cambio que degrada cualquiera de estas metricas en mas de 5 puntos porcentuales requiere revision antes del despliegue.
 
-Alternativa nativa para Faithfulness: la Citations API de Anthropic (`claude-sonnet-5` y superiores) devuelve junto a cada fragmento de respuesta la cita exacta del documento fuente que lo respalda. Esto convierte la verificacion de faithfulness en una operacion determinista en lugar de una evaluacion LLM-as-judge sujeta a variabilidad. Cuando el sistema RAG usa Claude como modelo de generacion, usar Citations API como primera capa de verificacion antes de aplicar RAGAS o un juez LLM externo.
+Alternativa nativa para Faithfulness (vigencia de la Citations API a verificar contra la documentacion actual de Anthropic): la Citations API de Anthropic (`claude-sonnet-5` y superiores) devuelve junto a cada fragmento de respuesta la cita exacta del documento fuente que lo respalda. Esto convierte la verificacion de faithfulness en una operacion determinista en lugar de una evaluacion LLM-as-judge sujeta a variabilidad. Cuando el sistema RAG usa Claude como modelo de generacion, usar Citations API como primera capa de verificacion antes de aplicar RAGAS o un juez LLM externo.
 
 ```python
 # La respuesta incluye citas estructuradas: cada afirmacion tiene una referencia al chunk fuente
@@ -162,7 +162,7 @@ La evaluacion automatizada se ejecuta como paso del pipeline antes del despliegu
 evals:
   stage: quality-gate
   script:
-    - python -m deepeval test run tests/evals/  # o el comando del framework detectado
+    - python -m deepeval test run tests/evals/  # comando a verificar contra la documentacion actual de deepeval; o el comando del framework detectado
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
   artifacts:
@@ -241,6 +241,7 @@ Framework orientado a test unitarios de LLM. Permite definir metricas como clase
 ```python
 from deepeval import assert_test
 from deepeval.test_case import LLMTestCase
+# a verificar contra la documentacion actual: solo `GEval` fue confirmado en deepeval.com/docs/metrics-llm-evals
 from deepeval.metrics import AnswerRelevancyMetric, FaithfulnessMetric
 
 def test_resumen_contrato():
@@ -284,7 +285,7 @@ tests:
 # Ejecutar la evaluacion
 npx promptfoo eval
 
-# Ver los resultados comparativos en la UI web
+# Ver los resultados comparativos en la UI web (comando `view` a verificar contra la documentacion actual)
 npx promptfoo view
 ```
 
@@ -295,6 +296,7 @@ Framework especializado en evaluacion de pipelines RAG. Requiere el dataset con 
 ```python
 from datasets import Dataset
 from ragas import evaluate
+# a verificar: imports y nombre answer_relevancy (la documentacion actual lista "Response Relevancy", posible renombre)
 from ragas.metrics import faithfulness, answer_relevancy, context_precision
 
 datos = Dataset.from_list([

@@ -4,7 +4,7 @@ description: Especialista en ingenieria de datos. Cubre Medallion Architecture (
 metadata:
   origin: ai-core
   version: 1.2.0
-  last_updated: 2026-09-21
+  last_updated: 2026-11-17
   rol: architect
 ---
 
@@ -171,7 +171,7 @@ Un modelo `incremental` mal definido produce duplicados silenciosos. El predicad
 
 ### Model Contracts
 
-Un dbt Model Contract (`contract: {enforced: true}` en el YAML del modelo) fija el nombre, tipo y orden de las columnas declaradas y hace fallar el build si el modelo no cumple ese esquema exacto. Es distinto de un test dbt: el test valida calidad de datos despues de construir el modelo; el contract impide que el modelo se construya con un esquema distinto al declarado. Aplicar `contract: enforced: true` en modelos de Gold con consumidores declarados en un Data Contract, comenzando con 1-2 assertions simples (esquema y freshness) antes de expandir cobertura. Ante un cambio de esquema que rompe el contrato, versionar el modelo (dbt model versions) en vez de modificarlo en sitio.
+Un dbt Model Contract (`config: contract: enforced: true` en el YAML del modelo) exige que nombres y tipos de las columnas declaradas coincidan con el modelo y hace fallar el build si no cumple; el orden se ignora en el preflight y el DDL se ordena segun el contrato. Es distinto de un test dbt: el test valida calidad de datos despues de construir el modelo; el contract impide que el modelo se construya con un esquema distinto al declarado. Aplicar `contract: enforced: true` en modelos de Gold con consumidores declarados en un Data Contract, comenzando con 1-2 assertions simples (esquema y freshness) antes de expandir cobertura. Ante un cambio de esquema que rompe el contrato, versionar el modelo (dbt model versions) en vez de modificarlo en sitio.
 
 ## Orquestacion de Pipelines
 
@@ -223,7 +223,7 @@ def pipeline_pedidos():
 pipeline_pedidos()
 ```
 
-Airflow 3.0 (GA abril 2025) incorpora DAG Versioning (permite que ejecuciones en curso terminen con la version del DAG con la que iniciaron, sin corrupcion de estado ante un deploy a mitad de ejecucion), Event-Driven Scheduling (DAGs disparados por eventos externos en vez de solo cron/intervalos) y Task SDKs — todas siguen vigentes en la serie 3.x. La version estable mas reciente es **Airflow 3.3.1** (verificado 2026-09-15 contra `airflow.apache.org/docs/apache-airflow/stable/release_notes.html`), que agrega sobre 3.0: persistencia de estado entre reintentos (`task_state_store` del Task SDK), mapeadores de particion con ventanas de tiempo (`RollupMapper`/`FanOutMapper`/`FixedKeyMapper`), politicas de reintento personalizables, y SDKs experimentales para tareas en Java/Go. Verificar la version de Airflow del anfitrion antes de asumir disponibilidad de cualquiera de estas capacidades.
+Airflow 3.0 (GA abril 2025) incorpora DAG Versioning (permite que ejecuciones en curso terminen con la version del DAG con la que iniciaron, sin corrupcion de estado ante un deploy a mitad de ejecucion), Event-Driven Scheduling (DAGs disparados por eventos externos en vez de solo cron/intervalos) y Task SDKs — todas siguen vigentes en la serie 3.x. La version estable mas reciente es **Airflow 3.4.0** (2026-11-06; verificado 2026-11-17 contra `airflow.apache.org/docs/apache-airflow/stable/release_notes.html`), que, junto con 3.3.0 (2026-07-06), agrega sobre 3.0: persistencia de estado entre reintentos (`task_state_store` del Task SDK), mapeadores de particion con ventanas de tiempo (`RollupMapper`/`FanOutMapper`/`FixedKeyMapper`), politicas de reintento personalizables, y SDKs experimentales para tareas en Java/Go. Verificar la version de Airflow del anfitrion antes de asumir disponibilidad de cualquiera de estas capacidades.
 
 ### Dagster
 

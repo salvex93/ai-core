@@ -4,7 +4,7 @@ description: Disenador UX/Visual AAA 2026. Cubre design systems desde cero (toke
 metadata:
   origin: ai-core
   version: 2.2.0
-  last_updated: 2026-09-21
+  last_updated: 2026-11-17
   rol: architect
 ---
 
@@ -248,7 +248,7 @@ LANDING PAGE — Bento Grid Layout
 
 Especificar estos patrones en el handoff cuando correspondan:
 
-**Container Queries (Baseline 2024 — soporte universal):**
+**Container Queries (Baseline widely available desde 2025-08-14; Chrome/Edge 105, Safari 16, Firefox 110):**
 ```css
 /* Contenedor de contexto */
 .card-wrapper { container-type: inline-size; container-name: card; }
@@ -268,7 +268,7 @@ Especificar estos patrones en el handoff cuando correspondan:
 ```
 Same-document (SPA, via `document.startViewTransition()` en JS) si es Baseline: Chrome/Edge 111+, Safari 18+, Firefox 144+. Para SPA preferir esa via; para MPA, la at-rule de arriba no tiene soporte en Firefox — evaluar fallback.
 
-**Anchor Positioning (CSS 2026):**
+**Anchor Positioning (limited availability, sin Firefox — verificado 2026-11-17; exige fallback con `@supports (anchor-name: --a)`):**
 ```css
 /* Tooltip anclado al elemento sin calculos JS */
 .tooltip {
@@ -338,7 +338,7 @@ Verificado 2026-09-15 contra fuente primaria:
 
 | Afirmacion | Estado confirmado | Fuente |
 |---|---|---|
-| Container Queries — Baseline (soporte universal) | Correcto, ~95% global desde Chrome 106/Firefox 110/Safari 16 | developer.mozilla.org, caniuse.com/css-container-queries |
+| Container Queries — Baseline widely available | Correcto desde 2025-08-14 (web-features); Chrome/Edge 105, Safari 16, Firefox 110 | developer.mozilla.org, caniuse.com/css-container-queries |
 | View Transitions same-document — corregido de "Baseline 2025" sin distincion | La sintaxis `@view-transition{navigation:auto}` es cross-document (MPA), **Limited Availability**, sin Firefox. Same-document real (`document.startViewTransition()`) si es Baseline: Chrome/Edge 111+, Safari 18+, Firefox 144+ | developer.mozilla.org/en-US/docs/Web/CSS/@view-transition |
 
 ---

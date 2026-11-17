@@ -6,72 +6,181 @@
   },
   "domains": {
     "anthropic-agents": {
-      "verified": "2026-09-15",
-      "sources": ["platform.claude.com/docs/en/build-with-claude/prompt-caching", "platform.claude.com/docs/en/agents-and-tools/tool-use/define-tools", "platform.claude.com/docs/en/build-with-claude/thinking-steering-and-cost", "anthropic.com/engineering/writing-tools-for-agents"],
-      "skills": ["claude-agent-sdk", "managed-agents-specialist", "prompt-engineer", "ai-integrations", "claude-api", "agent-testing", "workflow-orchestrator"]
+      "verified": "2026-11-17",
+      "sources": [
+        "platform.claude.com/docs/en/build-with-claude/prompt-caching",
+        "platform.claude.com/docs/en/agents-and-tools/tool-use/define-tools",
+        "platform.claude.com/docs/en/build-with-claude/thinking-steering-and-cost",
+        "anthropic.com/engineering/writing-tools-for-agents",
+        "Re-verificado 2026-11-17 (alcance parcial, lectura web resumida; lo no comprobado quedo marcado \"a verificar\" en los skills): platform.claude.com/docs/en/build-with-claude/prompt-caching; .../thinking-steering-and-cost; .../thinking; platform.claude.com/docs/en/agents-and-tools/tool-use/define-tools; platform.claude.com/docs/en/models/overview; anthropic.com/engineering/writing-tools-for-agents. No comprobados: task_budgets de Opus 4.8 y el header beta de interleaved thinking."
+      ],
+      "skills": [
+        "claude-agent-sdk",
+        "managed-agents-specialist",
+        "prompt-engineer",
+        "ai-integrations",
+        "claude-api",
+        "agent-testing",
+        "workflow-orchestrator"
+      ]
     },
     "openai-gemini-agents": {
-      "verified": "2026-09-15",
-      "sources": ["ai.google.dev/gemini-api/docs/function-calling", "ai.google.dev/gemini-api/docs/tools", "developers.openai.com/api/docs/guides/structured-outputs"],
-      "skills": ["gemini-3-specialist", "ai-integrations", "agent-testing"]
+      "verified": "2026-11-17",
+      "sources": [
+        "ai.google.dev/gemini-api/docs/function-calling",
+        "ai.google.dev/gemini-api/docs/tools",
+        "developers.openai.com/api/docs/guides/structured-outputs",
+        "Re-verificado 2026-11-17 (alcance parcial, lectura web resumida; lo no comprobado quedo marcado \"a verificar\" en los skills): aistudio.google.com/docs/function-calling (antes ai.google.dev, 301); aistudio.google.com/docs/tools; aistudio.google.com/docs/whats-new-gemini-3.6; developers.openai.com/api/docs/guides/structured-outputs (primeros 100k caracteres). No comprobados: thinking_level por defecto en 3.1 Pro y limites de Structured Outputs."
+      ],
+      "skills": [
+        "gemini-3-specialist",
+        "ai-integrations",
+        "agent-testing"
+      ]
     },
     "security-owasp": {
-      "verified": "2026-09-15",
-      "sources": ["genai.owasp.org / DOI 10.5281/zenodo.22109015 (confirmado 2026-09-15 contra el PDF oficial completo, 122 paginas: OWASP GenAI LLM Top 10 2026, publicada 2026-08-03/09-01. Numeracion de las 10 categorias NO cambio de orden respecto a 2025 -- LLM01 Prompt Injection, LLM02 Sensitive Information Disclosure, LLM03 Excessive Agency, LLM04 Supply Chain, LLM05 Data and Model Poisoning, LLM06 Unbounded Consumption, LLM07 Misinformation, LLM08 Hidden Context Exposure, LLM09 Vector and Embedding Weaknesses, LLM10 Improper Output Handling. El cambio 2026 es de contenido/alcance -- 7714 incidentes reales de origen, mapeo nuevo a MITRE ATLAS/ATT&CK/ASI/DSGAI -- no de posicion)"],
-      "skills": ["security-auditor", "attack-surface-analyst", "ai-guardrails", "security-monitoring-soc"]
+      "verified": "2026-11-17",
+      "sources": [
+        "genai.owasp.org / DOI 10.5281/zenodo.22109015 (confirmado 2026-09-15 contra el PDF oficial completo, 122 paginas: OWASP GenAI LLM Top 10 2026, publicada 2026-08-03/09-01. Numeracion de las 10 categorias NO cambio de orden respecto a 2025 -- LLM01 Prompt Injection, LLM02 Sensitive Information Disclosure, LLM03 Excessive Agency, LLM04 Supply Chain, LLM05 Data and Model Poisoning, LLM06 Unbounded Consumption, LLM07 Misinformation, LLM08 Hidden Context Exposure, LLM09 Vector and Embedding Weaknesses, LLM10 Improper Output Handling. El cambio 2026 es de contenido/alcance -- 7714 incidentes reales de origen, mapeo nuevo a MITRE ATLAS/ATT&CK/ASI/DSGAI -- no de posicion)",
+        "Re-verificado 2026-11-17 (alcance parcial, lectura web resumida; lo no comprobado quedo marcado \"a verificar\" en los skills): genai.owasp.org/2026/09/01/owasp-genai-security-project-unveils-2026-top-10-for-llm-applications-... y genai.owasp.org/2026/10/08/genai-and-agentic-ai-exploit-roundup-q3-2026/ (solo LLM03 y LLM06 comprobadas por resumen; la lista completa de 10 categorias queda pendiente del PDF; genai.owasp.org/llm-top-10/ aun muestra la lista 2025).",
+        "Correccion 2026-11-17: la entrada previa que afirmaba que la numeracion de las 10 categorias NO cambio respecto a 2025 es incorrecta: en 2026 Excessive Agency pasa a LLM03 y Unbounded Consumption a LLM06 (genai.owasp.org muestra aun la lista 2025: LLM03 Supply Chain, LLM05 Improper Output Handling, LLM06 Excessive Agency, LLM10 Unbounded Consumption). El orden de LLM01, LLM05 y LLM07-10 en 2026, las 122 paginas, el DOI y los 7714 incidentes quedan sin comprobar; CISA BOD 26-04 (2026-06-10) revoca BOD 22-01 y BOD 19-02."
+      ],
+      "skills": [
+        "security-auditor",
+        "attack-surface-analyst",
+        "ai-guardrails",
+        "security-monitoring-soc"
+      ]
     },
     "frontend-web-standards": {
-      "verified": "2026-09-15",
-      "sources": ["developer.mozilla.org/en-US/docs/Web/CSS/CSS_containment/Container_queries y caniuse.com/css-container-queries (Container Queries confirmado Baseline widely available, soporte Chrome 106/Firefox 110/Safari 16, ~95% global -- afirmacion previa del skill correcta). developer.mozilla.org/en-US/docs/Web/CSS/@view-transition (hallazgo real: ambos skills citaban `@view-transition{navigation:auto}` como 'same-document Baseline 2025' -- es sintaxis cross-document/MPA, estado real Limited Availability, SIN soporte en Firefox; corregido en ambos SKILL.md, distinguiendo de same-document real via document.startViewTransition(), que si es Baseline en Chrome/Edge 111+, Safari 18+, Firefox 144+, fuente developer.chrome.com/docs/web-platform/view-transitions). w3.org/TR/WCAG22/ (WCAG 2.2 confirmado W3C Recommendation 2024-12-12; criterios 2.4.11 Focus Not Obscured, 2.5.8 Target Size Minimum, 3.3.8 Accessible Authentication confirmados nuevos en 2.2 nivel AA -- afirmacion previa del skill correcta, sin cambios)."],
-      "skills": ["tech-lead-frontend", "ux-visual-designer"]
+      "verified": "2026-11-17",
+      "sources": [
+        "developer.mozilla.org/en-US/docs/Web/CSS/CSS_containment/Container_queries y caniuse.com/css-container-queries (Container Queries confirmado Baseline widely available, soporte Chrome 106/Firefox 110/Safari 16, ~95% global -- afirmacion previa del skill correcta). developer.mozilla.org/en-US/docs/Web/CSS/@view-transition (hallazgo real: ambos skills citaban `@view-transition{navigation:auto}` como 'same-document Baseline 2025' -- es sintaxis cross-document/MPA, estado real Limited Availability, SIN soporte en Firefox; corregido en ambos SKILL.md, distinguiendo de same-document real via document.startViewTransition(), que si es Baseline en Chrome/Edge 111+, Safari 18+, Firefox 144+, fuente developer.chrome.com/docs/web-platform/view-transitions). w3.org/TR/WCAG22/ (WCAG 2.2 confirmado W3C Recommendation 2024-12-12; criterios 2.4.11 Focus Not Obscured, 2.5.8 Target Size Minimum, 3.3.8 Accessible Authentication confirmados nuevos en 2.2 nivel AA -- afirmacion previa del skill correcta, sin cambios).",
+        "Re-verificado 2026-11-17 (alcance parcial, lectura web resumida; lo no comprobado quedo marcado \"a verificar\" en los skills): w3.org/TR/WCAG22/ (Recommendation 2024-12-12; 2.4.11, 2.5.8, 3.3.8 nivel AA); developer.chrome.com/docs/web-platform/view-transitions; developer.mozilla.org/en-US/docs/Web/CSS/@view-transition. No comprobados: estado Baseline de Container Queries, PPR de Next.js, Anchor Positioning."
+      ],
+      "skills": [
+        "tech-lead-frontend",
+        "ux-visual-designer"
+      ]
     },
     "devops-supply-chain": {
-      "verified": "2026-09-15",
-      "sources": ["slsa.dev/spec/v1.2/about (SLSA v1.2 es la version vigente, estado Approved; v1.1 Retired). slsa.dev/spec/v1.1/levels (niveles del build track: L0 sin garantias, L1 provenance existe, L2 plataforma hospedada firma la provenance, L3 build hardened con aislamiento de builds). Contenido de supply chain security (SLSA/cosign/SBOM/CycloneDX/SPDX) agregado 2026-09-15 a devops-infra (seccion nueva) y release-manager (extension de etapas build/approve del pipeline) -- gap de cobertura cerrado."],
-      "skills": ["devops-infra", "release-manager"]
+      "verified": "2026-11-17",
+      "sources": [
+        "slsa.dev/spec/v1.2/about (SLSA v1.2 es la version vigente, estado Approved; v1.1 Retired). slsa.dev/spec/v1.1/levels (niveles del build track: L0 sin garantias, L1 provenance existe, L2 plataforma hospedada firma la provenance, L3 build hardened con aislamiento de builds). Contenido de supply chain security (SLSA/cosign/SBOM/CycloneDX/SPDX) agregado 2026-09-15 a devops-infra (seccion nueva) y release-manager (extension de etapas build/approve del pipeline) -- gap de cobertura cerrado.",
+        "Re-verificado 2026-11-17 (alcance parcial, lectura web resumida; lo no comprobado quedo marcado \"a verificar\" en los skills): slsa.dev/spec/v1.2/about (Approved, vigente); slsa.dev/spec/v1.1/levels (Retired; niveles Build L0-L3, no confirmados identicos en v1.2). No comprobados: cosign/Sigstore, CycloneDX/SPDX, Kubernetes 1.36, OTel semconv 1.43.0."
+      ],
+      "skills": [
+        "devops-infra",
+        "release-manager"
+      ]
     },
     "rag-llm-eval": {
-      "verified": "2026-09-15",
-      "sources": ["docs.ragas.io/en/stable/concepts/metrics/available_metrics/", "deepeval.com/docs/metrics-llm-evals (G-Eval)", "promptfoo.dev/docs/configuration/guide/ (verificado en vivo: estructura prompts/providers/tests, assert llm-rubric/javascript, comando promptfoo eval sin drift)", "docs.cohere.com/docs/rerank (Rerank v3.5, citado por rag-specialist)", "anthropic.com/engineering/contextual-retrieval (citado por rag-specialist)"],
-      "skills": ["rag-specialist", "llm-evals", "llm-observability"]
+      "verified": "2026-11-17",
+      "sources": [
+        "docs.ragas.io/en/stable/concepts/metrics/available_metrics/",
+        "deepeval.com/docs/metrics-llm-evals (G-Eval)",
+        "promptfoo.dev/docs/configuration/guide/ (verificado en vivo: estructura prompts/providers/tests, assert llm-rubric/javascript, comando promptfoo eval sin drift)",
+        "docs.cohere.com/docs/rerank (Rerank v3.5, citado por rag-specialist)",
+        "anthropic.com/engineering/contextual-retrieval (citado por rag-specialist)",
+        "Re-verificado 2026-11-17 (alcance parcial, lectura web resumida; lo no comprobado quedo marcado \"a verificar\" en los skills): docs.cohere.com/docs/rerank (Rerank 5 mas reciente); anthropic.com/engineering/contextual-retrieval; deepeval.com/docs/metrics-llm-evals; promptfoo.dev/docs/configuration/guide/; docs.ragas.io/en/stable/concepts/metrics/available_metrics/. No comprobados: Citations API, imports de deepeval y ragas, promptfoo view."
+      ],
+      "skills": [
+        "rag-specialist",
+        "llm-evals",
+        "llm-observability"
+      ]
     },
     "data-database-ops": {
-      "verified": "2026-09-15",
-      "sources": ["docs.getdbt.com/docs/mesh/govern/model-contracts (Model Contracts, sintaxis sin drift)", "airflow.apache.org/docs/apache-airflow/stable/release_notes.html (Airflow 3.3.1)", "databricks.com (Medallion Architecture)", "postgresql.org/support/security (lote 2026-08-13, 7 CVEs core 8.8, y CVE-2025-12819 de PgBouncer)"],
-      "skills": ["data-engineer", "database-ops"]
+      "verified": "2026-11-17",
+      "sources": [
+        "docs.getdbt.com/docs/mesh/govern/model-contracts (Model Contracts, sintaxis sin drift)",
+        "airflow.apache.org/docs/apache-airflow/stable/release_notes.html (Airflow 3.3.1)",
+        "databricks.com (Medallion Architecture)",
+        "postgresql.org/support/security (lote 2026-08-13, 7 CVEs core 8.8, y CVE-2025-12819 de PgBouncer)",
+        "Re-verificado 2026-11-17 (alcance parcial, lectura web resumida; lo no comprobado quedo marcado \"a verificar\" en los skills): docs.getdbt.com/docs/mesh/govern/model-contracts; airflow.apache.org/docs/apache-airflow/stable/release_notes.html (3.4.0, 2026-11-06); pgbouncer.org/changelog.html (1.26.1); postgresql.org/support/security (lote 2026-11-12: 18.7, 17.12, 16.16, 15.20, 14.25). No comprobados: Medallion, io_method de PostgreSQL 18."
+      ],
+      "skills": [
+        "data-engineer",
+        "database-ops"
+      ]
     },
     "app-distribution-stores": {
       "verified": "2026-09-21",
-      "sources": ["developer.apple.com/news/?id=ueeok6yw", "support.google.com/googleplay/android-developer/answer/11926878", "azure.microsoft.com/en-us/products/artifact-signing", "learn.microsoft.com/en-us/windows/apps/publish/whats-new-individual-developer"],
-      "skills": ["app-store-publisher"]
+      "sources": [
+        "developer.apple.com/news/?id=ueeok6yw",
+        "support.google.com/googleplay/android-developer/answer/11926878",
+        "azure.microsoft.com/en-us/products/artifact-signing",
+        "learn.microsoft.com/en-us/windows/apps/publish/whats-new-individual-developer"
+      ],
+      "skills": [
+        "app-store-publisher"
+      ]
     },
     "saas-business-architecture": {
       "verified": "2026-09-21",
-      "sources": ["docs.aws.amazon.com/whitepapers (SaaS Tenant Isolation Strategies)", "learn.microsoft.com/azure/architecture/guide/multitenant (tenancy models, domain names, throttling pattern)", "docs.stripe.com/billing/subscriptions", "workos.com/docs (RBAC/SSO B2B)", "lemonsqueezy.com/blog/2026-update"],
-      "skills": ["saas-product-architect"]
+      "sources": [
+        "docs.aws.amazon.com/whitepapers (SaaS Tenant Isolation Strategies)",
+        "learn.microsoft.com/azure/architecture/guide/multitenant (tenancy models, domain names, throttling pattern)",
+        "docs.stripe.com/billing/subscriptions",
+        "workos.com/docs (RBAC/SSO B2B)",
+        "lemonsqueezy.com/blog/2026-update"
+      ],
+      "skills": [
+        "saas-product-architect"
+      ]
     },
     "qa-destructive-testing": {
       "verified": "2026-09-21",
-      "sources": ["owasp.org (WSTG)", "principlesofchaos.org", "cncf.io/projects (Chaos Mesh/LitmusChaos: Incubating)", "go.dev (fuzzing GA desde Go 1.18)", "spec.openapis.org (OpenAPI 3.2.1, 2026-09-10)"],
-      "skills": ["qa-engineer"]
+      "sources": [
+        "owasp.org (WSTG)",
+        "principlesofchaos.org",
+        "cncf.io/projects (Chaos Mesh/LitmusChaos: Incubating)",
+        "go.dev (fuzzing GA desde Go 1.18)",
+        "spec.openapis.org (OpenAPI 3.2.1, 2026-09-10)"
+      ],
+      "skills": [
+        "qa-engineer"
+      ]
     },
     "cloud-provider-deployment": {
       "verified": "2026-09-21",
-      "sources": ["docs.aws.amazon.com/apprunner (cerrado a clientes nuevos, verificado con fetch directo propio)", "docs.cloud.google.com/sdk/gcloud/reference/run/deploy", "learn.microsoft.com/en-us/azure/container-apps", "docs.digitalocean.com/products/app-platform", "developers.cloudflare.com/workers", "vercel.com/docs", "docs.railway.com", "render.com/docs", "fly.io/docs"],
-      "skills": ["cloud-deployment-specialist"]
+      "sources": [
+        "docs.aws.amazon.com/apprunner (cerrado a clientes nuevos, verificado con fetch directo propio)",
+        "docs.cloud.google.com/sdk/gcloud/reference/run/deploy",
+        "learn.microsoft.com/en-us/azure/container-apps",
+        "docs.digitalocean.com/products/app-platform",
+        "developers.cloudflare.com/workers",
+        "vercel.com/docs",
+        "docs.railway.com",
+        "render.com/docs",
+        "fly.io/docs"
+      ],
+      "skills": [
+        "cloud-deployment-specialist"
+      ]
     },
     "discord-api": {
       "verified": "2026-10-31",
-      "sources": ["docs.discord.com/developers/resources/message (dominio actual; discord.com/developers/docs redirige 301; limites de embed reconfirmados sin cambios) -- estructura de embed, limites de caracteres/fields/embeds por mensaje, distincion Webhook vs Bot/Gateway; rate limit por webhook sin cifra oficial fija -- 5 req/2s tratado como orientativo de terceros, no confirmado en fuente primaria unica)"],
-      "skills": ["discord-ops"]
+      "sources": [
+        "docs.discord.com/developers/resources/message (dominio actual; discord.com/developers/docs redirige 301; limites de embed reconfirmados sin cambios) -- estructura de embed, limites de caracteres/fields/embeds por mensaje, distincion Webhook vs Bot/Gateway; rate limit por webhook sin cifra oficial fija -- 5 req/2s tratado como orientativo de terceros, no confirmado en fuente primaria unica)"
+      ],
+      "skills": [
+        "discord-ops"
+      ]
     },
     "backend-architecture-generic": {
-      "verified": "2026-09-15",
-      "sources": ["developer.mozilla.org/docs/Web/API/Server-sent_events (EventSource reconexion nativa confirmada; limite de 6-8 conexiones HTTP/1.1 concurrentes por dominio documentado como advertencia nueva)", "patron Redis Pub/Sub para escalado horizontal de WebSocket: arquitectonico, no atado a version de producto, sin necesidad de reverificacion periodica"],
-      "skills": ["backend-architect"]
+      "verified": "2026-11-17",
+      "sources": [
+        "developer.mozilla.org/docs/Web/API/Server-sent_events (EventSource reconexion nativa confirmada; limite de 6-8 conexiones HTTP/1.1 concurrentes por dominio documentado como advertencia nueva)",
+        "patron Redis Pub/Sub para escalado horizontal de WebSocket: arquitectonico, no atado a version de producto, sin necesidad de reverificacion periodica",
+        "Re-verificado 2026-11-17 (alcance parcial, lectura web resumida; lo no comprobado quedo marcado \"a verificar\" en los skills): developer.mozilla.org/en-US/docs/Web/API/Server-sent_events/Using_server-sent_events (reconexion nativa; 6 conexiones por navegador sin HTTP/2). No comprobados: Redis Pub/Sub para WebSocket, Idempotency-Key, outbox, umbrales de latencia."
+      ],
+      "skills": [
+        "backend-architect"
+      ]
     },
     "backend-languages-multi": {
-      "verified": "2026-09-15",
+      "verified": "2026-11-17",
       "sources": [
         "go.dev/doc/devel/release (Go 1.27.1)",
         "go.dev/doc/go1.27 (ALPN en conexiones custom, HTTP/2 client priorities RFC 9218, auto-drenado Response.Body)",
@@ -98,49 +207,119 @@
         "guides.rubyonrails.org (Rails 8.1.3.1)",
         "guides.rubyonrails.org/api_app.html (ActionController::API, params.expect)",
         "guides.rubyonrails.org/active_job_basics.html (Solid Queue default desde Rails 8.0)",
-        "guides.rubyonrails.org/testing.html (Minitest default, no RSpec)"
+        "guides.rubyonrails.org/testing.html (Minitest default, no RSpec)",
+        "Re-verificado 2026-11-17 (alcance parcial, lectura web resumida; lo no comprobado quedo marcado \"a verificar\" en los skills): go.dev/doc/devel/release (1.27.4); github.com/gin-gonic/gin/releases (v1.12.0); github.com/tokio-rs/axum/releases (0.8.9); blog.rust-lang.org/2026/11/12/Rust-1.100.0/; spring.io/projects/spring-boot (4.1.2); docs.spring.io/spring-boot/system-requirements.html; learn.microsoft.com/en-us/dotnet/core/releases-and-support; php.net/releases/index.php; laravel.com/docs/13.x/releases; ruby-lang.org/en/downloads/; guides.rubyonrails.org. No comprobados: JDK 25 LTS, AddValidation en .NET 10 y las APIs de ejemplo."
       ],
-      "skills": ["backend-architect"]
+      "skills": [
+        "backend-architect"
+      ]
     },
     "mobile-flutter": {
-      "verified": "2026-09-15",
-      "sources": ["docs.flutter.dev/release/archive (Flutter 3.47)", "flutter.dev/blog/whats-new-in-flutter-3-47 (Impeller default en macOS/Windows/Linux, publicado 2026-08-12)", "pub.dev/packages/flutter_riverpod (Riverpod 3.4.3 stable)", "pub.dev/packages/isar (ultimo stable 3.1.0+1, ~3 anos sin release estable nuevo -- gap de vigencia real documentado en el skill)", "developer.android.com/google/play/requirements/target-sdk (targetSdk API 36 exigido desde 2026-08-31, gap de contenido cerrado 2026-09-15)", "developer.apple.com/news/upcoming-requirements/ (Xcode 26 / SDK iOS 26 exigido desde 2026-04-28, gap de contenido cerrado 2026-09-15)"],
-      "skills": ["mobile-engineer"]
+      "verified": "2026-11-17",
+      "sources": [
+        "docs.flutter.dev/release/archive (Flutter 3.47)",
+        "flutter.dev/blog/whats-new-in-flutter-3-47 (Impeller default en macOS/Windows/Linux, publicado 2026-08-12)",
+        "pub.dev/packages/flutter_riverpod (Riverpod 3.4.3 stable)",
+        "pub.dev/packages/isar (ultimo stable 3.1.0+1, ~3 anos sin release estable nuevo -- gap de vigencia real documentado en el skill)",
+        "developer.android.com/google/play/requirements/target-sdk (targetSdk API 36 exigido desde 2026-08-31, gap de contenido cerrado 2026-09-15)",
+        "developer.apple.com/news/upcoming-requirements/ (Xcode 26 / SDK iOS 26 exigido desde 2026-04-28, gap de contenido cerrado 2026-09-15)",
+        "Re-verificado 2026-11-17 (alcance parcial, lectura web resumida; lo no comprobado quedo marcado \"a verificar\" en los skills): docs.flutter.dev/release/archive (Flutter 3.50); docs.flutter.dev/perf/impeller; pub.dev/packages/flutter_riverpod (3.5.0); pub.dev/packages/isar; pub.dev/packages/firebase_ai (5.2.0, API entre majors a verificar); developer.android.com/google/play/requirements/target-sdk; developer.apple.com/news/upcoming-requirements/."
+      ],
+      "skills": [
+        "mobile-engineer"
+      ]
     },
     "mcp-protocol": {
       "verified": "2026-09-21",
-      "sources": ["modelcontextprotocol.io/specification/versioning (2026-07-28 es la version Current, protocolo stateless)"],
-      "skills": ["mcp-server-builder", "mcp-registry-navigator"]
+      "sources": [
+        "modelcontextprotocol.io/specification/versioning (2026-07-28 es la version Current, protocolo stateless)"
+      ],
+      "skills": [
+        "mcp-server-builder",
+        "mcp-registry-navigator"
+      ]
     },
     "ai-core-internal-governance": {
       "verified": "2026-09-21",
-      "sources": ["no aplica fuente externa -- son skills que gobiernan el propio arnes ai-core (aaa-evaluator, aiops-engineer, cost-optimizer, cross-model-verifier, dev-loop, memory-manager, silent-failure-hunter), su vigencia se mide contra el propio codigo del repo, no contra un estandar de mercado externo"],
-      "skills": ["aaa-evaluator", "aiops-engineer", "cost-optimizer", "cross-model-verifier", "dev-loop", "memory-manager", "silent-failure-hunter"]
+      "sources": [
+        "no aplica fuente externa -- son skills que gobiernan el propio arnes ai-core (aaa-evaluator, aiops-engineer, cost-optimizer, cross-model-verifier, dev-loop, memory-manager, silent-failure-hunter), su vigencia se mide contra el propio codigo del repo, no contra un estandar de mercado externo"
+      ],
+      "skills": [
+        "aaa-evaluator",
+        "aiops-engineer",
+        "cost-optimizer",
+        "cross-model-verifier",
+        "dev-loop",
+        "memory-manager",
+        "silent-failure-hunter"
+      ]
     },
     "multimodal-voice": {
-      "verified": "2026-09-15",
-      "sources": ["ai.google.dev/gemini-api/docs/models (gemini-3.8-live Stable reemplaza a gemini-3.1-flash-live-preview deprecado; gemini-3.8-live-extended-thinking)", "ai.google.dev/gemini-api/docs/live-guide (Affective Dialog: exclusion explicita solo para gemini-3.1-flash-live-preview, sin tabla de compatibilidad para gemini-3.8-live)", "ai.google.dev/gemini-api/docs/speech-generation (gemini-3.1-flash-tts-preview y gemini-2.5-pro-preview-tts sin drift)"],
-      "skills": ["audio-voice-engineer", "multimodal-engineer", "gemini-3-specialist"]
+      "verified": "2026-11-17",
+      "sources": [
+        "ai.google.dev/gemini-api/docs/models (gemini-3.8-live Stable reemplaza a gemini-3.1-flash-live-preview deprecado; gemini-3.8-live-extended-thinking)",
+        "ai.google.dev/gemini-api/docs/live-guide (Affective Dialog: exclusion explicita solo para gemini-3.1-flash-live-preview, sin tabla de compatibilidad para gemini-3.8-live)",
+        "ai.google.dev/gemini-api/docs/speech-generation (gemini-3.1-flash-tts-preview y gemini-2.5-pro-preview-tts sin drift)",
+        "Re-verificado 2026-11-17 (alcance parcial, lectura web resumida; lo no comprobado quedo marcado \"a verificar\" en los skills): aistudio.google.com/docs/models; aistudio.google.com/docs/live-api/capabilities; aistudio.google.com/docs/speech-generation. Alcance: solo audio-voice-engineer; multimodal-engineer y gemini-3-specialist no se leyeron en detalle."
+      ],
+      "skills": [
+        "audio-voice-engineer",
+        "multimodal-engineer",
+        "gemini-3-specialist"
+      ]
     },
     "performance-load-testing": {
-      "verified": "2026-09-15",
-      "sources": ["grafana.com/docs/k6/latest/release-notes/ (k6 2.2.0)", "grafana.com/docs/k6/latest/using-k6/thresholds/ (sintaxis p(99)<300 sin cambio)", "registry.npmjs.org/autocannon/latest (8.0.0)", "registry.npmjs.org/artillery/latest (2.0.34)", "www.rfc-editor.org/rfc/rfc9111 (Cache-Control vigente, obsoleta RFC 7234)"],
-      "skills": ["performance-engineer"]
+      "verified": "2026-11-17",
+      "sources": [
+        "grafana.com/docs/k6/latest/release-notes/ (k6 2.2.0)",
+        "grafana.com/docs/k6/latest/using-k6/thresholds/ (sintaxis p(99)<300 sin cambio)",
+        "registry.npmjs.org/autocannon/latest (8.0.0)",
+        "registry.npmjs.org/artillery/latest (2.0.34)",
+        "www.rfc-editor.org/rfc/rfc9111 (Cache-Control vigente, obsoleta RFC 7234)",
+        "Re-verificado 2026-11-17 (alcance parcial, lectura web resumida; lo no comprobado quedo marcado \"a verificar\" en los skills): grafana.com/docs/k6/latest/release-notes/ (2.3.0 listada; 2.4.0 sin notas verificables); grafana.com/docs/k6/latest/using-k6/thresholds/; registry.npmjs.org/autocannon/latest (9.0.0); registry.npmjs.org/artillery/latest (2.0.34); rfc-editor.org/rfc/rfc9111. No comprobados: breaking changes de k6 2.3/2.4 y autocannon 9."
+      ],
+      "skills": [
+        "performance-engineer"
+      ]
     },
     "seo-sem-marketing": {
-      "verified": "2026-09-15",
-      "sources": ["web.dev/articles/vitals (Core Web Vitals LCP/INP/CLS sin cambio de umbral)", "web.dev/blog/inp-cwv-launch (INP reemplazo a FID como estable el 12 de marzo de 2024, fecha confirmada)", "developers.google.com/tag-platform (Consent Mode v2, ad_user_data/ad_personalization)", "support.google.com/google-ads answer/13695607 (Consent Mode v2 requisito EEA)", "support.google.com/adsense answer/16942036 (deadline IAB TCF v2.3 2026-03-01, ya vencido y aplicado)", "blog.google/products/ads-commerce/dsa-upgrade-to-ai-max-2026 (actualizado 2026-06-11: auto-upgrade masivo DSA->AI Max pospuesto de septiembre 2026 a febrero 2027; excepcion ACA/broad-match a nivel de campana sigue en septiembre 2026; creacion de DSA nuevas se elimina en enero 2027 -- gap de contenido cerrado 2026-09-15, la fuente anterior describia el plan pre-extension)", "facebook.com/business/ads-guide/image y /video (specs Meta Ads reverificadas: subtitulos de feed video corregidos de obligatorios a opcionales-recomendados -- drift real cerrado 2026-09-15; resolucion Feed 1:1 vs 4:5, specs Stories/Reels y regla de texto <20% quedan sin verificar, documentado como pendiente en el skill)"],
-      "skills": ["seo-sem-specialist"]
+      "verified": "2026-11-17",
+      "sources": [
+        "web.dev/articles/vitals (Core Web Vitals LCP/INP/CLS sin cambio de umbral)",
+        "web.dev/blog/inp-cwv-launch (INP reemplazo a FID como estable el 12 de marzo de 2024, fecha confirmada)",
+        "developers.google.com/tag-platform (Consent Mode v2, ad_user_data/ad_personalization)",
+        "support.google.com/google-ads answer/13695607 (Consent Mode v2 requisito EEA)",
+        "support.google.com/adsense answer/16942036 (deadline IAB TCF v2.3 2026-03-01, ya vencido y aplicado)",
+        "blog.google/products/ads-commerce/dsa-upgrade-to-ai-max-2026 (actualizado 2026-06-11: auto-upgrade masivo DSA->AI Max pospuesto de septiembre 2026 a febrero 2027; excepcion ACA/broad-match a nivel de campana sigue en septiembre 2026; creacion de DSA nuevas se elimina en enero 2027 -- gap de contenido cerrado 2026-09-15, la fuente anterior describia el plan pre-extension)",
+        "facebook.com/business/ads-guide/image y /video (specs Meta Ads reverificadas: subtitulos de feed video corregidos de obligatorios a opcionales-recomendados -- drift real cerrado 2026-09-15; resolucion Feed 1:1 vs 4:5, specs Stories/Reels y regla de texto <20% quedan sin verificar, documentado como pendiente en el skill)",
+        "Re-verificado 2026-11-17 (alcance parcial, lectura web resumida; lo no comprobado quedo marcado \"a verificar\" en los skills): web.dev/articles/vitals; support.google.com/google-ads/answer/13695607; support.google.com/adsense/answer/16942036; blog.google/products/ads-commerce/dsa-upgrade-to-ai-max-2026 (sin cambios desde 2026-06-11; corte de creacion de DSA no confirmado). No comprobados: specs de Meta Ads y tag-platform."
+      ],
+      "skills": [
+        "seo-sem-specialist"
+      ]
     },
     "doc-generation": {
-      "verified": "2026-09-15",
-      "sources": ["pptr.dev/api/puppeteer.pdfoptions (tagged=true experimental sin drift; scale/printBackground/preferCSSPageSize confirmados)"],
-      "skills": ["doc-builder"]
+      "verified": "2026-11-17",
+      "sources": [
+        "pptr.dev/api/puppeteer.pdfoptions (tagged=true experimental sin drift; scale/printBackground/preferCSSPageSize confirmados)",
+        "Re-verificado 2026-11-17 (alcance parcial, lectura web resumida; lo no comprobado quedo marcado \"a verificar\" en los skills): pptr.dev/api/puppeteer.pdfoptions (tagged, scale, printBackground, preferCSSPageSize sin drift). No comprobados: format A4, margenes, limites de tamano, version de Puppeteer, WCAG 4.5:1/3:1."
+      ],
+      "skills": [
+        "doc-builder"
+      ]
     },
     "web-scraping": {
-      "verified": "2026-09-15",
-      "sources": ["github.com/Kaliiiiiiiiii-Vinyzu/patchright (reverificado 2026-09-15, activo, solo Chromium, valida contra Cloudflare/Kasada/Akamai/Shape/Datadome/Fingerprint.com/Brotector)", "pypi.org/pypi/curl_cffi/json (reverificado 2026-09-15, curl_cffi 0.16.3 sigue siendo la version mas reciente, 37 fingerprints open source)", "github.com/daijro/camoufox/releases (drift real cerrado 2026-09-15: v146.0.1-beta.25 -> v152.0.4-beta.30, publicada 2026-09-01, el numero base de Firefox tambien subio de 146 a 152)", "developers.cloudflare.com/turnstile (reverificado 2026-09-15: los 3 modos Managed/Non-Interactive/Invisible confirmados; duracion de 5 min del token NO aparecio en la pagina de overview consultada, queda pendiente de reverificar contra la referencia tecnica especifica)"],
-      "skills": ["web-scraping-specialist"]
+      "verified": "2026-11-17",
+      "sources": [
+        "github.com/Kaliiiiiiiiii-Vinyzu/patchright (reverificado 2026-09-15, activo, solo Chromium, valida contra Cloudflare/Kasada/Akamai/Shape/Datadome/Fingerprint.com/Brotector)",
+        "pypi.org/pypi/curl_cffi/json (reverificado 2026-09-15, curl_cffi 0.16.3 sigue siendo la version mas reciente, 37 fingerprints open source)",
+        "github.com/daijro/camoufox/releases (drift real cerrado 2026-09-15: v146.0.1-beta.25 -> v152.0.4-beta.30, publicada 2026-09-01, el numero base de Firefox tambien subio de 146 a 152)",
+        "developers.cloudflare.com/turnstile (reverificado 2026-09-15: los 3 modos Managed/Non-Interactive/Invisible confirmados; duracion de 5 min del token NO aparecio en la pagina de overview consultada, queda pendiente de reverificar contra la referencia tecnica especifica)",
+        "Re-verificado 2026-11-17 (alcance parcial, lectura web resumida; lo no comprobado quedo marcado \"a verificar\" en los skills): github.com/Kaliiiiiiiiii-Vinyzu/patchright; pypi.org/pypi/curl_cffi/json (0.17.0); github.com/daijro/camoufox/releases (Latest v158.0.1-beta.41); developers.cloudflare.com/turnstile y /get-started/server-side-validation (token 300 s, un solo uso). No comprobados: 37 fingerprints, impersonate chrome120, aspectos legales."
+      ],
+      "skills": [
+        "web-scraping-specialist"
+      ]
     },
     "sre-reliability": {
       "verified": "2026-10-18",
@@ -153,13 +332,28 @@
     },
     "grc-third-party-risk": {
       "verified": "2026-09-21",
-      "sources": ["blog.pcisecuritystandards.org/just-published-pci-dss-v4-0-1 (PCI DSS v4.0.1 vigente, publicada 2024-06-11, v4.0 retirada 2024-12-31; biblioteca oficial sin version posterior listada -- ausencia de version posterior no declarada textualmente por el Council)", "csrc.nist.gov/pubs/sp/800/161/r1/upd1/final (SP 800-161 Rev. 1 Update 1, Final, 2024-11-01; pagina de C-SCRM actualizada 2026-09-03 sin Rev. 2)", "hhs.gov/hipaa/for-professionals/security/hipaa-security-rule-nprm (NPRM de refuerzo de ciberseguridad, 2025-01-06, sigue como Proposed Rule, no es regla final; la Security Rule vigente permanece en efecto)", "sharedassessments.org/sig-faq (drift real cerrado 2026-09-21: el skill citaba SIG 2025, la edicion vigente es 2026; conteo de preguntas 2026 NO publico -- dato publico historico 2023 es Lite 126 / Core 855, cifras 627/128 del skill retiradas por no confirmables). Verificacion realizada via OpenAI Responses API con web_search por cuota Gemini agotada; los dominios citados son primarios. Pendiente sin reverificar: ISO/IEC 27036 (edicion exacta), plazos de notificacion de brecha HIPAA, desglose PCI future-dated 51 de 64."],
-      "skills": ["ciso"]
+      "sources": [
+        "blog.pcisecuritystandards.org/just-published-pci-dss-v4-0-1 (PCI DSS v4.0.1 vigente, publicada 2024-06-11, v4.0 retirada 2024-12-31; biblioteca oficial sin version posterior listada -- ausencia de version posterior no declarada textualmente por el Council)",
+        "csrc.nist.gov/pubs/sp/800/161/r1/upd1/final (SP 800-161 Rev. 1 Update 1, Final, 2024-11-01; pagina de C-SCRM actualizada 2026-09-03 sin Rev. 2)",
+        "hhs.gov/hipaa/for-professionals/security/hipaa-security-rule-nprm (NPRM de refuerzo de ciberseguridad, 2025-01-06, sigue como Proposed Rule, no es regla final; la Security Rule vigente permanece en efecto)",
+        "sharedassessments.org/sig-faq (drift real cerrado 2026-09-21: el skill citaba SIG 2025, la edicion vigente es 2026; conteo de preguntas 2026 NO publico -- dato publico historico 2023 es Lite 126 / Core 855, cifras 627/128 del skill retiradas por no confirmables). Verificacion realizada via OpenAI Responses API con web_search por cuota Gemini agotada; los dominios citados son primarios. Pendiente sin reverificar: ISO/IEC 27036 (edicion exacta), plazos de notificacion de brecha HIPAA, desglose PCI future-dated 51 de 64."
+      ],
+      "skills": [
+        "ciso"
+      ]
     },
     "product-methodology-frameworks": {
       "verified": "2026-09-21",
-      "sources": ["agilebusiness.org/resource/what-is-moscow-prioritization (MoSCoW: Must/Should/Could/Won't; Must Have normalmente <= 60% del esfuerzo, Could ~20%, proporcion exacta acordada por equipo -- orientativa, no regla rigida)", "cucumber.io/docs/gherkin/reference (keywords Feature/Rule/Example-Scenario/Given/When/Then/And/But/Background/Scenario Outline/Examples; Rule vigente desde Gherkin 6)", "xp123.com/invest-in-good-stories-and-smart-tasks (INVEST: Independent/Negotiable/Valuable/Estimable/Small/Testable, sin cambio de expansion)", "jpattonassociates.com/wp-content/uploads/2015/03/story_mapping.pdf y /the_shrinking_story (Backbone/Activities/Steps/Tasks; la jerarquia theme-epic-story-task la atribuye Patton a Mike Cohn, coherente con la restriccion del skill de no presentar Theme/Epic como modelo oficial de Patton)", "dddcommunity.org (indice del cap. 14 de Evans: Shared Kernel, Customer/Supplier, Conformist, Anticorruption Layer, Separate Ways, Open Host Service, Published Language; los patrones citados por el skill estan dentro de ese catalogo). Marcos metodologicos sin version de producto: la vigencia se mide contra la fuente del autor, no contra un release. Verificacion via OpenAI Responses API con web_search."],
-      "skills": ["product-lifecycle-orchestrator"]
+      "sources": [
+        "agilebusiness.org/resource/what-is-moscow-prioritization (MoSCoW: Must/Should/Could/Won't; Must Have normalmente <= 60% del esfuerzo, Could ~20%, proporcion exacta acordada por equipo -- orientativa, no regla rigida)",
+        "cucumber.io/docs/gherkin/reference (keywords Feature/Rule/Example-Scenario/Given/When/Then/And/But/Background/Scenario Outline/Examples; Rule vigente desde Gherkin 6)",
+        "xp123.com/invest-in-good-stories-and-smart-tasks (INVEST: Independent/Negotiable/Valuable/Estimable/Small/Testable, sin cambio de expansion)",
+        "jpattonassociates.com/wp-content/uploads/2015/03/story_mapping.pdf y /the_shrinking_story (Backbone/Activities/Steps/Tasks; la jerarquia theme-epic-story-task la atribuye Patton a Mike Cohn, coherente con la restriccion del skill de no presentar Theme/Epic como modelo oficial de Patton)",
+        "dddcommunity.org (indice del cap. 14 de Evans: Shared Kernel, Customer/Supplier, Conformist, Anticorruption Layer, Separate Ways, Open Host Service, Published Language; los patrones citados por el skill estan dentro de ese catalogo). Marcos metodologicos sin version de producto: la vigencia se mide contra la fuente del autor, no contra un release. Verificacion via OpenAI Responses API con web_search."
+      ],
+      "skills": [
+        "product-lifecycle-orchestrator"
+      ]
     }
   }
 }

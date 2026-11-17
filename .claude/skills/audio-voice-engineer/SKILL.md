@@ -4,7 +4,7 @@ description: Especialista en Voice AI y sistemas de audio real-time. Cubre strea
 metadata:
   origin: ai-core
   version: 1.4.0
-  last_updated: 2026-09-21
+  last_updated: 2026-11-17
   rol: architect
 compatibility: Requiere el SDK google-genai (Live API) o el proveedor de voz activo, y conectividad de red/streaming en tiempo real hacia esa API.
 ---
@@ -57,11 +57,11 @@ Ante cualquiera de estas condiciones, insertar la directiva y detener:
 
 ## Gemini 3.8 Live — Live API (Audio-to-Audio Nativo)
 
-Modelo activo: `gemini-3.8-live` (Stable, verificado 2026-09-15 contra `ai.google.dev/gemini-api/docs/models`). `gemini-3.1-flash-live-preview` quedo deprecado — la documentacion oficial lo marca "Legacy audio-to-audio preview model. We recommend updating to Gemini 3.8 Live." Existe ademas `gemini-3.8-live-extended-thinking` (Stable) para interacciones de voz que requieren mayor razonamiento, sin la latencia minima de la variante estandar.
+Modelo activo: `gemini-3.8-live` (Stable, verificado 2026-09-15 contra `aistudio.google.com/docs/models`). `gemini-3.1-flash-live-preview` quedo legacy (la fuente no da fecha de apagado) — la documentacion oficial lo marca "Legacy audio-to-audio preview model. We recommend updating to Gemini 3.8 Live." Existe ademas `gemini-3.8-live-extended-thinking` (Stable) para interacciones de voz que requieren mayor razonamiento, sin la latencia minima de la variante estandar.
 
-Si el usuario menciona en su prompt estar usando `gemini-2.0-flash-live-001`, `gemini-2.5-flash-live-preview` o `gemini-3.1-flash-live-preview` (aunque la pregunta sea sobre otro tema), senalar de inmediato que esos modelos estan apagados o deprecados y recomendar la migracion a `gemini-3.8-live` antes de continuar con el resto de la respuesta.
+Si el usuario menciona en su prompt estar usando `gemini-2.0-flash-live-001`, `gemini-2.5-flash-live-preview` o `gemini-3.1-flash-live-preview` (aunque la pregunta sea sobre otro tema), senalar de inmediato que esos modelos estan apagados o legacy y recomendar la migracion a `gemini-3.8-live` antes de continuar con el resto de la respuesta.
 
-Regresion de feature ya no vigente (reverificado 2026-09-15 contra `ai.google.dev/gemini-api/docs/live-guide`): la exclusion de Affective Dialog documentada anteriormente aplicaba especificamente a `gemini-3.1-flash-live-preview` ("This feature is not supported in Gemini 3.1 Flash Live") — la fuente no confirma ni descarta explicitamente el soporte en `gemini-3.8-live` o su variante extended-thinking (no aparece una tabla de compatibilidad por modelo). Tratar el flag `enable_affective_dialog=True` como probablemente disponible en `gemini-3.8-live`, pero confirmar contra la documentacion del modelo especifico antes de prometerlo en un diseno de cliente.
+Affective Dialog (reverificado 2026-11-17 contra `aistudio.google.com/docs/live-api/capabilities`): la fuente indica "Not supported. The feature was removed" para `gemini-3.8-live` y `gemini-3.8-live-extended-thinking`; solo `gemini-2.5-flash-live-preview` lo soporta (modelo ya apagado segun este skill, confirmar). No prometer `enable_affective_dialog=True` con los modelos 3.8 Live; usar el fallback manual de la seccion Affective Dialog.
 
 La Live API es arquitectura multimodal nativa que elimina el pipeline legado transcribe-reason-synthesize. Procesa entrada y salida de audio directamente en un proceso end-to-end.
 
@@ -78,7 +78,7 @@ La Live API es arquitectura multimodal nativa que elimina el pipeline legado tra
 ### Arquitectura recomendada
 
 ```
-Cliente Audio → WebSocket (full-duplex) → Gemini 3.1 Flash Live API (audio-to-audio)
+Cliente Audio → WebSocket (full-duplex) → Gemini 3.8 Live API (audio-to-audio)
                                         ← Audio respuesta en tiempo real + transcriptos opcionales
 ```
 
@@ -101,7 +101,7 @@ async def voice_agent_nativo():
         "system_instruction": "Eres un asistente conversacional. Responde en espanol."
     }
 
-    async with client.aio.live.connect(model="gemini-3.1-flash-live-preview", config=config) as session:
+    async with client.aio.live.connect(model="gemini-3.8-live", config=config) as session:
         async for audio_chunk in receive_audio_from_microphone():
             await session.send_realtime_input(
                 audio=genai.types.Blob(data=audio_chunk, mime_type="audio/pcm;rate=16000")
@@ -157,23 +157,23 @@ Solucion: normalizar a reloj comun (NTP, UNIX timestamp en milisegundos).
 Sintoma: audio entrecortado, saltos en la conversacion.
 Solucion: implementar retransmision selectiva, usar FEC (Forward Error Correction) si perdida > 1%.
 
-## Gemini 3.1 Flash TTS — Text-to-Speech Nativo
+## Gemini 3.8 Flash TTS — Text-to-Speech Nativo
 
-Modelo vigente (preview, lanzado 2026-04-15): `gemini-3.1-flash-tts-preview`. Reemplaza a la familia `gemini-2.5-*-tts` (`gemini-2.5-flash-preview-tts`, `gemini-2.5-pro-preview-tts`, `gemini-2.5-flash-lite-preview-tts`).
+Modelos recomendados (reverificado 2026-11-17 contra `aistudio.google.com/docs/models` y `/docs/speech-generation`): `gemini-3.8-flash-tts` (mas de 130 idiomas) o `gemini-3.8-flash-lite-tts` (mas de 100 idiomas). `gemini-3.1-flash-tts-preview` esta marcado legacy; no usarlo en disenos nuevos. La familia `gemini-2.5-*-tts` (`gemini-2.5-flash-preview-tts`, `gemini-2.5-pro-preview-tts`, `gemini-2.5-flash-lite-preview-tts`) es anterior.
 
-Diferencias confirmadas respecto a la generacion 2.5: soporta 70+ idiomas (vs 24), 200+ audio tags para control expresivo (ej. `[frustration]`, `[curiosity]`, `[whispers]`), dialogo nativo multi-hablante, y watermark SynthID incrustado en el audio de salida. No se confirmo una variante separada "pro" de mayor calidad/latencia dentro de la linea 3.1 — verificar en `ai.google.dev/gemini-api/docs/speech-generation` antes de asumir que existe, en vez de asumir la tabla de dos variantes de la generacion anterior.
+Control expresivo: la fuente lista 35 tags con sintaxis de angulo (ej. `<laugh>`), no corchetes como `[whispers]`; la lista completa de tags y su soporte por modelo (3.8 flash vs flash-lite), el dialogo multi-hablante y el watermark SynthID de la generacion 3.x estan a verificar en `aistudio.google.com/docs/speech-generation`.
 
 ```python
 from google import genai
 
 client = genai.Client()
 
-# TTS con expresividad controlada via audio tags
+# TTS; los tags expresivos usan sintaxis <tag> (a verificar en la fuente)
 response = client.models.generate_content(
-    model="gemini-3.1-flash-tts-preview",
+    model="gemini-3.8-flash-tts",
     contents=[{
         "parts": [{
-            "text": "[enthusiasm] Bienvenido al sistema. ¿En que puedo ayudarte hoy?"
+            "text": "Bienvenido al sistema. ¿En que puedo ayudarte hoy?"
         }]
     }],
     config=genai.types.GenerateContentConfig(
@@ -188,15 +188,15 @@ response = client.models.generate_content(
 audio_data = response.candidates[0].content.parts[0].inline_data.data
 ```
 
-Voces disponibles (30 en 70+ idiomas): Aoede, Charon, Fenrir, Kore, Puck — entre otras. Verificar lista completa en `ai.google.dev/gemini-api/docs/speech-generation`.
+Voces disponibles (30 prebuilt, confirmado 2026-11-17): Aoede, Charon, Fenrir, Kore, Puck — entre otras. Verificar lista completa en `aistudio.google.com/docs/speech-generation`.
 
 ## Affective Dialog — Estado Actual
 
-`gemini-2.5-flash` con Live API soportaba deteccion y respuesta al tono emocional del usuario (urgencia, frustracion, entusiasmo) de forma nativa. Ese modelo fue apagado el 2025-12-09. Su sucesor inmediato, `gemini-3.1-flash-live-preview` (ahora tambien deprecado), no soportaba la capacidad — confirmado explicitamente como "not yet supported" en su momento.
+`gemini-2.5-flash` con Live API soportaba deteccion y respuesta al tono emocional del usuario (urgencia, frustracion, entusiasmo) de forma nativa. Ese modelo fue apagado el 2025-12-09. Su sucesor inmediato, `gemini-3.1-flash-live-preview` (ahora legacy), no soportaba la capacidad — confirmado explicitamente como "not yet supported" en su momento.
 
-**Estado en el modelo vigente `gemini-3.8-live` (reverificado 2026-09-15):** la documentacion oficial (`ai.google.dev/gemini-api/docs/live-guide`) describe el flag `enable_affective_dialog=True` como disponible en general y solo excluye explicitamente a `gemini-3.1-flash-live-preview` — no hay una tabla de compatibilidad que confirme o descarte el soporte especificamente para `gemini-3.8-live` o su variante extended-thinking. Tratar como probablemente restaurado, pero confirmar contra la documentacion del modelo especifico antes de prometer la capacidad en un diseno de cliente.
+**Estado en el modelo vigente `gemini-3.8-live` (reverificado 2026-11-17):** la documentacion oficial (`aistudio.google.com/docs/live-api/capabilities`) marca Affective Dialog como removido en `gemini-3.8-live` y `gemini-3.8-live-extended-thinking` ("Not supported. The feature was removed"). Solo `gemini-2.5-flash-live-preview` lo soporta. No esta disponible en los modelos vigentes; usar el fallback manual.
 
-Alternativa si Affective Dialog no esta disponible en el momento de la verificacion: los audio tags expresivos de `gemini-3.1-flash-tts-preview` (ej. `[frustration]`, `[determination]`) permiten controlar el tono de la *salida* generada por el modelo, pero no reemplazan la deteccion automatica del tono de *entrada* del usuario que ofrece Affective Dialog.
+Alternativa dado que Affective Dialog no esta disponible en los modelos 3.8 Live: los tags expresivos de `gemini-3.8-flash-tts` (sintaxis `<laugh>`, ver seccion TTS) permiten controlar el tono de la *salida* generada por el modelo, pero no reemplazan la deteccion automatica del tono de *entrada* del usuario que ofrecia Affective Dialog.
 
 ```python
 # Patron de fallback manual si Affective Dialog no esta disponible para el modelo verificado:
@@ -217,7 +217,7 @@ config = {
 ## Lista de Verificacion — Voice Systems
 
 1. Latencia end-to-end documentada y < 300ms en ruta critica.
-2. Modelo activo es `gemini-3.8-live` — `gemini-3.1-flash-live-preview` esta deprecado, `gemini-2.5-flash-live-preview` y `gemini-2.0-flash-live-001` fueron apagados el 2025-12-09.
+2. Modelo activo es `gemini-3.8-live` — `gemini-3.1-flash-live-preview` esta legacy, `gemini-2.5-flash-live-preview` y `gemini-2.0-flash-live-001` fueron apagados el 2025-12-09.
 3. Codec seleccionado es compatible con todos los clientes objetivo (mobile, web, desktop).
 4. Sincronizacion audio-video (si aplica) usa reloj comun.
 5. Timeout: si Gemini no responde en 10s, reintentar una vez antes de fallar al usuario.
@@ -232,8 +232,8 @@ Las Reglas Globales definidas en CLAUDE.md aplican sin excepcion. Adicionales:
 > Reglas de sesion activas: CLAUDE.md > este skill. Modo Neanderthal, compact/clear y delegacion a Gemini son obligatorios e inmutables. Ver seccion 'Protocolo de Ahorro de Tokens' en CLAUDE.md.
 - Verificar especificar latencia objetivo y plan de medicion antes de disenar un voice system.
 - Verificar plan de migracion de clientes existentes antes de cambiar codec en produccion.
-- Prohibido recomendar `gemini-2.0-flash-live-001`, `gemini-2.5-flash-live-preview` o `gemini-3.1-flash-live-preview` — los dos primeros apagados desde 2025-12-09, el tercero deprecado; usar `gemini-3.8-live` (o `gemini-3.8-live-extended-thinking` si el caso requiere mas razonamiento).
-- Verificar el soporte de Affective Dialog contra la documentacion del modelo especifico antes de prometerlo — no esta confirmado explicitamente para `gemini-3.8-live` a la fecha de este skill (verificado 2026-09-15), aunque ya no aparece excluido como en `gemini-3.1-flash-live-preview`.
+- Prohibido recomendar `gemini-2.0-flash-live-001`, `gemini-2.5-flash-live-preview` o `gemini-3.1-flash-live-preview` — los dos primeros apagados desde 2025-12-09, el tercero legacy; usar `gemini-3.8-live` (o `gemini-3.8-live-extended-thinking` si el caso requiere mas razonamiento).
+- No prometer Affective Dialog con `gemini-3.8-live` ni `gemini-3.8-live-extended-thinking`: la fuente lo marca removido (reverificado 2026-11-17); solo `gemini-2.5-flash-live-preview` lo soporta.
 - Verificar streaming si duracion supera 60 segundos antes de serializar audio.
 
 ## Modulo — Vanguardia Transversal en Voice AI y Audio Real-Time
@@ -267,8 +267,8 @@ Sin esta linea llenada con valores concretos (no genericos como "latencia baja" 
 
 ### 4. Vigencia — Estandar Mas Reciente del Dominio
 
-Antes de escribir cualquier nombre de modelo, sample rate, pricing o limite de sesion en un diseno nuevo: verificar contra `ai.google.dev/gemini-api/docs/live` (Live API) o `ai.google.dev/gemini-api/docs/speech-generation` (TTS) — nunca contra un blog o comparativa de terceros.
+Antes de escribir cualquier nombre de modelo, sample rate, pricing o limite de sesion en un diseno nuevo: verificar contra `aistudio.google.com/docs/live-api/capabilities` (Live API) o `aistudio.google.com/docs/speech-generation` (TTS) — nunca contra un blog o comparativa de terceros.
 
-Verificado en esta tarea contra `ai.google.dev/gemini-api/docs/live`: la Live API confirma entrada de audio en PCM 16-bit 16kHz little-endian y salida en PCM 16-bit 24kHz little-endian, ademas de soporte de barge-in (el usuario puede interrumpir al modelo en cualquier momento) — consistente con lo ya documentado en este skill.
+Verificado en esta tarea contra `aistudio.google.com/docs/live-api/capabilities`: la Live API confirma entrada de audio en PCM 16-bit 16kHz little-endian y salida en PCM 16-bit 24kHz little-endian, ademas de soporte de barge-in (el usuario puede interrumpir al modelo en cualquier momento) — consistente con lo ya documentado en este skill.
 
-Datos que la fuente consultada en esta pasada NO confirmo (duracion maxima de sesion Live, presencia de VAD nativo con detalle de implementacion, limites RPM/RPD exactos del tier gratuito de Live API): orientativo, no verificado contra fuente oficial en esta tarea — reverificar antes de comprometer un SLA o un limite de sesion en documentacion de cliente.
+Duracion de sesion Live (verificado 2026-11-17 contra `aistudio.google.com/docs/live-api/capabilities`): 15 minutos solo audio y 2 minutos con video, ampliable con session management. Datos no confirmados por la fuente (presencia de VAD nativo con detalle de implementacion, limites RPM/RPD exactos del tier gratuito de Live API): orientativo, a verificar antes de comprometer un SLA en documentacion de cliente.

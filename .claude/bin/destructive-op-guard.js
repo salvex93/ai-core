@@ -65,6 +65,7 @@
 const { solicitarBreakGlass, accionAprobada } = require('./lib/break-glass');
 const { normalizarTexto } = require('./lib/normalizar-texto');
 const { enmascararComando } = require('./lib/enmascarar-comando');
+const { desofuscarComando } = require('./lib/desofuscar-comando');
 const { canonicalizarComando } = require('./lib/clave-aprobacion');
 const { tieneIndicioDeResolucionPrevia } = require('./lib/deteccion-resolucion-previa');
 const { tieneRastroDeIA } = require('./lib/commit-attribution');
@@ -134,7 +135,7 @@ const cmdEnmascarado = enmascararComando(cmdOriginal);
 // declara su propio flag /i (ver REGLAS abajo); el fix de mayusculas para
 // las reglas que carecian de /i (rm, git reset, git clean, "del /F /S") se
 // aplica en el flag de cada regla especifica, no aqui.
-const cmd = normalizarTexto(cmdEnmascarado);
+const cmd = desofuscarComando(normalizarTexto(cmdEnmascarado));
 
 // Mensaje REAL de commit (no enmascarado) -- se inspecciona por separado del
 // loop de REGLAS porque necesita distinguir atribucion real de IA (bloquea)

@@ -4,7 +4,7 @@ description: Release Manager Universal. Gestiona el ciclo de vida de entregas de
 metadata:
   origin: ai-core
   version: 1.3.0
-  last_updated: 2026-09-21
+  last_updated: 2026-11-17
   rol: architect
 ---
 

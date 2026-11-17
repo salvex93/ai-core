@@ -4,7 +4,7 @@ description: Especialista en pipelines de procesamiento multimodal con LLMs. Cub
 metadata:
   origin: ai-core
   version: 1.2.2
-  last_updated: 2026-09-21
+  last_updated: 2026-11-17
   rol: architect
 compatibility: Requiere el SDK de vision del proveedor activo (anthropic o google-genai); depende de conectividad de red hacia esa API, y opcionalmente voyageai para embeddings multimodales de Voyage.
 ---
@@ -102,7 +102,7 @@ def calcular_tokens_imagen_claude(ancho: int, alto: int, modo: str = "high") -> 
 Gemini 3.1 Pro/Flash-Lite y 3.5 Flash usan un sistema de patches fijos (heredado de la generacion 2.5):
 - Imagenes < 384x384px: ~258 tokens.
 - Imagenes mayores: escala segun la resolucion. Techo de ~1290 tokens por imagen en resoluciones altas.
-- Con `thinking_budget > 0`, agregar el costo de razonamiento al total.
+- El razonamiento (`thinking_level`; reemplaza a `thinking_budget`) agrega tokens de razonamiento al costo total.
 
 ### Estrategia de optimizacion de costo visual
 
@@ -354,4 +354,4 @@ Verificado en esta tarea contra fuente oficial `platform.claude.com/docs/en/docs
 
 Pricing exacto de Files API, limites de retencion del archivo subido mas alla de las 48 horas ya mencionadas en este skill, y el detalle de limites de Citations API sobre documentos multi-archivo no se verificaron de forma independiente en esta pasada — tratar como orientativo, verificar antes de uso contra `platform.claude.com` (Claude) y `ai.google.dev` (Gemini) antes de dimensionar un pipeline de produccion con esos parametros especificos.
 
-Reverificado 2026-09-15 contra el dominio compartido `multimodal-voice` (`ai.google.dev/gemini-api/docs/models`, `ai.google.dev/gemini-api/docs/live-guide`, `ai.google.dev/gemini-api/docs/speech-generation` — gemini-3.8-live Stable, Affective Dialog, TTS): ese dominio cubre modelos de voz/audio en tiempo real (`gemini-3.8-live`, `gemini-3.1-flash-tts-preview`), superficie que este skill no cubre — el procesamiento de voz/audio vive en `audio-voice-engineer`, ya verificado sin drift contra el mismo dominio. Este skill se mantiene enfocado en vision/documentos/OCR (secciones de arriba), sin cambio de contenido pendiente de ese dominio.
+Reverificado 2026-09-15 contra el dominio compartido `multimodal-voice` (`ai.google.dev/gemini-api/docs/models`, `ai.google.dev/gemini-api/docs/live-guide`, `ai.google.dev/gemini-api/docs/speech-generation` — gemini-3.8-live Stable, Affective Dialog, TTS): ese dominio cubre modelos de voz/audio en tiempo real (`gemini-3.8-live` y TTS `gemini-3.8-flash-tts`; `gemini-3.1-flash-tts-preview` es legacy), superficie que este skill no cubre — el procesamiento de voz/audio vive en `audio-voice-engineer`, ya verificado sin drift contra el mismo dominio. Este skill se mantiene enfocado en vision/documentos/OCR (secciones de arriba), sin cambio de contenido pendiente de ese dominio.

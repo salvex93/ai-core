@@ -4,7 +4,7 @@ description: Tech Lead Mobile Universal. Experto en aplicaciones moviles y multi
 metadata:
   origin: ai-core
   version: 1.7.0
-  last_updated: 2026-09-21
+  last_updated: 2026-11-17
   rol: coder
 compatibility: Requiere el SDK Flutter/Dart instalado localmente; depende de conectividad de red para dependencias pub.dev y servicios Firebase si el proyecto los usa.
 ---
@@ -124,7 +124,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 }
 ```
 
-Si `pubspec.yaml` incluye `flutter_riverpod`, usar `AsyncNotifier` con `NotifierProvider`. La version stable actual es Riverpod 3.4.3 (verificado 2026-09-15 contra `pub.dev/packages/flutter_riverpod`), major 3.x. La API de `Notifier`/`AsyncNotifier` se mantiene desde 2.x, pero confirmar con `flutter pub outdated` si el proyecto anfitrion sigue en 2.x antes de escribir codigo que asuma mecanismos de code-gen (`riverpod_generator`) o imports especificos de 3.x. `StateNotifierProvider` esta deprecado desde Riverpod 2.0 — migrar a `Notifier`/`AsyncNotifier`.
+Si `pubspec.yaml` incluye `flutter_riverpod`, usar `AsyncNotifier` con `NotifierProvider`. La version stable actual es Riverpod 3.5.0 (verificado 2026-11-17 contra `pub.dev/packages/flutter_riverpod`), major 3.x. La API de `Notifier`/`AsyncNotifier` se mantiene desde 2.x, pero confirmar con `flutter pub outdated` si el proyecto anfitrion sigue en 2.x antes de escribir codigo que asuma mecanismos de code-gen (`riverpod_generator`) o imports especificos de 3.x. `StateNotifierProvider` esta deprecado desde Riverpod 2.0 — migrar a `Notifier`/`AsyncNotifier`.
 
 ### Navegacion con GoRouter
 
@@ -179,10 +179,10 @@ Para funcionalidades de IA en cliente (clasificacion de imagenes, embeddings loc
 
 ```yaml
 # pubspec.yaml — SDK de IA en edge via Firebase AI Logic
-firebase_ai: ^3.15.0  # Gemini en el dispositivo via Firebase App Check
+firebase_ai: ^5.2.0  # Gemini en el dispositivo via Firebase App Check
 ```
 
-Verificado contra pub.dev/packages/firebase_ai en esta tarea: la version estable actual es 3.15.0, no 1.0.0. Hubo dos breaking changes de major desde la referencia anterior de este archivo — revisar antes de actualizar un proyecto que siga fijado en 1.x: 2.0.0 fue el release inicial de Firebase AI Logic SDK reemplazando a `firebase_vertexai` (ya cubierto en el titulo de esta seccion); 3.0.0 subio el requisito de SDK iOS a la version 12.0.0. Confirmar `flutter pub outdated` y el SDK iOS minimo del proyecto anfitrion antes de saltar directo de 1.x a 3.x.
+Verificado contra pub.dev/packages/firebase_ai en esta tarea: la version estable actual es 5.2.0 (reverificada 2026-11-17), no 1.0.0. La API entre los majors 3 y 5 esta a verificar (no se comparo); revisar el changelog de `pub.dev/packages/firebase_ai` antes de actualizar un proyecto fijado en 3.x. Hubo dos breaking changes de major desde la referencia anterior de este archivo — revisar antes de actualizar un proyecto que siga fijado en 1.x: 2.0.0 fue el release inicial de Firebase AI Logic SDK reemplazando a `firebase_vertexai` (ya cubierto en el titulo de esta seccion); 3.0.0 subio el requisito de SDK iOS a la version 12.0.0. Confirmar `flutter pub outdated` y el SDK iOS minimo del proyecto anfitrion antes de saltar directo de 1.x a 3.x.
 
 ```dart
 // Inicializar modelo Gemini en edge
@@ -200,9 +200,9 @@ Reglas de uso:
 - Usar `gemini-3.5-flash-lite` para edge (latencia minima, costo minimo — reemplaza a 3.1 Flash-Lite como tier 0 mas barato de la familia 3.x, verificado 2026-08-03). Reservar modelos mayores para el backend.
 - No enviar datos personales del usuario al modelo de edge sin consentimiento explicito — los datos pasan por Firebase.
 
-### Impeller (Renderer por Defecto — Flutter 3.32, extendido en 3.47)
+### Impeller (Renderer por Defecto — Flutter 3.27 en movil, extendido en 3.47 a desktop)
 
-Impeller es el renderer de produccion en Flutter 3.32 para iOS y Android. No requiere configuracion adicional. Desde Flutter 3.47 (verificado 2026-09-15 contra `flutter.dev/blog/whats-new-in-flutter-3-47`, publicado 2026-08-12) Impeller es ademas el renderer por defecto en **macOS, Windows y Linux**, reemplazando a Skia tambien en desktop. Implicaciones:
+Impeller es el renderer por defecto desde Flutter 3.27 para iOS y Android API 29+ (verificado 2026-11-17 contra `docs.flutter.dev/perf/impeller`: "As of the 3.27 release"). No requiere configuracion adicional. Desde Flutter 3.47 (verificado 2026-09-15 contra `flutter.dev/blog/whats-new-in-flutter-3-47`, publicado 2026-08-12) Impeller es ademas el renderer por defecto en **macOS, Windows y Linux**, reemplazando a Skia tambien en desktop. Implicaciones:
 
 - Eliminar `--enable-impeller` de scripts de build — activo por defecto en todas las plataformas soportadas (movil y desktop).
 - Si el proyecto usa shaders SKSL precompilados (`--bundle-sksl-path`), estos ya no son necesarios con Impeller.
@@ -319,8 +319,8 @@ flutter clean && flutter pub get
 
 Verificado 2026-09-15 contra `developer.android.com/google/play/requirements/target-sdk` y `developer.apple.com/news/upcoming-requirements/` — ambos plazos ya vencieron a la fecha de hoy, son requisito activo, no futuro:
 
-- **Google Play (Android):** apps nuevas y actualizaciones deben apuntar a `targetSdk` **API level 36** (Android 16) como minimo desde el 31 de agosto de 2026. Excepciones: Wear OS/Android Automotive requieren API 35; TV/XR requieren API 34. Apps ya publicadas necesitan API 35+ para seguir siendo visibles a usuarios nuevos en dispositivos recientes. Configurar en `android/app/build.gradle` (`targetSdkVersion`), verificar contra el valor real del proyecto antes de cualquier release a producción.
-- **App Store Connect (iOS):** builds enviados deben compilarse con **Xcode 26 o posterior**, usando el SDK de iOS/iPadOS/tvOS/visionOS/watchOS 26, desde el 28 de abril de 2026. Confirmar version de Xcode instalada (`xcodebuild -version`) antes de un `flutter build ios --release` destinado a distribucion.
+- **Google Play (Android):** apps nuevas y actualizaciones deben apuntar a `targetSdk` **API level 36** (Android 16) como minimo desde el 31 de agosto de 2026 (confirmado 2026-11-17 contra `developer.android.com/google/play/requirements/target-sdk`); la extension solicitable hasta el 1 de noviembre de 2026 ya vencio. Excepciones: Wear OS/Android Automotive requieren API 35; TV/XR requieren API 34. Apps ya publicadas necesitan API 35+ para seguir siendo visibles a usuarios nuevos en dispositivos recientes. Configurar en `android/app/build.gradle` (`targetSdkVersion`), verificar contra el valor real del proyecto antes de cualquier release a producción.
+- **App Store Connect (iOS):** builds enviados deben compilarse con **Xcode 26 o posterior**, usando el SDK de iOS/iPadOS/tvOS/visionOS/watchOS 26, desde el 28 de abril de 2026 (confirmado 2026-11-17). Nuevo requisito (entrada 2026-09-09 en `developer.apple.com/news/upcoming-requirements/`): deployment target minimo iOS 13. Confirmar version de Xcode instalada (`xcodebuild -version`) antes de un `flutter build ios --release` destinado a distribucion.
 
 ## Directiva de Interrupcion
 
@@ -385,12 +385,12 @@ Si `ux-visual-designer` ya declaro una `IDENTIDAD:` visual para el proyecto, est
 
 ### Vigencia — estandar mas reciente del dominio
 
-Verificado 2026-09-15 contra `docs.flutter.dev/release/archive` y `flutter.dev/blog/whats-new-in-flutter-3-47`: la version estable actual es **Flutter 3.47**, publicada 2026-08-12, que reemplaza a la serie 3.44 citada anteriormente en este archivo. Cambio real de esta version: Impeller pasa a ser renderer por defecto tambien en macOS, Windows y Linux (ver seccion Impeller arriba, ya actualizada). Confirmar version exacta con `flutter --version` en el entorno real antes de fijarla en CI o documentacion de release — la pagina de archivo no expone el numero de patch.
+Verificado 2026-09-15 contra `docs.flutter.dev/release/archive` y `flutter.dev/blog/whats-new-in-flutter-3-47`: la version estable anterior era Flutter 3.47 (publicada 2026-08-12); reverificado 2026-11-17 contra `docs.flutter.dev/release/archive` ("Flutter 3.50 is live!"): la version estable actual es **Flutter 3.50**. Los cambios de 3.50 respecto a 3.47 estan a verificar. Cambio real de 3.47: Impeller pasa a ser renderer por defecto tambien en macOS, Windows y Linux (ver seccion Impeller arriba). Confirmar version exacta con `flutter --version` en el entorno real antes de fijarla en CI o documentacion de release — la pagina de archivo no expone el numero de patch.
 
-Verificado 2026-09-15 contra `pub.dev/packages/flutter_riverpod`: la version stable actual es **3.4.3**, confirmando el major 3.x (ya reflejado en la seccion de State Management arriba). Confirmar en `flutter pub outdated` si el proyecto anfitrion ya migro a 3.x o sigue en 2.x antes de escribir codigo que asuma mecanismos de code-gen o imports especificos del major nuevo.
+Verificado 2026-09-15 contra `pub.dev/packages/flutter_riverpod`: la version stable actual es **3.5.0** (reverificada 2026-11-17), confirmando el major 3.x (ya reflejado en la seccion de State Management arriba). Confirmar en `flutter pub outdated` si el proyecto anfitrion ya migro a 3.x o sigue en 2.x antes de escribir codigo que asuma mecanismos de code-gen o imports especificos del major nuevo.
 
 Verificado 2026-09-15 contra `pub.dev/packages/isar`: gap real de vigencia detectado — el ultimo release estable de Isar es 3.1.0+1, de hace aproximadamente 3 anos, sin ningun major posterior graduado a stable (solo existe un prerelease `4.0.0-dev.14` sin fecha de lanzamiento). Ver advertencia agregada en la tabla de "Base de datos local" arriba: no recomendar Isar para un proyecto nuevo sin esta salvedad.
 
 No se reverifico en esta pasada el estado de Drift ni Hive especificamente (sin señal de alerta detectada durante esta verificacion, a diferencia de Isar) — si se requiere una confirmacion exhaustiva de sus releases mas recientes, consultar `pub.dev/packages/drift` y `pub.dev/packages/hive` directamente antes de fijarlos como referencia permanente.
 
-Gap de cobertura cerrado 2026-09-15: este archivo no mencionaba ningun requisito de `targetSdk`/`compileSdk` de Google Play ni version de Xcode de App Store Connect — ver seccion nueva "Requisitos vigentes de publicacion (Android/iOS)" tras "Comandos de Build". Version de `firebase_ai` (3.15.0, seccion de arriba) no reverificada en esta pasada — fuera del alcance de `mobile-flutter` (dominio de modelos IA cubierto en otro registro de `MARKET_STANDARDS.json`).
+Gap de cobertura cerrado 2026-09-15: este archivo no mencionaba ningun requisito de `targetSdk`/`compileSdk` de Google Play ni version de Xcode de App Store Connect — ver seccion nueva "Requisitos vigentes de publicacion (Android/iOS)" tras "Comandos de Build". Version de `firebase_ai` (5.2.0, reverificada 2026-11-17; API entre majors 3 y 5 a verificar) — fuera del alcance de `mobile-flutter` (dominio de modelos IA cubierto en otro registro de `MARKET_STANDARDS.json`).

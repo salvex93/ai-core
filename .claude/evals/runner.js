@@ -35,13 +35,19 @@ const { spawnSync } = require('node:child_process');
  *
  * @param {string} configPath - ruta al promptfooconfig.yaml a ejecutar
  * @param {string} outputPath - ruta donde promptfoo escribe el resultado JSON
+ * @param {() => boolean} [existeEnv] - inyectable para tests: indica si hay un .env en la raiz
  * @returns {{cmd: string, args: string[]}}
  */
-function construirComando(configPath, outputPath) {
-  return {
-    cmd: 'npx',
-    args: ['--yes', 'promptfoo@latest', 'eval', '-c', configPath, '-o', outputPath, '--no-progress-bar', '--env-path', '.env'],
-  };
+function construirComando(configPath, outputPath, existeEnv = defaultExisteEnv) {
+  const args = ['--yes', 'promptfoo@latest', 'eval', '-c', configPath, '-o', outputPath, '--no-progress-bar'];
+  // promptfoo falla ("Environment file not found") si --env-path apunta a un archivo inexistente: en CI
+  // las claves llegan por variables de entorno y no hay .env, asi que la bandera solo se pasa si existe.
+  if (existeEnv()) args.push('--env-path', '.env');
+  return { cmd: 'npx', args };
+}
+
+function defaultExisteEnv() {
+  return require('node:fs').existsSync(path.resolve(__dirname, '..', '..', '.env'));
 }
 
 /**

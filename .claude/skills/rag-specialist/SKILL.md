@@ -4,7 +4,7 @@ description: Especialista en pipelines RAG y Mission Manager del LLM Routing Bri
 metadata:
   origin: ai-core
   version: 2.6.1
-  last_updated: 2026-10-18
+  last_updated: 2026-11-17
   rol: architect
 compatibility: Requiere un proveedor de embeddings (gemini-embedding-2, voyage o equivalente) y conectividad de red hacia esa API; si usa reranking con cross-encoders, depende ademas del modelo de reranking configurado.
 ---
@@ -218,7 +218,7 @@ El campo `file_id_anthropic` en el payload vectorial es opcional; se almacena so
 
 ## Evaluacion de Calidad del Pipeline RAG
 
-| Metrica | Descripcion | Umbral minimo |
+| Metrica | Descripcion | Umbral minimo (criterio propio del equipo, no estandar externo) |
 |---|---|---|
 | Precision de fuente | Respuestas donde la fuente citada es correcta | 90% |
 | Tasa de admision de ignorancia | Casos donde el sistema admite no tener informacion vs. alucinacion | 95% |
@@ -228,6 +228,8 @@ El campo `file_id_anthropic` en el payload vectorial es opcional; se almacena so
 Cambios que degraden cualquier metrica en mas de 5% requieren revision y aprobacion antes del despliegue.
 
 ## Citations API — Verificacion Nativa de Faithfulness (Preferir sobre LLM-as-judge)
+
+Vigencia de la Citations API y de sus campos: a verificar contra la documentacion actual de Anthropic (no comprobada en la reverificacion 2026-11-17).
 
 Permite que el modelo devuelva referencias exactas a fragmentos del contexto que sustentan cada afirmacion. Elimina la necesidad de LLM-as-judge para verificar faithfulness cuando el contexto es texto plano o documentos via Files API. **Usar Citations API por defecto antes de considerar LLM-as-judge** — es mas barato, mas rapido y no introduce un modelo adicional como fuente de error.
 

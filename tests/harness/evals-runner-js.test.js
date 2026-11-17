@@ -9,8 +9,8 @@ describe('.claude/evals/runner.js', () => {
   const RUNNER = path.join(REPO, '.claude', 'evals', 'runner.js');
   const { construirComando, resumirResultado, correrEval } = require(RUNNER);
 
-  test('construirComando invoca npx promptfoo@latest eval con -c, -o y --env-path .env', () => {
-    const { cmd, args } = construirComando('/repo/.claude/evals/security-auditor.promptfooconfig.yaml', '/tmp/out.json');
+  test('construirComando invoca npx promptfoo@latest eval con -c, -o y --env-path .env cuando existe .env', () => {
+    const { cmd, args } = construirComando('/repo/.claude/evals/security-auditor.promptfooconfig.yaml', '/tmp/out.json', () => true);
     assert.equal(cmd, 'npx');
     assert.deepEqual(args, [
       '--yes', 'promptfoo@latest', 'eval',
@@ -19,6 +19,13 @@ describe('.claude/evals/runner.js', () => {
       '--no-progress-bar',
       '--env-path', '.env',
     ]);
+  });
+
+  test('error: sin .env (el caso del CI) no pasa --env-path: promptfoo falla si el archivo no existe', () => {
+    const { args } = construirComando('/repo/x.promptfooconfig.yaml', '/tmp/out.json', () => false);
+    assert.ok(!args.includes('--env-path'));
+    assert.ok(!args.includes('.env'));
+    assert.deepEqual(args.slice(0, 8), ['--yes', 'promptfoo@latest', 'eval', '-c', '/repo/x.promptfooconfig.yaml', '-o', '/tmp/out.json', '--no-progress-bar']);
   });
 
   describe('resumirResultado', () => {
@@ -86,7 +93,7 @@ describe('.claude/evals/runner.js', () => {
       // confirmado tras el cambio real de security-auditor/ciso/qa-engineer
       // de google:gemini-3.5-flash a openai:chat:gpt-5.6-luna sin tocar
       // construirComando ni el runner en si.
-      const { args } = construirComando('cualquier-skill.promptfooconfig.yaml', 'out.json');
+      const { args } = construirComando('cualquier-skill.promptfooconfig.yaml', 'out.json', () => true);
       assert.ok(args.includes('--env-path'), 'debe cargar variables de entorno sin importar cual proveedor use el config');
       assert.ok(!args.some((a) => /google|openai|gemini/i.test(a)), 'el comando del runner no debe hardcodear ningun proveedor especifico');
     });

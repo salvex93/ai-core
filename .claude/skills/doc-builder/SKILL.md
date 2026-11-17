@@ -4,7 +4,7 @@ description: Generador de documentacion profesional en HTML + PDF. Produce propu
 metadata:
   origin: ai-core
   version: 1.0.1
-  last_updated: 2026-09-21
+  last_updated: 2026-11-17
   rol: architect
 ---
 

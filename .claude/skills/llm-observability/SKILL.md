@@ -4,7 +4,7 @@ description: Especialista en observabilidad de sistemas LLM en produccion. Cubre
 metadata:
   origin: ai-core
   version: 1.2.1
-  last_updated: 2026-10-18
+  last_updated: 2026-11-17
   rol: auditor
 compatibility: Depende de SDKs de terceros (@langfuse/tracing, @langfuse/otel, @opentelemetry/*, helicone) y conectividad de red hacia la plataforma de observabilidad elegida.
 ---

@@ -4,7 +4,7 @@ description: Especialista en extraccion de datos desde plataformas web y aplicac
 metadata:
   origin: ai-core
   version: 2.1.3
-  last_updated: 2026-09-21
+  last_updated: 2026-11-17
   rol: architect
 compatibility: Requiere las herramientas de scraping configuradas (Stagehand, Playwright, browser-use u otras) y conectividad de red hacia los sitios objetivo.
 ---

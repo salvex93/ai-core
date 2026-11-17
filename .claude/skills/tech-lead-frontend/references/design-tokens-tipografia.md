@@ -66,7 +66,7 @@
 /* Same-document (SPA), via document.startViewTransition() en JS, si es Baseline:
    Chrome/Edge 111+, Safari 18+, Firefox 144+ — preferir esa via si el proyecto es SPA */
 
-/* Anchor Positioning — tooltips sin JS */
+/* Anchor Positioning — limited availability, sin Firefox (verificado 2026-11-17); usar @supports (anchor-name: --a) con fallback */
 .tooltip {
   position: absolute;
   position-anchor: --trigger;

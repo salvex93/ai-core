@@ -4,7 +4,7 @@ description: Especialista en integracion de LLMs en aplicaciones de produccion. 
 metadata:
   origin: ai-core
   version: 2.5.2
-  last_updated: 2026-09-21
+  last_updated: 2026-11-17
   rol: architect
 compatibility: Depende del SDK del proveedor LLM activo en el proyecto anfitrion (anthropic/@anthropic-ai/sdk, @google/genai, openai) y conectividad de red hacia la API de ese proveedor.
 ---
@@ -98,6 +98,7 @@ Definir como constantes de configuracion, no como literales dispersos en el codi
 | Razonamiento profundo | `claude-fable-5` | Razonamiento multi-paso sin tools, alternativa a Opus para diseno puro | Arquitectura critica, analisis profundo sin computer use |
 | Ejecucion estandar | `claude-sonnet-5` | Prompt Caching GA, token-efficient tools GA, rendimiento optimo | Codigo, resumen, chat, 80% de tareas sustanciales |
 | Volumen alto | `claude-haiku-4-5-20251001` | Latencia minima, costo base | Clasificacion, extraccion, moderacion, lotes, tareas triviales |
+| Generacion mas reciente | `claude-opus-5-5`, `claude-sonnet-5-5`, `claude-haiku-5-5`, `claude-fable-5-2` | Los IDs previos de esta tabla siguen vigentes. `tool_choice` any/tool con `strict: true` devuelve 400 en Opus 5.5, Sonnet 5.5 y Fable 5.2: usar `auto` + `strict` | Nuevos desarrollos; ver `platform.claude.com/docs/en/models/overview` |
 | Voice nativo | `gemini-3.1-flash-live` | Audio-to-audio nativo, WebSocket full-duplex, `thinking_level` dinamico | Voice agents, interfaces conversacionales reales, audio streaming |
 
 ### Optimizacion de prompts
@@ -111,7 +112,7 @@ Definir como constantes de configuracion, no como literales dispersos en el codi
 
 API simplificada: un unico campo `cache_control: { type: "ephemeral" }` por bloque sin cabecera beta. Compatible con tool use sin ruptura de cache (tool search dinamico preserva el cache de llamadas anteriores). Marcar sobre contenido estatico (system prompt, documentos de referencia, few-shot). Reglas:
 - Solo marcar contenido estatico entre llamadas — no el historial de conversacion.
-- Umbral minimo: 1024 tokens (Sonnet/Opus) o 2048 (Haiku) para activar el cache.
+- Umbral minimo: 1024 tokens en Opus 4.8, Sonnet 5, Sonnet 4.6 y 4.5; 4096 en Opus 4.6 y 4.5 y en Claude Haiku 4.5 (verificado 2026-11-17 contra `platform.claude.com/docs/en/build-with-claude/prompt-caching`).
 - Loguear `cache_creation_input_tokens` y `cache_read_input_tokens` separado de `input_tokens`.
 - TTL del cache: 5 minutos de inactividad — refrescar si el intervalo entre llamadas puede superarlo.
 - Si `cache_creation_input_tokens` y `cache_read_input_tokens` son ambos 0 en la respuesta, el caching se omitio silenciosamente (no hay error explicito) — verificar que el bloque marcado supera el umbral minimo de tokens cacheables antes de asumir que el cache esta funcionando. Para eliminar la latencia del primer request real, pre-calentar el cache con una llamada de `max_tokens: 0` y un breakpoint explicito antes de que lleguen usuarios reales.
@@ -145,12 +146,12 @@ Patron de gestion: mapa centralizado `BETA_HEADERS`. Al confirmar GA, establecer
 
 ## Extended Thinking
 
-`thinking: { type: "enabled", budget_tokens: N }`. Reglas:
+`thinking: { type: "enabled", budget_tokens: N }` esta deprecado en Claude Opus 4.6 y Sonnet 4.6 y no se acepta en modelos posteriores, incluido Sonnet 5 (`platform.claude.com/docs/en/models/overview`). En esos modelos usar adaptive thinking (`thinking: { type: "adaptive" }`) con `output_config.effort` (low, medium, high, xhigh, max; `platform.claude.com/docs/en/build-with-claude/thinking-steering-and-cost`). Reglas para modelos que aun aceptan `budget_tokens`:
 - `budget_tokens` minimo recomendado: 1024.
 - `max_tokens` > `budget_tokens` (limite incluye thinking + output).
 - Loguear tokens de thinking separado de tokens de salida.
 - No activar en operaciones de alto volumen o clasificaciones simples.
-- Temperatura fija en 1 cuando thinking esta activo.
+- No fijar `temperature`, `top_p` ni `top_k`: con API version 2026-10-21 devuelven 400 en todo modelo, y Opus 4.7+ y Sonnet 5+ ya rechazan valores no default (`platform.claude.com/docs/en/build-with-claude/thinking`).
 
 ## Interleaved Thinking
 
@@ -208,7 +209,7 @@ Patrón recomendado: router dinamico según complejidad inferida de la tarea.
 |---|---|---|---|---|
 | Trivial (clasificacion, extraccion) | Haiku 4.5 | none | N/A | <200ms |
 | Simple (resumen, respuesta directa) | Sonnet 5 | none | N/A | <500ms |
-| Moderada (debug, analisis, generacion) | Sonnet 5 + cache | extended | budget_tokens: 2000 | <2s |
+| Moderada (debug, analisis, generacion) | Sonnet 5 + cache | adaptive | effort: medium (`budget_tokens: 2000` solo en modelos que aun lo aceptan) | <2s |
 | Compleja (arquitectura, planificacion multistep) | Opus 4.8 | adaptive | task_budgets, effort: high | <5s |
 | Muy compleja (debug exhaustivo, diseño critico) | Opus 4.8 | adaptive | task_budgets, effort: xhigh | <15s |
 | Voice conversacional (real-time) | Gemini 3.1-flash-live | dynamic | thinking_level: auto | <150ms |
@@ -255,7 +256,7 @@ Un feature de IA en produccion casi siempre expone tools al LLM, sin importar el
 | Humana | Flujos criticos o cambios de prompt importantes | Golden dataset |
 | Regresion | Tras cambio de modelo o prompt | Comparacion contra historial aprobado |
 
-Si el proveedor soporta modo estricto de schema (Anthropic `strict: true` + `tool_choice: {type: any}`; OpenAI Structured Outputs `strict: true`), usarlo en vez de solo validar post-hoc con Zod/Pydantic — garantiza adherencia al schema en el proveedor. Con OpenAI, revisar el campo `refusal` en la respuesta como error de primera clase ANTES de intentar parsear el contenido — no asumir que ausencia de error de red implica una respuesta valida. Nota: `tool_choice: any`/`tool` no es compatible con extended thinking activo en AWS Bedrock (la Claude API estandar y Vertex AI no tienen esta restriccion).
+Si el proveedor soporta modo estricto de schema (Anthropic `strict: true` + `tool_choice: {type: any}` en Sonnet 5; en Opus 5.5, Sonnet 5.5 y Fable 5.2 devuelve 400, usar `auto` + `strict`; OpenAI Structured Outputs `strict: true`), usarlo en vez de solo validar post-hoc con Zod/Pydantic — garantiza adherencia al schema en el proveedor. Con OpenAI, revisar el campo `refusal` en la respuesta como error de primera clase ANTES de intentar parsear el contenido — no asumir que ausencia de error de red implica una respuesta valida. Nota: `tool_choice: any`/`tool` no es compatible con extended thinking activo en AWS Bedrock (la Claude API estandar y Vertex AI no tienen esta restriccion).
 
 ### Prompt Injection — Defensa obligatoria
 
@@ -360,6 +361,6 @@ Sin esta declaracion no se escribe el primer endpoint, prompt de sistema ni cont
 
 Verificado contra `platform.claude.com/docs` en esta tarea: la Claude API expone **Strict tool use** (`strict: true` en la definicion de la tool, documentado en `agents-and-tools/tool-use/strict-tool-use`) como mecanismo GA para garantizar que las llamadas de Claude a una tool cumplan exactamente el schema declarado, sin requerir cabecera beta — esto refuerza y actualiza la seccion "Evaluacion de Outputs" ya presente en este skill: preferir `strict: true` sobre validacion post-hoc con Zod/Pydantic como primera linea de defensa, no como sustituto total (la validacion post-hoc sigue siendo necesaria para reglas de negocio que el schema no expresa).
 
-Antes de fijar cualquier otro dato de vigencia no verificado en esta tarea (pricing exacto, limites de rate, disponibilidad de un modelo especifico en un proveedor cloud) — orientativo, no verificado contra fuente oficial en este modulo: confirmar contra `platform.claude.com/docs`, `ai.google.dev` o el changelog oficial del proveedor correspondiente antes de escribir el dato como si fuera definitivo.
+Antes de fijar cualquier otro dato de vigencia no verificado en esta tarea (pricing exacto, limites de rate, disponibilidad de un modelo especifico en un proveedor cloud) — orientativo, no verificado contra fuente oficial en este modulo: confirmar contra `platform.claude.com/docs`, `aistudio.google.com/docs` o el changelog oficial del proveedor correspondiente antes de escribir el dato como si fuera definitivo.
 
-Reverificado 2026-09-15 contra `platform.claude.com/docs/en/build-with-claude/prompt-caching`: la seccion "Prompt Caching (GA 2026)" de arriba sigue exacta — `cache_control: { type: "ephemeral" }` sin cabecera beta, compatible con tool use sin ruptura de cache. Confirmado ademas contra `ai.google.dev/gemini-api/docs/function-calling` y `developers.openai.com/api/docs/guides/structured-outputs` que el patron agnostico de proveedor de este skill (fallback entre Claude/Gemini/OpenAI, streaming, evaluacion de outputs estructurados) no requiere ajuste — ningun proveedor introdujo un cambio de contrato que rompa el diseno ya documentado aqui.
+Reverificado 2026-09-15 contra `platform.claude.com/docs/en/build-with-claude/prompt-caching`: la seccion "Prompt Caching (GA 2026)" de arriba sigue exacta — `cache_control: { type: "ephemeral" }` sin cabecera beta, compatible con tool use sin ruptura de cache. Confirmado ademas contra `aistudio.google.com/docs/function-calling` y `developers.openai.com/api/docs/guides/structured-outputs` que el patron agnostico de proveedor de este skill (fallback entre Claude/Gemini/OpenAI, streaming, evaluacion de outputs estructurados) no requiere ajuste — ningun proveedor introdujo un cambio de contrato que rompa el diseno ya documentado aqui.

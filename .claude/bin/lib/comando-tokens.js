@@ -30,7 +30,9 @@ function leerOperador(texto, i) {
  * @param {string} texto - comando ya enmascarado (sin heredocs ni mensajes de commit)
  * @returns {{tipo: 'palabra'|'op', valor: string}[]}
  */
-function tokenizar(texto) {
+function tokenizar(entrada) {
+  // ${IFS} es un separador de palabras en el shell: curl${IFS}url son dos palabras
+  const texto = entrada.replace(/\$\{?IFS\}?/g, ' ');
   const tokens = [];
   let palabra = null;
   const cerrar = () => { if (palabra !== null) tokens.push({ tipo: 'palabra', valor: palabra }); palabra = null; };
@@ -41,6 +43,10 @@ function tokenizar(texto) {
       const { contenido, siguiente } = leerComillas(texto, i);
       palabra = (palabra || '') + contenido;
       i = siguiente;
+    } else if (c === '\\' && process.platform !== 'win32' && /[A-Za-z0-9 ]/.test(texto[i + 1] || '')) {
+      // En POSIX una barra invertida escapa el caracter siguiente (c\url es curl, mi\ archivo es una palabra);
+      // en Windows es separador de ruta y no se toca.
+      palabra = (palabra || '') + texto[i + 1]; i += 2;
     } else if (/[ \t]/.test(c)) {
       cerrar(); i++;
     } else if (/[\n(){}`]/.test(c)) {

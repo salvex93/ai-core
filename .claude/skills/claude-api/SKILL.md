@@ -4,7 +4,7 @@ description: Especialista en Claude API y Anthropic SDK (Python/TypeScript). Cub
 metadata:
   origin: ai-core
   version: 1.3.2
-  last_updated: 2026-09-21
+  last_updated: 2026-11-17
   rol: coder
 compatibility: Depende de @anthropic-ai/sdk (o el paquete Python `anthropic`) y conectividad de red hacia api.anthropic.com.
 ---
@@ -48,12 +48,14 @@ grep -r "cache_control\|anthropic\|claude-" src/ --include="*.ts" --include="*.p
 | Sonnet 5 | `claude-sonnet-5` | Produccion general, balance costo/calidad |
 | Haiku 4.5 | `claude-haiku-4-5-20251001` | Tareas simples, maximo ahorro de tokens |
 
+Generacion 5.5 (verificado 2026-11-17 contra platform.claude.com/docs/en/models/overview): `claude-opus-5-5`, `claude-sonnet-5-5`, `claude-haiku-5-5`, `claude-fable-5-2`; los IDs de la tabla siguen existiendo. Con `strict: true` en tools, `tool_choice` any/tool devuelve 400 en Opus 5.5, Sonnet 5.5 y Fable 5.2: usar `auto` + `strict`. Con API version 2026-10-21, `temperature`/`top_p`/`top_k` devuelven 400 en todo modelo.
+
 Jerarquia de costo: Haiku < Sonnet < Opus ≈ Fable. Usar siempre el minimo suficiente.
 Regla de seleccion Fable vs Opus: si la tarea requiere razonamiento profundo SIN herramientas integradas → Fable 5. Si requiere computer use o loops de agente con tools → Opus 5 (Opus 4.8 como fallback documentado).
 
 ## Prompt Caching — Patron Obligatorio
 
-Todo proyecto con Claude API DEBE incluir cache en el system prompt si supera 1024 tokens (512 en Opus 5; 4096 en Haiku 4.5 — el minimo cacheable varia por modelo).
+Todo proyecto con Claude API DEBE incluir cache en el system prompt si supera el minimo cacheable del modelo: 1024 tokens en Opus 4.8, Sonnet 5, Sonnet 4.6 y 4.5; 4096 en Opus 4.6, Opus 4.5 y Haiku 4.5 (verificado 2026-11-17 contra platform.claude.com/docs/en/build-with-claude/prompt-caching). Minimo de Opus 5: a verificar.
 Cache reduce costo hasta 90% en tokens de input repetidos. TTL disponibles: **5 minutos** (default, escritura a 1.25x el precio de input base) y **1 hora** (escritura a 2x, para pipelines de agente con pasos espaciados mas de 5 minutos entre si). Lectura de cache: 0.1x el precio de input base en ambos TTL. Sintaxis del TTL de 1h: `"cache_control": {"type": "ephemeral", "ttl": "1h"}`.
 
 ```python
@@ -95,13 +97,14 @@ Regla: el contenido antes del breakpoint se cachea; el de despues, no. Colocar e
 
 ## Extended Thinking — Patron con Streaming
 
-Para razonamiento profundo en Opus 5. Usar streaming para no bloquear el proceso:
+Para razonamiento profundo en Opus 5. `thinking: {type: "enabled", budget_tokens}` esta deprecado en Opus 4.6 y Sonnet 4.6 y no se acepta en modelos posteriores (verificado 2026-11-17 contra platform.claude.com/docs/en/models/overview): usar adaptive thinking con `output_config.effort` (low, medium, high, xhigh, max). Usar streaming para no bloquear el proceso:
 
 ```python
 with client.messages.stream(
     model="claude-opus-5",
     max_tokens=16000,
-    thinking={"type": "enabled", "budget_tokens": 10000},
+    thinking={"type": "adaptive"},
+    output_config={"effort": "high"},
     messages=[{"role": "user", "content": pregunta_compleja}]
 ) as stream:
     for event in stream:
@@ -111,7 +114,7 @@ with client.messages.stream(
             print(event.text, end="", flush=True)
 ```
 
-`budget_tokens`: cuantos tokens puede usar Claude para razonar internamente. Ajustar al 60-80% de `max_tokens`.
+`effort` controla la intensidad del razonamiento; `max_tokens` debe dejar margen para thinking y respuesta. `budget_tokens` solo aplica a modelos donde el modo manual sigue aceptado.
 
 ## Tool Use — Patron Minimo
 
@@ -308,21 +311,22 @@ Caso de uso en ai-core: invocar Claude desde hooks de CI/CD sin levantar un proc
 
 ## Adaptive Thinking — Calibracion Automatica de Razonamiento
 
-Disponible en `claude-opus-5` (y `claude-opus-4-8`). El modelo asigna presupuesto de razonamiento por paso segun la complejidad local, sin requerir `budget_tokens` fijo. No se verifico independientemente en esta pasada si Opus 5 cambia algun detalle de este mecanismo respecto a Opus 4.8 — confirmar contra platform.claude.com antes de asumir paridad total si el comportamiento observado difiere.
+Disponible en `claude-opus-5` (y `claude-opus-4-8`). El modelo asigna presupuesto de razonamiento por paso segun la complejidad local, sin requerir `budget_tokens` fijo. El control de intensidad es `output_config.effort` (low, medium, high, xhigh, max), verificado 2026-11-17.
 
 ```python
 # Thinking adaptativo — el modelo decide cuanto razonar por llamada
 response = client.messages.create(
     model="claude-opus-5",
     max_tokens=16000,
-    thinking={"type": "auto"},   # adaptativo vs {"type": "enabled", "budget_tokens": N}
+    thinking={"type": "adaptive"},   # "auto" no es un tipo valido
+    output_config={"effort": "medium"},
     messages=[{"role": "user", "content": pregunta}]
 )
 ```
 
-Cuando usar `auto` vs `budget_tokens`:
-- `auto`: tareas con complejidad variable entre llamadas — ahorra tokens en pasos simples.
-- `budget_tokens: N`: costo predecible por llamada, flujos con complejidad uniforme.
+Cuando usar cada nivel de `effort`:
+- `low`/`medium`: tareas simples o de complejidad variable — ahorra tokens.
+- `high`/`xhigh`/`max`: razonamiento profundo; mayor costo y latencia.
 
 ## Context Compaction — Sesiones de Ejecucion Larga
 
@@ -345,7 +349,7 @@ response = client.messages.create(
 
 ## Batch API — Limite 300k tokens (actualizado)
 
-Limite actualizado en 2026: `max_tokens` de hasta 300.000 en Message Batches API para Opus 4.8 y Sonnet 5. Aplica para procesamiento masivo de documentos largos.
+Limite actualizado en 2026 (a verificar contra fuente primaria): `max_tokens` de hasta 300.000 en Message Batches API para Opus 4.8 y Sonnet 5. Aplica para procesamiento masivo de documentos largos.
 
 ```python
 batch = client.messages.batches.create(

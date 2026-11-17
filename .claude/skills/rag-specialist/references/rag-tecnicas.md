@@ -44,7 +44,7 @@ Activar Prompt Caching sobre el `documento_completo` en el system prompt de la l
 
 Two-stage: bi-encoder recupera top-20/50 (mayor recall); cross-encoder re-rankea para seleccionar top-5/10 (mayor precision). El cross-encoder evalua consulta y chunk de forma conjunta — score mas preciso que similitud separada.
 
-Opciones: `BAAI/bge-reranker-v2-m3` (open-source, alta precision) via `sentence-transformers`; Cohere Rerank API (`rerank-v3.5`) si se prefiere SaaS sin infraestructura propia.
+Opciones: `BAAI/bge-reranker-v2-m3` (open-source, alta precision) via `sentence-transformers`; Cohere Rerank API (familia Rerank 5 como la mas reciente segun `docs.cohere.com/docs/rerank` 2026-11-17, p. ej. `rerank-v5.0-pro`/`rerank-v5.0-fast`; `rerank-v3.5` es anterior, contexto 4k; identificadores y precio a verificar) si se prefiere SaaS sin infraestructura propia.
 
 Cuando usar: precision del top-5 del bi-encoder insuficiente, corpus > 10.000 chunks con ruido, latencia adicional (50-200ms) aceptable para el caso de uso.
 
