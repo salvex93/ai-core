@@ -4,7 +4,7 @@ description: Especialista en orquestacion multi-agente y workflows de larga dura
 metadata:
   origin: ai-core
   version: 2.3.2
-  last_updated: 2026-09-21
+  last_updated: 2026-11-17
   rol: architect
 ---
 

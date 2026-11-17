@@ -4,7 +4,7 @@ description: Especialista en testing de comportamiento de agentes LLM. Cubre moc
 metadata:
   origin: ai-core
   version: 1.2.1
-  last_updated: 2026-09-21
+  last_updated: 2026-11-17
   rol: auditor
 ---
 

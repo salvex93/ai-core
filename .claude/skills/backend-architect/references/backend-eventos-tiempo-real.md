@@ -38,7 +38,7 @@ Un proceso separado (poller o CDC via Debezium) lee `outbox_eventos` donde `publ
 
 | Patron | Direccion | Cuando usar |
 |---|---|---|
-| SSE (Server-Sent Events) | Servidor → cliente unicamente | Notificaciones, feeds de progreso, streaming de texto (LLM). Mas simple que WebSocket, reconexion automatica nativa del navegador via `EventSource` (confirmado 2026-09-15 contra `developer.mozilla.org/docs/Web/API/Server-sent_events`). Limitacion real bajo HTTP/1.1: el navegador limita 6-8 conexiones concurrentes por dominio, y cada `EventSource` abierto cuenta contra ese limite — si la pagina abre varias pestañas o multiples streams SSE al mismo dominio puede agotarlo; HTTP/2 elimina esta limitacion al multiplexar streams sobre una sola conexion. |
+| SSE (Server-Sent Events) | Servidor → cliente unicamente | Notificaciones, feeds de progreso, streaming de texto (LLM). Mas simple que WebSocket, reconexion automatica nativa del navegador via `EventSource` (confirmado 2026-09-15 contra `developer.mozilla.org/docs/Web/API/Server-sent_events`). Limitacion real sin HTTP/2: el navegador limita a 6 conexiones concurrentes por dominio (limite por navegador, segun MDN), y cada `EventSource` abierto cuenta contra ese limite — si la pagina abre varias pestañas o multiples streams SSE al mismo dominio puede agotarlo; con HTTP/2 se multiplexan streams sobre una sola conexion y el maximo negociado por defecto es 100. |
 | WebSocket | Bidireccional | Chat, colaboracion en tiempo real, juegos, cualquier caso donde el cliente tambien emite eventos frecuentes al servidor. |
 | Polling / long-polling | Cliente → servidor en intervalos | Solo si SSE/WebSocket no son viables (proxy corporativo que los bloquea) — es el fallback, no el default. |
 

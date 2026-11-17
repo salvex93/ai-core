@@ -25,7 +25,7 @@ const respuesta = await cliente.messages.create({
 });
 ```
 
-Corregido: `thinking: { type: "auto" }` NO es un valor valido de la API — el tipo correcto es `"adaptive"`. El modo `{ type: "enabled", budget_tokens: N }` sigue existiendo pero la fuente primaria lo describe como "legacy manual mode"; en modelos con thinking adaptativo (Opus 5 en adelante) preferir `thinking: { type: "adaptive" }` + `output_config.effort` sobre fijar `budget_tokens` a mano.
+Corregido: `thinking: { type: "auto" }` NO es un valor valido de la API — el tipo correcto es `"adaptive"`. El modo `{ type: "enabled", budget_tokens: N }` esta deprecado en Opus 4.6 y Sonnet 4.6 y no se acepta en modelos posteriores, incluido Sonnet 5 (verificado 2026-11-17); en Opus 5 en adelante usar `thinking: { type: "adaptive" }` + `output_config.effort` sobre fijar `budget_tokens` a mano.
 
 Cambiar `effort` entre requests invalida el cache de prompt (mismo nivel de invalidacion que `tools`/`system`/`messages`) — fijar un nivel por conversacion y usar steering por mensaje (`"Piensa con cuidado antes de responder"` / `"Responde directo sin deliberar"`) para variar la profundidad turno a turno sin romper cache.
 

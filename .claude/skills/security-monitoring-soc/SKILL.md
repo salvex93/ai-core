@@ -4,7 +4,7 @@ description: Monitorizacion de seguridad continua en produccion (SOC operativo) 
 metadata:
   origin: ai-core
   version: 1.0.0
-  last_updated: 2026-09-21
+  last_updated: 2026-11-17
   rol: auditor
 compatibility: Requiere acceso a los logs/eventos de la infraestructura del anfitrion (aplicacion, red, host, cloud audit logs) para cualquier trabajo de correlacion o deteccion real. Sin esa fuente de datos, el perfil solo puede asesorar en diseno de arquitectura.
 ---

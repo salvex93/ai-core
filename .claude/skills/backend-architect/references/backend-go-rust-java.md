@@ -6,7 +6,7 @@ Este perfil se declara agnostico al lenguaje, pero declarar agnosticismo sin eje
 
 ### Go — net/http (stdlib) y Gin
 
-Version verificada: Go 1.27.1 (fuente: `go.dev/doc/devel/release`, verificado 2026-09-15). El router nativo `http.ServeMux` soporta patrones `"METODO /ruta"` y wildcards `{nombre}` desde Go 1.22 (fuente: `go.dev/doc/go1.22`) — no requiere un framework para casos simples.
+Version verificada: Go 1.27.4 (publicada 2026-11-10; tambien existe go1.26.11; fuente: `go.dev/doc/devel/release`, verificado 2026-11-17). El router nativo `http.ServeMux` soporta patrones `"METODO /ruta"` y wildcards `{nombre}` desde Go 1.22 (fuente: `go.dev/doc/go1.22`) — no requiere un framework para casos simples.
 
 ```go
 // main.go — net/http estandar, sin framework
@@ -128,7 +128,7 @@ func main() {
 }
 ```
 
-Con Gin (`go get github.com/gin-gonic/gin@v1.12.0`, version verificada en `github.com/gin-gonic/gin/releases`, `go.mod` minimo Go 1.25.0 — compatible con Go 1.27.1):
+Con Gin (`go get github.com/gin-gonic/gin@v1.12.0`, version verificada en `github.com/gin-gonic/gin/releases`, `go.mod` minimo Go 1.25.0 — compatible con Go 1.27.4):
 
 ```go
 r := gin.Default() // incluye middleware Logger() y Recovery()
@@ -233,7 +233,7 @@ pedidos-api/
 
 ### Rust — Axum + Tokio
 
-Version verificada: Rust 1.97.1 (fuente: `blog.rust-lang.org/2026/07/09/Rust-1.97.0`), edicion 2024 como default de `cargo new`. Axum 0.8.9 (fuente: `github.com/tokio-rs/axum/releases`). Axum 0.8 reemplazo la sintaxis de path params `:id`/`*rest` por `{id}`/`{*rest}` (fuente: `tokio.rs/blog/2025-01-01-announcing-axum-0-8-0`) — no usar la sintaxis de dos puntos en codigo nuevo.
+Version verificada: Rust 1.100.0 (fuente: `blog.rust-lang.org/2026/11/12/Rust-1.100.0/`), edicion 2024 como default de `cargo new`. Axum 0.8.9 (fuente: `github.com/tokio-rs/axum/releases`). Axum 0.8 reemplazo la sintaxis de path params `:id`/`*rest` por `{id}`/`{*rest}` (fuente: `tokio.rs/blog/2025-01-01-announcing-axum-0-8-0`) — no usar la sintaxis de dos puntos en codigo nuevo.
 
 ```rust
 // Cargo.toml: axum = "0.8", tokio = { version = "1", features = ["full"] },
@@ -380,7 +380,7 @@ pedidos-api/
 
 ### Java/JVM — Spring Boot
 
-Version verificada: Spring Boot 4.1.1 (fuente: `spring.io/projects/spring-boot`, verificado 2026-09-15), requiere Java 17 minimo y es compatible hasta Java 26 (cita textual de `docs.spring.io/spring-boot/system-requirements.html`). JDK 25 es la LTS mas reciente (GA 2025-09-16, soporte NFTC hasta 2028, fuente `oracle.com/java/technologies/java-se-support-roadmap.html`).
+Version verificada: Spring Boot 4.1.2 (fuente: `spring.io/projects/spring-boot`, verificado 2026-11-17), requiere Java 17 minimo y es compatible hasta Java 27 (cita textual de `docs.spring.io/spring-boot/system-requirements.html`). JDK 25 es la LTS mas reciente (GA 2025-09-16, soporte NFTC hasta 2028, fuente `oracle.com/java/technologies/java-se-support-roadmap.html`).
 
 ```java
 @Entity

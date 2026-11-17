@@ -67,7 +67,7 @@ const respuesta = await cliente.messages.create({
 
 El output estructurado via `tool_use` es mas robusto que pedir JSON en el prompt: el modelo no puede "olvidar" el formato ni agregar texto antes del JSON.
 
-Agregar `strict: true` en la definicion de la tool (junto a `input_schema`) garantiza que el input generado cumpla exactamente el schema, no solo que se invoque la tool. Advertencia especifica de AWS Bedrock: `tool_choice: { type: "any" }` y `tool_choice: { type: "tool", name: ... }` no son compatibles con extended thinking activo en ese runtime — con thinking activado sobre Bedrock, usar solo `tool_choice: { type: "auto" }` o `{ type: "none" }`. La Claude API estandar y Vertex AI no tienen esta restriccion.
+Con `strict: true`, `tool_choice` any/tool devuelve 400 en Opus 5.5, Sonnet 5.5 y Fable 5.2 (usar `auto` + `strict`; sigue valido en Sonnet 5; `platform.claude.com/docs/en/agents-and-tools/tool-use/define-tools`). Existe una generacion mas nueva (`claude-opus-5-5`, `claude-sonnet-5-5`, `claude-haiku-5-5`, `claude-fable-5-2`); los IDs previos siguen vigentes. Agregar `strict: true` en la definicion de la tool (junto a `input_schema`) garantiza que el input generado cumpla exactamente el schema, no solo que se invoque la tool. Advertencia especifica de AWS Bedrock: `tool_choice: { type: "any" }` y `tool_choice: { type: "tool", name: ... }` no son compatibles con extended thinking activo en ese runtime — con thinking activado sobre Bedrock, usar solo `tool_choice: { type: "auto" }` o `{ type: "none" }`. La Claude API estandar y Vertex AI no tienen esta restriccion.
 
 ### Diseno de la tool para output estructurado
 

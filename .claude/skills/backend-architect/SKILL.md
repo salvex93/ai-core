@@ -4,7 +4,7 @@ description: Backend Architect Universal. Experto en SOLID, Clean Architecture, 
 metadata:
   origin: ai-core
   version: 1.7.2
-  last_updated: 2026-10-18
+  last_updated: 2026-11-17
   rol: architect
 ---
 

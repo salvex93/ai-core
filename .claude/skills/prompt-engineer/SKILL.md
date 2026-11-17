@@ -4,7 +4,7 @@ description: Especialista en arquitectura de prompts de produccion. Cubre diseno
 metadata:
   origin: ai-core
   version: 1.9.1
-  last_updated: 2026-10-18
+  last_updated: 2026-11-17
   rol: architect
 ---
 

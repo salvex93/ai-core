@@ -4,7 +4,7 @@ description: DevOps Infra Universal. Especialista en infraestructura como codigo
 metadata:
   origin: ai-core
   version: 1.2.0
-  last_updated: 2026-09-21
+  last_updated: 2026-11-17
   rol: architect
 ---
 
@@ -287,13 +287,13 @@ Las Reglas Globales definidas en CLAUDE.md aplican sin excepcion a este perfil.
 | Presupuesto de error (SLO) consumido | Alerta a partir de 50% del presupuesto de error mensual consumido antes de fin de periodo (burn rate) | Multi-window burn rate alert en Prometheus (ventanas 1h/5m y 6h/30m) sobre el SLI de disponibilidad |
 | Costo por unidad de trabajo (FinOps) | Variacion >= 15% respecto al promedio de 7 dias sin cambio de trafico correspondiente | `infracost breakdown` para el delta de IaC + OpenCost o el reporte de billing del proveedor para el runtime real |
 
-**VIGENCIA — ESTANDAR MAS RECIENTE DEL DOMINIO:** Antes de escribir cualquier version de API de Kubernetes, campo de manifiesto o convencion de OpenTelemetry, verificar contra `kubernetes.io/releases` o `opentelemetry.io/docs/specs/semconv` — nunca interpolar por analogia con una version anterior. Verificado en esta tarea contra fuente oficial: Kubernetes se encuentra en la serie 1.36 (kubernetes.io/releases, con soporte activo N-2 sobre las tres minor mas recientes bajo ciclo de 15 semanas); las Semantic Conventions de OpenTelemetry publicadas en opentelemetry.io/docs/specs/semconv se encuentran en la version 1.43.0, con las convenciones HTTP en estado stable desde la v1.23.0 — el atributo `http.url` quedo deprecado en favor de `url.full`, por lo que cualquier instrumentacion nueva debe emitir `url.full` y no asumir el atributo legado por analogia con ejemplos previos. Pricing y limites especificos de servicios gestionados de nube (EKS/GKE/AKS) no se verificaron en esta pasada — orientativo, verificar antes de uso contra la consola de billing del proveedor correspondiente.
+**VIGENCIA — ESTANDAR MAS RECIENTE DEL DOMINIO:** Antes de escribir cualquier version de API de Kubernetes, campo de manifiesto o convencion de OpenTelemetry, verificar contra `kubernetes.io/releases` o `opentelemetry.io/docs/specs/semconv` — nunca interpolar por analogia con una version anterior. Verificado en esta tarea contra fuente oficial: Kubernetes se encuentra en la serie 1.37 (1.37.1 del 2026-09-15; kubernetes.io/releases mantiene ramas de las tres minor mas recientes: 1.37, 1.36, 1.35; la cadencia de 15 semanas no se confirmo en esa pagina, a verificar); las Semantic Conventions de OpenTelemetry publicadas en opentelemetry.io/docs/specs/semconv se encuentran en la version 1.45.0 (reverificado 2026-11-17), con las convenciones HTTP en estado stable (salvo atributos puntuales en Development) y `url.full` como atributo stable en spans HTTP cliente; la version exacta de estabilizacion (v1.23.0) y la deprecacion de `http.url` no se reconfirmaron en esta pasada, a verificar — en todo caso cualquier instrumentacion nueva debe emitir `url.full` y no asumir el atributo legado por analogia con ejemplos previos. Pricing y limites especificos de servicios gestionados de nube (EKS/GKE/AKS) no se verificaron en esta pasada — orientativo, verificar antes de uso contra la consola de billing del proveedor correspondiente.
 
 Fuentes consultadas: kubernetes.io/releases, opentelemetry.io/docs/specs/semconv, opentelemetry.io/docs/specs/semconv/http.
 
 ## Supply Chain Security en el Pipeline de Infraestructura
 
-Verificado 2026-09-15 contra `slsa.dev/spec/v1.2/about` y `slsa.dev/spec/v1.1/levels` (fuente oficial primaria): SLSA v1.2 es la version vigente del framework (estado Approved), con v1.1 marcada Retired — cualquier referencia nueva a SLSA debe apuntar a v1.2. El build track define cuatro niveles de garantia creciente:
+Verificado 2026-11-17 contra `slsa.dev/spec/v1.2/about` (estado vigente) y `slsa.dev/spec/v1.1/levels` (definicion de niveles; `/v1.2/levels` devolvio 404, la identidad de los niveles en v1.2 no se confirmo, a verificar): SLSA v1.2 es la version vigente del framework (estado Approved), con v1.1 marcada Retired — cualquier referencia nueva a SLSA debe apuntar a v1.2. El build track define cuatro niveles de garantia creciente:
 
 | Nivel | Garantia | Aplicacion en este perfil |
 |---|---|---|

@@ -4,7 +4,7 @@ description: Security Auditor Universal. Especialista en seguridad de aplicacion
 metadata:
   origin: ai-core
   version: 1.5.0
-  last_updated: 2026-10-18
+  last_updated: 2026-11-17
   rol: auditor
 compatibility: Requiere conectividad de red para consultar bases de datos de CVEs (npm audit, Snyk, OSV, etc.) y el gestor de paquetes del proyecto anfitrion (npm/pip/etc.).
 ---

@@ -4,7 +4,7 @@ description: Analista de superficie de ataque del propio producto en construccio
 metadata:
   origin: ai-core
   version: 2.0.2
-  last_updated: 2026-09-21
+  last_updated: 2026-11-17
   rol: auditor
 ---
 
@@ -412,7 +412,7 @@ Sin esta linea completada, no ejecutar ninguna consulta ni generar ningun script
 
 ### Vigencia — estandar mas reciente del dominio
 
-El catalogo CISA KEV (Known Exploited Vulnerabilities) sigue activo y mantenido en 2026 — confirmado contra fuente oficial `cisa.gov`: alertas de adiciones al catalogo publicadas en julio y agosto de 2026, y la directiva **BOD 26-04 (Prioritizing Security Updates Based on Risk)**, emitida el 10 de junio de 2026, que reemplaza el criterio de priorizacion previo de BOD 22-01 integrando KEV con otros puntos de decision de parcheo. Priorizar remediacion de CVEs presentes en KEV o con senal de explotacion activa por sobre CVEs de alto CVSS sin explotacion confirmada sigue siendo el criterio vigente.
+El catalogo CISA KEV (Known Exploited Vulnerabilities) sigue activo y mantenido en 2026 — confirmado contra fuente oficial `cisa.gov`: alertas de adiciones al catalogo publicadas en julio y agosto de 2026, y la directiva **BOD 26-04 (Prioritizing Security Updates Based on Risk)**, emitida el 10 de junio de 2026, que revoca BOD 22-01 y BOD 19-02 (confirmado en la pagina oficial de la directiva en cisa.gov) e integra KEV con otros puntos de decision de parcheo. Priorizar remediacion de CVEs presentes en KEV o con senal de explotacion activa por sobre CVEs de alto CVSS sin explotacion confirmada sigue siendo el criterio vigente.
 
 La frecuencia exacta de actualizacion del catalogo (intervalo horario/diario declarado formalmente por CISA) y el detalle operativo completo de BOD 26-04 no se verificaron linea por linea contra el texto integro de la directiva en esta pasada — orientativo, verificar el texto completo de la directiva en `cisa.gov` antes de citar un requisito especifico de plazo de remediacion a un cliente.
 

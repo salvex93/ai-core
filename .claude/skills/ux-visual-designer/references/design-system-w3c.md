@@ -76,7 +76,7 @@ ESPACIADO INTERNO:
 
 WCAG 2.2 AA:
 - Focus-visible: outline 2px --color-brand-primary, offset 2px, contraste 3:1 contra adyacente
-- Area de toque minima: 44x44px (WCAG 2.5.8)
+- Area de toque minima: 24x24px (WCAG 2.5.8 AA); recomendado 44x44px
 - aria-disabled cuando disabled, aria-busy="true" cuando loading
 ```
 

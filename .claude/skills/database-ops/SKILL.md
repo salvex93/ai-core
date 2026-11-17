@@ -4,7 +4,7 @@ description: Especialista en operaciones de base de datos en produccion. Cubre m
 metadata:
   origin: ai-core
   version: 1.2.1
-  last_updated: 2026-09-21
+  last_updated: 2026-11-17
   rol: architect
 ---
 
@@ -158,7 +158,7 @@ Señal de alarma: `cl_waiting > 0` en `SHOW POOLS` indica que el pool esta satur
 
 Usar PgBouncer >= 1.25.1 si el despliegue combina simultaneamente `track_extra_parameters` con `search_path`, `auth_user` configurado, y `auth_query` sin nombres fully-qualified — esa combinacion especifica de configuracion no-default es vulnerable a CVE-2025-12819 (corregido en 1.25.1); fuera de esas tres condiciones simultaneas, el CVE no aplica. Dimensionar `default_pool_size` segun la capacidad real de conexiones que Postgres puede sostener (revisar `max_connections` y recursos del servidor), no segun la demanda pico de la aplicacion. Monitorear en conjunto `SHOW POOLS` (`cl_waiting`) y `pg_stat_activity` del lado del servidor Postgres para confirmar que el cuello de botella esta donde se piensa antes de ajustar el tamano del pool.
 
-Nota de vigencia (verificado 2026-09-15 contra `postgresql.org/support/security`): lote de parches del 2026-08-13 corrige 7 CVEs de severidad alta (CVSS 8.8) en el propio motor Postgres — entre ellos `pg_dump`/`psql \unrestrict` (ejecucion de codigo arbitrario), type confusion en cursores y en argumentos "internal", e integer wraparound en `tsvector`/`tsquery` — en versiones 18.6, 17.11, 16.15, 15.19 y 14.24. Sin relacion con el CVE de PgBouncer citado arriba (componentes distintos). Confirmar la version exacta de Postgres del anfitrion contra ese lote antes de descartar el riesgo; no asumir que un CVE de cliente (PgBouncer) cubre el motor.
+Nota de vigencia (verificado 2026-11-17 contra `postgresql.org/support/security`): el lote de parches del 2026-11-12 (PostgreSQL 18.7, 17.12, 16.16, 15.20 y 14.25; 19 RC 2) corrige decenas de CVEs, muchos con CVSS 8.8, incluidos clientes (`pg_dump`, `pg_restore`, `reindexdb`, `vacuumdb`) y fallas de RLS (p. ej. "INSERT ... ON CONFLICT can read rows despite row security policies"). Versiones minimas: 18.7, 17.12, 16.16, 15.20 y 14.25. Sin relacion con el CVE de PgBouncer citado arriba (componentes distintos); ultima version de PgBouncer listada: 1.26.1 (2026-10-14, `pgbouncer.org/changelog.html`). Confirmar la version exacta de Postgres del anfitrion contra ese lote antes de descartar el riesgo; no asumir que un CVE de cliente (PgBouncer) cubre el motor.
 
 ## Mantenimiento — Vacuum y Bloat
 
@@ -225,6 +225,8 @@ Automatizar creacion de particiones futuras con `pg_partman` antes de llegar al 
 ## Row Level Security (RLS)
 
 RLS restringe que filas puede ver o modificar cada rol/sesion directamente en el motor de base de datos — una segunda capa de defensa independiente de la autorizacion de aplicacion que ya cubre `backend-architect`. Util en multi-tenancy (aislar filas por `tenant_id`) y cuando mas de un servicio o rol de BD accede a la misma tabla sin pasar siempre por la misma capa de aplicacion.
+
+Nota de vigencia (2026-11-17): el lote de parches del 2026-11-12 incluye fallas de RLS (p. ej. `INSERT ... ON CONFLICT` podia leer filas pese a las politicas de seguridad de fila); exigir las versiones minimas indicadas en la seccion de PgBouncer/PostgreSQL antes de confiar en RLS como aislamiento.
 
 ### Activacion y politica base (PostgreSQL)
 
