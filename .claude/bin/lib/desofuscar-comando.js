@@ -6,7 +6,8 @@
 function desofuscarComando(cmd) {
   return cmd
     .replace(/\$\{?IFS\}?/g, ' ')
-    .replace(/\\(?=[A-Za-z0-9])/g, '')
+    // En Windows la barra invertida es separador de ruta, no escape
+    .replace(process.platform === 'win32' ? /(?!)/g : /\\(?=[A-Za-z0-9])/g, '')
     .replace(/(["'])([\w.\/-]+)\1/g, '$2');
 }
 

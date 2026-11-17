@@ -56,7 +56,11 @@ const PERMITIR = [
 ];
 
 describe('destructive-op-guard.js: evasiones demostradas por el red team', () => {
-  for (const cmd of BLOQUEAR) test(`bloquea: ${cmd}`, () => assert.equal(run(cmd).status, 2, cmd));
+  for (const cmd of BLOQUEAR) {
+    // En Windows la barra invertida no es un escape del shell
+    if (process.platform === 'win32' && cmd.startsWith('r\\m')) continue;
+    test(`bloquea: ${cmd}`, () => assert.equal(run(cmd).status, 2, cmd));
+  }
 });
 
 describe('destructive-op-guard.js: falsos positivos y usos legitimos', () => {

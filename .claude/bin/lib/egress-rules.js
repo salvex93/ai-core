@@ -2,7 +2,7 @@
 
 const path = require('node:path');
 const { tokenizar } = require('./comando-tokens');
-const { segmentar, comandoYArgs } = require('./outside-path-rules');
+const { segmentar, comandoYArgs, comandoEnvuelto } = require('./outside-path-rules');
 
 const CLIENTES_RED = new Set(['curl', 'wget', 'nc', 'ncat', 'netcat', 'telnet', 'ssh', 'scp', 'sftp', 'rsync', 'ftp', 'http', 'https', 'xh', 'socat', 'aria2c', 'lftp', 'dig', 'nslookup', 'tftp']);
 // Copia remota: solo es red si algun argumento tiene la forma host:ruta, usuario@host:ruta o una URL
@@ -72,14 +72,6 @@ function hostsDeInterprete(args) {
   if (!INDICIOS_RED.test(texto)) return [];
   const hosts = hostsEnTexto(texto);
   return hosts.length > 0 ? hosts : [NO_VERIFICABLE];
-}
-
-// Salta las opciones propias del envoltorio (y su duracion o valor numerico) hasta el comando real
-function comandoEnvuelto(nombre, args) {
-  const prefijo = nombre === 'env' ? /^(?:-|\w+=)/ : /^-|^\d+(?:\.\d+)?[smhd]?$|^\{\}$/;
-  const i = args.findIndex(a => !prefijo.test(a));
-  if (i < 0) return { nombre: '', args: [] };
-  return { nombre: path.posix.basename(args[i]), args: args.slice(i + 1) };
 }
 
 function hostsDeGit(args) {
