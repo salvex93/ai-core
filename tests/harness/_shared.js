@@ -22,6 +22,15 @@ const MCP_JSON = path.join(REPO, '.mcp.json');
 process.env.AI_CORE_BREAK_GLASS_DIR = process.env.AI_CORE_BREAK_GLASS_DIR
   || path.join(os.tmpdir(), 'ai-core-test-break-glass', String(process.pid));
 
+// Mismo motivo para la cuarentena de injection-guard: los tests le inyectan
+// frases de alta confianza y, sin aislar, bloquean al agente real.
+const QUARANTINE_TEST_DIR = path.join(os.tmpdir(), 'ai-core-test-quarantine', String(process.pid));
+process.env.AI_CORE_INJECTION_QUARANTINE_DIR = process.env.AI_CORE_INJECTION_QUARANTINE_DIR
+  || QUARANTINE_TEST_DIR;
+process.on('exit', () => {
+  fs.rmSync(QUARANTINE_TEST_DIR, { recursive: true, force: true });
+});
+
 function runScript(scriptPath, args = [], env = {}) {
   const result = spawnSync('node', [scriptPath, ...args], {
     encoding: 'utf8',
