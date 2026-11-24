@@ -29,6 +29,7 @@
 
 const fs   = require('node:fs');
 const path = require('node:path');
+const { fechaModificacion } = require('./lib/fecha-modificacion.js');
 
 const REPO     = path.resolve(__dirname, '..', '..');
 const SKILLS   = process.env.AI_CORE_SKILLS_DIR || path.join(REPO, '.claude', 'skills');
@@ -181,10 +182,10 @@ function auditarSkill(skillDir) {
     }
   }
 
-  // 6. Drift de last_updated vs git (via mtime como proxy)
+  // 6. Drift de last_updated vs la ultima modificacion segun git (un checkout limpio no cuenta como cambio)
   const declared = campoMetadata(metadata, 'last_updated');
   if (declared) {
-    const mtime = fs.statSync(file).mtime.toISOString().slice(0, 10);
+    const mtime = fechaModificacion(file, HOY);
     if (declared < mtime && mtime === HOY) {
       hallazgos.push({ sev: 'baja', desc: `last_updated (${declared}) anterior a modificacion de hoy (${mtime})` });
       if (FIX_DRIFT) {
