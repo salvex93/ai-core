@@ -14,6 +14,9 @@ Versionado semantico: MAJOR.MINOR.PATCH.
 - `quality-gate` falla si `git ls-files` falla (antes pasaba con lista vacia); `audit-market` reporta fechas ausentes o ilegibles y rechaza un umbral no numerico; `pre-commit-tdd` reconoce pruebas `.ts`/`.py` y tests en directorios nuevos; `process-guard` crea el lock en forma exclusiva.
 - Evals de skills: el runner solo pasa `--env-path` si existe `.env` y los 8 configs que ejecuta el CI usan el juez Gemini para el que hay secreto.
 
+- `validate-globals` y `validate-agents` derivaban el drift de `last_updated` del mtime del archivo: en cualquier checkout, clonado o `git submodule update` marcaban las 52 skills y agentes como modificados hoy, y `--fix-drift` habria reescrito `last_updated` de archivos que nadie toco. Ahora un archivo limpio vale su fecha de ultimo commit y solo los cambios sin confirmar cuentan como de hoy (`lib/fecha-modificacion.js`, con pruebas; la de integracion falla sin el arreglo).
+- Estado derivado versionado: `memory-vault/.wiki/`, `memory-vault/index.json` y `AIOPS_SCORE_HISTORY.json` los regeneran los hooks en cada sesion, por lo que cada sesion dejaba el arbol sucio (submodulo sucio en los proyectos anfitriones) y el historial se llenaba de commits de solo estado. Pasan a `.gitignore` y dejan de versionarse; `.raw/` sigue siendo la fuente de verdad.
+
 ### Agregado
 
 - `approval-store-guard.js`: el agente no puede escribir en el almacen de locks, por lo que no puede autoaprobar un break-glass. 9 reglas break-glass nuevas en `destructive-op-guard` (24 en total).
@@ -25,6 +28,12 @@ Versionado semantico: MAJOR.MINOR.PATCH.
 
 ### Pendiente / fuera de scope
 
+- Integrar la rama local `fix/harness-health` (2 commits sobre `origin/main` 899926d; sin push ni PR todavia, pendiente de decision del responsable). Al actualizar un checkout existente:
+  1. Los 8 archivos que dejan de versionarse pueden estar modificados localmente y git rechazara el cambio. Copiar antes `.claude/AIOPS_SCORE_HISTORY.json` si se quiere conservar el historial de score (el cambio lo elimina del arbol), luego `git checkout -- .claude/memory-vault/.wiki .claude/memory-vault/index.json .claude/AIOPS_SCORE_HISTORY.json` e integrar la rama.
+  2. Regenerar el estado local: `npm run memory-index` y `npm run score`; el siguiente hook Stop tambien lo hace.
+  3. Verificar con `npm run setup`, `npm test` y `npm run quality-gate`. Referencia: 2022 pasan, 0 fallan, 2 omitidas.
+  4. Proyectos anfitriones: avanzar el puntero del submodulo (`git submodule update --remote`) y confirmar el cambio en cada proyecto.
+- Una de tres corridas completas de la suite tuvo 1 fallo que no se reprodujo ni se capturo; si reaparece, anotar el nombre de la prueba para tratarla como inestable.
 - El secreto `GEMINI_API_KEY` del repositorio es invalido: el job piloto de evals de skills no puede ejecutarse de verdad (es no bloqueante).
 - Los guardianes son barreras de patrones, no un sandbox. El loopback sigue bloqueado por defecto en `egress-guard` (se habilita con `AI_CORE_EGRESS_ALLOWLIST`) y los destinos con `$` no se bloquean en `outside-path-guard`.
 
