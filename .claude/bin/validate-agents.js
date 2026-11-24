@@ -30,6 +30,7 @@
 
 const fs   = require('node:fs');
 const path = require('node:path');
+const { fechaModificacion } = require('./lib/fecha-modificacion.js');
 
 const REPO      = path.resolve(__dirname, '..', '..');
 const AGENTS    = process.env.AI_CORE_AGENTS_DIR || path.join(REPO, '.claude', 'agents');
@@ -134,10 +135,10 @@ function auditarAgente(file) {
     }
   }
 
-  // 5. Drift de last_updated vs mtime real
+  // 5. Drift de last_updated vs la ultima modificacion segun git (un checkout limpio no cuenta como cambio)
   const declared = campoMetadata(metadata, 'last_updated');
   if (declared) {
-    const mtime = fs.statSync(file).mtime.toISOString().slice(0, 10);
+    const mtime = fechaModificacion(file, HOY);
     if (declared < mtime && mtime === HOY) {
       hallazgos.push({ sev: 'baja', desc: `last_updated (${declared}) anterior a modificacion de hoy (${mtime})` });
       if (FIX_DRIFT) {

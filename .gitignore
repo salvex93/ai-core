@@ -56,3 +56,11 @@ scripts/premium/
 
 # .mcp.json lleva rutas absolutas de la maquina (cwd de los servidores): se genera local con `npm run setup`
 .mcp.json
+
+# Estado derivado que los hooks regeneran en cada sesion (Stop: memory-index, aiops-score).
+# Versionarlo ensucia el arbol de cada proyecto anfitrion; la fuente de verdad es .raw/.
+.claude/memory-vault/.wiki/
+.claude/memory-vault/index.json
+.claude/AIOPS_SCORE_HISTORY.json
+
+.DS_Store
