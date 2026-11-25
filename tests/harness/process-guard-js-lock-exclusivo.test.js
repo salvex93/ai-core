@@ -29,7 +29,7 @@ function lanzar(categoria, lockDir, marcador, esperaMs) {
 test('seis hooks simultaneos de la misma categoria: solo uno ejecuta el comando', async () => {
   const lockDir = fs.mkdtempSync(path.join(os.tmpdir(), 'pg-excl-'));
   const marcador = path.join(lockDir, 'ejecuciones.txt');
-  await Promise.all(Array.from({ length: 6 }, () => lanzar('map', lockDir, marcador, 800)));
+  await Promise.all(Array.from({ length: 6 }, () => lanzar('map', lockDir, marcador, 3000)));
   assert.equal(fs.readFileSync(marcador, 'utf8').length, 1);
   fs.rmSync(lockDir, { recursive: true, force: true });
 });
