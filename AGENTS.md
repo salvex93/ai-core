@@ -1,4 +1,4 @@
-# AGENTS.md — AI-CORE v3.40.1
+# AGENTS.md — AI-CORE v3.41.0
 
 Este archivo es la capa de interoperabilidad para herramientas que leen `AGENTS.md` de forma nativa (GitHub Copilot, Cursor, Gemini CLI, OpenCode). Las reglas de comportamiento completas viven en `CLAUDE.md` — este documento resume identidad, comandos y convenciones para que cualquier harness compatible tenga contexto minimo sin necesitar el archivo completo.
 

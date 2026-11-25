@@ -3,7 +3,22 @@
 Registro de cambios por version. Formato basado en [Keep a Changelog](https://keepachangelog.com/es/1.0.0/).
 Versionado semantico: MAJOR.MINOR.PATCH.
 
-## [Unreleased] — auditoria de errores silenciosos y vigencia de mercado (2026-11-17)
+## [Unreleased]
+
+Sin cambios pendientes.
+
+## [3.41.0] — 2026-11-25 (resumen del release y nota de migracion)
+
+Reune todo lo acumulado desde `v3.40.1` (2026-09-15): serie de gobierno G-, audit trail y licencias de dependencias, guards nuevos y endurecidos, recorte de contexto fijo, auditoria de errores silenciosos y reverificacion de vigencia de mercado. Las secciones siguientes conservan su titulo y fecha originales.
+
+Cambios de ultima hora incluidos: la suite de tests aisla el estado de cuarentena de `injection-guard` por proceso (deja de bloquear al agente), se corrige la falla intermitente del test de exclusividad de `process-guard` en Windows, el estado regenerable de `.claude/memory-vault` deja de versionarse y `validate-globals` deriva el drift de `last_updated` desde git.
+
+### Migracion desde 3.40.x
+
+- `.claude/memory-vault/.wiki/` e `index.json` ya no estan en git: antes de actualizar, guarda con `git stash` cualquier cambio local en `.claude/memory-vault` y en `.claude/AIOPS_SCORE_HISTORY.json`; el vault se regenera solo con el primer hook de la sesion.
+- Tras actualizar, ejecuta `npm install` y `npm run setup` para regenerar `settings.json`.
+
+## [3.41.0] — auditoria de errores silenciosos y vigencia de mercado (2026-11-17)
 
 ### Corregido
 
@@ -38,7 +53,7 @@ Versionado semantico: MAJOR.MINOR.PATCH.
 - El secreto `GEMINI_API_KEY` del repositorio es invalido: el job piloto de evals de skills no puede ejecutarse de verdad (es no bloqueante).
 - Los guardianes son barreras de patrones, no un sandbox. El loopback sigue bloqueado por defecto en `egress-guard` (se habilita con `AI_CORE_EGRESS_ALLOWLIST`) y los destinos con `$` no se bloquean en `outside-path-guard`.
 
-## [Unreleased] — puesta en marcha en Linux y cierre de vulnerabilidades (2026-10-20)
+## [3.41.0] — puesta en marcha en Linux y cierre de vulnerabilidades (2026-10-20)
 
 ### Corregido
 
@@ -63,7 +78,7 @@ Versionado semantico: MAJOR.MINOR.PATCH.
 - Falsos WARN de `last_updated` en el clon: ajustar los validadores para ignorar el mtime en clones recientes seria un cambio de codigo aparte.
 - `npm` 11.19.1 con version mayor 12 disponible: no se actualiza.
 
-## [Unreleased] — recorte de contexto fijo (2026-10-14)
+## [3.41.0] — recorte de contexto fijo (2026-10-14)
 
 ### Agregado
 
@@ -81,7 +96,7 @@ Versionado semantico: MAJOR.MINOR.PATCH.
 - `aiops-score.js`: `AI_CORE_AGENTS_DIR` y `AI_CORE_SKILLS_DIR` permiten aislar el test de verbosidad (corrige test intermitente).
 - Descartado: hook de pistas de skills por BM25 (recall 76/120 en frio, 90/120 con nucleo excluido).
 
-## [Unreleased] — verificacion de audit trail y gobierno de licencias de dependencias (G43, 2026-09-22)
+## [3.41.0] — verificacion de audit trail y gobierno de licencias de dependencias (G43, 2026-09-22)
 
 ### Agregado — cierre de 2 gaps detectados en comparacion contra marco enterprise de agentes (7 controles no-negociables)
 
@@ -90,7 +105,7 @@ Versionado semantico: MAJOR.MINOR.PATCH.
 - Origen: revision de gobierno 2026-09-22 contra el marco de "7 controles no-negociables" (SSO/SCIM, SIEM export, secret scanning, PR gates, license governance, incident response, audit trail) para deployments enterprise de agentes de codigo. 4/7 ya cubiertos con enforcement real; SSO/SCIM y SIEM export quedan fuera de alcance (aplican a identidad multi-usuario/compliance regulado, no a un arnes de un solo operador); license governance y audit-trail-verificable eran los 2 gaps reales, cerrados en esta entrada.
 - `npm test`: 1583/1583 (1 skip, sin regresiones); `npm run quality-gate` 9/9 (nuevo check incluido); `npm run validate-globals` 45/45; `npm run validate-agents` 6/6.
 
-## [Unreleased] — drift infinito de settings.json en Windows por separador de ruta (G42, 2026-09-22)
+## [3.41.0] — drift infinito de settings.json en Windows por separador de ruta (G42, 2026-09-22)
 
 ### Corregido — CI en rojo en windows-latest por comparacion cruda de rutas
 
@@ -99,7 +114,7 @@ Versionado semantico: MAJOR.MINOR.PATCH.
 - Bug preexistente desde la migracion de G12 (`.mcp.json` real), no introducido por cambios recientes de esta sesion -- simplemente no habia corrido CI en `windows-latest` sobre ese codigo hasta ahora.
 - 2 tests nuevos en `tests/harness/mcp-config-lib-js.test.js` (ruta estilo Windows hardcodeada, determinista en cualquier SO) y 1 en `tests/harness/norm-harness-js-settings-anfitrion.test.js`. `npm test`: 1573/1573 (1 skip, sin regresiones); `npm run quality-gate` 8/8.
 
-## [Unreleased] — advertencia de reintento con contenido modificado en break-glass de Write/Edit (G41, 2026-09-22)
+## [3.41.0] — advertencia de reintento con contenido modificado en break-glass de Write/Edit (G41, 2026-09-22)
 
 ### Corregido — ciclo de confirmacion break-glass silencioso al reescribir contenido entre reintentos
 
@@ -109,7 +124,7 @@ Versionado semantico: MAJOR.MINOR.PATCH.
 - Impacto transversal: `.claude/bin/` es el arnes compartido via submodulo en todos los proyectos externos del usuario -- el fix aplica en cualquiera de ellos, no solo en este repo.
 - 5 tests nuevos en `tests/harness/break-glass-lib-js.test.js`, 1 en `skill-vault-write-guard-js.test.js`, 1 en `code-exec-guard-js.test.js` (caso real reproducido). `npm test`: 1569/1570 (1 skip, sin regresiones); `validate-globals` 45/45, `validate-agents` 6/6.
 
-## [Unreleased] — generacion real de .mcp.json en vez de mcpServers en settings.json (G12, 2026-09-22)
+## [3.41.0] — generacion real de .mcp.json en vez de mcpServers en settings.json (G12, 2026-09-22)
 
 ### Corregido — mcpServers dentro de settings.json no tiene efecto real
 
@@ -120,7 +135,7 @@ Versionado semantico: MAJOR.MINOR.PATCH.
 - `health-check.js`: la deteccion de drift de `cwd` lee `.mcp.json` via `readGeminiBridgeCwd()` en vez de parsear `mcpServers` desde `settings.json`.
 - 10 tests nuevos en `tests/harness/mcp-config-lib-js.test.js`; tests existentes de `setup-settings-js.test.js` y `norm-harness-js-settings-anfitrion.test.js` actualizados para verificar `.mcp.json` en vez de `settings.json.mcpServers`. `npm test`: 1551/1551 (1550 pass, 1 skip).
 
-## [Unreleased] — escaner de contenido de skills/agents al escribirse (G8, 2026-09-22)
+## [3.41.0] — escaner de contenido de skills/agents al escribirse (G8, 2026-09-22)
 
 ### Agregado — deteccion de patrones sospechosos en .claude/skills/** y .claude/agents/**
 
@@ -129,7 +144,7 @@ Versionado semantico: MAJOR.MINOR.PATCH.
 - Nuevo perfil de permisos `repoLeerYReportar` (`hooks-permissions.js`): lee `.claude/bin/**` y el repo completo, escribe solo al tmpdir (reporte de `guard-report.js`) -- sin escritura al repo, a diferencia de `repoReadWrite`, porque un guard de solo escaneo nunca debe poder modificar el archivo que audita.
 - 9 tests nuevos en `tests/harness/skill-content-scanner-js.test.js`: existencia del script, no-op sin stdin, ignora rutas fuera de skills/agents, silencioso en contenido limpio, advertencia en patron de exfiltracion/anulacion de instrucciones/comando destructivo, lectura desde disco cuando `tool_input.content` esta ausente (caso Edit), registro correcto en `settings.json`.
 
-## [Unreleased] — compuerta de aprobacion para escrituras a skills/vault (G9, 2026-09-22)
+## [3.41.0] — compuerta de aprobacion para escrituras a skills/vault (G9, 2026-09-22)
 
 ### Agregado — break-glass para escrituras del hilo principal a .claude/skills/** y .claude/memory-vault/**
 
@@ -138,7 +153,7 @@ Versionado semantico: MAJOR.MINOR.PATCH.
 - Permisos: reutiliza el perfil `breakGlassRW` ya existente (sin perfil nuevo) -- necesita leer `.claude/bin/lib/*` y escribir tanto en `$TMPDIR` (locks) como en `.claude/BREAK_GLASS_LOG.jsonl`.
 - 10 tests nuevos en `tests/harness/skill-vault-write-guard-js.test.js`: bloqueo de escritura a skills/vault, permiso fuera de esas rutas, permiso a subagente con `agent_type`, registro correcto en `settings.json` sin `|| true`, y el ciclo completo de break-glass (reintento exacto pasa, contenido distinto sigue bloqueado, un solo uso).
 
-## [Unreleased] — mensaje de bloqueo aclara que confirmar no reintenta la accion (G36, 2026-09-22)
+## [3.41.0] — mensaje de bloqueo aclara que confirmar no reintenta la accion (G36, 2026-09-22)
 
 ### Corregido — contrato ambiguo en el mensaje de confirmacion de break-glass
 
@@ -147,7 +162,7 @@ Versionado semantico: MAJOR.MINOR.PATCH.
 - Hipotesis inicial descartada como causa raiz: regex de match estricto en `jailbreak-guard.js` (`^CONFIRMAR-<id>$`, sin tolerancia a espacios/puntuacion/texto alrededor). 6 tests TDD en `tests/harness/jailbreak-guard-js.test.js` confirman que esto ya funcionaba sin cambio de codigo -- se dejan como regresion documentada.
 - Riesgo secundario identificado, no cerrado (candidato G37): la clave de aprobacion de `destructive-op-guard.js` se calcula sobre el comando normalizado+enmascarado; una reconstruccion no identica del comando al reintentar (orden de flags, rutas expandidas distinto) invalida la aprobacion en silencio.
 
-## [Unreleased] — cadena de hash en BREAK_GLASS_LOG.jsonl (G7, 2026-09-22)
+## [3.41.0] — cadena de hash en BREAK_GLASS_LOG.jsonl (G7, 2026-09-22)
 
 ### Agregado — deteccion de manipulacion retroactiva del log de auditoria
 
@@ -156,14 +171,14 @@ Versionado semantico: MAJOR.MINOR.PATCH.
 - 6 tests nuevos en `tests/harness/break-glass-lib-js.test.js`: hashPrevio/hash en la primera entrada, encadenamiento correcto entre dos entradas consecutivas, integridad sobre un log limpio, deteccion de una entrada intermedia editada, deteccion de una entrada eliminada del medio (rompe el hashPrevio de la siguiente), y comportamiento sobre un log inexistente.
 - Exportacion OpenTelemetry (mencionada en el hallazgo original) queda fuera de esta pasada — ningun consumidor real la necesita hoy.
 
-## [Unreleased] — verificacion de payloads reales de SubagentStop/Stop/PostToolUseFailure (G24, 2026-09-21)
+## [3.41.0] — verificacion de payloads reales de SubagentStop/Stop/PostToolUseFailure (G24, 2026-09-21)
 
 ### Verificado — sin drift, sin cambio de codigo
 
 - Captura real de los 3 eventos con un hookprobe en un `settings.json` aislado (sesion `claude -p` anidada forzando `Bash false`, un subagente real via `Task`, y cierre de turno). Contrato confirmado: `SubagentStop` entrega `agent_type`/`last_assistant_message` (ademas de `agent_id`, `agent_transcript_path`, `stop_hook_active`); `PostToolUseFailure` entrega `tool_name`/`tool_input`/`error` (string)/`tool_use_id`/`is_interrupt`/`duration_ms`; `Stop` entrega `last_assistant_message`/`stop_hook_active`/`background_tasks`.
 - Los 5 consumidores existentes (`injection-guard.js`, `subagent-review.js`, `subagent-grader.js`, `cross-verify-gate.js`, `circuit-breaker.js`) ya leian exactamente los campos confirmados reales — el fix de G17 ya los habia corregido en la misma pasada. Sin drift, sin cambio de codigo necesario.
 
-## [Unreleased] — enmascarado de heredoc en destructive-op-guard.js (G14, 2026-09-21)
+## [3.41.0] — enmascarado de heredoc en destructive-op-guard.js (G14, 2026-09-21)
 
 ### Corregido — falso positivo reincidente con contenido citado en heredocs
 
@@ -172,7 +187,7 @@ Versionado semantico: MAJOR.MINOR.PATCH.
 - `extraerMensajeCommit`/`tieneRastroDeIA` (deteccion de Co-Authored-By/atribucion de IA) siguen operando sobre `cmdOriginal` sin enmascarar — el enmascarado de heredoc solo afecta la evaluacion de las REGLAS destructivas, no esa verificacion.
 - 4 tests nuevos en `tests/harness/destructive-op-guard-js.test.js` (heredoc con comillas simples, sin comillas, con `<<-` indentado, y confirmacion de que un comando destructivo real fuera del cuerpo del heredoc sigue bloqueado). 80 tests totales del guard en verde (31+41+8 entre los 3 archivos).
 
-## [Unreleased] — campos propios del frontmatter migrados bajo metadata: en skills y agentes (G5, 2026-09-21)
+## [3.41.0] — campos propios del frontmatter migrados bajo metadata: en skills y agentes (G5, 2026-09-21)
 
 ### Cambiado — origin/version/last_updated/rol bajo metadata: (spec agentskills.io)
 
@@ -182,7 +197,7 @@ Versionado semantico: MAJOR.MINOR.PATCH.
 - `tests/harness/validate-agents-js.test.js` y `tests/harness/skills-conformidad-estructural.test.js` actualizados para construir/verificar fixtures con el bloque `metadata:` anidado en vez de campos top-level.
 - Verificado con `npm run validate-globals` (45/45), `npm run validate-agents` (6/6), `npm test` (1497/1497, 1 skip).
 
-## [Unreleased] — 5 SKILL.md largos divididos en nucleo + references/, limite de 500 lineas activado en el gate (G4, G16, 2026-09-21)
+## [3.41.0] — 5 SKILL.md largos divididos en nucleo + references/, limite de 500 lineas activado en el gate (G4, G16, 2026-09-21)
 
 ### Agregado — divulgacion progresiva en 5 skills (agentskills.io)
 
@@ -197,7 +212,7 @@ Versionado semantico: MAJOR.MINOR.PATCH.
 - `.claude/evals/backend-architect-chat.json` y `.claude/evals/tech-lead-frontend-chat.js` incluyen tambien las `references/*.md` cubiertas por sus casos de eval (Go/Rust/Java; motion design y 3D web). `web-scraping-specialist-chat.js`, `ux-visual-designer-chat.json` y `mcp-server-builder-chat.json` no requirieron cambio: ningun caso de eval dependia del contenido movido en esos tres.
 - Verificado con `npm run validate-globals` (45/45), `npm run validate-agents` (6/6), los 5 evals reales de promptfoo (31/31 + 12/12 casos tras el cierre), `npm test` (1497/1497, 1 skip) y `quality-gate.js --fast` (7/7 checks).
 
-## [Unreleased] — guard-read operativo, CI con marco de calidad y registro consolidado (2026-09-21)
+## [3.41.0] — guard-read operativo, CI con marco de calidad y registro consolidado (2026-09-21)
 
 ### Corregido — guard-read.js nunca bloqueaba un Read real (G18)
 
@@ -239,7 +254,7 @@ Versionado semantico: MAJOR.MINOR.PATCH.
 
 - `docs/AUDITORIA-GOBIERNO-2026-09.md` seccion 7: hallazgos G18 a G22, oportunidades abiertas priorizadas (G23 a G27), descartes por alcance con motivo y acciones que solo puede ejecutar el usuario.
 
-## [Unreleased] — auditoria de gobierno: modularidad, permisos de fuente unica y correccion de tests
+## [3.41.0] — auditoria de gobierno: modularidad, permisos de fuente unica y correccion de tests
 
 ### Cambiado — limite de 300 lineas restaurado en codigo fuente (5 archivos)
 
@@ -321,7 +336,7 @@ Versionado semantico: MAJOR.MINOR.PATCH.
 
 `npm test`: 1425 tests, 1424 pass, 0 fail, 1 skip. `npm run validate-globals`: 45/45. `quality-gate`: cumple.
 
-## [Unreleased] — vigencia: registro de ciso y product-lifecycle-orchestrator en MARKET_STANDARDS.json
+## [3.41.0] — vigencia: registro de ciso y product-lifecycle-orchestrator en MARKET_STANDARDS.json
 
 ### Cambiado — cobertura de vigencia completa (45/45 skills con dominio registrado)
 
@@ -335,7 +350,7 @@ Reemplaza la nota anterior que daba por aceptados como fuera de alcance a `ciso`
 
 Versiones: ciso 1.3.2 → 1.3.3, product-lifecycle-orchestrator 1.0.0 → 1.0.1 (sincronizacion de `last_updated`, contenido sin cambios). `npm run validate-globals`: 45/45. `audit-market --only-stale`: sin hallazgos.
 
-## [Unreleased] — security-auditor + claude-agent-sdk: OWASP Top 10 for Agentic Applications
+## [3.41.0] — security-auditor + claude-agent-sdk: OWASP Top 10 for Agentic Applications
 
 ### Agregado — seccion "OWASP Top 10 for Agentic Applications" en security-auditor
 
@@ -350,7 +365,7 @@ Segundo hallazgo (2026-09-01, `genai.owasp.org/resource/agent-control-standard-a
 
 Versiones: security-auditor 1.4.2 → 1.5.0, claude-agent-sdk 2.4.3 → 2.4.4. `npm run validate-globals`: 45/45 conformes.
 
-## [Unreleased] — cloud-deployment-specialist: criterio Well-Architected transversal
+## [3.41.0] — cloud-deployment-specialist: criterio Well-Architected transversal
 
 ### Agregado — seccion "Criterio de Decision Transversal — Well-Architected Frameworks"
 
@@ -364,7 +379,7 @@ Cada pilar se mapea contra lo que el Modulo de Vanguardia Transversal ya cubria 
 
 Version 1.0.1 → 1.1.0. `npm run validate-globals`: 45/45 conformes. `npm test`: 1413/1414 (1 skip esperado).
 
-## [Unreleased] — ux-visual-designer: vocabulario Apple HIG / Material Design 3
+## [3.41.0] — ux-visual-designer: vocabulario Apple HIG / Material Design 3
 
 ### Agregado — Modulo 8, frameworks de diseno de referencia de mercado
 
@@ -375,7 +390,7 @@ Deep research comparativo (45 skills propios vs. contrapartes de mayor adopcion 
 
 Version 2.1.0 → 2.2.0. `npm run validate-globals`: 45/45 conformes. `npm test`: 1413/1414 (1 skip esperado).
 
-## [Unreleased] — fix de CI: colision de archivos temporales en aiops-score
+## [3.41.0] — fix de CI: colision de archivos temporales en aiops-score
 
 ### Corregido — `tmpFile()` colisionaba por depender solo de `Date.now()`
 
@@ -383,7 +398,7 @@ CI fallo en la corrida del commit `0d389f0` (`tests/harness/aiops-score-js.test.
 
 Corregido agregando un sufijo aleatorio (`crypto.randomBytes(4).toString('hex')`) a `tmpFile()` y a las dos rutas de queue construidas manualmente en `aiops-score-js.test.js`. Cambio quirurgico — no se toco `aiops-scorers.js` ni la logica de scoring. Confirmado verde en CI real tras el push (`fbef1df`, run `35271981120`, success).
 
-## [Unreleased] — fix de CI en POSIX para el fake gh de issue-reporter
+## [3.41.0] — fix de CI en POSIX para el fake gh de issue-reporter
 
 ### Corregido — fake `gh` CLI solo se activaba en Windows
 
@@ -391,13 +406,13 @@ Corregido agregando un sufijo aleatorio (`crypto.randomBytes(4).toString('hex')`
 
 Corregido parametrizando el nombre del binario segun `process.platform` (`gh.exe` en Windows, `gh` en POSIX con `fs.chmodSync(ghExe, 0o755)` para marcarlo ejecutable) y ajustando el guard del hook script generado dinamicamente para comparar contra ese mismo nombre en vez de un literal hardcodeado. Confirmado verde en CI real (`ubuntu-latest` y `macos-latest`) tras el push. No se modifico `issue-reporter.js` — el bug era del arnes de test, no del script en produccion.
 
-## [Unreleased] — vigencia token Turnstile (web-scraping-specialist)
+## [3.41.0] — vigencia token Turnstile (web-scraping-specialist)
 
 ### Corregido — duracion del token de Cloudflare Turnstile confirmada como vigente
 
 La reverificacion de 2026-09-15 contra `developers.cloudflare.com/turnstile` (pagina de overview) confirmo el modelo de tres modos del widget pero dejo explicitamente sin confirmar la duracion de 5 minutos del token, heredada de una pasada anterior sin fuente especifica. Verificado 2026-09-16 contra la referencia tecnica exacta `developers.cloudflare.com/turnstile/get-started/server-side-validation/`: el token tiene validez de **300 segundos (5 minutos) desde su generacion**, es de un solo uso, y expira con el codigo de error `timeout-or-duplicate` en la respuesta de la API `siteverify`. El dato ya presente en el skill queda confirmado como vigente, no como drift.
 
-## [Unreleased] — vigencia specs Meta Ads (seo-sem-specialist)
+## [3.41.0] — vigencia specs Meta Ads (seo-sem-specialist)
 
 ### Corregido — 3 puntos pendientes de verificacion en especificaciones de creatividades Meta Ads
 
@@ -407,7 +422,7 @@ Cierra los 3 puntos que la verificacion parcial de 2026-09-15 dejo explicitament
 2. Stories/Reels (imagen y video) confirmado en **1440x2560px, 9:16**; imagen hasta 30MB, video hasta 4GB con duracion permitida 0s-15min; zona segura 14% superior / 35% inferior / 6% cada lado (reemplaza el dato generico de "zona segura central 250px").
 3. La regla de "texto en imagen < 20%" **no es politica de rechazo desde 2020** — Meta la retiro como limite obligatorio; hoy es solo recomendacion de rendimiento. Corregido en la tabla para no presentarla como bloqueo frente a un cliente.
 
-## [Unreleased] — vigencia de dominios de mercado STALE_MERCADO (barrido completo)
+## [3.41.0] — vigencia de dominios de mercado STALE_MERCADO (barrido completo)
 
 ### Agregado — cobertura de rama para `GeminiAdapter.js` y `McpServerHandlers.js`
 
