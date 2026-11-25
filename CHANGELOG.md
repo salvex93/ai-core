@@ -5,7 +5,9 @@ Versionado semantico: MAJOR.MINOR.PATCH.
 
 ## [Unreleased]
 
-Sin cambios pendientes.
+### Fixed
+
+- Un clon fresco sin `.claude/CONTEXT_MAP.json` ya no rompe `npm test`: el nuevo `pretest` genera el mapa si falta (issue #266). La desincronizacion de metadata (`last_updated`, `.mcp.json`, vault) ya estaba cubierta: `npm run map` deja el arbol limpio y esos archivos estan ignorados en git.
 
 ## [3.41.0] — 2026-11-25 (resumen del release y nota de migracion)
 

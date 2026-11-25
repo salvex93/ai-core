@@ -12,6 +12,7 @@
     "dry-run": "node scripts/dry-run-cost-sim.js",
     "mcp-anthropic": "node scripts/mcp-anthropic.js",
     "map": "node .claude/bin/generate-map.js",
+    "pretest": "node -e \"const f=require('fs');if(!f.existsSync('.claude/CONTEXT_MAP.json'))require('child_process').execSync('npm run map',{stdio:'inherit'})\"",
     "test": "node --test",
     "test:coverage": "node --experimental-test-coverage --test-reporter=spec --test-reporter-destination=stdout --test",
     "token-metrics": "node tests/token-metrics.js",
