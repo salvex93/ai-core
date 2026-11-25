@@ -1,4 +1,4 @@
-# AI-CORE v3.40.1: Nucleo Multi-Agente
+# AI-CORE v3.41.0: Nucleo Multi-Agente
 
 `ai-core` es un nucleo de configuracion y comportamiento para agentes IA. Se usa como submodulo Git en un proyecto existente o como repositorio independiente. Define reglas globales, 45 skills especializados, 6 agentes autonomos, un orquestador Mixture-of-Agents (Gemini + DeepSeek + Claude), un mecanismo de excepcion auditable (break-glass) para operaciones de riesgo real, y un ciclo de mejora continua por uso, sin acoplarse al stack del proyecto anfitrion.
 
@@ -289,6 +289,10 @@ Puntos que refuerzan el resto de este documento: `Default permission mode: Manua
 ---
 
 ## Que trae cada version
+
+### v3.41.0 — gobierno verificable, guards endurecidos y estado de tests aislado
+
+Reune lo acumulado desde v3.40.1: audit trail y gobierno de licencias de dependencias, guards nuevos y endurecidos contra evasiones, recorte de contexto fijo, auditoria de errores silenciosos y reverificacion de vigencia de mercado. La suite de tests ya no deja cuarentenas de `injection-guard` en el estado real, y el estado regenerable de `.claude/memory-vault` deja de versionarse. Nota de migracion y detalle completo en `CHANGELOG.md`.
 
 ### v3.40.1 — fix de CI en POSIX + barrido completo de vigencia de mercado
 
@@ -948,7 +952,7 @@ New-Item -ItemType SymbolicLink -Path './CLAUDE.md' -Target 'C:/ruta/a/ai-core/C
 ├── .github/workflows/ci.yml     CI: Ubuntu/Windows/macOS, Node 22 unicamente (sandboxing con Permission Model exige >= 22.13.0)
 ├── CLAUDE.md                    Autoridad unica: reglas globales, skills, enrutamiento
 ├── DEPRECATIONS.json            Contrato de migracion por version
-├── package.json                 v3.40.1, Node >= 22.13.0
+├── package.json                 v3.41.0, Node >= 22.13.0
 └── .env.example                 Plantilla de variables de entorno
 ```
 
