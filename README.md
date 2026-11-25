@@ -1,6 +1,6 @@
 # AI-CORE v3.41.0: Nucleo Multi-Agente
 
-`ai-core` es un nucleo de configuracion y comportamiento para agentes IA. Se usa como submodulo Git en un proyecto existente o como repositorio independiente. Define reglas globales, 45 skills especializados, 6 agentes autonomos, un orquestador Mixture-of-Agents (Gemini + DeepSeek + Claude), un mecanismo de excepcion auditable (break-glass) para operaciones de riesgo real, y un ciclo de mejora continua por uso, sin acoplarse al stack del proyecto anfitrion.
+`ai-core` es un nucleo de configuracion y comportamiento para agentes IA. Se usa como submodulo Git en un proyecto existente o como repositorio independiente. Define reglas globales, 46 skills especializados, 6 agentes autonomos, un orquestador Mixture-of-Agents (Gemini + DeepSeek + Claude), un mecanismo de excepcion auditable (break-glass) para operaciones de riesgo real, y un ciclo de mejora continua por uso, sin acoplarse al stack del proyecto anfitrion.
 
 `CLAUDE.md` es la unica fuente de verdad de reglas y enrutamiento de skills. Los skills lo referencian, no lo copian: si una regla cambia ahi, se propaga sin tocar ningun SKILL.md.
 
@@ -84,7 +84,7 @@ Repositorio independiente:
 npm run update
 ```
 
-Esto corre `git pull`, regenera `settings.json` (purga automaticamente cualquier hook de una version anterior que referencie un script eliminado o renombrado — el objeto de hooks se construye desde cero y sobreescribe el archivo completo, nunca mergea, con la definicion compartida en `hooks-definition.js`), corre los 1414 tests, aplica migraciones de version, valida los 45 skills y los 6 agentes, y reporta que cambio. Si un test falla, el comando se detiene ahi.
+Esto corre `git pull`, regenera `settings.json` (purga automaticamente cualquier hook de una version anterior que referencie un script eliminado o renombrado — el objeto de hooks se construye desde cero y sobreescribe el archivo completo, nunca mergea, con la definicion compartida en `hooks-definition.js`), corre los 1414 tests, aplica migraciones de version, valida los 46 skills y los 6 agentes, y reporta que cambio. Si un test falla, el comando se detiene ahi.
 
 Instalado como submodulo:
 
@@ -152,10 +152,10 @@ Si no esta autenticado, los eventos se acumulan en `.claude/EVENTS_QUEUE.json` y
 
 ```bash
 npm install                               # instalar dependencias (corre postinstall -> npm run setup)
-npm test                                  # 1625 tests (1624 pass, 1 skip), Node nativo, sin deps externas
+npm test                                  # 2027 tests (2025 pass, 2 skip), Node nativo, sin deps externas
 npm run setup                             # regenerar settings.json con rutas locales (ya corre solo via postinstall)
 npm run update                            # actualizacion one-command desde GitHub
-npm run validate-globals                  # auditar conformidad de los 45 skills (incluye schema agentskills.io)
+npm run validate-globals                  # auditar conformidad de los 46 skills (incluye schema agentskills.io)
 npm run validate-globals -- --fix-drift   # corregir last_updated desincronizado
 npm run validate-agents                   # auditar conformidad de los 6 agentes con CLAUDE.md
 npm run validate-agents -- --fix-drift    # corregir last_updated desincronizado en agentes
@@ -304,380 +304,14 @@ Cierre de todos los hallazgos `STALE`/`DRIFT` pendientes en `MARKET_STANDARDS.js
 
 `npm run wizard` consolida en un solo comando interactivo la configuracion de API keys (con validacion activa via `ModelRegistry`, no solo formato), token de GitHub, alias de host SSH (nunca lee la clave privada), chequeo de integridad del harness y auditoria de bypass de `ModelRegistry.js`. Corregido ademas el hallazgo `STALE_MERCADO` de OWASP GenAI LLM Top 10 2026 (numeracion confirmada en v3.40.1).
 
-### v3.39.0 — validacion de contenido MoA y merge no destructivo en norm-harness
-
-`moa-context-gatherer.js`: el fan-in de Gemini/DeepSeek podia escribir contenido vacio o solo whitespace como si fuera un resultado util. Ahora valida antes de escribir, marca el archivo como contenido externo no confiable (regla 11 del ANCLA) y registra fallos parciales en vez de ocultarlos.
-
-`norm-harness.js`: `ensureHostSettings()` sobrescribia `settings.json` completo del proyecto anfitrion sin merge, perdiendo hooks/mcpServers/permissions custom del anfitrion en cada drift detectado. Ahora hace merge no destructivo por entrada y crea backup `.bak` antes de escribir.
-
-### v3.38.0 — 4 principios de campo del harness oficial de Anthropic para deteccion autonoma
-
-Evaluacion de `github.com/anthropics/defending-code-reference-harness` y del ecosistema de skills de ciberseguridad (verificado 2026-09-02). Descartado: clonar el harness completo de Docker/gVisor (infra pesada sin caso de uso aqui), los catalogos comunitarios de cientos de skills (ruido), y replicar `/security-review` (ya nativo en Claude Code). Adoptados 4 principios de campo de `docs/best-practices.md`, integrados donde ya habia enforcement:
-
-- **Escala de verificacion / witness ejecutable** en `security-scanner.md` (v1.3.0): cada hallazgo sube de "patron detectado" a "witness ejecutable" (secreto real redactado, linea de `npm audit`, commit hash) antes de contar. Un hallazgo que no pasa de nivel 1 no entra al conteo.
-- **Severidad por precondiciones, no por categoria** en `security-scanner.md` y `code-reviewer.md` (v1.2.0): cero precondiciones + remoto sin auth = CRITICO; una o dos, o autenticado = ALTO; tres o mas, o local = MEDIO. La categoria (credencial/CVE/estilo) ya no fija la severidad.
-- **Particionar el espacio de revision** en `code-reviewer.md`: el diff se divide en 4 particiones con foco distinto (superficie de entrada, datos sensibles, control de flujo, conformidad estructural) para no converger en los mismos bugs superficiales.
-- **Supervisor con presupuesto por hallazgo en contexto separado** en CLAUDE.md (Gobierno de Agentes, punto 3): politica de orquestacion sobre el techo ciego de `subagent-budget-guard.js` -- si un subagente agota su ventana sin hallazgos con witness nivel 2+, el hilo principal no lo relanza sobre la misma particion; costo marginal decreciente = detener.
-
-Ademas: reparado `guard-read-js.test.js` en CI (4 subtests asumian `GEMINI_API_KEY` presente; ahora crean un `.env` temporal via `AI_CORE_ENV_PATH`).
-
-**1320 pass, 1 skipped, 0 fail (1321 tests), 45/45 skills conformes, 6/6 agentes conformes.**
-
-### v3.37.0 — guards de budget y deteccion de loop alternante entre subagentes
-
-Cierre del gap mas peligroso identificado en la auditoria de v3.36.2: un loop entre agentes/turnos con argumentos DISTINTOS cada vez, que `tool-repeat-guard.js` no cubre (ese guard solo detecta la misma tool con argumentos identicos). Investigado antes de implementar -- diseño de 2 capas presentado y confirmado explicitamente con el usuario antes de escribir codigo.
-
-`subagent-budget-guard.js`: techo fijo de 40 llamadas a tools por subagente, independiente de semantica -- recomendacion explicita del post-mortem real de `vectara/awesome-agent-failures` (pipeline de 4 agentes en loop 264h, $47k gastados, solo detectado por el dashboard de billing).
-
-`loop-alternante-guard.js`: detecta el patron A-B-A-B entre 2 tools distintas alternando 6+ ciclos sin converger, aunque los argumentos cambien -- mismo mecanismo validado en produccion real por OpenHands `StuckDetector` (sin embeddings ni LLM-as-judge por ronda, que el propio paper de semantic early-stopping confirma contraproducente en costo). Comportamiento de 2 pasos: la primera deteccion solo advierte, bloquea si el patron persiste.
-
-**1321 tests, 45/45 skills conformes, 6/6 agentes conformes.**
-
-### v3.36.2 — auditoria de errores comunes/raros de arneses agenticos
-
-Investigacion con casos documentados reales (postmortem $47k de LangChain, compromiso Cline 2026 via confused deputy, issues de `anthropics/claude-code`, AutoGen, MemoryGraft arXiv 2512.16962). `subagent-grader.js` distingue output VACIO de un subagente (posible fallo silencioso) de output trivial-pero-real -- antes ambos salian en silencio absoluto. `memory-manager` declara tratamiento de contenido externo no confiable para entradas del vault. `mcp-registry-navigator` suma criterio de colision de nombres de tools (tool shadowing) entre servidores MCP.
-
-### v3.36.1 — `autoCompactWindow` fijado por debajo del default nativo
-
-Deep research en repos de GitHub (Cline, OpenCode) buscando tecnicas para cuidar la cuota de sesion de Plan Pro -- confirmado que el umbral por defecto de auto-compact de Claude Code (~95%) es reportado como "a menudo demasiado tarde". Fijado explicitamente a 170k (~85% de una ventana tipica) en `settings.json`.
-
-### v3.36.0 — enforcement real de "GEMINI PRIMERO" para busqueda web
-
-Deep research confirmo que ningun framework de agentes (Claude Agent SDK, OpenAI Agents SDK, Google ADK) ofrece un hook que redirija una tool call a otro proveedor -- el patron viable es negar la tool nativa para forzar reformulacion. Nuevo `web-search-guard.js` fuerza `buscar_web` (Gemini) sobre `WebSearch`/`WebFetch` nativos. Tanto este guard como `guard-read.js` ahora degradan con gracia (permiten la tool nativa) si `GEMINI_API_KEY` no esta disponible.
-
-### v3.35.x — fix critico de timeout/retry en Gemini + skill discord-ops
-
-Reproducido y confirmado en vivo: `@google/genai` podia colgarse indefinidamente sin resolver ni rechazar, pese a que la misma llamada via REST directo respondia en segundos. Agregado timeout real (`Promise.race`, 30s) mas retry con backoff exponencial en `GeminiApiClient.js` y `GeminiAdapter.js`. Nuevo skill `discord-ops` (45avo) para integrar Discord como canal de alertas de infraestructura (webhooks, limites reales de embed, tratamiento de la URL como secreto, patron anti-spam).
-
-### v3.34.0 — guard anti-loop de tool calls + aclaracion de auto-compact nativo
-
-Deep research comparativo contra el estado del arte 2026 (Claude Agent SDK, OpenAI Agents SDK, Google ADK, LangGraph/CrewAI). Nuevo `tool-repeat-guard.js`: bloquea cuando un mismo agente repite la misma tool call con argumentos identicos mas de 3 veces. CLAUDE.md aclara que Claude Code ya tiene auto-compact nativo basado en tokens reales, superior al conteo heuristico de turnos.
-
-### v3.33.2 — reactivacion del fallback de emergencia del juez de evals
-
-Gemini se colgo en vivo durante la verificacion (2 corridas, 11+ minutos sin avanzar) pese a tener API keys pobladas -- reactivado `openai:chat:gpt-5.6-luna` como juez de los 42 evals hasta diagnosticar la causa exacta. Cerrados 2 gaps de gobierno de contenido externo no confiable en `ciso` y `mcp-registry-navigator`.
-
-### v3.33.1 — retry/backoff en ModelRegistry, secret scanning retroactivo del historial de git, fix critico de permisos en locks de subagentes
-
-Segunda ronda de investigacion de mercado fresca (deliberadamente evitando repetir la auditoria de skills/agentes, el red-team de guards, la auditoria de tokens y el cierre de scaffolding ya hechos en v3.32.0) para confirmar si quedaba trabajo real pendiente. Encontro 2 gaps accionables y verificados contra el codigo real antes de reportarlos.
-
-**Retry con backoff exponencial en `ModelRegistry.chat()`.** El SDK de Anthropic ya reintenta automaticamente errores transitorios por defecto (`maxRetries=2`), pero `GeminiAdapter.js` (`@google/genai`) y `OpenAICompatAdapter.js` (`https.request` crudo, cubre OpenAI/DeepSeek/Kimi) no tenian ningun mecanismo de retry -- un 429/500/503 transitorio se propagaba como fallo definitivo. Nueva libreria pura `lib/retry-with-backoff.js` integrada solo en los proveedores sin retry nativo, clasificando transitorio (429, 5xx, ECONNRESET/ETIMEDOUT) vs definitivo (4xx distinto de 429).
-
-**Escaneo retroactivo de credenciales en el historial completo de git.** `secrets-guard.js` solo inspecciona el prompt entrante y `security-scanner.md` solo hace grep del working tree actual -- ningun componente escaneaba `git log -p`, dejando sin deteccion un secreto commiteado y luego borrado del archivo (sigue vivo en el historial). Nuevo `npm run scan-secrets-history` (patron estandar de mercado: gitleaks/trufflehog), integrado como paso 3b de `security-scanner.md`, con la misma exclusion de archivos de test que `standards-guard.js` para no confundir fixtures sinteticos con secretos reales.
-
-**Benchmark real de Contextual Retrieval.** `rag-specialist.md` documentaba la tecnica de Anthropic citando su benchmark oficial, pero nunca se habia corrido contra un corpus propio. Se genero un prefijo contextual real via Claude Haiku 4.5 (una llamada por SKILL.md completo) para los 1366 fragmentos de los 43 skills, con 15 queries de ground truth fijadas a mano antes de medir: recall@5 subio de 53.3% (baseline) a 73.3% con Contextual Retrieval. Efecto colateral: se encontro y corrigio un bug real de prototype pollution en `bm25-engine.js` (motor tambien usado por `memory-index.js` en produccion) -- tokens del corpus real como "constructor"/"push" colisionaban con `Object.prototype` en los diccionarios del indice invertido.
-
-**Red-team de los 3 guards restantes** (`guard-read.js`, `process-guard.js`, `subagent-guard-release.js` -- el red-team de v3.32.0 cubrio los 12 guards de deteccion textual, estos 3 quedaron fuera por ser de naturaleza distinta: limites de recursos/concurrencia). 5/5 hallazgos confirmados con verificacion independiente: whitelist de extensiones cerrada y conteo de lineas ingenuo ante CRLF/JSON minificado en `guard-read.js` (severidad baja); lock stale que no validaba identidad del proceso real en `process-guard.js` (severidad critica en el PoC); path traversal en `subagent-guard-release.js` que permitia borrar un archivo `.lock` arbitrario fuera del directorio de locks (severidad critica).
-
-**Bug critico preexistente encontrado verificando en SESION REAL, no solo con tests.** Antes de declarar el trabajo listo para produccion, se probo la invocacion exacta de `settings.json` para los 3 guards modificados. `subagent-guard.js`/`subagent-guard-release.js` reciben un permiso de fs de UN nivel de profundidad bajo el tmpdir, pero su `LOCK_DIR` real vive DOS niveles mas abajo (`<tmp>/ai-core-locks/subagents/`) -- confirmado en vivo que ese glob nunca cubrio esa profundidad, ni para lectura ni escritura. Efecto real: el mecanismo de release explicito de locks de subagentes nunca funciono desde que se agrego (absorbido en silencio por un `catch` documentado como "best-effort"); el TTL de 2 minutos era la unica garantia real de liberacion de cupo. Corregido con un permiso especifico de dos niveles en `hooks-definition.js`, verificado end-to-end (escritura + borrado del lock) con la invocacion real de produccion.
-
-**Post-release: fix real de CI en macOS.** El push inicial de esta version fallo en el runner `macos-latest` (windows-latest y ubuntu-latest pasaron con el mismo codigo), diagnosticado con el log real del job via API de GitHub Actions. `pidEsProcesoNode()` (fix de `process-guard.js` de esta misma version) asumia que `/proc/<pid>/cmdline` aplicaba a todo POSIX -- `/proc` es exclusivo de Linux, no existe en macOS/Darwin, asi que el `catch` trataba cualquier proceso real y vivo como "no confiable" y dejaba pasar una segunda instancia de una categoria de bloqueo bajo carga real. Corregido con una rama especifica para `darwin` usando `ps -p <pid> -o comm=`. Verificado en verde en los 3 sistemas operativos tras el fix.
-
-**1212 tests, 43/43 skills conformes, 6/6 agentes conformes.**
-
-### v3.32.0 — break-glass transversal, permissionDecision para friccion operativa, skill de metodologia de producto
-
-El usuario pidio que el arnes "no sea un stopper, sea mejor validador" sin perder el marco de reduccion de errores en produccion. `lib/break-glass.js` (nuevo) generaliza el patron ya usado en `jailbreak-guard.js`/`injection-quarantine.js` (id de un solo uso, TTL 5 min, confirmacion solo via mensaje real del usuario, nunca desde contenido de una tool call) para cualquier guard de riesgo real: `mutating-action-guard.js`, `destructive-op-guard.js` (11 reglas sin alternativa segura equivalente), `code-exec-guard.js` y `secrets-guard.js` migran de "confirma explicitamente" en prosa sin enforcement a un mecanismo real, con registro append-only en `.claude/BREAK_GLASS_LOG.jsonl`. La aprobacion queda atada al hash de la accion EXACTA bloqueada, nunca a una excepcion general.
-
-`guard-read.js`, `agent-paths-guard.js` y `agent-tools-guard.js` (friccion de politica/configuracion estatica, no riesgo de seguridad activo) migran de exit 2 duro a `permissionDecision:"deny"` (JSON en stdout, exit 0) — formato recomendado oficialmente por Anthropic para este caso: Claude ve la razon en el mismo turno y reformula sin que el humano tenga que aprobar nada.
-
-**Bug critico encontrado probando el mecanismo en una sesion real del usuario** (no en tests): `${TMPDIR:-/tmp}` nunca aparecia en ningun permiso de lectura de `hooks-definition.js`, solo de escritura — el guard podia escribir el lock de break-glass pero el Node Permission Model bloqueaba su lectura posterior para confirmarlo, sin ningun aviso visible ni en los 1034+ tests unitarios en verde (que corren sin el flag `--permission` real). Corregido y verificado end-to-end: bloqueo, confirmacion, reintento exacto pasa.
-
-Skill nuevo `product-lifecycle-orchestrator` (43avo) cierra la fase de definicion de producto que ningun skill cubria: User Story Mapping (Jeff Patton — con correccion real, Patton rechaza el termino "Epic"), INVEST (Bill Wake), MoSCoW (DSDM), BDD/Gherkin (Dan North, Gojko Adzic) y DDD estrategico (Eric Evans, Martin Fowler), mas hypercare post-golive, todos con fuente primaria verificada. Orquesta delegando a `dev-loop`/`qa-engineer`/`release-manager` en vez de duplicar su contenido.
-
-**Post-release: CI real reparado en Linux/macOS (3 causas distintas, ninguna detectable por la suite local en Windows), historial de autoria unificado.** El push inicial de esta version fallo en `ubuntu-latest`/`macos-latest` — ningun test unitario activa el Node.js Permission Model real, asi que 3 bugs reales de permisos/rutas pasaron desapercibidos en local: un smoke test desactualizado tras el cambio a `lib/break-glass.js`, un flag de permiso dependiente de expansion de shell (`${TMPDIR:-/tmp}`, ahora resuelto en build time con `os.tmpdir()` real), y un mismatch de symlinks especifico de macOS en `pre-commit-tdd.js` (reproducido localmente creando un symlink real antes de corregirlo). Ver CHANGELOG.md para el diagnostico completo de cada uno. Ademas, 267 commits del historial reescritos para unificar dos direcciones de correo del mismo autor en una sola.
-
-**1049 tests, 43/43 skills conformes, 7/7 agentes conformes. Verificado end-to-end en sesion real y confirmado en CI de los 3 sistemas operativos.**
-
-### v3.31.0 — scope de rutas y acciones mutantes por subagente, rollback de agentes, anti-jailbreak y cuarentena de injection
-
-Gap real cerrado: `agent-tools-guard.js` ya verificaba que un subagente usara solo las HERRAMIENTAS declaradas en `tools:` de su `AGENT.md`, pero un agente con `Write`/`Bash` legitimamente declarado podia usar esa herramienta sobre cualquier ruta o accion sin que nada verificara que cayera dentro de la tarea encomendada. Caso real: un agente exploratorio, en prueba sintetica local, intento eliminar un archivo no relacionado con su tarea sin que el usuario lo pidiera en ese turno.
-
-Dos guards nuevos en `PreToolUse`, ambos con enforcement real (exit 2), no solo prosa: `agent-paths-guard.js` bloquea `Write`/`Edit`/`Bash` de un subagente fuera de un `paths_allow:` (campo nuevo, opcional, mismo formato que `tools:`) declarado en su `AGENT.md` — declarado en los 6 agentes autonomos segun lo que su protocolo real toca. `mutating-action-guard.js` exige confirmacion humana explicita antes de que un subagente ejecute una accion que muta estado en un servicio externo (tool MCP con verbo de escritura en el nombre, o comando `curl -X POST/PUT/PATCH/DELETE`) — verificado en vivo contra una API PMO real, confirmando que bloquea la creacion/actualizacion de una tarea sin que el turno actual la solicitara, y deja pasar una consulta de solo lectura.
-
-Suma el trabajo de gobierno de agentes de esta misma ronda: `agent-snapshot.js` + `scripts/rollback-agent.js` (backup automatico antes de que cualquiera de los 6 agentes autonomos escriba, revert por ruta o por id); `jailbreak-guard.js` en `UserPromptSubmit` (bloquea patrones tecnicos de prompt hacking: anular instrucciones previas, roleplay sin restricciones, extraccion de system prompt, desactivar guards); `injection-quarantine-guard.js` (cuarentena real tras deteccion de alta confianza de `injection-guard.js` en `SubagentStop` — bloquea la siguiente accion del agente padre hasta confirmacion explicita de un solo uso).
-
-Nuevo `scripts/services/SessionCacheMetrics.js` (extraido de `tests/token-metrics.js`, sin cobertura propia hasta ahora) mas un test de umbral que lee la sesion real mas reciente y alerta si el ahorro por prompt caching cae debajo de 80% (piso documentado de caching bien implementado en la industria) — medido en la sesion de esta ronda: 95% de ahorro real, `message.usage` de Anthropic.
-
-**994 tests, 42/42 skills conformes, 7/7 agentes conformes.**
-
-### v3.30.0 — auditoria de seguridad del codigo + anti-jailbreak en 14 perfiles + release real de locks
-
-Auditoria de codigo (hooks, bridges, evals) encontro y cerro 4 hallazgos de seguridad reales: inyeccion de comandos via `execSync` con template string en `issue-reporter.js` y `standards-guard.js` (migrados a `execFileSync` con array de argumentos, sin shell); path traversal en `agent-tools-guard.js` (valida `agentType` antes de construir la ruta); `analizarArchivo` sin limite de directorio (advertencia auditable en logs, sin bloquear el uso legitimo con rutas fuera del repo).
-
-Auditoria separada (Opus + Sonnet, verificacion cruzada) sobre los 7 hallazgos previos de gobierno de subagentes: `agent-tools-guard.js` ahora cubre Grep/Glob/WebFetch/Agent (antes solo Bash/Read/Write/Edit, dejando sin enforcement real a 6 de los 7 agentes); `subagent-guard.js` libera el lock real al terminar el subagente (nuevo hook `subagent-guard-release.js` en SubagentStop, indexado por session_id+prompt_id) en vez de depender solo de TTL, y detecta el ciclo indirecto A->B->A ademas de la recursion directa; `IntentClassifier.js` ya no enruta generacion de codigo a Haiku/prosa; `AgentRoles.js` limita a 12 los skills inferidos sin especificar (antes 25 sin tope, ~164k tokens); `validate-agents.js` valida que el campo `tools:` exista y no este vacio.
-
-Auditoria de resistencia a jailbreak en los 42 skills + 7 agentes (verificacion cruzada, 142 agentes de workflow): 14 perfiles con exposicion real a contenido externo (RAG, scraping, documentos multimodales, diffs, MCPs de terceros, output de npm audit) ahora declaran localmente que ese contenido nunca se ejecuta como instruccion nueva. 3 puertas de escape textuales cerradas: `dev-loop` (bypass de fases exigia solo "documentar riesgo", ahora exige lista de gates omitidos + confirmacion humana posterior); `prompt-engineer` (ejemplo de Prefill sin delimitador, contradecia su propia regla de defensa); `issue-tracker` (Directiva de Interrupcion contradictoria, ahora especifica el mecanismo objetivo de verificacion). Bug funcional cerrado: la precondicion 1 de `aiops-auditor` buscaba la palabra literal "pass" en un output que nunca la contiene — siempre reportaba falso negativo, corregido a exit code real.
-
-Revertido el juez de evals de `openai:chat:gpt-5.6-luna` a `google:gemini-3.6-flash` (tier 0) tras confirmar en vivo que la saturacion original ya se normalizo. Agregado espaciado de 30s entre evals en `run-all.js` y CI (tier gratuito de Gemini es 20 req/min, cada eval consume ~8) y la clausula "sin invocar ninguna herramienta ni funcion" en 136 casos de los 42 evals que la omitian, causa real de un `MALFORMED_FUNCTION_CALL` intermitente con Gemini.
-
-**919 tests, 42 skills con eval de conformidad, 7 agentes.**
-
-### v3.29.0 — auditoria completa del arnes (31 hallazgos cerrados) + prompt caching real
-
-Workflow de barrido con verificacion cruzada independiente encontro y cerro 19 hallazgos aplicables: dos guards de seguridad (`secrets-guard.js`, `guard-read.js`) tenian su exit code de bloqueo anulado y nunca bloqueaban en produccion; `process-guard.js` simulaba exito al descartar `standards-guard.js` bajo carga; ningun agente declaraba scope de herramientas (nuevo hook `agent-tools-guard.js` + `tools:` en los 7 `AGENT.md`); varios modulos tragaban excepciones sin log (`mcp-gemini.js`/`mcp-anthropic.js` dejaban requests MCP colgadas, `memory-index.js`/`validate-map.js`/`circuit-breaker.js`/`health-check.js`/`audit-market.js` degradaban en silencio total). Eliminado `norm-harness.ps1`, huerfano desde v2.6.x.
-
-Prompt caching real en `AnthropicAdapter.js` (`cache_control` en `system`, patron verificado contra codigo de produccion real, no solo documentacion) — un cache hit cuesta ~10% de un input normal. Gemini evaluado sin cambio de codigo (implicit caching ya automatico, pero el caso de uso actual no supera el umbral minimo). Ver CHANGELOG.md para el detalle completo.
-
-**901 tests, 42 skills con eval de conformidad, 7 agentes.**
-
-### v3.28.0 — evals completos en los 42 skills, gaps reales de conformidad corregidos
-
-Cierre del piloto de evals: se generan y verifican los 34 evals faltantes (los 8 previos ya cubrian `security-auditor`, `ciso`, `qa-engineer`, `ai-guardrails`, `devops-infra`, `database-ops`, `cloud-deployment-specialist`, `backend-architect`). Cada eval nuevo sigue el mismo patron (idioma, ausencia de emojis, 2-4 casos especificos de dominio derivados literalmente del SKILL.md real, juez `openai:chat:gpt-5.6-luna`).
-
-La corrida real de los evals nuevos encontro 7 gaps de conformidad reales (no defectos del test) en skills existentes, corregidos con un ajuste quirurgico al SKILL.md y re-verificados: `aiops-engineer` y `claude-api` no emitian su propio marcador `[ALERTA_ARQUITECTONICA: REQUIERE_OPUSPLAN]` en casos que la Directiva de Interrupcion exige explicitamente; `claude-api` ademas aprobaba codigo de produccion en el mismo turno que la alerta; `app-store-publisher` entregaba un comando sensible de rotacion de keystore sin esperar confirmacion humana; `audio-voice-engineer` omitia advertir sobre un modelo Live API apagado mencionado por el usuario; `release-manager` no vinculaba `feat:` con su incremento de version MENOR; `seo-sem-specialist` rechazaba tecnicas black-hat sin redirigir a alternativas white-hat; `agent-testing` invadia territorio de `llm-evals` al disenar tests de faithfulness semantica.
-
-Fix de infraestructura reusable: `tech-lead-frontend` y `web-scraping-specialist` tienen SKILL.md con JSX/f-strings con llaves dobles literales que el motor Nunjucks de promptfoo interpretaba como variables de template, rompiendo el eval antes de invocar al modelo. Se agrego `.claude/evals/prompt-loader.js`, que arma el prompt de chat leyendo el SKILL.md por filesystem y envolviendolo en un bloque `{% raw %}...{% endraw %}` -- Nunjucks preserva el contenido literal sin re-interpretarlo. `npm run eval-skills` ahora corre los 42 evals en secuencia via `.claude/evals/run-all.js` (antes apuntaba solo a `security-auditor` como piloto).
-
-**874 tests, 42 skills con eval de conformidad, 7 agentes.**
-
-### v3.27.0 — evals expandidos de 3 a 8 skills de mayor riesgo
-
-Continuacion del piloto de evals: se agregan `ai-guardrails`, `devops-infra`, `database-ops`, `cloud-deployment-specialist` y `backend-architect` (sumados a `security-auditor`, `ciso`, `qa-engineer`), priorizados por riesgo real si su comportamiento degrada. Cada eval verifica idioma, ausencia de emojis, y 2 casos especificos de la Directiva de Interrupcion de cada skill. Un ajuste de calibracion real: la rubrica de `ai-guardrails` fallo en su primera corrida por exigir terminologia textual exacta -- corregida para evaluar el comportamiento real.
-
-**864 tests, 42 skills, 7 agentes.**
-
-### v3.26.0 — backend-architect: codigo real en .NET, PHP y Ruby
-
-Cierra la brecha de lenguajes de backend que quedaba fuera de alcance desde v3.23.0. Se agregan los 3 lenguajes restantes de mayor uso empresarial real, con research + verificacion cruzada contra fuente oficial de cada framework: ASP.NET Core 10 (Minimal APIs, validacion nativa con `AddValidation()`, EF Core), Laravel 13.x (la verificacion cruzada confirmo que `routes/api.php` ya no existe por defecto desde Laravel 11, y que `Octane::concurrently()` requiere especificamente Swoole, no FrankenPHP/RoadRunner), y Rails 8.1 en modo `--api` (Solid Queue como adapter por defecto desde Rails 8.0, Minitest confirmado como framework oficial sobre RSpec).
-
-La verificacion cruzada encontro y corrigio 2 defectos reales antes de publicar: una cita sobre-afirmada de `TypedResults.ServerSentEvents` en .NET que no se reproducia en la URL puntual citada, y un bloque de test muerto en el ejemplo Minitest de Ruby. El research de PHP tambien detecto y descarto por si mismo una alucinacion de una herramienta intermedia (un metodo Carbon inexistente).
-
-`backend-architect` sube a v1.7.0, ahora con 6 lenguajes de backend cubiertos con codigo real (Go, Rust, Java, .NET, PHP, Ruby) ademas de Node.js/TypeScript y Python.
-
-**864 tests, 42 skills, 7 agentes.**
-
-### v3.25.0 — freno de mano real: git commit -m directo + 6 patrones de infraestructura
-
-El usuario pregunto si el arnes tiene frenos reales sobre sus propias acciones destructivas y si el rastro de autoria de IA en commits esta prevenido de verdad, no solo declarado. Auditoria confirmo: **cero commits reales del repo con ese rastro**, pero el guard que deberia prevenirlo (`standards-guard.js`) solo cubria el mensaje de commit cuando se escribia primero a un archivo -- un `git commit -m "..."` directo por Bash, el flujo mas comun, no pasaba por ningun guard de contenido. `destructive-op-guard.js` ahora extrae e inspecciona el mensaje real (inline o via `-F`) por separado de sus reglas de comandos.
-
-Ademas, research + verificacion cruzada independiente contra `kubernetes.io`, `developer.hashicorp.com/terraform`, `docs.docker.com` y `git-scm.com` agrego 6 patrones de infraestructura que el guard no cubria: `kubectl delete --all` sin `--dry-run`, `terraform destroy`/`apply -destroy` sin `-target`, `terraform apply -auto-approve`, `docker system prune --volumes`, `docker volume rm`, y `git push --delete`/`:rama` de una rama remota. Cada regla excluye explicitamente el caso legitimo correspondiente (namespace de dev con `--dry-run`, entorno de CI efimero, refspec normal como `HEAD:main`) para minimizar falsos positivos.
-
-**853 tests, 42 skills, 7 agentes.**
-
-### v3.24.0 — sandboxing real de hooks propios y evals de conformidad de skills en CI
-
-Cierra las 2 brechas serias del benchmark diferidas explicitamente en v3.20.0. Sandboxing: los 4 hooks de mayor riesgo (`destructive-op-guard.js`, `code-exec-guard.js`, `secrets-guard.js`, `injection-guard.js`) corren bajo el Node.js Permission Model (`node --permission`, Node >= 22.13.0) en Linux/macOS, con permisos minimos declarados por hook -- vm2 descartado por 5 CVEs criticos de sandbox escape, worker_threads descartado como mecanismo de seguridad. Node 20 sale de la matrix de CI. En Windows el sandboxing queda desactivado por ahora: el spike encontro comportamiento de glob distinto entre Git Bash y PowerShell, sin verificar aun para `cmd.exe`.
-
-Evals: `.claude/evals/` con un `promptfooconfig.yaml` piloto para `security-auditor` y un `runner.js` propio, usando `promptfoo` (adquirido por OpenAI en marzo 2026, sigue MIT -- dato comunicado y aceptado antes de adoptar la dependencia) con `google:gemini-3.5-flash` como juez. El piloto real encontro y corrigio 2 defectos de diseño del propio eval (interpolacion de prompt rota, invocacion de tool inexistente fuera de contexto) antes de ser reproducible. Job `skill-evals` en CI, no bloqueante, solo en PRs que tocan skills/evals.
-
-Limite declarado con honestidad: el radar de vigencia (`audit-market.js`) solo cubre skills, no esta infraestructura nueva -- su revision de vigencia queda manual para sesiones futuras.
-
-**832 tests, 42 skills, 7 agentes.**
-
-### v3.23.0 — backend-architect: codigo real en Go, Rust y Java/JVM
-
-Cierra la brecha de lenguajes de backend que quedo pendiente en la v3.22.0: `backend-architect` se declaraba agnostico al stack pero Go, Rust y Java/JVM solo aparecian como nombres en tablas, sin un solo bloque de codigo. Se agrega API REST, concurrencia idiomatica y testing para los 3 lenguajes de mayor uso real en backend (PHP, Ruby y .NET quedan fuera por decision de producto), cada uno verificado contra fuente oficial con Workflow multi-agente (research + verificacion cruzada independiente, sin confiar en las citas del propio research).
-
-Go 1.26.0: `net/http` con el enhanced routing de Go 1.22 y Gin v1.12.0; concurrencia con `WaitGroup.Go()` (Go 1.25+, hallazgo de la verificacion cruzada que el research original no habia detectado). Rust 1.97.1 con Axum 0.8.9: la verificacion cruzada encontro un defecto real de orden en el patron de concurrencia con `Semaphore` (el permiso debe adquirirse antes de `tokio::spawn`, no dentro) que el research inicial (que hubo que relanzar por devolver un stub vacio) tenia invertido. Java con Spring Boot 4.1.0: la verificacion cruzada confirmo que `@MockBean` fue removido en Spring Boot 4.0 (no solo deprecado) en favor de `@MockitoBean` -- el codigo de testing original no habria compilado contra la version que el propio research recomendaba.
-
-Registrado en `MARKET_STANDARDS.json` (dominio nuevo `backend-languages-go-rust-java`). `backend-architect` sube a v1.6.0.
-
-**817 tests, 42 skills, 7 agentes.**
-
-### v3.22.0 — cloud-deployment-specialist: despliegue real en 9 proveedores de nube/hosting
-
-Auditoria (a pedido del usuario: "nuestras skills dan el ancho en cualquier lenguaje, AWS, Firebase, Google, DigitalOcean etc?") confirmo que `backend-architect`/`devops-infra` declaran ser "agnosticos" pero en la practica el contenido tecnico ejecutable real esta concentrado en Node.js/TypeScript + Python (parcial) + PostgreSQL + Flutter + AWS/GCP generico -- Go, Rust, Java, PHP, Ruby, .NET, y proveedores modernos (DigitalOcean, Railway, Render, Fly.io, Vercel, Cloudflare Workers) tenian cobertura nula o solo nominal en tablas, nunca un comando ejecutable real.
-
-Skill nuevo `cloud-deployment-specialist` cierra la brecha de proveedores (la de lenguajes de backend queda para una proxima sesion): comandos CLI reales y verificados contra fuente oficial para AWS (App Runner -- confirmado cerrado a clientes nuevos con verificacion independiente propia, y ECS Express Mode como reemplazo recomendado, con la sintaxis exacta del comando de migracion), Google Cloud (Cloud Run, Firebase Hosting), Azure (Container Apps, App Service), DigitalOcean (App Platform, Droplets), Cloudflare (Workers, Pages), Vercel, Railway, Render y Fly.io. Complementa a `devops-infra` (que se mantiene agnostico/generico de IaC-Kubernetes) sin duplicarlo. Tabla de scale-to-zero real por proveedor sin ambiguedad, y cada cifra de pricing no verificada queda marcada explicitamente en el cuerpo del texto, no en nota al pie.
-
-**817 tests, 42 skills, 7 agentes.**
-
-### v3.21.0 — Radar de vigencia de mercado cierra su propio punto ciego
-
-`audit-market.js`/`MARKET_STANDARDS.json` (mecanismo de deteccion de drift de vigencia contra fuente oficial por skill) tenia un punto ciego real: 20 de 41 skills, incluidos los 3 nuevos de la version anterior (`app-store-publisher`, `saas-product-architect`, `qa-engineer` con su modulo de QA destructivo), no estaban registrados en ningun dominio -- el radar no los vigilaba en absoluto. Los 41 skills quedan ahora registrados (0 sin dominio, 0 con drift), con fecha honesta por dominio: los 3 verificados activamente en la sesion anterior llevan fecha y fuente real; el resto queda marcado explicitamente "orientativo, no verificado contra fuente primaria en esta pasada" en vez de simular una verificacion que no ocurrio.
-
-Nuevo flag `--only-stale` (silencioso si no hay hallazgos) integrado como paso 5 del Protocolo de Arranque de CLAUDE.md -- corre en la primera respuesta de cada sesion sin agregar ruido cuando todo esta al dia. `aiops-auditor.md` suma el paso 4c (reporte completo con umbral de 45 dias) para la auditoria profunda periodica.
-
-**809 tests, 41 skills, 7 agentes.**
-
-### v3.20.0 — Gaps de benchmark cerrados (sandboxing/evals diferidos por decision explicita) y QA destructivo
-
-Deep research comparando ai-core contra Anthropic Claude Code/Agent SDK, OpenAI Agents SDK, Google ADK/Gemini y frameworks open source identifico 9 gaps priorizados. De los 2 series (sandboxing real de ejecucion, evals reproducibles en CI) quedan diferidos por decision explicita del usuario -- ameritan diseno de arquitectura propio, no una extension quirurgica. Los 7 gaps menores mas 2 tests de flakiness residual se cerraron en esta version:
-
-- **`destructive-op-guard.js`** — enforcement real de human-in-the-loop (antes solo convencion en prosa): bloquea `rm -rf`, `git push --force`, `git reset --hard`, `git clean -f`, `git branch -D`, `DROP TABLE`/`TRUNCATE` sin filtro, antes de ejecutar.
-- **`rollback-skill.js`** — revierte un skill especifico a una version anterior via git checkout acotado al archivo, sin afectar el resto del repo.
-- **`lib/guard-report.js`** — esquema tipado `{guard, verdict, severity}` en JSONL, adoptado por `secrets-guard.js`, `injection-guard.js` y `pre-commit-tdd.js` (opt-in, no cambia el comportamiento existente).
-- **`MCP_LIFECYCLE.json` + `mcp-lifecycle-check.js`** — ciclo de vida formal Active/Deprecated/Removed para los servidores MCP propios, integrado al protocolo de `aiops-auditor`.
-- Checkpointing de `ModelDispatcher.js` evaluado y descartado con justificacion tecnica: el diseno ya usa `Promise.allSettled` y se re-invoca por turno, no hay progreso parcial que valga la pena preservar.
-- Fix del atributo OTel obsoleto `gen_ai.system` -> `gen_ai.provider.name` en `llm-observability` (semantic-conventions v1.37.0).
-- Los 2 ultimos tests con patron de flakiness residual (estado compartido en disco sin nombre unico por proceso) quedaron aislados.
-
-**QA destructivo en `qa-engineer`** — modulo nuevo via research verificado contra fuentes oficiales (OWASP, ISTQB, principlesofchaos.org, cncf.io, go.dev): fuzzing de inputs guiado por schema/property-based/Go nativo segun la superficie detectada, chaos testing de infraestructura distinguido explicitamente de fuzzing (Chaos Mesh/LitmusChaos confirmados en estado CNCF Incubating, no Graduated), adversarial testing de UI/API con BVA/EP sistematico, y el mecanismo central pedido: `BUGS_HISTORY.json` en el proyecto anfitrion que se consulta antes de cada sesion de QA destructivo y el patron bug-encontrado-test-de-regresion-antes-del-fix.
-
-**807 tests, 41 skills, 7 agentes.**
-
-### v3.19.0 — 2 skills nuevos: app-store-publisher y saas-product-architect
-
-Brechas de dominio confirmadas con auditoria exhaustiva (grep sobre los 39 skills existentes, sin muestreo) antes de escribir contenido nuevo, via research contra fuentes oficiales de cada ecosistema.
-
-**`app-store-publisher`** — ningun skill cubria empaquetado/firma/submission a tiendas de apps (solo 4 comandos sueltos de `flutter build` sin firma en `mobile-engineer`; Microsoft Store, MSIX, IPA, notarizacion, Electron, Tauri: ausencia total confirmada). Cubre Apple App Store (certificados, distincion entre notarizacion macOS/Developer ID y notarizacion iOS/Alternative Distribution que no debe confundirse, SDK minimo iOS 26 desde 28-abr-2026), Google Play Store (Play App Signing de dos claves, AAB obligatorio desde 2021, target API level 36 desde 31-ago-2026), Microsoft Store (MSIX vs MSI/EXE, Azure Artifact Signing -- confirmado GA desde enero 2026, renombrado de Trusted Signing, verificado independientemente contra 2 fuentes oficiales), y Electron vs Tauri para empaquetar apps web como desktop nativo.
-
-**`saas-product-architect`** — 4 de 10 temas de negocio SaaS con ausencia total confirmada (billing/suscripciones, onboarding+RBAC+trials de producto, provisioning automatico de tenant, white-labeling); el resto disperso en otros skills sin conectar al dominio de negocio. Cubre las 3 estrategias de multi-tenancy (silo/pool/bridge, con criterio de decision de Microsoft Learn), billing con Stripe/Paddle/Lemon Squeezy (Merchant of Record, webhooks, idempotencia, dunning, comportamiento verificado de trials en `paused`), RBAC de producto y entitlements por plan (distinguido explicitamente de feature flags de despliegue), provisioning de tenant, white-labeling con dominio custom (incluye riesgo de dangling DNS/subdomain takeover), metricas de negocio (MRR/churn/NRR/LTV/CAC) y compliance B2B (SOC 2 vs ISO 27001, ToS/Privacy Policy/DPA propios -- marcados explicitamente como orientacion estructural, no asesoria legal).
-
-Ambos skills referencian en vez de duplicar contenido ya existente en el arnes (RLS multi-tenant de `database-ops`, feature flags tecnicos de `release-manager`, PCI-DSS/HIPAA de `ciso`). Cada dato de vigencia (deadline de plataforma, nombre de servicio, version de herramienta) queda marcado como verificado con fuente o explicitamente orientativo -- ninguno se presenta como hecho confirmado sin cita.
-
-**762 tests, 41 skills.**
-
-### v3.18.0 — SDK Gemini migrado por completo, modulo de vanguardia en los 39 skills, 4 causas raiz de flakiness cerradas
-
-**Bridge MCP Gemini reparado.** La migracion de `@google/generative-ai` (deprecado) a `@google/genai` se habia aplicado en `GeminiAdapter.js` pero no en `GeminiApiClient.js` — el cliente real detras del bridge MCP (tier 0 obligatorio). Rompia en runtime con `Cannot find module`, reproducido en vivo antes del fix. Shim de compatibilidad interno evita tocar `McpServerHandlers.js`. `GEMINI_DEFAULT` sincronizado a `gemini-3.6-flash` en todo el arnes.
-
-**Consenso multi-IA en `CrossVerifier.js`.** `resolverConDesempate()` — 2-de-3 automatico para tareas criticas (`auditar_seguridad_critica`, `disenar_sistema`, `refactorizar_arquitectura`) cuando el primer verificador rechaza, con degradacion con gracia si no hay tercer proveedor. Fuerza `gpt-5.6-sol` (no el default barato) al verificar diffs.
-
-**Modulo de vanguardia transversal en los 39 skills.** Cada skill (`tech-lead-frontend` ya lo tenia desde el Modulo 14 3D Web) recibe: identidad de dominio declarada antes de ejecutar, lista de patrones prohibidos especificos y reconocibles (no genericos), gate de calidad medible con umbrales numericos verificables, y bloque de vigencia contra fuente oficial (o marcado explicito de "orientativo" cuando no se pudo verificar). Ver CHANGELOG.md para el detalle de gaps cerrados y vigencia verificada por skill.
-
-**4 causas raiz reales de flakiness en tests de hooks cerradas** (`capture-event.js`, `mcp-integrity-check.js`, `subagent-guard.js`, `health-check.js`) — todas por el mismo patron de fondo: estado compartido en disco (cola de eventos, baseline de integridad MCP, locks de subagentes, listado de skills) sin aislamiento por proceso de test, agravado en un caso por un TOCTOU real (`readdirSync` + `statSync` sobre un directorio que otro test borra en la ventana intermedia). Variables de entorno nuevas para aislar en tests: `AI_CORE_EVENTS_QUEUE_PATH`, `AI_CORE_MCP_BASELINE_PATH`, `AI_CORE_SUBAGENT_LOCK_DIR` (mismo patron que `AI_CORE_MEMORY_VAULT_PATH` de v3.17.4) — sin ellas, comportamiento identico al actual. Verificado: 15 corridas consecutivas de la suite completa sin fallos.
-
-**754 tests, 39 skills.**
-
-### v3.17.4 — Test flaky de memory-index.js corregido (condicion de carrera entre archivos de test paralelos)
-
-`memory-index.js` ahora respeta `AI_CORE_MEMORY_VAULT_PATH` (opcional, mismo patron que `AI_CORE_EVENTS_QUEUE_PATH`) — sin ella, comportamiento identico. Los tests que antes escribian directamente sobre `.claude/memory-vault/` real (colisionando con otros archivos de test corriendo en paralelo, mas notorio en Windows) ahora operan sobre un directorio temporal aislado. Ver CHANGELOG.md para el diagnostico completo.
-
-### v3.17.3 — CI reparado, deuda tecnica cerrada, auto-reparacion real, gobernanza de agentes
-
-Sesion larga de saneamiento integral. Cambios agrupados por tema (ver CHANGELOG.md para el detalle tecnico completo de cada version puntual, 3.15.2 a 3.17.3):
-
-**Deuda tecnica de guards:** `standards-guard.js` ya no bloquea con falso positivo al documentar la regla de `Co-Authored-By` o al citar un emoji como fixture de test. `validate-globals.js` ya no afirma "todos los skills son conformes" cuando hay advertencias pendientes. `tests/harness.test.js` (3480 lineas) dividido en 56 archivos por modulo bajo `tests/harness/`.
-
-**Auto-reparacion real conectada:** `ErrorRepairLoop.js` estaba diseñado con 3 fases pero solo la deteccion tenia caller en produccion — conectado el diagnostico + propuesta de fix real (nunca se auto-aplica, requiere confirmacion humana). Nuevo agente `self-healing-agent.md`.
-
-**circuit-breaker.js predictivo:** distingue degradacion aguda (fallos concentrados en <60s) de degradacion lenta, sin cambiar la filosofia de nunca bloquear la llamada.
-
-**Gobernanza de skills y agentes:** auditoria de contenido (no solo fecha) de los 39 skills corrigio referencias rotas a CLAUDE.md, SDK legacy de Gemini en ejemplos de codigo, y numeracion de reglas obsoleta. Nuevo `validate-agents.js` — `.claude/agents/` no tenia ningun gate de conformidad, a diferencia de `.claude/skills/`.
-
-**Dependencias:** `@anthropic-ai/sdk` actualizado a 0.115.0 (verificado sin breaking changes contra el changelog oficial del SDK). 3 de 4 vulnerabilidades de `npm audit` resueltas — la restante (`@hono/node-server`, moderada) se dejo intencionalmente: el unico fix automatico degradaba `@modelcontextprotocol/sdk` a una version con una vulnerabilidad propia de severidad ALTA, y ninguna de las dos CVEs aplica en la practica (el proyecto usa solo stdio, no transporte HTTP).
-
-**CI reparado (dos causas independientes):** un test propio dependia del `mtime` del sistema de archivos, fallando solo en checkouts frescos (nunca en local). El step de tests del workflow usaba un patron de glob de shell que PowerShell (Windows) no expande igual que bash — corregido usando el descubrimiento automatico nativo de `node --test`, sin depender de ningun shell.
-
-### v3.15.1 — Fallos silenciosos corregidos: agent-metrics.js y RootGuard.js
-
-Auditoria de trazabilidad de errores detecto dos fallos silenciosos reales en el arnes.
-
-**`agent-metrics.js` registraba `--status ok` siempre, sin importar si la herramienta fallo.** El hook `PostToolUse` para el matcher generico (`Bash|Read|Write|Edit|Agent`) grababa exito incondicional; no existia el hook espejo en `PostToolUseFailure` para ese mismo grupo (solo cubria matchers especificos de MCP). Resultado: `totals.fail` quedaba muerto por diseño y `npm run agent-report` siempre mostraba 100% de fiabilidad, ocultando degradacion real del harness. Confirmado con fuente primaria (`code.claude.com/docs/en/hooks`): `PostToolUse` y `PostToolUseFailure` son mutuamente excluyentes, por lo que agregar la entrada espejo en `PostToolUseFailure` (`hooks-definition.js`) cierra el hueco sin duplicar registros.
-
-**`RootGuard.js` no distinguia JSON corrupto de archivo ausente.** `_cargarRaizMapa()` descartaba silenciosamente cualquier candidato de `CONTEXT_MAP.json` con `catch (_) {}`, sin loguear cual candidato fallo ni por que. Si ambos candidatos existian pero estaban corruptos, el operador solo veia "no se encontro el mapa" — indistinguible de ausencia real de archivo. Ahora el catch loguea `console.warn` con la ruta del candidato y `e.message`.
-
-**742 tests, 39 skills, 7 agentes.**
-
-### v3.15.0 — Grader con tarea original y router multi-proveedor para ahorro de cuota Claude
-
-**`SubagentGrader.js` ahora evalua cumplimiento de tarea, no solo calidad general.** Cierra una limitacion documentada en v3.14.0: confirmado empiricamente (lanzando un subagente real e inspeccionando ambos eventos) que `tool_use_id` (`PreToolUse`) y `agent_id` (`SubagentStop`) son valores DISTINTOS y no correlacionan entre si — pero `session_id`+`prompt_id` si son identicos en ambos eventos del mismo subagente. Nuevo `.claude/bin/lib/subagent-task-store.js` persiste la tarea original (`tool_input.prompt`) indexada por esa clave, con TTL de 10 min; `subagent-guard.js` la guarda en `PreToolUse`, `subagent-grader.js` la recupera y consume en `SubagentStop`, y `SubagentGrader.calificar()` usa una rubrica ampliada ("Cumplimiento de tarea") cuando la tarea esta disponible — sin ella, cae al comportamiento anterior, compatible hacia atras.
-
-**Ahorro real de cuota Claude via `ModelRouter.js` multi-proveedor.** Hasta ahora el router solo enrutaba entre Gemini y modelos Anthropic — OpenAI, DeepSeek y Kimi solo existian como jueces de verificacion, nunca como opcion real para tareas de trabajo. Un usuario con Claude + Gemini + ChatGPT reales no tenia forma de que el arnes usara ChatGPT para bajar la cuota de Claude en tareas simples. `route()` acepta ahora un tercer parametro opcional `{ disponibles }`: para tareas del tier Haiku, si Gemini no aplica pero hay un proveedor delegable disponible (`PROVEEDORES_DELEGABLES`: `gemini` → `openai` → `deepseek` → `kimi`, gratis antes que pagados), se enruta ahi en vez de gastar cuota de Anthropic. Sin el parametro, `route()` es identico a antes — degradacion con gracia total para quien solo tiene Claude, que sigue siendo la unica constante del arnes (nunca se enruta el chat principal, solo tareas delegadas). `IntentClassifier.clasificarConModelo()` ya conecta `listProviders()` real, activo en produccion. Verificado en vivo con Claude+Gemini+OpenAI reales.
-
-**719 tests, 39 skills.**
-
-### v3.14.0 — Bug sistemico de hooks corregido, 4 guards OWASP Agentic nuevos, grader de calidad
-
-**Bug sistemico: 14 hooks/scripts leian variables de entorno que Claude Code nunca establece.** Detectado al escribir un guard nuevo: `bash-verbosity-guard.js` seguia leyendo `CLAUDE_TOOL_INPUT_command`, que la documentacion oficial de hooks confirma que nunca existio (corroborado por el issue publico `anthropics/claude-code#9567`). El dato real llega exclusivamente por JSON en stdin, con forma distinta segun el evento:
-- `UserPromptSubmit`: `{ prompt_text, ... }`
-- `PreToolUse`/`PostToolUse`: `{ tool_name, tool_input, tool_response, ... }`
-- `SubagentStop`: `{ agent_type, last_assistant_message, ... }`
-
-Afectaba a guards de seguridad activos que llevaban desde su implementacion operando sobre datos vacios sin que ningun test lo detectara — los tests inyectaban la variable a mano, algo que Claude Code nunca hace en produccion. Corregidos: `secrets-guard.js`, `detect-role.js`, `moa-context-gatherer.js`, `injection-guard.js`, `subagent-review.js`, `cross-verify-gate.js`, `subagent-guard.js`, `bash-verbosity-guard.js`, `git-queue-advisor.js`, `ponytail-check.js`, `pre-commit-tdd.js`, `standards-guard.js`, `syntax-check.js`, `security-check.js`, `dependency-tracer.js`, `capture-event.js`, `agent-metrics.js` y `tests/token-metrics.js` (que ademas nunca encontraba el directorio real de sesiones). Nuevo `.claude/bin/lib/hook-stdin.js` centraliza la lectura de stdin para todos.
-
-**4 guards nuevos cierran los gaps de una auditoria contra OWASP Top 10 for Agentic Applications 2026:**
-- **`code-exec-guard.js`** (ASI05, Unexpected Code Execution) — bloquea (`PreToolUse`, `Write|Edit`) contenido con `eval()`, `new Function()`, `exec`/`subprocess` con shell habilitado o `pickle.load` ANTES de escribirlo, en vez de solo reportarlo despues como ya hacia `security-check.js`.
-- **`mcp-integrity-check.js`** (ASI04, Agentic Supply Chain) — hash SHA-256 de los servidores MCP propios (`gemini-bridge`, `anthropic-router`) contra un baseline persistido; invocado desde `health-check.js`. Alcance acotado: MCPs de terceros ya los cubre el skill `mcp-registry-navigator` antes de instalar.
-- **`circuit-breaker.js`** (ASI08, Cascading Agent Failures) — cuenta fallos MCP consecutivos en una ventana de 5 min (`PreToolUse`, matcher `mcp__.*`) y avisa antes de reintentar una herramienta condenada a fallar de nuevo.
-- **`subagent-grader.js`** + **`SubagentGrader.js`** (Performance Outcomes del Claude Agent SDK) — grader de calidad post-subagente via LLM-as-judge, complementario a `subagent-review.js` (patrones via regex) y `cross-verify-gate.js` (solo `code-reviewer`): califica CUALQUIER subagente contra una rubrica de completitud/coherencia/riesgos.
-
-**3 bugs reales encontrados verificando el grader en vivo (no simulado):** `OpenAICompatAdapter.js` enviaba `max_tokens`, que la API actual de OpenAI rechaza por completo (exige `max_completion_tokens`); nunca usaba `options.system`, perdiendo el system prompt en toda llamada a OpenAI/DeepSeek/Kimi; y OpenAI ignoraba instrucciones de texto plano pidiendo JSON hasta forzar `response_format:{type:"json_object"}`.
-
-**Skill nuevo `performance-engineer`** — cache de aplicacion (in-memory vs Redis segun escala), CDN de assets estaticos y pruebas de carga (`autocannon`), brecha que ni `database-ops` ni `devops-infra` ni `qa-engineer` cubrian.
-
-**Refactor SOLID** de 3 archivos que excedian 300 lineas: `ModelRegistry.js` (adapters extraidos a `scripts/services/model-adapters/`), `aiops-score.js` (scorers extraidos a `lib/aiops-scorers.js`), `memory-index.js` (motor BM25 extraido a `lib/bm25-engine.js`).
-
-**Auditoria de secretos**: estado seguro, 0 hallazgos criticos. `.gitignore` reforzado con `.env*` generico y patrones de credenciales comunes (`*.pem`, `*.key`, `*.p12`, `credentials.json`).
-
-**699 tests, 39 skills.**
-
-### v3.13.0 — 10 bugs reales corregidos, enforcement de subagentes y cobertura completa
-
-**10 bugs reales de regresion silenciosa** encontrados escribiendo el primer test de cada modulo sin cobertura previa — ninguno lanzaba excepcion, todos retornaban un valor "vacio" plausible en el camino de error, asi que nada los habia detectado antes:
-
-- `ContextIndex.js` leia un esquema de `CONTEXT_MAP.json` (`map.map.*`) que ya no existe (el real es `map.host.*`) — el modulo entero estaba inerte, `resolver()` nunca encontraba nada.
-- `git-queue-advisor.js` clasificaba severidad por `e.sev`, campo inexistente en el esquema real de eventos — todo caia a "INFO" sin distincion.
-- `health-worker.js` filtraba el string hardcodeado `'gemini-2.5-flash'`, obsoleto desde el rename a `gemini-3.5-flash` en v3.11.0.
-- `health-sync.js` (`checkSkills`) dependia de la tabla de skills en CLAUDE.md que esta misma version elimino — reportaba 36/38 skills como huerfanos falsamente.
-- Bug de regex compartido en `health-sync.js` y `validate-globals.js`: `\s*` cruzaba el salto de linea del frontmatter YAML cuando un campo estaba vacio.
-- `issue-reporter.js` usaba labels de GitHub inexistentes, causando que `gh issue create` fallara completo y silencioso.
-- `norm-harness.js` mantenia una copia de hooks desincronizada de `setup-settings.js`, sin los 4 hooks de seguridad mas recientes.
-- 3 modelos deprecados en `ModelRegistry.js` (`gpt-4o-mini`, `deepseek-chat`, `moonshot-v1-8k`), uno con deadline de deprecacion real a 7 dias de la correccion.
-- Test de concurrencia flaky por umbral de tiempo real en vez de orden de eventos.
-- Los propios tests contaminaban `EVENTS_QUEUE.json` con eventos de archivos temporales de prueba.
-
-**Enforcement real de gobierno de agentes** — `subagent-guard.js` (bloquea recursion y exceso de subagentes paralelos) y `bash-verbosity-guard.js` (bloquea comandos de alto riesgo de output masivo antes de ejecutarlos, unica intervencion posible ya que los hooks no exponen el output real de una tool call). Antes eran solo reglas en prosa sin verificacion.
-
-**Tabla de seleccion de skills eliminada de CLAUDE.md** — los 38 `SKILL.md` cumplen el estandar abierto [agentskills.io](https://agentskills.io/specification), cargado nativamente por el skill-discovery de Claude Code. La tabla de 32 filas era duplicacion pura (~600-700 tokens/turno ahorrados).
-
-**`hooks-definition.js`** (nuevo) — fuente unica de verdad para la seccion `hooks` de `settings.json`, compartida por `setup-settings.js` y `norm-harness.js`.
-
-**141 tests nuevos** (487 → 628) cubriendo los 19 archivos de `.claude/bin/` y `scripts/services/` que no tenian ninguno.
-
-**636 tests, 39 skills.**
-
-### v3.12.0 — Arquitectura Multi-Agente (MoA), rol declarativo y TDD obligatorio
-
-**Orquestador MoA (fan-out/fan-in)** — `ModelDispatcher.executeMoATask(userPrompt)` reparte una tarea entre `ContextGathering` (Gemini) y `SyntaxDrafting` (DeepSeek) en paralelo con `Promise.allSettled`. Claude actua como "cirujano" (`SurgicalEdit`): recibe el contexto ya mapeado y el borrador ya escrito, en vez de partir de cero. Un worker caido no aborta al otro — el resultado combinado incluye un marcador de contexto vacio en la seccion que fallo. Conectado al hook `UserPromptSubmit` via `.claude/bin/moa-context-gatherer.js`, con guard de disponibilidad: si falta `GEMINI_API_KEY` o `DEEPSEEK_API_KEY`, no se invoca red — evita que cada turno de cada sesion pague latencia por un worker condenado a fallar por falta de configuracion.
-
-**Rol declarativo en skills** — los 37 `SKILL.md` declaran `rol: architect|coder|auditor` en el frontmatter. `AgentRoles.js` lee ese campo directamente en vez de inferirlo por regex sobre la `description` — el metodo anterior producia un sesgo real (28 de 36 skills caian en `architect` por palabras genericas como "sistema" o "arquitectura" presentes incidentalmente en casi cualquier descripcion tecnica).
-
-**Namespacing de memoria por rol** — `.claude/memory-vault/.raw/<rol>/` aisla lo que escribe cada rol; `memory-index.js query --rol=<rol>` filtra la busqueda o se omite para busqueda cross-rol explicita. Resuelve la saturacion de contexto por memoria compartida entre roles sin sacrificar la capacidad de consultar hallazgos de otro rol cuando es util.
-
-**Ciclo TDD obligatorio (Zero-Regression Gate)** — `.claude/bin/pre-commit-tdd.js` bloquea (exit 2) la escritura de codigo fuente fuera de `tests/` si ningun `*.test.js` tiene cambios sin commitear en la sesion actual. Heuristica de presencia, no verificacion Red-Green real (evita el costo de ejecutar la suite completa en cada Write/Edit). Aplica sin excepcion, incluido el propio harness.
-
-**Guardrails deterministas** — `standards-guard.js` bloquea (exit 2) ante emoji pictografico o prosa de mas de 150 palabras en artefactos conversacionales (`COMMIT_EDITMSG`, `TO_GEMINI.md` — no en documentacion tecnica extensa como `SKILL.md`). Requirio que `process-guard.js` empezara a propagar el exit code real del comando envuelto, que antes se absorbia siempre a 0.
-
-**ACI diff edits** — el system prompt del rol Coder exige formato SEARCH/REPLACE (estilo Aider) para editar codigo existente, prohibiendo reescribir archivos completos salvo que sean nuevos.
-
-**Grafo de dependencias inverso** — `.claude/bin/dependency-tracer.js` lista que otros scripts de `scripts/` y `.claude/bin/` dependen (directa o transitivamente) del archivo que se esta por editar, via `PreToolUse`. Informativo, no bloqueante.
-
-**Zero-debt estructural** — `mcp-gemini.js` fragmentado (527 → 183 lineas) en `GeminiApiClient.js` (cliente SDK) y `McpServerHandlers.js` (las 5 herramientas), eliminando ademas una implementacion duplicada de truncado de tokens. `anthropic-bridge.js` (336 → 280 lineas) con la logica de tokens extraida a `TokenManager.js`. Nuevo skill `aaa-evaluator` (estandares SWE-bench: limite de 300/20 lineas, Factory/Strategy/Observer solo cuando el problema los justifica).
-
-**487 tests, 37 skills.**
-
-### v3.11.0 — Proteccion contra prompt injection y vigencia de skills
-
-**injection-guard** — hook `SubagentStop` que detecta indirect prompt injection en el output de subagentes: contenido externo (archivos, resultados de Gemini, paginas web) que intenta hacerse pasar por una instruccion nueva del sistema. Advierte, no bloquea — la decision final es del operador. Ver `.claude/bin/injection-guard.js`.
-
-**Correccion de vigencia (2026-06)** — la referencia de modelo `claude-sonnet-4-6` en 16 archivos (CLAUDE.md, ModelRegistry.js, mcp-anthropic.js y 12 skills) actualizada a `claude-sonnet-5`, vigente desde el 30 de junio de 2026. `security-auditor` actualizado de OWASP Top 10:2021 a OWASP Top 10:2025 (SSRF fusionado en Control de Acceso Roto, Security Misconfiguration sube a #2, categorias nuevas Software Supply Chain Failures y Mishandling of Exceptional Conditions).
-
-**Migracion a la familia Gemini 3.x (2026-07-10)** — la familia Gemini 2.5 fue reemplazada por 3.1/3.5 en el ecosistema de Google (verificado contra `deepmind.google` y `ai.google.dev`). 8 skills actualizados con detalle verificado contra fuente oficial: `rag-specialist`, `cost-optimizer`, `mobile-engineer`, `workflow-orchestrator`, `multimodal-engineer`, `audio-voice-engineer`, `prompt-engineer` y el renombrado `gemini-2-5-specialist` -> `gemini-3-specialist`. Hallazgos relevantes: el tier "Lite" no sigue el mismo numero de version que "Flash" (heredero real es `gemini-3.1-flash-lite`, no `gemini-3.5-flash-lite`, que no existe); `thinking_budget` fue reemplazado por `thinking_level` (low/medium/high) y ambos son mutuamente excluyentes (error 400 si se combinan); el modelo vigente de Live API (`gemini-3.1-flash-live-preview`) tiene una regresion confirmada de feature — no soporta Affective Dialog, que si estaba disponible en `gemini-2.5-flash-live-preview` (apagado 2025-12-09). Se agrego el "Protocolo de Vigencia Tecnologica" en `CLAUDE.md` para sistematizar este tipo de verificacion en el futuro. Tambien se documento el release candidate del Model Context Protocol (`2026-07-28`, protocolo stateless, headers `Mcp-Method`/`Mcp-Name` obligatorios) en `mcp-server-builder`.
-
-**379 tests, 36 skills.**
-
-### v3.10.0 — Verificacion Cross-Model y AAA
-
-**Cross-Model Verifier** — antes de aceptar el veredicto `APROBADO` de `code-reviewer`, `cross-verify-gate.js` dispara una segunda opinion con un proveedor de IA distinto al que genero el cambio (nunca el mismo modelo que hizo el fix). Motivado por evidencia de que verificar con el mismo modelo detecta pocas regresiones self-consistentes. Ver `docs/OPUSPLAN-cross-model-verifier.md` para el diseño completo.
-
-**Ponytail enforcement** — hook `PreToolUse` en `Write`/`Edit` con una escalera de 5 capas que corre antes de cada escritura: detecta reimplementaciones de stdlib, funciones con mas de 3 parametros y bloques de mas de 200 lineas.
-
-**Dev-loop** — ciclo de desarrollo con 5 gates obligatorios: Spec, Design, Plan, Build, Review. Sin el artefacto de la fase anterior, la siguiente no arranca.
-
-**Memoria semantica BM25** — vault en `.claude/memory-vault/` con motor BM25 propio, sin dependencias externas. Se indexa automaticamente al cerrar sesion y se consulta al abrir la siguiente. Resuelve la perdida de contexto entre sesiones sin base de datos externa.
-
-**Observabilidad de agentes** — `agent-metrics.js` registra cada tool call con herramienta, status, tokens estimados y duracion. `npm run agent-report` muestra el resumen de la sesion.
-
-**Validacion adversarial de subagentes** — el hook `SubagentStop` corre `subagent-review.js`, que evalua el output de cada subagente desde tres perspectivas (auditor, adversario, pragmatico) antes de integrarlo al padre. Sale con exit 1 si encuentra hallazgos criticos.
-
-**mcp-registry-navigator** — evalua servidores MCP de terceros antes de instalarlos: transporte, seguridad de inputs, mantenimiento del repo, calidad del schema, riesgo operativo.
-
-**372 tests, 36 skills, 5 agentes.**
-
-### v3.9.0
-
-Skills reescritos con seccion "Cuando NO Activar Este Perfil" en todos, sistema de migracion automatica (`DEPRECATIONS.json` + `migrator.js`), y `aiops-score.js` con scoring 0-10 en el hook Stop.
-
 ---
+
 
 ## Arquitectura Skills vs Agents
 
 | Capa | Directorio | Que hace | Cuando se activa |
 |---|---|---|---|
-| Skills | `.claude/skills/` (45) | Perfil de comportamiento — como piensa Claude en un dominio | Claude lo adopta como rol dentro de la conversacion |
+| Skills | `.claude/skills/` (46) | Perfil de comportamiento — como piensa Claude en un dominio | Claude lo adopta como rol dentro de la conversacion |
 | Agents | `.claude/agents/` (6) | Loop autonomo que ejecuta una tarea completa sin intervencion | Claude Code lo lanza como subagente con contexto cero |
 
 Un skill se convierte en agente solo si cumple los tres criterios a la vez: autonomia real (sin interaccion por turno), salida estructurada verificable, y uso recurrente. Si falta uno, se queda como skill.
@@ -757,7 +391,7 @@ Se dispara automaticamente en el hook `SubagentStop` cuando `code-reviewer` marc
 
 ### Herramientas de gobernanza
 
-- **`validate-globals.js`**: verifica que los 45 skills tengan la referencia inmutable a CLAUDE.md, las secciones obligatorias, `rol:` valido en frontmatter, ningun emoji, y conformidad con el schema abierto [agentskills.io](https://agentskills.io/specification) (`name` coincide con la carpeta, formato, limites de longitud). `--fix-drift` corrige `last_updated` desincronizado. Sale con exit 1 si hay hallazgos criticos o altos.
+- **`validate-globals.js`**: verifica que los 46 skills tengan la referencia inmutable a CLAUDE.md, las secciones obligatorias, `rol:` valido en frontmatter, ningun emoji, y conformidad con el schema abierto [agentskills.io](https://agentskills.io/specification) (`name` coincide con la carpeta, formato, limites de longitud). `--fix-drift` corrige `last_updated` desincronizado. Sale con exit 1 si hay hallazgos criticos o altos.
 - **`validate-agents.js`**: hermano de `validate-globals.js` para los 6 agentes de `.claude/agents/` — mismo criterio de referencia inmutable, copia literal de las 11 reglas del ANCLA (compartidas entre ambos validadores), emojis y drift de `last_updated`. Sale con exit 1 si hay hallazgos criticos o altos.
 - **`agent-tools-guard.js`**: enforcement real de scope de herramientas por subagente (Gobierno de Agentes, regla 2 de CLAUDE.md) — hook `PreToolUse` que lee `agent_type` del evento (presente cuando la tool call se origina dentro de un subagente) y deniega (`permissionDecision:"deny"`) si la herramienta usada no esta en el `tools:` declarado del `AGENT.md` correspondiente. Los 6 agentes de `.claude/agents/` declaran su scope; `self-healing-agent` no tiene `Write`/`Edit` en el suyo, consistente con que nunca aplica un fix por si solo.
 - **`lib/break-glass.js`**: excepcion auditable de un solo uso para guards de riesgo real (`destructive-op-guard.js`, `mutating-action-guard.js`, `code-exec-guard.js`, `secrets-guard.js`). Al bloquear, genera un id de 8 hex con TTL de 5 min; el humano lo confirma respondiendo `CONFIRMAR-<id>` en su siguiente mensaje (`jailbreak-guard.js` lo intercepta en `UserPromptSubmit`), y solo entonces el REINTENTO EXACTO de esa misma accion pasa — nunca autoriza acciones futuras distintas. Cada uso exitoso queda registrado en `.claude/BREAK_GLASS_LOG.jsonl` (append-only, gitignored).
@@ -947,8 +581,8 @@ New-Item -ItemType SymbolicLink -Path './CLAUDE.md' -Target 'C:/ruta/a/ai-core/C
 │   │   │   ├── self-healing-agent-report-format.js Valida el contrato de formato del Paso 4 de self-healing-agent.md
 │   │   │   └── contextual-retrieval-benchmark.js Mide recall@K real de BM25+ (con/sin Contextual Retrieval) sobre el corpus de SKILL.md
 │   │   └── memory-vault-prune-check.js Hook Stop: avisa (sin borrar) cuando el vault supera 50 archivos
-│   └── skills/                  45 skills — enrutamiento via frontmatter description (agentskills.io), reglas en CLAUDE.md
-├── tests/                       1625 tests — tests/harness/*.test.js (dividido por modulo) + archivos dedicados
+│   └── skills/                  46 skills — enrutamiento via frontmatter description (agentskills.io), reglas en CLAUDE.md
+├── tests/                       2027 tests — tests/harness/*.test.js (dividido por modulo) + archivos dedicados
 ├── .github/workflows/ci.yml     CI: Ubuntu/Windows/macOS, Node 22 unicamente (sandboxing con Permission Model exige >= 22.13.0)
 ├── CLAUDE.md                    Autoridad unica: reglas globales, skills, enrutamiento
 ├── DEPRECATIONS.json            Contrato de migracion por version
