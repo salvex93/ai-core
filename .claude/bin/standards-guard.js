@@ -11,7 +11,7 @@
  * Verificaciones:
  *   1. Emojis pictograficos en codigo o comentarios
  *   2. Atribucion de commit a herramientas de IA (prohibido por CLAUDE.md)
- *   3. Archivos .js/.ts/.py que superan 300 lineas (modularizar)
+ *   3. Archivos .js/.ts/.py que superan 300 lineas (modularizar; bloqueante)
  *   4. Funciones con mas de 20 lineas (SOLID: SRP)
  *   5. Mas de 3 parametros en una funcion JS/TS
  *   6. console.log / print() en produccion (fuera de scripts de test/debug)
@@ -110,12 +110,14 @@ if (isProsaConversacional) {
 // 3. Archivo supera 300 lineas (solo .js .ts .py)
 // ---------------------------------------------------------------------------
 
-if (['.js', '.ts', '.py'].includes(ext) && lines.length > 300) {
+// split('\n') cuenta una linea fantasma tras el salto final
+const totalLineas = content.endsWith('\n') ? lines.length - 1 : lines.length;
+if (['.js', '.ts', '.py'].includes(ext) && totalLineas > 300) {
   violations.push({
     rule:    'archivo-largo',
-    sev:     'media',
+    sev:     'critica',
     linea:   300,
-    detalle: `Archivo tiene ${lines.length} lineas (limite: 300) — extraer en submodulos`,
+    detalle: `Archivo tiene ${totalLineas} lineas (limite: 300) — extraer en submodulos`,
   });
 }
 

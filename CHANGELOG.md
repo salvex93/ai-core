@@ -7,6 +7,7 @@ Versionado semantico: MAJOR.MINOR.PATCH.
 
 ### Fixed
 
+- `file-size-guard.js` (PreToolUse Write|Edit) bloquea antes de escribir un archivo `.js`/`.ts`/`.py` que quede en mas de 300 lineas y crezca; `standards-guard.js` pasa la regla de media a critica y deja de contar la linea fantasma del salto final. Break-glass para la excepcion consciente.
 - Un clon fresco sin `.claude/CONTEXT_MAP.json` ya no rompe `npm test`: el nuevo `pretest` genera el mapa si falta (issue #266). La desincronizacion de metadata (`last_updated`, `.mcp.json`, vault) ya estaba cubierta: `npm run map` deja el arbol limpio y esos archivos estan ignorados en git.
 
 ## [3.41.0] — 2026-11-25 (resumen del release y nota de migracion)
