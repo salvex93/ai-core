@@ -83,6 +83,7 @@ function buildPreToolUseHooks({ bin, nodeConPermiso, subagentGuardConAlmacen, le
           // confirmacion previa. breakGlassRW por el mismo motivo que
           // code-exec-guard.js.
           { type: 'command', command: nodeConPermiso(bin('skill-vault-write-guard.js'), breakGlassRW) },
+          { type: 'command', command: nodeConPermiso(bin('file-size-guard.js'), breakGlassRW) },
         ],
       },
       {
