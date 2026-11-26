@@ -5,6 +5,8 @@ Versionado semantico: MAJOR.MINOR.PATCH.
 
 ## [Unreleased]
 
+## [3.41.1] — 2026-11-26 (endurecimiento de guards y correccion de arranque)
+
 ### Fixed
 
 - `npm audit fix` sobre `package-lock.json`: 6 vulnerabilidades transitivas (2 altas: body-parser y zod; 4 moderadas) a 0, sin tocar `package.json`.
