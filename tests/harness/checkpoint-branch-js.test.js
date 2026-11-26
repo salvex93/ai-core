@@ -104,6 +104,19 @@ describe('checkpoint-branch.js', () => {
     assert.equal(countDespues, countAntes + 1);
   });
 
+  test('excluye llaves y credenciales del checkpoint, incluso en subdirectorios, pero respalda el resto', () => {
+    const sensibles = ['id_rsa_qa', 'servidor.pem', '.env', '.env.local', 'sub/clave.key', 'sub/id_ed25519'];
+    fs.mkdirSync(path.join(REPO_TMP, 'sub'), { recursive: true });
+    for (const s of sensibles) fs.writeFileSync(path.join(REPO_TMP, s), 'valor-de-prueba\n', 'utf8');
+    fs.writeFileSync(path.join(REPO_TMP, 'normal.txt'), 'si se respalda\n', 'utf8');
+
+    runScript(SCRIPT, [], { AI_CORE_CHECKPOINT_REPO: REPO_TMP });
+
+    const archivos = git('ls-tree -r --name-only ai-core/checkpoints').split('\n');
+    assert.ok(archivos.includes('normal.txt'), 'el archivo normal debe respaldarse');
+    for (const s of sensibles) assert.ok(!archivos.includes(s), `${s} no debe entrar al checkpoint`);
+  });
+
   test('best-effort: si no es un repositorio git, exit 0 sin lanzar excepcion', () => {
     const noGitDir = fs.mkdtempSync(path.join(os.tmpdir(), 'ai-core-no-git-'));
     const r = runScript(SCRIPT, [], { AI_CORE_CHECKPOINT_REPO: noGitDir });

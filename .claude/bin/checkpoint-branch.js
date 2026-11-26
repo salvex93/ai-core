@@ -37,6 +37,17 @@ const path = require('node:path');
 const REPO = process.env.AI_CORE_CHECKPOINT_REPO || process.cwd();
 const RAMA_CHECKPOINTS = 'ai-core/checkpoints';
 
+// Un checkpoint con credenciales queda en el historial local y se publica al
+// primer push de la rama; por eso se excluyen antes de poblar el index.
+const PATRONES_SENSIBLES = [
+  'id_rsa*', 'id_dsa*', 'id_ecdsa*', 'id_ed25519*', '*.pem', '*.key', '*.ppk',
+  '*.p12', '*.pfx', '.env', '.env.*', '.npmrc', '.netrc',
+];
+
+function excluirSensibles() {
+  return PATRONES_SENSIBLES.map((p) => `:(exclude,glob)**/${p}`);
+}
+
 function git(args, opts = {}) {
   return execFileSync('git', args, { cwd: REPO, encoding: 'utf8', ...opts }).trim();
 }
@@ -80,7 +91,7 @@ function main() {
     // Reflejar el working tree actual sobre ESE index aislado -- el index
     // real del usuario (GIT_INDEX_FILE por defecto) nunca se toca porque
     // esta invocacion usa una variable de entorno distinta.
-    execFileSync('git', ['add', '-A'], { cwd: REPO, env: envAislado });
+    execFileSync('git', ['add', '-A', '--', '.', ...excluirSensibles()], { cwd: REPO, env: envAislado });
 
     const arbol = execFileSync('git', ['write-tree'], { cwd: REPO, env: envAislado, encoding: 'utf8' }).trim();
 

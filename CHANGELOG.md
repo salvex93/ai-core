@@ -5,6 +5,12 @@ Versionado semantico: MAJOR.MINOR.PATCH.
 
 ## [Unreleased]
 
+## [3.41.2] — 2026-11-26 (checkpoints sin credenciales)
+
+### Fixed
+
+- `checkpoint-branch.js` incluia todo el working tree sin exclusiones y respaldaba llaves privadas sueltas (caso `id_rsa_qa`). Ahora excluye a cualquier profundidad `id_rsa*`, `id_ed25519*`, `*.pem`, `*.key`, `*.p12`, los archivos de entorno, `.npmrc` y `.netrc`; un test nuevo falla sin el fix.
+
 ## [3.41.1] — 2026-11-26 (endurecimiento de guards y correccion de arranque)
 
 ### Fixed

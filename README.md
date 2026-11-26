@@ -1,4 +1,4 @@
-# AI-CORE v3.41.1: Nucleo Multi-Agente
+# AI-CORE v3.41.2: Nucleo Multi-Agente
 
 `ai-core` es un nucleo de configuracion y comportamiento para agentes IA. Se usa como submodulo Git en un proyecto existente o como repositorio independiente. Define reglas globales, 46 skills especializados, 6 agentes autonomos, un orquestador Mixture-of-Agents (Gemini + DeepSeek + Claude), un mecanismo de excepcion auditable (break-glass) para operaciones de riesgo real, y un ciclo de mejora continua por uso, sin acoplarse al stack del proyecto anfitrion.
 
@@ -152,7 +152,7 @@ Si no esta autenticado, los eventos se acumulan en `.claude/EVENTS_QUEUE.json` y
 
 ```bash
 npm install                               # instalar dependencias (corre postinstall -> npm run setup)
-npm test                                  # 2043 tests (2041 pass, 2 skip), Node nativo, sin deps externas
+npm test                                  # 2044 tests (2042 pass, 2 skip), Node nativo, sin deps externas
 npm run setup                             # regenerar settings.json con rutas locales (ya corre solo via postinstall)
 npm run update                            # actualizacion one-command desde GitHub
 npm run validate-globals                  # auditar conformidad de los 46 skills (incluye schema agentskills.io)
@@ -289,6 +289,10 @@ Puntos que refuerzan el resto de este documento: `Default permission mode: Manua
 ---
 
 ## Que trae cada version
+
+### v3.41.2 — checkpoints sin credenciales
+
+`checkpoint-branch.js` excluye llaves privadas, certificados y archivos de entorno del respaldo automatico, para que no entren al historial de la rama de checkpoints. Detalle en [CHANGELOG.md](CHANGELOG.md).
 
 ### v3.41.1 — guards de tamano bloqueantes y arranque sin mapa
 
@@ -586,11 +590,11 @@ New-Item -ItemType SymbolicLink -Path './CLAUDE.md' -Target 'C:/ruta/a/ai-core/C
 │   │   │   └── contextual-retrieval-benchmark.js Mide recall@K real de BM25+ (con/sin Contextual Retrieval) sobre el corpus de SKILL.md
 │   │   └── memory-vault-prune-check.js Hook Stop: avisa (sin borrar) cuando el vault supera 50 archivos
 │   └── skills/                  46 skills — enrutamiento via frontmatter description (agentskills.io), reglas en CLAUDE.md
-├── tests/                       2043 tests — tests/harness/*.test.js (dividido por modulo) + archivos dedicados
+├── tests/                       2044 tests — tests/harness/*.test.js (dividido por modulo) + archivos dedicados
 ├── .github/workflows/ci.yml     CI: Ubuntu/Windows/macOS, Node 22 unicamente (sandboxing con Permission Model exige >= 22.13.0)
 ├── CLAUDE.md                    Autoridad unica: reglas globales, skills, enrutamiento
 ├── DEPRECATIONS.json            Contrato de migracion por version
-├── package.json                 v3.41.1, Node >= 22.13.0
+├── package.json                 v3.41.2, Node >= 22.13.0
 └── .env.example                 Plantilla de variables de entorno
 ```
 
